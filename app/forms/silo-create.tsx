@@ -183,7 +183,11 @@ export default function CreateSiloSideModalForm() {
       </div>
       <FormDivider />
       <TlsCertsField control={form.control} />
-      <SideModalFormDocs docs={[docLinks.systemSiloCreate, docLinks.systemSilo]} />
+      <SideModalFormDocs
+        docs={[docLinks.systemSiloCreate, docLinks.systemSilo]}
+        apiOp="silo_create"
+        cliCmd="silo/create"
+      />
     </SideModalForm>
   )
 }

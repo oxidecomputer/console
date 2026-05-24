@@ -92,7 +92,11 @@ export default function IpPoolAddRange() {
         required
         validate={(value) => validateAddress(value, poolData.ipVersion)}
       />
-      <SideModalFormDocs docs={[docLinks.systemIpPools]} />
+      <SideModalFormDocs
+        docs={[docLinks.systemIpPools]}
+        apiOp="system_ip_pool_range_add"
+        cliCmd="system/networking/ip-pool/range/add"
+      />
     </SideModalForm>
   )
 }

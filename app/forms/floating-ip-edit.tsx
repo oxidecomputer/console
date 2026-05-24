@@ -115,7 +115,11 @@ export default function EditFloatingIpSideModalForm() {
       </PropertiesTable>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <SideModalFormDocs docs={[docLinks.floatingIps]} />
+      <SideModalFormDocs
+        docs={[docLinks.floatingIps]}
+        apiOp="floating_ip_update"
+        cliCmd="floating-ip/update"
+      />
     </SideModalForm>
   )
 }

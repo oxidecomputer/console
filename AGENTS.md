@@ -5,6 +5,7 @@
 - Before starting a feature, skim an existing page or form with similar behavior and mirror the conventions—this codebase is intentionally conventional. Look for similar pages in `app/pages` and forms in `app/forms` to use as templates.
 - `@oxide/api` is at `app/api` and `@oxide/api-mocks` is at `mock-api/index.ts`.
 - The language server often has out of date errors. tsgo is extremely fast, so confirm errors that come from the language server by running `npm run tsc`
+- Format with `npm run fmt` (oxfmt). Never use prettier directly—it is not the project formatter.
 - Use Node.js 22+, then install deps and start the mock-backed dev server (skip if `npm run dev` is already running in another terminal):
 
   ```sh

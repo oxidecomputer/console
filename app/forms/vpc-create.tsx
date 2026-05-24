@@ -65,7 +65,7 @@ export default function CreateVpcSideModalForm() {
       <DescriptionField name="description" control={form.control} />
       <NameField name="dnsName" label="DNS name" control={form.control} />
       <TextField name="ipv6Prefix" label="IPV6 prefix" control={form.control} />
-      <SideModalFormDocs docs={[docLinks.vpcs]} />
+      <SideModalFormDocs docs={[docLinks.vpcs]} apiOp="vpc_create" cliCmd="vpc/create" />
     </SideModalForm>
   )
 }

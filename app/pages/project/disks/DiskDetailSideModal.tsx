@@ -94,7 +94,7 @@ export function DiskDetailSideModal({
         <PropertiesTable.DateRow label="Created" date={disk.timeCreated} />
         <PropertiesTable.DateRow label="Last Modified" date={disk.timeModified} />
       </PropertiesTable>
-      <SideModalFormDocs docs={[docLinks.disks]} />
+      <SideModalFormDocs docs={[docLinks.disks]} apiOp="disk_view" cliCmd="disk/view" />
     </ReadOnlySideModalForm>
   )
 }

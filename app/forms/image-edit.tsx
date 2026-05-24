@@ -60,7 +60,7 @@ export function EditImageSideModalForm({
       <DescriptionField name="description" control={form.control} required disabled />
       <TextField name="os" label="OS" control={form.control} required disabled />
       <TextField name="version" control={form.control} required disabled />
-      <SideModalFormDocs docs={[docLinks.images]} />
+      <SideModalFormDocs docs={[docLinks.images]} apiOp="image_view" cliCmd="image/view" />
     </ReadOnlySideModalForm>
   )
 }

@@ -222,6 +222,10 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
   )
 }
 
-export const RouteFormDocs = () => (
-  <SideModalFormDocs docs={[docLinks.routes, docLinks.gateways]} />
+export const RouteFormDocs = ({ apiOp, cliCmd }: { apiOp: string; cliCmd: string }) => (
+  <SideModalFormDocs
+    docs={[docLinks.routes, docLinks.gateways]}
+    apiOp={apiOp}
+    cliCmd={cliCmd}
+  />
 )
