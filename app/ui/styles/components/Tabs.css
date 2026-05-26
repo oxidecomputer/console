@@ -8,7 +8,13 @@
 
 /* Tab list container styles */
 .ox-tabs-list {
-  @apply mb-8 flex bg-transparent;
+  @apply bg-default light:bg-raise sticky top-(--top-bar-height) z-(--z-top-bar) flex;
+}
+
+/* Spacing belongs on the panel, not the sticky list — otherwise the sticky bar
+   drags a margin behind it while content scrolls past. */
+.ox-tabs > *:not(.ox-tabs-list) {
+  @apply mt-8;
 }
 
 /* Horizontal scroll for tabs on small screens */
@@ -23,7 +29,7 @@
 }
 
 .ox-tabs-list:after {
-  @apply border-secondary block w-full border-b;
+  @apply border-secondary block w-full grow border-b;
   content: '';
 }
 

@@ -101,7 +101,7 @@ export default function SiloUtilizationPage() {
 
           <Listbox
             selected={filterId}
-            className="w-52"
+            className="max-600:w-full w-52"
             label="Filter by project"
             hideLabel
             name="filter-id"

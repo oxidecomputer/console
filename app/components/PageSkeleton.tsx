@@ -35,8 +35,19 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
       {process.env.MSW_BANNER ? <MswBanner disableButton /> : null}
       <PageContainer>
         {/* TopBar */}
-        <div className={cn(topBarWrapperClass, 'max-1000:grid-cols-1')}>
-          <div className="border-secondary max-1000:hidden flex items-center gap-2 border-r p-3">
+        <div
+          className={cn(
+            topBarWrapperClass,
+            'max-1000:grid-cols-[min-content_var(--sidebar-width)_1fr]',
+            'max-600:grid-cols-[min-content_1fr]'
+          )}
+        >
+          {/* Menu button placeholder — mobile + tablet only */}
+          <div className="border-secondary 1000:hidden flex items-center justify-center border-r px-3">
+            <Block className="h-4 w-4" />
+          </div>
+          {/* Silo placeholder — tablet + desktop */}
+          <div className="border-secondary max-600:hidden flex items-center gap-2 border-r p-3">
             <Block className="h-8 w-8" />
             <Block className="h-4 w-24" />
           </div>

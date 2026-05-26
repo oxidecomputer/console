@@ -48,8 +48,8 @@ export function MswBanner({ disableButton }: Props) {
   const closeModal = () => setIsOpen(false)
   return (
     <>
-      {/* The [&+*]:pt-10 style is to ensure the page container isn't pushed out of screen as it uses 100vh for layout */}
-      <aside className="text-sans-md text-info bg-info absolute z-(--z-top-bar) flex h-10 w-full items-center justify-center [&+*]:pt-10">
+      {/* [&+*]:pb-10 adds bottom padding to the next sibling so the page content clears the fixed banner */}
+      <aside className="text-sans-md text-info bg-info fixed bottom-0 z-(--z-top-bar) flex h-10 w-full items-center justify-center [&+*]:pb-10">
         <Info16Icon className="mr-2" /> This is a technical preview.
         <button
           type="button"

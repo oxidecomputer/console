@@ -14,7 +14,6 @@ import {
   MenuOpen12Icon,
   Monitor12Icon,
   Moon12Icon,
-  Organization16Icon,
   Profile16Icon,
   SelectArrows6Icon,
   Servers16Icon,
@@ -35,21 +34,17 @@ import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
-  const { me } = useCurrentUser()
   return (
-    <div className={cn(topBarWrapperClass, 'max-1000:grid-cols-[min-content_1fr]')}>
-      <div className="border-secondary max-1000:hidden flex items-center border-r px-2">
+    <div className={cn(topBarWrapperClass, 'max-1000:flex')}>
+      <MobileMenuButton />
+      <div className="border-secondary flex items-center border-r p-1">
         <HomeButton level={systemOrSilo} />
       </div>
-      <MobileMenuButton className="1000:hidden" />
       <div className="flex items-center justify-between gap-4 px-3">
         <div className="flex flex-1 gap-2.5 overflow-hidden">
           <Breadcrumbs />
         </div>
         <div className="flex items-center gap-2">
-          {me.fleetViewer && (
-            <SiloSystemPicker level={systemOrSilo} className="max-1000:hidden" />
-          )}
           {/* Hidden on mobile — sign out and settings are in the sidebar drawer */}
           <UserMenu className="max-1000:hidden" />
         </div>
@@ -63,23 +58,22 @@ function MobileMenuButton({ className }: { className?: string }) {
   return (
     <button
       type="button"
-      className={cn(
-        'border-secondary flex items-center justify-center border-r px-3',
-        className
-      )}
+      className={cn('flex items-center justify-center pl-3 group 1000:hidden', className)}
       onClick={toggleSidebar}
       aria-label={isOpen ? 'Close menu' : 'Open menu'}
     >
-      {isOpen ? (
-        <MenuClose12Icon className="text-default" />
-      ) : (
-        <MenuOpen12Icon className="text-default" />
-      )}
+      <div className="border-default group-hover:600:bg-hover flex size-8.5 items-center justify-center rounded-md border">
+        {isOpen ? (
+          <MenuClose12Icon className="text-default" />
+        ) : (
+          <MenuOpen12Icon className="text-default" />
+        )}
+      </div>
     </button>
   )
 }
 
-const bigIconBox = 'flex h-[34px] w-[34px] items-center justify-center rounded-md'
+const bigIconBox = 'flex aspect-square h-8.5 items-center justify-center rounded-md'
 
 const BigIdenticon = ({ name }: { name: string }) => (
   <Identicon className={cn(bigIconBox, 'text-accent bg-accent-hover')} name={name} />
@@ -109,18 +103,46 @@ function HomeButton({ level }: { level: 'system' | 'silo' }) {
           label: 'System',
         }
 
-  return (
-    <Link to={config.to} className="hover:bg-hover w-full grow rounded-lg p-1">
-      <div className="flex w-full items-center">
-        <div className="mr-2">{config.icon}</div>
-        <div className="min-w-0 flex-1">
-          <div className="text-mono-xs text-tertiary">{config.heading}</div>
-          <div className="text-sans-md text-raise overflow-hidden text-ellipsis whitespace-nowrap">
-            {config.label}
-          </div>
+  const inner = (
+    <div className="flex w-full items-center">
+      <div className="mr-2">{config.icon}</div>
+      <div className="1000:block hidden min-w-0 flex-1 text-left">
+        <div className="text-mono-xs text-tertiary">{config.heading}</div>
+        <div className="text-sans-md text-raise overflow-hidden text-ellipsis whitespace-nowrap">
+          {config.label}
         </div>
       </div>
-    </Link>
+      {me.fleetViewer && (
+        <SelectArrows6Icon
+          className="text-quaternary 1000:ml-2 w-1.5! shrink-0"
+          aria-hidden
+        />
+      )}
+    </div>
+  )
+
+  // Non-fleet viewers only have access to their silo, so no switcher
+  if (!me.fleetViewer) {
+    return (
+      <Link to={config.to} className="hover:bg-hover w-full grow rounded-lg p-1">
+        {inner}
+      </Link>
+    )
+  }
+
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger
+        aria-label="Switch between system and silo"
+        className="hover:bg-hover w-full grow rounded-lg p-1"
+      >
+        {inner}
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content className="z-(--z-top-bar) mt-2" anchor="bottom start">
+        <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />
+        <SystemSiloItem to={pb.projects()} label="Silo" isSelected={level === 'silo'} />
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
   )
 }
 
@@ -235,48 +257,6 @@ function ThemeRadioItem({
         {selected && <Success12Icon className="absolute right-3" />}
       </span>
     </DropdownMenu.RadioItem>
-  )
-}
-
-/**
- * Choose between System and Silo-scoped route trees, or if the user doesn't
- * have access to system routes (i.e., if /v1/me has fleetViewer: false) show
- * the current silo.
- */
-function SiloSystemPicker({
-  level,
-  className,
-}: {
-  level: 'silo' | 'system'
-  className?: string
-}) {
-  return (
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger
-        aria-label="Switch between system and silo"
-        className={className}
-      >
-        <div
-          className={cn(
-            buttonStyle({ size: 'sm', variant: 'ghost' }),
-            'flex items-center gap-1.5 px-2!'
-          )}
-        >
-          <div className="text-tertiary flex items-center">
-            {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
-          </div>
-          <span className="text-sans-md text-default normal-case">
-            {level === 'system' ? 'System' : 'Silo'}
-          </span>
-          {/* aria-hidden is a tip from the Reach docs */}
-          <SelectArrows6Icon className="text-quaternary ml-3 w-1.5!" aria-hidden />
-        </div>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content className="mt-2" anchor="bottom start" zIndex="topBar">
-        <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />
-        <SystemSiloItem to={pb.projects()} label="Silo" isSelected={level === 'silo'} />
-      </DropdownMenu.Content>
-    </DropdownMenu.Root>
   )
 }
 

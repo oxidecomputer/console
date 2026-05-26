@@ -64,7 +64,7 @@ export const Toast = ({
   return (
     <div
       className={cn(
-        'shadow-toast relative flex w-96 items-start overflow-hidden rounded-lg border border-current/10 p-4 max-1000:w-[calc(100vw-2rem)]',
+        'shadow-toast relative flex w-96 items-start overflow-hidden rounded-lg border border-current/10 p-4 max-600:w-[calc(100vw-2rem)]',
         'bg-accent text-accent *:text-accent',
         themeClass[variant]
       )}

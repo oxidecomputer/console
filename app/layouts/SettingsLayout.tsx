@@ -43,7 +43,7 @@ export default function SettingsLayout() {
   return (
     <PageContainer>
       <TopBar systemOrSilo="silo" />
-      <Sidebar systemOrSilo="silo">
+      <Sidebar>
         <Sidebar.Nav>
           <NavLinkItem to={pb.projects()}>
             <Folder16Icon /> Projects

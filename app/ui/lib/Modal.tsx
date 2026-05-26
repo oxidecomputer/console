@@ -69,6 +69,9 @@ export function Modal({
                 transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
                 className={cn(
                   'bg-raise light:bg-default shadow-modal pointer-events-auto fixed top-[min(50%,500px)] left-1/2 z-(--z-modal) m-0 flex max-h-[min(800px,80vh)] flex-col justify-between overflow-hidden rounded-lg p-0',
+                  // mobile: clamp to viewport with a margin; overrides any min-w
+                  // from the 'free' variant that would otherwise overflow
+                  'max-600:!w-[calc(100vw-2rem)] max-600:!min-w-0',
                   widthClass[width]
                 )}
               />

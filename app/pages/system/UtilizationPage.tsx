@@ -132,7 +132,7 @@ const MetricsTab = () => {
 
           <Listbox
             selected={filterId}
-            className="w-52"
+            className="max-600:w-full w-52"
             label="Filter by silo"
             hideLabel
             name="filter-id"

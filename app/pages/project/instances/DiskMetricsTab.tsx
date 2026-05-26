@@ -100,7 +100,7 @@ function DiskMetrics({ disks, instance }: { disks: Disk[]; instance: Instance })
       <MetricHeader>
         <div className="flex gap-2">
           <Listbox
-            className="w-52"
+            className="max-600:w-full w-52"
             aria-label="Choose disk"
             name="disk-name"
             selected={selectedDisk}

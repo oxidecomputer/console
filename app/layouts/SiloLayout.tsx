@@ -48,7 +48,7 @@ export default function SiloLayout() {
   return (
     <PageContainer>
       <TopBar systemOrSilo="silo" />
-      <Sidebar systemOrSilo="silo">
+      <Sidebar>
         <Sidebar.Nav>
           <DocsLinkItem />
         </Sidebar.Nav>

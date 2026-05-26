@@ -129,7 +129,23 @@
     --content-gutter: 2.5rem;
     --top-bar-height: 54px;
     --sidebar-width: 14.25rem;
+  }
 
+  /* tablet */
+  @media (max-width: 999px) {
+    :root {
+      --content-gutter: 1.25rem;
+    }
+  }
+
+  /* mobile */
+  @media (max-width: 599px) {
+    :root {
+      --content-gutter: 1rem;
+    }
+  }
+
+  :root {
     /* Nicer easing from: https://twitter.com/bdc */
     --ease-in-quad: cubic-bezier(0.55, 0.085, 0.68, 0.53);
     --ease-in-cubic: cubic-bezier(0.55, 0.055, 0.675, 0.19);
@@ -164,12 +180,6 @@
   body {
     @apply text-default bg-default font-sans;
     overscroll-behavior-y: none;
-  }
-
-  @media (max-width: 999px) {
-    :root {
-      --content-gutter: 1.5rem;
-    }
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
