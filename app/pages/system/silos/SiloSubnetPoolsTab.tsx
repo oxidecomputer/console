@@ -43,6 +43,7 @@ import { Modal } from '~/ui/lib/Modal'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
+import { capitalize } from '~/util/str'
 
 function toSubnetPoolComboboxItem(p: SubnetPool): ComboboxItem {
   return {
@@ -165,7 +166,7 @@ export default function SiloSubnetPoolsTab() {
                   path: { silo, pool: pool.id },
                   body: { isDefault: false },
                 }),
-              modalTitle: 'Confirm clear default',
+              modalTitle: 'Clear default',
               modalContent: (
                 <p>
                   Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
@@ -197,7 +198,7 @@ export default function SiloSubnetPoolsTab() {
                   path: { silo, pool: pool.id },
                   body: { isDefault: true },
                 }),
-              modalTitle: `Confirm ${verb} default`,
+              modalTitle: `${capitalize(verb)} default`,
               modalContent,
               errorTitle: `Could not ${verb} default`,
               actionType: 'primary',
@@ -211,7 +212,7 @@ export default function SiloSubnetPoolsTab() {
         onActivate() {
           confirmAction({
             doAction: () => unlinkPool({ path: { silo, pool: pool.id } }),
-            modalTitle: 'Confirm unlink pool',
+            modalTitle: 'Unlink pool',
             modalContent: (
               <p>
                 Are you sure you want to unlink <HL>{pool.name}</HL>? Users in this silo

@@ -55,6 +55,7 @@ import {
   getBlockSize,
   handleMetrics,
   handleOxqlMetrics,
+  internalError,
   invalidRequest,
   ipRangeLen,
   NotImplemented,
@@ -157,7 +158,22 @@ export const handlers = makeHandlers({
 
     errIfExists(db.disks, { name: body.name, project_id: project.id })
 
-    if (body.name === 'disk-create-500') throw 500
+    if (body.name === 'disk-create-500') throw internalError('disk create failed')
+
+    // Mirrors the InsufficientCapacity error from omicron's virtual
+    // provisioning collection update when a project's storage quota is
+    // exceeded. See NOT_ENOUGH_STORAGE_SENTINEL in
+    // https://github.com/oxidecomputer/omicron/blob/aa608203/nexus/db-queries/src/db/queries/virtual_provisioning_collection_update.rs#L61-L67
+    if (body.name === 'disk-create-quota') {
+      throw json(
+        {
+          error_code: 'InsufficientCapacity',
+          message:
+            'Storage Limit Exceeded: Not enough storage to complete request. Either remove unneeded disks and snapshots to free up resources or contact the rack operator to request a capacity increase.',
+        },
+        { status: 507 }
+      )
+    }
 
     const { name, description, size, disk_backend } = body
     const diskSource = disk_backend.type === 'distributed' ? disk_backend.disk_source : null
@@ -220,7 +236,7 @@ export const handlers = makeHandlers({
   async diskBulkWriteImportStart({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
 
-    if (disk.name === 'import-start-500') throw 500
+    if (disk.name === 'import-start-500') throw internalError('import start failed')
 
     if (disk.state.state !== 'import_ready') {
       throw 'Can only enter state importing_from_bulk_write from import_ready'
@@ -235,7 +251,7 @@ export const handlers = makeHandlers({
   async diskBulkWriteImportStop({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
 
-    if (disk.name === 'import-stop-500') throw 500
+    if (disk.name === 'import-stop-500') throw internalError('import stop failed')
 
     if (disk.state.state !== 'importing_from_bulk_writes') {
       throw 'Can only stop import for disk in state importing_from_bulk_write'
@@ -258,7 +274,7 @@ export const handlers = makeHandlers({
   diskFinalizeImport: ({ path, query, body }) => {
     const disk = lookup.disk({ ...path, ...query })
 
-    if (disk.name === 'disk-finalize-500') throw 500
+    if (disk.name === 'disk-finalize-500') throw internalError('disk finalize failed')
 
     if (disk.state.state !== 'import_ready') {
       throw `Cannot finalize disk in state ${disk.state.state}. Must be import_ready.`
@@ -395,10 +411,10 @@ export const handlers = makeHandlers({
           return true // For mock purposes, just use first unicast pool
         })
       })
-      pool = poolWithIp || resolvePoolSelector(undefined, 'unicast')
+      pool = poolWithIp || resolvePoolSelector(undefined, 'unicast', project.silo_id)
     } else {
       // type === 'auto'
-      pool = resolvePoolSelector(addressAllocator.pool_selector, 'unicast')
+      pool = resolvePoolSelector(addressAllocator.pool_selector, 'unicast', project.silo_id)
       ip = getIpFromPool(pool)
     }
 
@@ -640,7 +656,7 @@ export const handlers = makeHandlers({
         // which aren't quite as good as checking that there are actually IPs
         // available, but they are good things to check
         // Ephemeral IPs must use unicast pools
-        const pool = resolvePoolSelector(ip.pool_selector, 'unicast')
+        const pool = resolvePoolSelector(ip.pool_selector, 'unicast', project.silo_id)
         getIpFromPool(pool)
 
         // Validate that external IP version matches NIC's IP stack
@@ -773,7 +789,7 @@ export const handlers = makeHandlers({
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
         // Ephemeral IPs must use unicast pools
-        const pool = resolvePoolSelector(ip.pool_selector, 'unicast')
+        const pool = resolvePoolSelector(ip.pool_selector, 'unicast', project.silo_id)
         const firstAvailableAddress = getIpFromPool(pool)
 
         db.ephemeralIps.push({
@@ -959,8 +975,13 @@ export const handlers = makeHandlers({
   },
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
+    const instanceProject = lookup.project(projectParams)
     // Ephemeral IPs must use unicast pools
-    const pool = resolvePoolSelector(body.pool_selector, 'unicast')
+    const pool = resolvePoolSelector(body.pool_selector, 'unicast', instanceProject.silo_id)
+
+    // Sentinel: see ipPoolEphemeralAttachFail in ../ip-pool.ts
+    if (pool.name === 'attach-fail') throw 'Cannot attach ephemeral IP'
+
     const ip = getIpFromPool(pool)
 
     // Validate that external IP version matches primary NIC's IP stack
@@ -1940,6 +1961,7 @@ export const handlers = makeHandlers({
         'slo_url',
         'sp_client_id',
         'technical_contact_email',
+        'group_attribute_name',
       ]),
       public_cert,
       ...getTimestamps(),
@@ -2625,6 +2647,10 @@ export const handlers = makeHandlers({
   networkingSwitchPortSettingsList: NotImplemented,
   networkingSwitchPortSettingsView: NotImplemented,
   networkingSwitchPortStatus: NotImplemented,
+  physicalDiskDisableAdoption: NotImplemented,
+  physicalDiskEnableAdoption: NotImplemented,
+  physicalDiskListAdoptionRequests: NotImplemented,
+  physicalDiskListUnadopted: NotImplemented,
   physicalDiskView: NotImplemented,
   probeCreate: NotImplemented,
   probeDelete: NotImplemented,

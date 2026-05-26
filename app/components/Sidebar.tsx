@@ -25,6 +25,7 @@ import { useCurrentUser } from '~/hooks/use-current-user'
 import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { closeSidebar, useMenuState } from '~/hooks/use-menu-state'
 import { openQuickActions } from '~/hooks/use-quick-actions'
+import { sidebarWrapperClass } from '~/layouts/helpers'
 import { Button } from '~/ui/lib/Button'
 import { Divider } from '~/ui/lib/Divider'
 import { Identicon } from '~/ui/lib/Identicon'
@@ -213,8 +214,9 @@ export function Sidebar({ children, systemOrSilo }: SidebarProps) {
   return (
     <div
       className={cn(
+        sidebarWrapperClass,
         sidebarContent,
-        'border-secondary fixed top-(--top-bar-height) bottom-0 left-0 w-(--sidebar-width) overflow-y-auto border-r max-1000:hidden'
+        'max-1000:hidden overflow-y-auto overscroll-none'
       )}
     >
       <div className="mx-3 mt-4">

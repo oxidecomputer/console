@@ -15,6 +15,12 @@ import { classed } from '~/util/classed'
 
 export const PageContainer = classed.div`min-h-full pt-(--top-bar-height)`
 
+// shared with PageSkeleton so the skeleton doesn't drift from the real layout
+export const topBarWrapperClass =
+  'bg-default border-secondary fixed top-0 right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b'
+export const sidebarWrapperClass =
+  'border-secondary fixed top-(--top-bar-height) bottom-0 left-0 w-(--sidebar-width) border-r'
+
 export function ContentPane() {
   useScrollRestoration()
   return (

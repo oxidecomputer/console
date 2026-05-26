@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { filesize } from 'filesize'
 import {
   useRef,
   useState,
@@ -20,6 +19,7 @@ import { mergeRefs } from 'react-merge-refs'
 import { Document16Icon, Error16Icon } from '@oxide/design-system/icons/react'
 
 import { Truncate } from '~/ui/lib/Truncate'
+import { formatBytes } from '~/util/units'
 
 export type FileInputProps = Omit<ComponentProps<'input'>, 'type' | 'onChange'> & {
   onChange: (f: File | null) => void
@@ -99,9 +99,7 @@ export function FileInput({
           {file && !dragOver ? (
             <div className="text-raise flex items-center">
               <Truncate text={file.name} maxLength={32} position="middle" />
-              <span className="text-tertiary ml-1">
-                ({filesize(file.size, { base: 2, pad: true })})
-              </span>
+              <span className="text-tertiary ml-1">({formatBytes(file.size).label})</span>
               <button
                 type="button"
                 onClick={handleResetInput}

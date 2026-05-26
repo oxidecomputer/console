@@ -61,7 +61,7 @@ test('Set target release', async ({ page }) => {
   await page.getByRole('button', { name: '18.0.0 actions' }).click()
   await page.getByRole('menuitem', { name: 'Set as target release' }).click()
 
-  const modal = page.getByRole('dialog', { name: 'Confirm set target release' })
+  const modal = page.getByRole('dialog', { name: 'Set target release' })
   await expect(modal).toBeVisible()
   await expect(
     modal.getByText('Are you sure you want to set 18.0.0 as the target release?')

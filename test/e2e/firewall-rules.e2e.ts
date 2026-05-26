@@ -639,10 +639,17 @@ test('arbitrary values combobox', async ({ page }) => {
     'not-there-yet',
     'instance-update-error',
     'db2',
+    'db-stopped',
   ])
 
   await input.fill('d')
-  await expectOptions(page, ['db1', 'instance-update-error', 'db2', 'Custom: d'])
+  await expectOptions(page, [
+    'db1',
+    'instance-update-error',
+    'db2',
+    'db-stopped',
+    'Custom: d',
+  ])
 
   await input.blur()
   await expect(page.getByRole('option')).toBeHidden()
@@ -651,7 +658,13 @@ test('arbitrary values combobox', async ({ page }) => {
   await input.focus()
 
   // same options show up after blur (there was a bug around this)
-  await expectOptions(page, ['db1', 'instance-update-error', 'db2', 'Custom: d'])
+  await expectOptions(page, [
+    'db1',
+    'instance-update-error',
+    'db2',
+    'db-stopped',
+    'Custom: d',
+  ])
 
   // make sure typing in ICMP filter input actually updates the underlying value,
   // triggering a validation error for bad input. without onInputChange binding

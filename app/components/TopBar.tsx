@@ -25,6 +25,7 @@ import {
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { toggleSidebar, useMenuState } from '~/hooks/use-menu-state'
+import { topBarWrapperClass } from '~/layouts/helpers'
 import { useThemeStore, type Theme } from '~/stores/theme'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
@@ -36,7 +37,7 @@ import { pb } from '~/util/path-builder'
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   const { me } = useCurrentUser()
   return (
-    <div className="bg-default border-secondary max-1000:grid-cols-[min-content_1fr] fixed top-0 right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b">
+    <div className={cn(topBarWrapperClass, 'max-1000:grid-cols-[min-content_1fr]')}>
       <div className="border-secondary max-1000:hidden flex items-center border-r px-2">
         <HomeButton level={systemOrSilo} />
       </div>
@@ -170,7 +171,7 @@ function UserMenu({ className }: { className?: string }) {
           </span>
         </div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content gap={8}>
+      <DropdownMenu.Content gap={8} zIndex="topBar">
         <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
         <ThemeSubmenu />
         <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
@@ -271,7 +272,7 @@ function SiloSystemPicker({
           <SelectArrows6Icon className="text-quaternary ml-3 w-1.5!" aria-hidden />
         </div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content className="mt-2" anchor="bottom start">
+      <DropdownMenu.Content className="mt-2" anchor="bottom start" zIndex="topBar">
         <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />
         <SystemSiloItem to={pb.projects()} label="Silo" isSelected={level === 'silo'} />
       </DropdownMenu.Content>

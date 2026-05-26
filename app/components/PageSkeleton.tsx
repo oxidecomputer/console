@@ -6,8 +6,15 @@
  * Copyright Oxide Computer Company
  */
 
+import cn from 'classnames'
 import { useLocation } from 'react-router'
 
+import {
+  ContentPane,
+  PageContainer,
+  sidebarWrapperClass,
+  topBarWrapperClass,
+} from '~/layouts/helpers'
 import { classed } from '~/util/classed'
 
 import { MswBanner } from './MswBanner'
@@ -26,9 +33,9 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
   return (
     <>
       {process.env.MSW_BANNER ? <MswBanner disableButton /> : null}
-      <div className="min-h-full pt-(--top-bar-height)">
-        {/* TopBar skeleton */}
-        <div className="bg-default border-secondary max-1000:grid-cols-1 fixed top-0 right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b">
+      <PageContainer>
+        {/* TopBar */}
+        <div className={cn(topBarWrapperClass, 'max-1000:grid-cols-1')}>
           <div className="border-secondary max-1000:hidden flex items-center gap-2 border-r p-3">
             <Block className="h-8 w-8" />
             <Block className="h-4 w-24" />
@@ -41,8 +48,8 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
             </div>
           </div>
         </div>
-        {/* Sidebar skeleton */}
-        <div className="border-secondary max-1000:hidden fixed top-(--top-bar-height) bottom-0 left-0 w-(--sidebar-width) border-r p-4">
+        {/* Sidebar */}
+        <div className={cn(sidebarWrapperClass, 'max-1000:hidden p-4')}>
           <Block className="mb-10 h-4 w-full" />
           <div className="mb-6 space-y-2">
             <Block className="h-4 w-32" />
@@ -55,9 +62,9 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
             <Block className="h-4 w-14" />
           </div>
         </div>
-        {/* Content skeleton */}
-        <div className="light:bg-raise 1000:ml-(--sidebar-width)" />
-      </div>
+        {/* Content */}
+        <ContentPane />
+      </PageContainer>
     </>
   )
 }

@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useQuery } from '@tanstack/react-query'
-import { filesize } from 'filesize'
 import { useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
@@ -56,7 +55,7 @@ import { truncate } from '~/ui/lib/Truncate'
 import { instanceMetricsBase, pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 import { pluralize } from '~/util/str'
-import { GiB } from '~/util/units'
+import { formatBytes, GiB } from '~/util/units'
 
 import { useMakeInstanceActions } from './actions'
 
@@ -168,7 +167,7 @@ export default function InstancePage() {
     enabled: !!primaryVpcId,
   })
 
-  const memory = filesize(instance.memory, { output: 'object', base: 2 })
+  const memory = formatBytes(instance.memory)
 
   return (
     <>
@@ -300,9 +299,6 @@ export function ResizeInstanceModal({
             }
           : undefined, // Only link to the instance if we're not already on that page
       })
-    },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
 

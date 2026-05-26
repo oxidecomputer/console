@@ -126,8 +126,9 @@ test('can create and delete subnet', async ({ page }) => {
 
 test('can create and update subnets with a custom router', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/subnets')
-  await page.getByRole('link', { name: 'New VPC subnet' }).click()
 
+  // Check initial table state before opening the dialog — once it's open the
+  // table is aria-hidden and role-based locators won't find it.
   const table = page.getByRole('table')
   const rows = table.getByRole('row')
   await expect(rows).toHaveCount(3)
@@ -137,6 +138,7 @@ test('can create and update subnets with a custom router', async ({ page }) => {
     'IP Block': expect.stringContaining('10.1.1.1/24'),
   })
 
+  await page.getByRole('link', { name: 'New VPC subnet' }).click()
   const dialog = page.getByRole('dialog', { name: 'Create VPC subnet' })
   await expect(dialog).toBeVisible()
 
