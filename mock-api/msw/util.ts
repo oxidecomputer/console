@@ -113,8 +113,16 @@ export const NotImplemented = () => {
 export const invalidRequest = (message: string) =>
   json({ error_code: 'InvalidRequest', message }, { status: 400 })
 
-export const internalError = (message: string) =>
-  json({ error_code: 'InternalError', message }, { status: 500 })
+// 500s in Omicron come from  Error::InternalError, which turns into dropshot's
+// `for_internal_error`, which sets error_code "Internal" and a external message
+// of "Internal Server Error". It also has an `internal_message` that gets
+// logged but isn't sent to clients. We imitate that here.
+// https://github.com/oxidecomputer/omicron/blob/985304a/common/src/api/external/error.rs#L474-L476
+// https://github.com/oxidecomputer/dropshot/blob/9b431d1/dropshot/src/error.rs#L229-L241
+export const internalError = (internalMessage?: string) => {
+  if (internalMessage) console.error(internalMessage)
+  return json({ error_code: 'Internal', message: 'Internal Server Error' }, { status: 500 })
+}
 
 export const errIfExists = <T extends Record<string, unknown>>(
   collection: T[],
