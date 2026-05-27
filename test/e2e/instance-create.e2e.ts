@@ -568,8 +568,7 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
   await selectADisk.click()
   // several disks should be shown in the visible window. the combobox
   // virtualizes, so only the first ~20 options live in the DOM at once;
-  // aria-setsize reports the full attachable count (in the hundreds for
-  // this seeded dataset).
+  // aria-setsize reports the full attachable count.
   await expect(page.getByRole('option', { name: 'disk-0005' })).toBeVisible()
   await expect(page.getByRole('option', { name: 'disk-0007' })).toBeVisible()
   await expect(page.getByRole('option').first()).toHaveAttribute('aria-setsize', /\d{2,}/)

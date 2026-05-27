@@ -15,7 +15,15 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from 'react'
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type Ref,
+} from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -33,6 +41,8 @@ const NO_MATCH_ITEM: ComboboxItem = {
   label: 'No items match',
   selectedLabel: '',
 }
+// HUI types `disabled` with the same union as `value`, so item may be null
+const isNoMatch = (item: ComboboxItem | null) => item?.value === NO_MATCH_VALUE
 
 // HUI's virtualizer needs the scroll container to have a non-zero height
 // before it'll render any items, but it renders no items until the
@@ -143,7 +153,7 @@ export const Combobox = ({
     filteredItems.length === 0 && !allowArbitraryValues ? [NO_MATCH_ITEM] : filteredItems
 
   // Arbitrary values may not be in `items`, so synthesize a stand-in.
-  const selectedItem: ComboboxItem | null = (() => {
+  const selectedItem = useMemo<ComboboxItem | null>(() => {
     if (!selectedItemValue) return null
     const found = items.find((i) => i.value === selectedItemValue)
     if (found) return found
@@ -155,7 +165,7 @@ export const Combobox = ({
       }
     }
     return null
-  })()
+  }, [items, selectedItemValue, allowArbitraryValues])
 
   const zIndex = usePopoverZIndex()
   const id = useId()
@@ -181,11 +191,7 @@ export const Combobox = ({
       }}
       disabled={disabled || isLoading}
       immediate
-      virtual={{
-        options: virtualOptions,
-        // HUI types this with the same union as `value`, so item may be null
-        disabled: (item) => item?.value === NO_MATCH_VALUE,
-      }}
+      virtual={{ options: virtualOptions, disabled: isNoMatch }}
     >
       {({ open }) => {
         if (open) isOpenRef.current = true
@@ -278,11 +284,11 @@ export const Combobox = ({
                 modal={false}
               >
                 {({ option }: { option: ComboboxItem }) => {
-                  const isNoMatch = option.value === NO_MATCH_VALUE
+                  const noMatch = option.value === NO_MATCH_VALUE
                   return (
                     <ComboboxOption
                       value={option}
-                      disabled={isNoMatch}
+                      disabled={noMatch}
                       // w-full: HUI's virtualizer absolutely-positions each
                       // option, so without an explicit width they collapse
                       // to content width.
@@ -291,9 +297,9 @@ export const Combobox = ({
                       {({ focus, selected }) => (
                         <div
                           className={cn('ox-menu-item', {
-                            'is-selected': selected && query !== option.value && !isNoMatch,
-                            'is-highlighted': focus && !isNoMatch,
-                            'text-disabled!': isNoMatch,
+                            'is-selected': selected && query !== option.value && !noMatch,
+                            'is-highlighted': focus && !noMatch,
+                            'text-disabled!': noMatch,
                           })}
                         >
                           {option.label}
