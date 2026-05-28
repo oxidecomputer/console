@@ -15,15 +15,7 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import {
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-  type Ref,
-} from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -115,19 +107,31 @@ export const Combobox = ({
   const [query, setQuery] = useState(selectedItemValue || '')
   const q = query.toLowerCase().replace(/\s+/g, '')
   const filteredItems = matchSorter(items, q, {
-    keys: ['selectedLabel', 'label'],
+    keys: ['selectedLabel'],
     sorter: (items) => items, // preserve original order, don't sort by match
   })
 
-  // Clear the query when the parent clears the value (e.g. firewall rules
-  // form on subform submit). Only needed for allowArbitraryValues; without
-  // it, parent-driven clears leave the input still showing the old query.
+  // In the arbitraryValues case, clear the query whenever the value is cleared.
+  // this is necessary, e.g., for the firewall rules form when you submit the
+  // targets subform and clear the field. Two possible changes we might want to make
+  // here if we run into issues:
+  //
+  //   1. do it all the time, not just in the arbitraryValues case
+  //   2. do it on all value changes, not just on clear
+  //
+  // Currently, I don't think there are any arbitraryValues=false cases where we
+  // set the value from outside. There is an arbitraryvalues=true case where we
+  // setValue to something other than empty string, but we don't need the
+  // sync because that setValue is done in onInputChange and we already are
+  // doing setQuery in here along with it.
   useEffect(() => {
     if (allowArbitraryValues && !selectedItemValue) {
       setQuery('')
     }
   }, [allowArbitraryValues, selectedItemValue])
 
+  // If the user has typed in a value that isn't in the list,
+  // add it as an option if `allowArbitraryValues` is true
   if (
     allowArbitraryValues &&
     query.length > 0 &&
@@ -143,12 +147,13 @@ export const Combobox = ({
       selectedLabel: query,
     })
   }
+
   const virtualOptions: ComboboxItem[] =
     filteredItems.length === 0 && !allowArbitraryValues ? [NO_MATCH_ITEM] : filteredItems
   const minHeight = Math.min(virtualOptions.length * ITEM_HEIGHT, MAX_PANEL_HEIGHT)
 
   // Arbitrary values may not be in `items`, so synthesize a stand-in.
-  const selectedItem = useMemo<ComboboxItem | null>(() => {
+  const selectedItem: ComboboxItem | null = (() => {
     if (!selectedItemValue) return null
     const found = items.find((i) => i.value === selectedItemValue)
     if (found) return found
@@ -160,13 +165,20 @@ export const Combobox = ({
       }
     }
     return null
-  }, [items, selectedItemValue, allowArbitraryValues])
+  })()
 
   const zIndex = usePopoverZIndex()
   const id = useId()
-  // Lets onKeyDown distinguish Enter-to-select (open) from Enter-to-submit
-  // (closed). HUI's `open` render prop is stale by one keydown in our
-  // handler ordering — caused Firefox e2e flakes.
+  // Tracks whether the dropdown is open so the onKeyDown handler can
+  // distinguish Enter-to-select (dropdown open, let HUI handle it) from
+  // Enter-to-submit (dropdown closed, fire onEnter). We use a ref instead
+  // of HUI's `open` render prop because our handler runs before HUI's
+  // (useRender merges user props first) and the render prop can be stale.
+  // The ref stays current because onClose sets it synchronously during
+  // HUI's own keydown handler. With the stale render prop, the handler
+  // could see the combobox as closed one keydown too late, firing onEnter
+  // instead of letting HUI select — hard to notice manually but caused
+  // consistent e2e flakes in Firefox.
   const isOpenRef = useRef(false)
   return (
     <HCombobox
@@ -218,15 +230,19 @@ export const Combobox = ({
                   : 'bg-default',
                 disabled && hasError && 'border-error-secondary!'
               )}
-              // ref on the wrapper, not the input, so RHF can focus on
-              // error without opening the dropdown and hiding the message
+              // Putting the inputRef on the div makes it so the div can be focused by RHF when there's an error.
+              // We want to focus on the div (rather than the input) so the combobox doesn't open automatically
+              // and obscure the error message.
               ref={inputRef}
+              // tabIndex=-1 is necessary to make the div focusable
               tabIndex={-1}
             >
               <ComboboxInput
                 id={`${id}-input`}
-                // Bypass HUI's displayValue so `transform` can normalize what
-                // the user types via onChange
+                // If an option has been selected, display either the selected item's label or value.
+                // If no option has been selected yet, or the user has started editing the input, display the query.
+                // We are using value here, as opposed to Headless UI's displayValue, so we can normalize
+                // the value entered into the input (via the onChange event).
                 value={
                   selectedItemValue
                     ? allowArbitraryValues
@@ -282,9 +298,10 @@ export const Combobox = ({
                     <ComboboxOption
                       value={option}
                       disabled={noMatch}
-                      // w-full: HUI's virtualizer absolutely-positions each
-                      // option, so without an explicit width they collapse
-                      // to content width.
+                      // This *could* be done with data-[focus] and data-[selected] instead, but
+                      // it would be a lot more verbose. those can only be used with TW classes,
+                      // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
+                      // of those rules one by one. Better to rely on the shared classes.
                       className="border-secondary relative w-full border-b last:border-0"
                     >
                       {({ focus, selected }) => (
