@@ -14,6 +14,7 @@ import {
   Combobox as HCombobox,
 } from '@headlessui/react'
 import cn from 'classnames'
+import { matchSorter } from 'match-sorter'
 import {
   useEffect,
   useId,
@@ -34,14 +35,12 @@ export type ComboboxItem = { value: string; label: ReactNode; selectedLabel: str
 
 // HUI's virtual render prop only accepts one child, so we surface "No items
 // match" via a disabled sentinel option instead of a sibling element.
-const NO_MATCH_VALUE = '__combobox_no_match__'
 const NO_MATCH_ITEM: ComboboxItem = {
-  value: NO_MATCH_VALUE,
+  value: '__combobox_no_match__', // won't match any actual values
   label: 'No items match',
   selectedLabel: '',
 }
-// HUI types `disabled` with the same union as `value`, so item may be null
-const isNoMatch = (item: ComboboxItem | null) => item?.value === NO_MATCH_VALUE
+const isNoMatch = (item: ComboboxItem | null) => item === NO_MATCH_ITEM
 
 // HUI's virtualizer needs the scroll container to have a non-zero height
 const ITEM_HEIGHT = 40
@@ -116,9 +115,10 @@ export const Combobox = ({
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
   const q = query.toLowerCase().replace(/\s+/g, '')
-  const filteredItems = items.filter((item) =>
-    item.selectedLabel.toLowerCase().replace(/\s+/g, '').includes(q)
-  )
+  const filteredItems = matchSorter(items, q, {
+    keys: ['selectedLabel', 'label'],
+    sorter: (items) => items, // preserve original order, don't sort by match
+  })
 
   // Clear the query when the parent clears the value (e.g. firewall rules
   // form on subform submit). Only needed for allowArbitraryValues; without
@@ -146,6 +146,7 @@ export const Combobox = ({
   }
   const virtualOptions: ComboboxItem[] =
     filteredItems.length === 0 && !allowArbitraryValues ? [NO_MATCH_ITEM] : filteredItems
+  const minHeight = Math.min(virtualOptions.length * ITEM_HEIGHT, MAX_PANEL_HEIGHT)
 
   // Arbitrary values may not be in `items`, so synthesize a stand-in.
   const selectedItem = useMemo<ComboboxItem | null>(() => {
@@ -168,14 +169,13 @@ export const Combobox = ({
   // (closed). HUI's `open` render prop is stale by one keydown in our
   // handler ordering — caused Firefox e2e flakes.
   const isOpenRef = useRef(false)
-  const minHeight = Math.min(virtualOptions.length * ITEM_HEIGHT, MAX_PANEL_HEIGHT)
   return (
     <HCombobox
       // items are re-created each render, so compare by value field
       by="value"
       value={selectedItem}
       onChange={(item) => {
-        if (!item || item.value === NO_MATCH_VALUE) {
+        if (!item || item === NO_MATCH_ITEM) {
           onChange('')
           return
         }
@@ -270,7 +270,7 @@ export const Combobox = ({
                 </ComboboxButton>
               )}
             </div>
-            {(items.length > 0 || allowArbitraryValues) && (
+            {(items.length > 0 || allowArbitraryValues) && virtualOptions.length > 0 && (
               <ComboboxOptions
                 anchor="bottom start"
                 className={`ox-menu shadow-menu-inset pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border [--anchor-gap:13px]`}
@@ -278,7 +278,7 @@ export const Combobox = ({
                 modal={false}
               >
                 {({ option }: { option: ComboboxItem }) => {
-                  const noMatch = option.value === NO_MATCH_VALUE
+                  const noMatch = option === NO_MATCH_ITEM
                   return (
                     <ComboboxOption
                       value={option}
