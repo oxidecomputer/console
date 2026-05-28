@@ -33,10 +33,9 @@ import { TextInputHint } from './TextInput'
 
 export type ComboboxItem = { value: string; label: ReactNode; selectedLabel: string }
 
-// HUI's virtual render prop only accepts one child, so we surface "No items
-// match" via a disabled sentinel option instead of a sibling element.
+// use a pseudo sentinel option when 0 matches, to play nice with Headless UI's virtualization
 const NO_MATCH_ITEM: ComboboxItem = {
-  value: '__combobox_no_match__', // won't match any actual values
+  value: '__combobox_no_match__',
   label: 'No items match',
   selectedLabel: '',
 }
