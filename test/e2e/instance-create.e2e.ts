@@ -584,11 +584,11 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
 
   // type in a string to use as a filter
   await selectADisk.fill('disk-02')
-  // only disks with that substring should be shown
-  await expect(page.getByRole('option', { name: 'disk-0023' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0125' })).toBeVisible()
+  // only disks containing "disk-02" should be shown
   await expect(page.getByRole('option', { name: 'disk-0211' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0220' })).toBeHidden()
+  await expect(page.getByRole('option', { name: 'disk-0288' })).toBeVisible()
+  // disks without that substring are hidden
+  await expect(page.getByRole('option', { name: 'disk-0125' })).toBeHidden()
   await expect(page.getByRole('option', { name: 'disk-1000' })).toBeHidden()
 
   // Filter down to a single late-in-the-list disk and select it. This

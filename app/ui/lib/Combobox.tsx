@@ -14,7 +14,6 @@ import {
   Combobox as HCombobox,
 } from '@headlessui/react'
 import cn from 'classnames'
-import { matchSorter } from 'match-sorter'
 import {
   useEffect,
   useId,
@@ -45,9 +44,6 @@ const NO_MATCH_ITEM: ComboboxItem = {
 const isNoMatch = (item: ComboboxItem | null) => item?.value === NO_MATCH_VALUE
 
 // HUI's virtualizer needs the scroll container to have a non-zero height
-// before it'll render any items, but it renders no items until the
-// container has a height. Setting an explicit height breaks the cycle.
-// 40 matches HUI's internal estimateSize default.
 const ITEM_HEIGHT = 40
 const MAX_PANEL_HEIGHT = 280
 
@@ -120,10 +116,9 @@ export const Combobox = ({
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
   const q = query.toLowerCase().replace(/\s+/g, '')
-  const filteredItems = matchSorter(items, q, {
-    keys: ['selectedLabel', 'label'],
-    sorter: (items) => items, // preserve original order, don't sort by match
-  })
+  const filteredItems = items.filter((item) =>
+    item.selectedLabel.toLowerCase().replace(/\s+/g, '').includes(q)
+  )
 
   // Clear the query when the parent clears the value (e.g. firewall rules
   // form on subform submit). Only needed for allowArbitraryValues; without
@@ -173,6 +168,7 @@ export const Combobox = ({
   // (closed). HUI's `open` render prop is stale by one keydown in our
   // handler ordering — caused Firefox e2e flakes.
   const isOpenRef = useRef(false)
+  const minHeight = Math.min(virtualOptions.length * ITEM_HEIGHT, MAX_PANEL_HEIGHT)
   return (
     <HCombobox
       // items are re-created each render, so compare by value field
@@ -278,9 +274,7 @@ export const Combobox = ({
               <ComboboxOptions
                 anchor="bottom start"
                 className={`ox-menu shadow-menu-inset pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border [--anchor-gap:13px]`}
-                style={{
-                  height: Math.min(virtualOptions.length * ITEM_HEIGHT, MAX_PANEL_HEIGHT),
-                }}
+                style={{ minHeight }}
                 modal={false}
               >
                 {({ option }: { option: ComboboxItem }) => {
