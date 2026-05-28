@@ -298,13 +298,13 @@ export const Combobox = ({
                     <ComboboxOption
                       value={option}
                       disabled={noMatch}
-                      // This *could* be done with data-[focus] and data-[selected] instead, but
-                      // it would be a lot more verbose. those can only be used with TW classes,
-                      // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
-                      // of those rules one by one. Better to rely on the shared classes.
                       className="border-secondary relative w-full border-b last:border-0"
                     >
                       {({ focus, selected }) => (
+                        // This *could* be done with data-[focus] and data-[selected] instead, but
+                        // it would be a lot more verbose. those can only be used with TW classes,
+                        // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
+                        // of those rules one by one. Better to rely on the shared classes.
                         <div
                           className={cn('ox-menu-item', {
                             'is-selected': selected && query !== option.value && !noMatch,
