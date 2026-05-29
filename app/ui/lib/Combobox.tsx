@@ -185,6 +185,7 @@ export const Combobox = ({
       // items are re-created each render, so compare by value field
       by="value"
       value={selectedItem}
+      // fallback to '' allows clearing field to work
       onChange={(item) => onChange(item?.value ?? '')}
       onClose={() => {
         isOpenRef.current = false
@@ -195,6 +196,7 @@ export const Combobox = ({
       virtual={{ options: virtualOptions, disabled: isNoMatch }}
     >
       {({ open }) => {
+        // Sync open state to ref on render (handles the opening side)
         if (open) isOpenRef.current = true
         return (
           <div>
@@ -252,6 +254,9 @@ export const Combobox = ({
                   onInputChange?.(value)
                 }}
                 onKeyDown={(e) => {
+                  // When the dropdown is open, Enter should select the
+                  // highlighted option (HUI handles this). When closed,
+                  // Enter should submit the subform via onEnter.
                   if (e.key === 'Enter' && !isOpenRef.current) {
                     e.preventDefault()
                     onEnter?.(e)
@@ -282,6 +287,7 @@ export const Combobox = ({
             {(items.length > 0 || allowArbitraryValues) && virtualOptions.length > 0 && (
               <ComboboxOptions
                 anchor="bottom start"
+                // 13px gap is presumably because it's measured from inside the outline or something
                 className={`ox-menu shadow-menu-inset pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border [--anchor-gap:13px]`}
                 style={{ minHeight }}
                 modal={false}
