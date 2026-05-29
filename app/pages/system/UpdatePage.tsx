@@ -8,6 +8,7 @@
 
 import { differenceInMinutes } from 'date-fns'
 import { useMemo } from 'react'
+import { Link } from 'react-router'
 import * as R from 'remeda'
 import { lt as semverLt } from 'semver'
 
@@ -198,18 +199,19 @@ export default function UpdatePage() {
         <Message
           className="mt-4"
           variant="notice"
-          title="Contact Oxide support"
+          title="Support required"
           content={
             <>
               The system has detected one or more known conditions that require Oxide
-              support to resolve.{' '}
-              <TipIcon className="ml-0.5 [&>svg]:text-[var(--content-accent-secondary)]">
-                Contact support before starting any update, and immediately if an update has
-                recently completed. The checks underlying this state are not exhaustive, so
-                the absence of this message does not mean the system is completely healthy.
-              </TipIcon>
+              support to resolve. Contact support (
+              <Link to="mailto:support@oxide.computer">support@oxide.computer</Link>) before
+              starting any update, and immediately if an update has recently completed.
             </>
           }
+          cta={{
+            text: 'Contact Support',
+            link: 'mailto:support@oxide.computer',
+          }}
         />
       )}
 

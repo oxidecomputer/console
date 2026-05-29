@@ -10,8 +10,8 @@ import type { ReactElement, ReactNode } from 'react'
 import { Link, type To } from 'react-router'
 
 import {
+  DirectionRightIcon,
   Error12Icon,
-  OpenLink12Icon,
   Success12Icon,
   Warning12Icon,
 } from '@oxide/design-system/icons/react'
@@ -21,6 +21,7 @@ type Variant = 'success' | 'error' | 'notice' | 'info'
 export interface MessageProps {
   title?: string
   content: ReactNode
+  append?: ReactNode
   className?: string
   variant?: Variant
   cta?: {
@@ -48,6 +49,7 @@ export const Message = ({
   title,
   // TODO: convert content to a children prop
   content,
+  append,
   className,
   variant = 'info',
   cta,
@@ -70,19 +72,21 @@ export const Message = ({
       <div className="flex-1">
         {title && <div className="text-sans-semi-md">{title}</div>}
         {/* group gives HL the right color */}
-        <div className="text-sans-md text-accent-secondary [&>a]:tint-underline group">
+        <div className="text-sans-md text-accent-secondary [&>a]:tint-underline group max-w-3xl">
           {content}
         </div>
 
         {cta && (
           <Link
-            className="text-sans-md text-accent-secondary hover:text-accent mt-1 flex items-center underline"
+            className="text-mono-xs text-accent group mt-3 flex items-center gap-2"
             to={cta.link}
           >
             {cta.text}
-            <OpenLink12Icon className="ml-1" />
+            <DirectionRightIcon className="translate-x-0 transition-transform group-hover:translate-x-0.5" />
           </Link>
         )}
+
+        {append}
       </div>
     </div>
   )
