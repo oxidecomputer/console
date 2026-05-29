@@ -727,7 +727,7 @@ test('Validate CPU and RAM', async ({ page }) => {
   await expect(memMsg).toBeVisible()
 })
 
-test('clears silo image selection when typing arbitrary text and blurring', async ({
+test('preserves silo image selection when editing the input without committing', async ({
   page,
 }) => {
   const instanceName = 'test-instance'
@@ -763,25 +763,20 @@ test('clears silo image selection when typing arbitrary text and blurring', asyn
   await page.keyboard.press('Backspace')
   await page.keyboard.press('Backspace')
 
-  // There should now be an invalid value in the combobox, but we should be able to see both the ubuntu options: `ubuntu-22-04` and `ubuntu-20-04`
-  // and we should NOT be able to see the `arch-2022-06-01` option
+  // While editing, the input reflects the in-progress query and the dropdown
+  // re-filters accordingly. The underlying selection is preserved until the
+  // user commits a different option.
   await expect(imageSelectCombobox).toHaveValue('ubuntu-2')
   await expect(page.getByRole('option', { name: 'ubuntu-22-04' })).toBeVisible()
   await expect(page.getByRole('option', { name: 'ubuntu-20-04' })).toBeVisible()
   await expect(page.getByRole('option', { name: 'arch-2022-06-01' })).toBeHidden()
 
-  // Blur the field by clicking elsewhere; because the value is not a valid silo image, the selection should be cleared
+  // Blur the field by clicking elsewhere; the previously-selected image is
+  // preserved (rather than cleared) since no new option was committed.
   await page.getByRole('textbox', { name: 'Name', exact: true }).click()
-
-  // The selection should be cleared since allowArbitraryValues=false
-  await expect(imageSelectCombobox).toHaveValue('')
-
-  // Re-focus and select the original option again
-  await imageSelectCombobox.click()
-  await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
   await expect(imageSelectCombobox).toHaveValue('ubuntu-22-04')
 
-  // Should be able to continue with instance creation
+  // Continue with instance creation using the preserved selection
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 })

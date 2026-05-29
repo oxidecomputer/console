@@ -80,8 +80,10 @@ export function ComboboxField<
           onChange?.(value)
         }}
         onInputChange={(value) => {
-          // if arbitrary values are allowed, set the field's value; otherwise, clear the selected value
-          field.onChange(allowArbitraryValues ? value : '')
+          // for arbitrary values, the field tracks each keystroke; for non-arbitrary,
+          // the underlying selection is preserved while editing — Combobox swaps the
+          // displayed text back to the selected item's label on close
+          if (allowArbitraryValues) field.onChange(value)
           onInputChange?.(value)
         }}
         allowArbitraryValues={allowArbitraryValues}
