@@ -246,7 +246,12 @@ export default function ImageCreate() {
   const finalizeDisk = useApiMutation(api.diskFinalizeImport)
   const createImage = useApiMutation(api.imageCreate)
   const deleteDisk = useApiMutation(api.diskDelete)
-  const deleteSnapshot = useApiMutation(api.snapshotDelete)
+  const deleteSnapshot = useApiMutation(api.snapshotDelete, {
+    onSuccess() {
+      queryClient.invalidateEndpoint('snapshotList')
+      queryClient.invalidateEndpoint('snapshotView')
+    },
+  })
 
   // TODO: Distinguish cleanup mutations being called after successful run vs.
   // due to error. In the former case, they have their own steps to highlight as
@@ -277,6 +282,7 @@ export default function ImageCreate() {
   const deleteSnapshotCleanup = useApiMutation(api.snapshotDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('snapshotList')
+      queryClient.invalidateEndpoint('snapshotView')
     },
   })
 

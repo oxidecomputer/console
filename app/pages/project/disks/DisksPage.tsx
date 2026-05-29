@@ -30,6 +30,7 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { DiskSourceName } from '~/table/cells/DiskSourceCell'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -176,6 +177,14 @@ export default function DisksPage() {
           cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
         }),
         colHelper.accessor('size', Columns.size),
+        colHelper.accessor(
+          (row) => ({ imageId: row.imageId, snapshotId: row.snapshotId }),
+          {
+            id: 'source',
+            header: 'Source',
+            cell: (info) => <DiskSourceName {...info.getValue()} />,
+          }
+        ),
         colHelper.accessor('state.state', {
           header: 'state',
           cell: (info) => <DiskStateBadge state={info.getValue()} />,
