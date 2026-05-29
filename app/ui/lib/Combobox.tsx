@@ -25,6 +25,18 @@ import { TextInputHint } from './TextInput'
 
 export type ComboboxItem = { value: string; label: ReactNode; selectedLabel: string }
 
+// use a pseudo sentinel option when 0 matches, to play nice with Headless UI's virtualization
+const NO_MATCH_ITEM: ComboboxItem = {
+  value: '__combobox_no_match__',
+  label: 'No items match',
+  selectedLabel: '',
+}
+const isNoMatch = (item: ComboboxItem | null) => item === NO_MATCH_ITEM
+
+// HUI's virtualizer needs the scroll container to have a non-zero height
+const ITEM_HEIGHT = 40
+const MAX_PANEL_HEIGHT = 280
+
 /** Convert an array of items with a `name` attribute to an array of ComboboxItems
  *  Useful when the rendered label and value are the same; in more complex cases,
  *  you may want to create a custom ComboboxItem object (see toImageComboboxItem).
@@ -35,11 +47,6 @@ export const toComboboxItems = (items?: Array<{ name: string }>): Array<Combobox
     label: name,
     selectedLabel: name,
   })) || []
-
-export const getSelectedLabelFromValue = (
-  items: Array<ComboboxItem>,
-  selectedValue: string
-): string => items.find((item) => item.value === selectedValue)?.selectedLabel || ''
 
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
@@ -72,7 +79,6 @@ export type ComboboxBaseProps = {
 
 type ComboboxProps = {
   selectedItemValue: string
-  selectedItemLabel: string
   hasError?: boolean
   /** Fires when the user *selects* an item from the list */
   onChange: (value: string) => void
@@ -85,7 +91,6 @@ export const Combobox = ({
   items = [],
   label,
   selectedItemValue,
-  selectedItemLabel,
   placeholder,
   required,
   hasError,
@@ -98,12 +103,11 @@ export const Combobox = ({
   hideOptionalTag,
   inputRef,
   transform,
-  ...props
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
-  const q = query.toLowerCase().replace(/\s*/g, '')
+  const q = query.toLowerCase().replace(/\s+/g, '')
   const filteredItems = matchSorter(items, q, {
-    keys: ['selectedLabel', 'label'],
+    keys: ['selectedLabel'],
     sorter: (items) => items, // preserve original order, don't sort by match
   })
 
@@ -143,6 +147,26 @@ export const Combobox = ({
       selectedLabel: query,
     })
   }
+
+  const virtualOptions: ComboboxItem[] =
+    filteredItems.length === 0 && !allowArbitraryValues ? [NO_MATCH_ITEM] : filteredItems
+  const minHeight = Math.min(virtualOptions.length * ITEM_HEIGHT, MAX_PANEL_HEIGHT)
+
+  // Arbitrary values may not be in `items`, so synthesize a stand-in.
+  const selectedItem: ComboboxItem | null = (() => {
+    if (!selectedItemValue) return null
+    const found = items.find((i) => i.value === selectedItemValue)
+    if (found) return found
+    if (allowArbitraryValues) {
+      return {
+        value: selectedItemValue,
+        label: selectedItemValue,
+        selectedLabel: selectedItemValue,
+      }
+    }
+    return null
+  })()
+
   const zIndex = usePopoverZIndex()
   const id = useId()
   // Tracks whether the dropdown is open so the onKeyDown handler can
@@ -158,17 +182,18 @@ export const Combobox = ({
   const isOpenRef = useRef(false)
   return (
     <HCombobox
-      // necessary, as the displayed "value" is not the same as the actual selected item's *value*
-      value={selectedItemValue}
+      // items are re-created each render, so compare by value field
+      by="value"
+      value={selectedItem}
       // fallback to '' allows clearing field to work
-      onChange={(val) => onChange(val || '')}
+      onChange={(item) => onChange(item?.value ?? '')}
       onClose={() => {
         isOpenRef.current = false
         if (!allowArbitraryValues) setQuery('')
       }}
       disabled={disabled || isLoading}
       immediate
-      {...props}
+      virtual={{ options: virtualOptions, disabled: isNoMatch }}
     >
       {({ open }) => {
         // Sync open state to ref on render (handles the opening side)
@@ -218,16 +243,14 @@ export const Combobox = ({
                   selectedItemValue
                     ? allowArbitraryValues
                       ? selectedItemValue
-                      : selectedItemLabel
+                      : (selectedItem?.selectedLabel ?? '')
                     : query
                 }
                 onChange={(event) => {
                   const value = transform
                     ? transform(event.target.value)
                     : event.target.value
-                  // updates the query state as the user types, in order to filter the list of items
                   setQuery(value)
-                  // if the parent component wants to know about input changes, call the callback
                   onInputChange?.(value)
                 }}
                 onKeyDown={(e) => {
@@ -261,40 +284,40 @@ export const Combobox = ({
                 </ComboboxButton>
               )}
             </div>
-            {(items.length > 0 || allowArbitraryValues) && (
+            {(items.length > 0 || allowArbitraryValues) && virtualOptions.length > 0 && (
               <ComboboxOptions
                 anchor="bottom start"
                 // 13px gap is presumably because it's measured from inside the outline or something
-                className={`ox-menu shadow-menu-inset pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border [--anchor-gap:13px] empty:hidden`}
+                className={`ox-menu shadow-menu-inset pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border [--anchor-gap:13px]`}
+                style={{ minHeight }}
                 modal={false}
               >
-                {filteredItems.map((item) => (
-                  <ComboboxOption
-                    key={item.value}
-                    value={item.value}
-                    className="border-secondary relative border-b last:border-0"
-                  >
-                    {({ focus, selected }) => (
-                      // This *could* be done with data-[focus] and data-[selected] instead, but
-                      // it would be a lot more verbose. those can only be used with TW classes,
-                      // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
-                      // of those rules one by one. Better to rely on the shared classes.
-                      <div
-                        className={cn('ox-menu-item', {
-                          'is-selected': selected && query !== item.value,
-                          'is-highlighted': focus,
-                        })}
-                      >
-                        {item.label}
-                      </div>
-                    )}
-                  </ComboboxOption>
-                ))}
-                {!allowArbitraryValues && filteredItems.length === 0 && (
-                  <ComboboxOption disabled value="no-matches" className="relative">
-                    <div className="ox-menu-item text-disabled!">No items match</div>
-                  </ComboboxOption>
-                )}
+                {({ option }: { option: ComboboxItem }) => {
+                  const noMatch = option === NO_MATCH_ITEM
+                  return (
+                    <ComboboxOption
+                      value={option}
+                      disabled={noMatch}
+                      className="border-secondary relative w-full border-b last:border-0"
+                    >
+                      {({ focus, selected }) => (
+                        // This *could* be done with data-[focus] and data-[selected] instead, but
+                        // it would be a lot more verbose. those can only be used with TW classes,
+                        // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
+                        // of those rules one by one. Better to rely on the shared classes.
+                        <div
+                          className={cn('ox-menu-item', {
+                            'is-selected': selected && query !== option.value && !noMatch,
+                            'is-highlighted': focus && !noMatch,
+                            'text-disabled!': noMatch,
+                          })}
+                        >
+                          {option.label}
+                        </div>
+                      )}
+                    </ComboboxOption>
+                  )
+                }}
               </ComboboxOptions>
             )}
           </div>
