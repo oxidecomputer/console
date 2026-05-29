@@ -185,13 +185,7 @@ export const Combobox = ({
       // items are re-created each render, so compare by value field
       by="value"
       value={selectedItem}
-      onChange={(item) => {
-        if (!item || item === NO_MATCH_ITEM) {
-          onChange('')
-          return
-        }
-        onChange(item.value)
-      }}
+      onChange={(item) => onChange(item?.value ?? '')}
       onClose={() => {
         isOpenRef.current = false
         if (!allowArbitraryValues) setQuery('')
