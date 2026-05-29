@@ -33,6 +33,7 @@ import {
   FleetAccessEditUserSideModal,
 } from '~/forms/fleet-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
@@ -237,6 +238,17 @@ export default function FleetAccessPage() {
       ),
     ],
     [fleetPolicy, updatePolicy, me, navigate]
+  )
+
+  useQuickActions(
+    () => [
+      {
+        value: 'Add user or group',
+        navGroup: 'Actions',
+        action: () => setAddModalOpen(true),
+      },
+    ],
+    []
   )
 
   const tableInstance = useReactTable({

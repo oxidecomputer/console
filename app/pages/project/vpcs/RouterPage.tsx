@@ -31,6 +31,7 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
@@ -176,6 +177,20 @@ export default function RouterPage() {
   // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L201-L205
   const canCreateNewRoute = routerData.kind === 'custom'
 
+  useQuickActions(
+    () =>
+      canCreateNewRoute
+        ? [
+            {
+              value: 'Add route',
+              navGroup: 'Actions',
+              action: pb.vpcRouterRoutesNew({ project, vpc, router }),
+            },
+          ]
+        : [],
+    [canCreateNewRoute, project, vpc, router]
+  )
+
   return (
     <>
       <PageHeader>
@@ -205,14 +220,14 @@ export default function RouterPage() {
         <CardBlock.Header title="Routes" description="Rules for directing network traffic">
           {canCreateNewRoute ? (
             <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
-              New route
+              Add route
             </CreateLink>
           ) : (
             <CreateButton
               disabled
               disabledReason={routeFormMessage.noNewRoutesOnSystemRouter}
             >
-              New route
+              Add route
             </CreateButton>
           )}
         </CardBlock.Header>

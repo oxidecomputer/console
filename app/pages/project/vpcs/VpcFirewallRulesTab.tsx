@@ -22,6 +22,7 @@ import {
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { ProtocolBadge } from '~/components/ProtocolBadge'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { EnabledCell } from '~/table/cells/EnabledCell'
 import { LinkCell } from '~/table/cells/LinkCell'
@@ -169,6 +170,22 @@ export default function VpcFirewallRulesTab() {
   }, [navigate, rules, updateRules, vpcSelector])
 
   const table = useReactTable({ columns, data: rules, getCoreRowModel: getCoreRowModel() })
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New firewall rule',
+        navGroup: 'Actions',
+        action: pb.vpcFirewallRulesNew(vpcSelector),
+      },
+      ...rules.map((r) => ({
+        value: r.name,
+        navGroup: 'Edit firewall rule',
+        action: pb.vpcFirewallRuleEdit({ ...vpcSelector, rule: r.name }),
+      })),
+    ],
+    [vpcSelector, rules]
+  )
 
   const emptyState = (
     <TableEmptyBox>

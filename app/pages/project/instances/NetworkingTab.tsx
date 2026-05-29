@@ -45,6 +45,7 @@ import {
   useInstanceSelector,
   useProjectSelector,
 } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -630,6 +631,53 @@ export default function NetworkingTab() {
 
   const subnetDisabledReason =
     availableSubnets.length === 0 ? 'No available external subnets' : null
+
+  useQuickActions(
+    () => [
+      ...(!ephemeralDisabledReason
+        ? [
+            {
+              value: 'Attach ephemeral IP',
+              navGroup: 'Actions',
+              action: () => setAttachEphemeralModalOpen(true),
+            },
+          ]
+        : []),
+      ...(!floatingDisabledReason
+        ? [
+            {
+              value: 'Attach floating IP',
+              navGroup: 'Actions',
+              action: () => setAttachFloatingModalOpen(true),
+            },
+          ]
+        : []),
+      ...(instanceCan.updateNic({ runState: instance.runState })
+        ? [
+            {
+              value: 'Add network interface',
+              navGroup: 'Actions',
+              action: () => setCreateModalOpen(true),
+            },
+          ]
+        : []),
+      ...(!subnetDisabledReason
+        ? [
+            {
+              value: 'Attach external subnet',
+              navGroup: 'Actions',
+              action: () => setAttachSubnetModalOpen(true),
+            },
+          ]
+        : []),
+    ],
+    [
+      ephemeralDisabledReason,
+      floatingDisabledReason,
+      instance.runState,
+      subnetDisabledReason,
+    ]
+  )
 
   return (
     <div className="space-y-5">
