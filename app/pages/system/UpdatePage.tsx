@@ -203,9 +203,8 @@ export default function UpdatePage() {
           content={
             <>
               The system has detected one or more known conditions that require Oxide
-              support to resolve. Contact support (
-              <Link to="mailto:support@oxide.computer">support@oxide.computer</Link>) before
-              starting any update, and immediately if an update has recently completed.
+              support to resolve. Do not start an update until you contact support at{' '}
+              <Link to="mailto:support@oxide.computer">support@oxide.computer</Link>.
             </>
           }
           cta={{
