@@ -6,33 +6,48 @@
  * Copyright Oxide Computer Company
  */
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 
 import { api, qErrorsAllowed } from '~/api'
-import { Tooltip } from '~/ui/lib/Tooltip'
+import { IpPoolDetailSideModal } from '~/components/IpPoolDetailSideModal'
+import { useIsInSideModal } from '~/ui/lib/modal-context'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'
+import { ButtonCell } from './LinkCell'
 
-export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
-  const { data: result } = useQuery(
-    qErrorsAllowed(
-      api.ipPoolView,
-      { path: { pool: ipPoolId } },
-      {
-        errorsExpected: {
-          explanation: 'the referenced IP pool may have been deleted.',
-          statusCode: 404,
-        },
-      }
-    )
+const ipPoolQuery = (ipPoolId: string) =>
+  qErrorsAllowed(
+    api.ipPoolView,
+    { path: { pool: ipPoolId } },
+    {
+      errorsExpected: {
+        explanation: 'the referenced IP pool may have been deleted.',
+        statusCode: 404,
+      },
+    }
   )
+
+/**
+ * Renders an IP pool name. In a table cell, clicking opens a side modal with
+ * pool details. Inside a side modal (detected via context) it falls back to
+ * plain text to avoid stacking a second side modal on top of the first.
+ */
+export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
+  const inSideModal = useIsInSideModal()
+  const [showDetail, setShowDetail] = useState(false)
+  const { data: result } = useQuery(ipPoolQuery(ipPoolId))
   if (!result) return <SkeletonCell />
   // Defensive: the error case should never happen in practice. It should not be
   // possible for a resource to reference a pool without that pool existing.
   if (result.type === 'error') return <EmptyCell />
   const pool = result.data
+  if (inSideModal) return <>{pool.name}</>
   return (
-    <Tooltip content={pool.description} placement="right">
-      <span>{pool.name}</span>
-    </Tooltip>
+    <>
+      <ButtonCell onClick={() => setShowDetail(true)}>{pool.name}</ButtonCell>
+      {showDetail && (
+        <IpPoolDetailSideModal pool={pool} onDismiss={() => setShowDetail(false)} />
+      )}
+    </>
   )
 }
