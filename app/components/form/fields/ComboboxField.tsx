@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { useState } from 'react'
 import {
   useController,
   type Control,
@@ -16,11 +15,7 @@ import {
   type Validate,
 } from 'react-hook-form'
 
-import {
-  Combobox,
-  getSelectedLabelFromValue,
-  type ComboboxBaseProps,
-} from '~/ui/lib/Combobox'
+import { Combobox, type ComboboxBaseProps } from '~/ui/lib/Combobox'
 import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
@@ -70,9 +65,6 @@ export function ComboboxField<
     control,
     rules: { required, validate },
   })
-  const [selectedItemLabel, setSelectedItemLabel] = useState(
-    getSelectedLabelFromValue(items, field.value || '')
-  )
   return (
     <div className="max-w-lg">
       <Combobox
@@ -82,12 +74,10 @@ export function ComboboxField<
         items={items}
         required={required}
         selectedItemValue={field.value}
-        selectedItemLabel={selectedItemLabel}
         hasError={fieldState.error !== undefined}
         onChange={(value) => {
           field.onChange(value)
           onChange?.(value)
-          setSelectedItemLabel(getSelectedLabelFromValue(items, value))
         }}
         onInputChange={(value) => {
           // if arbitrary values are allowed, set the field's value; otherwise, clear the selected value

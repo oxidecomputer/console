@@ -566,9 +566,20 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
 
   await attachExistingDiskButton.click()
   await selectADisk.click()
-  // several disks should be shown
+  // several disks should be shown in the visible window. the combobox
+  // virtualizes, so only the first ~20 options live in the DOM at once;
+  // aria-setsize reports the full attachable count.
   await expect(page.getByRole('option', { name: 'disk-0005' })).toBeVisible()
   await expect(page.getByRole('option', { name: 'disk-0007' })).toBeVisible()
+  await expect(page.getByRole('option').first()).toHaveAttribute('aria-setsize', /\d{2,}/)
+
+  // Pressing End jumps the active option to the last entry, which forces
+  // the virtualizer to mount it. disk-0988 is the last detached
+  // (attachable) disk in the seeded set and isn't in the DOM on first
+  // open — toBeHidden confirms we're genuinely virtualizing rather than
+  // just rendering everything.
+  await expect(page.getByRole('option', { name: 'disk-0988' })).toBeHidden()
+  await selectADisk.press('End')
   await expect(page.getByRole('option', { name: 'disk-0988' })).toBeVisible()
 
   // type in a string to use as a filter
@@ -580,12 +591,13 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
   await expect(page.getByRole('option', { name: 'disk-0220' })).toBeHidden()
   await expect(page.getByRole('option', { name: 'disk-1000' })).toBeHidden()
 
-  // select one
-  await page.getByRole('option', { name: 'disk-0211' }).click()
+  // filter down to a single late-in-the-list disk and select it
+  await selectADisk.fill('disk-0988')
+  await page.getByRole('option', { name: 'disk-0988' }).click()
 
   // now options hidden and only the selected one is visible in the button/input
   await expect(page.getByRole('option')).toBeHidden()
-  await expect(page.getByRole('combobox', { name: 'Disk name' })).toHaveValue('disk-0211')
+  await expect(page.getByRole('combobox', { name: 'Disk name' })).toHaveValue('disk-0988')
 
   // a random string should give a disabled option
   await selectADisk.click()
