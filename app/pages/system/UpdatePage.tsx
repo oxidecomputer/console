@@ -14,6 +14,7 @@ import { lt as semverLt } from 'semver'
 
 import {
   Images24Icon,
+  OpenLink12Icon,
   SoftwareUpdate16Icon,
   SoftwareUpdate24Icon,
 } from '@oxide/design-system/icons/react'
@@ -106,6 +107,21 @@ function calcProgress(status: UpdateStatus) {
     percentage: round(percentage(current, total), 0, 'trunc'),
   }
 }
+
+// wrapper div keeps the link out of the Message content's [&>a]:tint-underline
+const ContactSupportCta = () => (
+  <div>
+    <Link
+      className="text-mono-xs text-accent group mt-3 inline-flex items-center gap-1.5"
+      to="https://support.oxide.computer"
+      target="_blank"
+      rel="noreferrer"
+    >
+      Contact Support
+      <OpenLink12Icon />
+    </Link>
+  </div>
+)
 
 export default function UpdatePage() {
   const { data: status } = usePrefetchedQuery(statusQuery)
@@ -203,14 +219,10 @@ export default function UpdatePage() {
           content={
             <>
               The system has detected one or more known conditions that require Oxide
-              support to resolve. Do not start an update until you contact support at{' '}
-              <Link to="mailto:support@oxide.computer">support@oxide.computer</Link>.
+              support to resolve.
+              <ContactSupportCta />
             </>
           }
-          cta={{
-            text: 'Contact Support',
-            link: 'mailto:support@oxide.computer',
-          }}
         />
       )}
 
