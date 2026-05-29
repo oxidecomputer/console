@@ -158,9 +158,6 @@ const TargetAndHostFilterSubform = ({
   const onTypeChange = () => {
     subform.reset({ type: subform.getValues('type'), value: '' })
   }
-  const onInputChange = (value: string) => {
-    subform.setValue('value', value)
-  }
 
   const noun = sectionType === 'target' ? 'target' : 'host filter'
   const nounTitle = capitalize(noun) + 's'
@@ -187,7 +184,6 @@ const TargetAndHostFilterSubform = ({
           description="Select an option or enter a custom value"
           control={subformControl}
           onEnter={submitSubform}
-          onInputChange={onInputChange}
           items={items}
           allowArbitraryValues
           hideOptionalTag
@@ -472,7 +468,6 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
                 description="Leave blank to match any type"
                 placeholder=""
                 allowArbitraryValues
-                onInputChange={(value) => protocolForm.setValue('icmpType', value)}
                 items={icmpTypeItems}
                 validate={(value) => {
                   const result = parseIcmpType(value)

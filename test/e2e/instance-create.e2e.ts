@@ -727,6 +727,60 @@ test('Validate CPU and RAM', async ({ page }) => {
   await expect(memMsg).toBeVisible()
 })
 
+test('preserves silo image selection when editing the input without committing', async ({
+  page,
+}) => {
+  const instanceName = 'test-instance'
+
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+
+  const imageSelectCombobox = page.getByRole('combobox', { name: 'Image' })
+  await imageSelectCombobox.scrollIntoViewIfNeeded()
+
+  // Ensure the combobox is visible and has the expected options
+  await expect(imageSelectCombobox).toHaveValue('')
+  await imageSelectCombobox.click()
+  await expect(page.getByRole('option', { name: 'ubuntu-22-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'ubuntu-20-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'arch-2022-06-01' })).toBeVisible()
+
+  // Filter the combobox for a particular silo image pattern
+  await imageSelectCombobox.fill('ubuntu')
+
+  // Ensure that only show the options that match the filter are visible
+  await expect(page.getByRole('option', { name: 'ubuntu-22-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'ubuntu-20-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'arch-2022-06-01' })).toBeHidden()
+
+  // Select an image
+  await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+  await expect(imageSelectCombobox).toHaveValue('ubuntu-22-04')
+
+  // Delete four characters from the end to reveal more options
+  await page.keyboard.press('Backspace')
+  await page.keyboard.press('Backspace')
+  await page.keyboard.press('Backspace')
+  await page.keyboard.press('Backspace')
+
+  // While editing, the input reflects the in-progress query and the dropdown
+  // re-filters accordingly. The underlying selection is preserved until the
+  // user commits a different option.
+  await expect(imageSelectCombobox).toHaveValue('ubuntu-2')
+  await expect(page.getByRole('option', { name: 'ubuntu-22-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'ubuntu-20-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'arch-2022-06-01' })).toBeHidden()
+
+  // Blur the field by clicking elsewhere; the previously-selected image is
+  // preserved (rather than cleared) since no new option was committed.
+  await page.getByRole('textbox', { name: 'Name', exact: true }).click()
+  await expect(imageSelectCombobox).toHaveValue('ubuntu-22-04')
+
+  // Continue with instance creation using the preserved selection
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+})
+
 test('create instance with IPv6-only networking', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 
@@ -1249,7 +1303,7 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   // Verify only IPv4 floating IP is available (rootbeer-float with IP 123.4.56.4)
   await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeVisible()
   // IPv6 floating IP should not be in the list
-  await expect(page.getByRole('option', { name: 'ipv6-float' })).not.toBeVisible()
+  await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeHidden()
 
   // Close the listbox dropdown first by pressing Escape
   await page.keyboard.press('Escape')
@@ -1274,7 +1328,7 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   // Verify only IPv6 floating IP is available (ipv6-float)
   await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeVisible()
   // IPv4 floating IP should not be in the list
-  await expect(page.getByRole('option', { name: 'rootbeer-float' })).not.toBeVisible()
+  await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeHidden()
 
   // Close the listbox dropdown first by pressing Escape
   await page.keyboard.press('Escape')
