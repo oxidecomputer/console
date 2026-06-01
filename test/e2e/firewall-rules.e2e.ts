@@ -710,8 +710,16 @@ test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
   await page.getByRole('button', { name: 'Add protocol filter' }).click()
   await expectRowVisible(protocolTable, { Protocol: 'ICMPv6', Type: '128' })
 
+  // manually typed values are trimmed before being stored
+  await protocolListbox.click()
+  await page.getByRole('option', { name: 'ICMPv4', exact: true }).click()
+  await v4Type.fill(' 42 ')
+  await page.getByRole('textbox', { name: 'ICMPv4 code' }).fill(' 0 ')
+  await page.getByRole('button', { name: 'Add protocol filter' }).click()
+  await expectRowVisible(protocolTable, { Protocol: 'ICMPv4', Type: '42', Code: '0' })
+
   // both rows are present
-  await expect(protocolTable.getByRole('row')).toHaveCount(3) // header + 2
+  await expect(protocolTable.getByRole('row')).toHaveCount(4) // header + 3
 
   // switching protocol type clears the previously selected ICMP type
   await protocolListbox.click()

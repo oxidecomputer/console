@@ -371,11 +371,14 @@ const isDuplicateProtocol = (
 type ParseResult<T> = { success: true; data: T } | { success: false; message: string }
 
 const parseIcmpType = (value: string | undefined): ParseResult<number | undefined> => {
-  if (value === undefined || value === '') return { success: true, data: undefined }
-  if (!/^\d+$/.test(value)) {
+  const trimmedValue = value?.trim()
+  if (trimmedValue === undefined || trimmedValue === '') {
+    return { success: true, data: undefined }
+  }
+  if (!/^\d+$/.test(trimmedValue)) {
     return { success: false, message: `ICMP type must be a number between 0 and 255` }
   }
-  const parsed = parseInt(value, 10)
+  const parsed = parseInt(trimmedValue, 10)
   if (parsed < 0 || parsed > 255) {
     return { success: false, message: `ICMP type must be a number between 0 and 255` }
   }
@@ -449,8 +452,9 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
       } else {
         // Specific ICMP type
         const icmpValue: VpcFirewallIcmpFilter = { icmpType }
-        if (values.icmpCode) {
-          icmpValue.code = values.icmpCode
+        const icmpCode = values.icmpCode?.trim()
+        if (icmpCode) {
+          icmpValue.code = icmpCode
         }
         addProtocolIfUnique({ type: values.protocolType, value: icmpValue })
       }
