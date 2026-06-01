@@ -15,6 +15,7 @@ import { getInstanceSelector } from '~/hooks/use-params'
 
 import { AntiAffinityCard, instanceAntiAffinityGroups } from './AntiAffinityCard'
 import { AutoRestartCard } from './AutoRestartCard'
+import { JumboFramesCard } from './JumboFramesCard'
 
 export const handle = { crumb: 'Settings' }
 
@@ -32,6 +33,7 @@ export default function SettingsTab() {
     <div className="space-y-6">
       <AntiAffinityCard />
       <AutoRestartCard />
+      <JumboFramesCard />
     </div>
   )
 }

@@ -84,6 +84,10 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/managing-instances#_update_instances',
     linkText: 'Instance Auto-Restart',
   },
+  jumboFrames: {
+    href: 'https://docs.oxide.computer/guides/configuring-guest-networking#jumbo-frames',
+    linkText: 'Jumbo Frames',
+  },
   instanceActions: {
     href: 'https://docs.oxide.computer/guides/managing-instances',
     linkText: 'Instance Actions',

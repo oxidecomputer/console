@@ -803,6 +803,17 @@ export const handlers = makeHandlers({
       }
     })
 
+    // Requiring jumbo frames on a new instance requires the fleet-wide opt-in.
+    // https://github.com/oxidecomputer/omicron/blob/9c8d3c3/nexus/src/app/instance.rs#L709-L721
+    if (
+      body.enable_jumbo_frames &&
+      !db.systemNetworkingSettings.external_jumbo_frames_opt_in_enabled
+    ) {
+      throw invalidRequest(
+        'enable_jumbo_frames may only be set on an instance when the fleet-wide jumbo-frames opt-in is enabled by a fleet administrator'
+      )
+    }
+
     const newInstance: Json<Api.Instance> = {
       id: instanceId,
       project_id: project.id,
@@ -812,6 +823,7 @@ export const handlers = makeHandlers({
       time_run_state_updated: new Date().toISOString(),
       boot_disk_id: bootDiskId,
       auto_restart_enabled: true,
+      enable_jumbo_frames: body.enable_jumbo_frames ?? false,
     }
 
     if (body.start) {
@@ -890,6 +902,22 @@ export const handlers = makeHandlers({
     // null is meaningful: it unsets the value
     instance.auto_restart_policy = body.auto_restart_policy
     instance.cpu_platform = body.cpu_platform
+
+    // Opting in to jumbo frames requires the fleet-wide opt-in. Opting out
+    // (false) or omitting (null) is always allowed.
+    // https://github.com/oxidecomputer/omicron/blob/9c8d3c3/nexus/src/app/instance.rs#L579-L591
+    if (
+      body.enable_jumbo_frames === true &&
+      !db.systemNetworkingSettings.external_jumbo_frames_opt_in_enabled
+    ) {
+      throw invalidRequest(
+        'enable_jumbo_frames may only be set to true when the fleet-wide jumbo-frames opt-in is enabled by a fleet administrator'
+      )
+    }
+    // null/omitted leaves the per-instance jumbo frames opt-in unchanged
+    if (typeof body.enable_jumbo_frames === 'boolean') {
+      instance.enable_jumbo_frames = body.enable_jumbo_frames
+    }
 
     // We depart here from nexus in that nexus does both of the following
     // calculations at view time (when converting model to view). We can't
@@ -1297,6 +1325,19 @@ export const handlers = makeHandlers({
     )
 
     return 204
+  },
+  systemNetworkingSettingsView: ({ cookies }) => {
+    requireFleetViewer(cookies)
+    return db.systemNetworkingSettings
+  },
+  systemNetworkingSettingsUpdate: ({ body, cookies }) => {
+    requireFleetAdmin(cookies)
+    // omit leaves the current value unchanged
+    if (typeof body.external_jumbo_frames_opt_in_enabled === 'boolean') {
+      db.systemNetworkingSettings.external_jumbo_frames_opt_in_enabled =
+        body.external_jumbo_frames_opt_in_enabled
+    }
+    return db.systemNetworkingSettings
   },
   systemIpPoolSiloUpdate: ({ path, body, cookies }) => {
     requireFleetAdmin(cookies)
