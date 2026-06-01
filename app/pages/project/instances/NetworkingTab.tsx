@@ -59,7 +59,6 @@ import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { Message } from '~/ui/lib/Message'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
@@ -348,6 +347,16 @@ export default function NetworkingTab() {
     })
   ).data.items
 
+  // Firewall rules and other external networking state live on the VPC of the
+  // primary NIC. The parent InstancePage loader prefetches this VPC, but
+  // primaryNic may be undefined, so we can't use usePrefetchedQuery.
+  const primaryVpcId = nics.find((nic) => nic.primary)?.vpcId
+  const { data: primaryVpc } = useQuery({
+    // primaryVpcId is defined when enabled, so the assertion is safe
+    ...q(api.vpcView, { path: { vpc: primaryVpcId! } }),
+    enabled: !!primaryVpcId,
+  })
+
   const { data: siloPools } = usePrefetchedQuery(
     q(api.ipPoolList, { query: { limit: ALL_ISH } })
   )
@@ -385,20 +394,6 @@ export default function NetworkingTab() {
   const { data: instance } = usePrefetchedQuery(
     q(api.instanceView, { path: { instance: instanceName }, query: { project } })
   )
-
-  // If every NIC sits in the same VPC, link straight to its firewall rules;
-  // otherwise send users to the VPCs list to pick. Primary NIC's VPC is
-  // prefetched by InstancePage's loader, so this hits the cache.
-  const primaryNic = nics.find((n) => n.primary)
-  const { data: primaryVpc } = useQuery({
-    ...q(api.vpcView, { path: { vpc: primaryNic?.vpcId ?? '' } }),
-    enabled: !!primaryNic,
-  })
-  const singleVpc = new Set(nics.map((n) => n.vpcId)).size === 1
-  const firewallLink =
-    singleVpc && primaryVpc
-      ? pb.vpcFirewallRules({ project, vpc: primaryVpc.name })
-      : pb.vpcs({ project })
 
   const multipleNics = nics.length > 1
 
@@ -648,17 +643,6 @@ export default function NetworkingTab() {
 
   return (
     <div className="space-y-5">
-      {nics.length > 0 && (
-        <Message
-          variant="info"
-          content={
-            <>
-              Edit firewall rules on{' '}
-              <Link to={firewallLink}>{singleVpc ? 'the VPC' : 'the relevant VPC'}</Link>
-            </>
-          }
-        />
-      )}
       <CardBlock>
         <CardBlock.Header title="External IPs" titleId="attached-ips-label">
           <div className="flex gap-3">
@@ -765,7 +749,7 @@ export default function NetworkingTab() {
       </CardBlock>
 
       <CardBlock>
-        <CardBlock.Header title="External Subnets" titleId="attached-subnets-label">
+        <CardBlock.Header title="External subnets" titleId="attached-subnets-label">
           <Button
             size="sm"
             onClick={() => setAttachSubnetModalOpen(true)}
@@ -802,6 +786,25 @@ export default function NetworkingTab() {
             onDismiss={() => setAttachSubnetModalOpen(false)}
           />
         )}
+      </CardBlock>
+      <CardBlock>
+        <CardBlock.Header title="Firewall rules" titleId="firewall-rules-label" />
+        <CardBlock.Body>
+          {primaryVpc ? (
+            <>
+              Manage firewall rules affecting this instance in VPC{' '}
+              <Link
+                className="link-with-underline"
+                to={pb.vpcFirewallRules({ project, vpc: primaryVpc.name })}
+              >
+                {primaryVpc.name}
+              </Link>
+              .
+            </>
+          ) : (
+            'Firewall rules are managed on the VPC associated with the primary network interface.'
+          )}
+        </CardBlock.Body>
       </CardBlock>
     </div>
   )
