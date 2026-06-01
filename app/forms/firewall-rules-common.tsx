@@ -475,10 +475,13 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
             placeholder=""
             items={protocolTypeItems}
             // ICMPv4 and ICMPv6 type numbers mean different things, so clear the
-            // selected ICMP type/code when switching protocol
+            // selected ICMP type/code when switching protocol. Also clear errors:
+            // setValue doesn't revalidate, so a stale type error would otherwise
+            // linger on the now-empty field.
             onChange={() => {
               protocolForm.setValue('icmpType', '')
               protocolForm.setValue('icmpCode', '')
+              protocolForm.clearErrors(['icmpType', 'icmpCode'])
             }}
           />
 

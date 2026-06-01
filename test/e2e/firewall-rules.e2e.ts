@@ -678,6 +678,12 @@ test('arbitrary values combobox', async ({ page }) => {
   await expect(error).toBeHidden()
   await page.getByRole('button', { name: 'Add protocol filter' }).click()
   await expect(error).toBeVisible()
+
+  // switching protocol clears the type value and its stale validation error,
+  // rather than leaving the error stranded on the now-empty field
+  await selectOption(page, 'Protocol filters', 'ICMPv6')
+  await expect(page.getByRole('combobox', { name: 'ICMPv6 type' })).toHaveValue('')
+  await expect(error).toBeHidden()
 })
 
 test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
