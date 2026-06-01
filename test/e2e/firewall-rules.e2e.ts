@@ -696,12 +696,8 @@ test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
   const protocolListbox = page.getByRole('button', { name: 'Protocol filters' })
   await protocolListbox.click()
   await page.getByRole('option', { name: 'ICMPv4', exact: true }).click()
-  await fillAndSelect(
-    page.getByRole('combobox', { name: 'ICMPv4 type' }),
-    page,
-    '8',
-    '8 - Echo Request'
-  )
+  const v4Type = page.getByRole('combobox', { name: 'ICMPv4 type' })
+  await fillAndSelect(v4Type, page, '8', '8 - Echo Request')
   await page.getByRole('button', { name: 'Add protocol filter' }).click()
   await expectRowVisible(protocolTable, { Protocol: 'ICMPv4', Type: '8' })
 
@@ -709,12 +705,8 @@ test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
   // Request, v6 type 128 is Echo Request — different numbers, same intent
   await protocolListbox.click()
   await page.getByRole('option', { name: 'ICMPv6', exact: true }).click()
-  await fillAndSelect(
-    page.getByRole('combobox', { name: 'ICMPv6 type' }),
-    page,
-    '128',
-    '128 - Echo Request'
-  )
+  const v6Type = page.getByRole('combobox', { name: 'ICMPv6 type' })
+  await fillAndSelect(v6Type, page, '128', '128 - Echo Request')
   await page.getByRole('button', { name: 'Add protocol filter' }).click()
   await expectRowVisible(protocolTable, { Protocol: 'ICMPv6', Type: '128' })
 
@@ -724,12 +716,7 @@ test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
   // switching protocol type clears the previously selected ICMP type
   await protocolListbox.click()
   await page.getByRole('option', { name: 'ICMPv6', exact: true }).click()
-  await fillAndSelect(
-    page.getByRole('combobox', { name: 'ICMPv6 type' }),
-    page,
-    '128',
-    '128 - Echo Request'
-  )
+  await fillAndSelect(v6Type, page, '128', '128 - Echo Request')
   await protocolListbox.click()
   await page.getByRole('option', { name: 'ICMPv4', exact: true }).click()
   await expect(page.getByRole('combobox', { name: 'ICMPv4 type' })).toHaveValue('')
