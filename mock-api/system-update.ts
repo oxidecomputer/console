@@ -36,7 +36,7 @@ export const updateStatus: Json<UpdateStatus> = {
     '17.0.0': 12,
     '16.0.0': 5,
   },
-  contact_support: false,
+  contact_support: true,
   suspended: false,
   target_release: {
     version: '17.0.0',
