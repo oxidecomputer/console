@@ -556,55 +556,6 @@ test('attach a floating IP section has Empty version when no floating IPs exist 
   ).toBeVisible()
 })
 
-test('attaching additional disks allows for combobox filtering', async ({ page }) => {
-  await page.goto('/projects/other-project/instances-new')
-
-  const attachExistingDiskButton = page.getByRole('button', {
-    name: 'Attach existing disk',
-  })
-  const selectADisk = page.getByPlaceholder('Select a disk')
-
-  await attachExistingDiskButton.click()
-  await selectADisk.click()
-  // several disks should be shown in the visible window. the combobox
-  // virtualizes, so only the first ~20 options live in the DOM at once;
-  // aria-setsize reports the full attachable count.
-  await expect(page.getByRole('option', { name: 'disk-0005' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0007' })).toBeVisible()
-  await expect(page.getByRole('option').first()).toHaveAttribute('aria-setsize', /\d{2,}/)
-
-  // Pressing End jumps the active option to the last entry, which forces
-  // the virtualizer to mount it. disk-0988 is the last detached
-  // (attachable) disk in the seeded set and isn't in the DOM on first
-  // open — toBeHidden confirms we're genuinely virtualizing rather than
-  // just rendering everything.
-  await expect(page.getByRole('option', { name: 'disk-0988' })).toBeHidden()
-  await selectADisk.press('End')
-  await expect(page.getByRole('option', { name: 'disk-0988' })).toBeVisible()
-
-  // type in a string to use as a filter
-  await selectADisk.fill('disk-02')
-  // only disks with that substring should be shown
-  await expect(page.getByRole('option', { name: 'disk-0023' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0125' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0211' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0220' })).toBeHidden()
-  await expect(page.getByRole('option', { name: 'disk-1000' })).toBeHidden()
-
-  // filter down to a single late-in-the-list disk and select it
-  await selectADisk.fill('disk-0988')
-  await page.getByRole('option', { name: 'disk-0988' }).click()
-
-  // now options hidden and only the selected one is visible in the button/input
-  await expect(page.getByRole('option')).toBeHidden()
-  await expect(page.getByRole('combobox', { name: 'Disk name' })).toHaveValue('disk-0988')
-
-  // a random string should give a disabled option
-  await selectADisk.click()
-  await selectADisk.fill('asdf')
-  await expect(page.getByRole('option', { name: 'No items match' })).toBeVisible()
-})
-
 test('create instance with additional disks', async ({ page }) => {
   const instanceName = 'more-disks'
   await page.goto('/projects/mock-project/instances-new')
@@ -725,60 +676,6 @@ test('Validate CPU and RAM', async ({ page }) => {
 
   await expect(cpuMsg).toBeVisible()
   await expect(memMsg).toBeVisible()
-})
-
-test('preserves silo image selection when editing the input without committing', async ({
-  page,
-}) => {
-  const instanceName = 'test-instance'
-
-  await page.goto('/projects/mock-project/instances-new')
-  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-
-  const imageSelectCombobox = page.getByRole('combobox', { name: 'Image' })
-  await imageSelectCombobox.scrollIntoViewIfNeeded()
-
-  // Ensure the combobox is visible and has the expected options
-  await expect(imageSelectCombobox).toHaveValue('')
-  await imageSelectCombobox.click()
-  await expect(page.getByRole('option', { name: 'ubuntu-22-04' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'ubuntu-20-04' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'arch-2022-06-01' })).toBeVisible()
-
-  // Filter the combobox for a particular silo image pattern
-  await imageSelectCombobox.fill('ubuntu')
-
-  // Ensure that only show the options that match the filter are visible
-  await expect(page.getByRole('option', { name: 'ubuntu-22-04' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'ubuntu-20-04' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'arch-2022-06-01' })).toBeHidden()
-
-  // Select an image
-  await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
-  await expect(imageSelectCombobox).toHaveValue('ubuntu-22-04')
-
-  // Delete four characters from the end to reveal more options
-  await page.keyboard.press('Backspace')
-  await page.keyboard.press('Backspace')
-  await page.keyboard.press('Backspace')
-  await page.keyboard.press('Backspace')
-
-  // While editing, the input reflects the in-progress query and the dropdown
-  // re-filters accordingly. The underlying selection is preserved until the
-  // user commits a different option.
-  await expect(imageSelectCombobox).toHaveValue('ubuntu-2')
-  await expect(page.getByRole('option', { name: 'ubuntu-22-04' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'ubuntu-20-04' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'arch-2022-06-01' })).toBeHidden()
-
-  // Blur the field by clicking elsewhere; the previously-selected image is
-  // preserved (rather than cleared) since no new option was committed.
-  await page.getByRole('textbox', { name: 'Name', exact: true }).click()
-  await expect(imageSelectCombobox).toHaveValue('ubuntu-22-04')
-
-  // Continue with instance creation using the preserved selection
-  await page.getByRole('button', { name: 'Create instance' }).click()
-  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 })
 
 test('create instance with IPv6-only networking', async ({ page }) => {

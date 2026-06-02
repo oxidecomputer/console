@@ -83,6 +83,32 @@ export async function fillNumberInput(
     .toBe(expectedValue)
 }
 
+/**
+ * Fill a combobox and click a dropdown option. Scrolls the combobox toward the
+ * center of the viewport first so the Floating UI anchored dropdown has room to
+ * render on-screen. Without this, Safari/WebKit can place the dropdown outside
+ * the viewport when the combobox is near the bottom of a tall form, causing
+ * Playwright's click to fail.
+ */
+export async function fillAndSelectComboboxOption(
+  input: Locator,
+  page: Page,
+  text: string,
+  optionName: string
+) {
+  await input.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+  await input.fill(text)
+  await page.getByRole('option', { name: optionName }).click()
+}
+
+export async function expectComboboxOptions(page: Page, options: string[]) {
+  const selector = page.getByRole('option')
+  await expect(selector).toHaveCount(options.length)
+  for (const option of options) {
+    await expect(page.getByRole('option', { name: option })).toBeVisible()
+  }
+}
+
 // Technically this has type AsymmetricMatcher, which is not exported by
 // Playwright and is (surprisingly) just Record<string, any>. Rather than use
 // that, I think it's smarter to do the following in case they ever make the
