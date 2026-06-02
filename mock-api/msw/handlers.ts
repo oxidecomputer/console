@@ -58,6 +58,7 @@ import {
   internalError,
   invalidRequest,
   ipRangeLen,
+  mockFlags,
   NotImplemented,
   paginated,
   randomHex,
@@ -2121,7 +2122,10 @@ export const handlers = makeHandlers({
   },
   systemUpdateStatus: ({ cookies }) => {
     requireFleetViewer(cookies)
-    return db.updateStatus
+    return {
+      ...db.updateStatus,
+      contact_support: db.updateStatus.contact_support || mockFlags(cookies).contactSupport,
+    }
   },
   targetReleaseUpdate: ({ body, cookies }) => {
     requireFleetAdmin(cookies)
