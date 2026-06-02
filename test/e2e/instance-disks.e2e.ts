@@ -106,6 +106,50 @@ test('Attach disk', async ({ page }) => {
   await expectVisible(page, ['role=cell[name="disk-3"]'])
 })
 
+test('Combobox typing after select', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+  await stopInstance(page)
+
+  await page.getByRole('button', { name: 'Attach existing disk' }).click()
+
+  const combobox = page.getByRole('combobox', { name: 'Disk name' })
+  await combobox.click()
+  await page.getByRole('option', { name: 'disk-3' }).click()
+  await expect(combobox).toHaveValue('disk-3')
+
+  // Click out, then click back in.
+  const dialogTitle = page
+    .getByRole('dialog')
+    .getByText('Attach disk', { exact: true })
+    .first()
+  await dialogTitle.click()
+  await combobox.click()
+
+  // Typing edits the visible input AND filters the dropdown in lockstep.
+  await combobox.press('End')
+  await combobox.pressSequentially('zzz')
+  await expect(combobox).toHaveValue('disk-3zzz')
+  await expect(page.getByRole('option', { name: 'disk-3', exact: true })).toBeHidden()
+  await expect(page.getByRole('option', { name: 'No items match' })).toBeVisible()
+
+  // Blurring (closing the dropdown) without picking anything reverts the
+  // input to the still-selected label. The form value is unchanged.
+  await dialogTitle.click()
+  await expect(combobox).toHaveValue('disk-3')
+
+  // Backspacing then blurring also reverts: selection is sticky.
+  await combobox.click()
+  await combobox.press('End')
+  await combobox.press('Backspace')
+  await expect(combobox).toHaveValue('disk-')
+  await dialogTitle.click()
+  await expect(combobox).toHaveValue('disk-3')
+
+  // Submitting now uses the still-selected value.
+  await page.getByRole('button', { name: 'Attach disk' }).click()
+  await expect(page.getByRole('cell', { name: 'disk-3' })).toBeVisible()
+})
+
 test('Create disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db-stopped')
 

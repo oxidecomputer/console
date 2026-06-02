@@ -104,7 +104,11 @@ export const Combobox = ({
   inputRef,
   transform,
 }: ComboboxProps) => {
-  const [query, setQuery] = useState(selectedItemValue || '')
+  const [query, setQuery] = useState('')
+  // True between the first keystroke and the dropdown closing or a new
+  // selection being made. While editing, the input shows `query` instead of
+  // the selected item's label, so the user can see what they're typing.
+  const [isEditing, setIsEditing] = useState(false)
   const q = query.toLowerCase().replace(/\s+/g, '')
   const filteredItems = matchSorter(items, q, {
     keys: ['selectedLabel'],
@@ -186,9 +190,13 @@ export const Combobox = ({
       by="value"
       value={selectedItem}
       // fallback to '' allows clearing field to work
-      onChange={(item) => onChange(item?.value ?? '')}
+      onChange={(item) => {
+        setIsEditing(false)
+        onChange(item?.value ?? '')
+      }}
       onClose={() => {
         isOpenRef.current = false
+        setIsEditing(false)
         if (!allowArbitraryValues) setQuery('')
       }}
       disabled={disabled || isLoading}
@@ -235,21 +243,26 @@ export const Combobox = ({
             >
               <ComboboxInput
                 id={`${id}-input`}
-                // If an option has been selected, display either the selected item's label or value.
-                // If no option has been selected yet, or the user has started editing the input, display the query.
-                // We are using value here, as opposed to Headless UI's displayValue, so we can normalize
-                // the value entered into the input (via the onChange event).
+                // While the user is editing, show the query so they can see what they
+                // typed. Otherwise, show the selected item's display value (or the query
+                // if nothing is selected yet). On blur the dropdown closes, isEditing
+                // flips to false, and the input reverts to the selection — preserving it.
+                // We use `value` instead of HUI's `displayValue` so the input value can
+                // be normalized via the onChange event.
                 value={
-                  selectedItemValue
-                    ? allowArbitraryValues
-                      ? selectedItemValue
-                      : (selectedItem?.selectedLabel ?? '')
-                    : query
+                  isEditing
+                    ? query
+                    : selectedItemValue
+                      ? allowArbitraryValues
+                        ? selectedItemValue
+                        : (selectedItem?.selectedLabel ?? '')
+                      : query
                 }
                 onChange={(event) => {
                   const value = transform
                     ? transform(event.target.value)
                     : event.target.value
+                  setIsEditing(true)
                   setQuery(value)
                   onInputChange?.(value)
                 }}
@@ -307,6 +320,10 @@ export const Combobox = ({
                         // of those rules one by one. Better to rely on the shared classes.
                         <div
                           className={cn('ox-menu-item', {
+                            // suppress when the user is actively typing the selected
+                            // value (e.g. the synthesized "Custom: <query>" row in
+                            // arbitrary-values mode) so the row doesn't read as
+                            // committed mid-keystroke
                             'is-selected': selected && query !== option.value && !noMatch,
                             'is-highlighted': focus && !noMatch,
                             'text-disabled!': noMatch,
