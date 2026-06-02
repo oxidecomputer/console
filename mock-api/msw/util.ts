@@ -349,6 +349,20 @@ export function currentUser(cookies: Record<string, string>): Json<User> {
 }
 
 /**
+ * The fleet-wide jumbo-frames opt-in is a single fleet-level flag, so we can't
+ * vary it per silo and there's no operator UI to flip it. To exercise both the
+ * enabled and disabled paths in e2e without page.route, one designated test
+ * user sees the opt-in as enabled. Everyone else sees the real db value.
+ */
+const JUMBO_OPT_IN_USER = 'Hans Jonas'
+export function jumboFramesOptIn(cookies: Record<string, string>): boolean {
+  return (
+    db.systemNetworkingSettings.external_jumbo_frames_opt_in_enabled ||
+    currentUser(cookies).display_name === JUMBO_OPT_IN_USER
+  )
+}
+
+/**
  * Given a role A, get a list of the roles (including A) that confer *at least*
  * the powers of A.
  */
