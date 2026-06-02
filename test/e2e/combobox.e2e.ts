@@ -53,6 +53,65 @@ test('non-arbitrary combobox preserves selection while editing', async ({ page }
   await expect(page.getByRole('cell', { name: 'disk-3' })).toBeVisible()
 })
 
+test('non-arbitrary combobox commits a different selected option after editing', async ({
+  page,
+}) => {
+  const dialog = await openAttachDiskModal(page)
+  const combobox = dialog.getByRole('combobox', { name: 'Disk name' })
+
+  await combobox.click()
+  await page.getByRole('option', { name: 'disk-3' }).click()
+  await expect(combobox).toHaveValue('disk-3')
+
+  await combobox.click()
+  await combobox.fill('disk-4')
+  await page.getByRole('option', { name: 'disk-4' }).click()
+  await expect(combobox).toHaveValue('disk-4')
+
+  await dialog.getByRole('button', { name: 'Attach disk' }).click()
+  await expect(page.getByRole('cell', { name: 'disk-4' })).toBeVisible()
+})
+
+test('non-arbitrary combobox submit uses committed selection when edit is uncommitted', async ({
+  page,
+}) => {
+  const dialog = await openAttachDiskModal(page)
+  const combobox = dialog.getByRole('combobox', { name: 'Disk name' })
+
+  await combobox.click()
+  await page.getByRole('option', { name: 'disk-3' }).click()
+  await expect(combobox).toHaveValue('disk-3')
+
+  await combobox.click()
+  await combobox.press('End')
+  await combobox.pressSequentially('zzz')
+  await expect(combobox).toHaveValue('disk-3zzz')
+
+  await dialog.getByRole('button', { name: 'Attach disk' }).click()
+  await expect(page.getByRole('cell', { name: 'disk-3' })).toBeVisible()
+})
+
+test('non-arbitrary combobox clears committed selection when input is emptied', async ({
+  page,
+}) => {
+  const dialog = await openAttachDiskModal(page)
+  const combobox = dialog.getByRole('combobox', { name: 'Disk name' })
+  const requiredError = dialog.getByText('Disk name is required')
+
+  await combobox.click()
+  await page.getByRole('option', { name: 'disk-3' }).click()
+  await expect(combobox).toHaveValue('disk-3')
+
+  await combobox.fill('')
+  await expect(combobox).toHaveValue('')
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('option')).toBeHidden()
+
+  await expect(requiredError).toBeHidden()
+  await dialog.getByRole('button', { name: 'Attach disk' }).click()
+  await expect(requiredError).toBeVisible()
+})
+
 test('virtualized combobox filters and selects options outside the initial window', async ({
   page,
 }) => {
@@ -243,4 +302,19 @@ test('image combobox preserves selection when editing without committing', async
 
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+})
+
+test('image combobox commits a new option after editing an existing selection', async ({
+  page,
+}) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const imageCombobox = page.getByRole('combobox', { name: 'Image' })
+  await fillAndSelectComboboxOption(imageCombobox, page, 'ubuntu', 'ubuntu-22-04')
+  await expect(imageCombobox).toHaveValue('ubuntu-22-04')
+
+  await imageCombobox.click()
+  await imageCombobox.fill('ubuntu-20')
+  await page.getByRole('option', { name: 'ubuntu-20-04' }).click()
+  await expect(imageCombobox).toHaveValue('ubuntu-20-04')
 })
