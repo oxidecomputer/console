@@ -113,6 +113,7 @@ export default function IpPoolsPage() {
         onActivate: confirmDelete({
           doDelete: () => deletePool({ path: { pool: pool.name } }),
           label: pool.name,
+          resourceKind: 'IP pool',
         }),
       },
     ],

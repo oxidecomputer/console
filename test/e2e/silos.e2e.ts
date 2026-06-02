@@ -241,6 +241,19 @@ test('Identity providers', async ({ page }) => {
   await acsUrlCheckbox.click()
   await expect(acsUrlField).toHaveValue(acsUrl)
 
+  // fill the rest of the form so we can check the values round-trip
+  await dialog.getByLabel('Description').fill('test provider description')
+  await dialog.getByLabel('Technical contact email').fill('admin@test-provider.example.com')
+  await dialog.getByLabel('Service provider client ID').fill('test-sp-client-id')
+  await dialog
+    .getByLabel('Single Logout (SLO) URL')
+    .fill('https://test-provider.example.com/slo')
+  await dialog.getByLabel('Entity ID').fill('https://test-provider.example.com/entity')
+  await dialog.getByLabel('Group attribute name').fill('test-groups')
+  await dialog
+    .getByLabel('Metadata source URL')
+    .fill('https://test-provider.example.com/metadata')
+
   await page.getByRole('button', { name: 'Create provider' }).click()
 
   await closeToast(page)
@@ -250,7 +263,7 @@ test('Identity providers', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), {
     name: 'test-provider',
     Type: 'saml',
-    description: '—',
+    description: 'test provider description',
   })
 
   await page.getByRole('link', { name: 'test-provider' }).click()
@@ -258,6 +271,20 @@ test('Identity providers', async ({ page }) => {
   await expect(nameField).toBeDisabled()
   await expect(acsUrlField).toHaveValue(acsUrl)
   await expect(acsUrlField).toBeDisabled()
+  await expect(dialog.getByLabel('Description')).toHaveValue('test provider description')
+  await expect(dialog.getByLabel('Technical contact email')).toHaveValue(
+    'admin@test-provider.example.com'
+  )
+  await expect(dialog.getByLabel('Service provider client ID')).toHaveValue(
+    'test-sp-client-id'
+  )
+  await expect(dialog.getByLabel('Single Logout (SLO) URL')).toHaveValue(
+    'https://test-provider.example.com/slo'
+  )
+  await expect(dialog.getByLabel('Entity ID')).toHaveValue(
+    'https://test-provider.example.com/entity'
+  )
+  await expect(dialog.getByLabel('Group attribute name')).toHaveValue('test-groups')
 })
 
 test('Silo IP pools', async ({ page }) => {
@@ -287,7 +314,7 @@ test('Silo IP pools', async ({ page }) => {
   await clickRowAction(page, 'ip-pool-1', 'Unlink')
   await expect(
     page
-      .getByRole('dialog', { name: 'Confirm unlink pool' })
+      .getByRole('dialog', { name: 'Unlink pool' })
       .getByText('Are you sure you want to unlink ip-pool-1?')
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -299,7 +326,7 @@ test('Silo IP pools', async ({ page }) => {
   await clickRowAction(page, 'ip-pool-2', 'Clear default')
   await expect(
     page
-      .getByRole('dialog', { name: 'Confirm clear default' })
+      .getByRole('dialog', { name: 'Clear default' })
       .getByText('Are you sure you want ip-pool-2 to stop being the default')
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()

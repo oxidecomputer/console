@@ -52,7 +52,7 @@ test('List disks and snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
 
   const table = page.getByRole('table')
-  await expect(table.getByRole('row')).toHaveCount(14) // 13 + header
+  await expect(table.getByRole('row')).toHaveCount(16) // 15 + header
 
   // check one attached and one not attached
   await expectRowVisible(table, {

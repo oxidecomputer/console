@@ -116,6 +116,7 @@ export default function SubnetPoolsPage() {
         onActivate: confirmDelete({
           doDelete: () => deletePool({ path: { pool: pool.name } }),
           label: pool.name,
+          resourceKind: 'subnet pool',
         }),
       },
     ],

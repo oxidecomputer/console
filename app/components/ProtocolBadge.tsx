@@ -6,38 +6,36 @@
  * Copyright Oxide Computer Company
  */
 
+import { match } from 'ts-pattern'
+
 import { Badge } from '@oxide/design-system/ui'
 
 import type { VpcFirewallRuleProtocol } from '~/api'
+import { PROTOCOL_LABELS } from '~/util/protocol'
 
-type ProtocolBadgeProps = {
-  protocol: VpcFirewallRuleProtocol
-}
-
-export const ProtocolBadge = ({ protocol }: ProtocolBadgeProps) => {
-  if (protocol.type === 'tcp' || protocol.type === 'udp') {
-    return <Badge>{protocol.type.toUpperCase()}</Badge>
-  }
-
-  if (protocol.value === null) {
-    // All ICMP types
-    return <Badge>ICMP</Badge>
-  }
-
+export const ProtocolBadge = ({ protocol }: { protocol: VpcFirewallRuleProtocol }) => {
+  // only ICMP v4/v6 carry a nullable type/code value; tcp/udp have none
+  const value = match(protocol)
+    .with({ type: 'tcp' }, { type: 'udp' }, () => null)
+    .with({ type: 'icmp' }, { type: 'icmp6' }, (p) => p.value)
+    .exhaustive()
   return (
     <div className="space-x-0.5">
-      <Badge>ICMP</Badge>
-      <Badge variant="solid">
-        <span className="flex items-center gap-1.5">
-          <span>type {protocol.value.icmpType}</span>
-          {protocol.value.code && (
-            <>
-              <span className="border-l-accent-secondary h-[10px] border-l" />
-              <span>code {protocol.value.code}</span>
-            </>
-          )}
-        </span>
-      </Badge>
+      <Badge>{PROTOCOL_LABELS[protocol.type]}</Badge>
+      {/* null value (or tcp/udp) means all types, so there's no type/code badge */}
+      {value !== null && (
+        <Badge variant="solid">
+          <span className="flex items-center gap-1.5">
+            <span>type {value.icmpType}</span>
+            {value.code && (
+              <>
+                <span className="border-l-accent-secondary h-2.5 border-l" />
+                <span>code {value.code}</span>
+              </>
+            )}
+          </span>
+        </Badge>
+      )}
     </div>
   )
 }

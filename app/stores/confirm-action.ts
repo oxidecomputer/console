@@ -11,7 +11,7 @@ import { create } from 'zustand'
 type ActionConfig = {
   /** Must be `mutateAsync`, otherwise we can't catch the error generically */
   doAction: () => Promise<unknown>
-  /** e.g., Confirm delete, Confirm unlink */
+  /** e.g., Delete project, Unlink pool */
   modalTitle: string
   modalContent: ReactNode
   /** Title of error toast */
