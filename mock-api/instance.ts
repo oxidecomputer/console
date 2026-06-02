@@ -19,6 +19,7 @@ const base = {
   time_modified: new Date().toISOString(),
   time_run_state_updated: new Date().toISOString(),
   auto_restart_enabled: true,
+  enable_jumbo_frames: false,
   ncpus: 2,
   memory: 4 * GiB,
 }

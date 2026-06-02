@@ -5,9 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
+import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 
 import { expectToast } from './utils'
+
+// The settings tab has several cards each with their own Save button, so scope
+// to the auto-restart form via its unique card title.
+function autoRestartSave(page: Page) {
+  return page
+    .locator('form')
+    .filter({ hasText: 'Auto-restart' })
+    .getByRole('button', { name: 'Save' })
+}
 
 test('Auto restart policy on failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/you-fail')
@@ -27,7 +37,7 @@ test('Auto restart policy on failed instance', async ({ page }) => {
   await expect(page.getByText(/Cooldown expiration.+, 202\d.+\(5 minutes\)/)).toBeVisible()
   await expect(page.getByText(/Last auto-restarted.+, 202\d/)).toBeVisible()
 
-  const save = page.getByRole('button', { name: 'Save' })
+  const save = autoRestartSave(page)
   await expect(save).toBeDisabled()
 
   const policyListbox = page.getByRole('button', { name: 'Policy' })
@@ -57,7 +67,7 @@ test('Auto restart policy on running instance', async ({ page }) => {
   await expect(page.getByText('Last auto-restartedN/A')).toBeVisible()
 
   // await expect(page.getByRole('button', { name: 'Policy' }))
-  const save = page.getByRole('button', { name: 'Save' })
+  const save = autoRestartSave(page)
   await expect(save).toBeDisabled()
 
   const policyListbox = page.getByRole('button', { name: 'Policy' })
@@ -94,7 +104,7 @@ test('Auto restart popover, restarting soon', async ({ page }) => {
 
   const policyListbox = page.getByRole('button', { name: 'Policy' })
   await expect(policyListbox).toContainText('Default')
-  await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled()
+  await expect(autoRestartSave(page)).toBeDisabled()
 })
 
 test('Auto restart popover, policy never', async ({ page }) => {
@@ -116,7 +126,7 @@ test('Auto restart popover, policy never', async ({ page }) => {
 
   const policyListbox = page.getByRole('button', { name: 'Policy' })
   await expect(policyListbox).toContainText('Never')
-  await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled()
+  await expect(autoRestartSave(page)).toBeDisabled()
 })
 
 test('Auto restart popover, cooled, policy never, cooled', async ({ page }) => {
@@ -139,5 +149,5 @@ test('Auto restart popover, cooled, policy never, cooled', async ({ page }) => {
 
   const policyListbox = page.getByRole('button', { name: 'Policy' })
   await expect(policyListbox).toContainText('Never')
-  await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled()
+  await expect(autoRestartSave(page)).toBeDisabled()
 })

@@ -644,6 +644,7 @@ const initDb = {
   sshKeys: [...mock.sshKeys],
   tufRepos: [...mock.tufRepos],
   updateStatus: mock.updateStatus,
+  systemNetworkingSettings: { external_jumbo_frames_opt_in_enabled: false },
   users: [...mock.users],
   vpcFirewallRules: [...mock.firewallRules],
   vpcRouters: [...mock.vpcRouters],

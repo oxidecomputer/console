@@ -2349,6 +2349,7 @@ export const Instance = z.preprocess(
     bootDiskId: z.uuid().nullable().optional(),
     cpuPlatform: InstanceCpuPlatform.nullable().optional(),
     description: z.string(),
+    enableJumboFrames: SafeBoolean,
     hostname: z.string(),
     id: z.uuid(),
     memory: ByteCount,
@@ -2500,6 +2501,7 @@ export const InstanceCreate = z.preprocess(
     cpuPlatform: InstanceCpuPlatform.nullable().default(null),
     description: z.string(),
     disks: InstanceDiskAttachment.array().default([]),
+    enableJumboFrames: SafeBoolean.default(false),
     externalIps: ExternalIpCreate.array().default([]),
     hostname: Hostname,
     memory: ByteCount,
@@ -2644,6 +2646,7 @@ export const InstanceUpdate = z.preprocess(
     autoRestartPolicy: InstanceAutoRestartPolicy.nullable(),
     bootDisk: NameOrId.nullable(),
     cpuPlatform: InstanceCpuPlatform.nullable(),
+    enableJumboFrames: SafeBoolean.nullable().default(null),
     memory: ByteCount,
     multicastGroups: MulticastGroupJoinSpec.array().nullable().default(null),
     ncpus: InstanceCpuCount,
@@ -4544,6 +4547,22 @@ export const SwitchPortSettingsIdentityResultsPage = z.preprocess(
 export const SwitchResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Switch.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * Fleet-wide networking settings. Only fleet admins may view or modify these settings.
+ */
+export const SystemNetworkingSettings = z.preprocess(
+  processResponseBody,
+  z.object({ externalJumboFramesOptInEnabled: SafeBoolean })
+)
+
+/**
+ * Parameters for updating the fleet-wide networking settings.
+ */
+export const SystemNetworkingSettingsUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ externalJumboFramesOptInEnabled: SafeBoolean.nullable().default(null) })
 )
 
 /**
@@ -7813,6 +7832,22 @@ export const NetworkingLoopbackAddressDeleteParams = z.preprocess(
       subnetMask: z.number().min(0).max(255),
       switchSlot: SwitchSlot,
     }),
+    query: z.object({}),
+  })
+)
+
+export const SystemNetworkingSettingsViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SystemNetworkingSettingsUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
     query: z.object({}),
   })
 )
