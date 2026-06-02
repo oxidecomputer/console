@@ -11,6 +11,7 @@ import { useState } from 'react'
 import { api, qErrorsAllowed } from '~/api'
 import { IpPoolDetailSideModal } from '~/components/IpPoolDetailSideModal'
 import { useIsInSideModal } from '~/ui/lib/modal-context'
+import { Tooltip } from '~/ui/lib/Tooltip'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 import { ButtonCell } from './LinkCell'
@@ -29,8 +30,8 @@ const ipPoolQuery = (ipPoolId: string) =>
 
 /**
  * Renders an IP pool name. In a table cell, clicking opens a side modal with
- * pool details. Inside a side modal (detected via context) it falls back to
- * plain text to avoid stacking a second side modal on top of the first.
+ * pool details. Inside a side modal (detected via context) it shows the
+ * description in a tooltip.
  */
 export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
   const inSideModal = useIsInSideModal()
@@ -41,7 +42,13 @@ export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
   // possible for a resource to reference a pool without that pool existing.
   if (result.type === 'error') return <EmptyCell />
   const pool = result.data
-  if (inSideModal) return <>{pool.name}</>
+  if (inSideModal) {
+    return (
+      <Tooltip content={pool.description} placement="right">
+        <span>{pool.name}</span>
+      </Tooltip>
+    )
+  }
   return (
     <>
       <ButtonCell onClick={() => setShowDetail(true)}>{pool.name}</ButtonCell>
