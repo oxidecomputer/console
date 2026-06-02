@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { type LoaderFunctionArgs } from 'react-router'
+import { Link, type LoaderFunctionArgs } from 'react-router'
 import { match } from 'ts-pattern'
 
 import {
@@ -346,6 +346,16 @@ export default function NetworkingTab() {
       query: { ...instanceSelector, limit: ALL_ISH },
     })
   ).data.items
+
+  // Firewall rules and other external networking state live on the VPC of the
+  // primary NIC. The parent InstancePage loader prefetches this VPC, but
+  // primaryNic may be undefined, so we can't use usePrefetchedQuery.
+  const primaryVpcId = nics.find((nic) => nic.primary)?.vpcId
+  const { data: primaryVpc } = useQuery({
+    // primaryVpcId is defined when enabled, so the assertion is safe
+    ...q(api.vpcView, { path: { vpc: primaryVpcId! } }),
+    enabled: !!primaryVpcId,
+  })
 
   const { data: siloPools } = usePrefetchedQuery(
     q(api.ipPoolList, { query: { limit: ALL_ISH } })
@@ -739,7 +749,7 @@ export default function NetworkingTab() {
       </CardBlock>
 
       <CardBlock>
-        <CardBlock.Header title="External Subnets" titleId="attached-subnets-label">
+        <CardBlock.Header title="External subnets" titleId="attached-subnets-label">
           <Button
             size="sm"
             onClick={() => setAttachSubnetModalOpen(true)}
@@ -776,6 +786,25 @@ export default function NetworkingTab() {
             onDismiss={() => setAttachSubnetModalOpen(false)}
           />
         )}
+      </CardBlock>
+      <CardBlock>
+        <CardBlock.Header title="Firewall rules" titleId="firewall-rules-label" />
+        <CardBlock.Body>
+          {primaryVpc ? (
+            <>
+              Manage firewall rules affecting this instance in VPC{' '}
+              <Link
+                className="link-with-underline"
+                to={pb.vpcFirewallRules({ project, vpc: primaryVpc.name })}
+              >
+                {primaryVpc.name}
+              </Link>
+              .
+            </>
+          ) : (
+            'Firewall rules are managed on the VPC associated with the primary network interface.'
+          )}
+        </CardBlock.Body>
       </CardBlock>
     </div>
   )
