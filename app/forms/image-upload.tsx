@@ -18,7 +18,6 @@ import {
   q,
   queryClient,
   useApiMutation,
-  type ApiError,
   type BlockSize,
   type Disk,
   type Snapshot,
@@ -54,6 +53,24 @@ import { formatBytes, GiB, KiB } from '~/util/units'
 // Padded because otherwise the numbers jump around a bit, e.g., when it goes
 // from 10.55 to 14.7 to 19.23
 const fsize = (bytes: number) => formatBytes(bytes, { pad: true }).label
+const genericUploadErrorMessage = 'Something went wrong. Please try again.'
+
+function getUploadErrorMessage(e: unknown): string {
+  if (!e || typeof e !== 'object') return genericUploadErrorMessage
+  const errorCode = 'errorCode' in e ? e.errorCode : undefined
+  const message = 'message' in e ? e.message : undefined
+
+  // Mutation errors are ApiErrors with user-facing messages from
+  // processServerError. Show the API message only when it's actually
+  // user-facing: errorCode "Internal" maps to dropshot's generic 500
+  // ("Internal Server Error") with no real detail, and a missing message
+  // means we got nothing to display.
+  return typeof errorCode === 'string' &&
+    typeof message === 'string' &&
+    errorCode !== 'Internal'
+    ? message
+    : genericUploadErrorMessage
+}
 
 type FormValues = {
   imageName: string
@@ -132,6 +149,7 @@ function getTmpDiskName(imageName: string) {
     // do the right thing in
     const specialNames = new Set([
       'disk-create-500',
+      'disk-create-quota',
       'import-start-500',
       'import-stop-500',
       'disk-finalize-500',
@@ -195,7 +213,7 @@ export default function ImageCreate() {
   // are submitting, we rely on the RQ mutations themselves, plus a synthetic
   // mutation state representing the many calls of the bulk upload step.
 
-  const [formError, setFormError] = useState<ApiError | null>(null)
+  const [formError, setFormError] = useState<{ message: string } | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalError, setModalError] = useState<string | null>(null)
 
@@ -496,7 +514,9 @@ export default function ImageCreate() {
     // now delete the snapshot and the disk. don't use cleanup() because that
     // uses different mutations
     await deleteSnapshot.mutateAsync({ path: { snapshot: snapshot.current.id } })
+    snapshot.current = null
     await deleteDisk.mutateAsync({ path: { disk: disk.current.id } })
+    disk.current = null
 
     setAllDone(true)
   }
@@ -542,10 +562,7 @@ export default function ImageCreate() {
         if (image) {
           // TODO: set this error on the field instead of the whole form
           // TODO: make setError available here somehow :(
-          setFormError({
-            errorCode: 'ObjectAlreadyExists',
-            message: 'Image name already exists',
-          })
+          setFormError({ message: 'Image name already exists' })
           return
         }
 
@@ -558,7 +575,7 @@ export default function ImageCreate() {
         } catch (e) {
           if (e !== ABORT_ERROR) {
             console.error(e)
-            setModalError('Something went wrong. Please try again.')
+            setModalError(getUploadErrorMessage(e))
             // abort anything in flight in case
             cancelEverything()
           }

@@ -281,3 +281,7 @@
     display: none;
   }
 }
+
+.xterm-bold {
+  -webkit-text-stroke: 0.75px currentColor;
+}

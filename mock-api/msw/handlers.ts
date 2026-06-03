@@ -55,8 +55,10 @@ import {
   getBlockSize,
   handleMetrics,
   handleOxqlMetrics,
+  internalError,
   invalidRequest,
   ipRangeLen,
+  mockFlags,
   NotImplemented,
   paginated,
   randomHex,
@@ -157,7 +159,22 @@ export const handlers = makeHandlers({
 
     errIfExists(db.disks, { name: body.name, project_id: project.id })
 
-    if (body.name === 'disk-create-500') throw 500
+    if (body.name === 'disk-create-500') throw internalError('disk create failed')
+
+    // Mirrors the InsufficientCapacity error from omicron's virtual
+    // provisioning collection update when a project's storage quota is
+    // exceeded. See NOT_ENOUGH_STORAGE_SENTINEL in
+    // https://github.com/oxidecomputer/omicron/blob/aa608203/nexus/db-queries/src/db/queries/virtual_provisioning_collection_update.rs#L61-L67
+    if (body.name === 'disk-create-quota') {
+      throw json(
+        {
+          error_code: 'InsufficientCapacity',
+          message:
+            'Storage Limit Exceeded: Not enough storage to complete request. Either remove unneeded disks and snapshots to free up resources or contact the rack operator to request a capacity increase.',
+        },
+        { status: 507 }
+      )
+    }
 
     const { name, description, size, disk_backend } = body
     const diskSource = disk_backend.type === 'distributed' ? disk_backend.disk_source : null
@@ -220,7 +237,7 @@ export const handlers = makeHandlers({
   async diskBulkWriteImportStart({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
 
-    if (disk.name === 'import-start-500') throw 500
+    if (disk.name === 'import-start-500') throw internalError('import start failed')
 
     if (disk.state.state !== 'import_ready') {
       throw 'Can only enter state importing_from_bulk_write from import_ready'
@@ -235,7 +252,7 @@ export const handlers = makeHandlers({
   async diskBulkWriteImportStop({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
 
-    if (disk.name === 'import-stop-500') throw 500
+    if (disk.name === 'import-stop-500') throw internalError('import stop failed')
 
     if (disk.state.state !== 'importing_from_bulk_writes') {
       throw 'Can only stop import for disk in state importing_from_bulk_write'
@@ -258,7 +275,7 @@ export const handlers = makeHandlers({
   diskFinalizeImport: ({ path, query, body }) => {
     const disk = lookup.disk({ ...path, ...query })
 
-    if (disk.name === 'disk-finalize-500') throw 500
+    if (disk.name === 'disk-finalize-500') throw internalError('disk finalize failed')
 
     if (disk.state.state !== 'import_ready') {
       throw `Cannot finalize disk in state ${disk.state.state}. Must be import_ready.`
@@ -2105,7 +2122,10 @@ export const handlers = makeHandlers({
   },
   systemUpdateStatus: ({ cookies }) => {
     requireFleetViewer(cookies)
-    return db.updateStatus
+    return {
+      ...db.updateStatus,
+      contact_support: db.updateStatus.contact_support || mockFlags(cookies).contactSupport,
+    }
   },
   targetReleaseUpdate: ({ body, cookies }) => {
     requireFleetAdmin(cookies)
@@ -2631,6 +2651,10 @@ export const handlers = makeHandlers({
   networkingSwitchPortSettingsList: NotImplemented,
   networkingSwitchPortSettingsView: NotImplemented,
   networkingSwitchPortStatus: NotImplemented,
+  physicalDiskDisableAdoption: NotImplemented,
+  physicalDiskEnableAdoption: NotImplemented,
+  physicalDiskListAdoptionRequests: NotImplemented,
+  physicalDiskListUnadopted: NotImplemented,
   physicalDiskView: NotImplemented,
   probeCreate: NotImplemented,
   probeDelete: NotImplemented,
