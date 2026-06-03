@@ -42,14 +42,11 @@ export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
   // possible for a resource to reference a pool without that pool existing.
   if (result.type === 'error') return <EmptyCell />
   const pool = result.data
-  if (inSideModal) {
-    return (
-      <Tooltip content={pool.description} placement="right">
-        <span>{pool.name}</span>
-      </Tooltip>
-    )
-  }
-  return (
+  return inSideModal ? (
+    <Tooltip content={pool.description} placement="right">
+      <span>{pool.name}</span>
+    </Tooltip>
+  ) : (
     <>
       <ButtonCell onClick={() => setShowDetail(true)}>{pool.name}</ButtonCell>
       {showDetail && (
