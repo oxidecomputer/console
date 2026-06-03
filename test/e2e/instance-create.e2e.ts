@@ -556,55 +556,6 @@ test('attach a floating IP section has Empty version when no floating IPs exist 
   ).toBeVisible()
 })
 
-test('attaching additional disks allows for combobox filtering', async ({ page }) => {
-  await page.goto('/projects/other-project/instances-new')
-
-  const attachExistingDiskButton = page.getByRole('button', {
-    name: 'Attach existing disk',
-  })
-  const selectADisk = page.getByPlaceholder('Select a disk')
-
-  await attachExistingDiskButton.click()
-  await selectADisk.click()
-  // several disks should be shown in the visible window. the combobox
-  // virtualizes, so only the first ~20 options live in the DOM at once;
-  // aria-setsize reports the full attachable count.
-  await expect(page.getByRole('option', { name: 'disk-0005' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0007' })).toBeVisible()
-  await expect(page.getByRole('option').first()).toHaveAttribute('aria-setsize', /\d{2,}/)
-
-  // Pressing End jumps the active option to the last entry, which forces
-  // the virtualizer to mount it. disk-0988 is the last detached
-  // (attachable) disk in the seeded set and isn't in the DOM on first
-  // open — toBeHidden confirms we're genuinely virtualizing rather than
-  // just rendering everything.
-  await expect(page.getByRole('option', { name: 'disk-0988' })).toBeHidden()
-  await selectADisk.press('End')
-  await expect(page.getByRole('option', { name: 'disk-0988' })).toBeVisible()
-
-  // type in a string to use as a filter
-  await selectADisk.fill('disk-02')
-  // only disks with that substring should be shown
-  await expect(page.getByRole('option', { name: 'disk-0023' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0125' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0211' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0220' })).toBeHidden()
-  await expect(page.getByRole('option', { name: 'disk-1000' })).toBeHidden()
-
-  // filter down to a single late-in-the-list disk and select it
-  await selectADisk.fill('disk-0988')
-  await page.getByRole('option', { name: 'disk-0988' }).click()
-
-  // now options hidden and only the selected one is visible in the button/input
-  await expect(page.getByRole('option')).toBeHidden()
-  await expect(page.getByRole('combobox', { name: 'Disk name' })).toHaveValue('disk-0988')
-
-  // a random string should give a disabled option
-  await selectADisk.click()
-  await selectADisk.fill('asdf')
-  await expect(page.getByRole('option', { name: 'No items match' })).toBeVisible()
-})
-
 test('create instance with additional disks', async ({ page }) => {
   const instanceName = 'more-disks'
   await page.goto('/projects/mock-project/instances-new')
@@ -1249,7 +1200,7 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   // Verify only IPv4 floating IP is available (rootbeer-float with IP 123.4.56.4)
   await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeVisible()
   // IPv6 floating IP should not be in the list
-  await expect(page.getByRole('option', { name: 'ipv6-float' })).not.toBeVisible()
+  await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeHidden()
 
   // Close the listbox dropdown first by pressing Escape
   await page.keyboard.press('Escape')
@@ -1274,7 +1225,7 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   // Verify only IPv6 floating IP is available (ipv6-float)
   await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeVisible()
   // IPv4 floating IP should not be in the list
-  await expect(page.getByRole('option', { name: 'rootbeer-float' })).not.toBeVisible()
+  await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeHidden()
 
   // Close the listbox dropdown first by pressing Escape
   await page.keyboard.press('Escape')

@@ -280,10 +280,26 @@ export default function UpdatePage() {
                               }),
                             modalTitle: 'Set target release',
                             modalContent: (
-                              <p>
-                                Are you sure you want to set <HL>{repo.systemVersion}</HL>{' '}
-                                as the target release?
-                              </p>
+                              <div className="space-y-4">
+                                {status.contactSupport && (
+                                  <Message
+                                    variant="notice"
+                                    // title="Support required"
+                                    content={
+                                      <>
+                                        The system has detected known conditions that
+                                        require Oxide support to resolve. Starting an update
+                                        before talking to support is{' '}
+                                        <HL>strongly discouraged</HL>.
+                                      </>
+                                    }
+                                  />
+                                )}
+                                <p>
+                                  Are you sure you want to set <HL>{repo.systemVersion}</HL>{' '}
+                                  as the target release?
+                                </p>
+                              </div>
                             ),
                             errorTitle: `Error setting target release to ${repo.systemVersion}`,
                           })

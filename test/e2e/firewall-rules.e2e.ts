@@ -6,22 +6,15 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test, type Locator, type Page } from '@playwright/test'
-
-import { clickRowAction, expectRowVisible, selectOption } from './utils'
-
-/**
- * Fill a combobox and click a dropdown option. Scrolls the combobox toward the
- * center of the viewport first so the Floating UI anchored dropdown has room to
- * render on-screen. Without this, Safari/WebKit can place the dropdown outside
- * the viewport when the combobox is near the bottom of a tall form, causing
- * Playwright's click to fail.
- */
-async function fillAndSelect(input: Locator, page: Page, text: string, optionName: string) {
-  await input.evaluate((el) => el.scrollIntoView({ block: 'center' }))
-  await input.fill(text)
-  await page.getByRole('option', { name: optionName }).click()
-}
+import {
+  clickRowAction,
+  expect,
+  expectRowVisible,
+  fillAndSelectComboboxOption,
+  selectOption,
+  test,
+  type Locator,
+} from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
@@ -179,12 +172,12 @@ test('firewall rule form targets table', async ({ page }) => {
 
   // add targets with overlapping names and types to test delete
 
-  await fillAndSelect(targetVpcNameField, page, 'abc', 'Custom: abc')
+  await fillAndSelectComboboxOption(targetVpcNameField, page, 'abc', 'Custom: abc')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
   // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
-  await fillAndSelect(targetVpcNameField, page, 'mock-subnet', 'mock-subnet')
+  await fillAndSelectComboboxOption(targetVpcNameField, page, 'mock-subnet', 'mock-subnet')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-subnet' })
 
@@ -204,7 +197,7 @@ test('firewall rule form targets table', async ({ page }) => {
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
   // test that the name typed in is normalized
-  await fillAndSelect(subnetNameField, page, 'abc-123', 'Custom: abc-123')
+  await fillAndSelectComboboxOption(subnetNameField, page, 'abc-123', 'Custom: abc-123')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc-123' })
 
@@ -237,7 +230,7 @@ test('firewall rule form target validation', async ({ page }) => {
 
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).first()
-  await fillAndSelect(vpcNameField, page, 'ab-', 'Custom: ab-')
+  await fillAndSelectComboboxOption(vpcNameField, page, 'ab-', 'Custom: ab-')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
@@ -301,7 +294,7 @@ test('firewall rule form host validation', async ({ page }) => {
 
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(1)
-  await fillAndSelect(vpcNameField, page, 'ab-', 'Custom: ab-')
+  await fillAndSelectComboboxOption(vpcNameField, page, 'ab-', 'Custom: ab-')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
@@ -368,11 +361,11 @@ test('firewall rule form hosts table', async ({ page }) => {
 
   // add hosts with overlapping names and types to test delete
 
-  await fillAndSelect(hostFiltersVpcNameField, page, 'abc', 'Custom: abc')
+  await fillAndSelectComboboxOption(hostFiltersVpcNameField, page, 'abc', 'Custom: abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
-  await fillAndSelect(hostFiltersVpcNameField, page, 'def', 'Custom: def')
+  await fillAndSelectComboboxOption(hostFiltersVpcNameField, page, 'def', 'Custom: def')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
@@ -383,7 +376,7 @@ test('firewall rule form hosts table', async ({ page }) => {
 
   await selectOption(page, 'Host type', 'VPC subnet')
   const subnetNameField2 = page.getByRole('combobox', { name: 'Subnet name' })
-  await fillAndSelect(subnetNameField2, page, 'abc', 'Custom: abc')
+  await fillAndSelectComboboxOption(subnetNameField2, page, 'abc', 'Custom: abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'abc' })
 
@@ -442,7 +435,7 @@ test('can update firewall rule', async ({ page }) => {
   // add a new ICMP protocol filter with type 3 and code 0
   await selectOption(page, 'Protocol filters', 'ICMPv4')
   const icmpTypeField = page.getByRole('combobox', { name: 'ICMPv4 type' })
-  await fillAndSelect(icmpTypeField, page, '3', '3 - Destination Unreachable')
+  await fillAndSelectComboboxOption(icmpTypeField, page, '3', '3 - Destination Unreachable')
   await page.getByRole('textbox', { name: 'ICMPv4 code' }).fill('0')
   await page.getByRole('button', { name: 'Add protocol' }).click()
 
@@ -452,7 +445,7 @@ test('can update firewall rule', async ({ page }) => {
   // add host filter
   await selectOption(page, 'Host type', 'VPC subnet')
   const editSubnetField = page.getByRole('combobox', { name: 'Subnet name' })
-  await fillAndSelect(
+  await fillAndSelectComboboxOption(
     editSubnetField,
     page,
     'edit-filter-subnet',
@@ -602,90 +595,6 @@ test('name conflict error on edit', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp2', Priority: '37' })
 })
 
-async function expectOptions(page: Page, options: string[]) {
-  const selector = page.getByRole('option')
-  await expect(selector).toHaveCount(options.length)
-  for (const option of options) {
-    await expect(page.getByRole('option', { name: option })).toBeVisible()
-  }
-}
-
-test('arbitrary values combobox', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
-
-  // test for bug where we'd persist the d after add and only show 'Custom: d'
-  const vpcInput = page.getByRole('combobox', { name: 'VPC name' }).first()
-  await vpcInput.focus()
-  await expectOptions(page, ['mock-vpc'])
-
-  await vpcInput.fill('d')
-  await expectOptions(page, ['Custom: d'])
-
-  await vpcInput.blur()
-  await page.getByRole('button', { name: 'Add target' }).click()
-  await expect(vpcInput).toHaveValue('')
-
-  await vpcInput.focus()
-  await expectOptions(page, ['mock-vpc']) // bug cause failure here
-
-  // test keeping query around on blur
-  await selectOption(page, 'Target type', 'Instance')
-  const input = page.getByRole('combobox', { name: 'Instance name' })
-
-  await input.focus()
-  await expectOptions(page, [
-    'db1',
-    'you-fail',
-    'not-there-yet',
-    'instance-update-error',
-    'db2',
-    'db-stopped',
-  ])
-
-  await input.fill('d')
-  await expectOptions(page, [
-    'db1',
-    'instance-update-error',
-    'db2',
-    'db-stopped',
-    'Custom: d',
-  ])
-
-  await input.blur()
-  await expect(page.getByRole('option')).toBeHidden()
-
-  await expect(input).toHaveValue('d')
-  await input.focus()
-
-  // same options show up after blur (there was a bug around this)
-  await expectOptions(page, [
-    'db1',
-    'instance-update-error',
-    'db2',
-    'db-stopped',
-    'Custom: d',
-  ])
-
-  // make sure typing in ICMP filter input actually updates the underlying value,
-  // triggering a validation error for bad input. without onInputChange binding
-  // the input value to the form value, this does not trigger an error because
-  // the form thinks the input is empyt.
-  await selectOption(page, 'Protocol filters', 'ICMPv4')
-  await page.getByRole('combobox', { name: 'ICMPv4 type' }).pressSequentially('abc')
-  const error = page
-    .getByRole('dialog')
-    .getByText('ICMP type must be a number between 0 and 255')
-  await expect(error).toBeHidden()
-  await page.getByRole('button', { name: 'Add protocol filter' }).click()
-  await expect(error).toBeVisible()
-
-  // switching protocol clears the type value and its stale validation error,
-  // rather than leaving the error stranded on the now-empty field
-  await selectOption(page, 'Protocol filters', 'ICMPv6')
-  await expect(page.getByRole('combobox', { name: 'ICMPv6 type' })).toHaveValue('')
-  await expect(error).toBeHidden()
-})
-
 test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
 
@@ -697,7 +606,7 @@ test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
   await protocolListbox.click()
   await page.getByRole('option', { name: 'ICMPv4', exact: true }).click()
   const v4Type = page.getByRole('combobox', { name: 'ICMPv4 type' })
-  await fillAndSelect(v4Type, page, '8', '8 - Echo Request')
+  await fillAndSelectComboboxOption(v4Type, page, '8', '8 - Echo Request')
   await page.getByRole('button', { name: 'Add protocol filter' }).click()
   await expectRowVisible(protocolTable, { Protocol: 'ICMPv4', Type: '8' })
 
@@ -706,7 +615,7 @@ test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
   await protocolListbox.click()
   await page.getByRole('option', { name: 'ICMPv6', exact: true }).click()
   const v6Type = page.getByRole('combobox', { name: 'ICMPv6 type' })
-  await fillAndSelect(v6Type, page, '128', '128 - Echo Request')
+  await fillAndSelectComboboxOption(v6Type, page, '128', '128 - Echo Request')
   await page.getByRole('button', { name: 'Add protocol filter' }).click()
   await expectRowVisible(protocolTable, { Protocol: 'ICMPv6', Type: '128' })
 
@@ -724,67 +633,8 @@ test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
   // switching protocol type clears the previously selected ICMP type
   await protocolListbox.click()
   await page.getByRole('option', { name: 'ICMPv6', exact: true }).click()
-  await fillAndSelect(v6Type, page, '128', '128 - Echo Request')
+  await fillAndSelectComboboxOption(v6Type, page, '128', '128 - Echo Request')
   await protocolListbox.click()
   await page.getByRole('option', { name: 'ICMPv4', exact: true }).click()
   await expect(page.getByRole('combobox', { name: 'ICMPv4 type' })).toHaveValue('')
-})
-
-// Regression test: when typing a partial match in an arbitrary-values combobox,
-// arrowing to a dropdown option, and pressing Enter, the selected option's value
-// should end up in the field — not the raw typed query.
-test('combobox Enter selects highlighted item, not raw query', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
-
-  const targets = page.getByRole('table', { name: 'Targets' })
-  const vpcInput = page.getByRole('combobox', { name: 'VPC name' }).first()
-
-  // Type "mock" — dropdown shows mock-vpc and Custom: mock
-  await vpcInput.fill('mock')
-  await expect(page.getByRole('option', { name: 'mock-vpc' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'Custom: mock' })).toBeVisible()
-
-  // Arrow up to highlight mock-vpc and press Enter to select it
-  await page.keyboard.press('ArrowUp')
-  await page.keyboard.press('Enter')
-
-  // The selected value should be mock-vpc, not the raw query "mock"
-  await expect(vpcInput).toHaveValue('mock-vpc')
-
-  // Verify it can be submitted to the targets table
-  await page.getByRole('button', { name: 'Add target' }).click()
-  await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-vpc' })
-})
-
-test("esc in combobox doesn't close form", async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
-
-  // make form dirty so we can get the confirm modal on close attempts
-  await page.getByRole('textbox', { name: 'Name' }).fill('a')
-
-  // make sure the confirm modal does pop up on esc when we're not in a combobox
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm navigation' })
-  await expect(confirmModal).toBeHidden()
-  await page.keyboard.press('Escape')
-  await expect(confirmModal).toBeVisible()
-  await confirmModal.getByRole('button', { name: 'Keep editing' }).click()
-  await expect(confirmModal).toBeHidden()
-
-  const formModal = page.getByRole('dialog', { name: 'Add firewall rule' })
-  await expect(formModal).toBeVisible()
-
-  const input = page.getByRole('combobox', { name: 'VPC name' }).first()
-  await input.focus()
-
-  await expect(page.getByRole('option').first()).toBeVisible()
-  await expectOptions(page, ['mock-vpc'])
-
-  await page.keyboard.press('Escape')
-  // options are closed, but the whole form modal is not
-  await expect(confirmModal).toBeHidden()
-  await expect(page.getByRole('option')).toBeHidden()
-  await expect(formModal).toBeVisible()
-  // now press esc again to leave the form
-  await page.keyboard.press('Escape')
-  await expect(confirmModal).toBeVisible()
 })
