@@ -57,7 +57,10 @@ function getOptions(): ITerminalOptions {
     screenReaderMode: true,
     fontFamily: '"GT America Mono", monospace',
     fontSize: 13,
-    lineHeight: 1.2,
+    lineHeight: 1,
+    fontWeightBold: 400,
+    drawBoldTextInBrightColors: true,
+    letterSpacing: 0,
     windowOptions: {
       fullscreenWin: true,
       refreshWin: true,
