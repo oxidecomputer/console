@@ -16,7 +16,7 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 import { ButtonCell } from './LinkCell'
 
-const ipPoolQuery = (ipPoolId: string) =>
+export const ipPoolErrorsAllowedQuery = (ipPoolId: string) =>
   qErrorsAllowed(
     api.ipPoolView,
     { path: { pool: ipPoolId } },
@@ -36,7 +36,7 @@ const ipPoolQuery = (ipPoolId: string) =>
 export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
   const inSideModal = useIsInSideModal()
   const [showDetail, setShowDetail] = useState(false)
-  const { data: result } = useQuery(ipPoolQuery(ipPoolId))
+  const { data: result } = useQuery(ipPoolErrorsAllowedQuery(ipPoolId))
   if (!result) return <SkeletonCell />
   // Defensive: the error case should never happen in practice. It should not be
   // possible for a resource to reference a pool without that pool existing.
