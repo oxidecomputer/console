@@ -9,7 +9,7 @@ import { expect, test, type Browser, type Locator, type Page } from '@playwright
 
 import { MiB } from '~/util/units'
 
-import { MSW_USER_COOKIE } from '../../mock-api/msw/util'
+import { MSW_FLAGS_COOKIE, MSW_USER_COOKIE, type MockFlag } from '../../mock-api/msw/util'
 
 export * from '@playwright/test'
 
@@ -247,11 +247,22 @@ export async function selectOption(
   }
 }
 
-export async function getPageAsUser(browser: Browser, user: string): Promise<Page> {
+function cookie(name: string, value: string) {
+  return { name, value, domain: 'localhost', path: '/' }
+}
+
+export async function getPageAsUser(
+  browser: Browser,
+  user: string,
+  // fleet-level overrides; see mockFlags in mock-api/msw/util.ts
+  flags: MockFlag[] = []
+): Promise<Page> {
   const browserContext = await browser.newContext()
-  await browserContext.addCookies([
-    { name: MSW_USER_COOKIE, value: user, domain: 'localhost', path: '/' },
-  ])
+  const cookies = [cookie(MSW_USER_COOKIE, user)]
+  if (flags.length) {
+    cookies.push(cookie(MSW_FLAGS_COOKIE, flags.join(',')))
+  }
+  await browserContext.addCookies(cookies)
   return await browserContext.newPage()
 }
 

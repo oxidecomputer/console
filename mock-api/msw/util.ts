@@ -9,6 +9,7 @@ import { differenceInSeconds, subHours } from 'date-fns'
 // Works without the .js for dev server and prod build in MSW mode, but
 // playwright wants the .js. No idea why, let's just add the .js.
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
+import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
 import {
@@ -334,6 +335,30 @@ export function handleMetrics({ path: { metricName }, query }: MetricParams) {
 }
 
 export const MSW_USER_COOKIE = 'msw-user'
+export const MSW_FLAGS_COOKIE = 'msw-flags'
+
+/**
+ * Test-only fleet-state overrides, serialized into the `msw-flags` cookie as a
+ * comma-separated list of the enabled keys. Some server-computed signals (e.g.
+ * update status's `contact_support`) have no operator UI to flip, so there's no
+ * user-controlled request input to drive them through the real UI. Rather than
+ * reach for `page.route`, a test enables a flag and the relevant handler ORs it
+ * in. Inert in normal use (cookie unset), and reproducible in the dev server
+ * via `document.cookie = 'msw-flags=contactSupport'`.
+ *
+ * This array is the single source of truth for valid flag names; both the e2e
+ * helper that sets the cookie and `mockFlags` that reads it derive their types
+ * from it, so a typo in a handler or test is a type error.
+ */
+export const MOCK_FLAGS = [
+  'contactSupport', // db.updateStatus.contact_support = true
+] as const
+export type MockFlag = (typeof MOCK_FLAGS)[number]
+
+export function mockFlags(cookies: Record<string, string>): Record<MockFlag, boolean> {
+  const present = (cookies[MSW_FLAGS_COOKIE] ?? '').split(',')
+  return R.fromKeys(MOCK_FLAGS, (flag) => present.includes(flag))
+}
 
 /**
  * Look up user by display name in cookie. If cookie is empty, return the first
