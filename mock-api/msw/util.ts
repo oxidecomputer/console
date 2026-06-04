@@ -17,6 +17,7 @@ import {
   MAX_DISK_SIZE_GiB,
   MIN_DISK_SIZE_GiB,
   totalCapacity,
+  type BlockSize,
   type DiskBackend,
   type DiskCreate,
   type IpRange,
@@ -156,9 +157,9 @@ export const errIfExists = <T extends Record<string, unknown>>(
  * https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/sagas/disk_create.rs#L292-L304
  * https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/disk.rs#L159-L174
  */
-export function getBlockSize(backend: Json<DiskBackend>): number {
+export function getBlockSize(backend: Json<DiskBackend>): BlockSize {
   return match(backend)
-    .with({ type: 'local' }, () => 4096) // All local disks use 4k block size (AdvancedFormat)
+    .with({ type: 'local' }, () => 4096 as const) // All local disks use 4k block size (AdvancedFormat)
     .with({ type: 'distributed' }, ({ disk_source: source }) =>
       match(source)
         .with({ type: 'blank' }, (s) => s.block_size)

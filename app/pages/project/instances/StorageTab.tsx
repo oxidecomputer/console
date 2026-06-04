@@ -187,6 +187,7 @@ export default function StorageTab() {
                   memory: instance.memory,
                   autoRestartPolicy: instance.autoRestartPolicy || null,
                   cpuPlatform: instance.cpuPlatform || null,
+                  enableJumboFrames: instance.enableJumboFrames,
                 },
               }),
             errorTitle: 'Could not unset boot disk',
@@ -224,6 +225,7 @@ export default function StorageTab() {
       instance.ncpus,
       instance.memory,
       instance.cpuPlatform,
+      instance.enableJumboFrames,
       getSnapshotAction,
     ]
   )
@@ -252,6 +254,7 @@ export default function StorageTab() {
                   memory: instance.memory,
                   autoRestartPolicy: instance.autoRestartPolicy || null,
                   cpuPlatform: instance.cpuPlatform || null,
+                  enableJumboFrames: instance.enableJumboFrames,
                 },
               }),
             errorTitle: `Could not ${verb} boot disk`,
@@ -304,6 +307,7 @@ export default function StorageTab() {
       instance.ncpus,
       instance.memory,
       instance.cpuPlatform,
+      instance.enableJumboFrames,
       getSnapshotAction,
       bootDisks,
     ]
