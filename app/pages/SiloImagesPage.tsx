@@ -73,7 +73,6 @@ export default function SiloImagesPage() {
       // prettier-ignore
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>)
       queryClient.invalidateEndpoint('imageList')
-      // also drops per-id imageView entries seeded for Source-column lookups
       queryClient.invalidateEndpoint('imageView')
     },
   })

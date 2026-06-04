@@ -18,7 +18,6 @@ import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { docLinks } from '~/util/links'
-import { bytesToGiB } from '~/util/units'
 
 const sourceDiskQ = (disk: string) =>
   qErrorsAllowed(
@@ -65,9 +64,7 @@ export function SnapshotDetailSideModal({
         <PropertiesTable.Row label="State">
           <SnapshotStateBadge state={snapshot.state} />
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="Size">
-          {bytesToGiB(snapshot.size)} GiB
-        </PropertiesTable.Row>
+        <PropertiesTable.SizeRow bytes={snapshot.size} />
         <PropertiesTable.Row label="Source disk">
           <DiskNameFromId diskId={snapshot.diskId} />
         </PropertiesTable.Row>

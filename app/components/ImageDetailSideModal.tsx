@@ -13,7 +13,6 @@ import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { docLinks } from '~/util/links'
-import { bytesToGiB } from '~/util/units'
 
 type ImageDetailSideModalProps = {
   image: Image
@@ -40,7 +39,7 @@ export function ImageDetailSideModal({ image, onDismiss }: ImageDetailSideModalP
         <PropertiesTable.Row label="Visibility">{visibility}</PropertiesTable.Row>
         <PropertiesTable.Row label="OS">{image.os}</PropertiesTable.Row>
         <PropertiesTable.Row label="Version">{image.version}</PropertiesTable.Row>
-        <PropertiesTable.Row label="Size">{bytesToGiB(image.size)} GiB</PropertiesTable.Row>
+        <PropertiesTable.SizeRow bytes={image.size} />
         <PropertiesTable.Row label="Block size">
           {image.blockSize.toLocaleString()} bytes
         </PropertiesTable.Row>

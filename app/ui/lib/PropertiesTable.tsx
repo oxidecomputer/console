@@ -12,6 +12,7 @@ import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
+import { formatBytes } from '~/util/units'
 
 import { DateTime } from './DateTime'
 import { Truncate } from './Truncate'
@@ -33,6 +34,7 @@ export function PropertiesTable({
       PropertiesTable.IdRow,
       PropertiesTable.DescriptionRow,
       PropertiesTable.DateRow,
+      PropertiesTable.SizeRow,
     ]),
     'PropertiesTable only accepts specific Row components as children'
   )
@@ -99,3 +101,22 @@ PropertiesTable.DateRow = ({
     <DateTime date={date} />
   </PropertiesTable.Row>
 )
+
+PropertiesTable.SizeRow = ({
+  bytes,
+  label = 'Size',
+}: {
+  bytes: number
+  label?: string
+}) => {
+  const size = formatBytes(bytes)
+  // wrap in a span so flex treats value+unit as one item; otherwise the browser
+  // collapses the trailing space at the flex-item boundary, rendering "1GiB"
+  return (
+    <PropertiesTable.Row label={label}>
+      <span>
+        {size.value} <span className="text-tertiary">{size.unit}</span>
+      </span>
+    </PropertiesTable.Row>
+  )
+}
