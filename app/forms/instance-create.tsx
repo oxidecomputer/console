@@ -589,11 +589,10 @@ export default function CreateInstanceForm() {
     command: string
   }>({ open: false, jsonBody: '', command: '' })
 
-  const openCliModal = async () => {
+  const openCliModal = form.handleSubmit((values) => {
     // surface validation errors inline before opening the preview, so the
     // generated JSON reflects a valid configuration
-    if (!(await form.trigger())) return
-    const values = form.getValues()
+
     // userData is a File; the CLI consumes the raw base64. Show a placeholder
     // string instead of synchronously reading the file.
     const userDataPlaceholder = values.userData
@@ -607,7 +606,7 @@ export default function CreateInstanceForm() {
       '--json-body instance.json',
     ].join(' \\\n    ')
     setCliModal({ open: true, jsonBody, command })
-  }
+  })
 
   return (
     <>
