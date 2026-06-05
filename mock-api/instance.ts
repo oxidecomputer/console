@@ -21,6 +21,7 @@ const base = {
   auto_restart_enabled: true,
   ncpus: 2,
   memory: 4 * GiB,
+  enable_jumbo_frames: false,
 }
 
 export const instance: Json<Instance> = {

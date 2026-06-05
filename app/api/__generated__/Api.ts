@@ -1283,7 +1283,9 @@ export type Binuint8 = {
 }
 
 /**
- * Disk block size in bytes
+ * Block size in bytes
+ *
+ * Valid values are: 512, 2048, or 4096.
  */
 export type BlockSize = 512 | 2048 | 4096
 
@@ -1893,7 +1895,7 @@ export type DiskState = /** Disk is being initialized */
  * View of a Disk
  */
 export type Disk = {
-  blockSize: ByteCount
+  blockSize: BlockSize
   /** Human-readable free-form text about a resource */
   description: string
   devicePath: string
@@ -2394,7 +2396,7 @@ export type IdpMetadataSource =
  */
 export type Image = {
   /** Size of blocks in bytes */
-  blockSize: ByteCount
+  blockSize: BlockSize
   /** Human-readable free-form text about a resource */
   description: string
   /** Hash of the image contents, if applicable */
@@ -2505,6 +2507,8 @@ This policy determines whether the instance should be automatically restarted by
   cpuPlatform?: InstanceCpuPlatform | null
   /** Human-readable free-form text about a resource */
   description: string
+  /** When true, this instance has opted in to jumbo frames (8500 byte MTU) on its primary network interface. The effective MTU also depends on the fleet-wide jumbo-frames opt-in; if that is disabled, the primary interface uses the default MTU regardless of this value. Changes only take effect on the next instance restart. */
+  enableJumboFrames: boolean
   /** RFC1035-compliant hostname for the instance */
   hostname: string
   /** Unique, immutable, system-controlled identifier for each resource */
@@ -2685,6 +2689,8 @@ Disk attachments of type "create" will be created, while those of type "attach" 
 
 The order of this list does not guarantee a boot order for the instance. Use the boot_disk attribute to specify a boot disk. When boot_disk is specified it will count against the disk attachment limit. */
   disks?: InstanceDiskAttachment[]
+  /** Enable jumbo frames (8500 byte MTU) on the instance's primary OPTE interface. Requires the fleet-wide jumbo-frames opt-in to be enabled by an operator; otherwise this field must be `false`. Changes only take effect on the next instance restart. */
+  enableJumboFrames?: boolean
   /** The external IP addresses provided to this instance.
 
 By default, all instances have outbound connectivity, but no inbound connectivity. These external addresses can be used to provide a fixed, known IP address for making inbound connections to the instance. */
@@ -2855,6 +2861,8 @@ An instance that does not have a boot disk set will use the boot options specifi
   bootDisk: NameOrId | null
   /** The CPU platform to be used for this instance. If this is `null`, the instance requires no particular CPU platform; when it is started the instance will have the most general CPU platform supported by the sled it is initially placed on. */
   cpuPlatform: InstanceCpuPlatform | null
+  /** Update the per-instance jumbo-frames opt-in. Setting this to `true` requires the fleet-wide jumbo-frames opt-in to be enabled. Changes only take effect on the next instance restart. */
+  enableJumboFrames: boolean
   /** The amount of RAM (in bytes) to be allocated to the instance */
   memory: ByteCount
   /** Multicast groups this instance should join.
@@ -5010,6 +5018,22 @@ export type SwitchResultsPage = {
   items: Switch[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
+}
+
+/**
+ * Fleet-wide networking settings. Only fleet viewers may view these settings. Only fleet admins can modify them.
+ */
+export type SystemNetworkingSettings = {
+  /** When true, end users may opt in to jumbo frames (8500 byte MTU) on the primary interface of an instance. When false, instance-level opt-in is ignored and OPTE ports are created with the default MTU. */
+  externalJumboFramesOptInEnabled: boolean
+}
+
+/**
+ * Parameters for updating the fleet-wide networking settings.
+ */
+export type SystemNetworkingSettingsUpdate = {
+  /** Toggle the fleet-wide external jumbo-frames opt-in. */
+  externalJumboFramesOptInEnabled?: boolean
 }
 
 /**
@@ -7513,7 +7537,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026052000.0.0'
+  apiVersion = '2026060500.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -11089,6 +11113,30 @@ export class Api {
       return this.request<void>({
         path: `/v1/system/networking/loopback-address/${path.rackId}/${path.switchSlot}/${path.address}/${path.subnetMask}`,
         method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Fetch fleet-wide networking settings
+     */
+    systemNetworkingSettingsView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<SystemNetworkingSettings>({
+        path: `/v1/system/networking/settings`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update fleet-wide networking settings
+     */
+    systemNetworkingSettingsUpdate: (
+      { body }: { body: SystemNetworkingSettingsUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SystemNetworkingSettings>({
+        path: `/v1/system/networking/settings`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },
