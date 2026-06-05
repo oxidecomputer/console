@@ -11,6 +11,7 @@ import { useState, type ReactNode } from 'react'
 import { Success12Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
+import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { Modal } from '~/ui/lib/Modal'
 import { useTimeout } from '~/ui/lib/use-timeout'
 
@@ -112,5 +113,67 @@ export function EquivalentCliCommand({ project, instance }: EquivProps) {
         {cmdParts.join(' \\\n    ')}
       </CopyCodeModal>
     </>
+  )
+}
+
+type CodeBlock = {
+  label: string
+  copyAriaLabel: string
+  /** Plain text that gets copied to the clipboard */
+  code: string
+  /** Optional rendered representation; falls back to `code` */
+  rendered?: ReactNode
+}
+
+type CliCommandModalProps = {
+  isOpen: boolean
+  onDismiss: () => void
+  title: string
+  description?: ReactNode
+  blocks: [CodeBlock, ...CodeBlock[]]
+  footer?: ReactNode
+}
+
+/**
+ * Modal that stacks one or more code blocks, each with its own copy-to-clipboard
+ * button.
+ */
+export function CliCommandModal({
+  isOpen,
+  onDismiss,
+  title,
+  description,
+  blocks,
+  footer,
+}: CliCommandModalProps) {
+  return (
+    <Modal isOpen={isOpen} onDismiss={onDismiss} title={title} width="free">
+      <Modal.Body>
+        {description && (
+          <Modal.Section>
+            <div className="text-sans-md text-secondary">{description}</div>
+          </Modal.Section>
+        )}
+        {blocks.map((block) => (
+          <Modal.Section key={block.label}>
+            <div className="flex items-center justify-between">
+              <div className="text-mono-sm text-secondary">{block.label}</div>
+              <CopyToClipboard ariaLabel={block.copyAriaLabel} text={block.code} />
+            </div>
+            <pre className="text-mono-md bg-default border-secondary max-h-80 w-full overflow-auto rounded-md border px-4 py-3 tracking-normal! normal-case!">
+              {block.rendered ?? block.code}
+            </pre>
+          </Modal.Section>
+        ))}
+      </Modal.Body>
+      <Modal.Footer
+        onDismiss={onDismiss}
+        onAction={onDismiss}
+        actionText="Close"
+        showCancel={false}
+      >
+        {footer}
+      </Modal.Footer>
+    </Modal>
   )
 }
