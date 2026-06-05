@@ -23,6 +23,7 @@ import {
   poolHasIpVersion,
   q,
   queryClient,
+  snakeify,
   useApiMutation,
   usePrefetchedQuery,
   type ExternalIpCreate,
@@ -43,6 +44,7 @@ import {
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
+import { CliCommandModal } from '~/components/CopyCode'
 import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
@@ -70,6 +72,7 @@ import { Button } from '~/ui/lib/Button'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { InlineCode } from '~/ui/lib/InlineCode'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { MiniTable } from '~/ui/lib/MiniTable'
@@ -118,6 +121,62 @@ const getBootDiskAttachment = (
         readOnly: values.bootDiskReadOnly,
       },
     },
+  }
+}
+
+const buildInstanceCreateBody = (
+  values: InstanceCreateInput,
+  images: Array<Image>,
+  userData: string | undefined
+): InstanceCreate => {
+  // we should never have a presetId that's not in the list
+  const preset = PRESETS.find((option) => option.id === values.presetId)!
+  const { memory, ncpus } =
+    values.presetId === 'custom'
+      ? { memory: values.memory, ncpus: values.ncpus }
+      : { memory: preset.memory, ncpus: preset.ncpus }
+
+  const externalIps: ExternalIpCreate[] = []
+  if (values.ephemeralIpv4) {
+    externalIps.push({
+      type: 'ephemeral',
+      poolSelector: { type: 'explicit', pool: values.ephemeralIpv4Pool },
+    })
+  }
+  if (values.ephemeralIpv6) {
+    externalIps.push({
+      type: 'ephemeral',
+      poolSelector: { type: 'explicit', pool: values.ephemeralIpv6Pool },
+    })
+  }
+  for (const floatingIp of values.floatingIps) {
+    externalIps.push({ type: 'floating', floatingIp })
+  }
+
+  return {
+    name: values.name,
+    hostname: values.name,
+    description: values.description,
+    memory: memory * GiB,
+    ncpus,
+    disks: values.otherDisks.map(
+      (d): InstanceDiskAttachment =>
+        d.action === 'attach'
+          ? { type: 'attach', name: d.name }
+          : {
+              type: 'create',
+              name: d.name,
+              description: d.description,
+              size: d.size,
+              diskBackend: d.diskBackend,
+            }
+    ),
+    bootDisk: getBootDiskAttachment(values, images),
+    externalIps,
+    start: values.start,
+    networkInterfaces: values.networkInterfaces,
+    sshPublicKeys: values.sshPublicKeys,
+    userData,
   }
 }
 
@@ -524,6 +583,32 @@ export default function CreateInstanceForm() {
 
   const bootDiskName = useWatch({ control, name: 'bootDiskName' })
 
+  const [cliModal, setCliModal] = useState<{
+    open: boolean
+    jsonBody: string
+    command: string
+  }>({ open: false, jsonBody: '', command: '' })
+
+  const openCliModal = async () => {
+    // surface validation errors inline before opening the preview, so the
+    // generated JSON reflects a valid configuration
+    if (!(await form.trigger())) return
+    const values = form.getValues()
+    // userData is a File; the CLI consumes the raw base64. Show a placeholder
+    // string instead of synchronously reading the file.
+    const userDataPlaceholder = values.userData
+      ? '<base64-encoded contents of user data file>'
+      : undefined
+    const body = buildInstanceCreateBody(values, allImages, userDataPlaceholder)
+    const jsonBody = JSON.stringify(snakeify(body), null, 2)
+    const command = [
+      'oxide instance create',
+      `--project ${project}`,
+      '--json-body instance.json',
+    ].join(' \\\n    ')
+    setCliModal({ open: true, jsonBody, command })
+  }
+
   return (
     <>
       <PageHeader>
@@ -541,63 +626,12 @@ export default function CreateInstanceForm() {
         form={form}
         onSubmit={async (values) => {
           setIsSubmitting(true)
-          // we should never have a presetId that's not in the list
-          const preset = PRESETS.find((option) => option.id === values.presetId)!
-          const instance =
-            values.presetId === 'custom'
-              ? { memory: values.memory, ncpus: values.ncpus }
-              : { memory: preset.memory, ncpus: preset.ncpus }
-
-          const bootDisk = getBootDiskAttachment(values, allImages)
-
-          const externalIps: ExternalIpCreate[] = []
-          if (values.ephemeralIpv4) {
-            externalIps.push({
-              type: 'ephemeral',
-              poolSelector: { type: 'explicit', pool: values.ephemeralIpv4Pool },
-            })
-          }
-          if (values.ephemeralIpv6) {
-            externalIps.push({
-              type: 'ephemeral',
-              poolSelector: { type: 'explicit', pool: values.ephemeralIpv6Pool },
-            })
-          }
-          for (const floatingIp of values.floatingIps) {
-            externalIps.push({ type: 'floating', floatingIp })
-          }
-
           const userData = values.userData
             ? await readBlobAsBase64(values.userData)
             : undefined
-
           await createInstance.mutateAsync({
             query: { project },
-            body: {
-              name: values.name,
-              hostname: values.name,
-              description: values.description,
-              memory: instance.memory * GiB,
-              ncpus: instance.ncpus,
-              disks: values.otherDisks.map(
-                (d): InstanceDiskAttachment =>
-                  d.action === 'attach'
-                    ? { type: 'attach', name: d.name }
-                    : {
-                        type: 'create',
-                        name: d.name,
-                        description: d.description,
-                        size: d.size,
-                        diskBackend: d.diskBackend,
-                      }
-              ),
-              bootDisk,
-              externalIps,
-              start: values.start,
-              networkInterfaces: values.networkInterfaces,
-              sshPublicKeys: values.sshPublicKeys,
-              userData,
-            },
+            body: buildInstanceCreateBody(values, allImages, userData),
           })
         }}
         loading={createInstance.isPending}
@@ -850,8 +884,46 @@ export default function CreateInstanceForm() {
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
           <Form.Cancel onClick={() => navigate(pb.instances({ project }))} />
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={allImages.length === 0}
+            disabledReason="Image required"
+            onClick={openCliModal}
+          >
+            CLI Command
+          </Button>
         </Form.Actions>
       </FullPageForm>
+      <CliCommandModal
+        isOpen={cliModal.open}
+        onDismiss={() => setCliModal((s) => ({ ...s, open: false }))}
+        title="CLI command"
+        description={
+          <>
+            Save the JSON below as <InlineCode>instance.json</InlineCode>, then run the
+            command in the same directory to create this instance from the CLI.
+          </>
+        }
+        blocks={[
+          {
+            label: 'instance.json',
+            copyAriaLabel: 'Copy instance JSON',
+            code: cliModal.jsonBody,
+          },
+          {
+            label: 'command',
+            copyAriaLabel: 'Copy CLI command',
+            code: cliModal.command,
+            rendered: (
+              <>
+                <span className="text-tertiary mr-2 select-none">$</span>
+                {cliModal.command}
+              </>
+            ),
+          },
+        ]}
+      />
     </>
   )
 }
