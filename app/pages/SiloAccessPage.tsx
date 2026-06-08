@@ -5,178 +5,42 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useMemo, useState } from 'react'
-
-import {
-  api,
-  byGroupThenName,
-  deleteRole,
-  q,
-  queryClient,
-  useApiMutation,
-  usePrefetchedQuery,
-  useUserRows,
-  type IdentityType,
-  type RoleKey,
-} from '@oxide/api'
+import { api, getListQFn, q, queryClient } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { HL } from '~/components/HL'
-import {
-  SiloAccessAddUserSideModal,
-  SiloAccessEditUserSideModal,
-} from '~/forms/silo-access'
-import { useCurrentUser } from '~/hooks/use-current-user'
-import { useQuickActions } from '~/hooks/use-quick-actions'
-import { confirmDelete } from '~/stores/confirm-delete'
-import { addToast } from '~/stores/toast'
-import { getActionsCol } from '~/table/columns/action-col'
-import { Table } from '~/table/Table'
-import { CreateButton } from '~/ui/lib/CreateButton'
-import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
-import { identityTypeLabel, roleColor } from '~/util/access'
-import { groupBy } from '~/util/array'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
+import { pb } from '~/util/path-builder'
 
-const EmptyState = ({ onClick }: { onClick: () => void }) => (
-  <TableEmptyBox>
-    <EmptyMessage
-      icon={<Access24Icon />}
-      title="No authorized users"
-      body="Give permission to view, edit, or administer this silo"
-      buttonText="Add user or group"
-      onClick={onClick}
-    />
-  </TableEmptyBox>
-)
-
+// Parent prefetches everything both tabs need so switching between Users and
+// Groups doesn't trigger a fetch. This loader runs once on entry to /access;
+// react-router won't re-run it when navigating between sibling tab routes.
 const policyView = q(api.policyView, {})
-const userList = q(api.userList, {})
-const groupList = q(api.groupList, {})
+const userList = getListQFn(api.userList, {})
+const groupList = getListQFn(api.groupList, {})
+const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {
+  // groups must resolve before fanning out per-group member fetches
+  const groups = await queryClient.fetchQuery(groupListAll)
   await Promise.all([
     queryClient.prefetchQuery(policyView),
-    // used to resolve user names
-    queryClient.prefetchQuery(userList),
-    queryClient.prefetchQuery(groupList),
+    queryClient.prefetchQuery(userList.optionsFn()),
+    queryClient.prefetchQuery(groupList.optionsFn()),
+    ...groups.items.map((g) =>
+      queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
+    ),
   ])
   return null
 }
 
-export const handle = { crumb: 'Silo Access' }
-
-type UserRow = {
-  id: string
-  identityType: IdentityType
-  name: string
-  siloRole: RoleKey | undefined
-}
-
-const colHelper = createColumnHelper<UserRow>()
+export const handle = makeCrumb('Silo Access', pb.siloAccess())
 
 export default function SiloAccessPage() {
-  const [addModalOpen, setAddModalOpen] = useState(false)
-  const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
-
-  const { me } = useCurrentUser()
-  const { data: siloPolicy } = usePrefetchedQuery(policyView)
-  const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
-
-  const rows = useMemo(() => {
-    return groupBy(siloRows, (u) => u.id)
-      .map(([userId, userAssignments]) => {
-        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
-
-        const { name, identityType } = userAssignments[0]
-
-        const row: UserRow = {
-          id: userId,
-          identityType,
-          name,
-          siloRole,
-        }
-
-        return row
-      })
-      .sort(byGroupThenName)
-  }, [siloRows])
-
-  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
-    onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
-      addToast({ content: 'Access removed' })
-    },
-    // TODO: handle 403
-  })
-
-  // TODO: checkboxes and bulk delete? not sure
-  // TODO: disable delete on permissions you can't delete
-
-  const columns = useMemo(
-    () => [
-      colHelper.accessor('name', { header: 'Name' }),
-      colHelper.accessor('identityType', {
-        header: 'Type',
-        cell: (info) => identityTypeLabel[info.getValue()],
-      }),
-      colHelper.accessor('siloRole', {
-        header: 'Role',
-        cell: (info) => {
-          const role = info.getValue()
-          return role ? <Badge color={roleColor[role]}>silo.{role}</Badge> : null
-        },
-      }),
-      // TODO: tooltips on disabled elements explaining why
-      getActionsCol((row: UserRow) => [
-        {
-          label: 'Change role',
-          onActivate: () => setEditingUserRow(row),
-          disabled: !row.siloRole && "You don't have permission to change this user's role",
-        },
-        // TODO: only show if you have permission to do this
-        {
-          label: 'Delete',
-          onActivate: confirmDelete({
-            doDelete: () => updatePolicy({ body: deleteRole(row.id, siloPolicy) }),
-            label: (
-              <span>
-                the <HL>{row.siloRole}</HL> role for <HL>{row.name}</HL>
-              </span>
-            ),
-            resourceKind: 'role assignment',
-            extraContent:
-              row.id === me.id ? 'This will remove your own silo access.' : undefined,
-          }),
-          disabled: !row.siloRole && "You don't have permission to delete this user",
-        },
-      ]),
-    ],
-    [siloPolicy, updatePolicy, me]
-  )
-
-  const tableInstance = useReactTable({
-    columns,
-    data: rows,
-    getCoreRowModel: getCoreRowModel(),
-  })
-
-  useQuickActions(
-    () => [
-      {
-        value: 'Add user or group',
-        navGroup: 'Actions',
-        action: () => setAddModalOpen(true),
-      },
-    ],
-    []
-  )
-
   return (
     <>
       <PageHeader>
@@ -185,34 +49,13 @@ export default function SiloAccessPage() {
           heading="access"
           icon={<Access16Icon />}
           summary="Roles determine who can view, edit, or administer this silo and the projects within it. If a user or group has both a silo and project role, the stronger role takes precedence."
-          links={[docLinks.keyConceptsIam, docLinks.access]}
+          links={[docLinks.keyConceptsIam, docLinks.access, docLinks.identityProviders]}
         />
       </PageHeader>
-
-      <TableActions>
-        <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
-      </TableActions>
-      {addModalOpen && (
-        <SiloAccessAddUserSideModal
-          onDismiss={() => setAddModalOpen(false)}
-          policy={siloPolicy}
-        />
-      )}
-      {editingUserRow?.siloRole && (
-        <SiloAccessEditUserSideModal
-          onDismiss={() => setEditingUserRow(null)}
-          policy={siloPolicy}
-          name={editingUserRow.name}
-          identityId={editingUserRow.id}
-          identityType={editingUserRow.identityType}
-          defaultValues={{ roleName: editingUserRow.siloRole }}
-        />
-      )}
-      {rows.length === 0 ? (
-        <EmptyState onClick={() => setAddModalOpen(true)} />
-      ) : (
-        <Table table={tableInstance} />
-      )}
+      <RouteTabs fullWidth>
+        <Tab to={pb.siloAccessGroups()}>Groups</Tab>
+        <Tab to={pb.siloAccessUsers()}>Users</Tab>
+      </RouteTabs>
     </>
   )
 }
