@@ -36,6 +36,9 @@ export const updateStatus: Json<UpdateStatus> = {
     '17.0.0': 12,
     '16.0.0': 5,
   },
+  // Default to false so the normal "set target release" confirmation is the
+  // default path. The scary "support required" path is exercised in e2e via the
+  // contactSupport mock flag.
   contact_support: false,
   suspended: false,
   target_release: {

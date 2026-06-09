@@ -1531,6 +1531,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/networking/settings` */
+  systemNetworkingSettingsView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SystemNetworkingSettings>>
+  /** `PUT /v1/system/networking/settings` */
+  systemNetworkingSettingsUpdate: (params: {
+    body: Json<Api.SystemNetworkingSettingsUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SystemNetworkingSettings>>
   /** `GET /v1/system/networking/switch-port-settings` */
   networkingSwitchPortSettingsList: (params: {
     query: Api.NetworkingSwitchPortSettingsListQueryParams
@@ -3462,6 +3473,18 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         handlers['networkingLoopbackAddressDelete'],
         schema.NetworkingLoopbackAddressDeleteParams,
         null
+      )
+    ),
+    http.get(
+      '/v1/system/networking/settings',
+      handler(handlers['systemNetworkingSettingsView'], null, null)
+    ),
+    http.put(
+      '/v1/system/networking/settings',
+      handler(
+        handlers['systemNetworkingSettingsUpdate'],
+        null,
+        schema.SystemNetworkingSettingsUpdate
       )
     ),
     http.get(

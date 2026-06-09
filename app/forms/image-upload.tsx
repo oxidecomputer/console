@@ -480,7 +480,9 @@ export default function ImageCreate() {
     // now delete the snapshot and the disk. don't use cleanup() because that
     // uses different mutations
     await deleteSnapshot.mutateAsync({ path: { snapshot: snapshot.current.id } })
+    snapshot.current = null
     await deleteDisk.mutateAsync({ path: { disk: disk.current.id } })
+    disk.current = null
 
     setAllDone(true)
   }

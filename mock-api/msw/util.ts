@@ -9,6 +9,7 @@ import { differenceInSeconds, subHours } from 'date-fns'
 // Works without the .js for dev server and prod build in MSW mode, but
 // playwright wants the .js. No idea why, let's just add the .js.
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
+import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
 import {
@@ -16,6 +17,7 @@ import {
   MAX_DISK_SIZE_GiB,
   MIN_DISK_SIZE_GiB,
   totalCapacity,
+  type BlockSize,
   type DiskBackend,
   type DiskCreate,
   type IpRange,
@@ -155,9 +157,9 @@ export const errIfExists = <T extends Record<string, unknown>>(
  * https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/sagas/disk_create.rs#L292-L304
  * https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/disk.rs#L159-L174
  */
-export function getBlockSize(backend: Json<DiskBackend>): number {
+export function getBlockSize(backend: Json<DiskBackend>): BlockSize {
   return match(backend)
-    .with({ type: 'local' }, () => 4096) // All local disks use 4k block size (AdvancedFormat)
+    .with({ type: 'local' }, () => 4096 as const) // All local disks use 4k block size (AdvancedFormat)
     .with({ type: 'distributed' }, ({ disk_source: source }) =>
       match(source)
         .with({ type: 'blank' }, (s) => s.block_size)
@@ -334,6 +336,30 @@ export function handleMetrics({ path: { metricName }, query }: MetricParams) {
 }
 
 export const MSW_USER_COOKIE = 'msw-user'
+export const MSW_FLAGS_COOKIE = 'msw-flags'
+
+/**
+ * Test-only fleet-state overrides, serialized into the `msw-flags` cookie as a
+ * comma-separated list of the enabled keys. Some server-computed signals (e.g.
+ * update status's `contact_support`) have no operator UI to flip, so there's no
+ * user-controlled request input to drive them through the real UI. Rather than
+ * reach for `page.route`, a test enables a flag and the relevant handler ORs it
+ * in. Inert in normal use (cookie unset), and reproducible in the dev server
+ * via `document.cookie = 'msw-flags=contactSupport'`.
+ *
+ * This array is the single source of truth for valid flag names; both the e2e
+ * helper that sets the cookie and `mockFlags` that reads it derive their types
+ * from it, so a typo in a handler or test is a type error.
+ */
+export const MOCK_FLAGS = [
+  'contactSupport', // db.updateStatus.contact_support = true
+] as const
+export type MockFlag = (typeof MOCK_FLAGS)[number]
+
+export function mockFlags(cookies: Record<string, string>): Record<MockFlag, boolean> {
+  const present = (cookies[MSW_FLAGS_COOKIE] ?? '').split(',')
+  return R.fromKeys(MOCK_FLAGS, (flag) => present.includes(flag))
+}
 
 /**
  * Look up user by display name in cookie. If cookie is empty, return the first

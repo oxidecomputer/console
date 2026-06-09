@@ -58,6 +58,7 @@ import {
   internalError,
   invalidRequest,
   ipRangeLen,
+  mockFlags,
   NotImplemented,
   paginated,
   randomHex,
@@ -812,6 +813,7 @@ export const handlers = makeHandlers({
       time_run_state_updated: new Date().toISOString(),
       boot_disk_id: bootDiskId,
       auto_restart_enabled: true,
+      enable_jumbo_frames: body.enable_jumbo_frames ?? false,
     }
 
     if (body.start) {
@@ -890,6 +892,9 @@ export const handlers = makeHandlers({
     // null is meaningful: it unsets the value
     instance.auto_restart_policy = body.auto_restart_policy
     instance.cpu_platform = body.cpu_platform
+
+    // required on the body, so always set it (effective on next restart in nexus)
+    instance.enable_jumbo_frames = body.enable_jumbo_frames
 
     // We depart here from nexus in that nexus does both of the following
     // calculations at view time (when converting model to view). We can't
@@ -2121,7 +2126,10 @@ export const handlers = makeHandlers({
   },
   systemUpdateStatus: ({ cookies }) => {
     requireFleetViewer(cookies)
-    return db.updateStatus
+    return {
+      ...db.updateStatus,
+      contact_support: db.updateStatus.contact_support || mockFlags(cookies).contactSupport,
+    }
   },
   targetReleaseUpdate: ({ body, cookies }) => {
     requireFleetAdmin(cookies)
@@ -2677,6 +2685,8 @@ export const handlers = makeHandlers({
   supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
+  systemNetworkingSettingsUpdate: NotImplemented,
+  systemNetworkingSettingsView: NotImplemented,
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
   systemUpdateRecoveryFinish: NotImplemented,
