@@ -34,6 +34,7 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -274,6 +275,13 @@ function IpRangesTable() {
     ],
     [pool, removeRange]
   )
+  useQuickActions(
+    () => [
+      { value: 'Add range', navGroup: 'Actions', action: pb.ipPoolRangeAdd({ pool }) },
+    ],
+    [pool]
+  )
+
   const columns = useColsWithActions(ipRangesStaticCols, makeRangeActions)
   const { table } = useQueryTable({ query: ipPoolRangeList({ pool }), columns, emptyState })
 
@@ -415,6 +423,13 @@ function LinkedSilosTable() {
   )
 
   const [showLinkModal, setShowLinkModal] = useState(false)
+
+  useQuickActions(
+    () => [
+      { value: 'Link silo', navGroup: 'Actions', action: () => setShowLinkModal(true) },
+    ],
+    []
+  )
 
   const emptyState = (
     <EmptyMessage

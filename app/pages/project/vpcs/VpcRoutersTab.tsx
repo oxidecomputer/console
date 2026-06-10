@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
@@ -14,6 +15,7 @@ import { api, getListQFn, q, queryClient, useApiMutation, type VpcRouter } from 
 import { HL } from '~/components/HL'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -22,6 +24,7 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -109,6 +112,26 @@ export default function VpcRoutersTab() {
     columns,
     emptyState,
   })
+
+  const { data: allRouters } = useQuery(
+    q(api.vpcRouterList, { query: { project, vpc, limit: ALL_ISH } })
+  )
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New router',
+        navGroup: 'Actions',
+        action: pb.vpcRoutersNew({ project, vpc }),
+      },
+      ...(allRouters?.items || []).map((r) => ({
+        value: r.name,
+        navGroup: 'Edit router',
+        action: pb.vpcRouterEdit({ project, vpc, router: r.name }),
+      })),
+    ],
+    [project, vpc, allRouters]
+  )
 
   return (
     <>
