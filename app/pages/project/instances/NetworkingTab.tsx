@@ -643,44 +643,29 @@ export default function NetworkingTab() {
     availableSubnets.length === 0 ? 'No available external subnets' : null
 
   useQuickActions(
-    () => [
-      ...(!ephemeralDisabledReason
-        ? [
-            {
-              value: 'Attach ephemeral IP',
-              navGroup: 'Actions',
-              action: () => setAttachEphemeralModalOpen(true),
-            },
-          ]
-        : []),
-      ...(!floatingDisabledReason
-        ? [
-            {
-              value: 'Attach floating IP',
-              navGroup: 'Actions',
-              action: () => setAttachFloatingModalOpen(true),
-            },
-          ]
-        : []),
-      ...(instanceCan.updateNic({ runState: instance.runState })
-        ? [
-            {
-              value: 'Add network interface',
-              navGroup: 'Actions',
-              action: () => setCreateModalOpen(true),
-            },
-          ]
-        : []),
-      ...(!subnetDisabledReason
-        ? [
-            {
-              value: 'Attach external subnet',
-              navGroup: 'Actions',
-              action: () => setAttachSubnetModalOpen(true),
-            },
-          ]
-        : []),
-    ],
+    () =>
+      [
+        !ephemeralDisabledReason && {
+          value: 'Attach ephemeral IP',
+          navGroup: 'Actions',
+          action: () => setAttachEphemeralModalOpen(true),
+        },
+        !floatingDisabledReason && {
+          value: 'Attach floating IP',
+          navGroup: 'Actions',
+          action: () => setAttachFloatingModalOpen(true),
+        },
+        instanceCan.updateNic({ runState: instance.runState }) && {
+          value: 'Add network interface',
+          navGroup: 'Actions',
+          action: () => setCreateModalOpen(true),
+        },
+        !subnetDisabledReason && {
+          value: 'Attach external subnet',
+          navGroup: 'Actions',
+          action: () => setAttachSubnetModalOpen(true),
+        },
+      ].filter((x) => !!x),
     [
       ephemeralDisabledReason,
       floatingDisabledReason,
