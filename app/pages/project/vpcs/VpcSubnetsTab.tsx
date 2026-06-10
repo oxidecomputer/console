@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
-import { api, getListQFn, queryClient, useApiMutation, type VpcSubnet } from '@oxide/api'
+import { api, getListQFn, q, queryClient, useApiMutation, type VpcSubnet } from '@oxide/api'
 
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
@@ -23,6 +24,7 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -98,12 +100,16 @@ export default function VpcSubnetsTab() {
     />
   )
 
-  const { table, query } = useQueryTable({
+  const { table } = useQueryTable({
     query: subnetList(vpcSelector),
     columns,
     emptyState,
     rowHeight: 'large',
   })
+
+  const { data: allSubnets } = useQuery(
+    q(api.vpcSubnetList, { query: { ...vpcSelector, limit: ALL_ISH } })
+  )
 
   useQuickActions(
     () => [
@@ -112,13 +118,13 @@ export default function VpcSubnetsTab() {
         navGroup: 'Actions',
         action: pb.vpcSubnetsNew(vpcSelector),
       },
-      ...(query.data?.items || []).map((s) => ({
+      ...(allSubnets?.items || []).map((s) => ({
         value: s.name,
         navGroup: 'Edit VPC subnet',
         action: pb.vpcSubnetsEdit({ ...vpcSelector, subnet: s.name }),
       })),
     ],
-    [vpcSelector, query.data]
+    [vpcSelector, allSubnets]
   )
 
   return (
