@@ -5,14 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
 import {
   api,
   q,
+  usePrefetchedQuery,
   type ApiError,
   type InstanceNetworkInterfaceCreate,
   type IpVersion,
@@ -28,6 +27,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 
 type NetworkInterfaceFormValues = {
@@ -40,17 +40,6 @@ type NetworkInterfaceFormValues = {
   ipv6: string
 }
 
-const defaultValues: NetworkInterfaceFormValues = {
-  name: '',
-  description: '',
-  subnetName: '',
-  vpcName: '',
-  ipStackType: 'dual_stack',
-  ipv4: '',
-  ipv6: '',
-}
-
-// Helper to build IP assignment from string
 function buildIpAssignment(
   ipString: string
 ): { type: 'auto' } | { type: 'explicit'; value: string } {
@@ -58,7 +47,6 @@ function buildIpAssignment(
   return trimmed ? { type: 'explicit', value: trimmed } : { type: 'auto' }
 }
 
-// Helper to build a single IP stack (v4 or v6)
 function buildIpStack(ipString: string) {
   return {
     ip: buildIpAssignment(ipString),
@@ -84,10 +72,18 @@ export function CreateNetworkInterfaceForm({
   submitError = null,
 }: CreateNetworkInterfaceFormProps) {
   const projectSelector = useProjectSelector()
-
-  const { data: vpcsData } = useQuery(q(api.vpcList, { query: projectSelector }))
-  const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
-
+  const {
+    data: { items: vpcs },
+  } = usePrefetchedQuery(q(api.vpcList, { query: { ...projectSelector, limit: ALL_ISH } }))
+  const defaultValues: NetworkInterfaceFormValues = {
+    name: '',
+    description: '',
+    subnetName: '',
+    vpcName: vpcs.length > 0 ? vpcs[0].name : '',
+    ipStackType: 'dual_stack',
+    ipv4: '',
+    ipv6: '',
+  }
   const form = useForm({ defaultValues })
   const ipStackType = form.watch('ipStackType')
 
