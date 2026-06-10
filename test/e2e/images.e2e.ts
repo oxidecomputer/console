@@ -175,7 +175,7 @@ test("Silo viewer can't delete silo image", async ({ browser }) => {
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
-  await expect(page.getByText('Could not delete resource', { exact: true })).toBeVisible()
+  await expect(page.getByText('Could not delete image', { exact: true })).toBeVisible()
   await expect(cell).toBeVisible()
   await expect(spinner).toBeHidden()
 })

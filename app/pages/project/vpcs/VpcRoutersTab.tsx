@@ -96,6 +96,7 @@ export default function VpcRoutersTab() {
             }),
           extraContent: 'This will also delete any routes belonging to this router.',
           label: router.name,
+          resourceKind: 'VPC router',
         }),
         disabled: router.kind === 'system' && routeFormMessage.noDeletingSystemRouters,
       },

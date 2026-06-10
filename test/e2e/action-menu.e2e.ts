@@ -29,30 +29,6 @@ test('Enter key does not prematurely submit a linked form', async ({ page }) => 
   await expectNotVisible(page, [page.getByText('Name is required')])
 })
 
-test('Ctrl+N/P navigate up and down', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances')
-  await openActionMenu(page)
-
-  // wait for instance list to load so the items don't shift mid-test
-  await expect(page.getByRole('option', { name: 'db1' })).toBeVisible()
-
-  const selected = getSelectedItem(page)
-  // first item is selected by default
-  await expect(selected).toHaveText('New instance')
-
-  // Ctrl+N moves down
-  await page.keyboard.press('Control+n')
-  await expect(selected).toHaveText('db1')
-
-  // Ctrl+P moves back up
-  await page.keyboard.press('Control+p')
-  await expect(selected).toHaveText('New instance')
-
-  // Ctrl+N again gets the same second item
-  await page.keyboard.press('Control+n')
-  await expect(selected).toHaveText('db1')
-})
-
 test('Arrow keys navigate up and down', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await openActionMenu(page)

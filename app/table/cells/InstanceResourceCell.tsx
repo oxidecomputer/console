@@ -5,14 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { filesize } from 'filesize'
-
 import type { Instance } from '@oxide/api'
+
+import { formatBytes } from '~/util/units'
 
 type Props = { value: Pick<Instance, 'ncpus' | 'memory'> }
 
 export const InstanceResourceCell = ({ value }: Props) => {
-  const memory = filesize(value.memory, { output: 'object', base: 2 })
+  const memory = formatBytes(value.memory)
   return (
     <div className="space-y-0.5">
       <div>

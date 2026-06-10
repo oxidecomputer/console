@@ -162,6 +162,7 @@ export default function VpcFirewallRulesTab() {
                 },
               }),
             label: rule.name,
+            resourceKind: 'firewall rule',
           }),
         },
       ]),

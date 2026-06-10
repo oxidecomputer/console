@@ -21,12 +21,12 @@ import {
   type IpVersion,
 } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
 import { toPoolItem } from '~/components/PoolListboxItem'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
-import { Modal } from '~/ui/lib/Modal'
 import { ALL_ISH } from '~/util/consts'
 
 type AttachEphemeralIpModalProps = {
@@ -65,54 +65,45 @@ export const AttachEphemeralIpModal = ({
       addToast(<>IP <HL>{ephemeralIp.ip}</HL> attached</>)
       onDismiss()
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
   })
 
   const form = useForm({ defaultValues: { pool: defaultPool } })
   const pool = form.watch('pool')
 
-  const disabledReason =
+  const submitDisabled =
     compatibleUnicastPools.length === 0
       ? 'No compatible unicast pools available for this instance'
       : !pool
-        ? 'Select a pool to continue'
+        ? 'Select a pool'
         : undefined
 
   return (
-    <Modal isOpen title="Attach ephemeral IP" onDismiss={onDismiss}>
-      <Modal.Body>
-        <Modal.Section>
-          {infoMessage && <Message variant="info" content={infoMessage} />}
-          <form>
-            <ListboxField
-              name="pool"
-              label="Pool"
-              control={form.control}
-              items={sortPools(compatibleUnicastPools).map(toPoolItem)}
-              disabled={compatibleUnicastPools.length === 0}
-              placeholder="Select a pool"
-              noItemsPlaceholder="No pools available"
-            />
-          </form>
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        actionText="Attach"
-        disabled={!!disabledReason}
-        disabledReason={disabledReason}
-        onAction={() => {
-          instanceEphemeralIpAttach.mutate({
-            path: { instance },
-            query: { project },
-            body: {
-              poolSelector: { type: 'explicit', pool },
-            },
-          })
-        }}
-        onDismiss={onDismiss}
-      ></Modal.Footer>
-    </Modal>
+    <ModalForm
+      form={form}
+      title="Attach ephemeral IP"
+      onDismiss={onDismiss}
+      submitLabel="Attach"
+      submitDisabled={submitDisabled}
+      submitError={instanceEphemeralIpAttach.error}
+      loading={instanceEphemeralIpAttach.isPending}
+      onSubmit={({ pool }) => {
+        instanceEphemeralIpAttach.mutate({
+          path: { instance },
+          query: { project },
+          body: { poolSelector: { type: 'explicit', pool } },
+        })
+      }}
+    >
+      {infoMessage && <Message variant="info" content={infoMessage} />}
+      <ListboxField
+        name="pool"
+        label="Pool"
+        control={form.control}
+        items={sortPools(compatibleUnicastPools).map(toPoolItem)}
+        disabled={compatibleUnicastPools.length === 0}
+        placeholder="Select a pool"
+        noItemsPlaceholder="No pools available"
+      />
+    </ModalForm>
   )
 }

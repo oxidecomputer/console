@@ -6,13 +6,12 @@
  * Copyright Oxide Computer Company
  */
 
-import { filesize } from 'filesize'
-
 import type { InstanceState } from '~/api'
 import { InstanceStateBadge } from '~/components/StateBadge'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { DateTime } from '~/ui/lib/DateTime'
+import { formatBytes } from '~/util/units'
 
 // the full type of the info arg is CellContext<Row, Item> from RT, but in these
 // cells we only care about the return value of getValue
@@ -40,7 +39,7 @@ function instanceStateCell(info: Info<InstanceState>) {
 
 // not using Info<number> so this can also be used for minitables
 export function sizeCellInner(value: number) {
-  const size = filesize(value, { base: 2, output: 'object' })
+  const size = formatBytes(value)
   return (
     <span className="text-default">
       {size.value} <span className="text-tertiary">{size.unit}</span>

@@ -109,11 +109,11 @@ export function ActionMenu(props: ActionMenuProps) {
                   e.preventDefault()
                   onDismiss()
                 }
-              } else if (e.key === KEYS.down || (e.ctrlKey && e.key === 'n')) {
+              } else if (e.key === KEYS.down) {
                 e.preventDefault()
                 const newIdx = selectedIdx === lastIdx ? 0 : selectedIdx + 1
                 setSelectedIdx(newIdx)
-              } else if (e.key === KEYS.up || (e.ctrlKey && e.key === 'p')) {
+              } else if (e.key === KEYS.up) {
                 e.preventDefault()
                 const newIdx = selectedIdx === 0 ? lastIdx : selectedIdx - 1
                 setSelectedIdx(newIdx)

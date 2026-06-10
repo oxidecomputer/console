@@ -23,7 +23,9 @@ type DeleteConfig = {
    * directly.
    */
   label: React.ReactNode
-  resourceKind?: string
+  /** Lowercase resource type, used in the modal title ("Delete X") and
+   * the error toast title ("Could not delete X"). */
+  resourceKind: string
   extraContent?: React.ReactNode
 }
 
@@ -31,7 +33,6 @@ export const confirmDelete =
   ({ doDelete, label, resourceKind, extraContent }: DeleteConfig) =>
   () => {
     const displayLabel = typeof label === 'string' ? <HL>{label}</HL> : label
-    const modalTitle = resourceKind ? `Confirm delete ${resourceKind}` : 'Confirm delete'
     useConfirmAction.setState({
       actionConfig: {
         doAction: doDelete,
@@ -41,8 +42,8 @@ export const confirmDelete =
             {extraContent ? <p>{extraContent}</p> : null}
           </div>
         ),
-        errorTitle: 'Could not delete resource',
-        modalTitle,
+        errorTitle: `Could not delete ${resourceKind}`,
+        modalTitle: `Delete ${resourceKind}`,
         actionType: 'danger',
       },
     })

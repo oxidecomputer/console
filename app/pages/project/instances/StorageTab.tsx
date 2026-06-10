@@ -41,6 +41,7 @@ import { CardBlock } from '~/ui/lib/CardBlock'
 import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { links } from '~/util/links'
+import { capitalize } from '~/util/str'
 
 import { snapshotDisabledReason } from './common'
 
@@ -113,9 +114,6 @@ export default function StorageTab() {
       queryClient.invalidateEndpoint('instanceDiskList')
       // prettier-ignore
       addToast(<>Disk <HL>{disk.name}</HL> detached</>)
-    },
-    onError(err) {
-      addToast({ title: 'Failed to detach disk', content: err.message, variant: 'error' })
     },
   })
   const { mutate: createSnapshot } = useApiMutation(api.snapshotCreate, {
@@ -190,10 +188,11 @@ export default function StorageTab() {
                   memory: instance.memory,
                   autoRestartPolicy: instance.autoRestartPolicy || null,
                   cpuPlatform: instance.cpuPlatform || null,
+                  enableJumboFrames: instance.enableJumboFrames,
                 },
               }),
             errorTitle: 'Could not unset boot disk',
-            modalTitle: 'Confirm unset boot disk',
+            modalTitle: 'Unset boot disk',
             // TODO: copy + link to docs
             modalContent: (
               <div className="space-y-2">
@@ -227,6 +226,7 @@ export default function StorageTab() {
       instance.ncpus,
       instance.memory,
       instance.cpuPlatform,
+      instance.enableJumboFrames,
       getSnapshotAction,
     ]
   )
@@ -255,10 +255,11 @@ export default function StorageTab() {
                   memory: instance.memory,
                   autoRestartPolicy: instance.autoRestartPolicy || null,
                   cpuPlatform: instance.cpuPlatform || null,
+                  enableJumboFrames: instance.enableJumboFrames,
                 },
               }),
             errorTitle: `Could not ${verb} boot disk`,
-            modalTitle: `Confirm ${verb} boot disk`,
+            modalTitle: `${capitalize(verb)} boot disk`,
             modalContent: bootDiskName ? (
               <p>
                 Are you sure you want to change the boot disk to <HL>{disk.name}</HL>?
@@ -290,7 +291,7 @@ export default function StorageTab() {
             doAction: () =>
               detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } }),
             errorTitle: 'Could not detach disk',
-            modalTitle: 'Confirm detach disk',
+            modalTitle: 'Detach disk',
             // prettier-ignore
             modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>,
             actionType: 'danger',
@@ -307,6 +308,7 @@ export default function StorageTab() {
       instance.ncpus,
       instance.memory,
       instance.cpuPlatform,
+      instance.enableJumboFrames,
       getSnapshotAction,
       bootDisks,
     ]

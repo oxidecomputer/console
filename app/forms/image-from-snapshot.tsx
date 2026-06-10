@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { filesize } from 'filesize'
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
@@ -31,6 +30,7 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+import { formatBytes } from '~/util/units'
 
 const defaultValues: Omit<ImageCreate, 'source'> = {
   name: '',
@@ -94,7 +94,7 @@ export default function CreateImageFromSnapshotSideModalForm() {
         <PropertiesTable.Row label="Snapshot">{data.name}</PropertiesTable.Row>
         <PropertiesTable.Row label="Project">{project}</PropertiesTable.Row>
         <PropertiesTable.Row label="Size">
-          {filesize(data.size, { base: 2 })}
+          {formatBytes(data.size).label}
         </PropertiesTable.Row>
       </PropertiesTable>
 

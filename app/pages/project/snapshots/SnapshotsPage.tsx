@@ -154,6 +154,7 @@ export default function SnapshotsPage() {
               query: { project },
             }),
           label: snapshot.name,
+          resourceKind: 'snapshot',
         }),
       },
     ],
