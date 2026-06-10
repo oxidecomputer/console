@@ -105,7 +105,7 @@ export default function RouterPage() {
       icon={<Networking24Icon />}
       title="No routes"
       body="Add a route to see it here"
-      buttonText="Add route"
+      buttonText="New route"
       buttonTo={pb.vpcRouterRoutesNew({ project, vpc, router })}
     />
   )
@@ -182,7 +182,7 @@ export default function RouterPage() {
       canCreateNewRoute
         ? [
             {
-              value: 'Add route',
+              value: 'New route',
               navGroup: 'Actions',
               action: pb.vpcRouterRoutesNew({ project, vpc, router }),
             },
@@ -220,14 +220,14 @@ export default function RouterPage() {
         <CardBlock.Header title="Routes" description="Rules for directing network traffic">
           {canCreateNewRoute ? (
             <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
-              Add route
+              New route
             </CreateLink>
           ) : (
             <CreateButton
               disabled
               disabledReason={routeFormMessage.noNewRoutesOnSystemRouter}
             >
-              Add route
+              New route
             </CreateButton>
           )}
         </CardBlock.Header>

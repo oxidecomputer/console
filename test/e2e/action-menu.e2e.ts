@@ -108,19 +108,19 @@ test('dismiss with Escape', async ({ page }) => {
   await expect(page.getByText('Enterto submit')).toBeHidden()
 })
 
-test('router quick action "Add route" hidden for system router, visible for custom', async ({
+test('router quick action "New route" hidden for system router, visible for custom', async ({
   page,
 }) => {
   // system router: action should not appear
   await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-system-router')
   await openActionMenu(page)
-  await expect(page.getByRole('option', { name: 'Add route' })).toBeHidden()
+  await expect(page.getByRole('option', { name: 'New route' })).toBeHidden()
   await page.keyboard.press('Escape')
 
   // custom router: action should appear
   await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
   await openActionMenu(page)
-  await expect(page.getByRole('option', { name: 'Add route' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'New route' })).toBeVisible()
 })
 
 test('storage tab quick actions hidden when instance running, visible when stopped', async ({
