@@ -26,6 +26,20 @@ it('Generated API client version matches API version specified for deployment', 
   expect(generatedVersion).toEqual(pinnedVersion)
 })
 
+// omicron releng reads API_VERSION at our pinned commit to check the console
+// client matches the API being released, so it must stay in sync with the
+// version baked into the generated client
+it('API_VERSION file matches apiVersion in generated client', () => {
+  const apiVersionFile = fs
+    .readFileSync(path.resolve(__dirname, '../__generated__/API_VERSION'), 'utf8')
+    .trim()
+
+  const apiTs = fs.readFileSync(path.resolve(__dirname, '../__generated__/Api.ts'), 'utf8')
+  const match = apiTs.match(/^\s*apiVersion = '(.+)'$/m)
+
+  expect(match?.[1]).toEqual(apiVersionFile)
+})
+
 const grepFiles = (s: string) =>
   execSync(`git grep -l "${s}"`)
     .toString()
