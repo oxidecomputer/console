@@ -23,6 +23,7 @@ import { HL } from '~/components/HL'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -60,6 +61,13 @@ const staticCols = [
     cell: makeLinkCell((image) => pb.siloImageEdit({ image })),
   }),
   colHelper.accessor('description', Columns.description),
+  colHelper.accessor('os', {
+    header: 'OS',
+    cell: (info) => info.getValue() || <EmptyCell />,
+  }),
+  colHelper.accessor('version', {
+    cell: (info) => info.getValue() || <EmptyCell />,
+  }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
