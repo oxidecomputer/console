@@ -67,6 +67,7 @@ export default function ImagesPage() {
       // prettier-ignore
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>)
       queryClient.invalidateEndpoint('imageList')
+      queryClient.invalidateEndpoint('imageView')
     },
   })
 
@@ -175,6 +176,9 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
         },
       })
       queryClient.invalidateEndpoint('imageList')
+      // promotion flips projectId; refetch the per-id view so cached entries
+      // reflect the new visibility
+      queryClient.invalidateEndpoint('imageView')
       onDismiss()
     },
     onError: (err) => {
