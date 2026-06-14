@@ -109,7 +109,7 @@
     "patch-package": "^8.0.0",
     "resize-observer-polyfill": "^1.5.1",
     "tailwindcss": "^4.1.18",
-    "tsx": "^4.19.2",
+    "tsx": "^4.22.4",
     "type-fest": "^5.2.0",
     "typescript": "~5.9.2",
     "vite": "^8.0.10",
