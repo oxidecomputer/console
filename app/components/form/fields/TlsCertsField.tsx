@@ -49,7 +49,7 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
           className="mb-4"
           ariaLabel="TLS Certificates"
           items={items}
-          columns={[{ header: 'Name', cell: (item) => item.name }]}
+          columns={[{ header: 'Name', text: (item) => item.name }]}
           rowKey={(item) => item.name}
           onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
           removeLabel={(item) => `remove cert ${item.name}`}
