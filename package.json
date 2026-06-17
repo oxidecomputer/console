@@ -14,7 +14,7 @@
     "start:colo": "API_MODE=remote EXT_HOST=oxide.sys.r3.oxide-preview.com vite",
     "preview": "API_MODE=msw npm run build && cp mockServiceWorker.js dist/ && vite preview",
     "dev": "API_MODE=msw vite",
-    "start:mock-api": "tsx ./tools/start_mock_api.ts",
+    "start:mock-api": "vite-node ./tools/start_mock_api.ts",
     "build": "vite build",
     "ci": "npm run tsc && npm run lint && npm run fmt:check && npm run test run && npm run e2ec",
     "tsc": "tsgo",
@@ -109,10 +109,9 @@
     "patch-package": "^8.0.0",
     "resize-observer-polyfill": "^1.5.1",
     "tailwindcss": "^4.1.18",
-    "tsx": "^4.19.2",
     "type-fest": "^5.2.0",
-    "typescript": "~5.9.2",
     "vite": "^8.0.16",
+    "vite-node": "^6.0.0",
     "vitest": "^4.1.5"
   },
   "browserslist": [
