@@ -21,6 +21,15 @@ import { server } from './server'
 // an error that the method is not implemented
 HTMLCanvasElement.prototype.getContext = () => null
 
+// jsdom has no ResizeObserver, but Headless UI (e.g. Listbox) constructs one for
+// popover positioning. A no-op stub is enough — there's no real layout to observe
+// in jsdom, so the callback never needs to fire.
+globalThis.ResizeObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
 beforeAll(() => server.listen())
 afterEach(() => {
   resetDb()
