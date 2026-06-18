@@ -78,8 +78,8 @@ describe('parseCertificate', () => {
 
   const invalidCert = 'not-a-certificate'
 
-  it('parses valid certificate', async () => {
-    const result = await parseCertificate(validCert)
+  it('parses valid certificate', () => {
+    const result = parseCertificate(validCert)
     expect(result).toEqual({
       commonNames: ['test.example.com'],
       subjectAltNames: [
@@ -95,8 +95,8 @@ describe('parseCertificate', () => {
     expect(result.notAfter?.toISOString()).toBe('2025-11-27T14:18:18.000Z')
   })
 
-  it('returns invalid for invalid certificate', async () => {
-    const result = await parseCertificate(invalidCert)
+  it('returns invalid for invalid certificate', () => {
+    const result = parseCertificate(invalidCert)
     expect(result).toEqual({
       commonNames: [],
       subjectAltNames: [],
@@ -105,8 +105,8 @@ describe('parseCertificate', () => {
     })
   })
 
-  it('returns invalid for empty input', async () => {
-    expect(await parseCertificate('')).toEqual({
+  it('returns invalid for empty input', () => {
+    expect(parseCertificate('')).toEqual({
       commonNames: [],
       subjectAltNames: [],
       notAfter: null,
@@ -114,10 +114,10 @@ describe('parseCertificate', () => {
     })
   })
 
-  it('returns invalid for binary garbage', async () => {
+  it('returns invalid for binary garbage', () => {
     // simulates a non-PEM file (e.g. PNG) read as text
     const garbage = '\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR'
-    expect(await parseCertificate(garbage)).toEqual({
+    expect(parseCertificate(garbage)).toEqual({
       commonNames: [],
       subjectAltNames: [],
       notAfter: null,
@@ -125,17 +125,17 @@ describe('parseCertificate', () => {
     })
   })
 
-  it('parses the leaf when given a chain (multi-PEM bundle)', async () => {
+  it('parses the leaf when given a chain (multi-PEM bundle)', () => {
     // leaf + a second cert appended; we should parse the leaf only
     const chain = `${validCert}\n${validCert}`
-    const result = await parseCertificate(chain)
+    const result = parseCertificate(chain)
     expect(result.isValid).toBe(true)
     expect(result.commonNames).toEqual(['test.example.com'])
   })
 
-  it('tolerates leading whitespace and BOM', async () => {
+  it('tolerates leading whitespace and BOM', () => {
     const wrapped = `﻿  \n\t${validCert}\n\n`
-    const result = await parseCertificate(wrapped)
+    const result = parseCertificate(wrapped)
     expect(result.isValid).toBe(true)
     expect(result.commonNames).toEqual(['test.example.com'])
   })

@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { SubjectAlternativeNameExtension, X509Certificate } from '@peculiar/x509'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
@@ -166,10 +167,7 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
 
 const PEM_BLOCK_RE = /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/
 
-export async function parseCertificate(certPem: string) {
-  // dynamic import to keep 50k gzipped out of the main bundle
-  const { SubjectAlternativeNameExtension, X509Certificate } =
-    await import('@peculiar/x509')
+export function parseCertificate(certPem: string) {
   try {
     // Users often paste a chain (leaf + intermediates). Take the first PEM
     // block — by convention that's the leaf cert, which is what should
