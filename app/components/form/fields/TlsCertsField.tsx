@@ -148,7 +148,7 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
               control={control}
             />
             <CertDomainNotice
-              {...(certValidation ?? {})}
+              validation={certValidation}
               siloName={siloName}
               domain={getDelegatedDomain(window.location)}
             />
@@ -235,20 +235,17 @@ const SiloCertsDocsLink = () => (
 )
 
 function CertDomainNotice({
-  commonNames = [],
-  subjectAltNames = [],
-  isValid = true,
-  notAfter = null,
+  validation,
   siloName,
   domain,
 }: {
-  commonNames?: string[]
-  subjectAltNames?: string[]
-  isValid?: boolean
-  notAfter?: Date | null
+  validation?: ReturnType<typeof parseCertificate>
   siloName: string
   domain: string
 }) {
+  if (!validation) return null
+  const { commonNames, subjectAltNames, isValid, notAfter } = validation
+
   if (!isValid) {
     return (
       <Message
