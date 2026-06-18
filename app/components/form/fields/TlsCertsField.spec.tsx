@@ -26,6 +26,10 @@ describe('matchesDomain', () => {
     expect(matchesDomain('*.example.com', 'sub.sub.sub.example.com')).toBe(false)
   })
 
+  it('does not match wildcard suffixes across label boundaries', () => {
+    expect(matchesDomain('*.ys.example.com', 'foo.sys.example.com')).toBe(false)
+  })
+
   it('matches with case insensitivity', () => {
     expect(matchesDomain('EXAMPLE.COM', 'example.com')).toBe(true)
     expect(matchesDomain('example.com', 'EXAMPLE.COM')).toBe(true)

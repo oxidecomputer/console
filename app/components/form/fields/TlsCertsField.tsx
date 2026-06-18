@@ -209,10 +209,9 @@ export function matchesDomain(pattern: string, domain: string): boolean {
   if (patternParts[0] === '*') {
     // same number of labels (prevents *.domain.com matching a.b.domain.com)
     if (domainParts.length !== patternParts.length) return false
-    const patternSuffix = patternParts.slice(1).join('.')
     // reject pathological '*.' (would match any 2-label domain)
-    if (patternSuffix === '') return false
-    return normDomain.endsWith(patternSuffix)
+    if (patternParts.length === 1 || patternParts[1] === '') return false
+    return patternParts.slice(1).every((part, i) => part === domainParts[i + 1])
   }
 
   // parts must match exactly for non-wildcard patterns
