@@ -16,7 +16,6 @@ import {
 } from 'react-hook-form'
 
 import { Combobox, type ComboboxBaseProps } from '~/ui/lib/Combobox'
-import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
 
@@ -37,7 +36,7 @@ export function ComboboxField<
 >({
   control,
   name,
-  label = capitalize(name),
+  label,
   required,
   onChange,
   onInputChange,
