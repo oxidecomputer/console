@@ -92,7 +92,7 @@
     "@types/react-is": "^19.2.0",
     "@types/semver": "^7.7.1",
     "@types/uuid": "^10.0.0",
-    "@typescript/native-preview": "^7.0.0-dev.20260421.2",
+    "@typescript/native-preview": "^7.0.0-dev.20260617.2",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^6.0.2",
     "autoprefixer": "^10.4.20",
