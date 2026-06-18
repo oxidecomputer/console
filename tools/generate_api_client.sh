@@ -27,8 +27,11 @@ EOF)
 
 LATEST_SPEC=$(curl "$SPEC_BASE/nexus-latest.json")
 
+SPEC_FILE=$(mktemp -d)/$LATEST_SPEC
+curl "$SPEC_BASE/$LATEST_SPEC" > "$SPEC_FILE"
+
 # use versions of these packages specified in dev deps
-npm run openapi-gen-ts -- "$SPEC_BASE/$LATEST_SPEC" $GEN_DIR --features msw
+npm run openapi-gen-ts -- "$SPEC_FILE" $GEN_DIR --features msw
 
 for f in Api.ts msw-handlers.ts validate.ts; do
   (printf '%s\n\n' "$HEADER"; cat "$GEN_DIR/$f") > "$GEN_DIR/$f.tmp"
@@ -41,3 +44,8 @@ cat > $GEN_DIR/OMICRON_VERSION <<EOF
 # generated file. do not update manually. see docs/update-pinned-api.md
 $OMICRON_SHA
 EOF
+
+# Standalone copy of the API version so other tooling (e.g., omicron releng)
+# can read it without parsing Api.ts. Bare version string with no comment line
+# to keep it trivial to consume.
+jq -r '.info.version' "$SPEC_FILE" > "$GEN_DIR/API_VERSION"

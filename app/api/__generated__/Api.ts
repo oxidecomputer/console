@@ -2474,13 +2474,20 @@ export type InstanceAutoRestartPolicy =
  *
  * If an instance does not specify a required CPU platform, then when it starts, the control plane selects a host for the instance and then supplies the guest with the "minimum" CPU platform supported by that host. This maximizes the number of hosts that can run the VM if it later needs to migrate to another host.
  *
- * In all cases, the CPU features presented by a given CPU platform are a subset of what the corresponding hardware may actually support; features which cannot be used from a virtual environment or do not have full hypervisor support may be masked off. See RFD 314 for specific CPU features in a CPU platform.
+ * In all cases, the CPU features presented by a given CPU platform are a subset of what the corresponding hardware may actually support; features which cannot be used from a virtual environment or do not have full hypervisor support may be masked off.
  */
 export type InstanceCpuPlatform = /** An AMD Milan-like CPU platform. */
 | 'amd_milan'
 
-/** An AMD Turin-like CPU platform. */
+/** An AMD Turin-like CPU platform. Prefer `amd_turin_v2` over this; this CPU platform is retained for instances that specifically requested it before `amd_turin_v2` was added.
+
+This initial version of the Turin CPU platform includes no cache or TLB information in CPUID leaf `8000_0006`. While this was intentional, Oxide later discovered some guest software interprets the zeroed leaves as reporting cache sizes of 0 bytes and behaves incorrectly and unpredictably as a result (see [Propolis#1152](https://github.com/oxidecomputer/propolis/issues/1152)). */
 | 'amd_turin'
+
+/** An AMD Turin-like CPU platform.
+
+This version of the Turin CPU platform includes cache and TLB information in CPUID leaf `8000_0006`, similar to the cache information included in the initial Milan-like CPU platform. */
+| 'amd_turin_v2'
 
 /**
  * The number of CPUs in an Instance
@@ -7537,7 +7544,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026060500.0.0'
+  apiVersion = '2026060800.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
