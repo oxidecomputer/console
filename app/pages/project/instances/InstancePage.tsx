@@ -325,6 +325,7 @@ export function ResizeInstanceModal({
         bootDisk: instance.bootDiskId || null,
         cpuPlatform: instance.cpuPlatform || null,
         autoRestartPolicy: instance.autoRestartPolicy || null,
+        enableJumboFrames: instance.enableJumboFrames,
       },
     })
   })
