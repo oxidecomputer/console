@@ -268,12 +268,14 @@ function CertDomainNotice({
 
   const expired = notAfter != null && notAfter < new Date()
 
-  const hasNames = commonNames.length > 0 || subjectAltNames.length > 0
   const expectedDomain = siloName ? `${siloName}.sys.${domain}` : null
-  const domains = [...commonNames, ...subjectAltNames]
+  // RFC 6125 §6.4.4: CN matching is only a last-resort fallback when
+  // the certificate has no supported subjectAltName identifiers.
+  // https://www.rfc-editor.org/rfc/rfc6125.html#section-6.4.4
+  const domains = subjectAltNames.length > 0 ? subjectAltNames : commonNames
   const mismatched =
     expectedDomain !== null &&
-    hasNames &&
+    domains.length > 0 &&
     !domains.some((d) => matchesDomain(d, expectedDomain))
 
   if (!expired && !mismatched) return null
