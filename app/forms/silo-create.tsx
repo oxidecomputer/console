@@ -72,6 +72,7 @@ export default function CreateSiloSideModalForm() {
 
   const form = useForm({ defaultValues })
   const identityMode = form.watch('identityMode')
+  const siloName = form.watch('name')
   // Clear the adminGroupName if the user selects the "local only" identity mode
   useEffect(() => {
     if (identityMode === 'local_only') {
@@ -182,7 +183,7 @@ export default function CreateSiloSideModalForm() {
         </div>
       </div>
       <FormDivider />
-      <TlsCertsField control={form.control} />
+      <TlsCertsField control={form.control} siloName={siloName} />
       <SideModalFormDocs docs={[docLinks.systemSiloCreate, docLinks.systemSilo]} />
     </SideModalForm>
   )
