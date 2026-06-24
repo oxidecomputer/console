@@ -27,9 +27,10 @@ export const Truncate = ({
   tooltipDelay = 300,
 }: TruncateProps) => {
   // Only use the tooltip if the text is longer than maxLength
+  // "truncate" class used for CSS truncation when cell rendered narrowly
   const content =
     text.length <= maxLength ? (
-      <div>{text}</div>
+      <div className="truncate">{text}</div>
     ) : (
       <Tooltip content={text} delay={tooltipDelay}>
         <div aria-label={text} className="truncate">

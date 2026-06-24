@@ -44,7 +44,7 @@ export default function ProfilePage() {
 
       <PropertiesTable className="-mt-8 mb-8">
         <PropertiesTable.Row label="Display name">{me.displayName}</PropertiesTable.Row>
-        <PropertiesTable.CopyableRow label="User ID" text={me.id} />
+        <PropertiesTable.IdRow label="User ID" id={me.id} />
       </PropertiesTable>
 
       <TableTitle id="groups-label" className="mb-4">
