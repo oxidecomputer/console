@@ -100,7 +100,7 @@ export default function EditRouterRouteSideModalForm() {
       submitDisabled={disabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >
       <RouteFormFields form={form} disabled={disabled} />
-      <RouteFormDocs />
+      <RouteFormDocs apiOp="vpc_router_route_update" cliCmd="vpc/router/route/update" />
     </SideModalForm>
   )
 }

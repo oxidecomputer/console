@@ -107,7 +107,11 @@ export default function EditSubnetForm() {
         control={form.control}
         required
       />
-      <SideModalFormDocs docs={[docLinks.vpcs]} />
+      <SideModalFormDocs
+        docs={[docLinks.vpcs]}
+        apiOp="vpc_subnet_update"
+        cliCmd="vpc/subnet/update"
+      />
     </SideModalForm>
   )
 }

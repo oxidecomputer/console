@@ -77,7 +77,11 @@ export function FleetAccessAddUserSideModal({
         control={form.control}
       />
       <RoleRadioField name="roleName" control={form.control} scope="Fleet" />
-      <SideModalFormDocs docs={[docLinks.access]} />
+      <SideModalFormDocs
+        docs={[docLinks.access]}
+        apiOp="system_policy_update"
+        cliCmd="system/policy/update"
+      />
     </SideModalForm>
   )
 }
@@ -122,7 +126,11 @@ export function FleetAccessEditUserSideModal({
       }}
     >
       <RoleRadioField name="roleName" control={form.control} scope="Fleet" />
-      <SideModalFormDocs docs={[docLinks.access]} />
+      <SideModalFormDocs
+        docs={[docLinks.access]}
+        apiOp="system_policy_update"
+        cliCmd="system/policy/update"
+      />
     </SideModalForm>
   )
 }

@@ -76,7 +76,11 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         control={form.control}
       />
       <RoleRadioField name="roleName" control={form.control} scope="Project" />
-      <SideModalFormDocs docs={[docLinks.access]} />
+      <SideModalFormDocs
+        docs={[docLinks.access]}
+        apiOp="project_policy_update"
+        cliCmd="project/policy/update"
+      />
     </SideModalForm>
   )
 }
@@ -123,7 +127,11 @@ export function ProjectAccessEditUserSideModal({
       onDismiss={onDismiss}
     >
       <RoleRadioField name="roleName" control={form.control} scope="Project" />
-      <SideModalFormDocs docs={[docLinks.access]} />
+      <SideModalFormDocs
+        docs={[docLinks.access]}
+        apiOp="project_policy_update"
+        cliCmd="project/policy/update"
+      />
     </SideModalForm>
   )
 }

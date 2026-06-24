@@ -79,7 +79,11 @@ export default function CreateAntiAffinityGroupForm() {
           { value: 'fail', label: 'Fail' },
         ]}
       />
-      <SideModalFormDocs docs={[docLinks.affinity]} />
+      <SideModalFormDocs
+        docs={[docLinks.affinity]}
+        apiOp="anti_affinity_group_create"
+        cliCmd="instance/anti-affinity/create"
+      />
     </SideModalForm>
   )
 }

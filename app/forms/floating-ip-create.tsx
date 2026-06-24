@@ -108,7 +108,11 @@ export default function CreateFloatingIpSideModalForm() {
         placeholder="Select a pool"
         noItemsPlaceholder="No pools available"
       />
-      <SideModalFormDocs docs={[docLinks.floatingIps]} />
+      <SideModalFormDocs
+        docs={[docLinks.floatingIps]}
+        apiOp="floating_ip_create"
+        cliCmd="floating-ip/create"
+      />
     </SideModalForm>
   )
 }
