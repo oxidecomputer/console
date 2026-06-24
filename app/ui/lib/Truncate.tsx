@@ -26,22 +26,27 @@ export const Truncate = ({
   hasCopyButton,
   tooltipDelay = 300,
 }: TruncateProps) => {
-  if (text.length <= maxLength) {
-    return <div>{text}</div>
-  }
-
   // Only use the tooltip if the text is longer than maxLength
-  return (
-    // overflow-hidden required to make inner truncate work
-    <div className="flex items-center gap-0.5 overflow-hidden">
+  const content =
+    text.length <= maxLength ? (
+      <div>{text}</div>
+    ) : (
       <Tooltip content={text} delay={tooltipDelay}>
         <div aria-label={text} className="truncate">
           {truncate(text, maxLength, position)}
         </div>
       </Tooltip>
-      <div className="flex items-center p-0.5">
-        {hasCopyButton && <CopyToClipboard text={text} />}
-      </div>
+    )
+
+  return (
+    // overflow-hidden required to make inner truncate work
+    <div className="flex items-center gap-0.5 overflow-hidden">
+      {content}
+      {hasCopyButton && (
+        <div className="flex items-center p-0.5">
+          <CopyToClipboard text={text} />
+        </div>
+      )}
     </div>
   )
 }
