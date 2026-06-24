@@ -74,7 +74,7 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
 
 PropertiesTable.IdRow = ({ id, label = 'ID' }: { id?: string | null; label?: string }) => (
   <PropertiesTable.Row label={label}>
-    {id ? <Truncate text={id} maxLength={32} hasCopyButton /> : <EmptyCell />}
+    {id ? <Truncate text={id} maxLength={36} hasCopyButton /> : <EmptyCell />}
   </PropertiesTable.Row>
 )
 
