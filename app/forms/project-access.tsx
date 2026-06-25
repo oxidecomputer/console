@@ -111,7 +111,7 @@ export function ProjectAccessEditUserSideModal({
       form={form}
       formType="edit"
       resourceName="role"
-      title="Edit role"
+      title={`${defaultValues.roleName ? 'Edit' : 'Add'} project role`}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {name}

@@ -62,7 +62,7 @@ test('Click through project access page', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Add project role"]')
   const editDialog = page.getByRole('dialog')
-  await expect(editDialog.getByRole('heading', { name: /Edit role/ })).toBeVisible()
+  await expect(editDialog.getByRole('heading', { name: /Add project role/ })).toBeVisible()
   await expect(editDialog.getByRole('radio', { checked: true })).toHaveCount(0)
   await editDialog.getByRole('button', { name: 'Cancel' }).click()
 
@@ -101,7 +101,7 @@ test('Click through project access page', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Change project role"]')
 
-  await expectVisible(page, ['role=heading[name*="Edit role"]'])
+  await expectVisible(page, ['role=heading[name*="Edit project role"]'])
 
   // Verify Collaborator is currently selected
   await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
