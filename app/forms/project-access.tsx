@@ -13,6 +13,7 @@ import {
   updateRole,
   useActorsNotInPolicy,
   useApiMutation,
+  type RoleKey,
 } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
@@ -88,7 +89,11 @@ export function ProjectAccessEditUserSideModal({
   identityType,
   policy,
   defaultValues,
-}: EditRoleModalProps) {
+}: Omit<EditRoleModalProps, 'defaultValues'> & {
+  // roleName is optional so the form can open with no role selected for a user
+  // who has only a silo role today; choosing one adds a new project assignment
+  defaultValues: { roleName?: RoleKey }
+}) {
   const { project } = useProjectSelector()
 
   const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
@@ -113,6 +118,8 @@ export function ProjectAccessEditUserSideModal({
         </ResourceLabel>
       }
       onSubmit={({ roleName }) => {
+        // required validation prevents submitting without a selection
+        if (!roleName) return
         updatePolicy.mutate({
           path: { project },
           body: updateRole({ identityId, identityType, roleName }, policy),

@@ -20,6 +20,7 @@ import {
   roleOrder,
   useApiMutation,
   usePrefetchedQuery,
+  userRoleFromPolicies,
   useUserRows,
   type IdentityType,
   type RoleKey,
@@ -34,6 +35,7 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -103,6 +105,17 @@ export default function ProjectAccessPage() {
   const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
   const projectRows = useUserRows(projectPolicy.roleAssignments, 'project')
 
+  // Changing a project role assignment requires `modify` on the project, i.e.
+  // the project `admin` role. Per the authz policy, that role is conferred
+  // either by a direct project admin role or by a silo collaborator/admin role
+  // (a silo collaborator is an admin on every project in the silo).
+  // https://github.com/oxidecomputer/omicron/blob/main/nexus/auth/src/authz/omicron.polar
+  const { me, myGroups } = useCurrentUser()
+  const myProjectRole = userRoleFromPolicies(me, myGroups.items, [projectPolicy])
+  const mySiloRole = userRoleFromPolicies(me, myGroups.items, [siloPolicy])
+  const canEditRoles =
+    myProjectRole === 'admin' || mySiloRole === 'admin' || mySiloRole === 'collaborator'
+
   const rows = useMemo(() => {
     return groupBy(siloRows.concat(projectRows), (u) => u.id)
       .map(([userId, userAssignments]) => {
@@ -166,15 +179,14 @@ export default function ProjectAccessPage() {
         ),
       }),
 
-      // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
         {
-          label: 'Change role',
+          // An admin can change any row's project role, even one that only has
+          // a silo role, because doing so adds a new project assignment.
+          label: `${row.projectRole ? 'Change' : 'Add'} project role`,
           onActivate: () => setEditingUserRow(row),
-          disabled:
-            !row.projectRole && "You don't have permission to change this user's role",
+          disabled: !canEditRoles && "You don't have permission to change roles",
         },
-        // TODO: only show if you have permission to do this
         {
           label: 'Delete',
           onActivate: confirmDelete({
@@ -194,11 +206,17 @@ export default function ProjectAccessPage() {
             ),
             resourceKind: 'role assignment',
           }),
-          disabled: !row.projectRole && "You don't have permission to delete this user",
+          disabled: !canEditRoles
+            ? "You don't have permission to remove roles"
+            : // There's no project assignment to delete; the role is inherited
+              // from the silo and can only be changed on the silo access page.
+              !row.projectRole
+              ? 'This role is inherited from the silo'
+              : undefined,
         },
       ]),
     ],
-    [projectPolicy, projectSelector.project, updatePolicy]
+    [canEditRoles, projectPolicy, projectSelector.project, updatePolicy]
   )
 
   const tableInstance = useReactTable({
@@ -239,13 +257,14 @@ export default function ProjectAccessPage() {
           policy={projectPolicy}
         />
       )}
-      {projectPolicy && editingUserRow?.projectRole && (
+      {projectPolicy && editingUserRow && (
         <ProjectAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={projectPolicy}
           name={editingUserRow.name}
           identityId={editingUserRow.id}
           identityType={editingUserRow.identityType}
+          // leave unselected when the user has no project role yet
           defaultValues={{ roleName: editingUserRow.projectRole }}
         />
       )}
