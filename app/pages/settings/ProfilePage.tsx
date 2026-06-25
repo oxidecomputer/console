@@ -13,6 +13,7 @@ import { Settings24Icon } from '@oxide/design-system/icons/react'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
+import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableTitle } from '~/ui/lib/Table'
@@ -44,7 +45,10 @@ export default function ProfilePage() {
 
       <PropertiesTable className="-mt-8 mb-8">
         <PropertiesTable.Row label="Display name">{me.displayName}</PropertiesTable.Row>
-        <PropertiesTable.IdRow label="User ID" id={me.id} />
+        <PropertiesTable.Row label="User ID">
+          {me.id}
+          <CopyToClipboard className="ml-1" text={me.id} />
+        </PropertiesTable.Row>
       </PropertiesTable>
 
       <TableTitle id="groups-label" className="mb-4">
