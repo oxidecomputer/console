@@ -116,9 +116,9 @@ export function NetworkInterfaceField({
                     ariaLabel="Network Interfaces"
                     items={value.params}
                     columns={[
-                      { header: 'Name', cell: (item) => item.name },
-                      { header: 'VPC', cell: (item) => item.vpcName },
-                      { header: 'Subnet', cell: (item) => item.subnetName },
+                      { header: 'Name', text: (item) => item.name },
+                      { header: 'VPC', text: (item) => item.vpcName },
+                      { header: 'Subnet', text: (item) => item.subnetName },
                     ]}
                     rowKey={(item) => item.name}
                     onRemoveItem={(item) =>

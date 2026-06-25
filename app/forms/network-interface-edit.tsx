@@ -164,7 +164,7 @@ export function EditNetworkInterfaceForm({
         className="mb-4"
         ariaLabel="Transit IPs"
         items={transitIps}
-        columns={[{ header: 'Transit IPs', cell: (ip) => ip }]}
+        columns={[{ header: 'Transit IPs', text: (ip) => ip }]}
         rowKey={(ip) => ip}
         onRemoveItem={(ip) => {
           form.setValue(

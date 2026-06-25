@@ -17,7 +17,6 @@ import type { InstanceCreateInput } from '~/forms/instance-create'
 import { sizeCellInner } from '~/table/columns/common'
 import { Button } from '~/ui/lib/Button'
 import { MiniTable } from '~/ui/lib/MiniTable'
-import { Truncate } from '~/ui/lib/Truncate'
 
 export type DiskTableItem =
   | (DiskCreate & { action: 'create' })
@@ -52,7 +51,7 @@ export function DisksTableField({
           columns={[
             {
               header: 'Name',
-              cell: (item) => <Truncate text={item.name} maxLength={35} />,
+              text: (item) => item.name,
             },
             {
               header: 'Action',
