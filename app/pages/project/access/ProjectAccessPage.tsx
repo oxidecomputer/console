@@ -185,7 +185,9 @@ export default function ProjectAccessPage() {
           // a silo role, because doing so adds a new project assignment.
           label: `${row.projectRole ? 'Change' : 'Add'} project role`,
           onActivate: () => setEditingUserRow(row),
-          disabled: !canEditRoles && "You don't have permission to change roles",
+          disabled:
+            !canEditRoles &&
+            `You don't have permission to ${row.projectRole ? 'change' : 'add'} project roles`,
         },
         {
           label: 'Delete',

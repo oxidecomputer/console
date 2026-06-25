@@ -54,13 +54,13 @@ test('Click through project access page', async ({ page }) => {
     `role=cell[name="Simone de Beauvoir"]`,
   ])
 
-  // Hannah Arendt has only a silo role, so changing her project role opens the
-  // form with nothing preselected
+  // Hannah Arendt has only a silo role, so the action reads "Add project role"
+  // and the form opens with nothing preselected
   await page
     .getByRole('row', { name: 'Hannah Arendt', exact: false })
     .getByRole('button', { name: 'Row actions' })
     .click()
-  await page.click('role=menuitem[name="Change project role"]')
+  await page.click('role=menuitem[name="Add project role"]')
   const editDialog = page.getByRole('dialog')
   await expect(editDialog.getByRole('heading', { name: /Edit role/ })).toBeVisible()
   await expect(editDialog.getByRole('radio', { checked: true })).toHaveCount(0)
@@ -154,7 +154,7 @@ test('Non-admin cannot change or remove roles', async ({ browser }) => {
   await expect(changeRole).toBeDisabled()
   await changeRole.hover()
   await expect(page.getByRole('tooltip')).toHaveText(
-    "You don't have permission to change roles"
+    "You don't have permission to change project roles"
   )
 
   const deleteItem = page.getByRole('menuitem', { name: 'Delete' })
