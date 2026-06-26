@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { useState } from 'react'
 import {
   useController,
   type Control,
@@ -16,12 +15,7 @@ import {
   type Validate,
 } from 'react-hook-form'
 
-import {
-  Combobox,
-  getSelectedLabelFromValue,
-  type ComboboxBaseProps,
-} from '~/ui/lib/Combobox'
-import { capitalize } from '~/util/str'
+import { Combobox, type ComboboxBaseProps } from '~/ui/lib/Combobox'
 
 import { ErrorMessage } from './ErrorMessage'
 
@@ -42,9 +36,10 @@ export function ComboboxField<
 >({
   control,
   name,
-  label = capitalize(name),
+  label,
   required,
   onChange,
+  onInputChange,
   allowArbitraryValues,
   placeholder,
   // Intent is to not show both a placeholder and a description, while still having good defaults; prefer a description to a placeholder
@@ -69,9 +64,6 @@ export function ComboboxField<
     control,
     rules: { required, validate },
   })
-  const [selectedItemLabel, setSelectedItemLabel] = useState(
-    getSelectedLabelFromValue(items, field.value || '')
-  )
   return (
     <div className="max-w-lg">
       <Combobox
@@ -81,12 +73,17 @@ export function ComboboxField<
         items={items}
         required={required}
         selectedItemValue={field.value}
-        selectedItemLabel={selectedItemLabel}
         hasError={fieldState.error !== undefined}
         onChange={(value) => {
           field.onChange(value)
           onChange?.(value)
-          setSelectedItemLabel(getSelectedLabelFromValue(items, value))
+        }}
+        onInputChange={(value) => {
+          // for arbitrary values, the field tracks each keystroke; for non-arbitrary,
+          // the underlying selection is preserved while editing — Combobox swaps the
+          // displayed text back to the selected item's label on close
+          if (allowArbitraryValues) field.onChange(value)
+          onInputChange?.(value)
         }}
         allowArbitraryValues={allowArbitraryValues}
         inputRef={field.ref}

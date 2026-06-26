@@ -7,14 +7,8 @@
  */
 import cn from 'classnames'
 import type { ReactElement, ReactNode } from 'react'
-import { Link, type To } from 'react-router'
 
-import {
-  Error12Icon,
-  OpenLink12Icon,
-  Success12Icon,
-  Warning12Icon,
-} from '@oxide/design-system/icons/react'
+import { Error12Icon, Success12Icon, Warning12Icon } from '@oxide/design-system/icons/react'
 
 type Variant = 'success' | 'error' | 'notice' | 'info'
 
@@ -23,10 +17,6 @@ export interface MessageProps {
   content: ReactNode
   className?: string
   variant?: Variant
-  cta?: {
-    text: string
-    link: To
-  }
   showIcon?: boolean
 }
 
@@ -50,7 +40,6 @@ export const Message = ({
   content,
   className,
   variant = 'info',
-  cta,
   showIcon = true,
 }: MessageProps) => {
   return (
@@ -68,21 +57,11 @@ export const Message = ({
         </div>
       )}
       <div className="flex-1">
-        {title && <div className="text-sans-semi-md">{title}</div>}
+        {title && <div className="text-sans-semi-md mb-1">{title}</div>}
         {/* group gives HL the right color */}
-        <div className="text-sans-md text-accent-secondary [&>a]:tint-underline group">
+        <div className="text-sans-md text-accent-secondary [&>a]:tint-underline group max-w-3xl">
           {content}
         </div>
-
-        {cta && (
-          <Link
-            className="text-sans-md text-accent-secondary hover:text-accent mt-1 flex items-center underline"
-            to={cta.link}
-          >
-            {cta.text}
-            <OpenLink12Icon className="ml-1" />
-          </Link>
-        )}
       </div>
     </div>
   )
