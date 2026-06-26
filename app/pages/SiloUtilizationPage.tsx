@@ -22,7 +22,7 @@ import { Divider } from '~/ui/lib/Divider'
 import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
-import { bytesToGiB, bytesToTiB } from '~/util/units'
+import { bytesInUnit } from '~/util/units'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
@@ -124,14 +124,14 @@ export default function SiloUtilizationPage() {
           metricName="ram_provisioned"
           title="Memory"
           unit="GiB"
-          valueTransform={bytesToGiB}
+          valueTransform={(bytes) => bytesInUnit(bytes, 'GiB')}
         />
         <SiloMetric
           {...commonProps}
           metricName="virtual_disk_space_provisioned"
           title="Storage"
           unit="TiB"
-          valueTransform={bytesToTiB}
+          valueTransform={(bytes) => bytesInUnit(bytes, 'TiB')}
         />
       </div>
     </>

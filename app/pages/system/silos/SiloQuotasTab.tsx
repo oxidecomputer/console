@@ -30,7 +30,7 @@ import { Table } from '~/ui/lib/Table'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
 import type * as PP from '~/util/path-params'
-import { bytesToGiB, GiB } from '~/util/units'
+import { bytesInUnit, GiB } from '~/util/units'
 
 const Unit = classed.span`ml-1 text-secondary`
 
@@ -47,6 +47,8 @@ export default function SiloQuotasTab() {
   const { data: utilization } = usePrefetchedQuery(siloUtil({ silo }))
 
   const { allocated: quotas, provisioned } = utilization
+  const memUnit = 'GiB'
+  const storageUnit = 'GiB'
 
   const [editing, setEditing] = useState(false)
 
@@ -73,19 +75,19 @@ export default function SiloQuotasTab() {
           <Table.Row>
             <Table.Cell>Memory</Table.Cell>
             <Table.Cell>
-              {bytesToGiB(provisioned.memory)} <Unit>GiB</Unit>
+              {bytesInUnit(provisioned.memory, memUnit)} <Unit>{memUnit}</Unit>
             </Table.Cell>
             <Table.Cell>
-              {bytesToGiB(quotas.memory)} <Unit>GiB</Unit>
+              {bytesInUnit(quotas.memory, memUnit)} <Unit>{memUnit}</Unit>
             </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Storage</Table.Cell>
             <Table.Cell>
-              {bytesToGiB(provisioned.storage)} <Unit>GiB</Unit>
+              {bytesInUnit(provisioned.storage, storageUnit)} <Unit>{storageUnit}</Unit>
             </Table.Cell>
             <Table.Cell>
-              {bytesToGiB(quotas.storage)} <Unit>GiB</Unit>
+              {bytesInUnit(quotas.storage, storageUnit)} <Unit>{storageUnit}</Unit>
             </Table.Cell>
           </Table.Row>
         </Table.Body>
@@ -110,8 +112,8 @@ function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
   // required because we need to rule out undefined because NumberField hates that
   const defaultValues: SetNonNullable<Required<SiloQuotasUpdate>> = {
     cpus: quotas.cpus,
-    memory: bytesToGiB(quotas.memory),
-    storage: bytesToGiB(quotas.storage),
+    memory: bytesInUnit(quotas.memory, 'GiB'),
+    storage: bytesInUnit(quotas.storage, 'GiB'),
   }
 
   const form = useForm({ defaultValues })

@@ -20,7 +20,7 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { docLinks } from '~/util/links'
 import { capitalize } from '~/util/str'
-import { bytesToGiB } from '~/util/units'
+import { bytesInUnit } from '~/util/units'
 
 export function EditImageSideModalForm({
   image,
@@ -50,7 +50,7 @@ export function EditImageSideModalForm({
         <PropertiesTable.Row label="Visibility">{type}</PropertiesTable.Row>
         <PropertiesTable.IdRow id={image.id} />
         <PropertiesTable.Row label="Size">
-          <span>{bytesToGiB(image.size)}</span>
+          <span>{bytesInUnit(image.size, 'GiB')}</span>
           <span className="text-tertiary ml-1 inline-block">GiB</span>
         </PropertiesTable.Row>
         <PropertiesTable.DateRow date={image.timeCreated} label="Created" />

@@ -42,7 +42,7 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { toLocaleDateString } from '~/util/date'
 import { docLinks } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
-import { bytesToGiB, formatBytes, GiB } from '~/util/units'
+import { bytesInUnit, formatBytes, GiB } from '~/util/units'
 
 /**
  * Same as DiskSource but with image and snapshot ID optional, reflecting The
@@ -134,12 +134,16 @@ export function CreateDiskSideModalForm({
       const selectedSnapshotSize = snapshots.find(
         (snapshot) => snapshot.id === diskSource.snapshotId
       )?.size
-      validateSizeGiB = selectedSnapshotSize ? bytesToGiB(selectedSnapshotSize) : undefined
+      validateSizeGiB = selectedSnapshotSize
+        ? bytesInUnit(selectedSnapshotSize, 'GiB')
+        : undefined
     } else if (diskSource.type === 'image') {
       const selectedImageSize = images.find(
         (image) => image.id === diskSource.imageId
       )?.size
-      validateSizeGiB = selectedImageSize ? bytesToGiB(selectedImageSize) : undefined
+      validateSizeGiB = selectedImageSize
+        ? bytesInUnit(selectedImageSize, 'GiB')
+        : undefined
     }
   }
 

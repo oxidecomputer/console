@@ -21,7 +21,7 @@ import { ResourceLabel } from '~/ui/lib/SideModal'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-import { bytesToGiB } from '~/util/units'
+import { bytesInUnit } from '~/util/units'
 
 const diskView = ({ disk, project }: PP.Disk) =>
   q(api.diskView, { path: { disk }, query: { project } })
@@ -75,7 +75,9 @@ export function DiskDetailSideModal({
       <PropertiesTable>
         <PropertiesTable.IdRow id={disk.id} />
         <PropertiesTable.DescriptionRow description={disk.description} sideModal />
-        <PropertiesTable.Row label="Size">{bytesToGiB(disk.size)} GiB</PropertiesTable.Row>
+        <PropertiesTable.Row label="Size">
+          {bytesInUnit(disk.size, 'GiB')} GiB
+        </PropertiesTable.Row>
         <PropertiesTable.Row label="State">
           <DiskStateBadge state={disk.state.state} />
         </PropertiesTable.Row>

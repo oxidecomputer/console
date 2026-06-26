@@ -36,7 +36,7 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
-import { bytesToGiB, bytesToTiB } from '~/util/units'
+import { bytesInUnit } from '~/util/units'
 
 const siloList = getListQFn(api.siloList, {
   query: { limit: ALL_ISH },
@@ -154,14 +154,14 @@ const MetricsTab = () => {
           metricName="ram_provisioned"
           title="Memory"
           unit="GiB"
-          valueTransform={bytesToGiB}
+          valueTransform={(bytes) => bytesInUnit(bytes, 'GiB')}
         />
         <SystemMetric
           {...commonProps}
           metricName="virtual_disk_space_provisioned"
           title="Storage"
           unit="TiB"
-          valueTransform={bytesToTiB}
+          valueTransform={(bytes) => bytesInUnit(bytes, 'TiB')}
         />
       </div>
     </>
@@ -197,56 +197,60 @@ function UsageTab() {
         </Table.HeaderRow>
       </Table.Header>
       <Table.Body>
-        {siloUtilizations.items.map((silo) => (
-          <Table.Row key={silo.siloName}>
-            <Table.Cell width="16%" height="large">
-              <LinkCell to={pb.silo({ silo: silo.siloName })}>{silo.siloName}</LinkCell>
-            </Table.Cell>
-            <Table.Cell width="14%" height="large">
-              <UsageCell
-                provisioned={silo.provisioned.cpus}
-                allocated={silo.allocated.cpus}
-              />
-            </Table.Cell>
-            <Table.Cell width="14%" height="large">
-              <UsageCell
-                provisioned={bytesToGiB(silo.provisioned.memory)}
-                allocated={bytesToGiB(silo.allocated.memory)}
-                unit="GiB"
-              />
-            </Table.Cell>
-            <Table.Cell width="14%" height="large">
-              <UsageCell
-                provisioned={bytesToTiB(silo.provisioned.storage)}
-                allocated={bytesToTiB(silo.allocated.storage)}
-                unit="TiB"
-              />
-            </Table.Cell>
-            <Table.Cell width="14%" className="relative" height="large">
-              <AvailableCell
-                provisioned={silo.provisioned.cpus}
-                allocated={silo.allocated.cpus}
-              />
-            </Table.Cell>
-            <Table.Cell width="14%" className="relative" height="large">
-              <AvailableCell
-                provisioned={bytesToGiB(silo.provisioned.memory)}
-                allocated={bytesToGiB(silo.allocated.memory)}
-                unit="GiB"
-              />
-            </Table.Cell>
-            <Table.Cell width="14%" className="relative" height="large">
-              <AvailableCell
-                provisioned={bytesToTiB(silo.provisioned.storage)}
-                allocated={bytesToTiB(silo.allocated.storage)}
-                unit="TiB"
-              />
-            </Table.Cell>
-            <Table.Cell className="action-col w-10 *:p-0" height="large">
-              <RowActions id={silo.siloId} copyIdLabel="Copy silo ID" />
-            </Table.Cell>
-          </Table.Row>
-        ))}
+        {siloUtilizations.items.map((silo) => {
+          const memUnit = 'GiB'
+          const storageUnit = 'TiB'
+          return (
+            <Table.Row key={silo.siloName}>
+              <Table.Cell width="16%" height="large">
+                <LinkCell to={pb.silo({ silo: silo.siloName })}>{silo.siloName}</LinkCell>
+              </Table.Cell>
+              <Table.Cell width="14%" height="large">
+                <UsageCell
+                  provisioned={silo.provisioned.cpus}
+                  allocated={silo.allocated.cpus}
+                />
+              </Table.Cell>
+              <Table.Cell width="14%" height="large">
+                <UsageCell
+                  provisioned={bytesInUnit(silo.provisioned.memory, memUnit)}
+                  allocated={bytesInUnit(silo.allocated.memory, memUnit)}
+                  unit={memUnit}
+                />
+              </Table.Cell>
+              <Table.Cell width="14%" height="large">
+                <UsageCell
+                  provisioned={bytesInUnit(silo.provisioned.storage, storageUnit)}
+                  allocated={bytesInUnit(silo.allocated.storage, storageUnit)}
+                  unit={storageUnit}
+                />
+              </Table.Cell>
+              <Table.Cell width="14%" className="relative" height="large">
+                <AvailableCell
+                  provisioned={silo.provisioned.cpus}
+                  allocated={silo.allocated.cpus}
+                />
+              </Table.Cell>
+              <Table.Cell width="14%" className="relative" height="large">
+                <AvailableCell
+                  provisioned={bytesInUnit(silo.provisioned.memory, memUnit)}
+                  allocated={bytesInUnit(silo.allocated.memory, memUnit)}
+                  unit={memUnit}
+                />
+              </Table.Cell>
+              <Table.Cell width="14%" className="relative" height="large">
+                <AvailableCell
+                  provisioned={bytesInUnit(silo.provisioned.storage, storageUnit)}
+                  allocated={bytesInUnit(silo.allocated.storage, storageUnit)}
+                  unit={storageUnit}
+                />
+              </Table.Cell>
+              <Table.Cell className="action-col w-10 *:p-0" height="large">
+                <RowActions id={silo.siloId} copyIdLabel="Copy silo ID" />
+              </Table.Cell>
+            </Table.Row>
+          )
+        })}
       </Table.Body>
     </Table>
   )

@@ -16,8 +16,19 @@ export const MiB = 1024 * KiB
 export const GiB = 1024 * MiB
 export const TiB = 1024 * GiB
 
-export const bytesToGiB = (b: number, digits = 2) => round(b / GiB, digits)
-export const bytesToTiB = (b: number, digits = 2) => round(b / TiB, digits)
+const BINARY_UNITS = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'] as const
+export type BinaryUnit = (typeof BINARY_UNITS)[number]
+type BytesInUnitOptions = {
+  digits?: number
+}
+
+export function bytesInUnit(
+  bytes: number,
+  unit: BinaryUnit,
+  { digits = 2 }: BytesInUnitOptions = {}
+): number {
+  return round(bytes / 1024 ** BINARY_UNITS.indexOf(unit), digits)
+}
 
 export type FormattedBytes = {
   /** Numeric portion of the formatted byte count, e.g. `1.5`. */

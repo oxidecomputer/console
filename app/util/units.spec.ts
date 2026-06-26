@@ -7,7 +7,7 @@
  */
 import { expect, it } from 'vitest'
 
-import { formatBytes, GiB, KiB, MiB } from './units'
+import { bytesInUnit, formatBytes, GiB, KiB, MiB, TiB } from './units'
 
 it.each([
   // bytes: never padded because fractional bytes don't make sense
@@ -32,4 +32,14 @@ it.each([
   [GiB, { pad: true }, '1.00', 'GiB', '1.00 GiB'],
 ])('formatBytes(%d, %o)', (bytes, opts, value, unit, label) => {
   expect(formatBytes(bytes, opts)).toEqual({ value, unit, label })
+})
+
+it.each([
+  [GiB, 'GiB', undefined, 1],
+  [TiB, 'TiB', undefined, 1],
+  [1500 * GiB, 'TiB', undefined, 1.46],
+  [GiB, 'TiB', undefined, 0],
+  [1536 * MiB, 'GiB', { digits: 1 }, 1.5],
+] as const)('bytesInUnit(%d, %s, %o) === %d', (bytes, unit, opts, expected) => {
+  expect(bytesInUnit(bytes, unit, opts)).toEqual(expected)
 })

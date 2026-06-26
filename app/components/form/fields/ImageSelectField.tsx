@@ -13,7 +13,7 @@ import type { InstanceCreateInput } from '~/forms/instance-create'
 import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { Slash } from '~/ui/lib/Slash'
 import { diskSizeNearest10 } from '~/util/math'
-import { bytesToGiB, GiB } from '~/util/units'
+import { bytesInUnit, GiB } from '~/util/units'
 
 import { ComboboxField } from './ComboboxField'
 
@@ -68,7 +68,12 @@ export function toImageComboboxItem(
     ? `${projectId ? 'Project' : 'Silo'} image`
     : null
   // filter out undefined metadata and create a `<Slash />`-separated list for each comboboxitem
-  const itemMetadata = [os, version, `${bytesToGiB(size, 1)} GiB`, projectSiloIndicator]
+  const itemMetadata = [
+    os,
+    version,
+    `${bytesInUnit(size, 'GiB', { digits: 1 })} GiB`,
+    projectSiloIndicator,
+  ]
     .filter((i) => !!i)
     .map((i, index) => (
       <span key={`${i}`}>

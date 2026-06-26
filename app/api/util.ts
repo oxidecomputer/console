@@ -9,7 +9,7 @@
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
-import { bytesToGiB } from '~/util/units'
+import { bytesInUnit } from '~/util/units'
 
 import type {
   Disk,
@@ -269,7 +269,9 @@ export function totalCapacity(
 ) {
   return {
     disk_tib: Math.ceil(FUDGE * sleds.length * 32 * TBtoTiB), // TODO: make more real
-    ram_gib: Math.ceil(bytesToGiB(FUDGE * R.sumBy(sleds, (s) => s.usablePhysicalRam))),
+    ram_gib: Math.ceil(
+      bytesInUnit(FUDGE * R.sumBy(sleds, (s) => s.usablePhysicalRam), 'GiB')
+    ),
     cpu: Math.ceil(FUDGE * R.sumBy(sleds, (s) => s.usableHardwareThreads)),
   }
 }
