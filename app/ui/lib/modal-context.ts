@@ -6,10 +6,17 @@
  * Copyright Oxide Computer Company
  */
 
-import { createContext, useContext } from 'react'
+import { createContext, useContext, type RefObject } from 'react'
 
 export const ModalContext = createContext(false)
 export const useIsInModal = () => useContext(ModalContext)
 
 export const SideModalContext = createContext(false)
 export const useIsInSideModal = () => useContext(SideModalContext)
+
+// Ref to the SideModal's popup element. Used by ConfirmModal so its Dialog
+// can portal into the SideModal instead of the document body — that lets the
+// scrim and centered dialog sit inside the SideModal naturally.
+export const SideModalPopupRefContext =
+  createContext<RefObject<HTMLDivElement | null> | null>(null)
+export const useSideModalPopupRef = () => useContext(SideModalPopupRefContext)

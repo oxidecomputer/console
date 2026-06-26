@@ -240,7 +240,7 @@ test("Escape in combobox doesn't close the parent form", async ({ page }) => {
 
   await page.getByRole('textbox', { name: 'Name' }).fill('a')
 
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm navigation' })
+  const confirmModal = page.getByRole('dialog', { name: 'Leave form?' })
   await expect(confirmModal).toBeHidden()
   await page.keyboard.press('Escape')
   await expect(confirmModal).toBeVisible()
