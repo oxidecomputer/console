@@ -134,6 +134,7 @@ export default function SnapshotsPage() {
   const { mutateAsync: deleteSnapshot } = useApiMutation(api.snapshotDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('snapshotList')
+      queryClient.invalidateEndpoint('snapshotView')
     },
   })
 

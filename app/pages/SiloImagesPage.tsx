@@ -81,6 +81,7 @@ export default function SiloImagesPage() {
       // prettier-ignore
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>)
       queryClient.invalidateEndpoint('imageList')
+      queryClient.invalidateEndpoint('imageView')
     },
   })
 
@@ -160,6 +161,8 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
       // prettier-ignore
       addToast(<>Image <HL>{data.name}</HL> promoted</>)
       queryClient.invalidateEndpoint('imageList')
+      // promotion flips projectId; refetch the per-id view
+      queryClient.invalidateEndpoint('imageView')
       onDismiss()
     },
     onError: (err) => {
@@ -256,6 +259,8 @@ const DemoteImageModal = ({
       })
 
       queryClient.invalidateEndpoint('imageList')
+      // demotion flips projectId; refetch the per-id view
+      queryClient.invalidateEndpoint('imageView')
       onDismiss()
     },
     onError: (err) => {

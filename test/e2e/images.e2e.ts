@@ -162,19 +162,29 @@ test('can delete an image from a project', async ({ page }) => {
 test('can delete an image from a silo', async ({ page }) => {
   await page.goto('/images')
 
-  const cell = page.getByRole('cell', { name: 'ubuntu-20-04' })
+  // ubuntu-22-04 is the silo image referenced by mock-project/disks/disk-2, so
+  // we use it here to also verify the disk's Source cell flips to "Deleted"
+  // after the source image is removed.
+  const cell = page.getByRole('cell', { name: 'ubuntu-22-04' })
   await expect(cell).toBeVisible()
 
-  await clickRowAction(page, 'ubuntu-20-04', 'Delete')
+  await clickRowAction(page, 'ubuntu-22-04', 'Delete')
   const spinner = page.getByRole('dialog').getByLabel('Spinner')
   await expect(spinner).toBeHidden()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
-  await expectToast(page, 'Image ubuntu-20-04 deleted')
+  await expectToast(page, 'Image ubuntu-22-04 deleted')
   await expect(cell).toBeHidden()
   await expect(spinner).toBeHidden()
+
+  // Navigate client-side (preserves MSW db) to disk-2's row and verify the
+  // Source column now shows "Deleted" instead of the image name.
+  await page.getByRole('link', { name: 'Projects', exact: true }).click()
+  await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
+  await page.getByRole('link', { name: 'Disks' }).click()
+  await expectRowVisible(page.getByRole('table'), { name: 'disk-2', Source: 'Deleted' })
 })
 
 // this is to some extent a test of our mock server implementation, but I want
