@@ -9,7 +9,7 @@
 import type { VirtualResourceCounts } from '@oxide/api'
 import { Cpu16Icon, Ram16Icon, Ssd16Icon } from '@oxide/design-system/icons/react'
 
-import { bytesInUnit } from '~/util/units'
+import { bytesInUnit, pickUnit } from '~/util/units'
 
 import { CapacityBar } from './CapacityBar'
 
@@ -22,8 +22,10 @@ export const CapacityBars = ({
   provisioned: VirtualResourceCounts
   allocatedLabel: string
 }) => {
-  const memUnit = 'GiB'
-  const storageUnit = 'TiB'
+  const memUnit = pickUnit([provisioned.memory, allocated.memory], { minUnit: 'GiB' })
+  const storageUnit = pickUnit([provisioned.storage, allocated.storage], {
+    minUnit: 'GiB',
+  })
 
   return (
     <div className="1000:flex-row flex min-w-min flex-col gap-3">

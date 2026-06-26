@@ -24,7 +24,11 @@ test.describe('System utilization', () => {
     await page.goto('/system/utilization')
 
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-    await expect(page.getByText('Provisioned416 GiB')).toBeVisible()
+    // the aggregate memory quota (1.07 TiB) crosses into TiB while provisioned
+    // (0.41 TiB) would be GiB on its own; both render in TiB because the unit is
+    // picked from the larger value so the pair stays consistent
+    await expect(page.getByText('Provisioned0.41 TiB')).toBeVisible()
+    await expect(page.getByText('Quota (Total)1.07 TiB')).toBeVisible()
 
     await expect(page.getByText('Provisioned / Quota')).toBeVisible()
 
@@ -101,7 +105,7 @@ test.describe('System utilization', () => {
       Silo: 'all-zeros',
       CPU: '0',
       Memory: '0 GiB',
-      Storage: '0 TiB',
+      Storage: '0 GiB',
     })
   })
 })

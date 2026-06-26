@@ -7,7 +7,7 @@
  */
 import { expect, it } from 'vitest'
 
-import { bytesInUnit, formatBytes, GiB, KiB, MiB, TiB } from './units'
+import { bytesInUnit, formatBytes, GiB, KiB, MiB, pickUnit, TiB } from './units'
 
 it.each([
   // bytes: never padded because fractional bytes don't make sense
@@ -42,4 +42,20 @@ it.each([
   [1536 * MiB, 'GiB', { digits: 1 }, 1.5],
 ] as const)('bytesInUnit(%d, %s, %o) === %d', (bytes, unit, opts, expected) => {
   expect(bytesInUnit(bytes, unit, opts)).toEqual(expected)
+})
+
+const pickUnitCases = [
+  [[0], undefined, 'B'],
+  [[0], { minUnit: 'GiB' }, 'GiB'],
+  [[KiB], undefined, 'KiB'],
+  [[KiB], { minUnit: 'GiB' }, 'GiB'],
+  [[GiB], undefined, 'GiB'],
+  [[TiB], { minUnit: 'GiB' }, 'TiB'],
+  // unit is picked from the largest value so a group renders consistently
+  [[5924 * GiB, 7792 * GiB], undefined, 'TiB'],
+  [[68599 * GiB, 70000 * GiB], undefined, 'TiB'],
+] as const
+
+it.each(pickUnitCases)('pickUnit(%o, %o) === %s', (values, opts, unit) => {
+  expect(pickUnit(values, opts)).toEqual(unit)
 })

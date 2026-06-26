@@ -21,6 +21,27 @@ export type BinaryUnit = (typeof BINARY_UNITS)[number]
 type BytesInUnitOptions = {
   digits?: number
 }
+type PickUnitOptions = {
+  minUnit?: BinaryUnit
+}
+
+/**
+ * Pick the binary unit (base 2) filesize would use to display the largest of
+ * `values`. Pass a group of related values (e.g. provisioned and quota) so they
+ * can be rendered in one shared unit—otherwise picking per value can produce
+ * nonsense comparisons like `67 TiB / 70000 GiB`. Use `minUnit` for contexts
+ * where smaller units would not make sense.
+ */
+export function pickUnit(
+  values: readonly number[],
+  { minUnit = 'B' }: PickUnitOptions = {}
+): BinaryUnit {
+  const max = Math.max(0, ...values)
+  const unit = filesize(max, { base: 2, output: 'object' }).unit as BinaryUnit
+  const unitIndex = BINARY_UNITS.indexOf(unit)
+  const minUnitIndex = BINARY_UNITS.indexOf(minUnit)
+  return BINARY_UNITS[Math.max(unitIndex, minUnitIndex)] ?? minUnit
+}
 
 export function bytesInUnit(
   bytes: number,

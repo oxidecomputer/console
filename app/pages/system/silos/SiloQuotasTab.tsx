@@ -30,7 +30,7 @@ import { Table } from '~/ui/lib/Table'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
 import type * as PP from '~/util/path-params'
-import { bytesInUnit, GiB } from '~/util/units'
+import { bytesInUnit, GiB, pickUnit } from '~/util/units'
 
 const Unit = classed.span`ml-1 text-secondary`
 
@@ -47,8 +47,10 @@ export default function SiloQuotasTab() {
   const { data: utilization } = usePrefetchedQuery(siloUtil({ silo }))
 
   const { allocated: quotas, provisioned } = utilization
-  const memUnit = 'GiB'
-  const storageUnit = 'GiB'
+  const memUnit = pickUnit([provisioned.memory, quotas.memory], { minUnit: 'GiB' })
+  const storageUnit = pickUnit([provisioned.storage, quotas.storage], {
+    minUnit: 'GiB',
+  })
 
   const [editing, setEditing] = useState(false)
 

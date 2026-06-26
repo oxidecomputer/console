@@ -36,7 +36,7 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
-import { bytesInUnit } from '~/util/units'
+import { bytesInUnit, pickUnit } from '~/util/units'
 
 const siloList = getListQFn(api.siloList, {
   query: { limit: ALL_ISH },
@@ -198,8 +198,12 @@ function UsageTab() {
       </Table.Header>
       <Table.Body>
         {siloUtilizations.items.map((silo) => {
-          const memUnit = 'GiB'
-          const storageUnit = 'TiB'
+          const memUnit = pickUnit([silo.provisioned.memory, silo.allocated.memory], {
+            minUnit: 'GiB',
+          })
+          const storageUnit = pickUnit([silo.provisioned.storage, silo.allocated.storage], {
+            minUnit: 'GiB',
+          })
           return (
             <Table.Row key={silo.siloName}>
               <Table.Cell width="16%" height="large">

@@ -421,8 +421,8 @@ test('Quotas tab', async ({ page }) => {
   })
   await expectRowVisible(table, {
     Resource: 'Storage',
-    Provisioned: '4403.2 GiB',
-    Quota: '7168 GiB',
+    Provisioned: '4.3 TiB',
+    Quota: '7 TiB',
   })
 
   const sideModal = page.getByRole('dialog', { name: 'Edit quotas' })
@@ -451,5 +451,5 @@ test('Quotas tab', async ({ page }) => {
   // only one changes, the others stay the same
   await expectRowVisible(table, { Resource: 'CPU', Quota: '50 vCPUs' })
   await expectRowVisible(table, { Resource: 'Memory', Quota: '50 GiB' })
-  await expectRowVisible(table, { Resource: 'Storage', Quota: '7168 GiB' })
+  await expectRowVisible(table, { Resource: 'Storage', Quota: '7 TiB' })
 })
