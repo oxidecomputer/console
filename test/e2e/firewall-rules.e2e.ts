@@ -11,6 +11,7 @@ import {
   expect,
   expectRowVisible,
   fillAndSelectComboboxOption,
+  fillNumberInput,
   selectOption,
   test,
   type Locator,
@@ -41,7 +42,7 @@ test('can create firewall rule', async ({ page }) => {
   await page.fill('input[name=name]', 'my-new-rule')
   await page.getByRole('radio', { name: 'Outbound' }).click()
 
-  await page.fill('role=textbox[name="Priority"]', '5')
+  await fillNumberInput(page.getByRole('textbox', { name: 'Priority' }), '5')
 
   // add targets with overlapping names and types to test delete
   const targets = page.getByRole('table', { name: 'Targets' })
@@ -583,7 +584,7 @@ test('name conflict error on edit', async ({ page }) => {
   await nameField.fill('allow-icmp')
 
   // changing a value _without_ changing the name is allowed
-  await page.getByRole('textbox', { name: 'Priority' }).fill('37')
+  await fillNumberInput(page.getByRole('textbox', { name: 'Priority' }), '37')
   await page.getByRole('button', { name: 'Update rule' }).click()
   await expect(error).toBeHidden()
   await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp', Priority: '37' })
