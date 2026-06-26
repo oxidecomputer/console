@@ -1220,7 +1220,9 @@ export const Binuint8 = z.preprocess(
 )
 
 /**
- * Disk block size in bytes
+ * Block size in bytes
+ *
+ * Valid values are: 512, 2048, or 4096.
  */
 export const BlockSize = z.preprocess(
   processResponseBody,
@@ -1745,7 +1747,7 @@ export const DiskState = z.preprocess(
 export const Disk = z.preprocess(
   processResponseBody,
   z.object({
-    blockSize: ByteCount,
+    blockSize: BlockSize,
     description: z.string(),
     devicePath: z.string(),
     diskType: DiskType,
@@ -2251,7 +2253,7 @@ export const IdpMetadataSource = z.preprocess(
 export const Image = z.preprocess(
   processResponseBody,
   z.object({
-    blockSize: ByteCount,
+    blockSize: BlockSize,
     description: z.string(),
     digest: Digest.nullable().optional(),
     id: z.uuid(),
@@ -2322,11 +2324,11 @@ export const InstanceAutoRestartPolicy = z.preprocess(
  *
  * If an instance does not specify a required CPU platform, then when it starts, the control plane selects a host for the instance and then supplies the guest with the "minimum" CPU platform supported by that host. This maximizes the number of hosts that can run the VM if it later needs to migrate to another host.
  *
- * In all cases, the CPU features presented by a given CPU platform are a subset of what the corresponding hardware may actually support; features which cannot be used from a virtual environment or do not have full hypervisor support may be masked off. See RFD 314 for specific CPU features in a CPU platform.
+ * In all cases, the CPU features presented by a given CPU platform are a subset of what the corresponding hardware may actually support; features which cannot be used from a virtual environment or do not have full hypervisor support may be masked off.
  */
 export const InstanceCpuPlatform = z.preprocess(
   processResponseBody,
-  z.enum(['amd_milan', 'amd_turin'])
+  z.enum(['amd_milan', 'amd_turin', 'amd_turin_v2'])
 )
 
 /**
@@ -2349,6 +2351,7 @@ export const Instance = z.preprocess(
     bootDiskId: z.uuid().nullable().optional(),
     cpuPlatform: InstanceCpuPlatform.nullable().optional(),
     description: z.string(),
+    enableJumboFrames: SafeBoolean,
     hostname: z.string(),
     id: z.uuid(),
     memory: ByteCount,
@@ -2500,6 +2503,7 @@ export const InstanceCreate = z.preprocess(
     cpuPlatform: InstanceCpuPlatform.nullable().default(null),
     description: z.string(),
     disks: InstanceDiskAttachment.array().default([]),
+    enableJumboFrames: SafeBoolean.default(false),
     externalIps: ExternalIpCreate.array().default([]),
     hostname: Hostname,
     memory: ByteCount,
@@ -2644,6 +2648,7 @@ export const InstanceUpdate = z.preprocess(
     autoRestartPolicy: InstanceAutoRestartPolicy.nullable(),
     bootDisk: NameOrId.nullable(),
     cpuPlatform: InstanceCpuPlatform.nullable(),
+    enableJumboFrames: SafeBoolean,
     memory: ByteCount,
     multicastGroups: MulticastGroupJoinSpec.array().nullable().default(null),
     ncpus: InstanceCpuCount,
@@ -4544,6 +4549,22 @@ export const SwitchPortSettingsIdentityResultsPage = z.preprocess(
 export const SwitchResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Switch.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * Fleet-wide networking settings. Only fleet viewers may view these settings. Only fleet admins can modify them.
+ */
+export const SystemNetworkingSettings = z.preprocess(
+  processResponseBody,
+  z.object({ externalJumboFramesOptInEnabled: SafeBoolean })
+)
+
+/**
+ * Parameters for updating the fleet-wide networking settings.
+ */
+export const SystemNetworkingSettingsUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ externalJumboFramesOptInEnabled: SafeBoolean.default(false) })
 )
 
 /**
@@ -7813,6 +7834,22 @@ export const NetworkingLoopbackAddressDeleteParams = z.preprocess(
       subnetMask: z.number().min(0).max(255),
       switchSlot: SwitchSlot,
     }),
+    query: z.object({}),
+  })
+)
+
+export const SystemNetworkingSettingsViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SystemNetworkingSettingsUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
     query: z.object({}),
   })
 )

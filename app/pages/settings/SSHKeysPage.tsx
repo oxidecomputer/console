@@ -16,6 +16,7 @@ import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -89,6 +90,11 @@ export default function SSHKeysPage() {
       onClick={() => navigate(pb.sshKeysNew())}
     />
   )
+  useQuickActions(
+    () => [{ value: 'Add SSH key', navGroup: 'Actions', action: pb.sshKeysNew() }],
+    []
+  )
+
   const { table } = useQueryTable({ query: sshKeyList, columns, emptyState })
 
   return (

@@ -297,8 +297,8 @@ export const disks: Json<Disk>[] = [
       device_path: '/jkl',
       size: 12 * GiB,
       block_size: 2048,
-      disk_type: 'distributed' as const,
+      disk_type: 'distributed',
       read_only: false,
-    }
+    } satisfies Json<Disk>
   }),
 ]

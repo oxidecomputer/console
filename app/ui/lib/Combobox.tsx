@@ -88,7 +88,7 @@ type ComboboxProps = {
 
 export const Combobox = ({
   description,
-  items = [],
+  items,
   label,
   selectedItemValue,
   placeholder,
