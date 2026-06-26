@@ -27,6 +27,10 @@ jobs:
         run: SHA=${{ github.sha }} npm run build
       - name: Gzip individual files (keep originals)
         run: ls dist/assets/*.{js,css,map} | xargs gzip --keep
+      # Brotli is ~14% smaller than gzip on our JS/CSS. Nexus serves .br when the
+      # client's Accept-Encoding allows it, falling back to .gz then identity.
+      - name: Brotli individual files (keep originals)
+        run: ls dist/assets/*.{js,css,map} | xargs brotli --keep --quality=11
       - name: add console_version file
         run: echo ${{ github.sha }} > dist/VERSION
       - name: add API_VERSION file
