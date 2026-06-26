@@ -11,10 +11,19 @@
  * layer and not in app/ because we are experimenting with it to decide whether
  * it belongs in the API proper.
  */
+import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import * as R from 'remeda'
 
-import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
+import { ALL_ISH } from '~/util/consts'
+
+import type {
+  FleetRole,
+  Group,
+  IdentityType,
+  ProjectRole,
+  SiloRole,
+} from './__generated__/Api'
 import { api, q, usePrefetchedQuery } from './client'
 
 /**
@@ -76,6 +85,13 @@ export function updateRole<Role extends RoleKey>(
   return { roleAssignments }
 }
 
+/** Map from identity ID to role name for quick lookup. */
+export function rolesByIdFromPolicy<Role extends RoleKey>(
+  policy: Policy<Role>
+): Map<string, Role> {
+  return new Map(policy.roleAssignments.map((a) => [a.identityId, a.roleName]))
+}
+
 /**
  * Delete any role assignments for user or group ID. Returns a new updated
  * policy. Does not modify the passed-in policy.
@@ -88,47 +104,6 @@ export function deleteRole<Role extends RoleKey>(
     (ra) => ra.identityId !== identityId
   )
   return { roleAssignments }
-}
-
-type UserAccessRow<Role extends RoleKey = RoleKey> = {
-  id: string
-  identityType: IdentityType
-  name: string
-  roleName: Role
-  roleSource: string
-}
-
-/**
- * Role assignments come from the API in (user, role) pairs without display
- * names and without info about which resource the role came from. This tags
- * each row with that info. It has to be a hook because it depends on the result
- * of an API request for the list of users. It's a bit awkward, but the logic is
- * identical between projects and orgs so it is worth sharing.
- */
-export function useUserRows<Role extends RoleKey = RoleKey>(
-  roleAssignments: RoleAssignment<Role>[],
-  roleSource: string
-): UserAccessRow<Role>[] {
-  // HACK: because the policy has no names, we are fetching ~all the users,
-  // putting them in a dictionary, and adding the names to the rows
-  const { data: users } = usePrefetchedQuery(q(api.userList, {}))
-  const { data: groups } = usePrefetchedQuery(q(api.groupList, {}))
-  return useMemo(() => {
-    const userItems = users?.items || []
-    const groupItems = groups?.items || []
-    const usersDict = Object.fromEntries(userItems.concat(groupItems).map((u) => [u.id, u]))
-    return roleAssignments.map((ra) => ({
-      id: ra.identityId,
-      identityType: ra.identityType,
-      // A user might not appear here if they are not in the current user's
-      // silo. This could happen in a fleet policy, which might have users from
-      // different silos. Hence the ID fallback. The code that displays this
-      // detects when we've fallen back and includes an explanatory tooltip.
-      name: usersDict[ra.identityId]?.displayName || ra.identityId,
-      roleName: ra.roleName,
-      roleSource,
-    }))
-  }, [roleAssignments, roleSource, users, groups])
 }
 
 type SortableUserRow = { identityType: IdentityType; name: string }
@@ -156,8 +131,10 @@ export type Actor = {
 export function useActorsNotInPolicy<Role extends RoleKey = RoleKey>(
   policy: Policy<Role>
 ): Actor[] {
-  const { data: users } = usePrefetchedQuery(q(api.userList, {}))
-  const { data: groups } = usePrefetchedQuery(q(api.groupList, {}))
+  const { data: users } = usePrefetchedQuery(q(api.userList, { query: { limit: ALL_ISH } }))
+  const { data: groups } = usePrefetchedQuery(
+    q(api.groupList, { query: { limit: ALL_ISH } })
+  )
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const actorsInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
@@ -174,15 +151,104 @@ export function useActorsNotInPolicy<Role extends RoleKey = RoleKey>(
   }, [users, groups, policy])
 }
 
-export function userRoleFromPolicies(
+export function userRoleFromPolicies<Role extends RoleKey>(
   user: { id: string },
   groups: { id: string }[],
-  policies: Policy[]
-): RoleKey | null {
+  policy: Policy<Role>
+): Role | null {
   const myIds = new Set([user.id, ...groups.map((g) => g.id)])
-  const myRoles = policies
-    .flatMap((p) => p.roleAssignments) // concat all the role assignments together
+  const myRoles = policy.roleAssignments
     .filter((ra) => myIds.has(ra.identityId))
     .map((ra) => ra.roleName)
   return getEffectiveRole(myRoles) || null
+}
+
+export type AccessScope = 'silo' | 'project'
+export type ScopedPolicy = { scope: AccessScope; policy: Policy }
+
+export type ScopedRoleEntry = {
+  roleName: RoleKey
+  scope: AccessScope
+  source: { type: 'direct' } | { type: 'group'; group: { id: string; displayName: string } }
+}
+
+/**
+ * Enumerate all role assignments relevant to a user — one entry per direct
+ * assignment and one per group assignment — across the given policies. Each
+ * entry is tagged with the scope of the policy it came from.
+ * Callers are responsible for sorting and any display-layer merging.
+ */
+export function userScopedRoleEntries(
+  userId: string,
+  userGroups: { id: string; displayName: string }[],
+  scopedPolicies: ScopedPolicy[]
+): ScopedRoleEntry[] {
+  const entries: ScopedRoleEntry[] = []
+  for (const { scope, policy } of scopedPolicies) {
+    const direct = policy.roleAssignments.find((ra) => ra.identityId === userId)
+    if (direct) {
+      entries.push({ roleName: direct.roleName, scope, source: { type: 'direct' } })
+    }
+    for (const group of userGroups) {
+      const via = policy.roleAssignments.find((ra) => ra.identityId === group.id)
+      if (via) {
+        entries.push({ roleName: via.roleName, scope, source: { type: 'group', group } })
+      }
+    }
+  }
+  return entries
+}
+
+/**
+ * Pick the strongest role across entries. Ties go to silo scope, since silo
+ * roles cascade into projects.
+ */
+export function effectiveScopedRole(
+  entries: ScopedRoleEntry[]
+): { role: RoleKey; scope: AccessScope } | null {
+  if (entries.length === 0) return null
+  // strongest role overall
+  const strongest = R.firstBy(entries, (e) => roleOrder[e.roleName])!
+  const role = strongest.roleName
+  // prefer silo scope when silo has a role at least as strong
+  const siloDominates = entries.some(
+    (e) => e.scope === 'silo' && roleOrder[e.roleName] <= roleOrder[role]
+  )
+  return { role, scope: siloDominates ? 'silo' : 'project' }
+}
+
+/**
+ * Builds a map from user ID to the list of groups that user belongs to,
+ * firing one query per group to fetch members. Shared between user tabs.
+ *
+ * The returned Map is referentially stable between data updates, which keeps
+ * downstream useMemos (column definitions) from invalidating every render.
+ * `useQueries` returns a new array reference each render, so we can't put it in
+ * a useMemo deps array directly — instead we encode the relevant inputs (group
+ * IDs and per-query updated-at timestamps) into a single version string and
+ * memoize on that.
+ */
+export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> {
+  const groupMemberQueries = useQueries({
+    queries: groups.map((g) => q(api.userList, { query: { group: g.id, limit: ALL_ISH } })),
+  })
+
+  const version = [
+    groups.map((g) => g.id).join(','),
+    ...groupMemberQueries.map((query) => query.dataUpdatedAt),
+  ].join('|')
+
+  return useMemo(() => {
+    const map = new Map<string, Group[]>()
+    groups.forEach((group, i) => {
+      const members = groupMemberQueries[i]?.data?.items ?? []
+      members.forEach((member) => {
+        const existing = map.get(member.id)
+        if (existing) existing.push(group)
+        else map.set(member.id, [group])
+      })
+    })
+    return map
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- groups and queries are encoded in version
+  }, [version])
 }

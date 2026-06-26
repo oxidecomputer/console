@@ -308,7 +308,17 @@ export const routes = createRoutesFromElements(
           />
         </Route>
 
-        <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)} />
+        <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)}>
+          <Route index element={<Navigate to="groups" replace />} />
+          <Route
+            path="groups"
+            lazy={() => import('./pages/SiloAccessGroupsTab').then(convert)}
+          />
+          <Route
+            path="users"
+            lazy={() => import('./pages/SiloAccessUsersTab').then(convert)}
+          />
+        </Route>
       </Route>
 
       {/* PROJECT */}
@@ -579,7 +589,21 @@ export const routes = createRoutesFromElements(
           <Route
             path="access"
             lazy={() => import('./pages/project/access/ProjectAccessPage').then(convert)}
-          />
+          >
+            <Route index element={<Navigate to="groups" replace />} />
+            <Route
+              path="groups"
+              lazy={() =>
+                import('./pages/project/access/ProjectAccessGroupsTab').then(convert)
+              }
+            />
+            <Route
+              path="users"
+              lazy={() =>
+                import('./pages/project/access/ProjectAccessUsersTab').then(convert)
+              }
+            />
+          </Route>
           <Route
             lazy={() => import('./pages/project/affinity/AffinityPage').then(convert)}
             handle={{ crumb: 'Affinity Groups' }}
