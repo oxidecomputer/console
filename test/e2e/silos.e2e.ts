@@ -370,14 +370,62 @@ test('Silo IP pools link pool', async ({ page }) => {
   await page.getByPlaceholder('Select a pool').fill('x')
   await expect(page.getByText('No items match')).toBeVisible()
 
-  // select silo in combobox and click link
+  // before a pool is selected, the default checkbox label is generic
+  await expect(
+    page.getByRole('checkbox', { name: 'Make default pool for silo' })
+  ).toBeVisible()
+
+  // select pool in combobox
   await page.getByPlaceholder('Select a pool').fill('ip-pool')
   await page.getByRole('option', { name: 'ip-pool-3' }).click()
+
+  // checkbox label now reflects the selected pool's version and type
+  const defaultCheckbox = page.getByRole('checkbox', {
+    name: 'Make default IPv4 unicast pool for silo',
+  })
+  await expect(defaultCheckbox).toBeVisible()
+  await defaultCheckbox.check()
+
   await modal.getByRole('button', { name: 'Link' }).click()
 
-  // modal closes and we see the thing in the table
+  // modal closes and we see the pool linked as default in the table
   await expect(modal).toBeHidden()
-  await expectRowVisible(table, { name: 'ip-pool-3', Version: 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-3default', Version: 'v4' })
+})
+
+test('Silo subnet pools link pool', async ({ page }) => {
+  await page.goto('/system/silos/maze-war/subnet-pools')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: 'default-v4-subnet-pooldefault', Version: 'v4' })
+
+  const modal = page.getByRole('dialog', { name: 'Link pool' })
+  await expect(modal).toBeHidden()
+
+  await page.getByRole('button', { name: 'Link pool' }).click()
+  await expect(modal).toBeVisible()
+
+  // before a pool is selected, the default checkbox label is generic
+  await expect(
+    page.getByRole('checkbox', { name: 'Make default subnet pool for silo' })
+  ).toBeVisible()
+
+  // select pool in combobox
+  await page.getByPlaceholder('Select a pool').fill('myriad')
+  await page.getByRole('option', { name: 'myriad-v4-subnet-pool' }).click()
+
+  // checkbox label now reflects the selected pool's version
+  const defaultCheckbox = page.getByRole('checkbox', {
+    name: 'Make default IPv4 subnet pool for silo',
+  })
+  await expect(defaultCheckbox).toBeVisible()
+  await defaultCheckbox.check()
+
+  await modal.getByRole('button', { name: 'Link' }).click()
+
+  // modal closes and we see the pool linked as default in the table
+  await expect(modal).toBeHidden()
+  await expectRowVisible(table, { name: 'myriad-v4-subnet-pooldefault', Version: 'v4' })
 })
 
 // just a convenient form to test this with because it's tall

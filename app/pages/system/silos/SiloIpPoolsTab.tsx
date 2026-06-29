@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -24,6 +24,7 @@ import {
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
@@ -263,9 +264,10 @@ export const handle = makeCrumb('IP Pools')
 
 type LinkPoolFormValues = {
   pool: string | undefined
+  isDefault: boolean
 }
 
-const defaultValues: LinkPoolFormValues = { pool: undefined }
+const defaultValues: LinkPoolFormValues = { pool: undefined, isDefault: false }
 
 function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
@@ -282,13 +284,17 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
     },
   })
 
-  function onSubmit({ pool }: LinkPoolFormValues) {
+  function onSubmit({ pool, isDefault }: LinkPoolFormValues) {
     if (!pool) return // can't happen, silo is required
-    linkPool.mutate({ path: { pool }, body: { silo, isDefault: false } })
+    linkPool.mutate({ path: { pool }, body: { silo, isDefault } })
   }
 
   const allLinkedPools = useQuery(allSiloPoolsQuery(silo).optionsFn())
   const allPools = useQuery(allPoolsQuery.optionsFn())
+
+  // Fetch the selected pool details so we can update the checkbox label.
+  const selectedPoolName = useWatch({ control, name: 'pool' })
+  const selectedPool = allPools.data?.items.find((p) => p.name === selectedPoolName)
 
   // in order to get the list of remaining unlinked pools, we have to get the
   // list of all pools and remove the already linked ones
@@ -334,6 +340,12 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
               required
               control={control}
             />
+
+            <CheckboxField name="isDefault" control={control}>
+              {selectedPool
+                ? `Make default IP${selectedPool.ipVersion} ${selectedPool.poolType} pool for silo`
+                : 'Make default pool for silo'}
+            </CheckboxField>
           </form>
         </Modal.Section>
       </Modal.Body>
