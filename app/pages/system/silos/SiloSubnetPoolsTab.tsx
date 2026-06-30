@@ -30,7 +30,10 @@ import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
-import { useLinkSubnetPoolSiloFlow } from '~/pages/system/useLinkPoolSiloFlow'
+import {
+  ReplacedDefaultNote,
+  useLinkSubnetPoolSiloFlow,
+} from '~/pages/system/useLinkPoolSiloFlow'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { LinkCell } from '~/table/cells/LinkCell'
@@ -335,9 +338,9 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
                 ? `Make default IP${selectedPool.ipVersion} subnet pool for silo`
                 : 'Make default subnet pool for silo'}
               {replacedDefault && (
-                <span className="text-sans-sm text-tertiary mt-1 block">
+                <ReplacedDefaultNote>
                   Replaces {replacedDefault}, which stays linked
-                </span>
+                </ReplacedDefaultNote>
               )}
             </CheckboxField>
           </form>

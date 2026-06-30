@@ -36,7 +36,10 @@ import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSubnetPoolSelector, useSubnetPoolSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
-import { useLinkSubnetPoolSiloFlow } from '~/pages/system/useLinkPoolSiloFlow'
+import {
+  ReplacedDefaultNote,
+  useLinkSubnetPoolSiloFlow,
+} from '~/pages/system/useLinkPoolSiloFlow'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -540,9 +543,9 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
             <CheckboxField name="isDefault" control={control}>
               {`Make default IP${poolData.ipVersion} subnet pool for silo`}
               {replacedDefault && (
-                <span className="text-sans-sm text-tertiary mt-1 block">
+                <ReplacedDefaultNote>
                   Replaces {replacedDefault}, which stays linked
-                </span>
+                </ReplacedDefaultNote>
               )}
             </CheckboxField>
           </form>

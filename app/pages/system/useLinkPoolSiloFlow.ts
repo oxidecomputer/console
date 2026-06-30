@@ -17,6 +17,16 @@ import {
 } from '@oxide/api'
 
 import { addToast } from '~/stores/toast'
+import { classed } from '~/util/classed'
+
+/**
+ * "Replaces …" note shown under the make-default checkbox in the link modals.
+ * The negative bottom margin lets it sit in the modal's existing bottom padding
+ * instead of growing the modal: its line box is mt-1 (4px) + one line of
+ * text-sans-sm (line-height 1rem = 16px) = 20px, and -mb-4 (16px) pulls the
+ * footer back up so it shifts by only ~4px when the note appears.
+ */
+export const ReplacedDefaultNote = classed.span`mt-1 -mb-4 block text-sans-sm text-tertiary`
 
 type ToastOptions = {
   linkErrorTitle: string
