@@ -30,6 +30,7 @@ import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
+import { useLinkSubnetPoolSiloFlow } from '~/pages/system/useLinkPoolSiloFlow'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { LinkCell } from '~/table/cells/LinkCell'
@@ -262,45 +263,15 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  function invalidate() {
-    queryClient.invalidateEndpoint('siloSubnetPoolList')
-    queryClient.invalidateEndpoint('systemSubnetPoolSiloList')
-  }
-
-  const linkPool = useApiMutation(api.systemSubnetPoolSiloLink, {
-    onSuccess: invalidate,
-    onError(err) {
-      addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })
-    },
-  })
-  // Promoting to default is a separate request from linking. The API rejects
-  // linking *as default* when the silo already has a default for the pool's
-  // version, but the update endpoint demotes the existing default
-  // automatically. So "link as default" = link non-default, then promote.
-  const promotePool = useApiMutation(api.systemSubnetPoolSiloUpdate, {
-    onSuccess: invalidate,
+  const { linkAndMaybePromote, isPending } = useLinkSubnetPoolSiloFlow({
+    linkErrorTitle: 'Could not link pool',
+    promoteErrorTitle: 'Pool linked, but not set as default',
   })
 
   async function onSubmit({ pool, isDefault }: LinkPoolFormValues) {
     if (!pool) return
-    try {
-      await linkPool.mutateAsync({ path: { pool }, body: { silo, isDefault: false } })
-    } catch {
-      return // onError already toasted; leave the modal open to retry
-    }
-    if (isDefault) {
-      try {
-        await promotePool.mutateAsync({ path: { silo, pool }, body: { isDefault: true } })
-      } catch {
-        // The link committed, so don't roll back or keep the modal open: the pool
-        // is linked, just not default — a valid state. Say how to finish the job.
-        addToast({
-          title: 'Pool linked, but not set as default',
-          content: 'Use the row menu to make it the default.',
-          variant: 'error',
-        })
-      }
-    }
+    const linked = await linkAndMaybePromote({ pool, silo, isDefault })
+    if (!linked) return
     onDismiss()
   }
 
@@ -376,7 +347,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
         actionText="Link"
-        actionLoading={linkPool.isPending || promotePool.isPending}
+        actionLoading={isPending}
       />
     </Modal>
   )

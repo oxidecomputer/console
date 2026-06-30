@@ -36,6 +36,7 @@ import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
+import { useLinkIpPoolSiloFlow } from '~/pages/system/useLinkPoolSiloFlow'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -473,41 +474,15 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   const { data: poolData } = usePrefetchedQuery(ipPoolView({ pool }))
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  function invalidate() {
-    queryClient.invalidateEndpoint('systemIpPoolSiloList')
-    queryClient.invalidateEndpoint('siloIpPoolList')
-  }
-
-  const linkSilo = useApiMutation(api.systemIpPoolSiloLink, {
-    onSuccess: invalidate,
-    onError(err) {
-      addToast({ title: 'Could not link silo', content: err.message, variant: 'error' })
-    },
-  })
-  // See SiloIpPoolsTab: link non-default, then promote, so we never hit the
-  // API's link-as-default guardrail; the promote demotes any existing default.
-  const promoteSilo = useApiMutation(api.systemIpPoolSiloUpdate, {
-    onSuccess: invalidate,
+  const { linkAndMaybePromote, isPending } = useLinkIpPoolSiloFlow({
+    linkErrorTitle: 'Could not link silo',
+    promoteErrorTitle: 'Silo linked, but pool not set as default',
   })
 
   async function onSubmit({ silo, isDefault }: LinkSiloFormValues) {
     if (!silo) return // can't happen, silo is required
-    try {
-      await linkSilo.mutateAsync({ path: { pool }, body: { silo, isDefault: false } })
-    } catch {
-      return // onError already toasted; leave the modal open to retry
-    }
-    if (isDefault) {
-      try {
-        await promoteSilo.mutateAsync({ path: { pool, silo }, body: { isDefault: true } })
-      } catch {
-        addToast({
-          title: 'Silo linked, but pool not set as default',
-          content: 'Use the row menu to make it the default.',
-          variant: 'error',
-        })
-      }
-    }
+    const linked = await linkAndMaybePromote({ pool, silo, isDefault })
+    if (!linked) return
     onDismiss()
   }
 
@@ -590,7 +565,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
       <Modal.Footer
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
-        actionLoading={linkSilo.isPending || promoteSilo.isPending}
+        actionLoading={isPending}
         actionText="Link"
       />
     </Modal>

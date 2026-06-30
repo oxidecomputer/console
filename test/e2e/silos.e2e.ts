@@ -440,7 +440,7 @@ test('Silo subnet pools link pool', async ({ page }) => {
   // modal closes; myriad is now the v4 default and the old default is demoted but
   // still linked
   await expect(modal).toBeHidden()
-  await expectRowVisible(table, { name: 'myriad-v4-subnet-pool', Version: 'v4' })
+  await expectRowVisible(table, { name: 'myriad-v4-subnet-pooldefault', Version: 'v4' })
   await expectRowVisible(table, { name: 'default-v4-subnet-pool', Version: 'v4' })
 })
 
