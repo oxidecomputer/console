@@ -262,28 +262,60 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
+  function invalidate() {
+    queryClient.invalidateEndpoint('siloSubnetPoolList')
+    queryClient.invalidateEndpoint('systemSubnetPoolSiloList')
+  }
+
   const linkPool = useApiMutation(api.systemSubnetPoolSiloLink, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('siloSubnetPoolList')
-      queryClient.invalidateEndpoint('systemSubnetPoolSiloList')
-      onDismiss()
-    },
+    onSuccess: invalidate,
     onError(err) {
       addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })
     },
   })
+  // Promoting to default is a separate request from linking. The API rejects
+  // linking *as default* when the silo already has a default for the pool's
+  // version, but the update endpoint demotes the existing default
+  // automatically. So "link as default" = link non-default, then promote.
+  const promotePool = useApiMutation(api.systemSubnetPoolSiloUpdate, {
+    onSuccess: invalidate,
+  })
 
-  function onSubmit({ pool, isDefault }: LinkPoolFormValues) {
+  async function onSubmit({ pool, isDefault }: LinkPoolFormValues) {
     if (!pool) return
-    linkPool.mutate({ path: { pool }, body: { silo, isDefault } })
+    try {
+      await linkPool.mutateAsync({ path: { pool }, body: { silo, isDefault: false } })
+    } catch {
+      return // onError already toasted; leave the modal open to retry
+    }
+    if (isDefault) {
+      try {
+        await promotePool.mutateAsync({ path: { silo, pool }, body: { isDefault: true } })
+      } catch {
+        // The link committed, so don't roll back or keep the modal open: the pool
+        // is linked, just not default — a valid state. Say how to finish the job.
+        addToast({
+          title: 'Pool linked, but not set as default',
+          content: 'Use the row menu to make it the default.',
+          variant: 'error',
+        })
+      }
+    }
+    onDismiss()
   }
 
   const allLinkedPools = useQuery(allSiloPoolsQuery(silo).optionsFn())
   const allPools = useQuery(allPoolsQuery.optionsFn())
 
-  // Fetch the selected pool details so we can update the checkbox label.
+  // The selected pool's version determines which default slot the checkbox
+  // fills, and whether linking as default would replace an existing default.
   const selectedPoolName = useWatch({ control, name: 'pool' })
   const selectedPool = allPools.data?.items.find((p) => p.name === selectedPoolName)
+  const replacedDefault =
+    selectedPool &&
+    allLinkedPools.data?.items.find(
+      (p) => p.isDefault && p.ipVersion === selectedPool.ipVersion
+    )?.name
 
   const linkedPoolIds = useMemo(
     () =>
@@ -331,6 +363,11 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
               {selectedPool
                 ? `Make default IP${selectedPool.ipVersion} subnet pool for silo`
                 : 'Make default subnet pool for silo'}
+              {replacedDefault && (
+                <span className="text-sans-sm text-tertiary mt-1 block">
+                  Replaces {replacedDefault}, which stays linked
+                </span>
+              )}
             </CheckboxField>
           </form>
         </Modal.Section>
@@ -339,7 +376,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
         actionText="Link"
-        actionLoading={linkPool.isPending}
+        actionLoading={linkPool.isPending || promotePool.isPending}
       />
     </Modal>
   )

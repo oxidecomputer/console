@@ -209,6 +209,38 @@ test('Subnet pool link silo', async ({ page }) => {
   await expectRowVisible(table, { Silo: 'myriad', 'Silo default': '' })
 })
 
+test('Subnet pool link silo as default replaces existing default', async ({ page }) => {
+  // myriad-v4-subnet-pool is v4 and linked only to myriad, so maze-war is selectable
+  await page.goto('/system/networking/subnet-pools/myriad-v4-subnet-pool?tab=silos')
+
+  await page.getByRole('button', { name: 'Link silo' }).first().click()
+  const dialog = page.getByRole('dialog', { name: 'Link silo' })
+  await expect(dialog).toBeVisible()
+
+  // maze-war already has a v4 default subnet pool (default-v4-subnet-pool)
+  await page.getByPlaceholder('Select a silo').fill('maze')
+  await page.getByRole('option', { name: 'maze-war' }).click()
+
+  // the modal fetches the selected silo's pools to name the pool that making
+  // myriad-v4-subnet-pool the default would demote (it stays linked)
+  await expect(
+    page.getByText('Replaces default-v4-subnet-pool, which stays linked')
+  ).toBeVisible()
+
+  // checking the box links to maze-war and promotes in one go; seeing it as the
+  // silo default confirms the promote (the link itself is non-default)
+  await page
+    .getByRole('checkbox', { name: 'Make default IPv4 subnet pool for silo' })
+    .check()
+  await dialog.getByRole('button', { name: 'Link' }).click()
+
+  await expect(dialog).toBeHidden()
+  await expectRowVisible(page.getByRole('table'), {
+    Silo: 'maze-war',
+    'Silo default': 'default',
+  })
+})
+
 test('Subnet pool silo make default (no existing default)', async ({ page }) => {
   // ipv6-subnet-pool is linked to maze-war but not as default, and maze-war has no v6 default
   await page.goto('/system/networking/subnet-pools/ipv6-subnet-pool?tab=silos')

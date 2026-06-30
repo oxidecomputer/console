@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -473,25 +473,65 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   const { data: poolData } = usePrefetchedQuery(ipPoolView({ pool }))
   const { control, handleSubmit } = useForm({ defaultValues })
 
+  function invalidate() {
+    queryClient.invalidateEndpoint('systemIpPoolSiloList')
+    queryClient.invalidateEndpoint('siloIpPoolList')
+  }
+
   const linkSilo = useApiMutation(api.systemIpPoolSiloLink, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('systemIpPoolSiloList')
-      onDismiss()
-    },
+    onSuccess: invalidate,
     onError(err) {
       addToast({ title: 'Could not link silo', content: err.message, variant: 'error' })
     },
   })
+  // See SiloIpPoolsTab: link non-default, then promote, so we never hit the
+  // API's link-as-default guardrail; the promote demotes any existing default.
+  const promoteSilo = useApiMutation(api.systemIpPoolSiloUpdate, {
+    onSuccess: invalidate,
+  })
 
-  function onSubmit({ silo, isDefault }: LinkSiloFormValues) {
+  async function onSubmit({ silo, isDefault }: LinkSiloFormValues) {
     if (!silo) return // can't happen, silo is required
-    linkSilo.mutate({ path: { pool }, body: { silo, isDefault } })
+    try {
+      await linkSilo.mutateAsync({ path: { pool }, body: { silo, isDefault: false } })
+    } catch {
+      return // onError already toasted; leave the modal open to retry
+    }
+    if (isDefault) {
+      try {
+        await promoteSilo.mutateAsync({ path: { pool, silo }, body: { isDefault: true } })
+      } catch {
+        addToast({
+          title: 'Silo linked, but pool not set as default',
+          content: 'Use the row menu to make it the default.',
+          variant: 'error',
+        })
+      }
+    }
+    onDismiss()
   }
 
   const linkedSilos = useQuery(
     q(api.systemIpPoolSiloList, { path: { pool }, query: { limit: ALL_ISH } })
   )
   const allSilos = useQuery(q(api.siloList, { query: { limit: ALL_ISH } }))
+
+  // The pool is fixed here, so its version+type fix the default slot. To warn
+  // that linking as default would replace the selected silo's current default
+  // of that slot, fetch that silo's pools once a silo is picked.
+  const selectedSilo = useWatch({ control, name: 'silo' })
+  const selectedSiloPools = useQuery(
+    getListQFn(
+      api.siloIpPoolList,
+      // silo non-null asserted because the query is disabled until one is picked
+      { path: { silo: selectedSilo! }, query: { limit: ALL_ISH } },
+      { enabled: !!selectedSilo }
+    ).optionsFn()
+  )
+  const replacedDefault = selectedSiloPools.data?.items.find(
+    (p) =>
+      p.isDefault && p.ipVersion === poolData.ipVersion && p.poolType === poolData.poolType
+  )?.name
 
   // in order to get the list of remaining unlinked silos, we have to get the
   // list of all silos and remove the already linked ones
@@ -538,6 +578,11 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
 
             <CheckboxField name="isDefault" control={control}>
               {`Make default IP${poolData.ipVersion} ${poolData.poolType} pool for silo`}
+              {replacedDefault && (
+                <span className="text-sans-sm text-tertiary mt-1 block">
+                  Replaces {replacedDefault}, which stays linked
+                </span>
+              )}
             </CheckboxField>
           </form>
         </Modal.Section>
@@ -545,7 +590,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
       <Modal.Footer
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
-        actionLoading={linkSilo.isPending}
+        actionLoading={linkSilo.isPending || promoteSilo.isPending}
         actionText="Link"
       />
     </Modal>

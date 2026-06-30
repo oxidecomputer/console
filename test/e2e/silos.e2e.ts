@@ -384,22 +384,20 @@ test('Silo IP pools link pool', async ({ page }) => {
     name: 'Make default IPv4 unicast pool for silo',
   })
 
-  // maze-war already has a v4 unicast default (ip-pool-1), so linking ip-pool-3
-  // as default conflicts. The IP pool API 400s on this like a duplicate link.
+  // maze-war already has a v4 unicast default (ip-pool-1), so the label names the
+  // pool that making ip-pool-3 default would demote (and reassures it stays linked)
+  await expect(page.getByText('Replaces ip-pool-1, which stays linked')).toBeVisible()
+
+  // checking the box and linking does it in one go: the console links ip-pool-3,
+  // then promotes it, which demotes ip-pool-1 to non-default
   await defaultCheckbox.check()
   await modal.getByRole('button', { name: 'Link' }).click()
-  await expect(modal).toBeVisible() // stays open on error
-  // don't dismiss: the open modal's overlay sits above the toast, so it can't be
-  // clicked; it auto-dismisses on its own
-  await expect(page.getByText('Could not link pool', { exact: true })).toBeVisible()
 
-  // unchecking and linking as non-default succeeds
-  await defaultCheckbox.uncheck()
-  await modal.getByRole('button', { name: 'Link' }).click()
-
-  // modal closes and we see the pool linked (not as default) in the table
+  // modal closes; ip-pool-3 is now the v4 unicast default and ip-pool-1 is demoted
+  // but still linked
   await expect(modal).toBeHidden()
-  await expectRowVisible(table, { name: 'ip-pool-3', Version: 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-3default', Version: 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-1', Version: 'v4' })
 })
 
 test('Silo subnet pools link pool', async ({ page }) => {
@@ -428,26 +426,22 @@ test('Silo subnet pools link pool', async ({ page }) => {
     name: 'Make default IPv4 subnet pool for silo',
   })
 
-  // maze-war already has a v4 default subnet pool (default-v4-subnet-pool).
-  // Unlike IP pools, the subnet pool API returns a distinct, actionable error.
-  await defaultCheckbox.check()
-  await modal.getByRole('button', { name: 'Link' }).click()
-  await expect(modal).toBeVisible() // stays open on error
-  // don't dismiss: the open modal's overlay sits above the toast, so it can't be
-  // clicked; it auto-dismisses on its own. Anchor to the toast message so we
-  // don't also match the parent container that prefixes the "Could not link pool"
-  // title.
+  // maze-war already has a v4 default subnet pool (default-v4-subnet-pool), so the
+  // label names the pool that making myriad default would demote
   await expect(
-    page.getByText(/^Silo already has a default subnet pool for this IP version/)
+    page.getByText('Replaces default-v4-subnet-pool, which stays linked')
   ).toBeVisible()
 
-  // unchecking and linking as non-default succeeds
-  await defaultCheckbox.uncheck()
+  // checking the box and linking does it in one go: link myriad, then promote,
+  // which demotes default-v4-subnet-pool
+  await defaultCheckbox.check()
   await modal.getByRole('button', { name: 'Link' }).click()
 
-  // modal closes and we see the pool linked but not as default in the table
+  // modal closes; myriad is now the v4 default and the old default is demoted but
+  // still linked
   await expect(modal).toBeHidden()
   await expectRowVisible(table, { name: 'myriad-v4-subnet-pool', Version: 'v4' })
+  await expectRowVisible(table, { name: 'default-v4-subnet-pool', Version: 'v4' })
 })
 
 // just a convenient form to test this with because it's tall
