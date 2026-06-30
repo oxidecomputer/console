@@ -7,7 +7,7 @@
  */
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { api, getListQFn, q, queryClient } from '@oxide/api'
+import { api, q, queryClient } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -21,11 +21,12 @@ import type * as PP from '~/util/path-params'
 
 // Parent prefetches everything both tabs need so switching between Users and
 // Groups doesn't trigger a fetch.
+// Both tabs fetch the full user/group lists so they can be sorted by name
+// client-side (the API only sorts by id).
 const policyView = q(api.policyView, {})
 const projectPolicyView = ({ project }: PP.Project) =>
   q(api.projectPolicyView, { path: { project } })
-const userList = getListQFn(api.userList, {})
-const groupList = getListQFn(api.groupList, {})
+const userListAll = q(api.userList, { query: { limit: ALL_ISH } })
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -35,8 +36,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   await Promise.all([
     queryClient.prefetchQuery(policyView),
     queryClient.prefetchQuery(projectPolicyView(selector)),
-    queryClient.prefetchQuery(userList.optionsFn()),
-    queryClient.prefetchQuery(groupList.optionsFn()),
+    queryClient.prefetchQuery(userListAll),
     ...groups.items.map((g) =>
       queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
     ),

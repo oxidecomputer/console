@@ -5,15 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState, type ComponentType } from 'react'
+import * as R from 'remeda'
 
 import {
   api,
   deleteRole,
   effectiveScopedRole,
-  getListQFn,
+  q,
   rolesByIdFromPolicy,
+  usePrefetchedQuery,
   type AccessScope,
   type Group,
   type Policy,
@@ -31,22 +33,29 @@ import { ButtonCell } from '~/table/cells/LinkCell'
 import { MemberCountCell } from '~/table/cells/MemberCountCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { Table } from '~/table/Table'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'
+import { ALL_ISH } from '~/util/consts'
 
 import { GroupMembersSideModal } from './GroupMembersSideModal'
 
-const groupList = getListQFn(api.groupList, {})
+// The API only sorts groups by id, so fetch the full set and sort by name
+// client-side. ALL_ISH is the practical ceiling; a silo with more groups than
+// that would have its tail dropped in (arbitrary) id order.
+const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
 const colHelper = createColumnHelper<Group>()
 
 const GroupEmptyState = () => (
-  <EmptyMessage
-    icon={<PersonGroup24Icon />}
-    title="No groups"
-    body="No groups have been added to this silo"
-  />
+  <TableEmptyBox>
+    <EmptyMessage
+      icon={<PersonGroup24Icon />}
+      title="No groups"
+      body="No groups have been added to this silo"
+    />
+  </TableEmptyBox>
 )
 
 type EditingState = { group: Group; defaultRole: RoleKey | undefined }
@@ -70,6 +79,12 @@ export function AccessGroupsTab({
 }: Props) {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
   const [editingGroup, setEditingGroup] = useState<EditingState | null>(null)
+
+  const { data: groups } = usePrefetchedQuery(groupListAll)
+  const sortedGroups = useMemo(
+    () => R.sortBy(groups.items, (g) => g.displayName.toLowerCase()),
+    [groups]
+  )
 
   // non-null: caller is responsible for including the managed scope
   const managedPolicy = scopedPolicies.find((sp) => sp.scope === managedScope)!.policy
@@ -195,15 +210,16 @@ export function AccessGroupsTab({
 
   const columns = useColsWithActions(staticColumns, makeActions)
 
-  const { table } = useQueryTable({
-    query: groupList,
+  const table = useReactTable({
     columns,
-    emptyState: <GroupEmptyState />,
+    data: sortedGroups,
+    getRowId: (group) => group.id,
+    getCoreRowModel: getCoreRowModel(),
   })
 
   return (
     <>
-      {table}
+      {sortedGroups.length === 0 ? <GroupEmptyState /> : <Table table={table} />}
       {editingGroup && (
         <EditModal
           onDismiss={() => setEditingGroup(null)}

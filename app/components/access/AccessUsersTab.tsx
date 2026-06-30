@@ -5,14 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState, type ComponentType } from 'react'
+import * as R from 'remeda'
 
 import {
   api,
   deleteRole,
   effectiveScopedRole,
-  getListQFn,
   q,
   roleOrder,
   rolesByIdFromPolicy,
@@ -36,15 +36,19 @@ import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { Table } from '~/table/Table'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
 import { UserDetailsSideModal } from './UserDetailsSideModal'
 
-const userList = getListQFn(api.userList, {})
+// The API only sorts users by id, so fetch the full set and sort by name
+// client-side. ALL_ISH is the practical ceiling; a silo with more users than
+// that would have its tail dropped in (arbitrary) id order.
+const userListAll = q(api.userList, { query: { limit: ALL_ISH } })
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
 const colHelper = createColumnHelper<User>()
@@ -52,11 +56,13 @@ const colHelper = createColumnHelper<User>()
 const timeCreatedCol = colHelper.accessor('timeCreated', Columns.timeCreated)
 
 const EmptyState = () => (
-  <EmptyMessage
-    icon={<Person24Icon />}
-    title="No users"
-    body="No users have been added to this silo"
-  />
+  <TableEmptyBox>
+    <EmptyMessage
+      icon={<Person24Icon />}
+      title="No users"
+      body="No users have been added to this silo"
+    />
+  </TableEmptyBox>
 )
 
 type EditingState = { user: User; defaultRole: RoleKey | undefined }
@@ -80,6 +86,12 @@ export function AccessUsersTab({
 }: Props) {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [editingUser, setEditingUser] = useState<EditingState | null>(null)
+
+  const { data: users } = usePrefetchedQuery(userListAll)
+  const sortedUsers = useMemo(
+    () => R.sortBy(users.items, (u) => u.displayName.toLowerCase()),
+    [users]
+  )
 
   const { data: groups } = usePrefetchedQuery(groupListAll)
   const groupsByUserId = useGroupsByUserId(groups.items)
@@ -260,11 +272,16 @@ export function AccessUsersTab({
 
   const columns = useColsWithActions(staticColumns, makeActions)
 
-  const { table } = useQueryTable({ query: userList, columns, emptyState: <EmptyState /> })
+  const table = useReactTable({
+    columns,
+    data: sortedUsers,
+    getRowId: (user) => user.id,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   return (
     <>
-      {table}
+      {sortedUsers.length === 0 ? <EmptyState /> : <Table table={table} />}
       {editingUser && (
         <EditModal
           onDismiss={() => setEditingUser(null)}
