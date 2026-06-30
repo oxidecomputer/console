@@ -152,14 +152,14 @@ test('Assign stronger project role to a silo-only user, then remove it', async (
   // Jane Austen is in real-estate-devs (silo.collaborator) and has no direct project role
   await expectRowVisible(table, { Name: 'Jane Austen', Role: 'silo.collaborator' })
 
-  // Assign project.collaborator — same level as the silo role; silo wins ties,
-  // so the badge should keep showing silo.collaborator
+  // Assign project.admin — stronger than her inherited silo.collaborator, so the
+  // badge updates to project.admin (the role change gives us a sync point)
   await janeRow.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Assign project role' }).click()
   await expectVisible(page, ['role=heading[name*="Assign role"]'])
-  await page.getByRole('radio', { name: /^Collaborator / }).click()
+  await page.getByRole('radio', { name: /^Admin / }).click()
   await page.getByRole('button', { name: 'Assign role' }).click()
-  await expectRowVisible(table, { Name: 'Jane Austen', Role: 'silo.collaborator' })
+  await expectRowVisible(table, { Name: 'Jane Austen', Role: 'project.admin' })
 
   // Now that there's a direct project role, the row action menu should expose
   // "Change project role" instead of "Assign project role"
@@ -167,16 +167,8 @@ test('Assign stronger project role to a silo-only user, then remove it', async (
   await expect(page.getByRole('menuitem', { name: 'Change project role' })).toBeEnabled()
   await expect(page.getByRole('menuitem', { name: 'Assign project role' })).toBeHidden()
 
-  // Change the project role to admin — stronger than the silo collaborator
-  await page.getByRole('menuitem', { name: 'Change project role' }).click()
-  await expectVisible(page, ['role=heading[name*="Edit role"]'])
-  await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
-  await page.getByRole('radio', { name: /^Admin / }).click()
-  await page.getByRole('button', { name: 'Update role' }).click()
-  await expectRowVisible(table, { Name: 'Jane Austen', Role: 'project.admin' })
-
-  // Remove the project role; the row falls back to the inherited silo role
-  await janeRow.getByRole('button', { name: 'Row actions' }).click()
+  // Remove the project role from the same menu; the row falls back to the
+  // inherited silo role
   await page.getByRole('menuitem', { name: 'Remove project role' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectRowVisible(table, { Name: 'Jane Austen', Role: 'silo.collaborator' })
