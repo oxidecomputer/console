@@ -76,19 +76,31 @@ test('Date range picker: invalid range shows an error', async ({ page }) => {
   const today = page.getByRole('button', { name: /Today/ })
   await today.click()
   await today.click()
-  await expect(page.getByText('Date range is invalid')).toBeHidden()
 
-  // set the start time (23:00) after the end time (01:00) on that same day
+  // Set the times explicitly rather than relying on the times inherited from
+  // the default "Last hour" range. When the test runs shortly after midnight,
+  // that range straddles midnight (start ~23:00 the previous day, end ~00:00
+  // today), so collapsing both dates to today leaves start after end and the
+  // range reads as invalid before we've done anything. Start with a valid
+  // same-day range (01:00 before 23:00): no error.
   const hours = page.getByRole('spinbutton', { name: 'hour,' })
   const minutes = page.getByRole('spinbutton', { name: 'minute,' })
   await hours.first().click()
-  await page.keyboard.type('23')
+  await page.keyboard.type('01')
   await minutes.first().click()
   await page.keyboard.type('00')
   await hours.nth(1).click()
-  await page.keyboard.type('01')
+  await page.keyboard.type('23')
   await minutes.nth(1).click()
   await page.keyboard.type('00')
+  await expect(page.getByText('Date range is invalid')).toBeHidden()
+
+  // now flip the start time (23:00) to be after the end time (01:00) on that
+  // same day
+  await hours.first().click()
+  await page.keyboard.type('23')
+  await hours.nth(1).click()
+  await page.keyboard.type('01')
 
   await expect(page.getByText('Date range is invalid')).toBeVisible()
 })

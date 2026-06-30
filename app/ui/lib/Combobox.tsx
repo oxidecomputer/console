@@ -33,8 +33,11 @@ const NO_MATCH_ITEM: ComboboxItem = {
 }
 const isNoMatch = (item: ComboboxItem | null) => item === NO_MATCH_ITEM
 
-// HUI's virtualizer needs the scroll container to have a non-zero height
-const ITEM_HEIGHT = 40
+// HUI's virtualizer needs the scroll container to have a non-zero height.
+// Must match the actual rendered row height (.ox-menu-item: text-sans-md +
+// py-2 + 1px border ≈ 34px) or the panel min-height overshoots the content
+// and leaves empty space at the bottom.
+const ITEM_HEIGHT = 34
 const MAX_PANEL_HEIGHT = 280
 
 /** Convert an array of items with a `name` attribute to an array of ComboboxItems
