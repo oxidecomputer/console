@@ -11,11 +11,13 @@ import {
   allRoles,
   byGroupThenName,
   deleteRole,
+  effectiveScopedRole,
   getEffectiveRole,
   roleOrder,
   updateRole,
   userRoleFromPolicies,
   type Policy,
+  type ScopedRoleEntry,
 } from './roles'
 
 describe('getEffectiveRole', () => {
@@ -82,67 +84,78 @@ const user1 = {
 const groups = [{ id: 'group1' }, { id: 'group2' }]
 
 describe('getEffectiveRole', () => {
-  it('returns null when there are no policies', () => {
-    expect(userRoleFromPolicies(user1, groups, [])).toBe(null)
-  })
-
   it('returns null when there are no roles', () => {
-    expect(userRoleFromPolicies(user1, groups, [{ roleAssignments: [] }])).toBe(null)
+    expect(userRoleFromPolicies(user1, groups, { roleAssignments: [] })).toBe(null)
   })
 
   it('returns role if user matches directly', () => {
     expect(
-      userRoleFromPolicies(user1, groups, [
-        {
-          roleAssignments: [
-            { identityId: 'user1', identityType: 'silo_user', roleName: 'admin' },
-          ],
-        },
-      ])
+      userRoleFromPolicies(user1, groups, {
+        roleAssignments: [
+          { identityId: 'user1', identityType: 'silo_user', roleName: 'admin' },
+        ],
+      })
     ).toEqual('admin')
   })
 
   it('returns strongest role if both group and user match', () => {
     expect(
-      userRoleFromPolicies(user1, groups, [
-        {
-          roleAssignments: [
-            { identityId: 'user1', identityType: 'silo_user', roleName: 'viewer' },
-            { identityId: 'group1', identityType: 'silo_group', roleName: 'collaborator' },
-          ],
-        },
-      ])
+      userRoleFromPolicies(user1, groups, {
+        roleAssignments: [
+          { identityId: 'user1', identityType: 'silo_user', roleName: 'viewer' },
+          { identityId: 'group1', identityType: 'silo_group', roleName: 'collaborator' },
+        ],
+      })
     ).toEqual('collaborator')
   })
 
   it('ignores groups and users that do not match', () => {
     expect(
-      userRoleFromPolicies(user1, groups, [
-        {
-          roleAssignments: [
-            { identityId: 'other', identityType: 'silo_user', roleName: 'viewer' },
-            { identityId: 'group3', identityType: 'silo_group', roleName: 'viewer' },
-          ],
-        },
-      ])
+      userRoleFromPolicies(user1, groups, {
+        roleAssignments: [
+          { identityId: 'other', identityType: 'silo_user', roleName: 'viewer' },
+          { identityId: 'group3', identityType: 'silo_group', roleName: 'viewer' },
+        ],
+      })
     ).toEqual(null)
   })
+})
 
-  it('resolves multiple policies', () => {
+describe('effectiveScopedRole', () => {
+  const direct = { type: 'direct' } as const
+  const viaGroup = { type: 'group', group: { id: 'g', displayName: 'g' } } as const
+  const entry = (
+    roleName: ScopedRoleEntry['roleName'],
+    scope: ScopedRoleEntry['scope'],
+    source: ScopedRoleEntry['source'] = direct
+  ): ScopedRoleEntry => ({ roleName, scope, source })
+
+  it('returns null when there are no entries', () => {
+    expect(effectiveScopedRole([])).toBeNull()
+  })
+
+  it('picks the strongest role regardless of scope', () => {
     expect(
-      userRoleFromPolicies(user1, groups, [
-        {
-          roleAssignments: [
-            { identityId: 'user1', identityType: 'silo_user', roleName: 'viewer' },
-          ],
-        },
-        {
-          roleAssignments: [
-            { identityId: 'group1', identityType: 'silo_group', roleName: 'admin' },
-          ],
-        },
-      ])
-    ).toEqual('admin')
+      effectiveScopedRole([entry('viewer', 'silo'), entry('admin', 'project')])
+    ).toEqual({ role: 'admin', scope: 'project' })
+  })
+
+  it('gives ties to silo scope, since silo roles cascade into projects', () => {
+    expect(
+      effectiveScopedRole([entry('collaborator', 'project'), entry('collaborator', 'silo')])
+    ).toEqual({ role: 'collaborator', scope: 'silo' })
+  })
+
+  it('gives ties to silo even if permission comes via a group', () => {
+    expect(
+      effectiveScopedRole([entry('admin', 'project'), entry('admin', 'silo', viaGroup)])
+    ).toEqual({ role: 'admin', scope: 'silo' })
+  })
+
+  it('keeps project scope when the project role is strictly stronger', () => {
+    expect(
+      effectiveScopedRole([entry('admin', 'project'), entry('viewer', 'silo')])
+    ).toEqual({ role: 'admin', scope: 'project' })
   })
 })
 

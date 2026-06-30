@@ -26,7 +26,10 @@ export const pb = {
   project: (params: PP.Project) => `${projectBase(params)}/instances`,
   projectEdit: (params: PP.Project) => `${projectBase(params)}/edit`,
 
-  projectAccess: (params: PP.Project) => `${projectBase(params)}/access`,
+  projectAccessUsers: (params: PP.Project) => `${projectBase(params)}/access/users`,
+  projectAccessGroups: (params: PP.Project) => `${projectBase(params)}/access/groups`,
+  // points to the default tab to avoid bouncing through the parent's redirect
+  projectAccess: (params: PP.Project) => pb.projectAccessGroups(params),
   projectImages: (params: PP.Project) => `${projectBase(params)}/images`,
   projectImagesNew: (params: PP.Project) => `${projectBase(params)}/images-new`,
   projectImageEdit: (params: PP.Image) =>
@@ -111,7 +114,10 @@ export const pb = {
     `${pb.antiAffinityGroup(params)}/edit`,
 
   siloUtilization: () => '/utilization',
-  siloAccess: () => '/access',
+  siloAccessUsers: () => '/access/users',
+  siloAccessGroups: () => '/access/groups',
+  // points to the default tab to avoid bouncing through the parent's redirect
+  siloAccess: () => pb.siloAccessGroups(),
   siloImages: () => '/images',
   siloImageEdit: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}/edit`,
 
