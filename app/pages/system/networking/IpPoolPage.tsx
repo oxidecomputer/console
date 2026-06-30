@@ -27,6 +27,7 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
@@ -462,12 +463,14 @@ function LinkedSilosTable() {
 
 type LinkSiloFormValues = {
   silo: string | undefined
+  isDefault: boolean
 }
 
-const defaultValues: LinkSiloFormValues = { silo: undefined }
+const defaultValues: LinkSiloFormValues = { silo: undefined, isDefault: false }
 
 function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   const { pool } = useIpPoolSelector()
+  const { data: poolData } = usePrefetchedQuery(ipPoolView({ pool }))
   const { control, handleSubmit } = useForm({ defaultValues })
 
   const linkSilo = useApiMutation(api.systemIpPoolSiloLink, {
@@ -480,9 +483,9 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
     },
   })
 
-  function onSubmit({ silo }: LinkSiloFormValues) {
+  function onSubmit({ silo, isDefault }: LinkSiloFormValues) {
     if (!silo) return // can't happen, silo is required
-    linkSilo.mutate({ path: { pool }, body: { silo, isDefault: false } })
+    linkSilo.mutate({ path: { pool }, body: { silo, isDefault } })
   }
 
   const linkedSilos = useQuery(
@@ -532,6 +535,10 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
               required
               control={control}
             />
+
+            <CheckboxField name="isDefault" control={control}>
+              {`Make default IP${poolData.ipVersion} ${poolData.poolType} pool for silo`}
+            </CheckboxField>
           </form>
         </Modal.Section>
       </Modal.Body>

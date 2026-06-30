@@ -197,10 +197,16 @@ test('Subnet pool link silo', async ({ page }) => {
 
   await page.getByPlaceholder('Select a silo').fill('m')
   await page.getByRole('option', { name: 'myriad' }).click()
+
+  // leave the default checkbox unchecked to link without making it the default
+  await expect(
+    dialog.getByRole('checkbox', { name: 'Make default IPv4 subnet pool for silo' })
+  ).toBeVisible()
+
   await dialog.getByRole('button', { name: 'Link' }).click()
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { Silo: 'myriad' })
+  await expectRowVisible(table, { Silo: 'myriad', 'Silo default': '' })
 })
 
 test('Subnet pool silo make default (no existing default)', async ({ page }) => {
