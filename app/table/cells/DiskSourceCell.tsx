@@ -77,7 +77,7 @@ export const DiskSourceName = ({ imageId, snapshotId }: Props) => {
   const name = result.data.name
   if (inSideModal) {
     return (
-      <span className="flex items-center gap-1">
+      <span className="flex items-center gap-1.5">
         <Badge color="neutral">{imageId ? 'Image' : 'Snapshot'}</Badge>
         {name}
       </span>
