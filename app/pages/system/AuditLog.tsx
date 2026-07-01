@@ -695,7 +695,7 @@ const ExpandedItem = ({
   totalCount,
   onNavigate,
   onClose,
-  hasError = false,
+  hasError,
 }: {
   item: AuditLogEntry
   userId?: string
