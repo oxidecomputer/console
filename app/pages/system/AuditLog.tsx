@@ -171,7 +171,7 @@ const HighlightJSON = memo(({ json, depth = 0 }: { json: JsonValue; depth?: numb
 
 const ErrorState = ({ error, onDismiss }: { error: string; onDismiss: () => void }) => {
   return (
-    <div className="text-sans-md text-error bg-error-secondary flex h-10 items-center justify-between px-[var(--content-gutter)]">
+    <div className="text-sans-md text-error bg-error flex h-10 items-center justify-between px-[var(--content-gutter)]">
       <div className="-ml-[18px] flex items-center gap-1.5">
         <Error12Icon className="flex-shrink-0" />
         {error}
