@@ -9,7 +9,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 
-import { api, qErrorsAllowed } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
 import { ImageDetailSideModal } from '~/components/ImageDetailSideModal'
@@ -18,34 +17,7 @@ import { useIsInSideModal } from '~/ui/lib/modal-context'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 import { ButtonCell } from './LinkCell'
-
-// Use qErrorsAllowed so deletion of the source resource is a cacheable result
-// rather than an error that blows up the page. Tables and the disk detail
-// modal both render a "Deleted" badge in that case.
-
-const sourceImageQ = (image: string) =>
-  qErrorsAllowed(
-    api.imageView,
-    { path: { image } },
-    {
-      errorsExpected: {
-        explanation: 'the source image may have been deleted.',
-        statusCode: 404,
-      },
-    }
-  )
-
-const sourceSnapshotQ = (snapshot: string) =>
-  qErrorsAllowed(
-    api.snapshotView,
-    { path: { snapshot } },
-    {
-      errorsExpected: {
-        explanation: 'the source snapshot may have been deleted.',
-        statusCode: 404,
-      },
-    }
-  )
+import { sourceImageQ, sourceSnapshotQ } from './SourceNameCell'
 
 type Props = {
   imageId?: string | null
@@ -63,7 +35,10 @@ export const DiskSourceName = ({ imageId, snapshotId }: Props) => {
   const [showDetail, setShowDetail] = useState(false)
   // the `!` is safe because the query only runs when the id is present (enabled)
   const image = useQuery({ ...sourceImageQ(imageId!), enabled: !!imageId })
-  const snapshot = useQuery({ ...sourceSnapshotQ(snapshotId!), enabled: !!snapshotId })
+  const snapshot = useQuery({
+    ...sourceSnapshotQ(snapshotId!),
+    enabled: !!snapshotId,
+  })
 
   if (!imageId && !snapshotId) return <EmptyCell />
 
