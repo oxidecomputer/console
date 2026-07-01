@@ -9,7 +9,7 @@ import { expect, test, type Browser, type Locator, type Page } from '@playwright
 
 import { MiB } from '~/util/units'
 
-import { MSW_USER_COOKIE } from '../../mock-api/msw/util'
+import { MSW_FLAGS_COOKIE, MSW_USER_COOKIE, type MockFlag } from '../../mock-api/msw/util'
 
 export * from '@playwright/test'
 
@@ -81,6 +81,32 @@ export async function fillNumberInput(
       { intervals: [100, 250, 500] }
     )
     .toBe(expectedValue)
+}
+
+/**
+ * Fill a combobox and click a dropdown option. Scrolls the combobox toward the
+ * center of the viewport first so the Floating UI anchored dropdown has room to
+ * render on-screen. Without this, Safari/WebKit can place the dropdown outside
+ * the viewport when the combobox is near the bottom of a tall form, causing
+ * Playwright's click to fail.
+ */
+export async function fillAndSelectComboboxOption(
+  input: Locator,
+  page: Page,
+  text: string,
+  optionName: string
+) {
+  await input.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+  await input.fill(text)
+  await page.getByRole('option', { name: optionName }).click()
+}
+
+export async function expectComboboxOptions(page: Page, options: string[]) {
+  const selector = page.getByRole('option')
+  await expect(selector).toHaveCount(options.length)
+  for (const option of options) {
+    await expect(page.getByRole('option', { name: option })).toBeVisible()
+  }
 }
 
 // Technically this has type AsymmetricMatcher, which is not exported by
@@ -221,11 +247,22 @@ export async function selectOption(
   }
 }
 
-export async function getPageAsUser(browser: Browser, user: string): Promise<Page> {
+function cookie(name: string, value: string) {
+  return { name, value, domain: 'localhost', path: '/' }
+}
+
+export async function getPageAsUser(
+  browser: Browser,
+  user: string,
+  // fleet-level overrides; see mockFlags in mock-api/msw/util.ts
+  flags: MockFlag[] = []
+): Promise<Page> {
   const browserContext = await browser.newContext()
-  await browserContext.addCookies([
-    { name: MSW_USER_COOKIE, value: user, domain: 'localhost', path: '/' },
-  ])
+  const cookies = [cookie(MSW_USER_COOKIE, user)]
+  if (flags.length) {
+    cookies.push(cookie(MSW_FLAGS_COOKIE, flags.join(',')))
+  }
+  await browserContext.addCookies(cookies)
   return await browserContext.newPage()
 }
 

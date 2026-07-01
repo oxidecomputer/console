@@ -22,6 +22,25 @@ const selectASiloImage = async (page: Page, name: string) => {
   await page.getByRole('option', { name }).click()
 }
 
+test('Instance networking tab — firewall rules card', async ({ page }) => {
+  // db1 has a primary NIC in mock-vpc, so the card names that VPC
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await expect(
+    page.getByText('Manage firewall rules affecting this instance in VPC mock-vpc')
+  ).toBeVisible()
+
+  // you-fail has no NICs, so there's no primary VPC and we show the fallback copy
+  await page.goto('/projects/mock-project/instances/you-fail/networking')
+  await expect(
+    page.getByText(
+      'Firewall rules are managed on the VPC associated with the primary network interface.'
+    )
+  ).toBeVisible()
+  await expect(
+    page.getByText('Manage firewall rules affecting this instance in VPC')
+  ).toBeHidden()
+})
+
 test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 

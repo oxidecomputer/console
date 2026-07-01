@@ -29,6 +29,8 @@ jobs:
         run: ls dist/assets/*.{js,css,map} | xargs gzip --keep
       - name: add console_version file
         run: echo ${{ github.sha }} > dist/VERSION
+      - name: add API_VERSION file
+        run: cp app/api/__generated__/API_VERSION dist/API_VERSION
       - run: mkdir -p releases/console
       - name: Make <sha>.tar.gz
         run: tar czf releases/console/${{ github.sha }}.tar.gz --directory=dist .

@@ -12,11 +12,30 @@ import {
   clipboardText,
   expect,
   expectNotVisible,
+  expectRowVisible,
   expectToast,
   expectVisible,
   getPageAsUser,
   selectOption,
 } from './utils'
+
+test('shows OS and Version columns', async ({ page }) => {
+  await page.goto('/images')
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'ubuntu-22-04',
+    OS: 'ubuntu',
+    version: '22.04',
+    size: '1 GiB',
+  })
+
+  await page.goto('/projects/mock-project/images')
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'image-1',
+    OS: 'alpine',
+    version: 'edge1',
+    size: '4 GiB',
+  })
+})
 
 test('can promote an image from silo', async ({ page }) => {
   await page.goto('/images')
