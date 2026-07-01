@@ -27,6 +27,12 @@ test('Disk detail side modal', async ({ page }) => {
   await expect(modal.getByText('2 GiB')).toBeVisible()
   await expect(modal.getByText('2,048 bytes')).toBeVisible() // block size
   await expect(propertiesTableValue(modal, 'Read only')).toHaveText('False')
+
+  // the ID is truncated for display, but the full ID is in the aria-label,
+  // next to a copy button
+  const idCell = propertiesTableValue(modal, 'ID')
+  await expect(idCell.getByLabel('7f2309a5-13e3-47e0-8a4c-2a3b3bc992fd')).toBeVisible()
+  await expect(idCell.getByRole('button', { name: 'Click to copy' })).toBeVisible()
 })
 
 test('Source links open detail side modals from disk list', async ({ page }) => {
