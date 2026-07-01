@@ -10,9 +10,9 @@ import type { ReactNode } from 'react'
 
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { sizeCellInner } from '~/table/columns/common'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
-import { formatBytes } from '~/util/units'
 
 import { CopyToClipboard } from './CopyToClipboard'
 import { DateTime } from './DateTime'
@@ -110,18 +110,7 @@ PropertiesTable.SizeRow = ({
 }: {
   bytes: number
   label?: string
-}) => {
-  const size = formatBytes(bytes)
-  // wrap in a span so flex treats value+unit as one item; otherwise the browser
-  // collapses the trailing space at the flex-item boundary, rendering "1GiB"
-  return (
-    <PropertiesTable.Row label={label}>
-      <span>
-        {size.value} <span className="text-tertiary">{size.unit}</span>
-      </span>
-    </PropertiesTable.Row>
-  )
-}
+}) => <PropertiesTable.Row label={label}>{sizeCellInner(bytes)}</PropertiesTable.Row>
 
 PropertiesTable.CopyableRow = ({ label, text }: { label: string; text: string }) => (
   <PropertiesTable.Row label={label}>

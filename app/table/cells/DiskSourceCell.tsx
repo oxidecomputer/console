@@ -61,6 +61,7 @@ type Props = {
 export const DiskSourceName = ({ imageId, snapshotId }: Props) => {
   const inSideModal = useIsInSideModal()
   const [showDetail, setShowDetail] = useState(false)
+  // the `!` is safe because the query only runs when the id is present (enabled)
   const image = useQuery({ ...sourceImageQ(imageId!), enabled: !!imageId })
   const snapshot = useQuery({ ...sourceSnapshotQ(snapshotId!), enabled: !!snapshotId })
 
