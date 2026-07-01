@@ -180,11 +180,14 @@ test('can delete an image from a silo', async ({ page }) => {
   await expect(spinner).toBeHidden()
 
   // Navigate client-side (preserves MSW db) to disk-2's row and verify the
-  // Source column now shows "Deleted" instead of the image name.
+  // Source column now shows "Image deleted" instead of the image name.
   await page.getByRole('link', { name: 'Projects', exact: true }).click()
   await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
   await page.getByRole('link', { name: 'Disks' }).click()
-  await expectRowVisible(page.getByRole('table'), { name: 'disk-2', Source: 'Deleted' })
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'disk-2',
+    Source: 'Image deleted',
+  })
 })
 
 // this is to some extent a test of our mock server implementation, but I want

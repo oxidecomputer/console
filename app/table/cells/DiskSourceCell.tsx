@@ -72,7 +72,11 @@ export const DiskSourceName = ({ imageId, snapshotId }: Props) => {
   // https://github.com/oxidecomputer/omicron/blob/254a0c5/nexus/db-model/src/disk_type_crucible.rs#L49-L78
   const result = imageId ? image.data : snapshot.data
   if (!result) return <SkeletonCell />
-  if (result.type === 'error') return <Badge color="neutral">Deleted</Badge>
+  // include the source type, which comes from the disk itself, so it survives
+  // deletion of the source resource
+  if (result.type === 'error') {
+    return <Badge color="neutral">{imageId ? 'Image' : 'Snapshot'} deleted</Badge>
+  }
 
   const name = result.data.name
   if (inSideModal) {

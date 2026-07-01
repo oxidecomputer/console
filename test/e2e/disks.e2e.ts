@@ -106,8 +106,8 @@ test('List disks and snapshot', async ({ page }) => {
   })
   // disk-2 is sourced from the ubuntu-22-04 silo image
   await expectRowVisible(table, { name: 'disk-2', Source: 'ubuntu-22-04' })
-  // disk-9 references an image that does not exist, so we render "Deleted"
-  await expectRowVisible(table, { name: 'disk-9', Source: 'Deleted' })
+  // disk-9 references an image that does not exist, so we render "Image deleted"
+  await expectRowVisible(table, { name: 'disk-9', Source: 'Image deleted' })
 
   await clickRowAction(page, 'disk-1 db1', 'Snapshot')
   await expectToast(page, 'Creating snapshot of disk disk-1')
