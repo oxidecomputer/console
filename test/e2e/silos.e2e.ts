@@ -370,14 +370,78 @@ test('Silo IP pools link pool', async ({ page }) => {
   await page.getByPlaceholder('Select a pool').fill('x')
   await expect(page.getByText('No items match')).toBeVisible()
 
-  // select silo in combobox and click link
+  // before a pool is selected, the default checkbox label is generic
+  await expect(
+    page.getByRole('checkbox', { name: 'Make default pool for silo' })
+  ).toBeVisible()
+
+  // select pool in combobox
   await page.getByPlaceholder('Select a pool').fill('ip-pool')
   await page.getByRole('option', { name: 'ip-pool-3' }).click()
+
+  // checkbox label now reflects the selected pool's version and type
+  const defaultCheckbox = page.getByRole('checkbox', {
+    name: 'Make default IPv4 unicast pool for silo',
+  })
+
+  // maze-war already has a v4 unicast default (ip-pool-1), so the label names the
+  // pool that making ip-pool-3 default would demote (and reassures it stays linked)
+  await expect(page.getByText('Replaces ip-pool-1, which stays linked')).toBeVisible()
+
+  // checking the box and linking does it in one go: the console links ip-pool-3,
+  // then promotes it, which demotes ip-pool-1 to non-default
+  await defaultCheckbox.check()
   await modal.getByRole('button', { name: 'Link' }).click()
 
-  // modal closes and we see the thing in the table
+  // modal closes; ip-pool-3 is now the v4 unicast default and ip-pool-1 is demoted
+  // but still linked
   await expect(modal).toBeHidden()
-  await expectRowVisible(table, { name: 'ip-pool-3', Version: 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-3default', Version: 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-1', Version: 'v4' })
+})
+
+test('Silo subnet pools link pool', async ({ page }) => {
+  await page.goto('/system/silos/maze-war/subnet-pools')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: 'default-v4-subnet-pooldefault', Version: 'v4' })
+
+  const modal = page.getByRole('dialog', { name: 'Link pool' })
+  await expect(modal).toBeHidden()
+
+  await page.getByRole('button', { name: 'Link pool' }).click()
+  await expect(modal).toBeVisible()
+
+  // before a pool is selected, the default checkbox label is generic
+  await expect(
+    page.getByRole('checkbox', { name: 'Make default subnet pool for silo' })
+  ).toBeVisible()
+
+  // select pool in combobox
+  await page.getByPlaceholder('Select a pool').fill('myriad')
+  await page.getByRole('option', { name: 'myriad-v4-subnet-pool' }).click()
+
+  // checkbox label now reflects the selected pool's version
+  const defaultCheckbox = page.getByRole('checkbox', {
+    name: 'Make default IPv4 subnet pool for silo',
+  })
+
+  // maze-war already has a v4 default subnet pool (default-v4-subnet-pool), so the
+  // label names the pool that making myriad default would demote
+  await expect(
+    page.getByText('Replaces default-v4-subnet-pool, which stays linked')
+  ).toBeVisible()
+
+  // checking the box and linking does it in one go: link myriad, then promote,
+  // which demotes default-v4-subnet-pool
+  await defaultCheckbox.check()
+  await modal.getByRole('button', { name: 'Link' }).click()
+
+  // modal closes; myriad is now the v4 default and the old default is demoted but
+  // still linked
+  await expect(modal).toBeHidden()
+  await expectRowVisible(table, { name: 'myriad-v4-subnet-pooldefault', Version: 'v4' })
+  await expectRowVisible(table, { name: 'default-v4-subnet-pool', Version: 'v4' })
 })
 
 // just a convenient form to test this with because it's tall
