@@ -14,6 +14,7 @@ import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
 import { formatBytes } from '~/util/units'
 
+import { CopyToClipboard } from './CopyToClipboard'
 import { DateTime } from './DateTime'
 import { Truncate } from './Truncate'
 
@@ -35,6 +36,7 @@ export function PropertiesTable({
       PropertiesTable.DescriptionRow,
       PropertiesTable.DateRow,
       PropertiesTable.SizeRow,
+      PropertiesTable.CopyableRow,
     ]),
     'PropertiesTable only accepts specific Row components as children'
   )
@@ -120,3 +122,10 @@ PropertiesTable.SizeRow = ({
     </PropertiesTable.Row>
   )
 }
+
+PropertiesTable.CopyableRow = ({ label, text }: { label: string; text: string }) => (
+  <PropertiesTable.Row label={label}>
+    {text}
+    <CopyToClipboard className="ml-1" text={text} />
+  </PropertiesTable.Row>
+)
