@@ -17,16 +17,22 @@ import { docLinks } from '~/util/links'
 type ImageDetailSideModalProps = {
   image: Image
   onDismiss: () => void
+  /** Pass `true` for state-driven usage (e.g., DiskSourceCell). Omit for route usage. */
+  animate?: boolean
 }
 
-export function ImageDetailSideModal({ image, onDismiss }: ImageDetailSideModalProps) {
+export function ImageDetailSideModal({
+  image,
+  onDismiss,
+  animate,
+}: ImageDetailSideModalProps) {
   // projectId is only set on project images; silo images leave it null
   const visibility = image.projectId ? 'Project' : 'Silo'
   return (
     <ReadOnlySideModalForm
       title="Image details"
       onDismiss={onDismiss}
-      animate
+      animate={animate}
       subtitle={
         <ResourceLabel>
           <Images16Icon /> {image.name}

@@ -56,7 +56,7 @@ const pages = [
   {
     name: 'silo image edit',
     url: '/images/arch-2022-06-01/edit',
-    heading: 'Silo image',
+    heading: 'Image details',
     exact: true,
   },
   { name: 'silo access', url: '/access', heading: 'Silo Access' },

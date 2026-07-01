@@ -70,6 +70,7 @@ export const DiskSourceName = ({ imageId, snapshotId }: Props) => {
           <ImageDetailSideModal
             image={image.data.data}
             onDismiss={() => setShowDetail(false)}
+            animate
           />
         ) : snapshotId && snapshot.data?.type === 'success' ? (
           <SnapshotDetailSideModal
