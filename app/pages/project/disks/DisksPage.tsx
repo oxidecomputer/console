@@ -91,6 +91,8 @@ export default function DisksPage() {
   const { mutateAsync: deleteDisk } = useApiMutation(api.diskDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('diskList')
+      // deleted disk may be a snapshot's source, shown in the snapshot detail modal
+      queryClient.invalidateEndpoint('diskView')
       // prettier-ignore
       addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>)
     },
