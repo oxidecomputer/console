@@ -12,6 +12,7 @@ import {
   Access16Icon,
   Cloud16Icon,
   IpGlobal16Icon,
+  Logs16Icon,
   Metrics16Icon,
   Servers16Icon,
   SoftwareUpdate16Icon,
@@ -57,6 +58,7 @@ export default function SystemLayout() {
       { value: 'Subnet Pools', path: pb.subnetPools() },
       { value: 'System Update', path: pb.systemUpdate() },
       { value: 'Fleet Access', path: pb.fleetAccess() },
+      { value: 'Audit Log', path: pb.auditLog() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
@@ -106,6 +108,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.fleetAccess()}>
             <Access16Icon /> Fleet Access
+          </NavLinkItem>
+          <NavLinkItem to={pb.auditLog()}>
+            <Logs16Icon /> Audit Log
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
