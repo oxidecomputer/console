@@ -37,6 +37,32 @@ test('shows OS and Version columns', async ({ page }) => {
   })
 })
 
+test('image detail modal opens at the image URL, not /edit', async ({ page }) => {
+  // silo image
+  await page.goto('/images')
+  await page.getByRole('link', { name: 'ubuntu-22-04' }).click()
+  await expect(page).toHaveURL('/images/ubuntu-22-04')
+  const siloModal = page.getByRole('dialog', { name: 'Image details' })
+  await expect(siloModal).toBeVisible()
+  await expect(siloModal.getByRole('heading', { name: 'ubuntu-22-04' })).toBeVisible()
+
+  // project image
+  await page.goto('/projects/mock-project/images')
+  await page.getByRole('link', { name: 'image-1' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/images/image-1')
+  await expect(page.getByRole('dialog', { name: 'Image details' })).toBeVisible()
+})
+
+test('old image /edit URL redirects to the detail URL', async ({ page }) => {
+  await page.goto('/images/arch-2022-06-01/edit')
+  await expect(page).toHaveURL('/images/arch-2022-06-01')
+  await expect(page.getByRole('dialog', { name: 'Image details' })).toBeVisible()
+
+  await page.goto('/projects/mock-project/images/image-1/edit')
+  await expect(page).toHaveURL('/projects/mock-project/images/image-1')
+  await expect(page.getByRole('dialog', { name: 'Image details' })).toBeVisible()
+})
+
 test('can promote an image from silo', async ({ page }) => {
   await page.goto('/images')
   await page.click('role=button[name="Promote image"]')

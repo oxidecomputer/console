@@ -11,26 +11,24 @@ import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 
 import { ImageDetailSideModal } from '~/components/ImageDetailSideModal'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getProjectImageSelector, useProjectImageSelector } from '~/hooks/use-params'
+import { getSiloImageSelector, useSiloImageSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-const imageView = ({ image, project }: PP.Image) =>
-  q(api.imageView, { path: { image }, query: { project } })
+const imageView = ({ image }: PP.SiloImage) => q(api.imageView, { path: { image } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getProjectImageSelector(params)
+  const selector = getSiloImageSelector(params)
   await queryClient.prefetchQuery(imageView(selector))
   return null
 }
 
 export const handle = titleCrumb('Image')
 
-export default function ProjectImageEdit() {
-  const selector = useProjectImageSelector()
+export default function SiloImageDetail() {
+  const selector = useSiloImageSelector()
   const navigate = useNavigate()
   const { data } = usePrefetchedQuery(imageView(selector))
 
-  const dismissLink = pb.projectImages({ project: selector.project })
-  return <ImageDetailSideModal image={data} onDismiss={() => navigate(dismissLink)} />
+  return <ImageDetailSideModal image={data} onDismiss={() => navigate(pb.siloImages())} />
 }

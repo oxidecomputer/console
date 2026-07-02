@@ -97,7 +97,7 @@ export default function ImagesPage() {
   const columns = useMemo(() => {
     return [
       colHelper.accessor('name', {
-        cell: makeLinkCell((image) => pb.projectImageEdit({ project, image })),
+        cell: makeLinkCell((image) => pb.projectImage({ project, image })),
       }),
       colHelper.accessor('description', Columns.description),
       colHelper.accessor('os', {
@@ -132,7 +132,7 @@ export default function ImagesPage() {
       },
       ...(allImages?.items || []).map((i) => ({
         value: i.name,
-        action: pb.projectImageEdit({ project, image: i.name }),
+        action: pb.projectImage({ project, image: i.name }),
         navGroup: 'Go to project image',
       })),
     ],

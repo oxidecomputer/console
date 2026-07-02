@@ -58,7 +58,7 @@ export const handle = { crumb: 'Images' }
 const colHelper = createColumnHelper<Image>()
 const staticCols = [
   colHelper.accessor('name', {
-    cell: makeLinkCell((image) => pb.siloImageEdit({ image })),
+    cell: makeLinkCell((image) => pb.siloImage({ image })),
   }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('os', {
@@ -117,7 +117,7 @@ export default function SiloImagesPage() {
       },
       ...(allImages?.items || []).map((i) => ({
         value: i.name,
-        action: pb.siloImageEdit({ image: i.name }),
+        action: pb.siloImage({ image: i.name }),
         navGroup: 'Go to silo image',
       })),
     ],
