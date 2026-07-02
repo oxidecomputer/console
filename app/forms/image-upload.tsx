@@ -48,11 +48,11 @@ import { invariant } from '~/util/invariant'
 import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { isAllZeros } from '~/util/str'
-import { formatBytes, GiB, KiB } from '~/util/units'
+import { byteLabel, GiB, KiB } from '~/util/units'
 
 // Padded because otherwise the numbers jump around a bit, e.g., when it goes
 // from 10.55 to 14.7 to 19.23
-const fsize = (bytes: number) => formatBytes(bytes, { pad: true }).label
+const fsize = (bytes: number) => byteLabel(bytes, { pad: true })
 const genericUploadErrorMessage = 'Something went wrong. Please try again.'
 
 function getUploadErrorMessage(e: unknown): string {

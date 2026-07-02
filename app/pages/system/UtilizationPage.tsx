@@ -36,7 +36,7 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
-import { bytesInUnit, pickUnit } from '~/util/units'
+import { bytesInUnit, bytesFromNumbers, formatBytes } from '~/util/units'
 
 const siloList = getListQFn(api.siloList, {
   query: { limit: ALL_ISH },
@@ -198,12 +198,16 @@ function UsageTab() {
       </Table.Header>
       <Table.Body>
         {siloUtilizations.items.map((silo) => {
-          const memUnit = pickUnit([silo.provisioned.memory, silo.allocated.memory], {
-            minUnit: 'GiB',
-          })
-          const storageUnit = pickUnit([silo.provisioned.storage, silo.allocated.storage], {
-            minUnit: 'GiB',
-          })
+          const [provisionedMemory, allocatedMemory] = bytesFromNumbers(
+            [silo.provisioned.memory, silo.allocated.memory],
+            { minUnit: 'GiB' }
+          )
+          const [provisionedStorage, allocatedStorage] = bytesFromNumbers(
+            [silo.provisioned.storage, silo.allocated.storage],
+            {
+              minUnit: 'GiB',
+            }
+          )
           return (
             <Table.Row key={silo.siloName}>
               <Table.Cell width="16%" height="large">
@@ -211,22 +215,22 @@ function UsageTab() {
               </Table.Cell>
               <Table.Cell width="14%" height="large">
                 <UsageCell
-                  provisioned={silo.provisioned.cpus}
-                  allocated={silo.allocated.cpus}
+                  provisioned={String(silo.provisioned.cpus)}
+                  allocated={String(silo.allocated.cpus)}
                 />
               </Table.Cell>
               <Table.Cell width="14%" height="large">
                 <UsageCell
-                  provisioned={bytesInUnit(silo.provisioned.memory, memUnit)}
-                  allocated={bytesInUnit(silo.allocated.memory, memUnit)}
-                  unit={memUnit}
+                  provisioned={formatBytes(provisionedMemory).value}
+                  allocated={formatBytes(allocatedMemory).value}
+                  unit={allocatedMemory.unit}
                 />
               </Table.Cell>
               <Table.Cell width="14%" height="large">
                 <UsageCell
-                  provisioned={bytesInUnit(silo.provisioned.storage, storageUnit)}
-                  allocated={bytesInUnit(silo.allocated.storage, storageUnit)}
-                  unit={storageUnit}
+                  provisioned={formatBytes(provisionedStorage).value}
+                  allocated={formatBytes(allocatedStorage).value}
+                  unit={allocatedStorage.unit}
                 />
               </Table.Cell>
               <Table.Cell width="14%" className="relative" height="large">
@@ -237,16 +241,16 @@ function UsageTab() {
               </Table.Cell>
               <Table.Cell width="14%" className="relative" height="large">
                 <AvailableCell
-                  provisioned={bytesInUnit(silo.provisioned.memory, memUnit)}
-                  allocated={bytesInUnit(silo.allocated.memory, memUnit)}
-                  unit={memUnit}
+                  provisioned={provisionedMemory.bytes}
+                  allocated={allocatedMemory.bytes}
+                  unit={allocatedMemory.unit}
                 />
               </Table.Cell>
               <Table.Cell width="14%" className="relative" height="large">
                 <AvailableCell
-                  provisioned={bytesInUnit(silo.provisioned.storage, storageUnit)}
-                  allocated={bytesInUnit(silo.allocated.storage, storageUnit)}
-                  unit={storageUnit}
+                  provisioned={provisionedStorage.bytes}
+                  allocated={allocatedStorage.bytes}
+                  unit={allocatedStorage.unit}
                 />
               </Table.Cell>
               <Table.Cell className="action-col w-10 *:p-0" height="large">
@@ -265,8 +269,8 @@ const UsageCell = ({
   allocated,
   unit,
 }: {
-  provisioned: number
-  allocated: number
+  provisioned: string
+  allocated: string
   unit?: string
 }) => (
   <div className="text-secondary flex flex-col">

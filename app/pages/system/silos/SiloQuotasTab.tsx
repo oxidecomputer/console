@@ -30,7 +30,7 @@ import { Table } from '~/ui/lib/Table'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
 import type * as PP from '~/util/path-params'
-import { bytesInUnit, GiB, pickUnit } from '~/util/units'
+import { formatBytes, bytesInUnit, GiB, bytesFromNumbers } from '~/util/units'
 
 const Unit = classed.span`ml-1 text-secondary`
 
@@ -47,10 +47,16 @@ export default function SiloQuotasTab() {
   const { data: utilization } = usePrefetchedQuery(siloUtil({ silo }))
 
   const { allocated: quotas, provisioned } = utilization
-  const memUnit = pickUnit([provisioned.memory, quotas.memory], { minUnit: 'GiB' })
-  const storageUnit = pickUnit([provisioned.storage, quotas.storage], {
-    minUnit: 'GiB',
-  })
+  const [provisionedMemory, quotaMemory] = bytesFromNumbers(
+    [provisioned.memory, quotas.memory],
+    { minUnit: 'GiB' }
+  ).map((bytes) => formatBytes(bytes))
+  const [provisionedStorage, quotaStorage] = bytesFromNumbers(
+    [provisioned.storage, quotas.storage],
+    {
+      minUnit: 'GiB',
+    }
+  ).map((bytes) => formatBytes(bytes))
 
   const [editing, setEditing] = useState(false)
 
@@ -77,19 +83,19 @@ export default function SiloQuotasTab() {
           <Table.Row>
             <Table.Cell>Memory</Table.Cell>
             <Table.Cell>
-              {bytesInUnit(provisioned.memory, memUnit)} <Unit>{memUnit}</Unit>
+              {provisionedMemory.value} <Unit>{provisionedMemory.unit}</Unit>
             </Table.Cell>
             <Table.Cell>
-              {bytesInUnit(quotas.memory, memUnit)} <Unit>{memUnit}</Unit>
+              {quotaMemory.value} <Unit>{quotaMemory.unit}</Unit>
             </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Storage</Table.Cell>
             <Table.Cell>
-              {bytesInUnit(provisioned.storage, storageUnit)} <Unit>{storageUnit}</Unit>
+              {provisionedStorage.value} <Unit>{provisionedStorage.unit}</Unit>
             </Table.Cell>
             <Table.Cell>
-              {bytesInUnit(quotas.storage, storageUnit)} <Unit>{storageUnit}</Unit>
+              {quotaStorage.value} <Unit>{quotaStorage.unit}</Unit>
             </Table.Cell>
           </Table.Row>
         </Table.Body>

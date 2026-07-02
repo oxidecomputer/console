@@ -9,7 +9,7 @@
 import type { VirtualResourceCounts } from '@oxide/api'
 import { Cpu16Icon, Ram16Icon, Ssd16Icon } from '@oxide/design-system/icons/react'
 
-import { bytesInUnit, pickUnit } from '~/util/units'
+import { formatBytesAsNumber, bytesFromNumbers } from '~/util/units'
 
 import { CapacityBar } from './CapacityBar'
 
@@ -22,10 +22,16 @@ export const CapacityBars = ({
   provisioned: VirtualResourceCounts
   allocatedLabel: string
 }) => {
-  const memUnit = pickUnit([provisioned.memory, allocated.memory], { minUnit: 'GiB' })
-  const storageUnit = pickUnit([provisioned.storage, allocated.storage], {
-    minUnit: 'GiB',
-  })
+  const [provisionedMemory, allocatedMemory] = bytesFromNumbers(
+    [provisioned.memory, allocated.memory],
+    { minUnit: 'GiB' }
+  ).map(formatBytesAsNumber)
+  const [provisionedStorage, allocatedStorage] = bytesFromNumbers(
+    [provisioned.storage, allocated.storage],
+    {
+      minUnit: 'GiB',
+    }
+  ).map(formatBytesAsNumber)
 
   return (
     <div className="1000:flex-row flex min-w-min flex-col gap-3">
@@ -41,17 +47,17 @@ export const CapacityBars = ({
       <CapacityBar
         icon={<Ram16Icon />}
         title="MEMORY"
-        unit={memUnit}
-        provisioned={bytesInUnit(provisioned.memory, memUnit)}
-        capacity={bytesInUnit(allocated.memory, memUnit)}
+        unit={allocatedMemory.unit}
+        provisioned={provisionedMemory.value}
+        capacity={allocatedMemory.value}
         capacityLabel={allocatedLabel}
       />
       <CapacityBar
         icon={<Ssd16Icon />}
         title="STORAGE"
-        unit={storageUnit}
-        provisioned={bytesInUnit(provisioned.storage, storageUnit)}
-        capacity={bytesInUnit(allocated.storage, storageUnit)}
+        unit={allocatedStorage.unit}
+        provisioned={provisionedStorage.value}
+        capacity={allocatedStorage.value}
         capacityLabel={allocatedLabel}
       />
     </div>

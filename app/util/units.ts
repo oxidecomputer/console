@@ -25,6 +25,18 @@ type PickUnitOptions = {
   minUnit?: BinaryUnit
 }
 
+type BytesWithUnit = {
+  bytes: number
+  unit: BinaryUnit
+} & { readonly brand: unique symbol }
+
+function bytesFromNumber(bytes: number, unit?: BinaryUnit): BytesWithUnit {
+  return {
+    bytes,
+    unit: unit || (filesize(bytes, { base: 2, output: 'object' }).unit as BinaryUnit),
+  } as BytesWithUnit
+}
+
 /**
  * Pick the binary unit (base 2) filesize would use to display the largest of
  * `values`. Pass a group of related values (e.g. provisioned and quota) so they
@@ -32,15 +44,16 @@ type PickUnitOptions = {
  * nonsense comparisons like `67 TiB / 70000 GiB`. Use `minUnit` for contexts
  * where smaller units would not make sense.
  */
-export function pickUnit(
-  values: readonly number[],
+export function bytesFromNumbers(
+  byteList: readonly number[],
   { minUnit = 'B' }: PickUnitOptions = {}
-): BinaryUnit {
-  const max = Math.max(0, ...values)
-  const unit = filesize(max, { base: 2, output: 'object' }).unit as BinaryUnit
-  const unitIndex = BINARY_UNITS.indexOf(unit)
+): BytesWithUnit[] {
+  const max = Math.max(0, ...byteList)
+  const preferredUnit = filesize(max, { base: 2, output: 'object' }).unit as BinaryUnit
+  const unitIndex = BINARY_UNITS.indexOf(preferredUnit)
   const minUnitIndex = BINARY_UNITS.indexOf(minUnit)
-  return BINARY_UNITS[Math.max(unitIndex, minUnitIndex)] ?? minUnit
+  const unit = BINARY_UNITS[Math.max(unitIndex, minUnitIndex)] ?? minUnit
+  return byteList.map((n) => bytesFromNumber(n, unit))
 }
 
 export function bytesInUnit(
@@ -51,35 +64,63 @@ export function bytesInUnit(
   return round(bytes / 1024 ** BINARY_UNITS.indexOf(unit), digits)
 }
 
-export type FormattedBytes = {
-  /** Numeric portion of the formatted byte count, e.g. `1.5`. */
-  value: string
-  /** Binary unit label, e.g. `KiB`. */
-  unit: string
-  /** Full display string combining `value` and `unit`, e.g. `1.5 KiB`. */
-  label: string
-}
-
 type FormatBytesOptions = {
   /** Pad scaled units to two decimal places, e.g. `1.00 KiB`. Bytes are never padded. */
   pad?: boolean
 }
 
+export type FormattedBytes = {
+  value: string
+  unit: string
+}
+
+export type FormattedNumberBytes = {
+  value: number
+  unit: string
+}
+
 /**
- * Format a byte count for display, e.g. `1.5 KiB`. Always uses base 2 (binary
- * units like KiB, MiB). Bytes are never padded because fractional bytes don't
- * make sense, even when `pad` is true.
+ * Prep a byte count for display, e.g. `{ value: "1.5", unit: "KiB" }`. Always
+ * uses base 2 (binary units like KiB, MiB). Bytes are never padded because
+ * fractional bytes don't make sense, even when `pad` is true.
  */
 export function formatBytes(
-  bytes: number,
+  amount: number | BytesWithUnit,
   { pad = false }: FormatBytesOptions = {}
 ): FormattedBytes {
-  const { value, unit } = filesize(bytes, { base: 2, output: 'object' })
-  const formattedValue = pad && unit !== 'B' ? Number(value).toFixed(2) : String(value)
+  const { bytes, unit } = typeof amount === 'number' ? bytesFromNumber(amount) : amount
+  const { value, unit: outUnit } = filesize(bytes, {
+    base: 2,
+    output: 'object',
+    pad: pad && unit !== 'B',
+    exponent: unit ? BINARY_UNITS.indexOf(unit) : -1,
+  })
 
-  return {
-    value: formattedValue,
-    unit,
-    label: `${formattedValue} ${unit}`,
-  }
+  // filesize returns a number when not padded
+  return { value: String(value), unit: outUnit }
+}
+
+/**
+ * Prep a byte count for display, e.g. `{ value: 1.5, unit: "KiB" }`. Always
+ * uses base 2 (binary units like KiB, MiB). This variant can promise to return
+ * a number by forbidding padding.
+ */
+export function formatBytesAsNumber({ bytes, unit }: BytesWithUnit): FormattedNumberBytes {
+  const { value, unit: outUnit } = filesize(bytes, {
+    base: 2,
+    output: 'object',
+    pad: false,
+    exponent: unit ? BINARY_UNITS.indexOf(unit) : -1,
+  })
+
+  // filesize types claim value is a string, but it's actually a number when unpadded
+  return { value: Number(value), unit: outUnit }
+}
+
+/**
+ * Make a simple string from a byte count, e.g. `1.5 KiB`.
+ */
+export function byteLabel(bytes: number, opts?: FormatBytesOptions) {
+  const obj = formatBytes(bytesFromNumber(bytes), opts)
+  return `${obj.value} ${obj.unit}`
 }
