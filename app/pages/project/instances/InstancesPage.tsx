@@ -36,12 +36,12 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { Tooltip } from '~/ui/lib/Tooltip'
+import { Size, ValueUnit } from '~/ui/lib/ValueUnit'
 import { setDiff } from '~/util/array'
 import { ALL_ISH } from '~/util/consts'
 import { toLocaleTimeString } from '~/util/date'
 import { pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
-import { formatBytes } from '~/util/units'
 
 import { useMakeInstanceActions } from './actions'
 import { ResizeInstanceModal } from './InstancePage'
@@ -104,22 +104,12 @@ export default function InstancesPage() {
       colHelper.accessor('ncpus', {
         header: 'CPU',
         cell: (info) => (
-          <>
-            {info.getValue()}{' '}
-            <span className="text-tertiary ml-1">{pluralize('vCPU', info.getValue())}</span>
-          </>
+          <ValueUnit value={info.getValue()} unit={pluralize('vCPU', info.getValue())} />
         ),
       }),
       colHelper.accessor('memory', {
         header: 'Memory',
-        cell: (info) => {
-          const memory = formatBytes(info.getValue())
-          return (
-            <>
-              {memory.value} <span className="text-tertiary ml-1">{memory.unit}</span>
-            </>
-          )
-        },
+        cell: (info) => <Size bytes={info.getValue()} />,
       }),
       colHelper.accessor(
         (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),

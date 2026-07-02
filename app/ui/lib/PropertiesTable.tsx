@@ -10,13 +10,13 @@ import type { ReactNode } from 'react'
 
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { sizeCellInner } from '~/table/columns/common'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
 
 import { CopyToClipboard } from './CopyToClipboard'
 import { DateTime } from './DateTime'
 import { Truncate } from './Truncate'
+import { Size } from './ValueUnit'
 
 export interface PropertiesTableProps {
   className?: string
@@ -110,7 +110,11 @@ PropertiesTable.SizeRow = ({
 }: {
   bytes: number
   label?: string
-}) => <PropertiesTable.Row label={label}>{sizeCellInner(bytes)}</PropertiesTable.Row>
+}) => (
+  <PropertiesTable.Row label={label}>
+    <Size bytes={bytes} />
+  </PropertiesTable.Row>
+)
 
 PropertiesTable.CopyableRow = ({ label, text }: { label: string; text: string }) => (
   <PropertiesTable.Row label={label}>
