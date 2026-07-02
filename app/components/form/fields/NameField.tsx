@@ -9,7 +9,7 @@ import type { FieldPath, FieldValues } from 'react-hook-form'
 
 import { capitalize } from '~/util/str'
 
-import { TextField, type TextFieldProps } from './TextField'
+import { noPasswordManager, TextField, type TextFieldProps } from './TextField'
 
 export function NameField<
   TFieldValues extends FieldValues,
@@ -30,11 +30,7 @@ export function NameField<
       required={required}
       label={label}
       name={name}
-      // https://www.stefanjudis.com/snippets/turn-off-password-managers/
-      data-1p-ignore
-      data-bwignore
-      data-lpignore="true"
-      data-form-type="other"
+      {...noPasswordManager}
       {...textFieldProps}
     />
   )
