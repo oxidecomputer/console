@@ -117,7 +117,7 @@ test('Click through project access page', async ({ page }) => {
   const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })
   await expect(user3Row).toBeVisible()
   await user3Row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('menuitem', { name: 'Remove project role' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(user3Row).toBeHidden()
 
@@ -157,7 +157,7 @@ test('Non-admin cannot change or remove roles', async ({ browser }) => {
     "You don't have permission to change project roles"
   )
 
-  const deleteItem = page.getByRole('menuitem', { name: 'Delete' })
+  const deleteItem = page.getByRole('menuitem', { name: 'Remove project role' })
   await expect(deleteItem).toBeDisabled()
   await deleteItem.hover()
   await expect(page.getByRole('tooltip')).toHaveText(

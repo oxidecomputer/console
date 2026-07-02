@@ -190,7 +190,8 @@ export default function ProjectAccessPage() {
             `You don't have permission to ${row.projectRole ? 'change' : 'add'} project roles`,
         },
         {
-          label: 'Delete',
+          label: 'Remove project role',
+          className: 'destructive',
           onActivate: confirmDelete({
             doDelete: () =>
               updatePolicy({

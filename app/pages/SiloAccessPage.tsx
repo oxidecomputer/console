@@ -16,6 +16,7 @@ import {
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
+  userRoleFromPolicies,
   useUserRows,
   type IdentityType,
   type RoleKey,
@@ -84,9 +85,17 @@ export default function SiloAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
-  const { me } = useCurrentUser()
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
+
+  // Changing a silo role assignment requires `modify` on the silo, which is
+  // conferred by the silo `admin` role. (Fleet collaborator/admin also grant it,
+  // but the silo policy we have here doesn't reveal fleet roles, so we can't
+  // detect that case—same limitation as the project access page.)
+  // https://github.com/oxidecomputer/omicron/blob/main/nexus/auth/src/authz/omicron.polar
+  const { me, myGroups } = useCurrentUser()
+  const mySiloRole = userRoleFromPolicies(me, myGroups.items, [siloPolicy])
+  const canEditRoles = mySiloRole === 'admin'
 
   const rows = useMemo(() => {
     return groupBy(siloRows, (u) => u.id)
@@ -135,13 +144,13 @@ export default function SiloAccessPage() {
       // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
         {
-          label: 'Change role',
+          label: 'Change silo role',
           onActivate: () => setEditingUserRow(row),
-          disabled: !row.siloRole && "You don't have permission to change this user's role",
+          disabled: !canEditRoles && "You don't have permission to change roles",
         },
-        // TODO: only show if you have permission to do this
         {
-          label: 'Delete',
+          label: 'Remove silo role',
+          className: 'destructive',
           onActivate: confirmDelete({
             doDelete: () => updatePolicy({ body: deleteRole(row.id, siloPolicy) }),
             label: (
@@ -153,11 +162,11 @@ export default function SiloAccessPage() {
             extraContent:
               row.id === me.id ? 'This will remove your own silo access.' : undefined,
           }),
-          disabled: !row.siloRole && "You don't have permission to delete this user",
+          disabled: !canEditRoles && "You don't have permission to remove roles",
         },
       ]),
     ],
-    [siloPolicy, updatePolicy, me]
+    [canEditRoles, siloPolicy, updatePolicy, me]
   )
 
   const tableInstance = useReactTable({
