@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
@@ -14,14 +13,12 @@ import {
   api,
   getListQFn,
   q,
-  qErrorsAllowed,
   queryClient,
   useApiMutation,
   type Disk,
   type Snapshot,
 } from '@oxide/api'
 import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { SnapshotStateBadge } from '~/components/StateBadge'
@@ -30,8 +27,7 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { SkeletonCell } from '~/table/cells/EmptyCell'
-import { ButtonCell } from '~/table/cells/LinkCell'
+import { DiskNameFromId, sourceDiskQ } from '~/table/cells/SourceNameCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -41,32 +37,6 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
-
-const diskViewErrorsAllowedQ = (disk: string) =>
-  qErrorsAllowed(
-    api.diskView,
-    { path: { disk } },
-    {
-      errorsExpected: {
-        explanation: 'the source disk may have been deleted.',
-        statusCode: 404,
-      },
-    }
-  )
-
-const DiskNameFromId = ({
-  value,
-  onClick,
-}: {
-  value: string
-  onClick: (disk: Disk) => void
-}) => {
-  const { data } = useQuery(diskViewErrorsAllowedQ(value))
-
-  if (!data) return <SkeletonCell />
-  if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>
-  return <ButtonCell onClick={() => onClick(data.data)}>{data.data.name}</ButtonCell>
-}
 
 const EmptyState = () => (
   <EmptyMessage
@@ -98,7 +68,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
       .fetchQuery(q(api.diskList, { query: { project, limit: 200 } }))
       .then((disks) => {
         for (const disk of disks.items) {
-          queryClient.setQueryData(diskViewErrorsAllowedQ(disk.id).queryKey, {
+          queryClient.setQueryData(sourceDiskQ(disk.id).queryKey, {
             type: 'success',
             data: disk,
           })
@@ -122,7 +92,7 @@ export default function SnapshotsPage() {
     colHelper.accessor('description', Columns.description),
     colHelper.accessor('diskId', {
       header: 'disk',
-      cell: (info) => <DiskNameFromId value={info.getValue()} onClick={setSelectedDisk} />,
+      cell: (info) => <DiskNameFromId diskId={info.getValue()} onClick={setSelectedDisk} />,
     }),
     colHelper.accessor('state', {
       cell: (info) => <SnapshotStateBadge state={info.getValue()} />,
@@ -134,6 +104,7 @@ export default function SnapshotsPage() {
   const { mutateAsync: deleteSnapshot } = useApiMutation(api.snapshotDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('snapshotList')
+      queryClient.invalidateEndpoint('snapshotView')
     },
   })
 

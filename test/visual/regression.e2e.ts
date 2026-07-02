@@ -54,9 +54,9 @@ const pages = [
   // Silo
   { name: 'projects list', url: '/projects', heading: 'Projects' },
   {
-    name: 'silo image edit',
-    url: '/images/arch-2022-06-01/edit',
-    heading: 'Silo image',
+    name: 'silo image detail',
+    url: '/images/arch-2022-06-01',
+    heading: 'Image details',
     exact: true,
   },
   { name: 'silo access', url: '/access', heading: 'Silo Access' },

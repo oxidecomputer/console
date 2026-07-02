@@ -541,7 +541,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects",
     },
   ],
-  "projectImageEdit (/projects/p/images/im/edit)": [
+  "projectImage (/projects/p/images/im)": [
     {
       "label": "Projects",
       "path": "/projects",
@@ -705,7 +705,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/silos/s/idps",
     },
   ],
-  "siloImageEdit (/images/im/edit)": [
+  "siloImage (/images/im)": [
     {
       "label": "Images",
       "path": "/images",

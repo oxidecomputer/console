@@ -246,6 +246,8 @@ export default function ImageCreate() {
   const finalizeDisk = useApiMutation(api.diskFinalizeImport)
   const createImage = useApiMutation(api.imageCreate)
   const deleteDisk = useApiMutation(api.diskDelete)
+  // no invalidation needed: the deleted snapshot is the transient one created
+  // by this flow, so nothing can be displaying it
   const deleteSnapshot = useApiMutation(api.snapshotDelete)
 
   // TODO: Distinguish cleanup mutations being called after successful run vs.
