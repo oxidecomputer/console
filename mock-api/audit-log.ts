@@ -11,6 +11,7 @@ import { v4 as uuid } from 'uuid'
 import type { AuditLogEntry } from '@oxide/api'
 
 import type { Json } from './json-type'
+import { Rando } from './msw/rando'
 import { defaultSilo } from './silo'
 
 const mockUserIds = [
@@ -78,6 +79,9 @@ const mockSourceIps = [
 
 const mockRequestIds = Array.from({ length: 20 }, () => uuid())
 
+// Use seeded random for consistent states across runs
+const rando = new Rando(0)
+
 function generateAuditLogEntry(index: number): Json<AuditLogEntry> {
   const operation = mockOperations[index % mockOperations.length]
   const statusCode = mockHttpStatusCodes[index % mockHttpStatusCodes.length]
@@ -86,9 +90,7 @@ function generateAuditLogEntry(index: number): Json<AuditLogEntry> {
   baseTime.setSeconds(baseTime.getSeconds() - index * 5 * 1) // Spread entries over time
 
   const completedTime = new Date(baseTime)
-  completedTime.setMilliseconds(
-    Math.abs(Math.sin(index)) * 300 + completedTime.getMilliseconds()
-  ) // Deterministic random durations
+  completedTime.setMilliseconds(rando.next() * 300 + completedTime.getMilliseconds()) // Deterministic random durations
 
   return {
     id: uuid(),
