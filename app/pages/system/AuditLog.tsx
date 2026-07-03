@@ -285,7 +285,7 @@ const Row = memo(function Row({
         transform: `translateY(${start - scrollMargin}px)`,
       }}
     >
-      <div
+      <button
         className={cn(
           'audit-log-row focus-visible:outline-2 focus-visible:transition-none focus-visible:rounded-md focus-visible:-outline-offset-2 h-9 w-full cursor-pointer px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
           index !== 0 && 'border-t',
@@ -299,7 +299,7 @@ const Row = memo(function Row({
             onToggle(index)
           }
         }}
-        role="button" // oxlint-disable-line prefer-tag-over-role
+        type="button"
         tabIndex={0}
         data-row-index={index}
       >
@@ -346,7 +346,7 @@ const Row = memo(function Row({
           {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
           ms
         </div>
-      </div>
+      </button>
     </div>
   )
 })
