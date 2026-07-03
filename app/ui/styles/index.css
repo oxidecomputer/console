@@ -41,6 +41,7 @@
 @import './components/menu-list.css' layer(components);
 @import './components/loading-bar.css' layer(components);
 @import './components/Tabs.css' layer(components);
+@import './components/audit-log.css' layer(components);
 @import './components/form.css' layer(components);
 @import './components/login-page.css' layer(components);
 @import './components/mini-table.css' layer(components);

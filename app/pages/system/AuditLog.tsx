@@ -196,56 +196,60 @@ const LoadingState = () => {
           <div
             key={i}
             className={cn(
-              'grid h-9 w-full animate-pulse items-center gap-8 px-[var(--content-gutter)] border-secondary',
+              'audit-log-row h-9 w-full animate-pulse px-[var(--content-gutter)] border-secondary',
               i !== 0 && 'border-t'
             )}
-            style={{ ...colWidths, animationDelay: `${i * 0.1}s` }}
+            style={{ animationDelay: `${i * 0.1}s` }}
           >
             {/* Time column */}
-            <div className="bg-tertiary h-4 rounded" style={{ width: '80%' }} />
+            <div className="col-time">
+              <div className="bg-tertiary h-4 rounded" style={{ width: '80%' }} />
+            </div>
 
             {/* Status column */}
-            <div className="bg-tertiary h-4 rounded" style={{ width: '60%' }} />
+            <div className="col-status">
+              <div className="bg-tertiary h-4 rounded" style={{ width: '60%' }} />
+            </div>
 
             {/* Operation column */}
-            <div
-              className="bg-tertiary h-4 rounded"
-              style={{
-                width: `${deterRandom(i, 60, 10)}%`,
-              }}
-            />
+            <div className="col-operation">
+              <div
+                className="bg-tertiary h-4 rounded"
+                style={{ width: `${deterRandom(i, 60, 10)}%` }}
+              />
+            </div>
 
             {/* Actor ID column */}
-            <div
-              className="bg-tertiary h-4 rounded"
-              style={{
-                width: `${deterRandom(i, 80, 10)}%`,
-              }}
-            />
+            <div className="col-actor-id">
+              <div
+                className="bg-tertiary h-4 rounded"
+                style={{ width: `${deterRandom(i, 80, 10)}%` }}
+              />
+            </div>
 
             {/* Auth Method column */}
-            <div
-              className="bg-tertiary h-4 rounded"
-              style={{
-                width: `${deterRandom(i, 60, 20)}%`,
-              }}
-            />
+            <div className="col-auth-method">
+              <div
+                className="bg-tertiary h-4 rounded"
+                style={{ width: `${deterRandom(i, 60, 20)}%` }}
+              />
+            </div>
 
             {/* Silo ID column */}
-            <div
-              className="bg-tertiary h-4 rounded"
-              style={{
-                width: `${deterRandom(i, 80, 10)}%`,
-              }}
-            />
+            <div className="col-silo-id">
+              <div
+                className="bg-tertiary h-4 rounded"
+                style={{ width: `${deterRandom(i, 80, 10)}%` }}
+              />
+            </div>
 
             {/* Duration column */}
-            <div
-              className="bg-tertiary h-4 rounded"
-              style={{
-                width: `${deterRandom(i, 20, 5)}%`,
-              }}
-            />
+            <div className="col-duration">
+              <div
+                className="bg-tertiary h-4 rounded"
+                style={{ width: `${deterRandom(i, 20, 24)}px` }}
+              />
+            </div>
           </div>
         ))}
       </div>
@@ -266,23 +270,16 @@ function StatusCodeCell({ code }: { code: number }) {
   return <Badge color={color}>{code}</Badge>
 }
 
+// column widths and responsive hiding live in audit-log.css
 const COLUMNS = [
-  { key: 'timeCompleted', title: 'Time Completed', width: '7.75rem' },
-  { key: 'status', title: 'Status', width: '3rem' },
-  { key: 'operation', title: 'Operation', width: '160px' },
-  { key: 'actorId', title: 'Actor ID', width: '130px' },
-  { key: 'authMethod', title: 'Auth Method', width: '120px' },
-  { key: 'siloId', title: 'Silo ID', width: '130px' },
-  { key: 'duration', title: 'Duration', width: '1fr' },
+  { title: 'Time Completed', className: 'col-time' },
+  { title: 'Status', className: 'col-status' },
+  { title: 'Operation', className: 'col-operation' },
+  { title: 'Actor ID', className: 'col-actor-id' },
+  { title: 'Auth Method', className: 'col-auth-method' },
+  { title: 'Silo ID', className: 'col-silo-id' },
+  { title: 'Duration', className: 'col-duration' },
 ] as const
-
-// 4=actorId, 5=authMethod, 6=siloId, 7=duration
-const hideCols =
-  'max-[1150px]:[&>:nth-child(4)]:hidden max-[875px]:[&>:nth-child(5)]:hidden max-[1250px]:[&>:nth-child(6)]:hidden max-[950px]:[&>:nth-child(7)]:hidden'
-
-const colWidths = {
-  gridTemplateColumns: COLUMNS.map((col) => col.width).join(' '),
-}
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
 
@@ -326,12 +323,10 @@ const Row = memo(function Row({
     >
       <div
         className={cn(
-          'focus-visible:outline-2 focus-visible:transition-none focus-visible:rounded-md focus-visible:-outline-offset-2 grid h-9 w-full cursor-pointer items-center gap-8 px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
-          hideCols,
+          'audit-log-row focus-visible:outline-2 focus-visible:transition-none focus-visible:rounded-md focus-visible:-outline-offset-2 h-9 w-full cursor-pointer px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
           index !== 0 && 'border-t',
           isExpanded ? 'bg-hover' : 'hover:bg-raise'
         )}
-        style={colWidths}
         onClick={() => onToggle(index)}
         // TODO: some of the focusing behaviour and repetitive code needs work
         // a11y thing: make it focusable and let the user press enter on it to toggle
@@ -345,11 +340,11 @@ const Row = memo(function Row({
         data-row-index={index}
       >
         {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
-        <div className="text-mono-sm overflow-hidden whitespace-nowrap">
+        <div className="col-time text-mono-sm overflow-hidden whitespace-nowrap">
           <span className="text-tertiary">{toSyslogDateString(log.timeCompleted)}</span>{' '}
           {toSyslogTimeString(log.timeCompleted)}
         </div>
-        <div className="flex gap-1 overflow-hidden whitespace-nowrap">
+        <div className="col-status flex gap-1 overflow-hidden whitespace-nowrap">
           {match(log.result)
             .with(P.union({ kind: 'success' }, { kind: 'error' }), (result) => (
               <StatusCodeCell code={result.httpStatusCode} />
@@ -357,31 +352,33 @@ const Row = memo(function Row({
             .with({ kind: 'unknown' }, () => <EmptyCell />)
             .exhaustive()}
         </div>
-        <div>
-          <Badge color="neutral">{log.operationId.split('_').join(' ')}</Badge>
+        <div className="col-operation">
+          <Badge color="neutral" className="max-w-full *:truncate">
+            {log.operationId.split('_').join(' ')}
+          </Badge>
         </div>
-        <div className="text-secondary">
+        <div className="col-actor-id text-secondary">
           {userId ? (
             <Truncate maxLength={12} text={userId} position="middle" hasCopyButton />
           ) : (
             <EmptyCell />
           )}
         </div>
-        <div>
+        <div className="col-auth-method">
           {log.authMethod ? (
             <Badge color="neutral">{log.authMethod.split('_').join(' ')}</Badge>
           ) : (
             <EmptyCell />
           )}
         </div>
-        <div className="text-secondary">
+        <div className="col-silo-id text-secondary">
           {siloId ? (
             <Truncate maxLength={12} text={siloId} position="middle" hasCopyButton />
           ) : (
             <EmptyCell />
           )}
         </div>
-        <div className="text-secondary">
+        <div className="col-duration text-secondary">
           {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
           ms
         </div>
@@ -621,12 +618,14 @@ export default function SiloAuditLogsPage() {
         </div>
       </div>
 
-      <div className="bg-default relative !mx-0 !w-full flex-grow overflow-x-clip">
+      <div className="audit-log-table bg-default relative !mx-0 !w-full flex-grow overflow-x-clip">
         <div className="w-full flex-1">
           <div className="bg-default border-secondary sticky top-(--top-bar-height) z-20 border-b px-(--content-gutter) pt-4 pb-2">
-            <div style={colWidths} className={cn('grid items-center gap-8', hideCols)}>
+            <div className="audit-log-row">
               {COLUMNS.map((column) => (
-                <HeaderCell key={column.key}>{column.title}</HeaderCell>
+                <HeaderCell key={column.title} className={column.className}>
+                  {column.title}
+                </HeaderCell>
               ))}
             </div>
             {selectedItem &&
