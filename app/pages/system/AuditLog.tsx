@@ -199,7 +199,7 @@ const LoadingState = () => {
               'audit-log-row h-9 w-full animate-pulse px-[var(--content-gutter)] border-secondary',
               i !== 0 && 'border-t'
             )}
-            style={{ animationDelay: `${i * 0.1}s` }}
+            style={{ animationDelay: `${(i - 50) * 0.1}s` }}
           >
             {/* Time column */}
             <div className="col-time">
