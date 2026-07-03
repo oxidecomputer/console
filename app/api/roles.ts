@@ -151,18 +151,6 @@ export function useActorsNotInPolicy<Role extends RoleKey = RoleKey>(
   }, [users, groups, policy])
 }
 
-export function userRoleFromPolicies<Role extends RoleKey>(
-  user: { id: string },
-  groups: { id: string }[],
-  policy: Policy<Role>
-): Role | null {
-  const myIds = new Set([user.id, ...groups.map((g) => g.id)])
-  const myRoles = policy.roleAssignments
-    .filter((ra) => myIds.has(ra.identityId))
-    .map((ra) => ra.roleName)
-  return getEffectiveRole(myRoles) || null
-}
-
 export type AccessScope = 'silo' | 'project'
 export type ScopedPolicy = { scope: AccessScope; policy: Policy }
 

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, expectRowVisible, expectVisible, test } from './utils'
+import { expect, expectRowVisible, test } from './utils'
 
 test('Access page lands on Groups tab; Users tab shows direct + via-group silo roles', async ({
   page,
@@ -13,7 +13,7 @@ test('Access page lands on Groups tab; Users tab shows direct + via-group silo r
   await page.goto('/')
   await page.click('role=link[name*="Access"]')
 
-  await expectVisible(page, ['role=heading[name*="Access"]'])
+  await expect(page.getByRole('heading', { name: /Access/ })).toBeVisible()
   await expect(page).toHaveURL(/\/access\/groups$/)
 
   await page.getByRole('tab', { name: 'Users' }).click()
@@ -80,7 +80,7 @@ test('Change and remove a user role from the Users tab', async ({ page }) => {
     .getByRole('button', { name: 'Row actions' })
     .click()
   await page.getByRole('menuitem', { name: 'Change role' }).click()
-  await expectVisible(page, ['role=heading[name*="Edit role"]'])
+  await expect(page.getByRole('heading', { name: /Edit role/ })).toBeVisible()
   await expect(page.getByRole('radio', { name: /^Admin / })).toBeChecked()
   await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.getByRole('button', { name: 'Update role' }).click()
@@ -114,7 +114,7 @@ test('Assign role to a user with no direct role from the row action', async ({ p
   await page.getByRole('menuitem', { name: 'Assign role' }).click()
 
   // Modal opens with the user already targeted (no listbox), and no role pre-selected
-  await expectVisible(page, ['role=heading[name*="Assign role"]'])
+  await expect(page.getByRole('heading', { name: /Assign role/ })).toBeVisible()
   await expect(page.getByRole('button', { name: 'User or group' })).toBeHidden()
   await expect(page.getByRole('dialog')).toContainText('Jacob Klein')
 
@@ -143,7 +143,7 @@ test('Inherited-only role shows Change/Remove with Remove disabled', async ({ pa
 
   // Change role opens the edit modal with the inherited role pre-selected
   await page.getByRole('menuitem', { name: 'Change role' }).click()
-  await expectVisible(page, ['role=heading[name*="Edit role"]'])
+  await expect(page.getByRole('heading', { name: /Edit role/ })).toBeVisible()
   await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
 })
 
@@ -182,7 +182,7 @@ test('Change and remove a group role from the Groups tab', async ({ page }) => {
     .getByRole('button', { name: 'Row actions' })
     .click()
   await page.getByRole('menuitem', { name: 'Change role' }).click()
-  await expectVisible(page, ['role=heading[name*="Edit role"]'])
+  await expect(page.getByRole('heading', { name: /Edit role/ })).toBeVisible()
   await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
   await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.getByRole('button', { name: 'Update role' }).click()
@@ -213,7 +213,7 @@ test('Assign a role to a group with no direct role from the row action', async (
     .getByRole('button', { name: 'Row actions' })
     .click()
   await page.getByRole('menuitem', { name: 'Assign role' }).click()
-  await expectVisible(page, ['role=heading[name*="Assign role"]'])
+  await expect(page.getByRole('heading', { name: /Assign role/ })).toBeVisible()
   await expect(page.getByRole('dialog')).toContainText('kernel-devs')
 
   await page.getByRole('radio', { name: /^Viewer / }).click()

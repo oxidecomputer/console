@@ -7,14 +7,14 @@
  */
 import { user3 } from '@oxide/api-mocks'
 
-import { expect, expectRowVisible, expectVisible, test } from './utils'
+import { expect, expectRowVisible, test } from './utils'
 
 test('Project access lands on Groups tab; Users tab shows effective project roles', async ({
   page,
 }) => {
   await page.goto('/projects/mock-project')
   await page.click('role=link[name*="Access"]')
-  await expectVisible(page, ['role=heading[name*="Access"]'])
+  await expect(page.getByRole('heading', { name: /Access/ })).toBeVisible()
   await expect(page).toHaveURL(/\/access\/groups$/)
 
   // Groups tab: kernel-devs has direct project.viewer; real-estate-devs has
@@ -52,7 +52,7 @@ test('Change and remove a user project role from the Users tab', async ({ page }
     .getByRole('button', { name: 'Row actions' })
     .click()
   await page.getByRole('menuitem', { name: 'Change project role' }).click()
-  await expectVisible(page, ['role=heading[name*="Edit role"]'])
+  await expect(page.getByRole('heading', { name: /Edit role/ })).toBeVisible()
   await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
   await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.getByRole('button', { name: 'Update role' }).click()
@@ -88,7 +88,7 @@ test('Inherited silo role on Users tab shows Assign + disabled Remove', async ({
 
   // Assign opens the modal with no role pre-selected
   await page.getByRole('menuitem', { name: 'Assign project role' }).click()
-  await expectVisible(page, ['role=heading[name*="Assign role"]'])
+  await expect(page.getByRole('heading', { name: /Assign role/ })).toBeVisible()
 })
 
 test('Assign a project role to an unassigned user', async ({ page }) => {
@@ -104,7 +104,7 @@ test('Assign a project role to an unassigned user', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: 'Remove role' })).toBeHidden()
   await page.getByRole('menuitem', { name: 'Assign project role' }).click()
 
-  await expectVisible(page, ['role=heading[name*="Assign role"]'])
+  await expect(page.getByRole('heading', { name: /Assign role/ })).toBeVisible()
   await expect(page.getByRole('dialog')).toContainText('Simone de Beauvoir')
 
   await page.getByRole('radio', { name: /^Viewer / }).click()
@@ -126,7 +126,7 @@ test('Change and remove a group project role from the Groups tab', async ({ page
     .getByRole('button', { name: 'Row actions' })
     .click()
   await page.getByRole('menuitem', { name: 'Change project role' }).click()
-  await expectVisible(page, ['role=heading[name*="Edit role"]'])
+  await expect(page.getByRole('heading', { name: /Edit role/ })).toBeVisible()
   await expect(page.getByRole('radio', { name: /^Viewer / })).toBeChecked()
   await page.getByRole('radio', { name: /^Collaborator / }).click()
   await page.getByRole('button', { name: 'Update role' }).click()
@@ -156,7 +156,7 @@ test('Assign stronger project role to a silo-only user, then remove it', async (
   // badge updates to project.admin (the role change gives us a sync point)
   await janeRow.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Assign project role' }).click()
-  await expectVisible(page, ['role=heading[name*="Assign role"]'])
+  await expect(page.getByRole('heading', { name: /Assign role/ })).toBeVisible()
   await page.getByRole('radio', { name: /^Admin / }).click()
   await page.getByRole('button', { name: 'Assign role' }).click()
   await expectRowVisible(table, { Name: 'Jane Austen', Role: 'project.admin' })

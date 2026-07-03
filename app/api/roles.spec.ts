@@ -15,7 +15,6 @@ import {
   getEffectiveRole,
   roleOrder,
   updateRole,
-  userRoleFromPolicies,
   type Policy,
   type ScopedRoleEntry,
 } from './roles'
@@ -74,50 +73,6 @@ describe('updateRole', () => {
 describe('deleteRole', () => {
   it('deletes a user by ID', () => {
     expect(deleteRole('abc', abcViewerPolicy)).toEqual(emptyPolicy)
-  })
-})
-
-const user1 = {
-  id: 'user1',
-}
-
-const groups = [{ id: 'group1' }, { id: 'group2' }]
-
-describe('getEffectiveRole', () => {
-  it('returns null when there are no roles', () => {
-    expect(userRoleFromPolicies(user1, groups, { roleAssignments: [] })).toBe(null)
-  })
-
-  it('returns role if user matches directly', () => {
-    expect(
-      userRoleFromPolicies(user1, groups, {
-        roleAssignments: [
-          { identityId: 'user1', identityType: 'silo_user', roleName: 'admin' },
-        ],
-      })
-    ).toEqual('admin')
-  })
-
-  it('returns strongest role if both group and user match', () => {
-    expect(
-      userRoleFromPolicies(user1, groups, {
-        roleAssignments: [
-          { identityId: 'user1', identityType: 'silo_user', roleName: 'viewer' },
-          { identityId: 'group1', identityType: 'silo_group', roleName: 'collaborator' },
-        ],
-      })
-    ).toEqual('collaborator')
-  })
-
-  it('ignores groups and users that do not match', () => {
-    expect(
-      userRoleFromPolicies(user1, groups, {
-        roleAssignments: [
-          { identityId: 'other', identityType: 'silo_user', roleName: 'viewer' },
-          { identityId: 'group3', identityType: 'silo_group', roleName: 'viewer' },
-        ],
-      })
-    ).toEqual(null)
   })
 })
 

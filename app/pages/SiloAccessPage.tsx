@@ -28,12 +28,16 @@ const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 export async function clientLoader() {
   // groups must resolve before fanning out per-group member fetches
   const groups = await queryClient.fetchQuery(groupListAll)
+  // Fire per-group member prefetches but don't await them: the tabs read these
+  // via useQuery/useQueries (not usePrefetchedQuery), so member counts and the
+  // per-user group lists fill in as they resolve instead of blocking the page
+  // on one request per group.
+  groups.items.forEach((g) =>
+    queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
+  )
   await Promise.all([
     queryClient.prefetchQuery(policyView),
     queryClient.prefetchQuery(userListAll),
-    ...groups.items.map((g) =>
-      queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
-    ),
   ])
   return null
 }
