@@ -920,6 +920,20 @@ export type BgpConfigResultsPage = {
 }
 
 /**
+ * Parameters for updating a BGP configuration
+ *
+ * If a value is not specified, it will remain unchanged.
+ */
+export type BgpConfigUpdate = {
+  /** Update the BGP announce set associated with this configuration. */
+  bgpAnnounceSetId?: NameOrId | null
+  description?: string | null
+  /** Update the maximum number of equal-cost paths. */
+  maxPaths?: MaxPathConfig | null
+  name?: Name | null
+}
+
+/**
  * Route exported to a peer.
  */
 export type BgpExported = {
@@ -7023,6 +7037,10 @@ export interface NetworkingBgpConfigListQueryParams {
   sortBy?: NameOrIdSortMode
 }
 
+export interface NetworkingBgpConfigUpdateQueryParams {
+  nameOrId: NameOrId
+}
+
 export interface NetworkingBgpConfigDeleteQueryParams {
   nameOrId: NameOrId
 }
@@ -7544,7 +7562,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026060800.0.0'
+  apiVersion = '2026061000.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -10924,6 +10942,24 @@ export class Api {
       return this.request<BgpConfigResultsPage>({
         path: `/v1/system/networking/bgp`,
         method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update the mutable fields of an existing BGP configuration
+     */
+    networkingBgpConfigUpdate: (
+      {
+        query,
+        body,
+      }: { query: NetworkingBgpConfigUpdateQueryParams; body: BgpConfigUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpConfig>({
+        path: `/v1/system/networking/bgp`,
+        method: 'PUT',
+        body,
         query,
         ...params,
       })

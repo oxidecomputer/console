@@ -1444,6 +1444,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.BgpConfigResultsPage>>
+  /** `PUT /v1/system/networking/bgp` */
+  networkingBgpConfigUpdate: (params: {
+    query: Api.NetworkingBgpConfigUpdateQueryParams
+    body: Json<Api.BgpConfigUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.BgpConfig>>
   /** `POST /v1/system/networking/bgp` */
   networkingBgpConfigCreate: (params: {
     body: Json<Api.BgpConfigCreate>
@@ -3381,6 +3388,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         handlers['networkingBgpConfigList'],
         schema.NetworkingBgpConfigListParams,
         null
+      )
+    ),
+    http.put(
+      '/v1/system/networking/bgp',
+      handler(
+        handlers['networkingBgpConfigUpdate'],
+        schema.NetworkingBgpConfigUpdateParams,
+        schema.BgpConfigUpdate
       )
     ),
     http.post(
