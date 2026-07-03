@@ -33,6 +33,7 @@ import {
 } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import { snakeify } from '~/api/__generated__/util'
 import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
@@ -49,44 +50,6 @@ import { docLinks } from '~/util/links'
 import { deterRandom } from '~/util/math'
 
 export const handle = { crumb: 'Audit Log' }
-
-/**
- * Convert API response JSON from the camel-cased version we get out of the TS
- * client back into snake-case, which is what we get from the API. This is truly
- * stupid but I can't think of a better way.
- */
-function camelToSnakeJson(o: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = {}
-
-  if (o instanceof Date) return o
-
-  for (const originalKey in o) {
-    if (!Object.prototype.hasOwnProperty.call(o, originalKey)) {
-      continue
-    }
-
-    const snakeKey = originalKey
-      .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
-      .replace(/^_/, '')
-    const value = o[originalKey]
-
-    if (value !== null && typeof value === 'object') {
-      if (Array.isArray(value)) {
-        result[snakeKey] = value.map((item) =>
-          item !== null && typeof item === 'object' && !Array.isArray(item)
-            ? camelToSnakeJson(item as Record<string, unknown>)
-            : item
-        )
-      } else {
-        result[snakeKey] = camelToSnakeJson(value as Record<string, unknown>)
-      }
-    } else {
-      result[snakeKey] = value
-    }
-  }
-
-  return result
-}
 
 const Indent = ({ depth }: { depth: number }) => (
   <span className="inline-block" style={{ width: `${depth * 2}ch` }} />
@@ -689,7 +652,7 @@ const ExpandedItem = ({
   // recomputing these on every parent re-render (e.g. on scroll) would be
   // wasted work — and would also defeat HighlightJSON's memo by passing a new
   // object identity each time
-  const snakeJson = useMemo(() => camelToSnakeJson(item), [item])
+  const snakeJson = useMemo(() => snakeify(item) as JsonValue, [item])
   const json = useMemo(() => JSON.stringify(snakeJson, null, 2), [snakeJson])
 
   return (
@@ -789,7 +752,7 @@ const ExpandedItem = ({
         </div>
         <div className="bg-raise border-secondary overflow-x-auto rounded border px-3 py-2">
           <pre className="text-mono-code ![font-size:13px] ![line-height:18px]">
-            <HighlightJSON json={snakeJson as JsonValue} />
+            <HighlightJSON json={snakeJson} />
           </pre>
         </div>
       </div>
