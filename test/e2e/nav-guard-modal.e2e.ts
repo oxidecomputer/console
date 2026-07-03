@@ -14,7 +14,7 @@ test('navigating away from SideModal form triggers nav guard', async ({ page }) 
   // it, base-ui aria-hides the form modal (it's outside the inner dialog's
   // portal tree), so role-based locators can't find it.
   const formModal = page.locator('[role=dialog]:has(h2:text-is("Create floating IP"))')
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm navigation' })
+  const confirmModal = page.getByRole('dialog', { name: 'Leave form?' })
 
   await page.goto(floatingIpsPage)
 

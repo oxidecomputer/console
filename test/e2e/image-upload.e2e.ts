@@ -13,22 +13,19 @@ import {
   expectNotVisible,
   expectRowVisible,
   expectVisible,
-  sleep,
 } from './utils'
 
 // playwright isn't quick enough to catch each step going from ready to running
 // to complete in time, so we just assert that they all start out ready and end
 // up complete
 async function expectUploadProcess(page: Page) {
-  // check these here instead of first because if we don't look for the ready
-  // states right away we won't catch them in time
-  const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
-  await expect(progressModal).toBeVisible()
+  const modal = page.getByRole('dialog', { name: 'Upload image' })
+  await expect(modal).toBeVisible()
 
   const steps = page.locator('css=.upload-step')
   await expect(steps).toHaveCount(8)
 
-  const done = progressModal.getByRole('button', { name: 'Done' })
+  const done = modal.getByRole('button', { name: 'Done' })
 
   for (const step of await steps.all()) {
     await expect(step).toHaveAttribute('data-status', 'complete', { timeout: 20000 })
@@ -67,7 +64,7 @@ test.describe('Image upload', () => {
 
     await page.getByRole('button', { name: 'Upload image' }).click()
 
-    // now the modal pops open and the thing starts going
+    // now the form swaps into progress phase
     await expectUploadProcess(page)
 
     // the image name check 404 should be logged as expected-info, with context
@@ -139,94 +136,62 @@ test.describe('Image upload', () => {
     test(`cancel in state '${state}'`, async ({ page }) => {
       await fillForm(page, 'new-image')
 
-      await page.getByRole('button', { name: 'Upload image' }).click()
+      const modal = page.getByRole('dialog', { name: 'Upload image' })
 
-      const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
-      await expect(progressModal).toBeVisible()
+      await page.getByRole('button', { name: 'Upload image' }).click()
+      await expect(modal).toBeVisible()
 
       // wait to be in the middle of the specified step
       const uploadStep = page.getByTestId(`upload-step: ${state}`)
       await expect(uploadStep).toHaveAttribute('data-status', 'running')
 
-      // form is disabled and semi-hidden
-      // await expectNotVisible(page, ['role=textbox[name="Name"]'])
-
-      page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
-      await progressModal.getByRole('button', { name: 'Cancel' }).click()
-
-      // modal has closed
-      await expect(progressModal).toBeHidden()
+      // open the cancel guard and confirm
+      await modal.getByRole('button', { name: 'Cancel upload' }).click()
+      const cancelGuard = page.getByRole('dialog', { name: 'Cancel upload?' })
+      await cancelGuard.getByRole('button', { name: 'Cancel upload' }).click()
 
       // form's back
-      await expect(page.getByRole('textbox', { name: 'Name' })).toBeVisible()
+      await expect(modal.getByRole('textbox', { name: 'Name' })).toBeVisible()
+      // wait for cleanup to finish: submit re-enables once the temp disk is gone
+      await expect(modal.getByRole('button', { name: 'Upload image' })).toBeEnabled()
 
-      // get out of the form and go to the disks page to check it's not there
-      await page.getByRole('button', { name: 'Cancel' }).click()
+      // dismiss the form (react-hook-form treats post-submit state as clean,
+      // so this skips the nav guard and navigates directly)
+      await modal.getByRole('button', { name: 'Cancel' }).click()
+
+      // navigate to disks to verify the temp disk was deleted
       await page.getByRole('link', { name: 'Disks' }).click()
       await expect(page.getByRole('cell', { name: 'disk-1', exact: true })).toBeVisible()
       await expect(page.getByRole('cell', { name: 'tmp' })).toBeHidden()
     })
   }
 
-  // testing the onFocusOutside fix
   test('cancel canceling', async ({ page, browserName }) => {
     // eslint-disable-next-line playwright/no-skipped-test
     test.skip(browserName === 'webkit', 'safari. stop this')
 
     await fillForm(page, 'new-image')
 
-    const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
-
+    const modal = page.getByRole('dialog', { name: 'Upload image' })
     await page.getByRole('button', { name: 'Upload image' }).click()
-    await expect(progressModal).toBeVisible()
+    await expect(modal).toBeVisible()
 
-    let confirmCount = 0
+    // open the cancel guard
+    await modal.getByRole('button', { name: 'Cancel upload' }).click()
+    const cancelGuard = page.getByRole('dialog', { name: 'Cancel upload?' })
+    await expect(cancelGuard).toBeVisible()
 
-    page.on('dialog', async (dialog) => {
-      confirmCount += 1
-      await dialog.dismiss()
-    }) // click cancel on the are you sure prompt
+    // "Keep uploading" dismisses just the guard; SideModal stays open
+    await cancelGuard.getByRole('button', { name: 'Keep uploading' }).click()
+    await expect(cancelGuard).toBeHidden()
+    await expect(modal).toBeVisible()
 
-    await progressModal.getByRole('button', { name: 'Cancel' }).click()
-
-    // still visible because we canceled the cancel!
-    await expect(progressModal).toBeVisible()
-    expect(confirmCount).toEqual(1)
-
-    // now try dismissing by clicking the scrim outside the progress modal
-    await page.mouse.click(50, 50)
-
-    await sleep(300)
-
-    // without the onFocusOutside fix this is a higher number
-    expect(confirmCount).toEqual(2)
-  })
-
-  // regression test for the nested-dialog scrim: the progress modal's backdrop
-  // must cover the SideModal behind it. Without forceRender on Dialog.Backdrop,
-  // base-ui hides a nested backdrop by default, leaving the SideModal
-  // interactive through the "overlay". Without raising --z-modal-overlay above
-  // --z-side-modal, the overlay sits below the SideModal and doesn't cover it.
-  test('progress modal scrim covers the side modal underneath', async ({
-    page,
-    browserName,
-  }) => {
-    // eslint-disable-next-line playwright/no-skipped-test
-    test.skip(browserName === 'webkit', 'safari. stop this')
-
-    await fillForm(page, 'new-image')
-
-    const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
-    await page.getByRole('button', { name: 'Upload image' }).click()
-    await expect(progressModal).toBeVisible()
-
-    // 4096 is a block-size radio in the SideModal behind the progress modal.
-    // Playwright's actionability check should fail here: the scrim intercepts
-    // pointer events, so the click can't land on the radio. Without the fix,
-    // nothing covers the radio and the click would succeed.
-    await expect(page.getByLabel('4096').click({ timeout: 2000 })).rejects.toThrow(
-      /intercepts pointer events/
-    )
+    // Esc also dismisses only the guard
+    await modal.getByRole('button', { name: 'Cancel upload' }).click()
+    await expect(cancelGuard).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(cancelGuard).toBeHidden()
+    await expect(modal).toBeVisible()
   })
 
   test('Image upload cancel and retry', async ({ page, browserName }) => {
@@ -235,27 +200,21 @@ test.describe('Image upload', () => {
 
     await fillForm(page, 'new-image')
 
+    const modal = page.getByRole('dialog', { name: 'Upload image' })
     await page.getByRole('button', { name: 'Upload image' }).click()
 
     // wait to be in the middle of upload
     const uploadStep = page.getByTestId('upload-step: Upload image file')
     await expect(uploadStep).toHaveAttribute('data-status', 'running')
 
-    // form is disabled and semi-hidden
-    // await expectNotVisible(page, ['role=textbox[name="Name"]'])
+    // open the cancel guard and confirm
+    await modal.getByRole('button', { name: 'Cancel upload' }).click()
+    const cancelGuard = page.getByRole('dialog', { name: 'Cancel upload?' })
+    await cancelGuard.getByRole('button', { name: 'Cancel upload' }).click()
 
-    page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
-    const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
-    await progressModal.getByRole('button', { name: 'Cancel' }).click()
-
-    // modal has closed
-    await expect(progressModal).toBeHidden()
-
-    // form's back
-    await expect(page.getByRole('textbox', { name: 'Name' })).toBeVisible()
-    // need to wait for submit button to come back because it's in a loading
-    // state while the cleanup runs
-    await expect(page.getByRole('button', { name: 'Upload image' })).toBeVisible()
+    // form's back; wait for cleanup so submit is enabled again
+    await expect(modal.getByRole('textbox', { name: 'Name' })).toBeVisible()
+    await expect(modal.getByRole('button', { name: 'Upload image' })).toBeEnabled()
 
     // resubmit and it should work fine
     await page.getByRole('button', { name: 'Upload image' }).click()
@@ -311,7 +270,7 @@ test.describe('Image upload', () => {
       if (message !== genericMessage) {
         await expect(page.getByText(genericMessage)).toBeHidden()
       }
-      await expect(page.getByRole('button', { name: 'Back' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Back to form' })).toBeVisible()
     })
   }
 })
