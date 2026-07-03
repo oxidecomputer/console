@@ -28,7 +28,7 @@ const mockSiloIds = [
 const mockOperations = [
   'instance_create',
   'instance_delete',
-  'instance_start',
+  'anti_affinity_group_member_instance_add',
   'instance_stop',
   'instance_reboot',
   'project_create',
