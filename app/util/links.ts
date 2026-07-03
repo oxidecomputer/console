@@ -41,7 +41,7 @@ export const docLinks = {
     linkText: 'Anti-Affinity Groups',
   },
   auditLog: {
-    href: 'https://docs.oxide.computer/guides/audit-logs',
+    href: 'https://docs.oxide.computer/guides/audit-log',
     linkText: 'Audit Logs',
   },
   deviceTokens: {
