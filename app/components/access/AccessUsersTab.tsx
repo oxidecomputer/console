@@ -28,10 +28,8 @@ import {
 import { Person24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { type EditRoleModalProps } from '~/forms/access-util'
-import { confirmDelete } from '~/stores/confirm-delete'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -43,6 +41,7 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
+import { buildRoleActions } from './roleActions'
 import { UserDetailsSideModal } from './UserDetailsSideModal'
 
 // The API only sorts users by id, so fetch the full set and sort by name
@@ -193,69 +192,24 @@ export function AccessUsersTab({
     [roleCol, groupsCol]
   )
 
-  const isProject = managedScope === 'project'
-  const assignLabel = isProject ? 'Assign project role' : 'Assign role'
-  const changeLabel = isProject ? 'Change project role' : 'Change role'
-  const removeLabel = isProject ? 'Remove project role' : 'Remove role'
-
   const makeActions = useCallback(
     (user: User): MenuAction[] => {
       const directManagedRole = managedRoleById.get(user.id)
       const userGroups = groupsByUserId.get(user.id) ?? []
       const entries = userScopedRoleEntries(user.id, userGroups, scopedPolicies)
       const effective = effectiveScopedRole(entries)
-      const removeAction = {
-        label: directManagedRole ? removeLabel : 'Remove role',
-        onActivate: confirmDelete({
-          doDelete: () => updateManagedPolicy(deleteRole(user.id, managedPolicy)),
-          label: (
-            <span>
-              the <HL>{directManagedRole}</HL> role for <HL>{user.displayName}</HL>
-            </span>
-          ),
-          resourceKind: 'role assignment',
-        }),
-        // a direct role on the managed policy is required to remove anything
-        disabled:
-          !directManagedRole &&
-          `Role is inherited; modify the source ${
-            entries.find((e) => e.source.type === 'group') ? 'group' : 'silo assignment'
-          } to revoke`,
-      }
-      // No role at all — direct or inherited.
-      if (!effective) {
-        return [
-          {
-            label: assignLabel,
-            onActivate: () => setEditingUser({ user, defaultRole: undefined }),
-          },
-        ]
-      }
-      // For the project tab, an inherited silo role doesn't give us anything to
-      // "change" on the project policy — frame it as assigning a project role.
-      // For the silo tab, an inherited (via group) role can be promoted to a
-      // direct silo assignment via "Change role" pre-filled with the effective
-      // role.
-      if (isProject && !directManagedRole) {
-        return [
-          {
-            label: assignLabel,
-            onActivate: () => setEditingUser({ user, defaultRole: undefined }),
-          },
-          removeAction,
-        ]
-      }
-      // Pre-fill with the direct managed role if any; otherwise the effective
-      // role so the modal opens in 'edit' mode showing the role currently in
-      // effect.
-      const defaultRole = directManagedRole ?? effective.role
-      return [
-        {
-          label: changeLabel,
-          onActivate: () => setEditingUser({ user, defaultRole }),
-        },
-        removeAction,
-      ]
+      const inheritedReason = `Role is inherited; modify the source ${
+        entries.find((e) => e.source.type === 'group') ? 'group' : 'silo assignment'
+      } to revoke`
+      return buildRoleActions({
+        name: user.displayName,
+        managedScope,
+        directManagedRole,
+        effective,
+        inheritedReason,
+        openEditModal: (defaultRole) => setEditingUser({ user, defaultRole }),
+        doRemove: () => updateManagedPolicy(deleteRole(user.id, managedPolicy)),
+      })
     },
     [
       managedRoleById,
@@ -263,10 +217,7 @@ export function AccessUsersTab({
       updateManagedPolicy,
       groupsByUserId,
       scopedPolicies,
-      isProject,
-      assignLabel,
-      changeLabel,
-      removeLabel,
+      managedScope,
     ]
   )
 

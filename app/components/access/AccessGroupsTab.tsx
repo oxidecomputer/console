@@ -16,6 +16,7 @@ import {
   q,
   rolesByIdFromPolicy,
   usePrefetchedQuery,
+  userScopedRoleEntries,
   type AccessScope,
   type Group,
   type Policy,
@@ -25,9 +26,7 @@ import {
 import { PersonGroup24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { HL } from '~/components/HL'
 import { type EditRoleModalProps } from '~/forms/access-util'
-import { confirmDelete } from '~/stores/confirm-delete'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { MemberCountCell } from '~/table/cells/MemberCountCell'
@@ -40,6 +39,7 @@ import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
 import { GroupMembersSideModal } from './GroupMembersSideModal'
+import { buildRoleActions } from './roleActions'
 
 // The API only sorts groups by id, so fetch the full set and sort by name
 // client-side. ALL_ISH is the practical ceiling; a silo with more groups than
@@ -97,14 +97,8 @@ export function AccessGroupsTab({
         id: 'role',
         header: 'Role',
         cell: ({ row }) => {
-          // groups never inherit roles, so each scoped policy contributes at
-          // most one direct entry
-          const entries = scopedPolicies.flatMap(({ scope, policy }) => {
-            const ra = policy.roleAssignments.find((r) => r.identityId === row.original.id)
-            return ra
-              ? [{ scope, roleName: ra.roleName, source: { type: 'direct' as const } }]
-              : []
-          })
+          // groups never inherit, so passing no groups yields direct roles only
+          const entries = userScopedRoleEntries(row.original.id, [], scopedPolicies)
           const effective = effectiveScopedRole(entries)
           if (!effective) return <EmptyCell />
           return (
@@ -138,74 +132,22 @@ export function AccessGroupsTab({
     [roleCol]
   )
 
-  const isProject = managedScope === 'project'
-  const assignLabel = isProject ? 'Assign project role' : 'Assign role'
-  const changeLabel = isProject ? 'Change project role' : 'Change role'
-  const removeLabel = isProject ? 'Remove project role' : 'Remove role'
-
   const makeActions = useCallback(
     (group: Group): MenuAction[] => {
       const directManagedRole = managedRoleById.get(group.id)
-      const entries = scopedPolicies.flatMap(({ scope, policy }) => {
-        const ra = policy.roleAssignments.find((r) => r.identityId === group.id)
-        return ra
-          ? [{ scope, roleName: ra.roleName, source: { type: 'direct' as const } }]
-          : []
-      })
+      const entries = userScopedRoleEntries(group.id, [], scopedPolicies)
       const effective = effectiveScopedRole(entries)
-      const removeAction = {
-        label: directManagedRole ? removeLabel : 'Remove role',
-        onActivate: confirmDelete({
-          doDelete: () => updateManagedPolicy(deleteRole(group.id, managedPolicy)),
-          label: (
-            <span>
-              the <HL>{directManagedRole}</HL> role for <HL>{group.displayName}</HL>
-            </span>
-          ),
-          resourceKind: 'role assignment',
-        }),
-        disabled:
-          !directManagedRole &&
-          `Role is inherited from another scope; modify it there to revoke`,
-      }
-      if (!effective) {
-        return [
-          {
-            label: assignLabel,
-            onActivate: () => setEditingGroup({ group, defaultRole: undefined }),
-          },
-        ]
-      }
-      // On the project tab, a group's silo role isn't a project assignment to
-      // change — frame it as assigning a project role.
-      if (isProject && !directManagedRole) {
-        return [
-          {
-            label: assignLabel,
-            onActivate: () => setEditingGroup({ group, defaultRole: undefined }),
-          },
-          removeAction,
-        ]
-      }
-      const defaultRole = directManagedRole ?? effective.role
-      return [
-        {
-          label: changeLabel,
-          onActivate: () => setEditingGroup({ group, defaultRole }),
-        },
-        removeAction,
-      ]
+      return buildRoleActions({
+        name: group.displayName,
+        managedScope,
+        directManagedRole,
+        effective,
+        inheritedReason: 'Role is inherited from another scope; modify it there to revoke',
+        openEditModal: (defaultRole) => setEditingGroup({ group, defaultRole }),
+        doRemove: () => updateManagedPolicy(deleteRole(group.id, managedPolicy)),
+      })
     },
-    [
-      managedRoleById,
-      managedPolicy,
-      updateManagedPolicy,
-      scopedPolicies,
-      isProject,
-      assignLabel,
-      changeLabel,
-      removeLabel,
-    ]
+    [managedRoleById, managedPolicy, updateManagedPolicy, scopedPolicies, managedScope]
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
