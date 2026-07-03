@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -24,11 +24,16 @@ import {
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
+import {
+  ReplacedDefaultNote,
+  useLinkSubnetPoolSiloFlow,
+} from '~/pages/system/useLinkPoolSiloFlow'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { LinkCell } from '~/table/cells/LinkCell'
@@ -252,32 +257,39 @@ export const handle = makeCrumb('Subnet Pools')
 
 type LinkPoolFormValues = {
   pool: string | undefined
+  isDefault: boolean
 }
 
-const defaultValues: LinkPoolFormValues = { pool: undefined }
+const defaultValues: LinkPoolFormValues = { pool: undefined, isDefault: false }
 
 function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  const linkPool = useApiMutation(api.systemSubnetPoolSiloLink, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('siloSubnetPoolList')
-      queryClient.invalidateEndpoint('systemSubnetPoolSiloList')
-      onDismiss()
-    },
-    onError(err) {
-      addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })
-    },
+  const { linkAndMaybePromote, isPending } = useLinkSubnetPoolSiloFlow({
+    linkErrorTitle: 'Could not link pool',
+    promoteErrorTitle: 'Pool linked, but not set as default',
   })
 
-  function onSubmit({ pool }: LinkPoolFormValues) {
+  async function onSubmit({ pool, isDefault }: LinkPoolFormValues) {
     if (!pool) return
-    linkPool.mutate({ path: { pool }, body: { silo, isDefault: false } })
+    const linked = await linkAndMaybePromote({ pool, silo, isDefault })
+    if (!linked) return
+    onDismiss()
   }
 
   const allLinkedPools = useQuery(allSiloPoolsQuery(silo).optionsFn())
   const allPools = useQuery(allPoolsQuery.optionsFn())
+
+  // The selected pool's version determines which default slot the checkbox
+  // fills, and whether linking as default would replace an existing default.
+  const selectedPoolName = useWatch({ control, name: 'pool' })
+  const selectedPool = allPools.data?.items.find((p) => p.name === selectedPoolName)
+  const replacedDefault =
+    selectedPool &&
+    allLinkedPools.data?.items.find(
+      (p) => p.isDefault && p.ipVersion === selectedPool.ipVersion
+    )?.name
 
   const linkedPoolIds = useMemo(
     () =>
@@ -320,6 +332,17 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
               required
               control={control}
             />
+
+            <CheckboxField name="isDefault" control={control}>
+              {selectedPool
+                ? `Make default IP${selectedPool.ipVersion} subnet pool for silo`
+                : 'Make default subnet pool for silo'}
+              {replacedDefault && (
+                <ReplacedDefaultNote>
+                  Replaces {replacedDefault}, which stays linked
+                </ReplacedDefaultNote>
+              )}
+            </CheckboxField>
           </form>
         </Modal.Section>
       </Modal.Body>
@@ -327,7 +350,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
         actionText="Link"
-        actionLoading={linkPool.isPending}
+        actionLoading={isPending}
       />
     </Modal>
   )

@@ -114,14 +114,50 @@ test('IP pool link silo', async ({ page }) => {
   await page.getByRole('button', { name: 'Link silo' }).click()
   await expect(modal).toBeVisible()
 
-  // select silo in combobox and click link (thrax is not yet linked to ip-pool-1)
+  // select silo in combobox (thrax is not yet linked to ip-pool-1)
   await page.getByPlaceholder('Select a silo').fill('t')
   await page.getByRole('option', { name: 'thrax' }).click()
+
+  // checkbox label reflects the pool's version and type; check it to link as default
+  await page
+    .getByRole('checkbox', { name: 'Make default IPv4 unicast pool for silo' })
+    .check()
+
   await modal.getByRole('button', { name: 'Link' }).click()
 
-  // modal closes and we see the thing in the table
+  // modal closes and we see the silo linked as default in the table
   await expect(modal).toBeHidden()
-  await expectRowVisible(table, { Silo: 'thrax', 'Silo default': '' })
+  await expectRowVisible(table, { Silo: 'thrax', 'Silo default': 'default' })
+})
+
+test('IP pool link silo as default replaces existing default', async ({ page }) => {
+  // ip-pool-3 is v4 unicast and linked only to myriad, so maze-war is selectable
+  await page.goto('/system/networking/ip-pools/ip-pool-3?tab=silos')
+
+  const modal = page.getByRole('dialog', { name: 'Link silo' })
+  await page.getByRole('button', { name: 'Link silo' }).click()
+  await expect(modal).toBeVisible()
+
+  // maze-war already has a v4 unicast default (ip-pool-1)
+  await page.getByPlaceholder('Select a silo').fill('maze')
+  await page.getByRole('option', { name: 'maze-war' }).click()
+
+  // the modal fetches the selected silo's pools to name the pool that making
+  // ip-pool-3 the default would demote (it stays linked)
+  await expect(page.getByText('Replaces ip-pool-1, which stays linked')).toBeVisible()
+
+  // checking the box links ip-pool-3 to maze-war and promotes it in one go; seeing
+  // it as the silo default confirms the promote (the link itself is non-default)
+  await page
+    .getByRole('checkbox', { name: 'Make default IPv4 unicast pool for silo' })
+    .check()
+  await modal.getByRole('button', { name: 'Link' }).click()
+
+  await expect(modal).toBeHidden()
+  await expectRowVisible(page.getByRole('table'), {
+    Silo: 'maze-war',
+    'Silo default': 'default',
+  })
 })
 
 test('IP pool silo make default (no existing default)', async ({ page }) => {
