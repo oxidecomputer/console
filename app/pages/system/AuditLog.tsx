@@ -98,7 +98,8 @@ const yellowText = 'text-(--color-yellow-1000) light:text-(--color-yellow-600)'
 const Primitive = ({ value }: { value: JsonValue | Date }) => {
   if (value === null) return <span className={yellowText}>null</span>
   if (typeof value === 'string') return <span className={greenText}>{`"${value}"`}</span>
-  if (value instanceof Date) return <span className={greenText}>{value.toISOString()}</span>
+  if (value instanceof Date)
+    return <span className={greenText}>{`"${value.toISOString()}"`}</span>
   if (typeof value === 'boolean' || typeof value === 'number') {
     return <span className={yellowText}>{String(value)}</span>
   }
