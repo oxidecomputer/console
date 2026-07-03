@@ -11,7 +11,7 @@ import { v4 as uuid } from 'uuid'
 import type { AuditLogEntry } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { Rando } from './msw/rando'
+import { Rando } from '~/util/rando'
 import { defaultSilo } from './silo'
 
 const mockUserIds = [

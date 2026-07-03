@@ -11,7 +11,7 @@ import { GiB } from '~/util/units'
 
 import { instance, stoppedInstance } from './instance'
 import type { Json } from './json-type'
-import { Rando } from './msw/rando'
+import { Rando } from '~/util/rando'
 import { project, project2 } from './project'
 
 // Use seeded random for consistent states across runs

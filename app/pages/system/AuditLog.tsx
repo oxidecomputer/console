@@ -47,7 +47,7 @@ import { Truncate } from '~/ui/lib/Truncate'
 import { classed } from '~/util/classed'
 import { toLocaleDateString, toSyslogDateString, toSyslogTimeString } from '~/util/date'
 import { docLinks } from '~/util/links'
-import { deterRandom } from '~/util/math'
+import { Rando } from '~/util/rando'
 
 export const handle = { crumb: 'Audit Log' }
 
@@ -151,12 +151,24 @@ const ErrorState = ({ error, onDismiss }: { error: string; onDismiss: () => void
   )
 }
 
+// deterministic random width generator for skeleton rows
+const skeletonRando = new Rando(1543)
+const randWidth = (target: number, range: number) =>
+  target + (skeletonRando.next() * 2 - 1) * range
+const skeletonRows = [...Array(50)].map(() => ({
+  operation: `${randWidth(60, 10)}%`,
+  actorId: `${randWidth(80, 10)}%`,
+  authMethod: `${randWidth(60, 20)}%`,
+  siloId: `${randWidth(80, 10)}%`,
+  duration: `${randWidth(30, 10)}px`,
+}))
+
 const LoadingState = () => {
   return (
     <div className="border-secondary h-full w-full overflow-hidden">
       {/* Generate skeleton rows */}
       <div className="w-full">
-        {[...Array(50)].map((_, i) => (
+        {skeletonRows.map((row, i) => (
           <div
             key={i}
             className={cn(
@@ -177,42 +189,27 @@ const LoadingState = () => {
 
             {/* Operation column */}
             <div className="col-operation">
-              <div
-                className="bg-tertiary h-4 rounded"
-                style={{ width: `${deterRandom(i, 60, 10)}%` }}
-              />
+              <div className="bg-tertiary h-4 rounded" style={{ width: row.operation }} />
             </div>
 
             {/* Actor ID column */}
             <div className="col-actor-id">
-              <div
-                className="bg-tertiary h-4 rounded"
-                style={{ width: `${deterRandom(i, 80, 10)}%` }}
-              />
+              <div className="bg-tertiary h-4 rounded" style={{ width: row.actorId }} />
             </div>
 
             {/* Auth Method column */}
             <div className="col-auth-method">
-              <div
-                className="bg-tertiary h-4 rounded"
-                style={{ width: `${deterRandom(i, 60, 20)}%` }}
-              />
+              <div className="bg-tertiary h-4 rounded" style={{ width: row.authMethod }} />
             </div>
 
             {/* Silo ID column */}
             <div className="col-silo-id">
-              <div
-                className="bg-tertiary h-4 rounded"
-                style={{ width: `${deterRandom(i, 80, 10)}%` }}
-              />
+              <div className="bg-tertiary h-4 rounded" style={{ width: row.siloId }} />
             </div>
 
             {/* Duration column */}
             <div className="col-duration">
-              <div
-                className="bg-tertiary h-4 rounded"
-                style={{ width: `${deterRandom(i, 20, 24)}px` }}
-              />
+              <div className="bg-tertiary h-4 rounded" style={{ width: row.duration }} />
             </div>
           </div>
         ))}

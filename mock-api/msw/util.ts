@@ -42,7 +42,7 @@ import type { DbRoleAssignmentResourceType } from '..'
 import { genI64Data } from '../metrics'
 import { getMockOxqlInstanceData } from '../oxql-metrics'
 import { db, lookupById } from './db'
-import { Rando } from './rando'
+import { Rando } from '~/util/rando'
 
 interface PaginateOptions {
   limit?: number | null
