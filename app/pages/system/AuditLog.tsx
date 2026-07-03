@@ -36,7 +36,6 @@ import { Badge } from '@oxide/design-system/ui'
 import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
-import { useWindowSize } from '~/hooks/use-window-size'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Button } from '~/ui/lib/Button'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
@@ -268,25 +267,22 @@ function StatusCodeCell({ code }: { code: number }) {
 }
 
 const COLUMNS = [
-  { key: 'timeCompleted', title: 'Time Completed', width: '7.75rem', hideBelow: 0 },
-  { key: 'status', title: 'Status', width: '3rem', hideBelow: 0 },
-  { key: 'operation', title: 'Operation', width: '160px', hideBelow: 0 },
-  { key: 'actorId', title: 'Actor ID', width: '130px', hideBelow: 1150 },
-  {
-    key: 'authMethod',
-    title: 'Auth Method',
-    width: '120px',
-    hideBelow: 875,
-  },
-  { key: 'siloId', title: 'Silo ID', width: '130px', hideBelow: 1250 },
-  { key: 'duration', title: 'Duration', width: '1fr', hideBelow: 950 },
+  { key: 'timeCompleted', title: 'Time Completed', width: '7.75rem' },
+  { key: 'status', title: 'Status', width: '3rem' },
+  { key: 'operation', title: 'Operation', width: '160px' },
+  { key: 'actorId', title: 'Actor ID', width: '130px' },
+  { key: 'authMethod', title: 'Auth Method', width: '120px' },
+  { key: 'siloId', title: 'Silo ID', width: '130px' },
+  { key: 'duration', title: 'Duration', width: '1fr' },
 ] as const
 
-const getResponsiveColWidths = () => ({
-  gridTemplateColumns: COLUMNS.map((col) => col.width).join(' '),
-})
+// 4=actorId, 5=authMethod, 6=siloId, 7=duration
+const hideCols =
+  'max-[1150px]:[&>:nth-child(4)]:hidden max-[875px]:[&>:nth-child(5)]:hidden max-[1250px]:[&>:nth-child(6)]:hidden max-[950px]:[&>:nth-child(7)]:hidden'
 
-const colWidths = getResponsiveColWidths()
+const colWidths = {
+  gridTemplateColumns: COLUMNS.map((col) => col.width).join(' '),
+}
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
 
@@ -297,15 +293,13 @@ type RowProps = {
   size: number
   start: number
   scrollMargin: number
-  screenWidth: number
   onToggle: (index: number) => void
 }
 
 // memoized so a parent re-render (scroll, keydown, selection change) doesn't
 // re-run the per-row Tooltip / CopyToClipboard / Badge / ts-pattern work for
 // every virtualized row. Props are referentially stable per row, so only rows
-// whose `isExpanded`, `start`, `scrollMargin`, or `screenWidth` actually
-// change re-render.
+// whose `isExpanded`, `start`, or `scrollMargin` actually change re-render.
 const Row = memo(function Row({
   log,
   index,
@@ -313,7 +307,6 @@ const Row = memo(function Row({
   size,
   start,
   scrollMargin,
-  screenWidth,
   onToggle,
 }: RowProps) {
   const [userId, siloId] = match(log.actor)
@@ -322,12 +315,6 @@ const Row = memo(function Row({
     .with({ kind: 'scim' }, (actor) => [undefined, actor.siloId])
     .with({ kind: 'unauthenticated' }, () => [undefined, undefined])
     .exhaustive()
-
-  // breakpoints come from COLUMNS[].hideBelow
-  const hideActorId = screenWidth < 1150
-  const hideAuthMethod = screenWidth < 875
-  const hideSiloId = screenWidth < 1250
-  const hideDuration = screenWidth < 950
 
   return (
     <div
@@ -340,6 +327,7 @@ const Row = memo(function Row({
       <div
         className={cn(
           'focus-visible:outline-2 focus-visible:transition-none focus-visible:rounded-md focus-visible:-outline-offset-2 grid h-9 w-full cursor-pointer items-center gap-8 px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
+          hideCols,
           index !== 0 && 'border-t',
           isExpanded ? 'bg-hover' : 'hover:bg-raise'
         )}
@@ -372,28 +360,28 @@ const Row = memo(function Row({
         <div>
           <Badge color="neutral">{log.operationId.split('_').join(' ')}</Badge>
         </div>
-        <div className={cn('text-secondary', hideActorId && 'hidden')}>
+        <div className="text-secondary">
           {userId ? (
             <Truncate maxLength={12} text={userId} position="middle" hasCopyButton />
           ) : (
             <EmptyCell />
           )}
         </div>
-        <div className={cn(hideAuthMethod && 'hidden')}>
+        <div>
           {log.authMethod ? (
             <Badge color="neutral">{log.authMethod.split('_').join(' ')}</Badge>
           ) : (
             <EmptyCell />
           )}
         </div>
-        <div className={cn('text-secondary', hideSiloId && 'hidden')}>
+        <div className="text-secondary">
           {siloId ? (
             <Truncate maxLength={12} text={siloId} position="middle" hasCopyButton />
           ) : (
             <EmptyCell />
           )}
         </div>
-        <div className={cn('text-secondary', hideDuration && 'hidden')}>
+        <div className="text-secondary">
           {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
           ms
         </div>
@@ -557,8 +545,6 @@ export default function SiloAuditLogsPage() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [expandedItem, allItems.length, handleToggle, navigateToIndex, focusRow])
 
-  const screenSize = useWindowSize()
-
   const logTable = (
     <>
       <div
@@ -577,7 +563,6 @@ export default function SiloAuditLogsPage() {
             size={virtualRow.size}
             start={virtualRow.start}
             scrollMargin={rowVirtualizer.options.scrollMargin}
-            screenWidth={screenSize.width}
             onToggle={selectRow}
           />
         ))}
@@ -639,14 +624,9 @@ export default function SiloAuditLogsPage() {
       <div className="bg-default relative !mx-0 !w-full flex-grow overflow-x-clip">
         <div className="w-full flex-1">
           <div className="bg-default border-secondary sticky top-(--top-bar-height) z-20 border-b px-(--content-gutter) pt-4 pb-2">
-            <div style={colWidths} className="grid items-center gap-8">
+            <div style={colWidths} className={cn('grid items-center gap-8', hideCols)}>
               {COLUMNS.map((column) => (
-                <HeaderCell
-                  key={column.key}
-                  className={cn(screenSize.width < column.hideBelow && 'hidden')}
-                >
-                  {column.title}
-                </HeaderCell>
+                <HeaderCell key={column.key}>{column.title}</HeaderCell>
               ))}
             </div>
             {selectedItem &&
