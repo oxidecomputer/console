@@ -513,7 +513,7 @@ export default function SiloAuditLogsPage() {
     <>
       <div
         ref={parentRef}
-        className="relative w-full"
+        className="relative isolate w-full"
         style={{
           height: `${rowVirtualizer.getTotalSize()}px`,
         }}
@@ -587,7 +587,7 @@ export default function SiloAuditLogsPage() {
 
       <div className="audit-log-table bg-default relative !mx-0 !w-full flex-grow overflow-x-clip">
         <div className="w-full flex-1">
-          <div className="bg-default border-secondary sticky top-(--top-bar-height) z-20 border-b px-(--content-gutter) pt-4 pb-2">
+          <div className="bg-default border-secondary sticky top-(--top-bar-height) z-5 border-b px-(--content-gutter) pt-4 pb-2">
             <div className="audit-log-row">
               {COLUMNS.map((column) => (
                 <HeaderCell key={column.title} className={column.className}>
