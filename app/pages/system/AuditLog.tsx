@@ -285,14 +285,22 @@ const Row = memo(function Row({
         transform: `translateY(${start - scrollMargin}px)`,
       }}
     >
-      <button
+      <div
         className={cn(
           'audit-log-row focus-visible:outline-2 focus-visible:transition-none focus-visible:rounded-md focus-visible:-outline-offset-2 h-9 w-full cursor-pointer px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
           index !== 0 && 'border-t',
           isExpanded ? 'bg-hover' : 'hover:bg-raise'
         )}
         onClick={() => onToggle(index)}
-        type="button"
+        onKeyDown={(e) => {
+          if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault()
+            onToggle(index)
+          }
+        }}
+        // oxlint-disable-next-line prefer-tag-over-role -- row contains buttons (truncated copy)
+        role="button"
+        tabIndex={0}
         data-row-index={index}
       >
         {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
@@ -338,7 +346,7 @@ const Row = memo(function Row({
           {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
           ms
         </div>
-      </button>
+      </div>
     </div>
   )
 })
