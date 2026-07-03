@@ -292,15 +292,7 @@ const Row = memo(function Row({
           isExpanded ? 'bg-hover' : 'hover:bg-raise'
         )}
         onClick={() => onToggle(index)}
-        // TODO: some of the focusing behaviour and repetitive code needs work
-        // a11y thing: make it focusable and let the user press enter on it to toggle
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            onToggle(index)
-          }
-        }}
         type="button"
-        tabIndex={0}
         data-row-index={index}
       >
         {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
@@ -471,40 +463,46 @@ export default function SiloAuditLogsPage() {
   }, [])
 
   // arrow keys move selection (and focus) between rows; escape closes the
-  // modal. adjacent rows are within the virtualizer's overscan, so they're
-  // already in the DOM when we look them up.
+  // modal. with the modal closed, arrows still move focus when a row is
+  // focused, without opening the modal. adjacent rows are within the
+  // virtualizer's overscan, so they're already in the DOM when we look them up.
   useEffect(() => {
-    if (expandedItem === null) return
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
       // don't hijack typing in inputs (e.g. the date pickers above the list)
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return
 
-      const currentIdx = parseInt(expandedItem, 10)
-      if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        const next = currentIdx + 1
-        if (next < allItems.length) {
-          navigateToIndex(next)
-          focusRow(next)
-        }
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        const prev = currentIdx - 1
-        if (prev >= 0) {
-          navigateToIndex(prev)
-          focusRow(prev)
-        }
-      } else if (e.key === 'Escape') {
+      // current row: the expanded one, or (modal closed) the focused one.
+      // closest() so this also works when focus is on a copy button inside a row
+      const currentIdx = parseInt(
+        expandedItem ??
+          target?.closest('[data-row-index]')?.getAttribute('data-row-index') ??
+          '',
+        10
+      )
+      if (Number.isNaN(currentIdx)) return
+
+      if (e.key === 'Escape' && expandedItem !== null) {
         e.preventDefault()
         handleToggle(null)
         // restore focus to the row in case focus was inside the modal
         focusRow(currentIdx)
+        return
       }
+
+      const delta = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0
+      if (delta === 0) return
+      e.preventDefault()
+      const next = currentIdx + delta
+      if (next < 0 || next >= allItems.length) return
+      // with the modal open, selection follows focus; closed, only focus moves
+      if (expandedItem !== null) handleToggle(next.toString())
+      scrollToRow(next)
+      focusRow(next)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [expandedItem, allItems.length, handleToggle, navigateToIndex, focusRow])
+  }, [expandedItem, allItems.length, handleToggle, focusRow, scrollToRow])
 
   const logTable = (
     <>
