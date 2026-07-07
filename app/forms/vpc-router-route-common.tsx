@@ -66,7 +66,7 @@ const targetTypes: Record<Exclude<RouteTarget['type'], 'subnet' | 'vpc'>, string
 const destinationValuePlaceholder: Record<RouteDestination['type'], string | undefined> = {
   ip: 'Enter an IP',
   ip_net: 'Enter an IP network',
-  subnet: 'Select a subnet',
+  subnet: 'Select a VPC subnet',
   vpc: undefined,
 }
 

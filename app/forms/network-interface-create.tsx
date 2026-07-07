@@ -136,7 +136,7 @@ export function CreateNetworkInterfaceForm({
       />
       <SubnetListbox
         name="subnetName"
-        label="Subnet"
+        label="VPC subnet"
         vpcNameField="vpcName"
         required
         control={form.control}
@@ -166,7 +166,7 @@ export function CreateNetworkInterfaceForm({
       {(ipStackType === 'v4' || ipStackType === 'dual_stack') && (
         <TextField
           name="ipv4"
-          label="IPv4 Address"
+          label="IPv4 address"
           control={form.control}
           placeholder="Leave blank for auto-assignment"
         />
@@ -175,7 +175,7 @@ export function CreateNetworkInterfaceForm({
       {(ipStackType === 'v6' || ipStackType === 'dual_stack') && (
         <TextField
           name="ipv6"
-          label="IPv6 Address"
+          label="IPv6 address"
           control={form.control}
           placeholder="Leave blank for auto-assignment"
         />

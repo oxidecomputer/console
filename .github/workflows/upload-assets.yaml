@@ -9,17 +9,17 @@ jobs:
   build-and-upload:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: 'npm'
       - name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v2'
+        uses: 'google-github-actions/auth@v3'
         with:
           credentials_json: '${{ secrets.GOOGLE_CLOUD_DL_SA }}'
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
         with:
           project_id: oxide-downloads
       - run: npm install
@@ -29,6 +29,8 @@ jobs:
         run: ls dist/assets/*.{js,css,map} | xargs gzip --keep
       - name: add console_version file
         run: echo ${{ github.sha }} > dist/VERSION
+      - name: add API_VERSION file
+        run: cp app/api/__generated__/API_VERSION dist/API_VERSION
       - run: mkdir -p releases/console
       - name: Make <sha>.tar.gz
         run: tar czf releases/console/${{ github.sha }}.tar.gz --directory=dist .
@@ -36,7 +38,7 @@ jobs:
         run: sha256sum releases/console/${{ github.sha }}.tar.gz | awk '{print $1}' > releases/console/${{ github.sha }}.sha256.txt
       - name: Upload files to GCP bucket
         id: upload-files
-        uses: google-github-actions/upload-cloud-storage@v2
+        uses: google-github-actions/upload-cloud-storage@v3
         with:
           # weird combo: the path tells it where to find the files, and for some
           # reason it takes only the immediate containing folder name and sticks

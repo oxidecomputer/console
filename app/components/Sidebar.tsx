@@ -12,6 +12,7 @@ import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
 import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { openQuickActions } from '~/hooks/use-quick-actions'
+import { sidebarWrapperClass } from '~/layouts/helpers'
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
 
@@ -62,7 +63,12 @@ const JumpToButton = () => {
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-sans-md text-raise border-secondary flex flex-col border-r">
+    <div
+      className={cn(
+        sidebarWrapperClass,
+        'text-sans-md text-raise flex flex-col overflow-y-auto overscroll-none'
+      )}
+    >
       <div className="mx-3 mt-4">
         <JumpToButton />
       </div>

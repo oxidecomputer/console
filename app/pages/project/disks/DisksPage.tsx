@@ -30,7 +30,8 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
+import { DiskSourceName } from '~/table/cells/DiskSourceCell'
+import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -68,7 +69,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     queryClient.prefetchQuery(diskList({ project }).optionsFn()),
 
     // fetch instances and preload into RQ cache so fetches by ID in
-    // InstanceLinkCell can be mostly instant yet gracefully fall back to
+    // InstanceLink can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
     queryClient.fetchQuery(instanceList({ project }).optionsFn()).then((instances) => {
       for (const instance of instances.items) {
@@ -90,6 +91,8 @@ export default function DisksPage() {
   const { mutateAsync: deleteDisk } = useApiMutation(api.diskDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('diskList')
+      // deleted disk may be a snapshot's source, shown in the snapshot detail modal
+      queryClient.invalidateEndpoint('diskView')
       // prettier-ignore
       addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>)
     },
@@ -133,6 +136,7 @@ export default function DisksPage() {
         onActivate: confirmDelete({
           doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
           label: disk.name,
+          resourceKind: 'disk',
         }),
         disabled:
           !diskCan.delete(disk) &&
@@ -164,8 +168,10 @@ export default function DisksPage() {
         colHelper.accessor(
           (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
           {
-            header: 'Attached to',
-            cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
+            header: 'Instance',
+            cell: (info) => (
+              <InstanceLink instanceId={info.getValue()} tab="storage" cell />
+            ),
           }
         ),
         colHelper.accessor('diskType', {
@@ -173,6 +179,14 @@ export default function DisksPage() {
           cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
         }),
         colHelper.accessor('size', Columns.size),
+        colHelper.accessor(
+          (row) => ({ imageId: row.imageId, snapshotId: row.snapshotId }),
+          {
+            id: 'source',
+            header: 'Source',
+            cell: (info) => <DiskSourceName {...info.getValue()} />,
+          }
+        ),
         colHelper.accessor('state.state', {
           header: 'state',
           cell: (info) => <DiskStateBadge state={info.getValue()} />,

@@ -52,7 +52,12 @@ import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
-import { getProtocolDisplayName, getProtocolKey, ICMP_TYPES } from '~/util/protocol'
+import {
+  getProtocolDisplayName,
+  getProtocolKey,
+  ICMP_TYPES,
+  PROTOCOL_LABELS,
+} from '~/util/protocol'
 import { capitalize, normalizeDashes } from '~/util/str'
 
 import { type FirewallRuleValues } from './firewall-rules-util'
@@ -158,9 +163,6 @@ const TargetAndHostFilterSubform = ({
   const onTypeChange = () => {
     subform.reset({ type: subform.getValues('type'), value: '' })
   }
-  const onInputChange = (value: string) => {
-    subform.setValue('value', value)
-  }
 
   const noun = sectionType === 'target' ? 'target' : 'host filter'
   const nounTitle = capitalize(noun) + 's'
@@ -187,7 +189,6 @@ const TargetAndHostFilterSubform = ({
           description="Select an option or enter a custom value"
           control={subformControl}
           onEnter={submitSubform}
-          onInputChange={onInputChange}
           items={items}
           allowArbitraryValues
           hideOptionalTag
@@ -289,21 +290,26 @@ const directionItems: Array<{ value: VpcFirewallRuleDirection; label: string }> 
   { value: 'outbound', label: 'Outbound' },
 ]
 
-const protocolTypeItems: Array<{ value: VpcFirewallRuleProtocol['type']; label: string }> =
-  [
-    { value: 'tcp', label: 'TCP' },
-    { value: 'udp', label: 'UDP' },
-    { value: 'icmp', label: 'ICMP' },
-  ]
+const protocolTypeItems = [
+  { value: 'tcp', label: 'TCP' },
+  { value: 'udp', label: 'UDP' },
+  { value: 'icmp', label: 'ICMPv4' },
+  { value: 'icmp6', label: 'ICMPv6' },
+] satisfies Array<{ value: VpcFirewallRuleProtocol['type']; label: string }>
 
-const icmpTypeItems = [
+const buildIcmpTypeItems = (types: Record<number, string>) => [
   { value: '', label: 'All types', selectedLabel: 'All types' },
-  ...Object.entries(ICMP_TYPES).map(([type, name]) => ({
+  ...Object.entries(types).map(([type, name]) => ({
     value: type,
     label: `${type} - ${name}`,
     selectedLabel: type,
   })),
 ]
+
+const icmpTypeItems = {
+  icmp: buildIcmpTypeItems(ICMP_TYPES.icmp),
+  icmp6: buildIcmpTypeItems(ICMP_TYPES.icmp6),
+}
 
 const targetAndHostTableColumns = [
   {
@@ -343,13 +349,13 @@ const isDuplicateProtocol = (
     return existingProtocols.some((p) => p.type === newProtocol.type)
   }
 
-  if (newProtocol.type === 'icmp') {
+  if (newProtocol.type === 'icmp' || newProtocol.type === 'icmp6') {
     if (newProtocol.value === null) {
-      return existingProtocols.some((p) => p.type === 'icmp' && p.value === null)
+      return existingProtocols.some((p) => p.type === newProtocol.type && p.value === null)
     }
     return existingProtocols.some(
       (p) =>
-        p.type === 'icmp' &&
+        p.type === newProtocol.type &&
         p.value?.icmpType === newProtocol.value?.icmpType &&
         p.value?.code === newProtocol.value?.code
     )
@@ -361,9 +367,15 @@ const isDuplicateProtocol = (
 type ParseResult<T> = { success: true; data: T } | { success: false; message: string }
 
 const parseIcmpType = (value: string | undefined): ParseResult<number | undefined> => {
-  if (value === undefined || value === '') return { success: true, data: undefined }
-  const parsed = parseInt(value, 10)
-  if (isNaN(parsed) || parsed < 0 || parsed > 255) {
+  const trimmedValue = value?.trim()
+  if (trimmedValue === undefined || trimmedValue === '') {
+    return { success: true, data: undefined }
+  }
+  if (!/^\d+$/.test(trimmedValue)) {
+    return { success: false, message: `ICMP type must be a number between 0 and 255` }
+  }
+  const parsed = parseInt(trimmedValue, 10)
+  if (parsed < 0 || parsed > 255) {
     return { success: false, message: `ICMP type must be a number between 0 and 255` }
   }
   return { success: true, data: parsed }
@@ -423,7 +435,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
   const submitProtocol = protocolForm.handleSubmit((values) => {
     if (values.protocolType === 'tcp' || values.protocolType === 'udp') {
       addProtocolIfUnique({ type: values.protocolType })
-    } else if (values.protocolType === 'icmp') {
+    } else if (values.protocolType === 'icmp' || values.protocolType === 'icmp6') {
       // this parse should never fail because we've already validated, but doing
       // it this way keeps the just-in-case early return logic consistent
       const parseResult = parseIcmpType(values.icmpType)
@@ -432,14 +444,15 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
       const icmpType = parseResult.data
       if (icmpType === undefined) {
         // All ICMP types
-        addProtocolIfUnique({ type: 'icmp', value: null })
+        addProtocolIfUnique({ type: values.protocolType, value: null })
       } else {
         // Specific ICMP type
         const icmpValue: VpcFirewallIcmpFilter = { icmpType }
-        if (values.icmpCode) {
-          icmpValue.code = values.icmpCode
+        const icmpCode = values.icmpCode?.trim()
+        if (icmpCode) {
+          icmpValue.code = icmpCode
         }
-        addProtocolIfUnique({ type: 'icmp', value: icmpValue })
+        addProtocolIfUnique({ type: values.protocolType, value: icmpValue })
       }
     }
     protocolForm.reset()
@@ -461,19 +474,27 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
             control={protocolForm.control}
             placeholder=""
             items={protocolTypeItems}
+            // ICMPv4 and ICMPv6 type numbers mean different things, so clear the
+            // selected ICMP type/code when switching protocol. Also clear errors:
+            // setValue doesn't revalidate, so a stale type error would otherwise
+            // linger on the now-empty field.
+            onChange={() => {
+              protocolForm.setValue('icmpType', '')
+              protocolForm.setValue('icmpCode', '')
+              protocolForm.clearErrors(['icmpType', 'icmpCode'])
+            }}
           />
 
-          {selectedProtocolType === 'icmp' && (
+          {(selectedProtocolType === 'icmp' || selectedProtocolType === 'icmp6') && (
             <>
               <ComboboxField
-                label="ICMP type"
+                label={`${PROTOCOL_LABELS[selectedProtocolType]} type`}
                 name="icmpType"
                 control={protocolForm.control}
                 description="Leave blank to match any type"
                 placeholder=""
                 allowArbitraryValues
-                onInputChange={(value) => protocolForm.setValue('icmpType', value)}
-                items={icmpTypeItems}
+                items={icmpTypeItems[selectedProtocolType]}
                 validate={(value) => {
                   const result = parseIcmpType(value)
                   if (!result.success) return result.message
@@ -482,12 +503,12 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
 
               {selectedIcmpType !== undefined && selectedIcmpType !== '' && (
                 <TextField
-                  label="ICMP code"
+                  label={`${PROTOCOL_LABELS[selectedProtocolType]} code`}
                   name="icmpCode"
                   control={protocolForm.control}
                   description={
                     <>
-                      Enter a code (0) or range (e.g. 1&ndash;3). Leave blank for all
+                      Enter a code (0) or range (e.g., 1&ndash;3). Leave blank for all
                       traffic of type {selectedIcmpType}.
                     </>
                   }

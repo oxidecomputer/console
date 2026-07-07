@@ -109,16 +109,22 @@ export function ActionMenu(props: ActionMenuProps) {
                   e.preventDefault()
                   onDismiss()
                 }
-              } else if (e.key === KEYS.down || (e.ctrlKey && e.key === 'n')) {
+              } else if (e.key === KEYS.down) {
                 e.preventDefault()
                 const newIdx = selectedIdx === lastIdx ? 0 : selectedIdx + 1
                 setSelectedIdx(newIdx)
-              } else if (e.key === KEYS.up || (e.ctrlKey && e.key === 'p')) {
+              } else if (e.key === KEYS.up) {
                 e.preventDefault()
                 const newIdx = selectedIdx === 0 ? lastIdx : selectedIdx - 1
                 setSelectedIdx(newIdx)
               }
             }}
+            // Composite combobox: the role lives on this container because arrow-key
+            // navigation over the separate results list is handled here, not on the
+            // <input>. This is the ARIA 1.0 combobox pattern, so the native <input>
+            // the rule suggests can't stand in for the whole widget.
+            // https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
+            // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
             role="combobox"
             tabIndex={-1}
             aria-controls="TODO"
@@ -197,6 +203,11 @@ export function ActionMenu(props: ActionMenuProps) {
                               {isSelected && <Outline />}
                               {typeof action === 'string' ? (
                                 <li
+                                  // role="option" on <li>: a native <option> can't
+                                  // contain a <Link> or custom markup, and <li role="option">
+                                  // is the correct listbox-popup pattern (so the li carrying
+                                  // an interactive role is intentional, not a mistake).
+                                  // eslint-disable-next-line jsx-a11y/prefer-tag-over-role, jsx-a11y/no-noninteractive-element-to-interactive-role
                                   role="option"
                                   className={cn(
                                     liBase,
@@ -221,6 +232,8 @@ export function ActionMenu(props: ActionMenuProps) {
                                 // Keyboard events handled by combobox div above
                                 // eslint-disable-next-line jsx-a11y/click-events-have-key-events
                                 <li
+                                  // role="option" on <li> — same listbox-popup pattern as above
+                                  // eslint-disable-next-line jsx-a11y/prefer-tag-over-role, jsx-a11y/no-noninteractive-element-to-interactive-role
                                   role="option"
                                   className={cn(
                                     liBase,

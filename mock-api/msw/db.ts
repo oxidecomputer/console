@@ -20,7 +20,7 @@ import { commaSeries } from '~/util/str'
 import type { Json } from '../json-type'
 import { projects, type DbProject } from '../project'
 import { defaultSilo, siloSettings } from '../silo'
-import { internalError } from './util'
+import { internalError, invalidRequest } from './util'
 
 export const notFoundErr = (msg: string) => {
   const message = `not found: ${msg}`
@@ -52,7 +52,7 @@ function ensureNoParentSelectors(
     .map(([k]) => k)
   if (keysWithValues.length > 0) {
     const message = `when ${resourceLabel} is specified by ID, ${commaSeries(keysWithValues, 'and')} should not be specified`
-    throw json({ error_code: 'InvalidRequest', message }, { status: 400 })
+    throw invalidRequest(message)
   }
 }
 
@@ -68,14 +68,15 @@ export const resolvePoolSelector = (
     | { pool: string; type: 'explicit' }
     | { type: 'auto'; ip_version?: IpVersion | null }
     | undefined,
-  poolType?: IpPoolType
+  poolType: IpPoolType,
+  siloId: string = defaultSilo.id
 ) => {
   if (poolSelector?.type === 'explicit') {
     return lookup.ipPool({ pool: poolSelector.pool })
   }
 
   // For 'auto' type, find the default pool for the specified IP version and pool type
-  const silo = lookup.silo({ silo: defaultSilo.id })
+  const silo = lookup.silo({ silo: siloId })
   const links = db.ipPoolSilos.filter((ips) => ips.silo_id === silo.id && ips.is_default)
 
   // Filter candidate pools by both IP version and pool type
@@ -83,8 +84,7 @@ export const resolvePoolSelector = (
     const pool = db.ipPools.find((p) => p.id === ips.ip_pool_id)
     if (!pool) return false
 
-    // If poolType specified, filter by it
-    if (poolType && pool.pool_type !== poolType) return false
+    if (pool.pool_type !== poolType) return false
 
     // If IP version specified, filter by it
     if (poolSelector?.ip_version && pool.ip_version !== poolSelector.ip_version) {
@@ -101,20 +101,13 @@ export const resolvePoolSelector = (
     !poolSelector.ip_version &&
     candidateLinks.length > 1
   ) {
-    throw json(
-      {
-        error_code: 'InvalidRequest',
-        message: 'ip_version required when multiple default pools exist',
-      },
-      { status: 400 }
-    )
+    throw invalidRequest('ip_version required when multiple default pools exist')
   }
 
   const link = candidateLinks[0]
   if (!link) {
-    const typeStr = poolType ? ` ${poolType}` : ''
     const versionStr = poolSelector?.ip_version ? ` ${poolSelector.ip_version}` : ''
-    throw notFoundErr(`default${typeStr}${versionStr} pool for silo '${defaultSilo.id}'`)
+    throw notFoundErr(`default ${poolType}${versionStr} pool for silo '${siloId}'`)
   }
   return lookupById(db.ipPools, link.ip_pool_id)
 }
@@ -225,6 +218,24 @@ export const lookup = {
     if (!disk) throw notFoundErr(`disk '${id}'`)
 
     return disk
+  },
+  externalSubnet({
+    externalSubnet: id,
+    ...projectSelector
+  }: Sel.ExternalSubnet): Json<Api.ExternalSubnet> {
+    if (!id) throw notFoundErr('no external subnet specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('external subnet', projectSelector)
+      return lookupById(db.externalSubnets, id)
+    }
+
+    const project = lookup.project(projectSelector)
+    const externalSubnet = db.externalSubnets.find(
+      (s) => s.project_id === project.id && s.name === id
+    )
+    if (!externalSubnet) throw notFoundErr(`external subnet '${id}'`)
+    return externalSubnet
   },
   floatingIp({ floatingIp: id, ...projectSelector }: Sel.FloatingIp): Json<Api.FloatingIp> {
     if (!id) throw notFoundErr('no floating IP specified')
@@ -390,6 +401,61 @@ export const lookup = {
     if (!image) throw notFoundErr(`image '${id}'`)
     return image
   },
+  subnetPool({ subnetPool: id }: Sel.SubnetPool): Json<Api.SiloSubnetPool> {
+    if (!id) throw notFoundErr('no subnet pool specified')
+    if (isUuid(id)) return lookupById(db.subnetPools, id)
+    const pool = db.subnetPools.find((p) => p.name === id)
+    if (!pool) throw notFoundErr(`subnet pool '${id}'`)
+    return pool
+  },
+  defaultSubnetPool(): Json<Api.SiloSubnetPool> {
+    const pool = db.subnetPools.find((p) => p.is_default)
+    if (!pool) throw notFoundErr('no default subnet pool configured')
+    return pool
+  },
+  /** System-scoped subnet pool view (no is_default) */
+  systemSubnetPool({ subnetPool: id }: Sel.SubnetPool): Json<Api.SubnetPool> {
+    const pool = lookup.subnetPool({ subnetPool: id })
+    // Strip is_default for system-scoped view
+    const { is_default: _, ...systemPool } = pool
+    return systemPool
+  },
+  siloSubnetPool(path: Sel.SubnetPool & Sel.Silo): Json<Api.SiloSubnetPool> {
+    const silo = lookup.silo(path)
+    const pool = lookup.subnetPool(path)
+    const link = db.subnetPoolSilos.find(
+      (sps) => sps.subnet_pool_id === pool.id && sps.silo_id === silo.id
+    )
+    if (!link) {
+      throw notFoundErr(`link for subnet pool '${path.subnetPool}' and silo '${path.silo}'`)
+    }
+    return { ...pool, is_default: link.is_default }
+  },
+  siloSubnetPools(path: Sel.Silo): Json<Api.SiloSubnetPool>[] {
+    const silo = lookup.silo(path)
+    return db.subnetPoolSilos
+      .filter((link) => link.silo_id === silo.id)
+      .map((link) => {
+        const pool = db.subnetPools.find((p) => p.id === link.subnet_pool_id)
+        if (!pool) {
+          const linkStr = JSON.stringify(link)
+          const message = `Found subnet pool-silo link without corresponding pool: ${linkStr}`
+          throw json({ message }, { status: 500 })
+        }
+        return { ...pool, is_default: link.is_default }
+      })
+  },
+  subnetPoolSiloLink(path: Sel.SubnetPool & Sel.Silo): Json<Api.SubnetPoolSiloLink> {
+    const pool = lookup.subnetPool(path)
+    const silo = lookup.silo(path)
+    const link = db.subnetPoolSilos.find(
+      (sps) => sps.subnet_pool_id === pool.id && sps.silo_id === silo.id
+    )
+    if (!link) {
+      throw notFoundErr(`link for subnet pool '${path.subnetPool}' and silo '${path.silo}'`)
+    }
+    return link
+  },
   ipPool({ pool: id }: Sel.IpPool): Json<Api.IpPool> {
     if (!id) throw notFoundErr('no pool specified')
 
@@ -543,6 +609,10 @@ const initDb = {
   deviceTokens: [...mock.deviceTokens],
   disks: [...mock.disks],
   diskBulkImportState: new Map<string, DiskBulkImport>(),
+  externalSubnets: [...mock.externalSubnets],
+  subnetPools: [...mock.subnetPools],
+  subnetPoolMembers: [...mock.subnetPoolMembers],
+  subnetPoolSilos: [...mock.subnetPoolSilos],
   floatingIps: [...mock.floatingIps],
   userGroups: [...mock.userGroups],
   /** Join table for `users` and `userGroups` */
@@ -556,7 +626,7 @@ const initDb = {
   ipPools: [...mock.ipPools],
   ipPoolSilos: [...mock.ipPoolSilos],
   ipPoolRanges: [...mock.ipPoolRanges],
-  networkInterfaces: [mock.networkInterface],
+  networkInterfaces: [mock.networkInterface, mock.stoppedInstanceNic],
   physicalDisks: [...mock.physicalDisks],
   projects: [...projects],
   racks: [...mock.racks],

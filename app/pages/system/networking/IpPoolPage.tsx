@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -27,6 +27,7 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
@@ -34,6 +35,11 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
+import {
+  ReplacedDefaultNote,
+  useLinkIpPoolSiloFlow,
+} from '~/pages/system/useLinkPoolSiloFlow'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -42,7 +48,7 @@ import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { BigNum } from '~/ui/lib/BigNum'
+import { UtilizationFraction } from '~/ui/lib/BigNum'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
@@ -57,6 +63,7 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+import { capitalize } from '~/util/str'
 
 const ipPoolView = ({ pool }: PP.IpPool) => q(api.systemIpPoolView, { path: { pool } })
 const ipPoolUtilizationView = ({ pool }: PP.IpPool) =>
@@ -101,6 +108,37 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 export const handle = makeCrumb((p) => p.pool!)
 
+function SiloNameFromId({ value: siloId }: { value: string }) {
+  const { data: silo } = useQuery(q(api.siloView, { path: { silo: siloId } }))
+
+  if (!silo) return <SkeletonCell />
+
+  return <LinkCell to={pb.siloIpPools({ silo: silo.name })}>{silo.name}</LinkCell>
+}
+
+const silosColHelper = createColumnHelper<IpPoolSiloLink>()
+
+const silosCols = [
+  silosColHelper.accessor('siloId', {
+    header: 'Silo',
+    cell: (info) => <SiloNameFromId value={info.getValue()} />,
+  }),
+  silosColHelper.accessor('isDefault', {
+    header: () => {
+      return (
+        <span className="inline-flex items-center gap-2">
+          Silo default
+          <TipIcon>
+            When no pool is specified, IPs are allocated from the silo's default pool for
+            the relevant version and type.
+          </TipIcon>
+        </span>
+      )
+    },
+    cell: (info) => (info.getValue() ? <Badge>default</Badge> : null),
+  }),
+]
+
 export default function IpPoolpage() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
@@ -133,6 +171,7 @@ export default function IpPoolpage() {
               onSelect={confirmDelete({
                 doDelete: () => deletePool({ path: { pool: pool.name } }),
                 label: pool.name,
+                resourceKind: 'IP pool',
               })}
               disabled={
                 !!ranges.items.length &&
@@ -178,9 +217,7 @@ function PoolProperties() {
       </PropertiesTable.Row>
       <PropertiesTable.Row label="IPs remaining">
         <span>
-          <BigNum className="text-raise" num={utilization.remaining} />
-          {' / '}
-          <BigNum className="text-secondary" num={utilization.capacity} />
+          <UtilizationFraction {...utilization} />
         </span>
       </PropertiesTable.Row>
       <PropertiesTable.DateRow date={pool.timeCreated} label="Created" />
@@ -227,7 +264,7 @@ function IpRangesTable() {
                 body: range,
               }),
             errorTitle: 'Could not remove range',
-            modalTitle: 'Confirm remove range',
+            modalTitle: 'Remove range',
             modalContent: (
               <p>
                 Are you sure you want to remove range{' '}
@@ -243,6 +280,13 @@ function IpRangesTable() {
     ],
     [pool, removeRange]
   )
+  useQuickActions(
+    () => [
+      { value: 'Add range', navGroup: 'Actions', action: pb.ipPoolRangeAdd({ pool }) },
+    ],
+    [pool]
+  )
+
   const columns = useColsWithActions(ipRangesStaticCols, makeRangeActions)
   const { table } = useQueryTable({ query: ipPoolRangeList({ pool }), columns, emptyState })
 
@@ -255,16 +299,6 @@ function IpRangesTable() {
     </>
   )
 }
-
-function SiloNameFromId({ value: siloId }: { value: string }) {
-  const { data: silo } = useQuery(q(api.siloView, { path: { silo: siloId } }))
-
-  if (!silo) return <SkeletonCell />
-
-  return <LinkCell to={pb.siloIpPools({ silo: silo.name })}>{silo.name}</LinkCell>
-}
-
-const silosColHelper = createColumnHelper<IpPoolSiloLink>()
 
 /** Look up silo name from query cache and return a label for use in modals. */
 function getSiloLabel(siloId: string) {
@@ -307,7 +341,7 @@ function LinkedSilosTable() {
                   path: { silo: link.siloId, pool: link.ipPoolId },
                   body: { isDefault: false },
                 }),
-              modalTitle: 'Confirm clear default',
+              modalTitle: 'Clear default',
               modalContent: (
                 <p>
                   Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
@@ -357,7 +391,7 @@ function LinkedSilosTable() {
                       path: { silo: link.siloId, pool: link.ipPoolId },
                       body: { isDefault: true },
                     }),
-                  modalTitle: `Confirm ${verb} default`,
+                  modalTitle: `${capitalize(verb)} default`,
                   modalContent,
                   errorTitle: `Could not ${verb} default`,
                   actionType: 'primary',
@@ -376,7 +410,7 @@ function LinkedSilosTable() {
           confirmAction({
             doAction: () =>
               unlinkSilo({ path: { silo: link.siloId, pool: link.ipPoolId } }),
-            modalTitle: 'Confirm unlink silo',
+            modalTitle: 'Unlink silo',
             modalContent: (
               <p>
                 Are you sure you want to unlink {siloLabel} from <HL>{pool.name}</HL>? Users
@@ -395,6 +429,13 @@ function LinkedSilosTable() {
 
   const [showLinkModal, setShowLinkModal] = useState(false)
 
+  useQuickActions(
+    () => [
+      { value: 'Link silo', navGroup: 'Actions', action: () => setShowLinkModal(true) },
+    ],
+    []
+  )
+
   const emptyState = (
     <EmptyMessage
       icon={<IpGlobal24Icon />}
@@ -403,30 +444,6 @@ function LinkedSilosTable() {
       buttonText="Link silo"
       onClick={() => setShowLinkModal(true)}
     />
-  )
-
-  const silosCols = useMemo(
-    () => [
-      silosColHelper.accessor('siloId', {
-        header: 'Silo',
-        cell: (info) => <SiloNameFromId value={info.getValue()} />,
-      }),
-      silosColHelper.accessor('isDefault', {
-        header: () => {
-          return (
-            <span className="inline-flex items-center gap-2">
-              Silo default
-              <TipIcon>
-                When no pool is specified, IPs are allocated from the silo's default pool
-                for the relevant version and type.
-              </TipIcon>
-            </span>
-          )
-        },
-        cell: (info) => (info.getValue() ? <Badge>default</Badge> : null),
-      }),
-    ],
-    []
   )
 
   const columns = useColsWithActions(silosCols, makeActions)
@@ -450,33 +467,49 @@ function LinkedSilosTable() {
 
 type LinkSiloFormValues = {
   silo: string | undefined
+  isDefault: boolean
 }
 
-const defaultValues: LinkSiloFormValues = { silo: undefined }
+const defaultValues: LinkSiloFormValues = { silo: undefined, isDefault: false }
 
 function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   const { pool } = useIpPoolSelector()
+  const { data: poolData } = usePrefetchedQuery(ipPoolView({ pool }))
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  const linkSilo = useApiMutation(api.systemIpPoolSiloLink, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('systemIpPoolSiloList')
-      onDismiss()
-    },
-    onError(err) {
-      addToast({ title: 'Could not link silo', content: err.message, variant: 'error' })
-    },
+  const { linkAndMaybePromote, isPending } = useLinkIpPoolSiloFlow({
+    linkErrorTitle: 'Could not link silo',
+    promoteErrorTitle: 'Silo linked, but pool not set as default',
   })
 
-  function onSubmit({ silo }: LinkSiloFormValues) {
+  async function onSubmit({ silo, isDefault }: LinkSiloFormValues) {
     if (!silo) return // can't happen, silo is required
-    linkSilo.mutate({ path: { pool }, body: { silo, isDefault: false } })
+    const linked = await linkAndMaybePromote({ pool, silo, isDefault })
+    if (!linked) return
+    onDismiss()
   }
 
   const linkedSilos = useQuery(
     q(api.systemIpPoolSiloList, { path: { pool }, query: { limit: ALL_ISH } })
   )
   const allSilos = useQuery(q(api.siloList, { query: { limit: ALL_ISH } }))
+
+  // The pool is fixed here, so its version+type fix the default slot. To warn
+  // that linking as default would replace the selected silo's current default
+  // of that slot, fetch that silo's pools once a silo is picked.
+  const selectedSilo = useWatch({ control, name: 'silo' })
+  const selectedSiloPools = useQuery(
+    getListQFn(
+      api.siloIpPoolList,
+      // silo non-null asserted because the query is disabled until one is picked
+      { path: { silo: selectedSilo! }, query: { limit: ALL_ISH } },
+      { enabled: !!selectedSilo }
+    ).optionsFn()
+  )
+  const replacedDefault = selectedSiloPools.data?.items.find(
+    (p) =>
+      p.isDefault && p.ipVersion === poolData.ipVersion && p.poolType === poolData.poolType
+  )?.name
 
   // in order to get the list of remaining unlinked silos, we have to get the
   // list of all silos and remove the already linked ones
@@ -520,13 +553,22 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
               required
               control={control}
             />
+
+            <CheckboxField name="isDefault" control={control}>
+              {`Make default IP${poolData.ipVersion} ${poolData.poolType} pool for silo`}
+              {replacedDefault && (
+                <ReplacedDefaultNote>
+                  Replaces {replacedDefault}, which stays linked
+                </ReplacedDefaultNote>
+              )}
+            </CheckboxField>
           </form>
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
-        actionLoading={linkSilo.isPending}
+        actionLoading={isPending}
         actionText="Link"
       />
     </Modal>

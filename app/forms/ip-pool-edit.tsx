@@ -7,6 +7,7 @@
  */
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import * as R from 'remeda'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
@@ -40,7 +41,7 @@ export default function EditIpPoolSideModalForm() {
 
   const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
 
-  const form = useForm({ defaultValues: pool })
+  const form = useForm({ defaultValues: R.pick(pool, ['name', 'description']) })
 
   const editPool = useApiMutation(api.systemIpPoolUpdate, {
     onSuccess(updatedPool) {

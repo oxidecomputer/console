@@ -64,7 +64,7 @@ export default function CreateSubnetForm() {
     <SideModalForm
       form={form}
       formType="create"
-      resourceName="subnet"
+      resourceName="VPC subnet"
       onDismiss={onDismiss}
       onSubmit={({ name, description, ipv4Block, ipv6Block, customRouter }) =>
         createSubnet.mutate({

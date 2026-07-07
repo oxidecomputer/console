@@ -26,7 +26,7 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { BigNum } from '~/ui/lib/BigNum'
+import { UtilizationFraction } from '~/ui/lib/BigNum'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -50,8 +50,7 @@ function UtilizationCell({ pool }: { pool: string }) {
   if (!data) return <SkeletonCell />
   return (
     <div>
-      <BigNum className="text-raise" num={data.remaining} /> /{' '}
-      <BigNum className="text-secondary" num={data.capacity} />
+      <UtilizationFraction {...data} />
     </div>
   )
 }
@@ -114,6 +113,7 @@ export default function IpPoolsPage() {
         onActivate: confirmDelete({
           doDelete: () => deletePool({ path: { pool: pool.name } }),
           label: pool.name,
+          resourceKind: 'IP pool',
         }),
       },
     ],

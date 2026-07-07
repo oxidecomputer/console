@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useCallback } from 'react'
-import { useForm, type FieldErrors } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
 import {
@@ -19,7 +18,7 @@ import {
   type IpVersion,
 } from '@oxide/api'
 
-import { TextField } from '~/components/form/fields/TextField'
+import { noPasswordManager, TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useIpPoolSelector } from '~/hooks/use-params'
@@ -35,52 +34,11 @@ const defaultValues: IpRange = {
   last: '',
 }
 
-/**
- * Validates IP range addresses against the pool's IP version.
- * Ensures both addresses are valid IPs and match the pool's version.
- */
-function createResolver(poolVersion: IpVersion) {
-  return (values: IpRange) => {
-    const first = parseIp(values.first)
-    const last = parseIp(values.last)
-
-    const errors: FieldErrors<IpRange> = {}
-
-    // Validate first address matches pool version
-    if (first.type === 'error') {
-      errors.first = { type: 'pattern', message: first.message }
-    } else if (first.type === 'v4' && poolVersion === 'v6') {
-      errors.first = {
-        type: 'pattern',
-        message: 'IPv4 address not allowed in IPv6 pool',
-      }
-    } else if (first.type === 'v6' && poolVersion === 'v4') {
-      errors.first = {
-        type: 'pattern',
-        message: 'IPv6 address not allowed in IPv4 pool',
-      }
-    }
-
-    // Validate last address matches pool version
-    if (last.type === 'error') {
-      errors.last = { type: 'pattern', message: last.message }
-    } else if (last.type === 'v4' && poolVersion === 'v6') {
-      errors.last = {
-        type: 'pattern',
-        message: 'IPv4 address not allowed in IPv6 pool',
-      }
-    } else if (last.type === 'v6' && poolVersion === 'v4') {
-      errors.last = {
-        type: 'pattern',
-        message: 'IPv6 address not allowed in IPv4 pool',
-      }
-    }
-
-    // TODO: if we were really cool we could check first <= last but it would add
-    // 6k gzipped to the bundle with ip-num
-
-    // no errors
-    return Object.keys(errors).length > 0 ? { values: {}, errors } : { values, errors: {} }
+const validateAddress = (value: string, poolVersion: IpVersion) => {
+  const parsed = parseIp(value)
+  if (parsed.type === 'error') return parsed.message
+  if (parsed.type !== poolVersion) {
+    return `IP${parsed.type} address not allowed in IP${poolVersion} pool`
   }
 }
 
@@ -103,13 +61,7 @@ export default function IpPoolAddRange() {
     },
   })
 
-  // Derive pool version at validation time to ensure correct IP version rules
-  const resolver = useCallback(
-    (values: IpRange) => createResolver(poolData?.ipVersion ?? 'v4')(values),
-    [poolData?.ipVersion]
-  )
-
-  const form = useForm({ defaultValues, resolver })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -131,12 +83,16 @@ export default function IpPoolAddRange() {
         description="First address in the range"
         control={form.control}
         required
+        validate={(value) => validateAddress(value, poolData.ipVersion)}
+        {...noPasswordManager}
       />
       <TextField
         name="last"
         description="Last address in the range"
         control={form.control}
         required
+        validate={(value) => validateAddress(value, poolData.ipVersion)}
+        {...noPasswordManager}
       />
       <SideModalFormDocs docs={[docLinks.systemIpPools]} />
     </SideModalForm>

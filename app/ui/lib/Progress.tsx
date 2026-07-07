@@ -19,13 +19,17 @@ export type ProgressProps = {
 
 export const Progress = (props: ProgressProps) => (
   <div
+    // role="progressbar" rather than native <progress>: the native element can't
+    // be styled to match (vendor pseudo-elements only) and can't hold the animated
+    // inner bar below. role="progressbar" is the equivalent ARIA pattern (see link above).
+    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role
     role="progressbar"
     className={cn('bg-accent h-1 rounded-[1px]', props.className)}
     aria-valuenow={Math.round(props.value)}
     {...ariaLabel(props)}
   >
     <div
-      className="bg-accent h-1 rounded-[1px]"
+      className="bg-accent-inverse h-1 rounded-[1px]"
       style={{
         width: `${props.value}%`,
         transition:

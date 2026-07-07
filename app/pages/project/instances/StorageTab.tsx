@@ -28,9 +28,11 @@ import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/State
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { DiskSourceName } from '~/table/cells/DiskSourceCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -40,6 +42,7 @@ import { CardBlock } from '~/ui/lib/CardBlock'
 import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { links } from '~/util/links'
+import { capitalize } from '~/util/str'
 
 import { snapshotDisabledReason } from './common'
 
@@ -98,6 +101,11 @@ export default function StorageTab() {
         cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
       }),
       colHelper.accessor('size', Columns.size),
+      colHelper.accessor((row) => ({ imageId: row.imageId, snapshotId: row.snapshotId }), {
+        id: 'source',
+        header: 'Source',
+        cell: (info) => <DiskSourceName {...info.getValue()} />,
+      }),
       colHelper.accessor((row) => row.state.state, {
         header: 'state',
         cell: (info) => <DiskStateBadge state={info.getValue()} />,
@@ -112,9 +120,6 @@ export default function StorageTab() {
       queryClient.invalidateEndpoint('instanceDiskList')
       // prettier-ignore
       addToast(<>Disk <HL>{disk.name}</HL> detached</>)
-    },
-    onError(err) {
-      addToast({ title: 'Failed to detach disk', content: err.message, variant: 'error' })
     },
   })
   const { mutate: createSnapshot } = useApiMutation(api.snapshotCreate, {
@@ -189,10 +194,11 @@ export default function StorageTab() {
                   memory: instance.memory,
                   autoRestartPolicy: instance.autoRestartPolicy || null,
                   cpuPlatform: instance.cpuPlatform || null,
+                  enableJumboFrames: instance.enableJumboFrames,
                 },
               }),
             errorTitle: 'Could not unset boot disk',
-            modalTitle: 'Confirm unset boot disk',
+            modalTitle: 'Unset boot disk',
             // TODO: copy + link to docs
             modalContent: (
               <div className="space-y-2">
@@ -226,6 +232,7 @@ export default function StorageTab() {
       instance.ncpus,
       instance.memory,
       instance.cpuPlatform,
+      instance.enableJumboFrames,
       getSnapshotAction,
     ]
   )
@@ -254,10 +261,11 @@ export default function StorageTab() {
                   memory: instance.memory,
                   autoRestartPolicy: instance.autoRestartPolicy || null,
                   cpuPlatform: instance.cpuPlatform || null,
+                  enableJumboFrames: instance.enableJumboFrames,
                 },
               }),
             errorTitle: `Could not ${verb} boot disk`,
-            modalTitle: `Confirm ${verb} boot disk`,
+            modalTitle: `${capitalize(verb)} boot disk`,
             modalContent: bootDiskName ? (
               <p>
                 Are you sure you want to change the boot disk to <HL>{disk.name}</HL>?
@@ -289,7 +297,7 @@ export default function StorageTab() {
             doAction: () =>
               detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } }),
             errorTitle: 'Could not detach disk',
-            modalTitle: 'Confirm detach disk',
+            modalTitle: 'Detach disk',
             // prettier-ignore
             modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>,
             actionType: 'danger',
@@ -306,6 +314,7 @@ export default function StorageTab() {
       instance.ncpus,
       instance.memory,
       instance.cpuPlatform,
+      instance.enableJumboFrames,
       getSnapshotAction,
       bootDisks,
     ]
@@ -338,6 +347,26 @@ export default function StorageTab() {
     ),
     getCoreRowModel: getCoreRowModel(),
   })
+
+  const canAttachDisk = instanceCan.attachDisk(instance)
+  useQuickActions(
+    () =>
+      canAttachDisk
+        ? [
+            {
+              value: 'Attach existing disk',
+              navGroup: 'Actions',
+              action: () => setShowDiskAttach(true),
+            },
+            {
+              value: 'Create disk',
+              navGroup: 'Actions',
+              action: () => setShowDiskCreate(true),
+            },
+          ]
+        : [],
+    [canAttachDisk]
+  )
 
   return (
     <div className="space-y-5">

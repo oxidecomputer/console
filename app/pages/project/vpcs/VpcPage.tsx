@@ -60,6 +60,7 @@ export default function VpcPage() {
               onSelect={confirmDelete({
                 doDelete: () => deleteVpc({ path: { vpc: vpcName }, query: { project } }),
                 label: vpcName,
+                resourceKind: 'VPC',
               })}
               className="destructive"
             />
@@ -69,13 +70,15 @@ export default function VpcPage() {
       <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.DescriptionRow description={vpc.description} />
         <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
+        <PropertiesTable.CopyableRow label="IPv6 Prefix" text={vpc.ipv6Prefix} />
         <PropertiesTable.DateRow date={vpc.timeCreated} label="Created" />
+        <PropertiesTable.IdRow id={vpc.id} />
         <PropertiesTable.DateRow date={vpc.timeModified} label="Last Modified" />
       </PropertiesTable>
 
       <RouteTabs fullWidth>
         <Tab to={pb.vpcFirewallRules(vpcSelector)}>Firewall Rules</Tab>
-        <Tab to={pb.vpcSubnets(vpcSelector)}>Subnets</Tab>
+        <Tab to={pb.vpcSubnets(vpcSelector)}>VPC Subnets</Tab>
         <Tab to={pb.vpcRouters(vpcSelector)}>Routers</Tab>
         <Tab to={pb.vpcInternetGateways(vpcSelector)}>Internet Gateways</Tab>
       </RouteTabs>

@@ -65,6 +65,7 @@ export const NumberFieldInner = <
   name,
   label = capitalize(name),
   validate,
+  deps,
   control,
   required,
   id: idProp,
@@ -83,6 +84,7 @@ export const NumberFieldInner = <
     control,
     rules: {
       required,
+      deps,
       // it seems we need special logic to enforce required on NaN
       validate(value, values) {
         if (required && Number.isNaN(value)) return `${label} is required`

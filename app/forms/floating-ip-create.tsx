@@ -25,7 +25,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
-import { toIpPoolItem } from '~/components/IpPoolListboxItem'
+import { toPoolItem } from '~/components/PoolListboxItem'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -103,7 +103,7 @@ export default function CreateFloatingIpSideModalForm() {
         name="pool"
         label="Pool"
         control={form.control}
-        items={sortPools(unicastPools).map(toIpPoolItem)}
+        items={sortPools(unicastPools).map(toPoolItem)}
         required
         placeholder="Select a pool"
         noItemsPlaceholder="No pools available"

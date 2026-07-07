@@ -79,7 +79,7 @@ export default function EditSubnetForm() {
     <SideModalForm
       form={form}
       formType="edit"
-      resourceName="subnet"
+      resourceName="VPC subnet"
       onDismiss={onDismiss}
       onSubmit={(body) => {
         updateSubnet.mutate({

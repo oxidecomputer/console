@@ -30,6 +30,10 @@
 @import '@oxide/design-system/styles/preflight.css' layer(base);
 @import 'simplebar-react/dist/simplebar.min.css' layer(components);
 
+@import '@oxide/design-system/styles/red.css';
+@import '@oxide/design-system/styles/yellow.css';
+@import '@oxide/design-system/styles/blue.css';
+
 @import './fonts.css' layer(base);
 @import './vars.css' layer(base);
 @import './components/button.css' layer(components);
@@ -71,11 +75,11 @@
 
 ::-moz-selection {
   /* Code for Firefox */
-  @apply text-accent bg-accent;
+  @apply bg-accent-inverse/30;
 }
 
 ::selection {
-  @apply text-accent bg-accent;
+  @apply bg-accent-inverse/30;
 }
 
 @custom-variant selected {
@@ -113,7 +117,7 @@
 
 @utility tint-underline {
   text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, currentColor 50%, transparent);
+  text-decoration-color: color-mix(in srgb, currentColor 60%, transparent);
 
   &:hover {
     text-decoration-color: color-mix(in srgb, currentColor 80%, transparent);
@@ -124,6 +128,11 @@
   :root {
     --content-gutter: 2.5rem;
     --top-bar-height: 54px;
+    --sidebar-width: 14.25rem;
+
+    @media (max-width: 767px) {
+      --content-gutter: 1.5rem;
+    }
 
     /* Nicer easing from: https://twitter.com/bdc */
     --ease-in-quad: cubic-bezier(0.55, 0.085, 0.68, 0.53);
@@ -150,8 +159,14 @@
 }
 
 @layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
   body {
-    @apply text-default bg-default overflow-y-hidden font-sans;
+    @apply text-default bg-default font-sans;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
@@ -265,4 +280,8 @@
   .base-ui-disable-scrollbar::-webkit-scrollbar {
     display: none;
   }
+}
+
+.xterm-bold {
+  -webkit-text-stroke: 0.75px currentColor;
 }

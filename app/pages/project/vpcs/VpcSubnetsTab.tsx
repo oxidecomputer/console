@@ -12,6 +12,7 @@ import { Outlet, type LoaderFunctionArgs } from 'react-router'
 import { api, getListQFn, queryClient, useApiMutation, type VpcSubnet } from '@oxide/api'
 
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -35,7 +36,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = { crumb: 'Subnets' }
+export const handle = { crumb: 'VPC Subnets' }
 
 export default function VpcSubnetsTab() {
   const vpcSelector = useVpcSelector()
@@ -44,7 +45,7 @@ export default function VpcSubnetsTab() {
     onSuccess() {
       queryClient.invalidateEndpoint('vpcSubnetList')
       // We only have the ID, so will show a generic confirmation message
-      addToast({ content: 'Subnet deleted' })
+      addToast({ content: 'VPC subnet deleted' })
     },
   })
 
@@ -60,6 +61,7 @@ export default function VpcSubnetsTab() {
         onActivate: confirmDelete({
           doDelete: () => deleteSubnet({ path: { subnet: subnet.id } }),
           label: subnet.name,
+          resourceKind: 'VPC subnet',
         }),
       },
     ],
@@ -90,23 +92,39 @@ export default function VpcSubnetsTab() {
   const emptyState = (
     <EmptyMessage
       title="No VPC subnets"
-      body="Create a subnet to see it here"
-      buttonText="New subnet"
+      body="Create a VPC subnet to see it here"
+      buttonText="New VPC subnet"
       buttonTo={pb.vpcSubnetsNew(vpcSelector)}
     />
   )
 
-  const { table } = useQueryTable({
+  const { table, query } = useQueryTable({
     query: subnetList(vpcSelector),
     columns,
     emptyState,
     rowHeight: 'large',
   })
 
+  useQuickActions(
+    () => [
+      {
+        value: 'New VPC subnet',
+        navGroup: 'Actions',
+        action: pb.vpcSubnetsNew(vpcSelector),
+      },
+      ...(query.data?.items || []).map((s) => ({
+        value: s.name,
+        navGroup: 'Edit VPC subnet',
+        action: pb.vpcSubnetsEdit({ ...vpcSelector, subnet: s.name }),
+      })),
+    ],
+    [vpcSelector, query.data]
+  )
+
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <CreateLink to={pb.vpcSubnetsNew(vpcSelector)}>New subnet</CreateLink>
+        <CreateLink to={pb.vpcSubnetsNew(vpcSelector)}>New VPC subnet</CreateLink>
       </div>
       {table}
       <Outlet />

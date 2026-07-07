@@ -63,7 +63,7 @@ import { SshKeysField } from '~/components/form/fields/SshKeysField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
-import { toIpPoolItem } from '~/components/IpPoolListboxItem'
+import { toPoolItem } from '~/components/PoolListboxItem'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
@@ -115,7 +115,7 @@ const getBootDiskAttachment = (
       diskSource: {
         type: 'image',
         imageId: source,
-        readOnly: false,
+        readOnly: values.bootDiskReadOnly,
       },
     },
   }
@@ -335,7 +335,7 @@ function EphemeralIpCheckbox({
         <ListboxField
           name={poolFieldName}
           control={control}
-          items={pools.map(toIpPoolItem)}
+          items={pools.map(toPoolItem)}
           disabled={isSubmitting}
           required={checked}
           hideOptionalTag
@@ -510,8 +510,6 @@ export default function CreateInstanceForm() {
           }
         }}
       />
-      {/* Read-only disk creation disabled pending propolis fix
-          https://github.com/oxidecomputer/console/issues/3071
       <div key="divider3" className="my-6! content-['a']" />
       <CheckboxField
         key="bootDiskReadOnly"
@@ -521,7 +519,6 @@ export default function CreateInstanceForm() {
       >
         Make disk read-only
       </CheckboxField>
-      */}
     </>
   )
 

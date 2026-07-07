@@ -7,7 +7,7 @@
  */
 import { expect, test, type Page } from '@playwright/test'
 
-import { expectNotVisible } from './utils'
+import { expectNotVisible, getPageAsUser, stopInstance } from './utils'
 
 const openActionMenu = async (page: Page) => {
   // open the action menu (use the sidenav button, as keyboard events aren't reliable in Playwright)
@@ -27,30 +27,6 @@ test('Enter key does not prematurely submit a linked form', async ({ page }) => 
   await expect(page.getByRole('dialog', { name: 'Create silo' })).toBeVisible()
   // make sure error text is not visible
   await expectNotVisible(page, [page.getByText('Name is required')])
-})
-
-test('Ctrl+N/P navigate up and down', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances')
-  await openActionMenu(page)
-
-  // wait for instance list to load so the items don't shift mid-test
-  await expect(page.getByRole('option', { name: 'db1' })).toBeVisible()
-
-  const selected = getSelectedItem(page)
-  // first item is selected by default
-  await expect(selected).toHaveText('New instance')
-
-  // Ctrl+N moves down
-  await page.keyboard.press('Control+n')
-  await expect(selected).toHaveText('db1')
-
-  // Ctrl+P moves back up
-  await page.keyboard.press('Control+p')
-  await expect(selected).toHaveText('New instance')
-
-  // Ctrl+N again gets the same second item
-  await page.keyboard.press('Control+n')
-  await expect(selected).toHaveText('db1')
 })
 
 test('Arrow keys navigate up and down', async ({ page }) => {
@@ -130,4 +106,72 @@ test('dismiss with Escape', async ({ page }) => {
 
   await page.keyboard.press('Escape')
   await expect(page.getByText('Enterto submit')).toBeHidden()
+})
+
+test('router quick action "New route" hidden for system router, visible for custom', async ({
+  page,
+}) => {
+  // system router: action should not appear
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-system-router')
+  await openActionMenu(page)
+  await expect(page.getByRole('option', { name: 'New route' })).toBeHidden()
+  await page.keyboard.press('Escape')
+
+  // custom router: action should appear
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
+  await openActionMenu(page)
+  await expect(page.getByRole('option', { name: 'New route' })).toBeVisible()
+})
+
+test('storage tab quick actions hidden when instance running, visible when stopped', async ({
+  page,
+}) => {
+  await page.goto('/projects/mock-project/instances/db1/storage')
+  await openActionMenu(page)
+  // running: disk actions not available
+  await expect(page.getByRole('option', { name: 'Attach existing disk' })).toBeHidden()
+  await expect(page.getByRole('option', { name: 'Create disk' })).toBeHidden()
+  await page.keyboard.press('Escape')
+
+  await stopInstance(page)
+  await openActionMenu(page)
+  await expect(page.getByRole('option', { name: 'Attach existing disk' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'Create disk' })).toBeVisible()
+})
+
+test('networking tab quick actions: NIC gated by run state, IPs/subnets by availability', async ({
+  page,
+}) => {
+  await page.goto('/projects/mock-project/instances/db1')
+  await page.getByRole('tab', { name: 'Networking' }).click()
+  await openActionMenu(page)
+  // running: NIC creation unavailable
+  await expect(page.getByRole('option', { name: 'Add network interface' })).toBeHidden()
+  // floating IP, ephemeral IP, and external subnet all have available resources
+  await expect(page.getByRole('option', { name: 'Attach floating IP' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'Attach ephemeral IP' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'Attach external subnet' })).toBeVisible()
+  await page.keyboard.press('Escape')
+
+  await stopInstance(page)
+  await page.getByRole('tab', { name: 'Networking' }).click()
+  await openActionMenu(page)
+  await expect(page.getByRole('option', { name: 'Add network interface' })).toBeVisible()
+})
+
+test('SCIM tab quick action "Create token" visible when permitted, hidden when not', async ({
+  page,
+  browser,
+}) => {
+  // default session (fleet admin): action should appear
+  await page.goto('/system/silos/maze-war/scim')
+  await openActionMenu(page)
+  await expect(page.getByRole('option', { name: 'Create token' })).toBeVisible()
+  await page.keyboard.press('Escape')
+
+  // Jane Austen: fleet viewer, not silo admin on maze-war — gets 403, action should not appear
+  const janeAustenPage = await getPageAsUser(browser, 'Jane Austen')
+  await janeAustenPage.goto('/system/silos/maze-war/scim')
+  await openActionMenu(janeAustenPage)
+  await expect(janeAustenPage.getByRole('option', { name: 'Create token' })).toBeHidden()
 })

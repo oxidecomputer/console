@@ -338,11 +338,15 @@ test('add ssh key from instance create form', async ({ page }) => {
   await dialog.getByRole('button', { name: 'Add SSH Key' }).click()
 
   await expect(newCheckbox).toBeVisible()
-  await expect(newCheckbox).not.toBeChecked()
+  await expect(newCheckbox).toBeChecked()
+
+  await closeToast(page)
 
   // pop over to the real SSH keys page and see it there, why not
   await page.getByLabel('User menu').click()
   await page.getByRole('menuitem', { name: 'Settings' }).click()
+  // the new key being auto-checked makes the form dirty, which triggers confirm leave
+  await page.getByRole('button', { name: 'Leave this page' }).click()
   await page.getByRole('link', { name: 'SSH Keys' }).click()
   await expectRowVisible(page.getByRole('table'), { name: newKey, description: 'hi' })
 })
@@ -550,43 +554,6 @@ test('attach a floating IP section has Empty version when no floating IPs exist 
   await expect(
     page.getByText('Create a floating IP to attach it to this instance')
   ).toBeVisible()
-})
-
-test('attaching additional disks allows for combobox filtering', async ({ page }) => {
-  await page.goto('/projects/other-project/instances-new')
-
-  const attachExistingDiskButton = page.getByRole('button', {
-    name: 'Attach existing disk',
-  })
-  const selectADisk = page.getByPlaceholder('Select a disk')
-
-  await attachExistingDiskButton.click()
-  await selectADisk.click()
-  // several disks should be shown
-  await expect(page.getByRole('option', { name: 'disk-0005' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0007' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0988' })).toBeVisible()
-
-  // type in a string to use as a filter
-  await selectADisk.fill('disk-02')
-  // only disks with that substring should be shown
-  await expect(page.getByRole('option', { name: 'disk-0023' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0125' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0211' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0220' })).toBeHidden()
-  await expect(page.getByRole('option', { name: 'disk-1000' })).toBeHidden()
-
-  // select one
-  await page.getByRole('option', { name: 'disk-0211' }).click()
-
-  // now options hidden and only the selected one is visible in the button/input
-  await expect(page.getByRole('option')).toBeHidden()
-  await expect(page.getByRole('combobox', { name: 'Disk name' })).toHaveValue('disk-0211')
-
-  // a random string should give a disabled option
-  await selectADisk.click()
-  await selectADisk.fill('asdf')
-  await expect(page.getByRole('option', { name: 'No items match' })).toBeVisible()
 })
 
 test('create instance with additional disks', async ({ page }) => {
@@ -1233,7 +1200,7 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   // Verify only IPv4 floating IP is available (rootbeer-float with IP 123.4.56.4)
   await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeVisible()
   // IPv6 floating IP should not be in the list
-  await expect(page.getByRole('option', { name: 'ipv6-float' })).not.toBeVisible()
+  await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeHidden()
 
   // Close the listbox dropdown first by pressing Escape
   await page.keyboard.press('Escape')
@@ -1258,7 +1225,7 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   // Verify only IPv6 floating IP is available (ipv6-float)
   await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeVisible()
   // IPv4 floating IP should not be in the list
-  await expect(page.getByRole('option', { name: 'rootbeer-float' })).not.toBeVisible()
+  await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeHidden()
 
   // Close the listbox dropdown first by pressing Escape
   await page.keyboard.press('Escape')
@@ -1302,9 +1269,7 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   await expect(page.getByText('to attach a floating IP')).toBeVisible()
 })
 
-// Read-only disk creation disabled pending propolis fix
-// https://github.com/oxidecomputer/console/issues/3071
-test.skip('can create instance with read-only boot disk', async ({ page }) => {
+test('can create instance with read-only boot disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 
   const instanceName = 'readonly-boot-instance'

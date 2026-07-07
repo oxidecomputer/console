@@ -1,0 +1,38 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { useQuery } from '@tanstack/react-query'
+
+import { api, qErrorsAllowed } from '~/api'
+import { Tooltip } from '~/ui/lib/Tooltip'
+
+import { EmptyCell, SkeletonCell } from './EmptyCell'
+
+export const SubnetPoolCell = ({ subnetPoolId }: { subnetPoolId: string }) => {
+  const { data: result } = useQuery(
+    qErrorsAllowed(
+      api.subnetPoolView,
+      { path: { pool: subnetPoolId } },
+      {
+        errorsExpected: {
+          explanation: 'the referenced subnet pool may have been deleted.',
+          statusCode: 404,
+        },
+      }
+    )
+  )
+  if (!result) return <SkeletonCell />
+  // Defensive: the error case should never happen in practice. It should not be
+  // possible for a resource to reference a pool without that pool existing.
+  if (result.type === 'error') return <EmptyCell />
+  const pool = result.data
+  return (
+    <Tooltip content={pool.description} placement="right">
+      <span>{pool.name}</span>
+    </Tooltip>
+  )
+}

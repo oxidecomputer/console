@@ -85,9 +85,6 @@ export const AttachFloatingIpModal = ({
       addToast(<>IP <HL>{floatingIp.name}</HL> attached</>)
       onDismiss()
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
   })
   const form = useForm({ defaultValues: { floatingIp: '' } })
   const floatingIp = form.watch('floatingIp')
@@ -106,7 +103,7 @@ export const AttachFloatingIpModal = ({
           body: { kind: 'instance', parent: instance.id },
         })
       }
-      submitDisabled={!floatingIp}
+      submitDisabled={!floatingIp ? 'Select a floating IP' : undefined}
     >
       <Message
         variant="info"
