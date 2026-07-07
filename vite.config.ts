@@ -110,8 +110,6 @@ export default defineConfig(({ mode }) => ({
     'process.env.SHA': JSON.stringify(process.env.SHA),
     // used by MSW — number for % likelihood of API request failure (decimals allowed)
     'process.env.CHAOS': JSON.stringify(mode !== 'production' && process.env.CHAOS),
-    // skip artificial delays in mock API handlers (used by e2e tests)
-    'process.env.FAST_MOCK': JSON.stringify(!!process.env.FAST_MOCK),
   },
   plugins: [
     tailwindcss(),

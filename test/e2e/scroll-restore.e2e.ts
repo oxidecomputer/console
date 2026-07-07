@@ -30,9 +30,9 @@ test('scroll restore', async ({ page }) => {
   await expectScrollTop(page, 143)
 
   // sleep required to get the scroll position to stick
-  await sleep(500)
+  await sleep(1000)
   await scrollTo(page, 190)
-  await sleep(500)
+  await sleep(1000)
 
   // new nav to snapshots via click, scroll it
   await page.getByRole('link', { name: 'Snapshots' }).click()
@@ -42,7 +42,7 @@ test('scroll restore', async ({ page }) => {
   // back to disks, newer scroll value is restored
   await page.goBack()
   await expect(page).toHaveURL('/projects/mock-project/disks')
-  await sleep(500)
+  await sleep(1000)
   await expectScrollTop(page, 190)
 
   // forward to snapshots, scroll is 0 (fresh nav)

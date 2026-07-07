@@ -202,7 +202,7 @@ export async function closeToast(page: Page) {
   // we don't have time to close the first one. Without first(), this errors out
   // because there are two toasts.
   await page.getByRole('button', { name: 'Dismiss notification' }).first().click()
-  await sleep(500)
+  await sleep(1000)
 }
 
 /**

@@ -23,7 +23,7 @@ export default {
   fullyParallel: true,
   // default is 5 seconds. somehow playwright really hates async route modules,
   // takes a long time to load them. https://playwright.dev/docs/test-timeouts
-  expect: { timeout: 7000 },
+  expect: { timeout: 10_000 },
   // Local runs also emit a compact plain-text failure report to .e2e-logs/
   // (timestamped per run, last 10 kept) via test/e2e/compact-reporter.ts, so
   // an LLM agent can read the failures.
@@ -65,7 +65,7 @@ export default {
   ],
   // use different port so it doesn't conflict with local dev server
   webServer: {
-    command: 'FAST_MOCK=1 npm run start:msw -- --port 4009',
+    command: 'npm run start:msw -- --port 4009',
     port: 4009,
   },
 } satisfies PlaywrightTestConfig

@@ -109,7 +109,7 @@ jobs:
     name: Playwright
     if: always()
     needs: playwright
-    runs-on: macos-15-xlarge
+    runs-on: ubuntu-latest
     steps:
       - run: |
           if [ "${{ needs.playwright.result }}" = "success" ]; then

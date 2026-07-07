@@ -77,8 +77,8 @@ export async function startMockAPI() {
 
   // defined in here because it depends on the dynamic import
   const interceptAll = http.all('/v1/*', async () => {
-    // random delay on all requests to simulate a real API (shorter in e2e)
-    await sleep(process.env.FAST_MOCK ? randInt(50, 150) : randInt(200, 400))
+    // random delay on all requests to simulate a real API
+    await sleep(randInt(200, 400))
 
     if (shouldFail(chaos)) {
       // special header lets client indicate chaos failures so we don't get confused
