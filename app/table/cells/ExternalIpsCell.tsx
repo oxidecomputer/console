@@ -21,7 +21,15 @@ import type * as PP from '~/util/path-params'
 // https://github.com/oxidecomputer/omicron/issues/4317
 export function ExternalIpsCell({ project, instance }: PP.Instance) {
   const { data, isPending } = useQuery(
-    q(api.instanceExternalIpList, { path: { instance }, query: { project } })
+    q(
+      api.instanceExternalIpList,
+      { path: { instance }, query: { project } },
+      // The instance may have just been deleted while its row is still
+      // rendered (e.g., delete invalidates this list concurrently with the
+      // instance list). This prevents a 404 from taking down the whole
+      // table. Instead, the cell will just render as empty.
+      { throwOnError: false }
+    )
   )
   if (isPending) return <SkeletonCell />
 
