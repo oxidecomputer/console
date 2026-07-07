@@ -336,13 +336,27 @@ async function ensureSchema(
   return schemaPath
 }
 
+const OXFMT_CONFIG = '/tmp/api-diff/oxfmt.json'
+
+/**
+ * ensureClient runs for base and head in parallel, so install its npx deps
+ * once up front — concurrent npx installs of the same package race the npm
+ * cache and each prompt for confirmation. --yes skips the install prompt.
+ */
+async function ensureClientTools() {
+  await $`npx --yes --package @oxide/openapi-gen-ts@latest --package oxfmt true`
+  await $`mkdir -p /tmp/api-diff`
+  // an explicit (empty) config silences oxfmt's "No config found" warning
+  await Deno.writeTextFile(OXFMT_CONFIG, '{}\n')
+}
+
 async function ensureClient(schemaPath: string, force: boolean) {
   const dir = schemaPath.replace(/\/spec\.json$/, '')
   const clientPath = `${dir}/Api.ts`
   if (force || !(await exists(clientPath))) {
     console.error(`Generating client...`)
-    await $`npx @oxide/openapi-gen-ts@latest ${schemaPath} ${dir}`
-    await $`npx oxfmt ${dir}`
+    await $`npx --yes @oxide/openapi-gen-ts@latest ${schemaPath} ${dir}`
+    await $`npx --yes oxfmt -c ${OXFMT_CONFIG} ${dir}`
   }
   return clientPath
 }
@@ -427,6 +441,7 @@ Dependencies:
       if (options.format === 'schema') {
         await runDiff(baseSchema, headSchema, target.baseSchema, target.headSchema)
       } else {
+        await ensureClientTools()
         const [baseClient, headClient] = await Promise.all([
           ensureClient(baseSchema, force),
           ensureClient(headSchema, force),
