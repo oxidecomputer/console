@@ -27,7 +27,10 @@ export default {
   // Local runs also emit a compact plain-text failure report to .e2e-logs/
   // (timestamped per run, last 10 kept) via test/e2e/compact-reporter.ts, so
   // an LLM agent can read the failures.
-  reporter: process.env.CI ? 'list' : [['list'], ['./test/e2e/compact-reporter.ts']],
+  // blob reports from sharded CI runs get merged into one HTML report in CI
+  reporter: process.env.CI
+    ? [['list'], ['blob']]
+    : [['list'], ['./test/e2e/compact-reporter.ts']],
   use: {
     trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
     baseURL: 'http://localhost:4009',
