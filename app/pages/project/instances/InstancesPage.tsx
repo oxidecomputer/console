@@ -26,6 +26,7 @@ import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { RefreshButton } from '~/components/RefreshButton'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
+import { ExternalIpsCell } from '~/table/cells/ExternalIpsCell'
 import { InstanceStateCell } from '~/table/cells/InstanceStateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
@@ -67,13 +68,23 @@ const instanceList = (
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
-  await queryClient.prefetchQuery(instanceList(project).optionsFn())
+  const instances = await queryClient.fetchQuery(instanceList(project).optionsFn())
+  // Warm the external IP cache for each instance in parallel as the route loads,
+  // but don't block render on them: ExternalIpsCell reads with useQuery and shows
+  // a skeleton until its list arrives. This keeps the page responsive no matter
+  // how many instances there are.
+  for (const { name: instance } of instances.items) {
+    queryClient.prefetchQuery(
+      q(api.instanceExternalIpList, { path: { instance }, query: { project } })
+    )
+  }
   return null
 }
 
 const refetchInstances = () =>
   Promise.all([
     queryClient.invalidateEndpoint('instanceList'),
+    queryClient.invalidateEndpoint('instanceExternalIpList'),
     queryClient.invalidateEndpoint('antiAffinityGroupMemberList'),
   ])
 
@@ -120,6 +131,13 @@ export default function InstancesPage() {
             </>
           )
         },
+      }),
+      colHelper.display({
+        id: 'externalIps',
+        header: 'External IPs',
+        cell: (info) => (
+          <ExternalIpsCell project={project} instance={info.row.original.name} />
+        ),
       }),
       colHelper.accessor(
         (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),

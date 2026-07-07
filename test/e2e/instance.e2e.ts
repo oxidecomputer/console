@@ -38,6 +38,34 @@ test('can delete a failed instance', async ({ page }) => {
   await expect(cell).toBeHidden() // bye
 })
 
+test('shows external IPs on the instances table', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  const table = page.getByRole('table')
+
+  // db1 has a floating IP (123.4.56.5, sorted first) and an ephemeral one, so it
+  // shows the first plus a +1 overflow
+  await expectRowVisible(table, {
+    name: 'db1',
+    'External IPs': expect.stringMatching(/123\.4\.56\.5.*\+1/),
+  })
+  // only the leading IP is copyable; the overflow IPs live in the tooltip
+  await expect(
+    table.getByRole('row', { name: 'db1' }).getByRole('button', { name: 'Click to copy' })
+  ).toHaveCount(1)
+  // hovering the +1 reveals the other external IP in a tooltip
+  await table.getByRole('row', { name: 'db1' }).getByText('+1').hover()
+  await expect(page.getByText('Other external IPs')).toBeVisible()
+  await expect(page.getByText('123.4.56.0')).toBeVisible()
+
+  // not-there-yet has three ephemeral IPs, so it shows the first plus a +2 overflow
+  await expect(
+    table.getByRole('row', { name: 'not-there-yet' }).getByText('+2')
+  ).toBeVisible()
+
+  // you-fail has only a SNAT IP, which is excluded, so the cell is empty
+  await expectRowVisible(table, { name: 'you-fail', 'External IPs': '—' })
+})
+
 test('can start a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
 
