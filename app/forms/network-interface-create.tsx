@@ -79,7 +79,7 @@ export function CreateNetworkInterfaceForm({
     name: '',
     description: '',
     subnetName: '',
-    vpcName: vpcs.length > 0 ? vpcs[0].name : '',
+    vpcName: vpcs.length === 1 ? vpcs[0].name : '',
     ipStackType: 'dual_stack',
     ipv4: '',
     ipv6: '',
