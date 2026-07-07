@@ -117,10 +117,7 @@ export default function EditIdpSideModalForm() {
         control={form.control}
         disabled
       />
-      <SideModalFormDocs
-        docs={[docLinks.identityProviders]}
-        apiOp="saml_identity_provider_view"
-      />
+      <SideModalFormDocs docs={[docLinks.identityProviders]} />
     </ReadOnlySideModalForm>
   )
 }

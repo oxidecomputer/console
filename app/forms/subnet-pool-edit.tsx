@@ -75,7 +75,11 @@ export default function EditSubnetPoolSideModalForm() {
       <SubnetPoolVisibilityMessage />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <SideModalFormDocs docs={[docLinks.subnetPools]} />
+      <SideModalFormDocs
+        docs={[docLinks.subnetPools]}
+        apiOp="system_subnet_pool_update"
+        cliCmd="system/networking/subnet-pool/update"
+      />
     </SideModalForm>
   )
 }

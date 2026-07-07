@@ -201,11 +201,7 @@ export default function EditInternetGatewayForm() {
         </Table>
       </div>
 
-      <SideModalFormDocs
-        docs={[docLinks.gateways]}
-        apiOp="internet_gateway_view"
-        cliCmd="internet-gateway/view"
-      />
+      <SideModalFormDocs docs={[docLinks.gateways]} />
     </ReadOnlySideModalForm>
   )
 }

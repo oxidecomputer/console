@@ -71,7 +71,11 @@ export default function CreateSubnetPoolSideModalForm() {
           { value: 'v6', label: 'v6' },
         ]}
       />
-      <SideModalFormDocs docs={[docLinks.subnetPools]} />
+      <SideModalFormDocs
+        docs={[docLinks.subnetPools]}
+        apiOp="system_subnet_pool_create"
+        cliCmd="system/networking/subnet-pool/create"
+      />
     </SideModalForm>
   )
 }
