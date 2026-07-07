@@ -87,7 +87,7 @@ test('IP pool silo list', async ({ page }) => {
 
   // unlink silo and the row is gone
   await clickRowAction(page, 'maze-war', 'Unlink')
-  await expect(page.getByRole('dialog', { name: 'Confirm unlink' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Unlink silo' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(siloLink).toBeHidden()
 })
@@ -114,14 +114,50 @@ test('IP pool link silo', async ({ page }) => {
   await page.getByRole('button', { name: 'Link silo' }).click()
   await expect(modal).toBeVisible()
 
-  // select silo in combobox and click link (thrax is not yet linked to ip-pool-1)
+  // select silo in combobox (thrax is not yet linked to ip-pool-1)
   await page.getByPlaceholder('Select a silo').fill('t')
   await page.getByRole('option', { name: 'thrax' }).click()
+
+  // checkbox label reflects the pool's version and type; check it to link as default
+  await page
+    .getByRole('checkbox', { name: 'Make default IPv4 unicast pool for silo' })
+    .check()
+
   await modal.getByRole('button', { name: 'Link' }).click()
 
-  // modal closes and we see the thing in the table
+  // modal closes and we see the silo linked as default in the table
   await expect(modal).toBeHidden()
-  await expectRowVisible(table, { Silo: 'thrax', 'Silo default': '' })
+  await expectRowVisible(table, { Silo: 'thrax', 'Silo default': 'default' })
+})
+
+test('IP pool link silo as default replaces existing default', async ({ page }) => {
+  // ip-pool-3 is v4 unicast and linked only to myriad, so maze-war is selectable
+  await page.goto('/system/networking/ip-pools/ip-pool-3?tab=silos')
+
+  const modal = page.getByRole('dialog', { name: 'Link silo' })
+  await page.getByRole('button', { name: 'Link silo' }).click()
+  await expect(modal).toBeVisible()
+
+  // maze-war already has a v4 unicast default (ip-pool-1)
+  await page.getByPlaceholder('Select a silo').fill('maze')
+  await page.getByRole('option', { name: 'maze-war' }).click()
+
+  // the modal fetches the selected silo's pools to name the pool that making
+  // ip-pool-3 the default would demote (it stays linked)
+  await expect(page.getByText('Replaces ip-pool-1, which stays linked')).toBeVisible()
+
+  // checking the box links ip-pool-3 to maze-war and promotes it in one go; seeing
+  // it as the silo default confirms the promote (the link itself is non-default)
+  await page
+    .getByRole('checkbox', { name: 'Make default IPv4 unicast pool for silo' })
+    .check()
+  await modal.getByRole('button', { name: 'Link' }).click()
+
+  await expect(modal).toBeHidden()
+  await expectRowVisible(page.getByRole('table'), {
+    Silo: 'maze-war',
+    'Silo default': 'default',
+  })
 })
 
 test('IP pool silo make default (no existing default)', async ({ page }) => {
@@ -133,7 +169,7 @@ test('IP pool silo make default (no existing default)', async ({ page }) => {
 
   await clickRowAction(page, 'pelerines', 'Make default')
 
-  const dialog = page.getByRole('dialog', { name: 'Confirm make default' })
+  const dialog = page.getByRole('dialog', { name: 'Make default' })
   await expect(
     dialog.getByText(
       'Are you sure you want to make ip-pool-1 the default IPv4 unicast pool for silo pelerines?'
@@ -153,7 +189,7 @@ test('IP pool silo make default (with existing default)', async ({ page }) => {
 
   await clickRowAction(page, 'myriad', 'Make default')
 
-  const dialog = page.getByRole('dialog', { name: 'Confirm change default' })
+  const dialog = page.getByRole('dialog', { name: 'Change default' })
   await expect(
     dialog.getByText(
       'Are you sure you want to change the default IPv4 unicast pool for silo myriad from ip-pool-1 to ip-pool-3?'
@@ -172,7 +208,7 @@ test('IP pool silo clear default', async ({ page }) => {
 
   await clickRowAction(page, 'maze-war', 'Clear default')
 
-  const dialog = page.getByRole('dialog', { name: 'Confirm clear default' })
+  const dialog = page.getByRole('dialog', { name: 'Clear default' })
   await expect(
     dialog.getByText(
       'Are you sure you want ip-pool-1 to stop being the default IPv4 unicast pool for silo maze-war?'
@@ -188,19 +224,19 @@ test('IP pool delete from IP Pools list page', async ({ page }) => {
 
   // can't delete a pool containing ranges
   await clickRowAction(page, 'ip-pool-1', 'Delete')
-  await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Delete IP pool' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expectToast(
     page,
-    'Could not delete resourceIP pool cannot be deleted while it contains IP ranges'
+    'Could not delete IP poolIP pool cannot be deleted while it contains IP ranges'
   )
 
   await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeVisible()
 
   // can delete a pool with no ranges
   await clickRowAction(page, 'ip-pool-3', 'Delete')
-  await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Delete IP pool' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeHidden()
@@ -216,7 +252,7 @@ test('IP pool delete from IP Pool view page', async ({ page }) => {
   await page.goto('/system/networking/ip-pools/ip-pool-3')
   await page.getByRole('button', { name: 'IP pool actions' }).click()
   await page.getByRole('menuitem', { name: 'Delete' }).click()
-  await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Delete IP pool' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   // get redirected back to the list after successful delete
@@ -375,7 +411,7 @@ test('remove range', async ({ page }) => {
 
   await clickRowAction(page, '10.0.0.20', 'Remove')
 
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm remove range' })
+  const confirmModal = page.getByRole('dialog', { name: 'Remove range' })
   await expect(confirmModal.getByText('range 10.0.0.20–10.0.0.22')).toBeVisible()
 
   await page.getByRole('button', { name: 'Cancel' }).click()

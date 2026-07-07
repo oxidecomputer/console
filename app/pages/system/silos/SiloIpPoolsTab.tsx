@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -24,11 +24,16 @@ import {
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
+import {
+  ReplacedDefaultNote,
+  useLinkIpPoolSiloFlow,
+} from '~/pages/system/useLinkPoolSiloFlow'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { LinkCell } from '~/table/cells/LinkCell'
@@ -43,6 +48,7 @@ import { Modal } from '~/ui/lib/Modal'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
+import { capitalize } from '~/util/str'
 
 function toIpPoolComboboxItem(p: IpPool): ComboboxItem {
   return {
@@ -177,7 +183,7 @@ export default function SiloIpPoolsTab() {
                   path: { silo, pool: pool.id },
                   body: { isDefault: false },
                 }),
-              modalTitle: 'Confirm clear default',
+              modalTitle: 'Clear default',
               modalContent: (
                 <p>
                   Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
@@ -209,7 +215,7 @@ export default function SiloIpPoolsTab() {
                   path: { silo, pool: pool.id },
                   body: { isDefault: true },
                 }),
-              modalTitle: `Confirm ${verb} default`,
+              modalTitle: `${capitalize(verb)} default`,
               modalContent,
               errorTitle: `Could not ${verb} default`,
               actionType: 'primary',
@@ -223,7 +229,7 @@ export default function SiloIpPoolsTab() {
         onActivate() {
           confirmAction({
             doAction: () => unlinkPool({ path: { silo, pool: pool.id } }),
-            modalTitle: `Confirm unlink pool`,
+            modalTitle: 'Unlink pool',
             modalContent: (
               <p>
                 Are you sure you want to unlink <HL>{pool.name}</HL>? Users in this silo
@@ -262,32 +268,42 @@ export const handle = makeCrumb('IP Pools')
 
 type LinkPoolFormValues = {
   pool: string | undefined
+  isDefault: boolean
 }
 
-const defaultValues: LinkPoolFormValues = { pool: undefined }
+const defaultValues: LinkPoolFormValues = { pool: undefined, isDefault: false }
 
 function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  const linkPool = useApiMutation(api.systemIpPoolSiloLink, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('siloIpPoolList')
-      queryClient.invalidateEndpoint('systemIpPoolSiloList')
-      onDismiss()
-    },
-    onError(err) {
-      addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })
-    },
+  const { linkAndMaybePromote, isPending } = useLinkIpPoolSiloFlow({
+    linkErrorTitle: 'Could not link pool',
+    promoteErrorTitle: 'Pool linked, but not set as default',
   })
 
-  function onSubmit({ pool }: LinkPoolFormValues) {
-    if (!pool) return // can't happen, silo is required
-    linkPool.mutate({ path: { pool }, body: { silo, isDefault: false } })
+  async function onSubmit({ pool, isDefault }: LinkPoolFormValues) {
+    if (!pool) return // can't happen, pool is required
+    const linked = await linkAndMaybePromote({ pool, silo, isDefault })
+    if (!linked) return
+    onDismiss()
   }
 
   const allLinkedPools = useQuery(allSiloPoolsQuery(silo).optionsFn())
   const allPools = useQuery(allPoolsQuery.optionsFn())
+
+  // The selected pool's version+type determine which default slot the checkbox
+  // fills, and whether linking as default would replace an existing default.
+  const selectedPoolName = useWatch({ control, name: 'pool' })
+  const selectedPool = allPools.data?.items.find((p) => p.name === selectedPoolName)
+  const replacedDefault =
+    selectedPool &&
+    allLinkedPools.data?.items.find(
+      (p) =>
+        p.isDefault &&
+        p.ipVersion === selectedPool.ipVersion &&
+        p.poolType === selectedPool.poolType
+    )?.name
 
   // in order to get the list of remaining unlinked pools, we have to get the
   // list of all pools and remove the already linked ones
@@ -333,6 +349,17 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
               required
               control={control}
             />
+
+            <CheckboxField name="isDefault" control={control}>
+              {selectedPool
+                ? `Make default IP${selectedPool.ipVersion} ${selectedPool.poolType} pool for silo`
+                : 'Make default pool for silo'}
+              {replacedDefault && (
+                <ReplacedDefaultNote>
+                  Replaces {replacedDefault}, which stays linked
+                </ReplacedDefaultNote>
+              )}
+            </CheckboxField>
           </form>
         </Modal.Section>
       </Modal.Body>
@@ -340,7 +367,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
         actionText="Link"
-        actionLoading={linkPool.isPending}
+        actionLoading={isPending}
       />
     </Modal>
   )

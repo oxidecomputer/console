@@ -11,6 +11,7 @@ import {
   Navigate,
   redirect,
   Route,
+  useLocation,
   type LoaderFunctionArgs,
 } from 'react-router'
 
@@ -51,6 +52,12 @@ const redirectWithLoader = (to: string) => (mod: RouteModule) => ({
   loader: mod.clientLoader,
   Component: () => <Navigate to={to} replace />,
 })
+
+/** Redirect a renamed `.../edit` detail route to its parent by dropping the trailing segment. */
+function DropEditRedirect() {
+  const { pathname } = useLocation()
+  return <Navigate to={pathname.replace(/\/edit$/, '')} replace />
+}
 
 export const routes = createRoutesFromElements(
   <Route
@@ -276,9 +283,11 @@ export const routes = createRoutesFromElements(
           lazy={() => import('./pages/SiloImagesPage.tsx').then(convert)}
         >
           <Route
-            path=":image/edit"
-            lazy={() => import('./pages/SiloImageEdit.tsx').then(convert)}
+            path=":image"
+            lazy={() => import('./pages/SiloImageDetail.tsx').then(convert)}
           />
+          {/* redirect the old edit URL to the renamed detail route */}
+          <Route path=":image/edit" element={<DropEditRedirect />} />
         </Route>
         <Route
           path="utilization"
@@ -572,9 +581,11 @@ export const routes = createRoutesFromElements(
               lazy={() => import('./forms/image-upload').then(convert)}
             />
             <Route
-              path="images/:image/edit"
-              lazy={() => import('./pages/project/images/ProjectImageEdit').then(convert)}
+              path="images/:image"
+              lazy={() => import('./pages/project/images/ProjectImageDetail').then(convert)}
             />
+            {/* redirect the old edit URL to the renamed detail route */}
+            <Route path="images/:image/edit" element={<DropEditRedirect />} />
           </Route>
           <Route
             path="access"

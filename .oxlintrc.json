@@ -54,8 +54,16 @@
     "no-restricted-imports": [
       "error",
       {
-        // prevent confusion due to auto-imports and barrel files
-        "paths": ["."],
+        "paths": [
+          {
+            "name": ".",
+            "message": "Import from the file directly to avoid confusion due to auto-imports and barrel files."
+          },
+          {
+            "name": "filesize",
+            "message": "Import formatBytes from ~/util/units instead."
+          }
+        ],
         "patterns": [
           // import all CSS except index.css at top level through CSS @import statements
           // to avoid bad ordering situations. See https://github.com/oxidecomputer/console/pull/2035
@@ -87,7 +95,16 @@
 
     // TypeScript rules (currently disabled but available)
     "@typescript-eslint/no-floating-promises": "off",
-    "@typescript-eslint/unbound-method": "off"
+    "@typescript-eslint/unbound-method": "off",
+
+    // The rule only searches `depth` levels into a control for its text label
+    // (default 2). Some of our controls nest the label deeper — e.g. DocsPopover's
+    // link wraps the text in <div><div><span> — so 2 yields false positives. Bumping
+    // to 4 lets the rule see those labels instead of suppressing the rule at each site.
+    // Tradeoff: a control with no aria-label and text only 3–4 levels deep now passes;
+    // mild, and closer to how ATs compute the accessible name (no depth limit).
+    // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/6b9855b/docs/rules/control-has-associated-label.md
+    "jsx-a11y/control-has-associated-label": ["error", { "depth": 4 }]
   },
   "overrides": [
     {

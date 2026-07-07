@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { type LoaderFunctionArgs } from 'react-router'
+import { Link, type LoaderFunctionArgs } from 'react-router'
 import { match } from 'ts-pattern'
 
 import {
@@ -45,6 +45,7 @@ import {
   useInstanceSelector,
   useProjectSelector,
 } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -349,6 +350,16 @@ export default function NetworkingTab() {
     })
   ).data.items
 
+  // Firewall rules and other external networking state live on the VPC of the
+  // primary NIC. The parent InstancePage loader prefetches this VPC, but
+  // primaryNic may be undefined, so we can't use usePrefetchedQuery.
+  const primaryVpcId = nics.find((nic) => nic.primary)?.vpcId
+  const { data: primaryVpc } = useQuery({
+    // primaryVpcId is defined when enabled, so the assertion is safe
+    ...q(api.vpcView, { path: { vpc: primaryVpcId! } }),
+    enabled: !!primaryVpcId,
+  })
+
   const { data: siloPools } = usePrefetchedQuery(
     q(api.ipPoolList, { query: { limit: ALL_ISH } })
   )
@@ -447,6 +458,7 @@ export default function NetworkingTab() {
                 query: instanceSelector,
               }),
             label: nic.name,
+            resourceKind: 'network interface',
           }),
           disabled: deleteDisabledReason(),
         },
@@ -513,7 +525,7 @@ export default function NetworkingTab() {
                 path: { externalSubnet: subnet.name },
                 query: { project },
               }),
-            modalTitle: 'Detach External Subnet',
+            modalTitle: 'Detach external subnet',
             modalContent: (
               <p>
                 Are you sure you want to detach external subnet <HL>{subnet.name}</HL> from{' '}
@@ -588,7 +600,7 @@ export default function NetworkingTab() {
             confirmAction({
               actionType: 'danger',
               doAction: doDetach,
-              modalTitle: `Confirm detach ${externalIp.kind} IP`,
+              modalTitle: `Detach ${externalIp.kind} IP`,
               modalContent: (
                 <p>
                   Are you sure you want to detach {label} from <HL>{instanceName}</HL>? The
@@ -631,6 +643,38 @@ export default function NetworkingTab() {
 
   const subnetDisabledReason =
     availableSubnets.length === 0 ? 'No available external subnets' : null
+
+  useQuickActions(
+    () =>
+      [
+        !ephemeralDisabledReason && {
+          value: 'Attach ephemeral IP',
+          navGroup: 'Actions',
+          action: () => setAttachEphemeralModalOpen(true),
+        },
+        !floatingDisabledReason && {
+          value: 'Attach floating IP',
+          navGroup: 'Actions',
+          action: () => setAttachFloatingModalOpen(true),
+        },
+        instanceCan.updateNic({ runState: instance.runState }) && {
+          value: 'Add network interface',
+          navGroup: 'Actions',
+          action: () => setCreateModalOpen(true),
+        },
+        !subnetDisabledReason && {
+          value: 'Attach external subnet',
+          navGroup: 'Actions',
+          action: () => setAttachSubnetModalOpen(true),
+        },
+      ].filter((x) => !!x),
+    [
+      ephemeralDisabledReason,
+      floatingDisabledReason,
+      instance.runState,
+      subnetDisabledReason,
+    ]
+  )
 
   return (
     <div className="space-y-5">
@@ -740,7 +784,7 @@ export default function NetworkingTab() {
       </CardBlock>
 
       <CardBlock>
-        <CardBlock.Header title="External Subnets" titleId="attached-subnets-label">
+        <CardBlock.Header title="External subnets" titleId="attached-subnets-label">
           <Button
             size="sm"
             onClick={() => setAttachSubnetModalOpen(true)}
@@ -777,6 +821,25 @@ export default function NetworkingTab() {
             onDismiss={() => setAttachSubnetModalOpen(false)}
           />
         )}
+      </CardBlock>
+      <CardBlock>
+        <CardBlock.Header title="Firewall rules" titleId="firewall-rules-label" />
+        <CardBlock.Body>
+          {primaryVpc ? (
+            <>
+              Manage firewall rules affecting this instance in VPC{' '}
+              <Link
+                className="link-with-underline"
+                to={pb.vpcFirewallRules({ project, vpc: primaryVpc.name })}
+              >
+                {primaryVpc.name}
+              </Link>
+              .
+            </>
+          ) : (
+            'Firewall rules are managed on the VPC associated with the primary network interface.'
+          )}
+        </CardBlock.Body>
       </CardBlock>
     </div>
   )

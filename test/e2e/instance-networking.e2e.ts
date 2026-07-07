@@ -22,6 +22,25 @@ const selectASiloImage = async (page: Page, name: string) => {
   await page.getByRole('option', { name }).click()
 }
 
+test('Instance networking tab — firewall rules card', async ({ page }) => {
+  // db1 has a primary NIC in mock-vpc, so the card names that VPC
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await expect(
+    page.getByText('Manage firewall rules affecting this instance in VPC mock-vpc')
+  ).toBeVisible()
+
+  // you-fail has no NICs, so there's no primary VPC and we show the fallback copy
+  await page.goto('/projects/mock-project/instances/you-fail/networking')
+  await expect(
+    page.getByText(
+      'Firewall rules are managed on the VPC associated with the primary network interface.'
+    )
+  ).toBeVisible()
+  await expect(
+    page.getByText('Manage firewall rules affecting this instance in VPC')
+  ).toBeHidden()
+})
+
 test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
@@ -154,7 +173,7 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   // an explicit ipVersion selector), then reattach it.
   await clickRowAction(page, 'fd00::1', 'Detach')
   const confirmDetachDialog = page.getByRole('dialog', {
-    name: 'Confirm detach ephemeral IP',
+    name: 'Detach ephemeral IP',
   })
   await expect(confirmDetachDialog).toBeVisible()
   await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
@@ -316,10 +335,8 @@ test('Instance networking tab — SNAT IPs', async ({ page }) => {
 })
 
 test('Edit network interface - Transit IPs', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  // Stop the instance to enable editing
-  await stopInstance(page)
+  // use a stopped instance so editing is enabled
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   await clickRowAction(page, 'my-nic', 'Edit')
 

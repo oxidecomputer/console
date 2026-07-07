@@ -920,6 +920,20 @@ export type BgpConfigResultsPage = {
 }
 
 /**
+ * Parameters for updating a BGP configuration
+ *
+ * If a value is not specified, it will remain unchanged.
+ */
+export type BgpConfigUpdate = {
+  /** Update the BGP announce set associated with this configuration. */
+  bgpAnnounceSetId?: NameOrId | null
+  description?: string | null
+  /** Update the maximum number of equal-cost paths. */
+  maxPaths?: MaxPathConfig | null
+  name?: Name | null
+}
+
+/**
  * Route exported to a peer.
  */
 export type BgpExported = {
@@ -946,17 +960,34 @@ export type BgpImported = {
 }
 
 /**
+ * Router lifetime in seconds for unnumbered BGP peers
+ */
+export type RouterLifetimeConfig = number
+
+export type RouterPeerType =
+  | {
+      /** Router lifetime in seconds for unnumbered BGP peers. */
+      routerLifetime: RouterLifetimeConfig
+      type: 'unnumbered'
+    }
+  | {
+      /** IP address for numbered BGP peers. */
+      ip: string
+      type: 'numbered'
+    }
+
+/**
  * Define policy relating to the import and export of prefixes from a BGP peer.
  */
 export type ImportExportPolicy = /** Do not perform any filtering. */
 { type: 'no_filtering' } | { type: 'allow'; value: IpNet[] }
 
 /**
- * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer identified by `addr`. The `bgp_config` parameter is a reference to global BGP parameters. The `interface_name` indicates what interface the peer should be contacted on.
+ * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer. The `bgp_config` parameter is a reference to global BGP parameters.
  */
 export type BgpPeer = {
-  /** The address of the host to peer with. If not provided, this is an unnumbered BGP session that will be established over the interface specified by `interface_name`. */
-  addr?: string | null
+  /** The address of the host to peer with, or specifying the configuration of an unnumbered BGP session. */
+  addr: RouterPeerType
   /** Define export policy for a peer. */
   allowedExport: ImportExportPolicy
   /** Define import policy for a peer. */
@@ -965,7 +996,7 @@ export type BgpPeer = {
   bgpConfig: NameOrId
   /** Include the provided communities in updates sent to the peer. */
   communities: number[]
-  /** How long to to wait between TCP connection retries (seconds). */
+  /** How long to wait between TCP connection retries (seconds). */
   connectRetry: number
   /** How long to delay sending an open request after establishing a TCP session (seconds). */
   delayOpen: number
@@ -975,8 +1006,6 @@ export type BgpPeer = {
   holdTime: number
   /** How long to hold a peer in idle before attempting a new session (seconds). */
   idleHoldTime: number
-  /** The name of interface to peer on. This is relative to the port configuration this BGP peer configuration is a part of. For example this value could be phy0 to refer to a primary physical interface. Or it could be vlan47 to refer to a VLAN interface. */
-  interfaceName: Name
   /** How often to send keepalive requests (seconds). */
   keepalive: number
   /** Apply a local preference to routes received from this peer. */
@@ -989,8 +1018,6 @@ export type BgpPeer = {
   multiExitDiscriminator?: number | null
   /** Require that a peer has a specified ASN. */
   remoteAsn?: number | null
-  /** Router lifetime in seconds for unnumbered BGP peers. */
-  routerLifetime: number
   /** Associate a VLAN ID with a peer. */
   vlanId?: number | null
 }
@@ -1270,7 +1297,9 @@ export type Binuint8 = {
 }
 
 /**
- * Disk block size in bytes
+ * Block size in bytes
+ *
+ * Valid values are: 512, 2048, or 4096.
  */
 export type BlockSize = 512 | 2048 | 4096
 
@@ -1880,7 +1909,7 @@ export type DiskState = /** Disk is being initialized */
  * View of a Disk
  */
 export type Disk = {
-  blockSize: ByteCount
+  blockSize: BlockSize
   /** Human-readable free-form text about a resource */
   description: string
   devicePath: string
@@ -2381,7 +2410,7 @@ export type IdpMetadataSource =
  */
 export type Image = {
   /** Size of blocks in bytes */
-  blockSize: ByteCount
+  blockSize: BlockSize
   /** Human-readable free-form text about a resource */
   description: string
   /** Hash of the image contents, if applicable */
@@ -2459,13 +2488,20 @@ export type InstanceAutoRestartPolicy =
  *
  * If an instance does not specify a required CPU platform, then when it starts, the control plane selects a host for the instance and then supplies the guest with the "minimum" CPU platform supported by that host. This maximizes the number of hosts that can run the VM if it later needs to migrate to another host.
  *
- * In all cases, the CPU features presented by a given CPU platform are a subset of what the corresponding hardware may actually support; features which cannot be used from a virtual environment or do not have full hypervisor support may be masked off. See RFD 314 for specific CPU features in a CPU platform.
+ * In all cases, the CPU features presented by a given CPU platform are a subset of what the corresponding hardware may actually support; features which cannot be used from a virtual environment or do not have full hypervisor support may be masked off.
  */
 export type InstanceCpuPlatform = /** An AMD Milan-like CPU platform. */
 | 'amd_milan'
 
-/** An AMD Turin-like CPU platform. */
+/** An AMD Turin-like CPU platform. Prefer `amd_turin_v2` over this; this CPU platform is retained for instances that specifically requested it before `amd_turin_v2` was added.
+
+This initial version of the Turin CPU platform includes no cache or TLB information in CPUID leaf `8000_0006`. While this was intentional, Oxide later discovered some guest software interprets the zeroed leaves as reporting cache sizes of 0 bytes and behaves incorrectly and unpredictably as a result (see [Propolis#1152](https://github.com/oxidecomputer/propolis/issues/1152)). */
 | 'amd_turin'
+
+/** An AMD Turin-like CPU platform.
+
+This version of the Turin CPU platform includes cache and TLB information in CPUID leaf `8000_0006`, similar to the cache information included in the initial Milan-like CPU platform. */
+| 'amd_turin_v2'
 
 /**
  * The number of CPUs in an Instance
@@ -2492,6 +2528,8 @@ This policy determines whether the instance should be automatically restarted by
   cpuPlatform?: InstanceCpuPlatform | null
   /** Human-readable free-form text about a resource */
   description: string
+  /** When true, this instance has opted in to jumbo frames (8500 byte MTU) on its primary network interface. The effective MTU also depends on the fleet-wide jumbo-frames opt-in; if that is disabled, the primary interface uses the default MTU regardless of this value. Changes only take effect on the next instance restart. */
+  enableJumboFrames: boolean
   /** RFC1035-compliant hostname for the instance */
   hostname: string
   /** Unique, immutable, system-controlled identifier for each resource */
@@ -2672,6 +2710,8 @@ Disk attachments of type "create" will be created, while those of type "attach" 
 
 The order of this list does not guarantee a boot order for the instance. Use the boot_disk attribute to specify a boot disk. When boot_disk is specified it will count against the disk attachment limit. */
   disks?: InstanceDiskAttachment[]
+  /** Enable jumbo frames (8500 byte MTU) on the instance's primary OPTE interface. Requires the fleet-wide jumbo-frames opt-in to be enabled by an operator; otherwise this field must be `false`. Changes only take effect on the next instance restart. */
+  enableJumboFrames?: boolean
   /** The external IP addresses provided to this instance.
 
 By default, all instances have outbound connectivity, but no inbound connectivity. These external addresses can be used to provide a fixed, known IP address for making inbound connections to the instance. */
@@ -2842,6 +2882,8 @@ An instance that does not have a boot disk set will use the boot options specifi
   bootDisk: NameOrId | null
   /** The CPU platform to be used for this instance. If this is `null`, the instance requires no particular CPU platform; when it is started the instance will have the most general CPU platform supported by the sled it is initially placed on. */
   cpuPlatform: InstanceCpuPlatform | null
+  /** Update the per-instance jumbo-frames opt-in. Setting this to `true` requires the fleet-wide jumbo-frames opt-in to be enabled. Changes only take effect on the next instance restart. */
+  enableJumboFrames: boolean
   /** The amount of RAM (in bytes) to be allocated to the instance */
   memory: ByteCount
   /** Multicast groups this instance should join.
@@ -3626,6 +3668,36 @@ export type PhysicalDisk = {
 }
 
 /**
+ * The unique identity of a physical disk provided by the manufacturer
+ */
+export type PhysicalDiskManufacturerIdentity = {
+  model: string
+  serial: string
+  vendor: string
+}
+
+export type PhysicalDiskAdoptionRequestUuid = string
+
+/**
+ * A request to adopt a physical disk into the control plane
+ */
+export type PhysicalDiskAdoptionRequest = {
+  diskId: PhysicalDiskManufacturerIdentity
+  id: PhysicalDiskAdoptionRequestUuid
+  timeCreated: Date
+}
+
+/**
+ * A single page of results
+ */
+export type PhysicalDiskAdoptionRequestResultsPage = {
+  /** list of items on this page of results */
+  items: PhysicalDiskAdoptionRequest[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
  * A single page of results
  */
 export type PhysicalDiskResultsPage = {
@@ -3643,7 +3715,7 @@ export type Ping = {
 }
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * A networking probe
  */
 export type Probe = {
   /** Human-readable free-form text about a resource */
@@ -3944,7 +4016,7 @@ export type RouterRouteUpdate = {
 }
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * A SAML identity provider
  */
 export type SamlIdentityProvider = {
   /** Service provider endpoint where the response will be sent */
@@ -4411,6 +4483,8 @@ export type SledResultsPage = {
   nextPage?: string | null
 }
 
+export type SledUuid = string
+
 export type SnapshotState = 'creating' | 'ready' | 'faulted' | 'destroyed'
 
 /**
@@ -4702,35 +4776,6 @@ export type Switch = {
 }
 
 /**
- * Describes the kind of an switch interface.
- */
-export type SwitchInterfaceKind2 =
-  /** Primary interfaces are associated with physical links. There is exactly one primary interface per physical link. */
-  | 'primary'
-
-  /** VLAN interfaces allow physical interfaces to be multiplexed onto multiple logical links, each distinguished by a 12-bit 802.1Q Ethernet tag. */
-  | 'vlan'
-
-  /** Loopback interfaces are anchors for IP addresses that are not specific to any particular port. */
-  | 'loopback'
-
-/**
- * A switch port interface configuration for a port settings object.
- */
-export type SwitchInterfaceConfig = {
-  /** A unique identifier for this switch interface. */
-  id: string
-  /** The name of this switch interface. */
-  interfaceName: Name
-  /** The switch interface kind. */
-  kind: SwitchInterfaceKind2
-  /** The port settings object this switch interface configuration belongs to. */
-  portSettingsId: string
-  /** Whether or not IPv6 is enabled on this interface. */
-  v6Enabled: boolean
-}
-
-/**
  * Indicates the kind for a switch interface.
  */
 export type SwitchInterfaceKind =
@@ -4744,6 +4789,22 @@ export type SwitchInterfaceKind =
     }
   /** Loopback interfaces are anchors for IP addresses that are not specific to any particular port. */
   | { type: 'loopback' }
+
+/**
+ * A switch port interface configuration for a port settings object.
+ */
+export type SwitchInterfaceConfig = {
+  /** A unique identifier for this switch interface. */
+  id: string
+  /** The name of this switch interface. */
+  interfaceName: Name
+  /** The switch interface kind. */
+  kind: SwitchInterfaceKind
+  /** The port settings object this switch interface configuration belongs to. */
+  portSettingsId: string
+  /** Whether or not IPv6 is enabled on this interface. */
+  v6Enabled: boolean
+}
 
 /**
  * A layer-3 switch interface configuration. When IPv6 is enabled, a link local address will be created for the interface.
@@ -4806,7 +4867,7 @@ export type SwitchPortApplySettings = {
 /**
  * The link geometry associated with a switch port.
  */
-export type SwitchPortGeometry2 =
+export type SwitchPortGeometry =
   /** The port contains a single QSFP28 link with four lanes. */
   | 'qsfp28x1'
 
@@ -4821,23 +4882,10 @@ export type SwitchPortGeometry2 =
  */
 export type SwitchPortConfig = {
   /** The physical link geometry of the port. */
-  geometry: SwitchPortGeometry2
+  geometry: SwitchPortGeometry
   /** The id of the port settings object this configuration belongs to. */
   portSettingsId: string
 }
-
-/**
- * The link geometry associated with a switch port.
- */
-export type SwitchPortGeometry =
-  /** The port contains a single QSFP28 link with four lanes. */
-  | 'qsfp28x1'
-
-  /** The port contains two QSFP28 links each with two lanes. */
-  | 'qsfp28x2'
-
-  /** The port contains four SFP28 links each with one lane. */
-  | 'sfp28x4'
 
 /**
  * Physical switch port configuration.
@@ -4845,22 +4893,6 @@ export type SwitchPortGeometry =
 export type SwitchPortConfigCreate = {
   /** Link geometry for the switch port. */
   geometry: SwitchPortGeometry
-}
-
-/**
- * Per-port tx-eq overrides.  This can be used to fine-tune the transceiver equalization settings to improve signal integrity.
- */
-export type TxEqConfig2 = {
-  /** Main tap */
-  main?: number | null
-  /** Post-cursor tap1 */
-  post1?: number | null
-  /** Post-cursor tap2 */
-  post2?: number | null
-  /** Pre-cursor tap1 */
-  pre1?: number | null
-  /** Pre-cursor tap2 */
-  pre2?: number | null
 }
 
 /**
@@ -4882,7 +4914,7 @@ export type SwitchPortLinkConfig = {
   /** The configured speed of the link. */
   speed: LinkSpeed
   /** The tx_eq configuration for this link. */
-  txEqConfig?: TxEqConfig2 | null
+  txEqConfig?: TxEqConfig | null
 }
 
 /**
@@ -4924,16 +4956,6 @@ export type SwitchPortSettingsGroups = {
 }
 
 /**
- * A switch port VLAN interface configuration for a port settings object.
- */
-export type SwitchVlanInterfaceConfig = {
-  /** The switch interface configuration this VLAN interface configuration belongs to. */
-  interfaceConfigId: string
-  /** The virtual network id for this interface that is used for producing and consuming 802.1Q Ethernet tags. This field has a maximum value of 4095 as 802.1Q tags are twelve bits. */
-  vlanId: number
-}
-
-/**
  * This structure contains all port settings information in one place. It's a convenience data structure for getting a complete view of a particular port's settings.
  */
 export type SwitchPortSettings = {
@@ -4961,8 +4983,6 @@ export type SwitchPortSettings = {
   timeCreated: Date
   /** Timestamp when this resource was last modified */
   timeModified: Date
-  /** Vlan interface settings. */
-  vlanInterfaces: SwitchVlanInterfaceConfig[]
 }
 
 /**
@@ -5022,6 +5042,22 @@ export type SwitchResultsPage = {
 }
 
 /**
+ * Fleet-wide networking settings. Only fleet viewers may view these settings. Only fleet admins can modify them.
+ */
+export type SystemNetworkingSettings = {
+  /** When true, end users may opt in to jumbo frames (8500 byte MTU) on the primary interface of an instance. When false, instance-level opt-in is ignored and OPTE ports are created with the default MTU. */
+  externalJumboFramesOptInEnabled: boolean
+}
+
+/**
+ * Parameters for updating the fleet-wide networking settings.
+ */
+export type SystemNetworkingSettingsUpdate = {
+  /** Toggle the fleet-wide external jumbo-frames opt-in. */
+  externalJumboFramesOptInEnabled?: boolean
+}
+
+/**
  * View of a system software target release
  */
 export type TargetRelease = {
@@ -5063,6 +5099,7 @@ export type Units =
   | 'amps'
   | 'watts'
   | 'degrees_celsius'
+  | 'joules'
 
   /** No meaningful units, e.g. a dimensionless quanity. */
   | 'none'
@@ -5136,6 +5173,26 @@ export type TufRepoUploadStatus = /** The repository already existed in the data
 export type TufRepoUpload = { repo: TufRepo; status: TufRepoUploadStatus }
 
 /**
+ * A physical disk that has not yet been adopted by the control plane
+ */
+export type UnadoptedPhysicalDisk = {
+  diskId: PhysicalDiskManufacturerIdentity
+  sledId: SledUuid
+  slot: number
+  variant: PhysicalDiskKind
+}
+
+/**
+ * A single page of results
+ */
+export type UnadoptedPhysicalDiskResultsPage = {
+  /** list of items on this page of results */
+  items: UnadoptedPhysicalDisk[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
  * A sled that has not been added to an initialized rack yet
  */
 export type UninitializedSled = { baseboard: Baseboard; cubby: number; rackId: string }
@@ -5157,6 +5214,10 @@ Keys will be either:
 
 * Semver-like release version strings * "install dataset", representing the initial rack software before any updates * "unknown", which means there is no TUF repo uploaded that matches the software running on the component) */
   componentsByReleaseVersion: Record<string, number>
+  /** If true, the system has detected one or more known conditions that require Oxide support to resolve
+
+You should contact support to resolve these issues before proceeding with an update, or after one has completed. The checks underlying this field are not exhaustive, so this being `false` does not mean the entire system is completely healthy. */
+  contactSupport: boolean
   /** Whether automatic update is suspended due to manual update activity
 
 After a manual support procedure that changes the system software, automatic update activity is suspended to avoid undoing the change. To resume automatic update, first upload the TUF repository matching the manually applied update, then set that as the target release. */
@@ -6662,6 +6723,16 @@ export interface AuditLogListQueryParams {
   startTime?: Date
 }
 
+export interface PhysicalDiskDisableAdoptionPathParams {
+  physicalDiskAdoptionReqId: string
+}
+
+export interface PhysicalDiskListAdoptionRequestsQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
 export interface PhysicalDiskListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -6670,6 +6741,11 @@ export interface PhysicalDiskListQueryParams {
 
 export interface PhysicalDiskViewPathParams {
   diskId: string
+}
+
+export interface PhysicalDiskListUnadoptedQueryParams {
+  limit?: number | null
+  pageToken?: string | null
 }
 
 export interface NetworkingSwitchPortLldpNeighborsPathParams {
@@ -6959,6 +7035,10 @@ export interface NetworkingBgpConfigListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: NameOrIdSortMode
+}
+
+export interface NetworkingBgpConfigUpdateQueryParams {
+  nameOrId: NameOrId
 }
 
 export interface NetworkingBgpConfigDeleteQueryParams {
@@ -7482,7 +7562,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026032500.0.0'
+  apiVersion = '2026061000.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -9951,6 +10031,47 @@ export class Api {
       })
     },
     /**
+     * Enable adoption of a physical disk for general use
+     */
+    physicalDiskEnableAdoption: (
+      { body }: { body: PhysicalDiskManufacturerIdentity },
+      params: FetchParams = {}
+    ) => {
+      return this.request<PhysicalDiskAdoptionRequest>({
+        path: `/v1/system/hardware/disk-adoption-request`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Disable adoption of a physical disk for general use
+     */
+    physicalDiskDisableAdoption: (
+      { path }: { path: PhysicalDiskDisableAdoptionPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/hardware/disk-adoption-request/${path.physicalDiskAdoptionReqId}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List physical disk adoption requests
+     */
+    physicalDiskListAdoptionRequests: (
+      { query = {} }: { query?: PhysicalDiskListAdoptionRequestsQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<PhysicalDiskAdoptionRequestResultsPage>({
+        path: `/v1/system/hardware/disk-adoption-requests`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List physical disks
      */
     physicalDiskList: (
@@ -9974,6 +10095,20 @@ export class Api {
       return this.request<PhysicalDisk>({
         path: `/v1/system/hardware/disks/${path.diskId}`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List physical disks that have not yet been adopted for use
+     */
+    physicalDiskListUnadopted: (
+      { query = {} }: { query?: PhysicalDiskListUnadoptedQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UnadoptedPhysicalDiskResultsPage>({
+        path: `/v1/system/hardware/disks-unadopted`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
@@ -10812,6 +10947,24 @@ export class Api {
       })
     },
     /**
+     * Update the mutable fields of an existing BGP configuration
+     */
+    networkingBgpConfigUpdate: (
+      {
+        query,
+        body,
+      }: { query: NetworkingBgpConfigUpdateQueryParams; body: BgpConfigUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpConfig>({
+        path: `/v1/system/networking/bgp`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
      * Create BGP configuration
      */
     networkingBgpConfigCreate: (
@@ -11003,6 +11156,30 @@ export class Api {
       return this.request<void>({
         path: `/v1/system/networking/loopback-address/${path.rackId}/${path.switchSlot}/${path.address}/${path.subnetMask}`,
         method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Fetch fleet-wide networking settings
+     */
+    systemNetworkingSettingsView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<SystemNetworkingSettings>({
+        path: `/v1/system/networking/settings`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update fleet-wide networking settings
+     */
+    systemNetworkingSettingsUpdate: (
+      { body }: { body: SystemNetworkingSettingsUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SystemNetworkingSettings>({
+        path: `/v1/system/networking/settings`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },

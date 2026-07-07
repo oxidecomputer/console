@@ -34,6 +34,8 @@ test('can update a floating IP', async ({ page }) => {
   // Properties table should show resolved instance and pool names
   const dialog = page.getByRole('dialog')
   await expect(dialog.getByText('ip-pool-1')).toBeVisible()
+  // IP pool cells inside side modals should not open nested side modals
+  await expect(dialog.getByRole('button', { name: 'ip-pool-1' })).toBeHidden()
   // cola-float is attached to db1
   await expect(dialog.getByRole('link', { name: 'db1' })).toBeVisible()
 
