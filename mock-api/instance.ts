@@ -144,6 +144,19 @@ export const stoppedInstance: Json<Instance> = {
   boot_disk_id: 'f5bc2085-d18e-4698-86ab-69c62a74e541', // disk-stopped-boot
 }
 
+// 7th instance in mock-project: the instances page loader only awaits external
+// IP prefetches for the first 6 instances, so this one exercises the
+// unawaited-prefetch path in ExternalIpsCell
+export const instanceDb3: Json<Instance> = {
+  ...base,
+  id: 'a7abaacd-0721-4885-8db5-e743ee061d2b',
+  name: 'db3',
+  description: 'a third database instance',
+  hostname: 'oxide.com',
+  project_id: project.id,
+  run_state: 'running',
+}
+
 export const instances: Json<Instance>[] = [
   instance,
   failedInstance,
@@ -154,4 +167,5 @@ export const instances: Json<Instance>[] = [
   instanceUpdateError,
   instanceDb2,
   stoppedInstance,
+  instanceDb3,
 ]

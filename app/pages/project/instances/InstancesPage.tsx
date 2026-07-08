@@ -69,15 +69,24 @@ const instanceList = (
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   const instances = await queryClient.fetchQuery(instanceList(project).optionsFn())
-  // Warm the external IP cache for each instance in parallel as the route loads,
-  // but don't block render on them: ExternalIpsCell reads with useQuery and shows
-  // a skeleton until its list arrives. This keeps the page responsive no matter
-  // how many instances there are.
-  for (const { name: instance } of instances.items) {
+  // Warm the external IP cache for each instance in parallel as the route
+  // loads. This doesn't add requests: ExternalIpsCell would issue the same
+  // ones on mount, showing a skeleton until its list arrives. Prefetching
+  // just starts them earlier.
+  const ipPrefetches = instances.items.map(({ name: instance }) =>
     queryClient.prefetchQuery(
       q(api.instanceExternalIpList, { path: { instance }, query: { project } })
     )
-  }
+  )
+  // Block render on the first few so the top of the table doesn't flash
+  // skeletons, but let the rest roll in after. Awaiting all of them would
+  // block render on the slowest of up to 50 requests, and the odds of hitting
+  // a slow one (while low) grow with N. 6 is a magic number: enough to usually
+  // paint the top of the table without skeletons, but still small. It happens
+  // to match the browser's per-host connection limit, but that only applies
+  // over HTTP/1.1; in production, Nexus uses HTTP/2, so requests multiplex and
+  // that limit shouldn't matter.
+  await Promise.all(ipPrefetches.slice(0, 6))
   return null
 }
 

@@ -64,6 +64,10 @@ test('shows external IPs on the instances table', async ({ page }) => {
 
   // you-fail has only a SNAT IP, which is excluded, so the cell is empty
   await expectRowVisible(table, { name: 'you-fail', 'External IPs': '—' })
+
+  // db3 is the 7th instance, so its IP prefetch is not awaited by the loader:
+  // the cell renders a skeleton first and fills in when the query lands
+  await expectRowVisible(table, { name: 'db3', 'External IPs': '123.4.56.4' })
 })
 
 test('can start a failed instance', async ({ page }) => {
