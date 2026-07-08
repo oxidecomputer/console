@@ -121,6 +121,13 @@ export default function InstancesPage() {
       colHelper.accessor('name', {
         cell: makeLinkCell((instance) => pb.instance({ project, instance })),
       }),
+      colHelper.accessor(
+        (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),
+        {
+          header: 'state',
+          cell: (info) => <InstanceStateCell value={info.getValue()} />,
+        }
+      ),
       colHelper.accessor('ncpus', {
         header: 'CPU',
         cell: (info) => (
@@ -148,13 +155,6 @@ export default function InstancesPage() {
           <ExternalIpsCell project={project} instance={info.row.original.name} />
         ),
       }),
-      colHelper.accessor(
-        (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),
-        {
-          header: 'state',
-          cell: (info) => <InstanceStateCell value={info.getValue()} />,
-        }
-      ),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol((instance: Instance) => [
         ...makeButtonActions(instance),
