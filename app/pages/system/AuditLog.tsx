@@ -553,7 +553,7 @@ export default function SiloAuditLogsPage() {
 
   const selectedItem = expandedItem ? allItems[parseInt(expandedItem, 10)] : null
 
-  const errorMessage = error?.message ?? 'An error occurred while loading audit logs'
+  const errorMessage = error?.message ?? 'An error occurred while loading the audit log'
   const showError = error && !dismissedError
 
   // measure the list's distance from the top of the document so the window
