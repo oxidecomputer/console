@@ -80,7 +80,11 @@ export default function EditRouterSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <SideModalFormDocs docs={[docLinks.routers]} />
+      <SideModalFormDocs
+        docs={[docLinks.routers]}
+        apiOp="vpc_router_update"
+        cliCmd="vpc/router/update"
+      />
     </SideModalForm>
   )
 }

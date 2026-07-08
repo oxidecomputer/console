@@ -76,7 +76,11 @@ export function SSHKeyCreate({ onDismiss, onSuccess, message }: Props) {
         control={form.control}
       />
       {message}
-      <SideModalFormDocs docs={[docLinks.sshKeys]} />
+      <SideModalFormDocs
+        docs={[docLinks.sshKeys]}
+        apiOp="current_user_ssh_key_create"
+        cliCmd="current-user/ssh-key/create"
+      />
     </SideModalForm>
   )
 }

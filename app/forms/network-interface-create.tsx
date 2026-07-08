@@ -176,7 +176,11 @@ export function CreateNetworkInterfaceForm({
           placeholder="Leave blank for auto-assignment"
         />
       )}
-      <SideModalFormDocs docs={[docLinks.networkInterfaces, docLinks.vpcs]} />
+      <SideModalFormDocs
+        docs={[docLinks.networkInterfaces, docLinks.vpcs]}
+        apiOp="instance_network_interface_create"
+        cliCmd="instance/nic/create"
+      />
     </SideModalForm>
   )
 }

@@ -114,7 +114,11 @@ export default function EditExternalSubnetSideModalForm() {
       </PropertiesTable>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <SideModalFormDocs docs={[docLinks.externalSubnets]} />
+      <SideModalFormDocs
+        docs={[docLinks.externalSubnets]}
+        apiOp="external_subnet_update"
+        cliCmd="external-subnet/update"
+      />
     </SideModalForm>
   )
 }

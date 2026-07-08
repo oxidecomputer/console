@@ -177,7 +177,11 @@ export default function SubnetPoolMemberAdd() {
         }
         deps="minPrefixLength"
       />
-      <SideModalFormDocs docs={[docLinks.subnetPools]} />
+      <SideModalFormDocs
+        docs={[docLinks.subnetPools]}
+        apiOp="system_subnet_pool_member_add"
+        cliCmd="system/networking/subnet-pool/member/add"
+      />
     </SideModalForm>
   )
 }

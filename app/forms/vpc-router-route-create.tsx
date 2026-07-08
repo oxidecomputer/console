@@ -83,7 +83,7 @@ export default function CreateRouterRouteSideModalForm() {
       submitError={createRouterRoute.error}
     >
       <RouteFormFields form={form} />
-      <RouteFormDocs />
+      <RouteFormDocs apiOp="vpc_router_route_create" cliCmd="vpc/router/route/create" />
     </SideModalForm>
   )
 }

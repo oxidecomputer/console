@@ -89,7 +89,11 @@ export default function CreateIpPoolSideModalForm() {
         ]}
       />
       */}
-      <SideModalFormDocs docs={[docLinks.systemIpPools]} />
+      <SideModalFormDocs
+        docs={[docLinks.systemIpPools]}
+        apiOp="system_ip_pool_create"
+        cliCmd="system/networking/ip-pool/create"
+      />
     </SideModalForm>
   )
 }

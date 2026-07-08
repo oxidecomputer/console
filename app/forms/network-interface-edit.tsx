@@ -178,7 +178,11 @@ export function EditNetworkInterfaceForm({
         variant="info"
         content={`This network interface supports ${supportedVersions} transit IPs.`}
       />
-      <SideModalFormDocs docs={[docLinks.networkInterfaces, docLinks.vpcs]} />
+      <SideModalFormDocs
+        docs={[docLinks.networkInterfaces, docLinks.vpcs]}
+        apiOp="instance_network_interface_update"
+        cliCmd="instance/nic/update"
+      />
     </SideModalForm>
   )
 }
