@@ -18,6 +18,7 @@ import { queryClient } from '@oxide/api'
 
 import { ConfirmActionModal } from './components/ConfirmActionModal'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { LoadingBar } from './components/LoadingBar'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
@@ -52,6 +53,10 @@ function render() {
           <LazyMotion strict features={loadFeatures}>
             <MotionConfig reducedMotion="user">
               <ErrorBoundary>
+                {/* outside RouterProvider so it stays mounted (and the done
+                    animation can play out) when the hydrate fallback is
+                    swapped for the route tree on initial load */}
+                <LoadingBar router={router} />
                 <ConfirmActionModal />
                 <SkipLink id="skip-nav" />
                 <RouterProvider router={router} />
