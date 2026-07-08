@@ -5,23 +5,25 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect, useRef } from 'react'
-import { useNavigation } from 'react-router'
+import { useEffect, useRef, useSyncExternalStore } from 'react'
+import type { createBrowserRouter } from 'react-router'
+
+type AppRouter = ReturnType<typeof createBrowserRouter>
 
 const LOADING_BAR_DELAY_MS = 20
 
 /**
- * Loading bar for top-level navigations. When a nav first starts, the bar zooms
- * from 0 to A quickly and then more slowly grows from A to B. The idea is that
- * the actual fetching should almost always complete while the bar is between A
- * and B. The animation from 0 to A to B is represented by the `loading` label.
- * Then once we're done fetching, we switch to the `done` animation from B to
- * 100.
+ * Loading bar for initial pageload and top-level navigations. When a load
+ * first starts, the bar zooms from 0 to A quickly and then more slowly grows
+ * from A to B. The idea is that the actual fetching should almost always
+ * complete while the bar is between A and B. The animation from 0 to A to B is
+ * represented by the `loading` label. Then once we're done fetching, we switch
+ * to the `done` animation from B to 100.
  *
- * **Important:** we only do any of this if the navigation takes longer than
- * `LOADING_BAR_DELAY_MS`. This prevents us from showing the loading bar on navs
- * that are instantaneous, like opening a create form. Sometimes normal page
- * navs are also instantaneous due to caching.
+ * **Important:** we only do any of this if the load takes longer than
+ * `LOADING_BAR_DELAY_MS`. This prevents us from showing the loading bar on
+ * navs that are instantaneous, like opening a create form. Sometimes normal
+ * page navs are also instantaneous due to caching.
  *
  * ```
  *   ├──────────┼──────────┼──────────┤
@@ -30,19 +32,41 @@ const LOADING_BAR_DELAY_MS = 20
  *   └─────────┰──────────┘ └────┰────┘
  *           loading            done
  * ```
+ *
+ * This component lives *outside* `RouterProvider` (which is why it subscribes
+ * to the router directly rather than using `useNavigation`) so that it stays
+ * mounted when initial hydration completes and the `HydrateFallback` is
+ * swapped out for the real route tree. If it were inside the router, it would
+ * unmount at that moment and the `done` animation would be cut off.
  */
-export function LoadingBar() {
-  const navigation = useNavigation()
+export function LoadingBar({ router }: { router: AppRouter }) {
+  // subscribe twice to the same store rather than deriving a single boolean
+  // because we need `navigation` object identity in the effect deps (see
+  // comment below)
+  const navigation = useSyncExternalStore(router.subscribe, () => router.state.navigation)
+  const initialized = useSyncExternalStore(router.subscribe, () => router.state.initialized)
+
+  // `!initialized` covers initial pageload: the router starts fetching
+  // immediately on creation, and `initialized` flips to true when the first
+  // load (lazy route modules plus loaders) is done
+  const loading = !initialized || navigation.state === 'loading'
 
   // use a ref because there's no need to bring React state into this
   const barRef = useRef<HTMLDivElement>(null)
 
   // only used for checking the loading state from inside the timeout callback
   const loadingRef = useRef(false)
-  loadingRef.current = navigation.state === 'loading'
+  loadingRef.current = loading
+
+  // whether the router has ever been fully idle since pageload. Used to
+  // distinguish the initial load from subsequent user navs: a loader redirect
+  // during initial load (like / -> /projects) is a new navigation, but the
+  // user experiences it as part of one continuous pageload, so we don't
+  // restart the animation for it
+  const everIdleRef = useRef(false)
+  if (!loading) everIdleRef.current = true
 
   useEffect(() => {
-    const loading = navigation.state === 'loading'
     if (barRef.current) {
       if (loading) {
         // instead of adding the `loading` class right when loading starts, set
@@ -53,6 +77,12 @@ export function LoadingBar() {
         // animation sequence entirely.
         const timeout = setTimeout(() => {
           if (loadingRef.current) {
+            // During initial load, let an already-running animation continue
+            // rather than restarting it, so the redirect reads as one load
+            if (!everIdleRef.current && barRef.current?.classList.contains('loading')) {
+              return
+            }
+
             // Remove class and force reflow. Without this, the animation does
             // not restart from the beginning if we nav again while already
             // loading. https://gist.github.com/paulirish/5d52fb081b3570c81e3a
@@ -76,14 +106,12 @@ export function LoadingBar() {
         // doesn't seem to affect behavior but it's the Correct thing to do.
         return () => clearTimeout(timeout)
       } else if (barRef.current.classList.contains('loading')) {
-        // Needs the if condition because if loading is false and we *don't*
-        // have the `loading` animation running, we're on initial pageload and
-        // we don't want to run the done animation. This is also necessary for
-        // the case where we want to skip the animation entirely because the
-        // loaders finished very quickly: when we get here, the callback that
-        // sets the loading class will not have run yet, so we will not apply
-        // the done class, which is correct because we don't want to run the
-        // `done` animation if the `loading` animation hasn't happened.
+        // Needs the if condition for the case where we want to skip the
+        // animation entirely because the loaders finished very quickly: when
+        // we get here, the callback that sets the loading class will not have
+        // run yet, so we will not apply the done class, which is correct
+        // because we don't want to run the `done` animation if the `loading`
+        // animation hasn't happened.
 
         barRef.current.classList.replace('loading', 'done')
 
@@ -92,12 +120,12 @@ export function LoadingBar() {
         // `done` to start fresh.
       }
     }
-    // It is essential that we have `navigation` here as a dep rather than
-    // calculating `loading` outside and using that as the dep. If we do the
-    // latter, this effect does not run when a new nav happens while we're
-    // already loading, because the value of `loading` does not change in that
-    // case. The value of `navigation` does change on each new nav.
-  }, [navigation])
+    // It is essential that we have `navigation` here as a dep rather than only
+    // `loading`. If we only had the latter, this effect would not run when a
+    // new nav happens while we're already loading, because the value of
+    // `loading` does not change in that case. The value of `navigation` does
+    // change on each new nav.
+  }, [navigation, initialized, loading])
 
   return (
     <div className="fixed top-0 right-0 left-0 z-50">

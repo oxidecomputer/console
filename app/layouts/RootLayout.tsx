@@ -8,7 +8,6 @@
 import { useEffect } from 'react'
 import { Outlet } from 'react-router'
 
-import { LoadingBar } from '~/components/LoadingBar'
 import { MswBanner } from '~/components/MswBanner'
 import { ToastStack } from '~/components/ToastStack'
 import { useCrumbs } from '~/hooks/use-crumbs'
@@ -38,7 +37,6 @@ export default function RootLayout() {
 
   return (
     <>
-      <LoadingBar />
       {process.env.MSW_BANNER ? <MswBanner /> : null}
       <Outlet />
       <ToastStack />
