@@ -178,6 +178,7 @@ test('arbitrary-values combobox keeps typed values and resets submitted fields',
     'instance-update-error',
     'db2',
     'db-stopped',
+    'db3',
   ])
 
   await instanceInput.fill('d')
@@ -186,6 +187,7 @@ test('arbitrary-values combobox keeps typed values and resets submitted fields',
     'instance-update-error',
     'db2',
     'db-stopped',
+    'db3',
     'Custom: d',
   ])
 
@@ -200,6 +202,7 @@ test('arbitrary-values combobox keeps typed values and resets submitted fields',
     'instance-update-error',
     'db2',
     'db-stopped',
+    'db3',
     'Custom: d',
   ])
 

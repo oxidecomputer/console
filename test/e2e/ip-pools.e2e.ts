@@ -23,7 +23,7 @@ test('IP pool list', async ({ page }) => {
 
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    'IPs REMAINING': '16 / 24',
+    'IPs REMAINING': '15 / 24',
   })
   await expectRowVisible(table, {
     name: 'ip-pool-2',
@@ -424,7 +424,7 @@ test('remove range', async ({ page }) => {
   await expect(table.getByRole('row')).toHaveCount(2)
 
   // utilization updates in properties table
-  await expect(page.getByText('13 / 21')).toBeVisible()
+  await expect(page.getByText('12 / 21')).toBeVisible()
 
   // go back to the pool and verify the remaining/capacity columns changed
   // use the topbar breadcrumb to get there
@@ -432,7 +432,7 @@ test('remove range', async ({ page }) => {
   await breadcrumbs.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    'IPs REMAINING': '13 / 21',
+    'IPs REMAINING': '12 / 21',
   })
 })
 
@@ -441,7 +441,7 @@ test('deleting floating IP decrements utilization', async ({ page }) => {
   const table = page.getByRole('table')
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    'IPs REMAINING': '16 / 24',
+    'IPs REMAINING': '15 / 24',
   })
 
   // go delete a floating IP
@@ -458,7 +458,7 @@ test('deleting floating IP decrements utilization', async ({ page }) => {
   await page.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    'IPs REMAINING': '17 / 24',
+    'IPs REMAINING': '16 / 24',
   })
 })
 
@@ -469,7 +469,7 @@ test('IPs remaining in properties table', async ({ page }) => {
 
   // pool with ranges shows remaining / capacity
   await page.goto('/system/networking/ip-pools/ip-pool-1')
-  await expect(page.getByText('16 / 24')).toBeVisible()
+  await expect(page.getByText('15 / 24')).toBeVisible()
 
   // large IPv6 pool shows abbreviated bignum
   await page.goto('/system/networking/ip-pools/ip-pool-4')

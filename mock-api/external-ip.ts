@@ -72,7 +72,9 @@ export const ephemeralIps: DbExternalIp[] = [
   {
     instance_id: instanceDb3.id,
     external_ip: {
-      ip: '123.4.56.4',
+      // careful: addresses in this file must not collide with the floating IPs,
+      // or the pool utilization numbers get confusing (they dedupe by address)
+      ip: '123.4.56.7',
       ip_pool_id: ipPool1.id,
       kind: 'ephemeral',
     },
