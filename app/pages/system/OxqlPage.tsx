@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useLayoutEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as R from 'remeda'
 
@@ -22,9 +23,9 @@ import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/r
 import { ChartContainer, ChartHeader, TimeSeriesChart } from '~/components/CoolChart'
 import { DocsPopover } from '~/components/DocsPopover'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { UplotChart } from '~/components/UplotChart'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
-
 
 const defaultValues: TimeseriesQuery = {
   query: `get hardware_component:amd_cpu_tctl
@@ -84,6 +85,9 @@ const arrange = (timeseries: Timeseries[]): MultiChartStuff | null => {
   }
 }
 
+type Renderer = 'recharts' | 'uplot'
+const RENDERERS: readonly Renderer[] = ['recharts', 'uplot']
+
 export default function OxqlPage() {
   const query = useApiMutation(api.systemTimeseriesQuery, {
     onSuccess(queryResult: OxqlQueryResult) {
@@ -91,14 +95,40 @@ export default function OxqlPage() {
     },
   })
 
-  const onSubmit = (body: TimeseriesQuery) => query.mutate({ body })
-
   const form = useForm({ defaultValues })
   const control = form.control
+
+  const [renderer, setRenderer] = useState<Renderer>('recharts')
+  const [elapsedMs, setElapsedMs] = useState<number | null>(null)
+  // Set from an event handler; useLayoutEffect below measures until paint.
+  const timerStart = useRef<number | null>(null)
+
+  const onSubmit = (body: TimeseriesQuery) => {
+    timerStart.current = performance.now()
+    query.mutate({ body })
+  }
 
   const stuff: MultiChartStuff | null = query.data
     ? arrange(query.data.tables[0].timeseries)
     : null
+
+  useLayoutEffect(() => {
+    if (timerStart.current === null || !stuff) return
+    const start = timerStart.current
+    timerStart.current = null
+    const rafId = requestAnimationFrame(() => {
+      setElapsedMs(performance.now() - start)
+    })
+    return () => cancelAnimationFrame(rafId)
+  }, [renderer, stuff])
+
+  const toggleRenderer = (next: Renderer) => {
+    if (next === renderer) return
+    timerStart.current = performance.now()
+    setRenderer(next)
+  }
+
+  const pointCount = stuff ? stuff.data.reduce((sum, s) => sum + s.length, 0) : 0
 
   return (
     <>
@@ -116,22 +146,56 @@ export default function OxqlPage() {
         <input type="submit" />
       </form>
 
-      {/*<pre className="text-xs">{JSON.stringify(runQuery.data, null, 2)}</pre>*/}
       {stuff && (
-        <ChartContainer>
-          <ChartHeader title="Tada!" label="some numbers." />
-          <TimeSeriesChart
-            data={stuff.data}
-            title={query.data?.tables[0].name || ''}
-            interpolation="linear"
-            startTime={stuff.startTime}
-            endTime={stuff.endTime}
-            unit={undefined /* TODO joe: something real */}
-            // note use of loading, not fetching, which is only true on first fetch.
-            // otherwise we get loading states on refetches
-            loading={false}
-          />
-        </ChartContainer>
+        <>
+          <div className="text-sans-md mt-4 mb-2 flex items-center gap-3">
+            <div className="border-default inline-flex overflow-hidden rounded border">
+              {RENDERERS.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => toggleRenderer(r)}
+                  className={
+                    'px-3 py-1 ' +
+                    (renderer === r ? 'bg-accent-secondary text-accent' : 'text-secondary')
+                  }
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+            <div className="text-secondary">
+              {stuff.data.length} series · {pointCount.toLocaleString()} points
+              {elapsedMs !== null && (
+                <span className="text-raise ml-2 tabular-nums">
+                  {elapsedMs.toFixed(1)} ms to paint
+                </span>
+              )}
+            </div>
+          </div>
+          <ChartContainer>
+            <ChartHeader
+              title="Tada!"
+              label={renderer}
+              description={`${stuff.data.length} series, ${pointCount.toLocaleString()} points`}
+            />
+            {renderer === 'recharts' ? (
+              <TimeSeriesChart
+                data={stuff.data}
+                title={query.data?.tables[0].name || ''}
+                interpolation="linear"
+                startTime={stuff.startTime}
+                endTime={stuff.endTime}
+                unit={undefined}
+                loading={false}
+              />
+            ) : (
+              <div className="px-5 pt-8 pb-5">
+                <UplotChart data={stuff.data} title={query.data?.tables[0].name || ''} />
+              </div>
+            )}
+          </ChartContainer>
+        </>
       )}
     </>
   )

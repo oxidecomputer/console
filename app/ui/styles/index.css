@@ -53,6 +53,7 @@
 @import './components/table.css';
 
 @import '@xterm/xterm/css/xterm.css' layer(components);
+@import 'uplot/dist/uPlot.min.css' layer(components);
 @source '../../../node_modules/@oxide/design-system/dist';
 @custom-variant light (&:where([data-theme=light], [data-theme=light] *));
 

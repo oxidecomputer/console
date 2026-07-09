@@ -72,6 +72,8 @@
     "ts-pattern": "^5.8.0",
     "tslib": "^2.7.0",
     "tunnel-rat": "^0.1.2",
+    "uplot": "^1.6.32",
+    "uplot-react": "^1.2.4",
     "use-debounce": "^10.0.4",
     "uuid": "^14.0.0",
     "zod": "^4.0.17",

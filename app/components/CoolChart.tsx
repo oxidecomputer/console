@@ -7,16 +7,8 @@
  */
 import cn from 'classnames'
 import { format } from 'date-fns'
-import { useMemo, type ReactNode } from 'react'
-import {
-  Line,
-  LineChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { Line, LineChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts'
 import type { TooltipProps } from 'recharts/types/component/Tooltip'
 
 import type { ChartDatum } from '@oxide/api'
@@ -236,66 +228,96 @@ export function TimeSeriesChart({
     )
   }
 
-  // ResponsiveContainer has default height and width of 100%
-  // https://recharts.org/en-US/api/ResponsiveContainer
   return (
     <div className="px-5 pt-8 pb-5">
-      <ResponsiveContainer height={300}>
-        {/* TODO joe: like... downcasting? or something? */}
-        <LineChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-          <CartesianGrid stroke={GRID_GRAY} vertical={false} />
-          <XAxis
-            axisLine={{ stroke: GRID_GRAY }}
-            tickLine={{ stroke: GRID_GRAY }}
-            // TODO: show full given date range in the chart even if the data doesn't fill the range
-            domain={['auto', 'auto']}
-            dataKey="timestamp"
-            interval="preserveStart"
-            scale="time"
-            // TODO: use Date directly as x-axis values
-            type="number"
-            name="Time"
-            ticks={getTicks(data[0], 5)}
-            tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
-            tick={textMonoMd}
-            tickMargin={TICK_MARGIN}
-            tickSize={TICK_SIZE}
-          />
-          <YAxis
-            axisLine={{ stroke: GRID_GRAY }}
-            tickLine={{ stroke: GRID_GRAY }}
-            orientation="right"
-            tick={textMonoMd}
-            tickSize={TICK_SIZE}
-            tickMargin={TICK_MARGIN}
-            tickFormatter={yAxisTickFormatter}
-            padding={{ top: 32 }}
-            width={maxLabelWidth}
-            {...yTicks}
-          />
-          {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
-          <Tooltip
-            isAnimationActive={false}
-            content={(props: TooltipProps<number, string>) => renderTooltip(props, unit)}
-            cursor={{ stroke: CURSOR, strokeDasharray: '3,3' }}
-            wrapperStyle={{ outline: 'none' }}
-          />
-          {data.map((line, i) => (
-            <Line
-              key={i}
-              dataKey="value"
-              data={line}
-              name={title} // Provides name for value in hover tooltip
-              type={interpolation}
-              stroke={GREEN_600}
-              fill={GREEN_400}
-              isAnimationActive={false}
-              dot={false}
-              activeDot={{ fill: GREEN_800, r: 3, strokeWidth: 0 }}
+      <FixedSizeChart height={300}>
+        {(width) => (
+          <LineChart
+            width={width}
+            height={300}
+            margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+          >
+            <CartesianGrid stroke={GRID_GRAY} vertical={false} />
+            <XAxis
+              axisLine={{ stroke: GRID_GRAY }}
+              tickLine={{ stroke: GRID_GRAY }}
+              // TODO: show full given date range in the chart even if the data doesn't fill the range
+              domain={['auto', 'auto']}
+              dataKey="timestamp"
+              interval="preserveStart"
+              scale="time"
+              // TODO: use Date directly as x-axis values
+              type="number"
+              name="Time"
+              ticks={getTicks(data[0], 5)}
+              tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
+              tick={textMonoMd}
+              tickMargin={TICK_MARGIN}
+              tickSize={TICK_SIZE}
             />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
+            <YAxis
+              axisLine={{ stroke: GRID_GRAY }}
+              tickLine={{ stroke: GRID_GRAY }}
+              orientation="right"
+              tick={textMonoMd}
+              tickSize={TICK_SIZE}
+              tickMargin={TICK_MARGIN}
+              tickFormatter={yAxisTickFormatter}
+              padding={{ top: 32 }}
+              width={maxLabelWidth}
+              {...yTicks}
+            />
+            {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
+            <Tooltip
+              isAnimationActive={false}
+              content={(props: TooltipProps<number, string>) => renderTooltip(props, unit)}
+              cursor={{ stroke: CURSOR, strokeDasharray: '3,3' }}
+              wrapperStyle={{ outline: 'none' }}
+            />
+            {data.map((line, i) => (
+              <Line
+                key={i}
+                dataKey="value"
+                data={line}
+                name={title} // Provides name for value in hover tooltip
+                type={interpolation}
+                stroke={GREEN_600}
+                fill={GREEN_400}
+                isAnimationActive={false}
+                dot={false}
+                activeDot={{ fill: GREEN_800, r: 3, strokeWidth: 0 }}
+              />
+            ))}
+          </LineChart>
+        )}
+      </FixedSizeChart>
+    </div>
+  )
+}
+
+/**
+ * Measures its container width synchronously via useLayoutEffect and renders
+ * child chart only once width is known. Both commits happen in the same layout
+ * phase, so the browser only paints once — unlike recharts' ResponsiveContainer
+ * (which relies on a ResizeObserver + async useEffect and produces a
+ * two-phase render + two paints). This makes it possible to time the actual
+ * chart draw rather than an empty container.
+ */
+function FixedSizeChart({
+  height,
+  children,
+}: {
+  height: number
+  children: (width: number) => ReactNode
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState<number | null>(null)
+  useLayoutEffect(() => {
+    if (ref.current) setWidth(ref.current.clientWidth)
+  }, [])
+  return (
+    <div ref={ref} style={{ width: '100%', height }}>
+      {width !== null && children(width)}
     </div>
   )
 }
