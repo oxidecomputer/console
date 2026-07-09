@@ -69,6 +69,7 @@ type ChartTheme = {
   hoverPoint: string
   axisLine: string
   axisText: string
+  lineColors: string[]
 }
 
 // Append an alpha channel to a resolved color, e.g. `oklch(l c h)` -> `oklch(l c h / 0.6)`. Assumes
@@ -87,8 +88,19 @@ function getChartTheme(): ChartTheme {
     hoverPoint: v('--content-accent'),
     axisLine: v('--stroke-secondary'),
     axisText: v('--content-quaternary'),
+    lineColors: [
+      '--color-green-800',
+      '--color-blue-800',
+      '--color-purple-800',
+      '--color-yellow-800',
+      '--color-red-800',
+    ].map(v),
   }
 }
+
+const seriesColor = (i: number, theme: ChartTheme): string =>
+  theme.lineColors[i] ||
+  `oklch(0.7 0.17 ${((200 + (i - theme.lineColors.length) * 137.508) % 360).toFixed(1)})`
 
 function useChartTheme(): ChartTheme {
   const [colors, setColors] = useState(getChartTheme)
@@ -143,7 +155,8 @@ function ChartTooltip({
 
 type TimeSeriesChartProps = {
   className?: string
-  data: ChartDatum[] | undefined
+  timestamps: number[] | undefined
+  data: (number | null)[][] | undefined
   title: string
   interpolation?: 'linear' | 'stepAfter'
   startTime: Date
@@ -152,6 +165,7 @@ type TimeSeriesChartProps = {
   yAxisTickFormatter?: (val: number) => string
   hasError?: boolean
   loading: boolean
+  seriesLabels?: readonly string[]
 }
 
 // this top margin is also in the chart, probably want a way of unifying the sizing between the two
@@ -192,6 +206,7 @@ const SkeletonMetric = ({
 const defaultYAxisTickFormatter = (val: number) => val.toLocaleString()
 
 export function TimeSeriesChart({
+  timestamps,
   data: rawData,
   title,
   interpolation = 'linear',
@@ -201,6 +216,7 @@ export function TimeSeriesChart({
   yAxisTickFormatter = defaultYAxisTickFormatter,
   hasError = false,
   loading,
+  seriesLabels,
 }: TimeSeriesChartProps) {
   // falling back here instead of in the parent lets us avoid causing a
   // re-render on every render of the parent when the data is undefined
@@ -292,16 +308,16 @@ export function TimeSeriesChart({
         },
         series: [
           {},
-          {
+          ...data.map((_, i) => ({
             show: true,
-            stroke: theme.stroke,
-            fill: theme.fill,
+            stroke: seriesColor(i, theme),
+            fill: data.length === 1 ? theme.fill : undefined,
             points: { show: false },
             paths: match(interpolation)
               .with('linear', () => uPlot.paths.linear?.())
               .with('stepAfter', () => uPlot.paths.stepped?.({ align: 1 }))
               .exhaustive(),
-          },
+          })),
         ],
         axes: [
           {
@@ -358,7 +374,7 @@ export function TimeSeriesChart({
         legend: { show: false },
         plugins: [tooltipPlugin],
       }) satisfies Omit<uPlot.Options, 'width' | 'height'>,
-    [formatTime, tooltipPlugin, interpolation, theme, axisFont, fontPx]
+    [data, formatTime, tooltipPlugin, interpolation, theme, axisFont, fontPx]
   )
 
   // Width/height changes cause a cheaper "update" path for uplot, instead of "create", so it gets
@@ -388,7 +404,7 @@ export function TimeSeriesChart({
       </SkeletonMetric>
     )
   }
-  if (!data || data.length === 0) {
+  if (!data || data.length === 0 || !timestamps || timestamps.length === 0) {
     return (
       <SkeletonMetric>
         <MetricsEmpty />
@@ -396,15 +412,17 @@ export function TimeSeriesChart({
     )
   }
 
-  const aligned: uPlot.AlignedData = [
-    data.map(({ timestamp }) => timestamp / 1000),
-    data.map(({ value }) => value),
-  ]
+  const aligned: uPlot.AlignedData = [timestamps.map((t) => t / 1000), ...data]
 
-  const hovered = tooltip ? data[tooltip.hoveredDataIndex] : undefined
+  const hovered: ChartDatum | undefined = tooltip
+    ? {
+        timestamp: timestamps[tooltip.hoveredDataIndex],
+        value: data[0][tooltip.hoveredDataIndex], // TODO(joe): no no no.
+      }
+    : undefined
   return (
     <figure aria-label={title} className="m-0 pt-8 pr-5 pb-5 pl-0">
-      <div ref={sizeRef} className="relative">
+      <div ref={sizeRef} className="relative h-[300px]">
         <UplotReact options={options} data={aligned} onCreate={(u) => (uRef.current = u)} />
         {tooltip && hovered && hovered.value !== null && (
           <div
@@ -424,6 +442,14 @@ export function TimeSeriesChart({
           </div>
         )}
       </div>
+      {seriesLabels && (
+        <ChartLegend
+          title={title}
+          count={data.length}
+          seriesLabels={seriesLabels}
+          theme={theme}
+        />
+      )}
     </figure>
   )
 }
@@ -503,6 +529,40 @@ export function ChartHeader({ title, label, description, children }: ChartHeader
         <div className="text-sans-md text-secondary mt-0.5">{description}</div>
       </div>
       {children}
+    </div>
+  )
+}
+
+// We generally expect a list of labels to be the same length as the data list (or not provided), so
+// the fallback here is just for bad behavior.
+function seriesLabel(title: string, i: number, labels: readonly string[]): string {
+  return labels[i] ?? `${title} #${i + 1}`
+}
+
+function ChartLegend({
+  title,
+  count,
+  seriesLabels,
+  theme,
+}: {
+  title: string
+  count: number
+  seriesLabels: readonly string[]
+  theme: ChartTheme
+}) {
+  return (
+    // Cap the height so a chart with many series doesn't push everything down;
+    // overflow scrolls, like Grafana's legend.
+    <div className="mt-2 flex max-h-24 flex-wrap gap-x-4 gap-y-1.5 overflow-y-auto pl-5">
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className="text-mono-xs text-secondary flex items-center gap-2">
+          <span
+            className="h-0.5 w-3 shrink-0 rounded-full"
+            style={{ backgroundColor: seriesColor(i, theme) }}
+          />
+          {seriesLabel(title, i, seriesLabels)}
+        </div>
+      ))}
     </div>
   )
 }

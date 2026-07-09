@@ -86,6 +86,13 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
 
   const [modalOpen, setModalOpen] = useState(false)
 
+  const { values, timestamps } = data
+    ? {
+        timestamps: data.map(({ timestamp }) => timestamp),
+        values: [data.map(({ value }) => value)],
+      }
+    : {}
+
   return (
     <ChartContainer>
       <ChartHeader title={title} label={label} description={description}>
@@ -111,7 +118,8 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
         startTime={startTime}
         endTime={endTime}
         unit={unitForSet}
-        data={data}
+        data={values}
+        timestamps={timestamps}
         yAxisTickFormatter={yAxisTickFormatter}
         hasError={hasError}
         // isLoading only covers first load --- future-proof against the reintroduction of interval refresh

@@ -37,7 +37,8 @@ describe('safe redrawing', () => {
    * "wrong" calls to redraw.
    */
   const props = (formatter: (v: number) => string) => ({
-    data: [{ timestamp: 0, value: 10 }],
+    data: [[10]],
+    timestamps: [0],
     title: 'CPU',
     startTime: new Date(0),
     endTime: new Date(3_600_000),

@@ -84,11 +84,19 @@ export function SiloMetric({
   // TODO: indicate time zone somewhere. doesn't have to be in the detail view
   // in the tooltip. could be just once on the end of the x-axis like GCP
 
+  const { values, timestamps } = data
+    ? {
+        timestamps: data.map(({ timestamp }) => timestamp),
+        values: [data.map(({ value }) => value)],
+      }
+    : {}
+
   return (
     <ChartContainer>
       <ChartHeader title={title} label={`(${unit})`} />
       <TimeSeriesChart
-        data={data}
+        timestamps={timestamps}
+        data={values}
         title={title}
         interpolation="stepAfter"
         startTime={startTime}
@@ -153,11 +161,18 @@ export function SystemMetric({
   // TODO: indicate time zone somewhere. doesn't have to be in the detail view
   // in the tooltip. could be just once on the end of the x-axis like GCP
 
+  const { values, timestamps } = data
+    ? {
+        timestamps: data.map(({ timestamp }) => timestamp),
+        values: [data.map(({ value }) => value)],
+      }
+    : {}
   return (
     <ChartContainer>
       <ChartHeader title={title} label={`(${unit})`} />
       <TimeSeriesChart
-        data={data}
+        data={values}
+        timestamps={timestamps}
         title={title}
         interpolation="stepAfter"
         startTime={startTime}
