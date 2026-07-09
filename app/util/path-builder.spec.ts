@@ -76,6 +76,7 @@ test('path builder', () => {
         "ipPoolRangeAdd": "/system/networking/ip-pools/pl/ranges-add",
         "ipPools": "/system/networking/ip-pools",
         "ipPoolsNew": "/system/networking/ip-pools-new",
+        "oxql": "/system/oxql",
         "profile": "/settings/profile",
         "project": "/projects/p/instances",
         "projectAccess": "/projects/p/access",
