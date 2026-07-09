@@ -15,38 +15,30 @@ import {
 } from '@oxide/api'
 
 import { AccessUsersTab } from '~/components/access/AccessUsersTab'
-import { ProjectAccessEditUserSideModal } from '~/forms/project-access'
+import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 
 const policyView = q(api.policyView, {})
 
 export const handle = titleCrumb('Users')
 
-export default function ProjectAccessUsersTab() {
-  const { project } = useProjectSelector()
+export default function SiloUsersTab() {
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
-  const { data: projectPolicy } = usePrefetchedQuery(
-    q(api.projectPolicyView, { path: { project } })
-  )
 
-  const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
+  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('projectPolicyView')
+      queryClient.invalidateEndpoint('policyView')
       addToast({ content: 'Role removed' })
     },
   })
 
   return (
     <AccessUsersTab
-      scopedPolicies={[
-        { scope: 'silo', policy: siloPolicy },
-        { scope: 'project', policy: projectPolicy },
-      ]}
-      managedScope="project"
-      EditModal={ProjectAccessEditUserSideModal}
-      updateManagedPolicy={(body: Policy) => updatePolicy({ path: { project }, body })}
+      scopedPolicies={[{ scope: 'silo', policy: siloPolicy }]}
+      managedScope="silo"
+      EditModal={SiloAccessEditUserSideModal}
+      updateManagedPolicy={(body: Policy) => updatePolicy({ body })}
     />
   )
 }

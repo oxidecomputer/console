@@ -493,35 +493,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances",
     },
   ],
-  "projectAccess (/projects/p/access/groups)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Project Access",
-      "path": "/projects/p/access",
-    },
-  ],
-  "projectAccessGroups (/projects/p/access/groups)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Project Access",
-      "path": "/projects/p/access",
-    },
-  ],
-  "projectAccessUsers (/projects/p/access/users)": [
+  "projectAccess (/projects/p/access)": [
     {
       "label": "Projects",
       "path": "/projects",
@@ -645,22 +617,10 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/silos/s/idps",
     },
   ],
-  "siloAccess (/access/groups)": [
+  "siloAccess (/access)": [
     {
       "label": "Silo Access",
-      "path": "/access/groups",
-    },
-  ],
-  "siloAccessGroups (/access/groups)": [
-    {
-      "label": "Silo Access",
-      "path": "/access/groups",
-    },
-  ],
-  "siloAccessUsers (/access/users)": [
-    {
-      "label": "Silo Access",
-      "path": "/access/groups",
+      "path": "/access",
     },
   ],
   "siloFleetRoles (/system/silos/s/fleet-roles)": [
@@ -675,6 +635,12 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Fleet Roles",
       "path": "/system/silos/s/fleet-roles",
+    },
+  ],
+  "siloGroups (/groups)": [
+    {
+      "label": "Users & Groups",
+      "path": "/users",
     },
   ],
   "siloIdps (/system/silos/s/idps)": [
@@ -771,6 +737,12 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Subnet Pools",
       "path": "/system/silos/s/subnet-pools",
+    },
+  ],
+  "siloUsers (/users)": [
+    {
+      "label": "Users & Groups",
+      "path": "/users",
     },
   ],
   "siloUtilization (/utilization)": [

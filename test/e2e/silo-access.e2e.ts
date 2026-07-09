@@ -7,17 +7,63 @@
  */
 import { expect, expectRowVisible, test } from './utils'
 
-test('Access page lands on Groups tab; Users tab shows direct + via-group silo roles', async ({
+test('Silo Access page shows and edits silo role assignments', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('link', { name: 'Silo Access' }).click()
+  await expect(page).toHaveURL(/\/access$/)
+  await expect(page.getByRole('heading', { name: 'Silo Access' })).toBeVisible()
+
+  // only identities with a direct silo role appear
+  const table = page.getByRole('table')
+  await expectRowVisible(table, {
+    Name: 'real-estate-devs',
+    Type: 'Group',
+    Role: 'silo.collaborator',
+  })
+  await expectRowVisible(table, { Name: 'Hannah Arendt', Type: 'User', Role: 'silo.admin' })
+
+  // add Jacob Klein as collaborator
+  await page.getByRole('button', { name: 'Add user or group' }).click()
+  await expect(page.getByRole('heading', { name: 'Add user or group' })).toBeVisible()
+  await page.getByRole('button', { name: 'User or group' }).click()
+  // already-assigned identities aren't offered
+  await expect(page.getByRole('option', { name: 'Hannah Arendt' })).toBeHidden()
+  await page.getByRole('option', { name: 'Jacob Klein' }).click()
+  await page.getByRole('radio', { name: /^Collaborator / }).click()
+  await page.getByRole('button', { name: 'Assign role' }).click()
+  await expectRowVisible(table, {
+    Name: 'Jacob Klein',
+    Type: 'User',
+    Role: 'silo.collaborator',
+  })
+
+  // change Jacob's role to viewer
+  await table
+    .getByRole('row', { name: 'Jacob Klein', exact: false })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: 'Change role' }).click()
+  await expect(page.getByRole('heading', { name: 'Edit role' })).toBeVisible()
+  await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
+  await page.getByRole('radio', { name: /^Viewer / }).click()
+  await page.getByRole('button', { name: 'Update role' }).click()
+  await expectRowVisible(table, { Name: 'Jacob Klein', Role: 'silo.viewer' })
+
+  // delete Jacob's role
+  const jacobRow = page.getByRole('row', { name: 'Jacob Klein', exact: false })
+  await jacobRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(jacobRow).toBeHidden()
+})
+
+test('Users & Groups page lands on Users tab; shows direct + via-group silo roles', async ({
   page,
 }) => {
   await page.goto('/')
-  await page.click('role=link[name*="Access"]')
-
-  await expect(page.getByRole('heading', { name: /Access/ })).toBeVisible()
-  await expect(page).toHaveURL(/\/access\/groups$/)
-
-  await page.getByRole('tab', { name: 'Users' }).click()
-  await expect(page).toHaveURL(/\/access\/users$/)
+  await page.getByRole('link', { name: 'Users & Groups' }).click()
+  await expect(page).toHaveURL(/\/users$/)
+  await expect(page.getByRole('heading', { name: 'Users & Groups' })).toBeVisible()
 
   const table = page.getByRole('table')
 
@@ -38,12 +84,16 @@ test('Access page lands on Groups tab; Users tab shows direct + via-group silo r
 
   // Jacob Klein has no silo role and no groups
   await expectRowVisible(table, { Name: 'Jacob Klein', Role: '—', Groups: '—' })
+
+  // Groups tab comes second
+  await page.getByRole('tab', { name: 'Groups' }).click()
+  await expect(page).toHaveURL(/\/groups$/)
 })
 
 test('User details side modal shows assigned + via-group roles and group list', async ({
   page,
 }) => {
-  await page.goto('/access/users')
+  await page.goto('/users')
 
   // Open Hannah's details
   await page.getByRole('button', { name: 'Hannah Arendt' }).click()
@@ -71,7 +121,7 @@ test('User details side modal shows assigned + via-group roles and group list', 
 })
 
 test('Change and remove a user role from the Users tab', async ({ page }) => {
-  await page.goto('/access/users')
+  await page.goto('/users')
   const table = page.getByRole('table')
 
   // Hannah has a direct silo.admin role; change it to viewer
@@ -100,7 +150,7 @@ test('Change and remove a user role from the Users tab', async ({ page }) => {
 })
 
 test('Assign role to a user with no direct role from the row action', async ({ page }) => {
-  await page.goto('/access/users')
+  await page.goto('/users')
   const table = page.getByRole('table')
 
   // Jacob Klein has no direct or inherited role
@@ -128,7 +178,7 @@ test('Assign role to a user with no direct role from the row action', async ({ p
 })
 
 test('Inherited-only role shows Change/Remove with Remove disabled', async ({ page }) => {
-  await page.goto('/access/users')
+  await page.goto('/users')
   const table = page.getByRole('table')
 
   // Hans Jonas has no direct silo role but inherits silo.collaborator via
@@ -148,10 +198,10 @@ test('Inherited-only role shows Change/Remove with Remove disabled', async ({ pa
 })
 
 test('Groups tab shows roles and member counts; modal lists members', async ({ page }) => {
-  await page.goto('/access/users')
+  await page.goto('/users')
 
   await page.getByRole('tab', { name: 'Groups' }).click()
-  await expect(page).toHaveURL(/\/access\/groups$/)
+  await expect(page).toHaveURL(/\/groups$/)
 
   const table = page.getByRole('table')
 
@@ -173,7 +223,7 @@ test('Groups tab shows roles and member counts; modal lists members', async ({ p
 })
 
 test('Change and remove a group role from the Groups tab', async ({ page }) => {
-  await page.goto('/access/groups')
+  await page.goto('/groups')
   const table = page.getByRole('table')
 
   // real-estate-devs has silo.collaborator; change to viewer
@@ -204,7 +254,7 @@ test('Change and remove a group role from the Groups tab', async ({ page }) => {
 test('Assign a role to a group with no direct role from the row action', async ({
   page,
 }) => {
-  await page.goto('/access/groups')
+  await page.goto('/groups')
   const table = page.getByRole('table')
 
   // kernel-devs has no direct silo role

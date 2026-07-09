@@ -14,16 +14,16 @@ import {
   type Policy,
 } from '@oxide/api'
 
-import { AccessUsersTab } from '~/components/access/AccessUsersTab'
+import { AccessGroupsTab } from '~/components/access/AccessGroupsTab'
 import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
 
 const policyView = q(api.policyView, {})
 
-export const handle = titleCrumb('Users')
+export const handle = titleCrumb('Groups')
 
-export default function SiloAccessUsersTab() {
+export default function SiloGroupsTab() {
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
@@ -34,7 +34,7 @@ export default function SiloAccessUsersTab() {
   })
 
   return (
-    <AccessUsersTab
+    <AccessGroupsTab
       scopedPolicies={[{ scope: 'silo', policy: siloPolicy }]}
       managedScope="silo"
       EditModal={SiloAccessEditUserSideModal}
