@@ -11,6 +11,7 @@ import { api, q, queryClient } from '@oxide/api'
 import {
   Access16Icon,
   Cloud16Icon,
+  Monitoring16Icon,
   IpGlobal16Icon,
   Metrics16Icon,
   Servers16Icon,
@@ -57,6 +58,7 @@ export default function SystemLayout() {
       { value: 'Subnet Pools', path: pb.subnetPools() },
       { value: 'System Update', path: pb.systemUpdate() },
       { value: 'Fleet Access', path: pb.fleetAccess() },
+      { value: 'OxQL Explorer', path: pb.oxql() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
@@ -106,6 +108,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.fleetAccess()}>
             <Access16Icon /> Fleet Access
+          </NavLinkItem>
+          <NavLinkItem to={pb.oxql()}>
+            <Monitoring16Icon /> OxQL Explorer
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

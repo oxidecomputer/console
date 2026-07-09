@@ -46,7 +46,8 @@ describe('safe redrawing', () => {
    * "wrong" calls to redraw.
    */
   const props = (formatter: (v: number) => string) => ({
-    data: [{ timestamp: 0, value: 10 }],
+    data: [[10]],
+    timestamps: [0],
     title: 'CPU',
     startTime: new Date(0),
     endTime: new Date(3_600_000),
@@ -77,19 +78,27 @@ describe('safe redrawing', () => {
   // uplot-react will do a deep comparison if the data reference changes to avoid rebuilding the
   // chart, but it would be even better to skip that comparison by maintaining a reference
   test('an unchanged data prop sends a stable reference down to uplot-react', () => {
-    const data = [
-      { timestamp: 0, value: 10 },
-      { timestamp: 1000, value: 20 },
-    ]
+    const data = [[10, 20]]
+    const timestamps = [0, 1000]
 
     dataPropsPassed.length = 0
-    const { rerender } = render(<TimeSeriesChart {...props((v) => `${v}%`)} data={data} />)
-    rerender(<TimeSeriesChart {...props((v) => `${v} pct`)} data={data} />)
+    const { rerender } = render(
+      <TimeSeriesChart {...props((v) => `${v}%`)} timestamps={timestamps} data={data} />
+    )
+    rerender(
+      <TimeSeriesChart {...props((v) => `${v} pct`)} timestamps={timestamps} data={data} />
+    )
 
     expect(dataPropsPassed.length).toBeGreaterThan(1) // it re-rendered
     expect(new Set(dataPropsPassed).size).toBe(1) // but every render passed the identical reference
 
-    rerender(<TimeSeriesChart {...props((v) => `${v}%`)} data={[...data]} />)
+    rerender(
+      <TimeSeriesChart
+        {...props((v) => `${v}%`)}
+        timestamps={timestamps}
+        data={[...data]}
+      />
+    )
     expect(new Set(dataPropsPassed).size).toBe(2) // unless the reference changes
   })
 })

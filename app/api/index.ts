@@ -14,6 +14,7 @@ export * from './client'
 export * from './roles'
 export * from './util'
 export * from './__generated__/Api'
+export { camelToSnake } from './__generated__/util'
 // export * as ZVal from './__generated__/validate'
 
 export type { ApiTypes }
