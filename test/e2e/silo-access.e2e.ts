@@ -57,6 +57,36 @@ test('Silo Access page shows and edits silo role assignments', async ({ page }) 
   await expect(jacobRow).toBeHidden()
 })
 
+test('Silo Access user details side modal', async ({ page }) => {
+  await page.goto('/access')
+
+  // clicking a user opens their details
+  await page.getByRole('button', { name: 'Hannah Arendt' }).click()
+  const modal = page.getByRole('dialog')
+  await expect(modal).toBeVisible()
+  await expect(modal.getByText('Hannah Arendt')).toBeVisible()
+
+  // direct silo.admin assignment
+  const roleRow = modal.getByRole('row').filter({ hasText: 'silo.admin' })
+  await expect(roleRow).toContainText('Assigned')
+
+  // group memberships
+  await expect(modal.getByRole('cell', { name: 'kernel-devs', exact: true })).toBeVisible()
+  await expect(modal.getByRole('cell', { name: 'web-devs', exact: true })).toBeVisible()
+})
+
+test('Silo Access group members side modal', async ({ page }) => {
+  await page.goto('/access')
+
+  // clicking a group opens its members and roles
+  await page.getByRole('button', { name: 'real-estate-devs' }).click()
+  const modal = page.getByRole('dialog')
+  await expect(modal).toBeVisible()
+  await expect(modal.getByText('silo.collaborator')).toBeVisible()
+  await expect(modal.getByRole('cell', { name: 'Hans Jonas' })).toBeVisible()
+  await expect(modal.getByRole('cell', { name: 'Jane Austen' })).toBeVisible()
+})
+
 test('Users & Groups page lands on Users tab; shows direct + via-group silo roles', async ({
   page,
 }) => {
