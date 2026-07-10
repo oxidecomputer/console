@@ -9,6 +9,20 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { playwright } from '@vitest/browser-playwright'
 import { defineConfig } from 'vitest/config'
+import type { BrowserCommand } from 'vitest/node'
+
+const pressComboboxKey: BrowserCommand<[label: string, key: string]> = async (
+  context,
+  label,
+  key
+) => {
+  if (context.provider.name !== 'playwright') {
+    throw new Error(
+      `pressComboboxKey requires Playwright, received ${context.provider.name}`
+    )
+  }
+  await context.iframe.getByRole('combobox', { name: label }).press(key)
+}
 
 export default defineConfig({
   optimizeDeps: {
@@ -26,6 +40,7 @@ export default defineConfig({
       enabled: true,
       headless: true,
       provider: playwright(),
+      commands: { pressComboboxKey },
       screenshotDirectory: 'test-results/vitest/screenshots',
       instances: [{ browser: 'chromium' }, { browser: 'firefox' }, { browser: 'webkit' }],
     },
