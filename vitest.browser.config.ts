@@ -11,6 +11,9 @@ import { playwright } from '@vitest/browser-playwright'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  optimizeDeps: {
+    entries: ['app/**/*.browser.spec.{ts,tsx}'],
+  },
   plugins: [tailwindcss(), react()],
   resolve: { tsconfigPaths: true },
   test: {
