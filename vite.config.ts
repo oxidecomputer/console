@@ -13,6 +13,7 @@ import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { configDefaults } from 'vitest/config'
 import { z } from 'zod/v4'
 
 import vercelConfig from './vercel.json'
@@ -163,5 +164,6 @@ export default defineConfig(({ mode }) => ({
     environment: 'jsdom',
     setupFiles: ['test/unit/setup.ts'],
     includeSource: ['app/**/*.ts'],
+    exclude: [...configDefaults.exclude, '**/*.browser.spec.{ts,tsx}'],
   },
 }))
