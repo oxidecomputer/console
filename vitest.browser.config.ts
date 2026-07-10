@@ -11,6 +11,10 @@ import { playwright } from '@vitest/browser-playwright'
 import { defineConfig } from 'vitest/config'
 import type { BrowserCommand } from 'vitest/node'
 
+const clickComboboxButton: BrowserCommand<[label: string]> = async (context, label) => {
+  await context.iframe.getByRole('combobox', { name: label }).locator('+ button').click()
+}
+
 const pressComboboxKey: BrowserCommand<[label: string, key: string]> = async (
   context,
   label,
@@ -40,7 +44,7 @@ export default defineConfig({
       enabled: true,
       headless: true,
       provider: playwright(),
-      commands: { pressComboboxKey },
+      commands: { clickComboboxButton, pressComboboxKey },
       screenshotDirectory: 'test-results/vitest/screenshots',
       instances: [{ browser: 'chromium' }, { browser: 'firefox' }, { browser: 'webkit' }],
     },

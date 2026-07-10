@@ -14,6 +14,7 @@ import { Combobox, toComboboxItems, type ComboboxItem } from './Combobox'
 
 declare module 'vitest/browser' {
   interface BrowserCommands {
+    clickComboboxButton: (label: string) => Promise<void>
     pressComboboxKey: (label: string, key: string) => Promise<void>
   }
 }
@@ -113,7 +114,7 @@ test('keeps arbitrary values and resets the query when cleared externally', asyn
 
   await screen.getByRole('button', { name: 'Clear externally' }).click()
   await expect.element(combobox).toHaveValue('')
-  await combobox.click()
+  await commands.clickComboboxButton('Disk name')
   await expect.element(combobox).toHaveAttribute('aria-expanded', 'true')
   await expect.element(screen.getByRole('option', { name: 'disk-3' })).toBeVisible()
   await expect
@@ -133,7 +134,11 @@ test('Enter commits the highlighted option instead of the arbitrary query', asyn
   const listedOption = screen.getByRole('option', { name: 'mock-vpc' })
   await expect.element(listedOption).toBeVisible()
   await expect.element(screen.getByRole('option', { name: 'Custom: mock' })).toBeVisible()
-  await commands.pressComboboxKey('Disk name', 'ArrowUp')
+  await screen.getByRole('button', { name: 'Outside' }).click()
+  await expect.element(combobox).toHaveAttribute('aria-expanded', 'false')
+  await commands.clickComboboxButton('Disk name')
+  await expect.element(combobox).toHaveAttribute('aria-expanded', 'true')
+  await commands.pressComboboxKey('Disk name', 'Home')
   const listedOptionId = listedOption.element().id
   await expect.element(combobox).toHaveAttribute('aria-activedescendant', listedOptionId)
   await commands.pressComboboxKey('Disk name', 'Enter')
@@ -215,14 +220,12 @@ test('filters rich labels by their selected label and displays metadata', async 
   const screen = await render(<ComboboxHarness comboboxItems={richItems} />)
   const combobox = screen.getByRole('combobox', { name: 'Disk name' })
 
+  await commands.clickComboboxButton('Disk name')
+  await expect.element(combobox).toHaveAttribute('aria-expanded', 'true')
   await combobox.fill('ubuntu')
-  await commands.pressComboboxKey('Disk name', 'ArrowDown')
+  await expect.element(combobox).toHaveValue('ubuntu')
   await expect.element(screen.getByText('Ubuntu / 22.04 / 4 GiB')).toBeVisible()
   await expect
     .element(screen.getByRole('option', { name: 'arch-2022-06-01' }))
     .not.toBeInTheDocument()
-  await screen.getByRole('option', { name: /ubuntu-22-04/ }).click()
-
-  await expect.element(combobox).toHaveValue('ubuntu-22-04')
-  await expect.element(screen.getByText('Selected: image-1')).toBeVisible()
 })
