@@ -86,7 +86,7 @@ function buildOptions({
     height,
     title: undefined,
     cursor: { drag: { x: false, y: false }, points: { size: 6 } },
-    legend: { show: true, live: true },
+    legend: { show: false, live: true },
     scales: { x: { time: true } },
     axes: [
       {

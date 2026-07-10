@@ -8,14 +8,17 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as R from 'remeda'
+import { match } from 'ts-pattern'
 
 import {
   api,
   useApiMutation,
-  type Timeseries,
+  // type Timeseries,
+  type OxqlTable,
   type Points,
   type ChartDatum,
   type TimeseriesQuery,
+  type Values,
   type OxqlQueryResult,
 } from '@oxide/api'
 import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/react'
@@ -27,61 +30,140 @@ import { UplotChart } from '~/components/UplotChart'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 
-const defaultValues: TimeseriesQuery = {
-  query: `get hardware_component:amd_cpu_tctl
+const queries = {
+  tctl: `get hardware_component:amd_cpu_tctl
     | filter timestamp > @now() - 1m `,
+  multiJoinedTable: `{
+    { get sled_data_link:bytes_sent; get sled_data_link:bytes_received }
+        | align mean_within(20s)
+        | join;
+    { get sled_data_link:errors_sent; get sled_data_link:errors_received }
+        | align mean_within(20s)
+        | join
+}
+    | filter timestamp > @now() - 1m`,
+  maybeRobertsQuery: `{
+  get sled_data_link:bytes_sent | align mean_within(20s) | group_by [sled_serial, link_name];
+  get sled_data_link:bytes_received | align mean_within(20s) | group_by [sled_serial, link_name]
+}
+    | filter timestamp > @now() - 10m
+    | filter link_name == 'oxControlService22'
+    | align mean_within(20s)`
+}
+
+const defaultValues: TimeseriesQuery = {
+  query: queries.maybeRobertsQuery,
 }
 
 export const handle = { crumb: 'OxQL Explorer' }
 
-type ChartStuff = {
-  data: ChartDatum[]
-  startTime: number
-  endTime: number
-}
-
 type MultiChartStuff = {
   data: NonEmptyArray<ChartDatum[]>
+  name: string
   startTime: Date
   endTime: Date
 }
 
-const pointsToStuff = (points: Points): ChartStuff | null => {
-  const data = R.zip(points.timestamps, points.values[0].values.values).map(([t, v]) => ({
-    timestamp: new Date(t).getTime(),
-    value: v as number, // ?
+const valuesToChartData = (posixes: number[], v: Values): ChartDatum[] => {
+  const valueArray = v.values
+  const values: (number | null)[] = // TODO joe: learn why can these be null
+    match(valueArray)
+      .with({ type: 'integer' }, ({ values }) => values)
+      .with({ type: 'double' }, ({ values }) => values)
+      .with({ type: 'boolean' }, ({ values }) =>
+        values.map((b) =>
+          match(b)
+            .with(true, () => 1)
+            .with(false, () => 0)
+            .with(null, () => null)
+            .exhaustive()
+        )
+      )
+      .with({ type: 'string' }, () => []) // i think this would simply have to be a table!
+      .with({ type: 'integer_distribution' }, () => []) // these are a little more interesting... i'll need to see a real example
+      .with({ type: 'double_distribution' }, () => [])
+      .exhaustive()
+
+  return R.zip(posixes, values).map(([t, v]) => ({
+    timestamp: t,
+    value: v,
   }))
-
-  const startTime = R.firstBy(data, ({ timestamp }) => timestamp)
-  const endTime = R.firstBy(data, ({ timestamp }) => -timestamp)
-
-  if (!startTime || !endTime) return null
-
-  return {
-    data,
-    startTime: startTime.timestamp,
-    endTime: endTime.timestamp,
-  }
 }
 
-const arrange = (timeseries: Timeseries[]): MultiChartStuff | null => {
-  const stuffs: ChartStuff[] = timeseries
-    .map(({ points }) => pointsToStuff(points))
-    // TODO joe: lazy?
-    .filter((x) => x !== null)
+const pointsToChartData = (points: Points): ChartDatum[][] | null => {
+  const posixes = points.timestamps.map((t) => new Date(t).getTime())
 
-  if (stuffs.length === 0) return null
-  const [first, ...rest] = stuffs
+  if (points.values.length === 0) return null // i don't think this is in practice reachable
 
-  const startTime = R.firstBy(stuffs, ({ startTime }) => startTime)?.startTime
-  const endTime = R.firstBy(stuffs, ({ endTime }) => -endTime)?.endTime
+  return points.values.map((v) => valuesToChartData(posixes, v))
+}
 
-  if (!startTime || !endTime) return null
+type BunchOfCharts = {
+  charts: MultiChartStuff[]
+  name: string
+}
+
+type ChartAndJoinedField = {
+  joinedField: string
+  chartData: ChartDatum[][]
+}
+
+const getSomeCharts = (table: OxqlTable): BunchOfCharts | null => {
+  const chartDataByTimeSeries: ChartAndJoinedField[] = table.timeseries
+    .map((t) => {
+      const chartData = pointsToChartData(t.points)
+      return (
+        chartData && {
+          joinedField: Object.values(t.fields)
+            .map((x) => String(x.value))
+            .join('//'),
+          chartData,
+        }
+      )
+    })
+    .filter((c) => c !== null) // TODO joe: lazy?
+
+  const joinHeight = R.firstBy(chartDataByTimeSeries, (c) => c.chartData.length)?.chartData
+    .length
+  console.info({ joinHeight })
+  if (!joinHeight) return null
+
+  const mode: 'joined' | 'unjoined' = joinHeight > 1 ? 'joined' : 'unjoined'
+
+  const charts: ChartAndJoinedField[] = match(mode)
+    .with('joined', () => chartDataByTimeSeries)
+    // .with('unjoined', () => chartDataByTimeSeries) // leave it be
+    // .with('unjoined', () => { // transpose (fun! but... is it useful?)
+    //   const justData = chartDataByTimeSeries.map(({ chartData }) => chartData)
+    //   return justData[0].map((_, i) => ({
+    //     joinedField: table.name,
+    //     chartData: justData.map((row) => row[i]),
+    //   }))
+    // })
+    .with('unjoined', () => { // collapse all into a single chart
+      const justData = chartDataByTimeSeries.flatMap(({ chartData }) => chartData)
+      return [({
+        joinedField: '',
+        chartData: justData
+      })]
+    })
+    .exhaustive()
 
   return {
-    data: [first.data, ...rest.map(({ data }) => data)],
-    startTime: new Date(startTime),
-    endTime: new Date(endTime),
+    name: table.name,
+    charts: charts.map((lines) => {
+      const timestamps = lines.chartData.flatMap((line) =>
+        line.map(({ timestamp }) => timestamp)
+      )
+      const startTime = Math.min(...timestamps)
+      const endTime = Math.max(...timestamps)
+      return {
+        data: lines.chartData as unknown as NonEmptyArray<ChartDatum[]>,
+        name: lines.joinedField,
+        startTime: new Date(startTime),
+        endTime: new Date(endTime),
+      }
+    }),
   }
 }
 
@@ -98,7 +180,7 @@ export default function OxqlPage() {
   const form = useForm({ defaultValues })
   const control = form.control
 
-  const [renderer, setRenderer] = useState<Renderer>('recharts')
+  const [renderer, setRenderer] = useState<Renderer>('uplot')
   const [elapsedMs, setElapsedMs] = useState<number | null>(null)
   // Set from an event handler; useLayoutEffect below measures until paint.
   const timerStart = useRef<number | null>(null)
@@ -108,9 +190,12 @@ export default function OxqlPage() {
     query.mutate({ body })
   }
 
-  const stuff: MultiChartStuff | null = query.data
-    ? arrange(query.data.tables[0].timeseries)
+  const stuff: (BunchOfCharts | null)[] | null = query.data
+    ? query.data.tables.map(getSomeCharts)
     : null
+
+  console.info(stuff)
+  console.info(query)
 
   useLayoutEffect(() => {
     if (timerStart.current === null || !stuff) return
@@ -128,7 +213,7 @@ export default function OxqlPage() {
     setRenderer(next)
   }
 
-  const pointCount = stuff ? stuff.data.reduce((sum, s) => sum + s.length, 0) : 0
+  // const pointCount = stuff ? stuff.data.reduce((sum, s) => sum + s.length, 0) : 0
 
   return (
     <>
@@ -146,7 +231,11 @@ export default function OxqlPage() {
         <input type="submit" />
       </form>
 
-      {stuff && (
+      {match(query)
+        .with({ status: 'pending' }, () => 'Loading...')
+        .with({ status: 'idle' }, () => '')
+        .with({ status: 'error' }, (q) => q.error.message)
+        .with({ status: 'success' }, () => (
         <>
           <div className="text-sans-md mt-4 mb-2 flex items-center gap-3">
             <div className="border-default inline-flex overflow-hidden rounded border">
@@ -165,7 +254,7 @@ export default function OxqlPage() {
               ))}
             </div>
             <div className="text-secondary">
-              {stuff.data.length} series · {pointCount.toLocaleString()} points
+              {/*{stuff.data.length} series · {pointCount.toLocaleString()} points*/}
               {elapsedMs !== null && (
                 <span className="text-raise ml-2 tabular-nums">
                   {elapsedMs.toFixed(1)} ms to paint
@@ -173,30 +262,38 @@ export default function OxqlPage() {
               )}
             </div>
           </div>
-          <ChartContainer>
-            <ChartHeader
-              title="Tada!"
-              label={renderer}
-              description={`${stuff.data.length} series, ${pointCount.toLocaleString()} points`}
-            />
-            {renderer === 'recharts' ? (
-              <TimeSeriesChart
-                data={stuff.data}
-                title={query.data?.tables[0].name || ''}
-                interpolation="linear"
-                startTime={stuff.startTime}
-                endTime={stuff.endTime}
-                unit={undefined}
-                loading={false}
+          {stuff && stuff.map(s => s && ( // stuff can't be null now but i don't think i should calculate stuff within this block
+            <>
+            <h2>{s.name}</h2>
+            {s.charts.map((chart, i) => (
+            <ChartContainer key={i}>
+              <ChartHeader
+                title="Tada!"
+                label={`${renderer} | ${chart.name}`}
+
+                // description={`${stuff.data.length} series, ${pointCount.toLocaleString()} points`}
               />
-            ) : (
-              <div className="px-5 pt-8 pb-5">
-                <UplotChart data={stuff.data} title={query.data?.tables[0].name || ''} />
-              </div>
-            )}
-          </ChartContainer>
+              {renderer === 'recharts' ? (
+                <TimeSeriesChart
+                  data={chart.data}
+                  title={query.data?.tables[0].name || ''}
+                  interpolation="linear"
+                  startTime={chart.startTime}
+                  endTime={chart.endTime}
+                  unit={undefined}
+                  loading={false}
+                />
+              ) : (
+                <div className="px-5 pt-8 pb-5">
+                  <UplotChart data={chart.data} title={query.data?.tables[0].name || ''} />
+                </div>
+              )}
+            </ChartContainer>
+          ))}
+            </>
+          ))}
         </>
-      )}
+      )).exhaustive()}
     </>
   )
 }
