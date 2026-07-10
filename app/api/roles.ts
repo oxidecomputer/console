@@ -138,16 +138,16 @@ export function useActorsNotInPolicy<Role extends RoleKey = RoleKey>(
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const actorsInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
-    const allGroups = groups.items.map((g) => ({
-      ...g,
-      identityType: 'silo_group' as IdentityType,
-    }))
-    const allUsers = users.items.map((u) => ({
-      ...u,
-      identityType: 'silo_user' as IdentityType,
-    }))
-    // groups go before users
-    return allGroups.concat(allUsers).filter((u) => !actorsInPolicy.has(u.id)) || []
+    // groups first, then users; each sorted alphabetically by display name
+    const allGroups = R.sortBy(
+      groups.items.map((g) => ({ ...g, identityType: 'silo_group' as IdentityType })),
+      (g) => g.displayName.toLowerCase()
+    )
+    const allUsers = R.sortBy(
+      users.items.map((u) => ({ ...u, identityType: 'silo_user' as IdentityType })),
+      (u) => u.displayName.toLowerCase()
+    )
+    return allGroups.concat(allUsers).filter((u) => !actorsInPolicy.has(u.id))
   }, [users, groups, policy])
 }
 
