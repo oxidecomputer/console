@@ -19,6 +19,7 @@ export default defineConfig({
   test: {
     attachmentsDir: 'test-results/vitest/attachments',
     include: ['app/**/*.browser.spec.{ts,tsx}'],
+    name: 'browser',
     setupFiles: ['test/browser/setup.ts'],
     browser: {
       enabled: true,

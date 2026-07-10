@@ -19,7 +19,7 @@
     "ci": "npm run tsc && npm run lint && npm run fmt:check && npm run test run && npm run e2ec",
     "tsc": "tsc",
     "test": "NODE_OPTIONS='--no-deprecation' vitest",
-    "test:browser": "NODE_OPTIONS='--no-deprecation' vitest --config vitest.browser.config.ts",
+    "test:browser": "NODE_OPTIONS='--no-deprecation' vitest --project browser",
     "update-snapshots": "npm test run -- -u",
     "e2e": "playwright test",
     "e2ec": "playwright test --project=chrome",

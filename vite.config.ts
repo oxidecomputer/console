@@ -161,6 +161,7 @@ export default defineConfig(({ mode }) => ({
   resolve: { tsconfigPaths: true },
   preview: { headers },
   test: {
+    name: 'unit',
     environment: 'jsdom',
     setupFiles: ['test/unit/setup.ts'],
     includeSource: ['app/**/*.ts'],

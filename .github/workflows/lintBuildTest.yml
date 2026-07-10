@@ -51,7 +51,7 @@ jobs:
       - name: Check formatting
         run: npm run fmt:check
       - name: Test
-        run: npm test run
+        run: npm test run -- --project unit
       - name: Build
         run: npm run build
   playwright:
@@ -95,6 +95,9 @@ jobs:
       - name: 🏗 Install Playwright OS dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps
+      - name: Run Vitest browser tests
+        if: matrix.browser == 'chrome'
+        run: npm run test:browser -- run
       - name: Run Playwright browser tests
         run: npx playwright test --project=${{matrix.browser}}
       - uses: actions/upload-artifact@v7
