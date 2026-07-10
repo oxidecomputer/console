@@ -5,7 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { parseDateTime, type DateValue } from '@internationalized/date'
+import {
+  getLocalTimeZone,
+  now,
+  parseDateTime,
+  type DateValue,
+} from '@internationalized/date'
 import { useState } from 'react'
 import { expect, test } from 'vitest'
 import { render } from 'vitest-browser-react'
@@ -15,10 +20,15 @@ import { DateTimeRangePicker, type RangeKeyAll } from './DateTimeRangePicker'
 
 const end = parseDateTime('2024-01-02T12:00')
 const range = { start: end.subtract({ days: 1 }), end }
+const current = now(getLocalTimeZone())
 
-function DateTimeRangePickerHarness() {
+function DateTimeRangePickerHarness({
+  initialRange = range,
+}: {
+  initialRange?: { start: DateValue; end: DateValue }
+}) {
   const [preset, setPreset] = useState<RangeKeyAll>('lastDay')
-  const [selectedRange, setRange] = useState<{ start: DateValue; end: DateValue }>(range)
+  const [selectedRange, setRange] = useState(initialRange)
   return (
     <>
       <DateTimeRangePicker
@@ -65,4 +75,44 @@ test('closes the date-range dialog with Escape and restores focus', async () => 
 
   await expect.element(screen.getByRole('dialog')).not.toBeInTheDocument()
   await expect.element(dateRange).toHaveFocus()
+})
+
+test('chooses a custom date range with the calendar keyboard controls', async () => {
+  const screen = await render(
+    <DateTimeRangePickerHarness
+      initialRange={{ start: current.subtract({ hours: 1 }), end: current }}
+    />
+  )
+
+  await screen.getByLabelText('Choose a date range').getByRole('button').click()
+  await screen.getByRole('button', { name: /Today/ }).click()
+  await userEvent.keyboard('{ArrowLeft}{ArrowLeft}{ArrowLeft}{Enter}{Escape}')
+
+  await expect.element(screen.getByText('Preset: custom')).toBeVisible()
+})
+
+test('shows an error when the start time is after the end time', async () => {
+  const screen = await render(
+    <DateTimeRangePickerHarness
+      initialRange={{ start: current.subtract({ hours: 1 }), end: current }}
+    />
+  )
+
+  await screen.getByLabelText('Choose a date range').getByRole('button').click()
+  const today = screen.getByRole('button', { name: /Today/ })
+  await today.click()
+  await today.click()
+
+  const hours = screen.getByRole('spinbutton', { name: 'hour,' })
+  const minutes = screen.getByRole('spinbutton', { name: 'minute,' })
+  await hours.nth(0).click()
+  await userEvent.keyboard('23')
+  await minutes.nth(0).click()
+  await userEvent.keyboard('00')
+  await hours.nth(1).click()
+  await userEvent.keyboard('01')
+  await minutes.nth(1).click()
+  await userEvent.keyboard('00')
+
+  await expect.element(screen.getByText('Date range is invalid')).toBeVisible()
 })

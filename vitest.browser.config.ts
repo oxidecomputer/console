@@ -13,6 +13,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   optimizeDeps: {
     entries: ['app/**/*.browser.spec.{ts,tsx}'],
+    include: ['react-router'],
   },
   plugins: [tailwindcss(), react()],
   resolve: { tsconfigPaths: true },
@@ -26,7 +27,7 @@ export default defineConfig({
       headless: true,
       provider: playwright(),
       screenshotDirectory: 'test-results/vitest/screenshots',
-      instances: [{ browser: 'chromium' }],
+      instances: [{ browser: 'chromium' }, { browser: 'firefox' }, { browser: 'webkit' }],
     },
   },
 })

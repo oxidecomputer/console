@@ -14,8 +14,14 @@ import { Combobox, toComboboxItems, type ComboboxItem } from './Combobox'
 
 const items = toComboboxItems([{ name: 'disk-3' }, { name: 'disk-4' }])
 
-function ComboboxHarness({ comboboxItems = items }: { comboboxItems?: ComboboxItem[] }) {
-  const [selectedItemValue, setSelectedItemValue] = useState('')
+function ComboboxHarness({
+  comboboxItems = items,
+  initialValue = '',
+}: {
+  comboboxItems?: ComboboxItem[]
+  initialValue?: string
+}) {
+  const [selectedItemValue, setSelectedItemValue] = useState(initialValue)
 
   return (
     <>
@@ -31,11 +37,9 @@ function ComboboxHarness({ comboboxItems = items }: { comboboxItems?: ComboboxIt
 }
 
 test('preserves the committed selection while editing', async () => {
-  const screen = await render(<ComboboxHarness />)
+  const screen = await render(<ComboboxHarness initialValue="disk-3" />)
   const combobox = screen.getByRole('combobox', { name: 'Disk name' })
 
-  await combobox.click()
-  await screen.getByRole('option', { name: 'disk-3' }).click()
   await expect.element(combobox).toHaveValue('disk-3')
 
   await combobox.fill('disk-3zzz')
@@ -47,11 +51,9 @@ test('preserves the committed selection while editing', async () => {
 })
 
 test('commits a different selected option after editing', async () => {
-  const screen = await render(<ComboboxHarness />)
+  const screen = await render(<ComboboxHarness initialValue="disk-3" />)
   const combobox = screen.getByRole('combobox', { name: 'Disk name' })
 
-  await combobox.click()
-  await screen.getByRole('option', { name: 'disk-3' }).click()
   await combobox.fill('disk-4')
   await screen.getByRole('option', { name: 'disk-4' }).click()
 
@@ -67,7 +69,7 @@ test('virtualizes and filters options outside the initial window', async () => {
   const screen = await render(<ComboboxHarness comboboxItems={manyItems} />)
   const combobox = screen.getByRole('combobox', { name: 'Disk name' })
 
-  await combobox.click()
+  await combobox.fill('disk-')
   await expect.element(screen.getByRole('option', { name: 'disk-0001' })).toBeVisible()
   await expect
     .element(screen.getByRole('option', { name: 'disk-0988' }))
