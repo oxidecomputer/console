@@ -93,6 +93,32 @@ test('Project access shows and edits project role assignments', async ({ page })
   })
 })
 
+test('Inherited-only row offers Assign project role, not a disabled Change', async ({
+  page,
+}) => {
+  await page.goto('/projects/mock-project/access')
+  const table = page.getByRole('table')
+
+  // Hannah has only a silo role, so there's no project role to change or remove,
+  // but a project role can still be assigned from the row action
+  await table
+    .getByRole('row', { name: 'Hannah Arendt', exact: false })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await expect(page.getByRole('menuitem', { name: 'Change role' })).toBeHidden()
+  await expect(page.getByRole('menuitem', { name: 'Assign project role' })).toBeEnabled()
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
+
+  await page.getByRole('menuitem', { name: 'Assign project role' }).click()
+  await expect(page.getByRole('heading', { name: 'Assign role' })).toBeVisible()
+  await expect(page.getByRole('dialog')).toContainText('Hannah Arendt')
+  await page.getByRole('radio', { name: /^Viewer / }).click()
+  await page.getByRole('button', { name: 'Assign role' }).click()
+
+  // effective role is still silo.admin, with a +1 badge for the new project role
+  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.admin+1' })
+})
+
 test('Project access user details side modal', async ({ page }) => {
   await page.goto('/projects/mock-project')
   await page.getByRole('link', { name: 'Project Access' }).click()

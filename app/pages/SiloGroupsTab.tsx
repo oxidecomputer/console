@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useMemo } from 'react'
+
 import {
   api,
   q,
@@ -12,6 +14,7 @@ import {
   useApiMutation,
   usePrefetchedQuery,
   type Policy,
+  type ScopedPolicy,
 } from '@oxide/api'
 
 import { AccessGroupsTab } from '~/components/access/AccessGroupsTab'
@@ -26,6 +29,11 @@ export const handle = titleCrumb('Groups')
 export default function SiloGroupsTab() {
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
 
+  const scopedPolicies = useMemo(
+    () => [{ scope: 'silo', policy: siloPolicy }] satisfies ScopedPolicy[],
+    [siloPolicy]
+  )
+
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('policyView')
@@ -35,7 +43,7 @@ export default function SiloGroupsTab() {
 
   return (
     <AccessGroupsTab
-      scopedPolicies={[{ scope: 'silo', policy: siloPolicy }]}
+      scopedPolicies={scopedPolicies}
       managedScope="silo"
       EditModal={SiloAccessEditUserSideModal}
       updateManagedPolicy={(body: Policy) => updatePolicy({ body })}

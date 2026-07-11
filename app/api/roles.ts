@@ -160,10 +160,18 @@ export type ScopedRoleEntry = {
   source: { type: 'direct' } | { type: 'group'; group: { id: string; displayName: string } }
 }
 
+/** Strongest role assigned to an identity in a policy, if any. */
+const roleForId = (policy: Policy, id: string) =>
+  getEffectiveRole(
+    policy.roleAssignments.filter((ra) => ra.identityId === id).map((ra) => ra.roleName)
+  )
+
 /**
  * Enumerate all role assignments relevant to a user — one entry per direct
  * assignment and one per group assignment — across the given policies. Each
- * entry is tagged with the scope of the policy it came from.
+ * entry is tagged with the scope of the policy it came from. Since the API
+ * permits multiple assignments for the same identity in one policy, each entry
+ * collapses those to the strongest role (see `getEffectiveRole`).
  * Callers are responsible for sorting and any display-layer merging.
  */
 export function userScopedRoleEntries(
@@ -173,14 +181,14 @@ export function userScopedRoleEntries(
 ): ScopedRoleEntry[] {
   const entries: ScopedRoleEntry[] = []
   for (const { scope, policy } of scopedPolicies) {
-    const direct = policy.roleAssignments.find((ra) => ra.identityId === userId)
+    const direct = roleForId(policy, userId)
     if (direct) {
-      entries.push({ roleName: direct.roleName, scope, source: { type: 'direct' } })
+      entries.push({ roleName: direct, scope, source: { type: 'direct' } })
     }
     for (const group of userGroups) {
-      const via = policy.roleAssignments.find((ra) => ra.identityId === group.id)
+      const via = roleForId(policy, group.id)
       if (via) {
-        entries.push({ roleName: via.roleName, scope, source: { type: 'group', group } })
+        entries.push({ roleName: via, scope, source: { type: 'group', group } })
       }
     }
   }

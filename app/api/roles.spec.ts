@@ -15,6 +15,7 @@ import {
   getEffectiveRole,
   roleOrder,
   updateRole,
+  userScopedRoleEntries,
   type Policy,
   type ScopedRoleEntry,
 } from './roles'
@@ -122,6 +123,46 @@ test('byGroupThenName sorts as expected', () => {
   const e = { identityType: 'silo_user' as const, name: 'e' }
 
   expect([c, e, b, d, a].sort(byGroupThenName)).toEqual([a, b, c, d, e])
+})
+
+describe('userScopedRoleEntries', () => {
+  it('collapses multiple assignments for the same identity to the strongest role', () => {
+    // API permits multiple assignments for one identity in a single policy
+    const policy: Policy = {
+      roleAssignments: [
+        { identityId: 'u', identityType: 'silo_user', roleName: 'viewer' },
+        { identityId: 'u', identityType: 'silo_user', roleName: 'admin' },
+      ],
+    }
+    expect(userScopedRoleEntries('u', [], [{ scope: 'silo', policy }])).toEqual([
+      { roleName: 'admin', scope: 'silo', source: { type: 'direct' } },
+    ])
+  })
+
+  it('emits one entry per direct assignment and per group, tagged by scope', () => {
+    const group = { id: 'g', displayName: 'g' }
+    const silo: Policy = {
+      roleAssignments: [
+        { identityId: 'g', identityType: 'silo_group', roleName: 'viewer' },
+      ],
+    }
+    const project: Policy = {
+      roleAssignments: [{ identityId: 'u', identityType: 'silo_user', roleName: 'admin' }],
+    }
+    expect(
+      userScopedRoleEntries(
+        'u',
+        [group],
+        [
+          { scope: 'silo', policy: silo },
+          { scope: 'project', policy: project },
+        ]
+      )
+    ).toEqual([
+      { roleName: 'viewer', scope: 'silo', source: { type: 'group', group } },
+      { roleName: 'admin', scope: 'project', source: { type: 'direct' } },
+    ])
+  })
 })
 
 test('allRoles', () => {

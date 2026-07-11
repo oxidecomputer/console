@@ -88,7 +88,10 @@ export function AccessRolesTable({
   updateManagedPolicy,
   onAddClick,
 }: Props) {
-  const [editingRow, setEditingRow] = useState<AccessRow | null>(null)
+  const [editing, setEditing] = useState<{
+    row: AccessRow
+    defaultRole: RoleKey | undefined
+  } | null>(null)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
 
@@ -197,30 +200,47 @@ export function AccessRolesTable({
           </ListPlusCell>
         ),
       }),
-      getActionsCol((row: AccessRow) => [
-        {
-          label: 'Change role',
-          onActivate: () => setEditingRow(row),
-          disabled: !row.managedRole && "You don't have permission to change this role",
-        },
-        {
-          label: 'Delete',
-          onActivate: confirmDelete({
-            doDelete: () => updateManagedPolicy(deleteRole(row.id, managedPolicy)),
-            label: (
-              <span>
-                the <HL>{row.managedRole}</HL> role for <HL>{row.name}</HL>
-              </span>
-            ),
-            resourceKind: 'role assignment',
-            extraContent:
-              row.id === me.id
-                ? `This will remove your own ${managedScope} access.`
-                : undefined,
-          }),
-          disabled: !row.managedRole && "You don't have permission to delete this role",
-        },
-      ]),
+      getActionsCol((row: AccessRow) => {
+        // A row can appear here because of a role in another scope (silo roles
+        // show on the project page) without a direct role in the managed scope.
+        // There's nothing to change or remove here, but a managed-scope role can
+        // still be assigned.
+        if (!row.managedRole) {
+          return [
+            {
+              label: managedScope === 'project' ? 'Assign project role' : 'Assign role',
+              onActivate: () => setEditing({ row, defaultRole: undefined }),
+            },
+            {
+              label: 'Delete',
+              onActivate: () => {},
+              disabled: 'Role is inherited from another scope; modify it there to revoke',
+            },
+          ]
+        }
+        return [
+          {
+            label: 'Change role',
+            onActivate: () => setEditing({ row, defaultRole: row.managedRole }),
+          },
+          {
+            label: 'Delete',
+            onActivate: confirmDelete({
+              doDelete: () => updateManagedPolicy(deleteRole(row.id, managedPolicy)),
+              label: (
+                <span>
+                  the <HL>{row.managedRole}</HL> role for <HL>{row.name}</HL>
+                </span>
+              ),
+              resourceKind: 'role assignment',
+              extraContent:
+                row.id === me.id
+                  ? `This will remove your own ${managedScope} access.`
+                  : undefined,
+            }),
+          },
+        ]
+      }),
     ],
     [
       managedPolicy,
@@ -244,14 +264,14 @@ export function AccessRolesTable({
       <TableActions>
         <CreateButton onClick={onAddClick}>Add user or group</CreateButton>
       </TableActions>
-      {editingRow?.managedRole && (
+      {editing && (
         <EditModal
-          onDismiss={() => setEditingRow(null)}
+          onDismiss={() => setEditing(null)}
           policy={managedPolicy}
-          name={editingRow.name}
-          identityId={editingRow.id}
-          identityType={editingRow.identityType}
-          defaultValues={{ roleName: editingRow.managedRole }}
+          name={editing.row.name}
+          identityId={editing.row.id}
+          identityType={editing.row.identityType}
+          defaultValues={{ roleName: editing.defaultRole }}
         />
       )}
       {selectedUser && (
