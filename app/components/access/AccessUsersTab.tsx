@@ -42,6 +42,7 @@ import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
 import { buildRoleActions } from './roleActions'
+import { useCanEditPolicy } from './use-can-edit-policy'
 import { UserDetailsSideModal } from './UserDetailsSideModal'
 
 // The API only sorts users by id, so fetch the full set and sort by name
@@ -99,6 +100,8 @@ export function AccessUsersTab({
   const managedPolicy = scopedPolicies.find((sp) => sp.scope === managedScope)!.policy
 
   const managedRoleById = useMemo(() => rolesByIdFromPolicy(managedPolicy), [managedPolicy])
+
+  const canEdit = useCanEditPolicy(scopedPolicies, managedScope)
 
   const roleCol = useMemo(
     () =>
@@ -207,6 +210,7 @@ export function AccessUsersTab({
         directManagedRole,
         effective,
         inheritedReason,
+        canEdit,
         openEditModal: (defaultRole) => setEditingUser({ user, defaultRole }),
         doRemove: () => updateManagedPolicy(deleteRole(user.id, managedPolicy)),
       })
@@ -218,6 +222,7 @@ export function AccessUsersTab({
       groupsByUserId,
       scopedPolicies,
       managedScope,
+      canEdit,
     ]
   )
 

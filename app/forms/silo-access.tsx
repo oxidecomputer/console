@@ -99,7 +99,7 @@ export function SiloAccessEditUserSideModal({
       form={form}
       formType={isAssigning ? 'create' : 'edit'}
       resourceName="role"
-      title={isAssigning ? 'Assign role' : 'Edit role'}
+      title={isAssigning ? 'Add silo role' : 'Edit silo role'}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {name}

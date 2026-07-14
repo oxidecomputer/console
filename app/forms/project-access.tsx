@@ -109,7 +109,7 @@ export function ProjectAccessEditUserSideModal({
       form={form}
       formType={isAssigning ? 'create' : 'edit'}
       resourceName="role"
-      title={isAssigning ? 'Assign role' : 'Edit role'}
+      title={isAssigning ? 'Add project role' : 'Edit project role'}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {name}

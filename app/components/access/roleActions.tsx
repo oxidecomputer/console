@@ -11,13 +11,12 @@ import { HL } from '~/components/HL'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { type MenuAction } from '~/table/columns/action-col'
 
-/** Verb labels for the row actions, scoped so the project tab reads "project role". */
+/** Verb labels for the row actions, scoped so they read e.g. "project role". */
 function roleActionLabels(managedScope: AccessScope) {
-  const isProject = managedScope === 'project'
   return {
-    assign: isProject ? 'Assign project role' : 'Assign role',
-    change: isProject ? 'Change project role' : 'Change role',
-    remove: isProject ? 'Remove project role' : 'Remove role',
+    add: `Add ${managedScope} role`,
+    change: `Change ${managedScope} role`,
+    remove: `Remove ${managedScope} role`,
   }
 }
 
@@ -32,6 +31,8 @@ type BuildRoleActionsArgs = {
   effective: { role: RoleKey } | null
   /** Disabled reason shown when there's no direct managed role to remove. */
   inheritedReason: string
+  /** Whether the current user can add/change/remove roles in the managed scope. */
+  canEdit: boolean
   /** Open the edit modal, pre-filled with the given role (undefined = assign). */
   openEditModal: (defaultRole: RoleKey | undefined) => void
   /** Remove the direct managed role. */
@@ -50,12 +51,21 @@ export function buildRoleActions({
   directManagedRole,
   effective,
   inheritedReason,
+  canEdit,
   openEditModal,
   doRemove,
 }: BuildRoleActionsArgs): MenuAction[] {
   const labels = roleActionLabels(managedScope)
+  const addAction: MenuAction = {
+    label: labels.add,
+    onActivate: () => openEditModal(undefined),
+    disabled: !canEdit && `You don't have permission to add ${managedScope} roles`,
+  }
   const removeAction: MenuAction = {
-    label: directManagedRole ? labels.remove : 'Remove role',
+    // renamed from "Delete", so the auto destructive styling (keyed on the label
+    // "delete") no longer applies — set it explicitly
+    label: labels.remove,
+    className: 'destructive',
     onActivate: confirmDelete({
       doDelete: doRemove,
       label: (
@@ -65,28 +75,33 @@ export function buildRoleActions({
       ),
       resourceKind: 'role assignment',
     }),
-    // a direct role on the managed policy is required to remove anything
-    disabled: !directManagedRole && inheritedReason,
+    disabled: !canEdit
+      ? `You don't have permission to remove ${managedScope} roles`
+      : // a direct role on the managed policy is required to remove anything
+        !directManagedRole
+        ? inheritedReason
+        : undefined,
   }
   // No role at all — direct or inherited.
   if (!effective) {
-    return [{ label: labels.assign, onActivate: () => openEditModal(undefined) }]
+    return [addAction]
   }
   // For the project tab, an inherited silo role doesn't give us anything to
-  // "change" on the project policy — frame it as assigning a project role. For
+  // "change" on the project policy — frame it as adding a project role. For
   // the silo tab, an inherited (via group) role can be promoted to a direct
-  // silo assignment via "Change role" pre-filled with the effective role.
+  // silo assignment via the change action, pre-filled with the effective role.
   if (managedScope === 'project' && !directManagedRole) {
-    return [
-      { label: labels.assign, onActivate: () => openEditModal(undefined) },
-      removeAction,
-    ]
+    return [addAction, removeAction]
   }
   // Pre-fill with the direct managed role if any; otherwise the effective role
   // so the modal opens in 'edit' mode showing the role currently in effect.
   const defaultRole = directManagedRole ?? effective.role
   return [
-    { label: labels.change, onActivate: () => openEditModal(defaultRole) },
+    {
+      label: labels.change,
+      onActivate: () => openEditModal(defaultRole),
+      disabled: !canEdit && `You don't have permission to change ${managedScope} roles`,
+    },
     removeAction,
   ]
 }

@@ -40,6 +40,7 @@ import { ALL_ISH } from '~/util/consts'
 
 import { GroupMembersSideModal } from './GroupMembersSideModal'
 import { buildRoleActions } from './roleActions'
+import { useCanEditPolicy } from './use-can-edit-policy'
 
 // The API only sorts groups by id, so fetch the full set and sort by name
 // client-side. ALL_ISH is the practical ceiling; a silo with more groups than
@@ -90,6 +91,8 @@ export function AccessGroupsTab({
   const managedPolicy = scopedPolicies.find((sp) => sp.scope === managedScope)!.policy
 
   const managedRoleById = useMemo(() => rolesByIdFromPolicy(managedPolicy), [managedPolicy])
+
+  const canEdit = useCanEditPolicy(scopedPolicies, managedScope)
 
   const roleCol = useMemo(
     () =>
@@ -143,11 +146,19 @@ export function AccessGroupsTab({
         directManagedRole,
         effective,
         inheritedReason: 'Role is inherited from another scope; modify it there to revoke',
+        canEdit,
         openEditModal: (defaultRole) => setEditingGroup({ group, defaultRole }),
         doRemove: () => updateManagedPolicy(deleteRole(group.id, managedPolicy)),
       })
     },
-    [managedRoleById, managedPolicy, updateManagedPolicy, scopedPolicies, managedScope]
+    [
+      managedRoleById,
+      managedPolicy,
+      updateManagedPolicy,
+      scopedPolicies,
+      managedScope,
+      canEdit,
+    ]
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)

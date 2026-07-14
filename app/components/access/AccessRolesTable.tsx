@@ -44,6 +44,7 @@ import { identityTypeLabel, roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
 import { GroupMembersSideModal } from './GroupMembersSideModal'
+import { useCanEditPolicy } from './use-can-edit-policy'
 import { UserDetailsSideModal } from './UserDetailsSideModal'
 
 // full lists to resolve names and back the detail side modals; the API only
@@ -105,6 +106,8 @@ export function AccessRolesTable({
 
   // non-null: caller is responsible for including the managed scope
   const managedPolicy = scopedPolicies.find((sp) => sp.scope === managedScope)!.policy
+
+  const canEditRoles = useCanEditPolicy(scopedPolicies, managedScope)
 
   const rows = useMemo(() => {
     const nameById = new Map(
@@ -203,28 +206,22 @@ export function AccessRolesTable({
       getActionsCol((row: AccessRow) => {
         // A row can appear here because of a role in another scope (silo roles
         // show on the project page) without a direct role in the managed scope.
-        // There's nothing to change or remove here, but a managed-scope role can
-        // still be assigned.
-        if (!row.managedRole) {
-          return [
-            {
-              label: managedScope === 'project' ? 'Assign project role' : 'Assign role',
-              onActivate: () => setEditing({ row, defaultRole: undefined }),
-            },
-            {
-              label: 'Delete',
-              onActivate: () => {},
-              disabled: 'Role is inherited from another scope; modify it there to revoke',
-            },
-          ]
-        }
+        // There's nothing to change or remove in that case, but a managed-scope
+        // role can still be added.
+        const editVerb = row.managedRole ? 'Change' : 'Add'
         return [
           {
-            label: 'Change role',
+            label: `${editVerb} ${managedScope} role`,
             onActivate: () => setEditing({ row, defaultRole: row.managedRole }),
+            disabled:
+              !canEditRoles &&
+              `You don't have permission to ${editVerb.toLowerCase()} ${managedScope} roles`,
           },
           {
-            label: 'Delete',
+            // renamed from "Delete", so the auto destructive styling (keyed on
+            // the label "delete") no longer applies — set it explicitly
+            label: `Remove ${managedScope} role`,
+            className: 'destructive',
             onActivate: confirmDelete({
               doDelete: () => updateManagedPolicy(deleteRole(row.id, managedPolicy)),
               label: (
@@ -238,11 +235,18 @@ export function AccessRolesTable({
                   ? `This will remove your own ${managedScope} access.`
                   : undefined,
             }),
+            disabled: !canEditRoles
+              ? `You don't have permission to remove ${managedScope} roles`
+              : // no direct role in this scope to remove — it's inherited from the silo
+                !row.managedRole
+                ? 'This role is inherited from the silo'
+                : undefined,
           },
         ]
       }),
     ],
     [
+      canEditRoles,
       managedPolicy,
       managedScope,
       updateManagedPolicy,

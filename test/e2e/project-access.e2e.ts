@@ -7,7 +7,7 @@
  */
 import { user3, user4 } from '@oxide/api-mocks'
 
-import { expect, expectRowVisible, test } from './utils'
+import { expect, expectRowVisible, getPageAsUser, test } from './utils'
 
 test('Project access shows and edits project role assignments', async ({ page }) => {
   await page.goto('/projects/mock-project')
@@ -64,17 +64,17 @@ test('Project access shows and edits project role assignments', async ({ page })
     .getByRole('row', { name: user4.display_name, exact: false })
     .getByRole('button', { name: 'Row actions' })
     .click()
-  await page.getByRole('menuitem', { name: 'Change role' }).click()
-  await expect(page.getByRole('heading', { name: 'Edit role' })).toBeVisible()
+  await page.getByRole('menuitem', { name: 'Change project role' }).click()
+  await expect(page.getByRole('heading', { name: 'Edit project role' })).toBeVisible()
   await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
   await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.getByRole('button', { name: 'Update role' }).click()
   await expectRowVisible(table, { Name: user4.display_name, Role: 'project.viewer' })
 
-  // delete Jacob's project role
+  // remove Jacob's project role
   const jacobRow = page.getByRole('row', { name: user3.display_name, exact: false })
   await jacobRow.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('menuitem', { name: 'Remove project role' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(jacobRow).toBeHidden()
 
@@ -93,30 +93,63 @@ test('Project access shows and edits project role assignments', async ({ page })
   })
 })
 
-test('Inherited-only row offers Assign project role, not a disabled Change', async ({
+test('Inherited-only row offers Add project role, not a disabled Change', async ({
   page,
 }) => {
   await page.goto('/projects/mock-project/access')
   const table = page.getByRole('table')
 
-  // Hannah has only a silo role, so there's no project role to change or remove,
-  // but a project role can still be assigned from the row action
+  // Hannah has only a silo role, so there's no project role to change, but a
+  // project role can still be added from the row action. Remove is disabled
+  // because the inherited silo role can only be changed on the silo page.
   await table
     .getByRole('row', { name: 'Hannah Arendt', exact: false })
     .getByRole('button', { name: 'Row actions' })
     .click()
-  await expect(page.getByRole('menuitem', { name: 'Change role' })).toBeHidden()
-  await expect(page.getByRole('menuitem', { name: 'Assign project role' })).toBeEnabled()
-  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
+  await expect(page.getByRole('menuitem', { name: 'Change project role' })).toBeHidden()
+  await expect(page.getByRole('menuitem', { name: 'Add project role' })).toBeEnabled()
+  const removeItem = page.getByRole('menuitem', { name: 'Remove project role' })
+  await expect(removeItem).toBeDisabled()
+  await removeItem.hover()
+  await expect(page.getByRole('tooltip')).toHaveText('This role is inherited from the silo')
 
-  await page.getByRole('menuitem', { name: 'Assign project role' }).click()
-  await expect(page.getByRole('heading', { name: 'Assign role' })).toBeVisible()
+  await page.getByRole('menuitem', { name: 'Add project role' }).click()
+  await expect(page.getByRole('heading', { name: 'Add project role' })).toBeVisible()
   await expect(page.getByRole('dialog')).toContainText('Hannah Arendt')
   await page.getByRole('radio', { name: /^Viewer / }).click()
-  await page.getByRole('button', { name: 'Assign role' }).click()
+  await page.getByRole('button', { name: 'Add project role' }).click()
 
   // effective role is still silo.admin, with a +1 badge for the new project role
   await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.admin+1' })
+})
+
+test('Non-admin cannot change or remove project roles', async ({ browser }) => {
+  // Jacob Klein is only a project collaborator (not project admin or silo
+  // collaborator/admin), so he lacks `modify` on the project and can't edit role
+  // assignments. Both row actions should be disabled with an explanation.
+  const page = await getPageAsUser(browser, 'Jacob Klein')
+  await page.goto('/projects/mock-project/access')
+
+  await expect(page.getByRole('heading', { name: 'Project Access' })).toBeVisible()
+
+  await page
+    .getByRole('row', { name: 'Herbert Marcuse', exact: false })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+
+  const changeRole = page.getByRole('menuitem', { name: 'Change project role' })
+  await expect(changeRole).toBeDisabled()
+  await changeRole.hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    "You don't have permission to change project roles"
+  )
+
+  const removeRole = page.getByRole('menuitem', { name: 'Remove project role' })
+  await expect(removeRole).toBeDisabled()
+  await removeRole.hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    "You don't have permission to remove project roles"
+  )
 })
 
 test('Project access user details side modal', async ({ page }) => {
