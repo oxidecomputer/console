@@ -12,6 +12,14 @@ import { OXQL_GROUP_BY_ERROR } from '~/api'
 
 import { expectConsoleMessage, expectNoConsoleMessage, getPageAsUser } from './utils'
 
+// Freeze the clock so the default "Last hour" range and the calendar's visible
+// month don't depend on when the tests run. Without this, runs near midnight
+// UTC flake: the range straddles the day boundary, and on a month boundary the
+// calendar opens on the previous month, so the "Today" cell isn't rendered.
+test.beforeEach(async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-06-15T12:00:00.000Z'))
+})
+
 test('Click through instance metrics', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/metrics/cpu')
 

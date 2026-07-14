@@ -18,8 +18,8 @@ test('can create a NIC with a specified IP address', async ({ page }) => {
 
   // fill out the form
   await page.getByLabel('Name').fill('nic-1')
-  await page.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  // VPC is preselected because the project has exactly one
+  await expect(page.getByLabel('VPC', { exact: true })).toContainText('mock-vpc')
   await page.getByRole('dialog').getByRole('button', { name: 'VPC subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 

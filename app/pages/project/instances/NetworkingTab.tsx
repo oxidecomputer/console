@@ -32,7 +32,6 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
-import { orderIps } from '~/components/ExternalIps'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
@@ -68,6 +67,7 @@ import {
   getCompatibleVersionsFromNics,
   getEphemeralIpSlots,
   ipHasVersion,
+  orderIps,
   parseIp,
 } from '~/util/ip'
 import { pb } from '~/util/path-builder'
@@ -172,6 +172,8 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
           queryClient.setQueryData(queryKey, { type: 'success', data: pool })
         }
       }),
+    // Fetch VPCs for Add NIC form
+    queryClient.fetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
   ])
   return null
 }
