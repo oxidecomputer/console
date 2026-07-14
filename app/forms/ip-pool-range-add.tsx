@@ -18,7 +18,7 @@ import {
   type IpVersion,
 } from '@oxide/api'
 
-import { TextField } from '~/components/form/fields/TextField'
+import { noPasswordManager, TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useIpPoolSelector } from '~/hooks/use-params'
@@ -84,6 +84,7 @@ export default function IpPoolAddRange() {
         control={form.control}
         required
         validate={(value) => validateAddress(value, poolData.ipVersion)}
+        {...noPasswordManager}
       />
       <TextField
         name="last"
@@ -91,6 +92,7 @@ export default function IpPoolAddRange() {
         control={form.control}
         required
         validate={(value) => validateAddress(value, poolData.ipVersion)}
+        {...noPasswordManager}
       />
       <SideModalFormDocs docs={[docLinks.systemIpPools]} />
     </SideModalForm>

@@ -858,6 +858,21 @@ export const BgpConfigResultsPage = z.preprocess(
 )
 
 /**
+ * Parameters for updating a BGP configuration
+ *
+ * If a value is not specified, it will remain unchanged.
+ */
+export const BgpConfigUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    bgpAnnounceSetId: NameOrId.nullable().optional(),
+    description: z.string().nullable().optional(),
+    maxPaths: MaxPathConfig.nullable().optional(),
+    name: Name.nullable().optional(),
+  })
+)
+
+/**
  * Route exported to a peer.
  */
 export const BgpExported = z.preprocess(
@@ -7691,6 +7706,16 @@ export const NetworkingBgpConfigListParams = z.preprocess(
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const NetworkingBgpConfigUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      nameOrId: NameOrId,
     }),
   })
 )
