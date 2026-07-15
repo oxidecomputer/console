@@ -103,7 +103,7 @@ export function FleetAccessEditUserSideModal({
       form={form}
       formType="edit"
       resourceName="role"
-      title="Edit role"
+      title="Edit fleet role"
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {name}

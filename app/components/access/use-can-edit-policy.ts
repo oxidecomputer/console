@@ -9,6 +9,7 @@ import {
   getEffectiveRole,
   userScopedRoleEntries,
   type AccessScope,
+  type FleetRolePolicy,
   type ScopedPolicy,
 } from '@oxide/api'
 
@@ -40,4 +41,20 @@ export function useCanEditPolicy(
     : roleInScope('project') === 'admin' ||
         siloRole === 'admin' ||
         siloRole === 'collaborator'
+}
+
+/**
+ * Whether the current user can add, change, or remove fleet role assignments.
+ * Modifying the fleet policy requires the fleet admin role. Fleet is the
+ * top-level resource, so unlike project there's no collaborator cascade — only
+ * admin confers modify.
+ * https://github.com/oxidecomputer/omicron/blob/main/nexus/auth/src/authz/omicron.polar
+ */
+export function useCanEditFleetPolicy(policy: FleetRolePolicy): boolean {
+  const { me, myGroups } = useCurrentUser()
+  const myIds = new Set([me.id, ...myGroups.items.map((g) => g.id)])
+  const myFleetRole = getEffectiveRole(
+    policy.roleAssignments.filter((ra) => myIds.has(ra.identityId)).map((ra) => ra.roleName)
+  )
+  return myFleetRole === 'admin'
 }

@@ -25,15 +25,19 @@ import {
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import {
+  buildRemoveRoleAction,
+  noRolePermissionReason,
+  roleActionLabel,
+} from '~/components/access/roleActions'
+import { useCanEditFleetPolicy } from '~/components/access/use-can-edit-policy'
 import { DocsPopover } from '~/components/DocsPopover'
-import { HL } from '~/components/HL'
 import {
   FleetAccessAddUserSideModal,
   FleetAccessEditUserSideModal,
 } from '~/forms/fleet-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useQuickActions } from '~/hooks/use-quick-actions'
-import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
@@ -106,6 +110,7 @@ export default function FleetAccessPage() {
   const navigate = useNavigate()
   const { me } = useCurrentUser()
   const { data: fleetPolicy } = usePrefetchedQuery(systemPolicyView)
+  const canEditRoles = useCanEditFleetPolicy(fleetPolicy)
   const { data: users } = usePrefetchedQuery(userList)
   const { data: groups } = usePrefetchedQuery(groupList)
   const { data: silos } = usePrefetchedQuery(siloList)
@@ -232,28 +237,25 @@ export default function FleetAccessPage() {
           ])
           .with({ kind: 'assignment' }, (row) => [
             {
-              label: 'Change role',
+              label: roleActionLabel('fleet', 'change'),
               onActivate: () => setEditingUserRow(row),
+              disabled: !canEditRoles && noRolePermissionReason('fleet', 'change'),
             },
-            {
-              label: 'Delete',
-              onActivate: confirmDelete({
-                doDelete: () => updatePolicy({ body: deleteRole(row.id, fleetPolicy) }),
-                label: (
-                  <span>
-                    the <HL>{row.fleetRole}</HL> role for <HL>{row.name}</HL>
-                  </span>
-                ),
-                resourceKind: 'role assignment',
-                extraContent:
-                  row.id === me.id ? 'This will remove your own fleet access.' : undefined,
-              }),
-            },
+            buildRemoveRoleAction({
+              name: row.name,
+              role: row.fleetRole,
+              scope: 'fleet',
+              isSelf: row.id === me.id,
+              disabledReason: canEditRoles
+                ? undefined
+                : noRolePermissionReason('fleet', 'remove'),
+              doRemove: () => updatePolicy({ body: deleteRole(row.id, fleetPolicy) }),
+            }),
           ])
           .exhaustive()
       ),
     ],
-    [fleetPolicy, updatePolicy, me, navigate]
+    [canEditRoles, fleetPolicy, updatePolicy, me, navigate]
   )
 
   useQuickActions(

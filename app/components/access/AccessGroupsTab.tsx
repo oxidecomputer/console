@@ -147,6 +147,7 @@ export function AccessGroupsTab({
         effective,
         inheritedReason: 'Role is inherited from another scope; modify it there to revoke',
         canEdit,
+        isSelf: false, // a group is never the current user
         openEditModal: (defaultRole) => setEditingGroup({ group, defaultRole }),
         doRemove: () => updateManagedPolicy(deleteRole(group.id, managedPolicy)),
       })

@@ -30,6 +30,7 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { type EditRoleModalProps } from '~/forms/access-util'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -102,6 +103,7 @@ export function AccessUsersTab({
   const managedRoleById = useMemo(() => rolesByIdFromPolicy(managedPolicy), [managedPolicy])
 
   const canEdit = useCanEditPolicy(scopedPolicies, managedScope)
+  const { me } = useCurrentUser()
 
   const roleCol = useMemo(
     () =>
@@ -211,6 +213,7 @@ export function AccessUsersTab({
         effective,
         inheritedReason,
         canEdit,
+        isSelf: user.id === me.id,
         openEditModal: (defaultRole) => setEditingUser({ user, defaultRole }),
         doRemove: () => updateManagedPolicy(deleteRole(user.id, managedPolicy)),
       })
@@ -223,6 +226,7 @@ export function AccessUsersTab({
       scopedPolicies,
       managedScope,
       canEdit,
+      me,
     ]
   )
 

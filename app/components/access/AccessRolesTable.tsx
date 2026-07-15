@@ -28,11 +28,9 @@ import {
 import { Access24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { type EditRoleModalProps } from '~/forms/access-util'
 import { useCurrentUser } from '~/hooks/use-current-user'
-import { confirmDelete } from '~/stores/confirm-delete'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
@@ -44,6 +42,11 @@ import { identityTypeLabel, roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
 import { GroupMembersSideModal } from './GroupMembersSideModal'
+import {
+  buildRemoveRoleAction,
+  noRolePermissionReason,
+  roleActionLabel,
+} from './roleActions'
 import { useCanEditPolicy } from './use-can-edit-policy'
 import { UserDetailsSideModal } from './UserDetailsSideModal'
 
@@ -208,40 +211,26 @@ export function AccessRolesTable({
         // show on the project page) without a direct role in the managed scope.
         // There's nothing to change or remove in that case, but a managed-scope
         // role can still be added.
-        const editVerb = row.managedRole ? 'Change' : 'Add'
+        const editVerb = row.managedRole ? 'change' : 'add'
         return [
           {
-            label: `${editVerb} ${managedScope} role`,
+            label: roleActionLabel(managedScope, editVerb),
             onActivate: () => setEditing({ row, defaultRole: row.managedRole }),
-            disabled:
-              !canEditRoles &&
-              `You don't have permission to ${editVerb.toLowerCase()} ${managedScope} roles`,
+            disabled: !canEditRoles && noRolePermissionReason(managedScope, editVerb),
           },
-          {
-            // renamed from "Delete", so the auto destructive styling (keyed on
-            // the label "delete") no longer applies — set it explicitly
-            label: `Remove ${managedScope} role`,
-            className: 'destructive',
-            onActivate: confirmDelete({
-              doDelete: () => updateManagedPolicy(deleteRole(row.id, managedPolicy)),
-              label: (
-                <span>
-                  the <HL>{row.managedRole}</HL> role for <HL>{row.name}</HL>
-                </span>
-              ),
-              resourceKind: 'role assignment',
-              extraContent:
-                row.id === me.id
-                  ? `This will remove your own ${managedScope} access.`
-                  : undefined,
-            }),
-            disabled: !canEditRoles
-              ? `You don't have permission to remove ${managedScope} roles`
+          buildRemoveRoleAction({
+            name: row.name,
+            role: row.managedRole,
+            scope: managedScope,
+            isSelf: row.id === me.id,
+            disabledReason: !canEditRoles
+              ? noRolePermissionReason(managedScope, 'remove')
               : // no direct role in this scope to remove — it's inherited from the silo
                 !row.managedRole
                 ? 'This role is inherited from the silo'
                 : undefined,
-          },
+            doRemove: () => updateManagedPolicy(deleteRole(row.id, managedPolicy)),
+          }),
         ]
       }),
     ],
