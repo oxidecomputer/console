@@ -480,7 +480,7 @@ const toSiloComboboxItem = ({ name, description }: Silo): ComboboxItem => ({
     <div className="flex flex-col gap-1">
       <div>{name}</div>
       {description && (
-        <div className="text-secondary selected:text-accent-secondary line-clamp-2">
+        <div className="text-secondary selected:text-accent-secondary line-clamp-2 break-words">
           {description}
         </div>
       )}
