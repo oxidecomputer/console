@@ -128,12 +128,29 @@ const staticSubnetCols = [
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
-    queryClient.fetchQuery(
-      q(api.instanceNetworkInterfaceList, {
-        // we want this to cover all NICs; TODO: determine actual limit?
-        query: { project, instance, limit: ALL_ISH },
-      })
-    ),
+    // Prefetch the by-ID VPC and subnet views the NIC table cells look up, so
+    // VpcNameFromId/SubnetNameFromId hit a warm cache instead of popping in
+    // after the table paints. IDs come from the NIC list, so chain off it; NICs
+    // usually share a VPC/subnet, so dedupe (≤8 NICs, typically 1 of each).
+    queryClient
+      .fetchQuery(
+        q(api.instanceNetworkInterfaceList, {
+          // we want this to cover all NICs; TODO: determine actual limit?
+          query: { project, instance, limit: ALL_ISH },
+        })
+      )
+      .then((nics) => {
+        const vpcIds = [...new Set(nics.items.map((n) => n.vpcId))]
+        const subnetIds = [...new Set(nics.items.map((n) => n.subnetId))]
+        return Promise.all([
+          ...vpcIds.map((vpc) =>
+            queryClient.prefetchQuery(q(api.vpcView, { path: { vpc } }))
+          ),
+          ...subnetIds.map((subnet) =>
+            queryClient.prefetchQuery(q(api.vpcSubnetView, { path: { subnet } }))
+          ),
+        ])
+      }),
     queryClient.fetchQuery(q(api.floatingIpList, { query: { project, limit: ALL_ISH } })),
     queryClient.fetchQuery(
       q(api.externalSubnetList, { query: { project, limit: ALL_ISH } })
