@@ -128,10 +128,10 @@ const staticSubnetCols = [
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
-    // Prefetch the by-ID VPC and subnet views the NIC table cells look up, so
-    // VpcNameFromId/SubnetNameFromId hit a warm cache instead of popping in
-    // after the table paints. IDs come from the NIC list, so chain off it; NICs
-    // usually share a VPC/subnet, so dedupe (≤8 NICs, typically 1 of each).
+    // Prefetch the by-ID subnet views the NIC table's subnet cells look up, so
+    // SubnetNameFromId hits a warm cache. subnetIds come from the NIC list, so
+    // chain off it; NICs usually share a subnet, so dedupe (≤8 NICs, typically 1).
+    // VPC cells are handled by seeding vpcView from the vpcList fetch below.
     queryClient
       .fetchQuery(
         q(api.instanceNetworkInterfaceList, {
@@ -140,16 +140,12 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
         })
       )
       .then((nics) => {
-        const vpcIds = [...new Set(nics.items.map((n) => n.vpcId))]
         const subnetIds = [...new Set(nics.items.map((n) => n.subnetId))]
-        return Promise.all([
-          ...vpcIds.map((vpc) =>
-            queryClient.prefetchQuery(q(api.vpcView, { path: { vpc } }))
-          ),
-          ...subnetIds.map((subnet) =>
+        return Promise.all(
+          subnetIds.map((subnet) =>
             queryClient.prefetchQuery(q(api.vpcSubnetView, { path: { subnet } }))
-          ),
-        ])
+          )
+        )
       }),
     queryClient.fetchQuery(q(api.floatingIpList, { query: { project, limit: ALL_ISH } })),
     queryClient.fetchQuery(
@@ -189,8 +185,15 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
           queryClient.setQueryData(queryKey, { type: 'success', data: pool })
         }
       }),
-    // Fetch VPCs for Add NIC form
-    queryClient.fetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
+    // Fetch VPCs for the Add NIC form, and seed vpcView-by-id so the NIC
+    // table's VPC cells (VpcNameFromId) render without a skeleton.
+    queryClient
+      .fetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } }))
+      .then((vpcs) => {
+        for (const vpc of vpcs.items) {
+          queryClient.setQueryData(q(api.vpcView, { path: { vpc: vpc.id } }).queryKey, vpc)
+        }
+      }),
   ])
   return null
 }
