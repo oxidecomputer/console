@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { OXQL_GROUP_BY_ERROR } from '~/api'
 
@@ -38,6 +38,50 @@ test('Click through instance metrics', async ({ page }) => {
   await expect(page).toHaveURL('/projects/mock-project/instances/db1/metrics/network')
   await expect(page.getByRole('heading', { name: 'Bytes Sent' })).toBeVisible()
   await expect(page.getByText('Something went wrong')).toBeHidden()
+})
+
+async function readChartValueAt(page: Page, chart: Locator, fracX: number) {
+  const box = await chart.boundingBox()
+  if (!box) throw new Error('chart has no bounding box')
+  const x = box.x + box.width * fracX
+  await page.mouse.move(x, box.y)
+  await page.mouse.move(x, box.y + box.height * 0.25)
+  const tooltip = page.getByRole('tooltip')
+  await expect(tooltip).toBeVisible()
+  // within the tooltip, the value line is the only text that's just a number + unit
+  const value = tooltip.getByText(/^[\d,]+%$/)
+  return Number((await value.textContent())!.replace(/\D/g, ''))
+}
+
+test('chart tooltip reads back the plotted value', async ({ page }) => {
+  // sentinel-metrics-flat returns a flat series (see handleOxqlMetrics), so a
+  // hover anywhere in the plot reads back the same value.
+  await page.goto('/projects/mock-project/instances/sentinel-metrics-flat/metrics/cpu')
+
+  const heading = page.getByRole('heading', { name: 'CPU Utilization: Running' })
+  await expect(heading).toBeVisible()
+  // wait for data so the chart, not the loading skeleton, is rendered
+  await expect(page.getByLabel('Chart loading')).toBeHidden()
+
+  const chart = page.getByRole('figure', { name: 'CPU Utilization: Running' })
+  expect(await readChartValueAt(page, chart, 0.5)).toBe(12345)
+})
+
+test('chart x-axis maps earlier times to the left', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/sentinel-metrics-slope/metrics/cpu')
+
+  const heading = page.getByRole('heading', { name: 'CPU Utilization: Running' })
+  await expect(heading).toBeVisible()
+  await expect(page.getByLabel('Chart loading')).toBeHidden()
+
+  const chart = page.getByRole('figure', { name: 'CPU Utilization: Running' })
+  const leftValue = await readChartValueAt(page, chart, 0.25)
+  const rightValue = await readChartValueAt(page, chart, 0.7)
+
+  // sentinel-metrics-slope returns a series that increases with time (see
+  // handleOxqlMetrics), so a hover on the left of the plot reads a smaller value
+  // than one on the right.
+  expect(leftValue).toBeLessThan(rightValue)
 })
 
 test('Date range picker: choosing a custom range', async ({ page }) => {

@@ -92,7 +92,10 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   } = payload[0]
   if (!timestamp || typeof value !== 'number') return null
   return (
-    <div className="text-sans-md text-secondary bg-raise shadow-tooltip rounded-md outline-0">
+    <div
+      role="tooltip"
+      className="text-sans-md text-secondary bg-raise shadow-tooltip rounded-md outline-0"
+    >
       <div className="border-secondary border-b px-3 py-2 pr-6">
         {longDateTime(timestamp)}
       </div>
@@ -233,7 +236,7 @@ export function TimeSeriesChart({
   // ResponsiveContainer has default height and width of 100%
   // https://recharts.org/en-US/api/ResponsiveContainer
   return (
-    <div className="px-5 pt-8 pb-5">
+    <figure aria-label={title} className="m-0 px-5 pt-8 pb-5">
       <ResponsiveContainer height={300}>
         <AreaChart data={data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
           <CartesianGrid stroke={GRID_GRAY} vertical={false} />
@@ -285,7 +288,7 @@ export function TimeSeriesChart({
           />
         </AreaChart>
       </ResponsiveContainer>
-    </div>
+    </figure>
   )
 }
 
