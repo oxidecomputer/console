@@ -1,3 +1,6 @@
+import { useRef, useState, type ReactNode, useMemo } from 'react'
+import * as R from 'remeda'
+
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -12,6 +15,8 @@ import { classed } from '~/util/classed'
 import { Button } from './Button'
 import { EmptyMessage } from './EmptyMessage'
 import { Table as BigTable } from './Table'
+import { textWidth } from './text-width'
+import { Tooltip } from './Tooltip'
 
 type Children = { children: React.ReactNode }
 
@@ -29,10 +34,18 @@ const Body = classed.tbody``
 
 const Row = classed.tr`*:border-default last:*:border-b *:first:border-l *:last:border-r`
 
-const Cell = ({ children }: Children) => {
+const Cell = ({
+  children,
+  className,
+  style,
+}: {
+  children: ReactNode
+  className?: string
+  style?: React.CSSProperties
+}) => {
   return (
-    <td>
-      <div>{children}</div>
+    <td className={className} style={style}>
+      <div className="relative whitespace-nowrap">{children}</div>
     </td>
   )
 }
@@ -79,6 +92,36 @@ const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) 
   </Cell>
 )
 
+const TruncateCell = ({ text }: { text: string }) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isTruncated, setIsTruncated] = useState(false)
+
+  const inner = (
+    <div
+      ref={ref}
+      className="absolute inset-x-3 truncate"
+      onMouseEnter={() => {
+        const el = ref.current
+        setIsTruncated(!!el && el.scrollWidth > el.clientWidth)
+      }}
+    >
+      {text}
+    </div>
+  )
+
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      {isTruncated ? (
+        <Tooltip content={text} placement="bottom">
+          {inner}
+        </Tooltip>
+      ) : (
+        inner
+      )}
+    </div>
+  )
+}
+
 type ClearAndAddButtonsProps = {
   addButtonCopy: string
   disabled: boolean
@@ -108,12 +151,19 @@ export const ClearAndAddButtons = ({
 
 type Column<T> = {
   header: string
-  cell: (item: T) => React.ReactNode
-}
+} & (
+  | { cell: (item: T) => React.ReactNode }
+  | {
+      /** Columns with `text` auto-truncate and share remaining table width
+       *  proportionally based on their measured text content. */
+      text: (item: T) => string
+    }
+)
 
 type MiniTableProps<T> = {
   ariaLabel: string
   items: T[]
+  /** Keep this array referentially stable so column-width memoization is effective. */
   columns: Column<T>[]
   rowKey: (item: T, index: number) => string
   onRemoveItem: (item: T) => void
@@ -124,6 +174,82 @@ type MiniTableProps<T> = {
    */
   emptyState?: { title: string; body: string }
   className?: string
+}
+
+function isTextColumn<T>(
+  col: Column<T>
+): col is { header: string; text: (item: T) => string } {
+  return 'text' in col
+}
+
+type ColumnWidthProps = {
+  className?: string
+  style?: React.CSSProperties
+}
+
+/**
+ * Measure the widest rendered value in one text column. Returns 0 when the
+ * column is custom-rendered or contains no measurable text.
+ */
+function measureColumnWidth<T>(column: Column<T>, items: T[]) {
+  if (!isTextColumn(column)) return 0
+
+  // Keep these in sync with the table's text-sans-md class.
+  const font = '400 14px SuisseIntl'
+  const letterSpacing = '0.03rem'
+  let maxWidth = 0
+  for (const item of items) {
+    maxWidth = Math.max(maxWidth, textWidth(column.text(item), font, letterSpacing))
+  }
+  return maxWidth
+}
+
+/**
+ * Clamp measured text-column widths around their shared average. Using the
+ * square root of the ratio for both bounds keeps the clamp symmetric while
+ * limiting the widest-to-narrowest allocation to 2.5. Zero marks a column
+ * without measurable text and is preserved.
+ */
+function clampColumnWidths(widths: number[], averageWidth: number) {
+  const spread = Math.sqrt(5 / 2)
+  const floor = averageWidth / spread
+  const ceiling = averageWidth * spread
+  return widths.map((width) => (width > 0 ? Math.min(Math.max(width, floor), ceiling) : 0))
+}
+
+/**
+ * Build sizing props for every table column. Text columns are measured
+ * independently, clamped together to prevent extreme allocations, and then
+ * normalized into percentages. Custom-rendered columns receive no sizing
+ * props and remain fit-to-content. When no text is measurable, the first
+ * column receives the table's original `w-full` fallback.
+ */
+function useColumnWidths<T>(columns: Column<T>[], items: T[]): ColumnWidthProps[] {
+  return useMemo(() => {
+    const hasTextCols = columns.some(isTextColumn)
+    if (!hasTextCols || items.length === 0) {
+      // Fall back to the old behavior: first column gets w-full
+      return columns.map((_, i) => (i === 0 ? { className: 'w-full' } : {}))
+    }
+
+    const maxWidths = columns.map((column) => measureColumnWidth(column, items))
+
+    const textColCount = maxWidths.filter((w) => w > 0).length
+    if (textColCount === 0) {
+      return columns.map((_, i) => (i === 0 ? { className: 'w-full' } : {}))
+    }
+
+    const averageWidth = R.sum(maxWidths) / textColCount
+    const clampedWidths = clampColumnWidths(maxWidths, averageWidth)
+    const totalClampedWidth = R.sum(clampedWidths)
+
+    // Text columns share available space proportionally; others fit content
+    return columns.map((col, i) => {
+      if (!isTextColumn(col)) return {}
+      const pct = (clampedWidths[i] / totalClampedWidth) * 100
+      return { style: { width: `${pct.toFixed(1)}%` } }
+    })
+  }, [columns, items])
 }
 
 /** If `emptyState` is left out, `MiniTable` renders null when `items` is empty. */
@@ -137,6 +263,8 @@ export function MiniTable<T>({
   emptyState,
   className,
 }: MiniTableProps<T>) {
+  const colWidths = useColumnWidths(columns, items)
+
   if (!emptyState && items.length === 0) return null
 
   return (
@@ -153,9 +281,17 @@ export function MiniTable<T>({
         {items.length ? (
           items.map((item, index) => (
             <Row tabIndex={0} aria-rowindex={index + 1} key={rowKey(item, index)}>
-              {columns.map((column, colIndex) => (
-                <Cell key={colIndex}>{column.cell(item)}</Cell>
-              ))}
+              {columns.map((column, colIndex) => {
+                return (
+                  <Cell key={colIndex} {...colWidths[colIndex]}>
+                    {isTextColumn(column) ? (
+                      <TruncateCell text={column.text(item)} />
+                    ) : (
+                      column.cell(item)
+                    )}
+                  </Cell>
+                )
+              })}
 
               <RemoveCell
                 onClick={() => onRemoveItem(item)}

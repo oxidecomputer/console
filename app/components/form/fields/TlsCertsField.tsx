@@ -23,7 +23,7 @@ import { FileField } from './FileField'
 import { NameField } from './NameField'
 
 const tlsCertTableColumns = [
-  { header: 'Name', cell: (item: CertificateCreate) => item.name },
+  { header: 'Name', text: (item: CertificateCreate) => item.name },
 ]
 
 export function TlsCertsField({ control }: { control: Control<SiloCreateFormValues> }) {

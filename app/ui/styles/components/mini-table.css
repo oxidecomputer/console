@@ -38,7 +38,7 @@
 
   /* all divs */
   & td > div {
-    @apply border-default flex h-9 items-center border border-y border-r-0 py-3 pr-6 pl-3;
+    @apply border-default flex h-9 items-center border border-y border-r-0 pr-4 pl-3;
   }
 
   /* first cell's div */
