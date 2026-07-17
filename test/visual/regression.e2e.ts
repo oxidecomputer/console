@@ -238,7 +238,7 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
   test('silo utilization', async ({ page }) => {
     await page.goto('/utilization', { waitUntil: 'networkidle' })
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-    await expect(page.locator('.recharts-curve').first()).toBeVisible()
+    await expect(page.locator('figure').first()).toBeVisible()
     await expect(page).toHaveScreenshot('silo-utilization.png', {
       fullPage: true,
       mask: [page.getByTestId('refetch-interval-refresh')],
@@ -249,7 +249,7 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
   test('system utilization metrics tab', async ({ page }) => {
     await page.goto('/system/utilization?tab=metrics', { waitUntil: 'networkidle' })
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-    await expect(page.locator('.recharts-curve').first()).toBeVisible()
+    await expect(page.locator('figure').first()).toBeVisible()
     await expect(page).toHaveScreenshot('system-utilization-metrics-tab.png', {
       fullPage: true,
       mask: [page.getByTestId('refetch-interval-refresh')],
