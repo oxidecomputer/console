@@ -5,78 +5,110 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Error16Icon } from '@oxide/design-system/icons/react'
+import cn from 'classnames'
+import { useRef, useState, type ReactNode } from 'react'
 
-import { classed } from '~/util/classed'
+import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from './Button'
 import { EmptyMessage } from './EmptyMessage'
-import { Table as BigTable } from './Table'
+import { Tooltip } from './Tooltip'
 
-type Children = { children: React.ReactNode }
+/*
+ * The table is laid out with CSS grid rather than native table layout so text
+ * columns can share leftover space and shrink (truncating their contents)
+ * when there isn't enough room, which table layout can't express. The
+ * explicit ARIA roles look redundant but are required: `display: grid` (and
+ * `display: contents` on thead/tbody/tr) strips the implicit table semantics
+ * in some browsers.
+ */
+/* eslint-disable jsx-a11y/no-redundant-roles, jsx-a11y/no-interactive-element-to-noninteractive-role */
 
-const Table = classed.table`ox-mini-table w-full border-separate text-sans-md`
+/** Divider between cells, inset so it doesn't touch the row's y borders */
+const headerSeparator = `relative before:border-secondary before:absolute before:inset-y-px before:left-0 before:w-px before:border-l before:content-['']`
+const rowSeparator = `relative before:border-tertiary before:absolute before:inset-y-px before:left-0 before:w-px before:border-l before:content-['']`
 
-const Header = ({ children }: Children) => (
-  <BigTable.Header>
-    <BigTable.HeaderRow>{children}</BigTable.HeaderRow>
-  </BigTable.Header>
+const HeadCell = ({
+  className,
+  children,
+}: {
+  className?: string
+  children?: ReactNode
+}) => (
+  <th
+    role="columnheader"
+    className={cn(
+      className,
+      'text-mono-sm text-secondary bg-secondary border-default flex h-9 items-center border-y px-3'
+    )}
+  >
+    {children}
+  </th>
 )
 
-const HeadCell = BigTable.HeadCell
+const Cell = ({ className, children }: { className?: string; children: ReactNode }) => (
+  <td
+    role="cell"
+    className={cn(
+      className,
+      'border-default flex h-9 min-w-0 items-center border-y pr-4 pl-3'
+    )}
+  >
+    {children}
+  </td>
+)
 
-const Body = classed.tbody``
+const TruncateCell = ({ text }: { text: string }) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isTruncated, setIsTruncated] = useState(false)
 
-const Row = classed.tr`*:border-default last:*:border-b *:first:border-l *:last:border-r`
+  const inner = (
+    <div
+      ref={ref}
+      className="truncate"
+      // check on hover so the tooltip only shows when the text is actually cut off
+      onMouseEnter={() => {
+        const el = ref.current
+        setIsTruncated(!!el && el.scrollWidth > el.clientWidth)
+      }}
+    >
+      {text}
+    </div>
+  )
 
-const Cell = ({ children }: Children) => {
-  return (
-    <td>
-      <div>{children}</div>
-    </td>
+  return isTruncated ? (
+    <Tooltip content={text} placement="bottom">
+      {inner}
+    </Tooltip>
+  ) : (
+    inner
   )
 }
 
-const EmptyState = (props: { title: string; body: string; colSpan: number }) => (
-  <Row>
-    <td colSpan={props.colSpan}>
-      <div className="m-0! w-full! flex-col! border-none! bg-transparent! py-14!">
-        <EmptyMessage title={props.title} body={props.body} />
-      </div>
+const EmptyState = (props: { title: string; body: string }) => (
+  <tr
+    role="row"
+    className="bg-default before:border-default relative col-span-full grid grid-cols-subgrid py-2 before:pointer-events-none before:absolute before:inset-0 before:rounded-b-lg before:border-x before:border-b before:content-['']"
+  >
+    <td role="cell" className="col-span-full flex flex-col items-center py-4">
+      <EmptyMessage title={props.title} body={props.body} />
     </td>
-  </Row>
-)
-
-export const InputCell = ({
-  colSpan,
-  defaultValue,
-  placeholder,
-}: {
-  colSpan?: number
-  defaultValue: string
-  placeholder: string
-}) => (
-  <td colSpan={colSpan}>
-    <div>
-      <input
-        type="text"
-        className="text-default placeholder:text-quaternary m-0 w-full bg-transparent p-0 text-sm outline-hidden!"
-        placeholder={placeholder}
-        aria-label={placeholder}
-        defaultValue={defaultValue}
-      />
-    </div>
-  </td>
+  </tr>
 )
 
 // followed this for icon in button best practices
 // https://www.sarasoueidan.com/blog/accessible-icon-buttons/
 const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) => (
-  <Cell>
-    <button type="button" onClick={onClick} aria-label={label}>
+  <td role="cell" className="flex h-9 w-11 items-center justify-center">
+    <button
+      type="button"
+      className="text-tertiary hover:text-secondary focus:text-secondary -m-2 flex items-center justify-center p-2"
+      onClick={onClick}
+      aria-label={label}
+    >
       <Error16Icon aria-hidden focusable="false" />
     </button>
-  </Cell>
+  </td>
 )
 
 type ClearAndAddButtonsProps = {
@@ -108,7 +140,19 @@ export const ClearAndAddButtons = ({
 
 type Column<T> = {
   header: string
-  cell: (item: T) => React.ReactNode
+} & (
+  | { cell: (item: T) => ReactNode }
+  | {
+      /** Columns with `text` share leftover table width and truncate (with a
+       *  tooltip) when there isn't room; `cell` columns fit their content. */
+      text: (item: T) => string
+    }
+)
+
+function isTextColumn<T>(
+  col: Column<T>
+): col is { header: string; text: (item: T) => string } {
+  return 'text' in col
 }
 
 type MiniTableProps<T> = {
@@ -139,38 +183,84 @@ export function MiniTable<T>({
 }: MiniTableProps<T>) {
   if (!emptyState && items.length === 0) return null
 
-  return (
-    <Table aria-label={ariaLabel} className={className}>
-      <Header>
-        {columns.map((column, index) => (
-          <HeadCell key={index}>{column.header}</HeadCell>
-        ))}
-        {/* For remove button */}
-        <HeadCell />
-      </Header>
+  const hasTextCol = columns.some(isTextColumn)
+  // Text columns get `minmax(0, auto)`: sized to their content when
+  // everything fits, and shrunk (truncating) when it doesn't, sharing the
+  // available space. Empty text columns use `1fr` because there is no body
+  // content to make the auto tracks fill the table. `cell` columns always fit
+  // their content. If no column is a text column, the first one stretches so
+  // the table fills its container.
+  const gridTemplateColumns = [
+    ...columns.map((col, i) =>
+      isTextColumn(col)
+        ? items.length === 0
+          ? 'minmax(0, 1fr)'
+          : 'minmax(0, auto)'
+        : i === 0 && !hasTextCol
+          ? 'auto'
+          : 'max-content'
+    ),
+    'min-content', // remove button column
+  ].join(' ')
 
-      <Body>
+  return (
+    <table
+      role="table"
+      aria-label={ariaLabel}
+      style={{ gridTemplateColumns }}
+      className={cn('text-sans-md grid w-full', className)}
+    >
+      <thead role="rowgroup" className="contents">
+        <tr role="row" className="col-span-full grid grid-cols-subgrid">
+          {columns.map((column, index) => (
+            <HeadCell
+              key={index}
+              className={index === 0 ? 'rounded-tl-lg border-l' : headerSeparator}
+            >
+              {column.header}
+            </HeadCell>
+          ))}
+          {/* For remove button */}
+          <HeadCell className={cn(headerSeparator, 'w-11 rounded-tr-lg border-r')} />
+        </tr>
+      </thead>
+
+      <tbody role="rowgroup" className="contents">
         {items.length ? (
           items.map((item, index) => (
-            <Row tabIndex={0} aria-rowindex={index + 1} key={rowKey(item, index)}>
+            <tr
+              role="row"
+              tabIndex={0}
+              aria-rowindex={index + 1}
+              key={rowKey(item, index)}
+              className="bg-default before:border-default relative col-span-full grid grid-cols-subgrid pt-2 before:pointer-events-none before:absolute before:inset-0 before:border-x before:content-[''] last:pb-2 last:before:rounded-b-lg last:before:border-b"
+            >
               {columns.map((column, colIndex) => (
-                <Cell key={colIndex}>{column.cell(item)}</Cell>
+                <Cell
+                  key={colIndex}
+                  className={cn(
+                    colIndex === 0 ? 'ml-2 rounded-l-md border-l' : rowSeparator,
+                    colIndex === columns.length - 1 && 'rounded-r-md border-r'
+                  )}
+                >
+                  {isTextColumn(column) ? (
+                    <TruncateCell text={column.text(item)} />
+                  ) : (
+                    column.cell(item)
+                  )}
+                </Cell>
               ))}
 
               <RemoveCell
                 onClick={() => onRemoveItem(item)}
                 label={removeLabel?.(item) || `Remove item ${index + 1}`}
               />
-            </Row>
+            </tr>
           ))
         ) : emptyState ? (
-          <EmptyState
-            title={emptyState.title}
-            body={emptyState.body}
-            colSpan={columns.length + 1}
-          />
+          <EmptyState title={emptyState.title} body={emptyState.body} />
         ) : null}
-      </Body>
-    </Table>
+      </tbody>
+    </table>
   )
 }
