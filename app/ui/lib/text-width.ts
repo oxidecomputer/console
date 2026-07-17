@@ -17,22 +17,14 @@ function getContext(): CanvasRenderingContext2D {
   return ctx
 }
 
-const cache = new Map<string, number>()
-
 /**
  * Measure the rendered pixel width of `text` using Canvas `measureText`.
  * Accounts for font shaping, kerning, and letter-spacing. Reuses a single
- * offscreen canvas context and caches results.
+ * offscreen canvas context.
  */
 export function textWidth(text: string, font: string, letterSpacing = '0px'): number {
-  const key = font + '\0' + letterSpacing + '\0' + text
-  const cached = cache.get(key)
-  if (cached != null) return cached
-
   const context = getContext()
   context.font = font
   context.letterSpacing = letterSpacing
-  const width = context.measureText(text).width
-  cache.set(key, width)
-  return width
+  return context.measureText(text).width
 }
