@@ -23,6 +23,7 @@ import { HL } from '~/components/HL'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -57,9 +58,16 @@ export const handle = { crumb: 'Images' }
 const colHelper = createColumnHelper<Image>()
 const staticCols = [
   colHelper.accessor('name', {
-    cell: makeLinkCell((image) => pb.siloImageEdit({ image })),
+    cell: makeLinkCell((image) => pb.siloImage({ image })),
   }),
   colHelper.accessor('description', Columns.description),
+  colHelper.accessor('os', {
+    header: 'OS',
+    cell: (info) => info.getValue() || <EmptyCell />,
+  }),
+  colHelper.accessor('version', {
+    cell: (info) => info.getValue() || <EmptyCell />,
+  }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
@@ -73,6 +81,7 @@ export default function SiloImagesPage() {
       // prettier-ignore
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>)
       queryClient.invalidateEndpoint('imageList')
+      queryClient.invalidateEndpoint('imageView')
     },
   })
 
@@ -87,6 +96,7 @@ export default function SiloImagesPage() {
         onActivate: confirmDelete({
           doDelete: () => deleteImage({ path: { image: image.name } }),
           label: image.name,
+          resourceKind: 'image',
         }),
       },
     ],
@@ -107,7 +117,7 @@ export default function SiloImagesPage() {
       },
       ...(allImages?.items || []).map((i) => ({
         value: i.name,
-        action: pb.siloImageEdit({ image: i.name }),
+        action: pb.siloImage({ image: i.name }),
         navGroup: 'Go to silo image',
       })),
     ],
@@ -151,6 +161,8 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
       // prettier-ignore
       addToast(<>Image <HL>{data.name}</HL> promoted</>)
       queryClient.invalidateEndpoint('imageList')
+      // promotion flips projectId; refetch the per-id view
+      queryClient.invalidateEndpoint('imageView')
       onDismiss()
     },
     onError: (err) => {
@@ -247,6 +259,8 @@ const DemoteImageModal = ({
       })
 
       queryClient.invalidateEndpoint('imageList')
+      // demotion flips projectId; refetch the per-id view
+      queryClient.invalidateEndpoint('imageView')
       onDismiss()
     },
     onError: (err) => {

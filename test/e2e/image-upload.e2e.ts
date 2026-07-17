@@ -101,6 +101,61 @@ test.describe('Image upload', () => {
     // TODO: changing name alone should cause error to disappear
   })
 
+  test('block size validation', async ({ page, browserName }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(browserName === 'webkit', 'safari. stop this')
+
+    await page.goto('/projects/mock-project/images-new')
+
+    await page.getByRole('textbox', { name: 'Name' }).fill('new-image')
+    await page.getByRole('textbox', { name: 'Description' }).fill('image description')
+    await page.getByRole('textbox', { name: 'OS' }).fill('Ubuntu')
+    await page.getByRole('textbox', { name: 'Version' }).fill('Dapper Drake')
+
+    const sideModal = page.getByRole('dialog', { name: 'Upload image' })
+    const uploadError = sideModal.getByText(/must be a multiple of the block size/i)
+    const fileRequired = sideModal.getByText('Image file is required')
+    const submit = page.getByRole('button', { name: 'Upload image' })
+    const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
+
+    // with no file picked, changing block size should not trigger a required
+    // error on the file field
+    await page.getByLabel('4096').click()
+    await expect(fileRequired).toBeHidden()
+    await page.getByLabel('512').click()
+
+    // 1000 bytes is not a multiple of any supported block size (512/2048/4096)
+    await page.getByLabel('Image file').setInputFiles({
+      name: 'my-image.iso',
+      mimeType: 'application/octet-stream',
+      buffer: Buffer.alloc(1000, 'a'),
+    })
+
+    await expect(uploadError).toBeVisible()
+
+    // clicking submit does nothing — validation blocks it and the progress
+    // modal never opens
+    await submit.click()
+    await expect(progressModal).toBeHidden()
+    await expect(uploadError).toBeVisible()
+
+    // replace with an aligned file — error clears
+    await page.getByLabel('Image file').setInputFiles({
+      name: 'my-image.iso',
+      mimeType: 'application/octet-stream',
+      buffer: Buffer.alloc(2048, 'a'),
+    })
+
+    await expect(uploadError).toBeHidden()
+
+    // switching block size to one that no longer divides the file doesn't
+    // surface the error live, but submit-time validation still catches it
+    await page.getByLabel('4096').click()
+    await submit.click()
+    await expect(progressModal).toBeHidden()
+    await expect(uploadError).toBeVisible()
+  })
+
   test('form validation', async ({ page, browserName }) => {
     // eslint-disable-next-line playwright/no-skipped-test
     test.skip(browserName === 'webkit', 'safari. stop this')
@@ -193,13 +248,40 @@ test.describe('Image upload', () => {
     await expect(progressModal).toBeVisible()
     expect(confirmCount).toEqual(1)
 
-    // now let's try canceling by clicking out on the background over the side modal
-    await page.getByLabel('4096').click()
+    // now try dismissing by clicking the scrim outside the progress modal
+    await page.mouse.click(50, 50)
 
     await sleep(300)
 
     // without the onFocusOutside fix this is a higher number
     expect(confirmCount).toEqual(2)
+  })
+
+  // regression test for the nested-dialog scrim: the progress modal's backdrop
+  // must cover the SideModal behind it. Without forceRender on Dialog.Backdrop,
+  // base-ui hides a nested backdrop by default, leaving the SideModal
+  // interactive through the "overlay". Without raising --z-modal-overlay above
+  // --z-side-modal, the overlay sits below the SideModal and doesn't cover it.
+  test('progress modal scrim covers the side modal underneath', async ({
+    page,
+    browserName,
+  }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(browserName === 'webkit', 'safari. stop this')
+
+    await fillForm(page, 'new-image')
+
+    const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
+    await page.getByRole('button', { name: 'Upload image' }).click()
+    await expect(progressModal).toBeVisible()
+
+    // 4096 is a block-size radio in the SideModal behind the progress modal.
+    // Playwright's actionability check should fail here: the scrim intercepts
+    // pointer events, so the click can't land on the radio. Without the fix,
+    // nothing covers the radio and the click would succeed.
+    await expect(page.getByLabel('4096').click({ timeout: 2000 })).rejects.toThrow(
+      /intercepts pointer events/
+    )
   })
 
   test('Image upload cancel and retry', async ({ page, browserName }) => {
@@ -235,14 +317,39 @@ test.describe('Image upload', () => {
     await expectUploadProcess(page)
   })
 
+  // generic 500s (errorCode "Internal") have no useful API message, so we fall
+  // back to a generic one; specific error codes like InsufficientCapacity carry
+  // a real user-facing message that we surface verbatim.
+  const genericMessage = 'Something went wrong. Please try again.'
   const failureCases = [
-    { imageName: 'disk-create-500', stepText: 'Create temporary disk' },
-    { imageName: 'import-start-500', stepText: 'Put disk in import mode' },
-    { imageName: 'import-stop-500', stepText: 'Get disk out of import mode' },
-    { imageName: 'disk-finalize-500', stepText: 'Finalize disk and create snapshot' },
+    {
+      imageName: 'disk-create-500',
+      stepText: 'Create temporary disk',
+      message: genericMessage,
+    },
+    {
+      imageName: 'disk-create-quota',
+      stepText: 'Create temporary disk',
+      message: 'Storage Limit Exceeded',
+    },
+    {
+      imageName: 'import-start-500',
+      stepText: 'Put disk in import mode',
+      message: genericMessage,
+    },
+    {
+      imageName: 'import-stop-500',
+      stepText: 'Get disk out of import mode',
+      message: genericMessage,
+    },
+    {
+      imageName: 'disk-finalize-500',
+      stepText: 'Finalize disk and create snapshot',
+      message: genericMessage,
+    },
   ]
 
-  for (const { imageName, stepText } of failureCases) {
+  for (const { imageName, stepText, message } of failureCases) {
     test(`failure ${imageName}`, async ({ page, browserName }) => {
       // eslint-disable-next-line playwright/no-skipped-test
       test.skip(browserName === 'webkit', 'safari. stop this')
@@ -253,10 +360,13 @@ test.describe('Image upload', () => {
 
       const step = page.getByTestId(`upload-step: ${stepText}`)
       await expect(step).toHaveAttribute('data-status', 'error', { timeout: 15000 })
-      await expectVisible(page, [
-        'text="Something went wrong. Please try again."',
-        'role=button[name="Back"]',
-      ])
+
+      await expect(page.getByText(message)).toBeVisible()
+      // confirm we don't show both the generic and a specific API message
+      if (message !== genericMessage) {
+        await expect(page.getByText(genericMessage)).toBeHidden()
+      }
+      await expect(page.getByRole('button', { name: 'Back' })).toBeVisible()
     })
   }
 })

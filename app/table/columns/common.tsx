@@ -6,13 +6,12 @@
  * Copyright Oxide Computer Company
  */
 
-import { filesize } from 'filesize'
-
 import type { InstanceState } from '~/api'
 import { InstanceStateBadge } from '~/components/StateBadge'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { DateTime } from '~/ui/lib/DateTime'
+import { Size } from '~/ui/lib/ValueUnit'
 
 // the full type of the info arg is CellContext<Row, Item> from RT, but in these
 // cells we only care about the return value of getValue
@@ -38,16 +37,6 @@ function instanceStateCell(info: Info<InstanceState>) {
   return <InstanceStateBadge state={info.getValue()} />
 }
 
-// not using Info<number> so this can also be used for minitables
-export function sizeCellInner(value: number) {
-  const size = filesize(value, { base: 2, output: 'object' })
-  return (
-    <span className="text-default text-nowrap">
-      {size.value} <span className="text-tertiary">{size.unit}</span>
-    </span>
-  )
-}
-
 /** Columns used in a bunch of tables */
 export const Columns = {
   /** Truncates text if too long, full text in tooltip */
@@ -56,7 +45,7 @@ export const Columns = {
   },
   id: { header: 'ID', cell: idCell },
   instanceState: { header: 'state', cell: instanceStateCell },
-  size: { cell: (info: Info<number>) => sizeCellInner(info.getValue()) },
+  size: { cell: (info: Info<number>) => <Size bytes={info.getValue()} /> },
   timeCreated: { header: 'created', cell: dateCell },
   timeModified: { header: 'modified', cell: dateCell },
 }

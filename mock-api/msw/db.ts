@@ -68,14 +68,15 @@ export const resolvePoolSelector = (
     | { pool: string; type: 'explicit' }
     | { type: 'auto'; ip_version?: IpVersion | null }
     | undefined,
-  poolType?: IpPoolType
+  poolType: IpPoolType,
+  siloId: string = defaultSilo.id
 ) => {
   if (poolSelector?.type === 'explicit') {
     return lookup.ipPool({ pool: poolSelector.pool })
   }
 
   // For 'auto' type, find the default pool for the specified IP version and pool type
-  const silo = lookup.silo({ silo: defaultSilo.id })
+  const silo = lookup.silo({ silo: siloId })
   const links = db.ipPoolSilos.filter((ips) => ips.silo_id === silo.id && ips.is_default)
 
   // Filter candidate pools by both IP version and pool type
@@ -83,8 +84,7 @@ export const resolvePoolSelector = (
     const pool = db.ipPools.find((p) => p.id === ips.ip_pool_id)
     if (!pool) return false
 
-    // If poolType specified, filter by it
-    if (poolType && pool.pool_type !== poolType) return false
+    if (pool.pool_type !== poolType) return false
 
     // If IP version specified, filter by it
     if (poolSelector?.ip_version && pool.ip_version !== poolSelector.ip_version) {
@@ -106,9 +106,8 @@ export const resolvePoolSelector = (
 
   const link = candidateLinks[0]
   if (!link) {
-    const typeStr = poolType ? ` ${poolType}` : ''
     const versionStr = poolSelector?.ip_version ? ` ${poolSelector.ip_version}` : ''
-    throw notFoundErr(`default${typeStr}${versionStr} pool for silo '${defaultSilo.id}'`)
+    throw notFoundErr(`default ${poolType}${versionStr} pool for silo '${siloId}'`)
   }
   return lookupById(db.ipPools, link.ip_pool_id)
 }
@@ -627,7 +626,7 @@ const initDb = {
   ipPools: [...mock.ipPools],
   ipPoolSilos: [...mock.ipPoolSilos],
   ipPoolRanges: [...mock.ipPoolRanges],
-  networkInterfaces: [mock.networkInterface],
+  networkInterfaces: [mock.networkInterface, mock.stoppedInstanceNic],
   physicalDisks: [...mock.physicalDisks],
   projects: [...projects],
   racks: [...mock.racks],

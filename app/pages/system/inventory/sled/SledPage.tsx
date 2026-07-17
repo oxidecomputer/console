@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { filesize } from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
@@ -37,8 +36,6 @@ export const handle = makeCrumb(
 export default function SledPage() {
   const { sledId } = useSledParams()
   const { data: sled } = usePrefetchedQuery(sledView({ sledId }))
-
-  const ram = filesize(sled.usablePhysicalRam, { output: 'object', base: 2 })
 
   return (
     <>
@@ -74,10 +71,10 @@ export default function SledPage() {
         <PropertiesTable.Row label="rack id">
           <span className="text-default">{sled.rackId}</span>
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="usable physical ram">
-          <span className="text-default pr-0.5">{ram.value}</span>
-          <span className="text-tertiary">{ram.unit}</span>
-        </PropertiesTable.Row>
+        <PropertiesTable.SizeRow
+          label="usable physical ram"
+          bytes={sled.usablePhysicalRam}
+        />
       </PropertiesTable>
 
       <RouteTabs fullWidth>

@@ -12,6 +12,7 @@ import {
   type FieldPath,
   type FieldPathValue,
   type FieldValues,
+  type RegisterOptions,
   type Validate,
 } from 'react-hook-form'
 
@@ -25,6 +26,21 @@ import {
 import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
+
+/**
+ * Spread onto a field to stop password managers (1Password, Bitwarden,
+ * LastPass) from showing their fill icon and offering autofill. Use for
+ * fields whose name/label a password manager might mistake for a credential
+ * or personal detail (e.g. `first`/`last`, which read as first/last name).
+ *
+ * https://www.stefanjudis.com/snippets/turn-off-password-managers/
+ */
+export const noPasswordManager = {
+  'data-1p-ignore': true,
+  'data-bwignore': true,
+  'data-lpignore': 'true',
+  'data-form-type': 'other',
+} as const
 
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
@@ -45,6 +61,7 @@ export interface TextFieldProps<
   placeholder?: string
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
+  deps?: RegisterOptions<TFieldValues, TName>['deps']
   control: Control<TFieldValues>
   /** Alters the value of the input during the field's onChange event. */
   transform?: (value: string) => string
@@ -98,6 +115,7 @@ export const TextFieldInner = <
   type = 'text',
   label = capitalize(name),
   validate,
+  deps,
   control,
   required,
   id: idProp,
@@ -109,7 +127,7 @@ export const TextFieldInner = <
   const {
     field: { onChange, ...fieldRest },
     fieldState: { error },
-  } = useController({ name, control, rules: { required, validate } })
+  } = useController({ name, control, rules: { required, validate, deps } })
   return (
     <>
       <UITextField

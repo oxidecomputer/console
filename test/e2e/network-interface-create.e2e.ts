@@ -7,21 +7,19 @@
  */
 import { test } from '@playwright/test'
 
-import { expect, expectRowVisible, stopInstance } from './utils'
+import { expect, expectRowVisible } from './utils'
 
 test('can create a NIC with a specified IP address', async ({ page }) => {
-  // go to an instance's Network Interfaces page
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  await stopInstance(page)
+  // use a stopped instance so we can edit NICs
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()
 
   // fill out the form
   await page.getByLabel('Name').fill('nic-1')
-  await page.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  // VPC is preselected because the project has exactly one
+  await expect(page.getByLabel('VPC', { exact: true })).toContainText('mock-vpc')
   await page.getByRole('dialog').getByRole('button', { name: 'VPC subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
@@ -40,10 +38,7 @@ test('can create a NIC with a specified IP address', async ({ page }) => {
 })
 
 test('can create a NIC with a blank IP address', async ({ page }) => {
-  // go to an instance's Network Interfaces page
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  await stopInstance(page)
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()
@@ -83,9 +78,7 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
 })
 
 test('can create a NIC with IPv6 only', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  await stopInstance(page)
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   await page.getByRole('button', { name: 'Add network interface' }).click()
 
@@ -108,9 +101,7 @@ test('can create a NIC with IPv6 only', async ({ page }) => {
 })
 
 test('can create a NIC with dual-stack and explicit IPs', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  await stopInstance(page)
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   await page.getByRole('button', { name: 'Add network interface' }).click()
 

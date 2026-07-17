@@ -20,8 +20,7 @@ import { Modal } from '~/ui/lib/Modal'
 import { DescriptionField } from './DescriptionField'
 import { ErrorMessage } from './ErrorMessage'
 import { FileField } from './FileField'
-import { validateName } from './NameField'
-import { TextField } from './TextField'
+import { NameField } from './NameField'
 
 export function TlsCertsField({ control }: { control: Control<SiloCreateFormValues> }) {
   const [showAddCert, setShowAddCert] = useState(false)
@@ -110,19 +109,14 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames }: AddCertModalProps) => {
       <Modal.Body>
         <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
           <Modal.Section>
-            <TextField
+            <NameField
               name="name"
               control={control}
-              required
-              // this field is identical to NameField (which just does
-              // validateName for you) except we also want to check that the
-              // name is not in the list of certs you've already added
-              validate={(name) => {
-                if (allNames.includes(name)) {
-                  return 'A certificate with this name already exists'
-                }
-                return validateName(name, 'Name', true)
-              }}
+              validate={(name) =>
+                allNames.includes(name)
+                  ? 'A certificate with this name already exists'
+                  : undefined
+              }
             />
             <DescriptionField name="description" control={control} />
             <FileField

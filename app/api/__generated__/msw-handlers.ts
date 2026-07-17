@@ -1053,6 +1053,24 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.AuditLogEntryResultsPage>>
+  /** `PUT /v1/system/hardware/disk-adoption-request` */
+  physicalDiskEnableAdoption: (params: {
+    body: Json<Api.PhysicalDiskManufacturerIdentity>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.PhysicalDiskAdoptionRequest>>
+  /** `DELETE /v1/system/hardware/disk-adoption-request/:physicalDiskAdoptionReqId` */
+  physicalDiskDisableAdoption: (params: {
+    path: Api.PhysicalDiskDisableAdoptionPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/hardware/disk-adoption-requests` */
+  physicalDiskListAdoptionRequests: (params: {
+    query: Api.PhysicalDiskListAdoptionRequestsQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.PhysicalDiskAdoptionRequestResultsPage>>
   /** `GET /v1/system/hardware/disks` */
   physicalDiskList: (params: {
     query: Api.PhysicalDiskListQueryParams
@@ -1065,6 +1083,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.PhysicalDisk>>
+  /** `GET /v1/system/hardware/disks-unadopted` */
+  physicalDiskListUnadopted: (params: {
+    query: Api.PhysicalDiskListUnadoptedQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UnadoptedPhysicalDiskResultsPage>>
   /** `GET /v1/system/hardware/rack-switch-port/:rackId/:switchSlot/:port/lldp/neighbors` */
   networkingSwitchPortLldpNeighbors: (params: {
     path: Api.NetworkingSwitchPortLldpNeighborsPathParams
@@ -1420,6 +1444,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.BgpConfigResultsPage>>
+  /** `PUT /v1/system/networking/bgp` */
+  networkingBgpConfigUpdate: (params: {
+    query: Api.NetworkingBgpConfigUpdateQueryParams
+    body: Json<Api.BgpConfigUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.BgpConfig>>
   /** `POST /v1/system/networking/bgp` */
   networkingBgpConfigCreate: (params: {
     body: Json<Api.BgpConfigCreate>
@@ -1507,6 +1538,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/networking/settings` */
+  systemNetworkingSettingsView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SystemNetworkingSettings>>
+  /** `PUT /v1/system/networking/settings` */
+  systemNetworkingSettingsUpdate: (params: {
+    body: Json<Api.SystemNetworkingSettingsUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SystemNetworkingSettings>>
   /** `GET /v1/system/networking/switch-port-settings` */
   networkingSwitchPortSettingsList: (params: {
     query: Api.NetworkingSwitchPortSettingsListQueryParams
@@ -2984,6 +3026,30 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/system/audit-log',
       handler(handlers['auditLogList'], schema.AuditLogListParams, null)
     ),
+    http.put(
+      '/v1/system/hardware/disk-adoption-request',
+      handler(
+        handlers['physicalDiskEnableAdoption'],
+        null,
+        schema.PhysicalDiskManufacturerIdentity
+      )
+    ),
+    http.delete(
+      '/v1/system/hardware/disk-adoption-request/:physicalDiskAdoptionReqId',
+      handler(
+        handlers['physicalDiskDisableAdoption'],
+        schema.PhysicalDiskDisableAdoptionParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/hardware/disk-adoption-requests',
+      handler(
+        handlers['physicalDiskListAdoptionRequests'],
+        schema.PhysicalDiskListAdoptionRequestsParams,
+        null
+      )
+    ),
     http.get(
       '/v1/system/hardware/disks',
       handler(handlers['physicalDiskList'], schema.PhysicalDiskListParams, null)
@@ -2991,6 +3057,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.get(
       '/v1/system/hardware/disks/:diskId',
       handler(handlers['physicalDiskView'], schema.PhysicalDiskViewParams, null)
+    ),
+    http.get(
+      '/v1/system/hardware/disks-unadopted',
+      handler(
+        handlers['physicalDiskListUnadopted'],
+        schema.PhysicalDiskListUnadoptedParams,
+        null
+      )
     ),
     http.get(
       '/v1/system/hardware/rack-switch-port/:rackId/:switchSlot/:port/lldp/neighbors',
@@ -3316,6 +3390,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         null
       )
     ),
+    http.put(
+      '/v1/system/networking/bgp',
+      handler(
+        handlers['networkingBgpConfigUpdate'],
+        schema.NetworkingBgpConfigUpdateParams,
+        schema.BgpConfigUpdate
+      )
+    ),
     http.post(
       '/v1/system/networking/bgp',
       handler(handlers['networkingBgpConfigCreate'], null, schema.BgpConfigCreate)
@@ -3406,6 +3488,18 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         handlers['networkingLoopbackAddressDelete'],
         schema.NetworkingLoopbackAddressDeleteParams,
         null
+      )
+    ),
+    http.get(
+      '/v1/system/networking/settings',
+      handler(handlers['systemNetworkingSettingsView'], null, null)
+    ),
+    http.put(
+      '/v1/system/networking/settings',
+      handler(
+        handlers['systemNetworkingSettingsUpdate'],
+        null,
+        schema.SystemNetworkingSettingsUpdate
       )
     ),
     http.get(

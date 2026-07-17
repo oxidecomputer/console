@@ -27,12 +27,10 @@ import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { Message } from '~/ui/lib/Message'
 import { Table } from '~/ui/lib/Table'
-import { classed } from '~/util/classed'
+import { ValueUnit } from '~/ui/lib/ValueUnit'
 import { links } from '~/util/links'
 import type * as PP from '~/util/path-params'
 import { bytesToGiB, GiB } from '~/util/units'
-
-const Unit = classed.span`ml-1 text-secondary`
 
 const siloUtil = ({ silo }: PP.Silo) => q(api.siloUtilizationView, { path: { silo } })
 
@@ -64,28 +62,28 @@ export default function SiloQuotasTab() {
           <Table.Row>
             <Table.Cell>CPU</Table.Cell>
             <Table.Cell>
-              {provisioned.cpus} <Unit>vCPUs</Unit>
+              <ValueUnit value={provisioned.cpus} unit="vCPUs" />
             </Table.Cell>
             <Table.Cell>
-              {quotas.cpus} <Unit>vCPUs</Unit>
+              <ValueUnit value={quotas.cpus} unit="vCPUs" />
             </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Memory</Table.Cell>
             <Table.Cell>
-              {bytesToGiB(provisioned.memory)} <Unit>GiB</Unit>
+              <ValueUnit value={bytesToGiB(provisioned.memory)} unit="GiB" />
             </Table.Cell>
             <Table.Cell>
-              {bytesToGiB(quotas.memory)} <Unit>GiB</Unit>
+              <ValueUnit value={bytesToGiB(quotas.memory)} unit="GiB" />
             </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Storage</Table.Cell>
             <Table.Cell>
-              {bytesToGiB(provisioned.storage)} <Unit>GiB</Unit>
+              <ValueUnit value={bytesToGiB(provisioned.storage)} unit="GiB" />
             </Table.Cell>
             <Table.Cell>
-              {bytesToGiB(quotas.storage)} <Unit>GiB</Unit>
+              <ValueUnit value={bytesToGiB(quotas.storage)} unit="GiB" />
             </Table.Cell>
           </Table.Row>
         </Table.Body>

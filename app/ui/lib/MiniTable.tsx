@@ -74,6 +74,7 @@ export const InputCell = ({
         type="text"
         className="text-default placeholder:text-quaternary m-0 w-full bg-transparent p-0 text-sm outline-hidden!"
         placeholder={placeholder}
+        aria-label={placeholder}
         defaultValue={defaultValue}
       />
     </div>

@@ -18,20 +18,30 @@ function setScrollPosition(key: string, pos: number) {
 }
 
 /**
- * Given a ref to a scrolling container element, keep track of its scroll
- * position before navigation and restore it on return (e.g., back/forward nav).
- * Note that `location.key` is used in the cache key, not `location.pathname`,
- * so the same path navigated to at different points in the history stack will
- * not share the same scroll position.
+ * Keep track of window scroll position before navigation and restore it on
+ * return (e.g., back/forward nav). Note that `location.key` is used in the
+ * cache key, not `location.pathname`, so the same path navigated to at
+ * different points in the history stack will not share the same scroll position.
+ *
+ * We tried RR's built-in `<ScrollRestoration />` and it didn't work — on
+ * back/forward nav, `window.scrollTo` was called with the right value but the
+ * document was still at viewport height at that moment, so the scroll got
+ * clamped to 0. We're not sure why; a theory is that RR restores in a
+ * `useLayoutEffect` which fires before some later render expands the content,
+ * and our `useEffect` after paint happens to catch that later render.
  */
-export function useScrollRestoration(container: React.RefObject<HTMLElement | null>) {
+export function useScrollRestoration() {
   const key = `scroll-position-${useLocation().key}`
   const { state } = useNavigation()
   useEffect(() => {
+    // opt out of the browser's native scroll restoration so it doesn't jump
+    // the still-visible old page to the new page's saved position on POP,
+    // before the new route's loader resolves. We restore manually below.
+    window.history.scrollRestoration = 'manual'
     if (state === 'loading') {
-      setScrollPosition(key, container.current?.scrollTop ?? 0)
+      setScrollPosition(key, window.scrollY)
     } else if (state === 'idle') {
-      container.current?.scrollTo(0, getScrollPosition(key))
+      window.scrollTo(0, getScrollPosition(key))
     }
-  }, [key, state, container])
+  }, [key, state])
 }

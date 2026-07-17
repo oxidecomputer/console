@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a problem with the web console
+type: Bug
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What went wrong, and what did you expect to happen? Include steps to reproduce if you can. Screenshots and screen recordings are especially helpful.
+    validations:
+      required: true
+  - type: textarea
+    id: console-errors
+    attributes:
+      label: Browser console output
+      description: |
+        Open the browser devtools console (Cmd+Option+J in Chrome, Cmd+Option+K in Firefox, or F12), reproduce the problem, and paste everything printed there — especially any errors (usually red).
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: console-version
+    attributes:
+      label: Console version
+      description: |
+        At page load, the devtools console prints a line like `Oxide Web Console version https://github.com/oxidecomputer/console/commits/<hash>`. Paste that line (or just the hash) here.
+    validations:
+      required: true
+  - type: input
+    id: which-system
+    attributes:
+      label: What system are you on?
+      description: dogfood, colo, a test sled, etc.
+    validations:
+      required: true
+  - type: input
+    id: system-version
+    attributes:
+      label: System version
+      description: |
+        The target release shown on the system update page at `/system/update` (requires fleet viewer). If you can't see that page, ask an operator, or note that here.
+    validations:
+      required: false

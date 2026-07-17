@@ -11,6 +11,7 @@ import {
   closeToast,
   expect,
   expectRowVisible,
+  fillNumberInput,
   test,
   type Page,
 } from './utils'
@@ -35,6 +36,38 @@ test('can delete a failed instance', async ({ page }) => {
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(cell).toBeHidden() // bye
+})
+
+test('shows external IPs on the instances table', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  const table = page.getByRole('table')
+
+  // db1 has a floating IP (123.4.56.5, sorted first) and an ephemeral one, so it
+  // shows the first plus a +1 overflow
+  await expectRowVisible(table, {
+    name: 'db1',
+    'External IPs': expect.stringMatching(/123\.4\.56\.5.*\+1/),
+  })
+  // only the leading IP is copyable; the overflow IPs live in the tooltip
+  await expect(
+    table.getByRole('row', { name: 'db1' }).getByRole('button', { name: 'Click to copy' })
+  ).toHaveCount(1)
+  // hovering the +1 reveals the other external IP in a tooltip
+  await table.getByRole('row', { name: 'db1' }).getByText('+1').hover()
+  await expect(page.getByText('Other external IPs')).toBeVisible()
+  await expect(page.getByText('123.4.56.0')).toBeVisible()
+
+  // not-there-yet has three ephemeral IPs, so it shows the first plus a +2 overflow
+  await expect(
+    table.getByRole('row', { name: 'not-there-yet' }).getByText('+2')
+  ).toBeVisible()
+
+  // you-fail has only a SNAT IP, which is excluded, so the cell is empty
+  await expectRowVisible(table, { name: 'you-fail', 'External IPs': '—' })
+
+  // db3 is the 7th instance, so its IP prefetch is not awaited by the loader:
+  // the cell renders a skeleton first and fills in when the query lands
+  await expectRowVisible(table, { name: 'db3', 'External IPs': '123.4.56.7' })
 })
 
 test('can start a failed instance', async ({ page }) => {
@@ -168,8 +201,8 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   await clickRowAction(page, 'you-fail', 'Resize')
   const resizeModal = page.getByRole('dialog', { name: 'Resize instance' })
   await expect(resizeModal).toBeVisible()
-  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('10')
-  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('20')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '10')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '20')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
     name: 'you-fail',
@@ -195,8 +228,8 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   await expect(resizeModal).toBeVisible()
   await expect(resizeModal.getByText('Current (db1): 2 vCPUs / 4 GiB')).toBeVisible()
 
-  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('8')
-  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('16')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '8')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '16')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
     name: 'db1',
@@ -214,17 +247,14 @@ test('resize modal stays open on server error', async ({ page }) => {
   const resizeModal = page.getByRole('dialog', { name: 'Resize instance' })
   await expect(resizeModal).toBeVisible()
 
-  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('10')
-  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('20')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '10')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '20')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
 
-  // Wait for the error toast, which confirms the mutation has completed
-  await expect(page.getByTestId('Toasts')).toContainText('Cannot update instance')
-
-  // Modal should stay open so the user can see the error and adjust values
+  // Error renders inline inside the modal; modal stays open so the user can
+  // see the error and adjust values.
+  await expect(resizeModal).toContainText('Cannot update instance')
   await expect(resizeModal).toBeVisible()
-
-  await closeToast(page)
 })
 
 test('delete from instance detail', async ({ page }) => {
@@ -316,7 +346,9 @@ test("polling doesn't close row actions: instances", async ({ page }) => {
   await closeToast(page)
 
   const menu = page.getByRole('menu')
-  const stopped = page.getByText('stopped')
+  // scope to db1's row — db-stopped is also in the table with state 'stopped'
+  const db1Row = page.getByRole('row', { name: 'db1', exact: false })
+  const stopped = db1Row.getByText('stopped')
 
   await expect(menu).toBeHidden()
   await expect(stopped).toBeHidden()

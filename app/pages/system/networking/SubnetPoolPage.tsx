@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -27,6 +27,7 @@ import { Subnet16Icon, Subnet24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
@@ -34,6 +35,11 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSubnetPoolSelector, useSubnetPoolSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
+import {
+  ReplacedDefaultNote,
+  useLinkSubnetPoolSiloFlow,
+} from '~/pages/system/useLinkPoolSiloFlow'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -57,6 +63,7 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+import { capitalize } from '~/util/str'
 
 const subnetPoolView = ({ subnetPool }: PP.SubnetPool) =>
   q(api.systemSubnetPoolView, { path: { pool: subnetPool } })
@@ -127,6 +134,7 @@ export default function SubnetPoolPage() {
               onSelect={confirmDelete({
                 doDelete: () => deletePool({ path: { pool: pool.name } }),
                 label: pool.name,
+                resourceKind: 'subnet pool',
               })}
               disabled={
                 !!members.items.length &&
@@ -218,7 +226,7 @@ function MembersTable() {
                 body: { subnet: member.subnet },
               }),
             errorTitle: 'Could not remove member',
-            modalTitle: 'Confirm remove member',
+            modalTitle: 'Remove member',
             modalContent: (
               <p>
                 Are you sure you want to remove subnet <HL>{member.subnet}</HL> from the
@@ -231,6 +239,17 @@ function MembersTable() {
     ],
     [subnetPool, removeMember]
   )
+  useQuickActions(
+    () => [
+      {
+        value: 'Add member',
+        navGroup: 'Actions',
+        action: pb.subnetPoolMemberAdd({ subnetPool }),
+      },
+    ],
+    [subnetPool]
+  )
+
   const columns = useColsWithActions(membersStaticCols, makeMemberActions)
   const { table } = useQueryTable({
     query: subnetPoolMemberList({ subnetPool }),
@@ -318,7 +337,7 @@ function LinkedSilosTable() {
                   path: { silo: link.siloId, pool: link.subnetPoolId },
                   body: { isDefault: false },
                 }),
-              modalTitle: 'Confirm clear default',
+              modalTitle: 'Clear default',
               modalContent: (
                 <p>
                   Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
@@ -358,7 +377,7 @@ function LinkedSilosTable() {
                       path: { silo: link.siloId, pool: link.subnetPoolId },
                       body: { isDefault: true },
                     }),
-                  modalTitle: `Confirm ${verb} default`,
+                  modalTitle: `${capitalize(verb)} default`,
                   modalContent,
                   errorTitle: `Could not ${verb} default`,
                   actionType: 'primary',
@@ -376,7 +395,7 @@ function LinkedSilosTable() {
           confirmAction({
             doAction: () =>
               unlinkSilo({ path: { silo: link.siloId, pool: link.subnetPoolId } }),
-            modalTitle: 'Confirm unlink silo',
+            modalTitle: 'Unlink silo',
             modalContent: (
               <p>
                 Are you sure you want to unlink {siloLabel} from <HL>{pool.name}</HL>? Users
@@ -395,6 +414,13 @@ function LinkedSilosTable() {
   )
 
   const [showLinkModal, setShowLinkModal] = useState(false)
+
+  useQuickActions(
+    () => [
+      { value: 'Link silo', navGroup: 'Actions', action: () => setShowLinkModal(true) },
+    ],
+    []
+  )
 
   const emptyState = (
     <EmptyMessage
@@ -427,27 +453,27 @@ function LinkedSilosTable() {
 
 type LinkSiloFormValues = {
   silo: string | undefined
+  isDefault: boolean
 }
 
-const defaultValues: LinkSiloFormValues = { silo: undefined }
+const defaultValues: LinkSiloFormValues = { silo: undefined, isDefault: false }
 
 function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
-  const { subnetPool } = useSubnetPoolSelector()
+  const poolSelector = useSubnetPoolSelector()
+  const { subnetPool } = poolSelector
+  const { data: poolData } = usePrefetchedQuery(subnetPoolView(poolSelector))
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  const linkSilo = useApiMutation(api.systemSubnetPoolSiloLink, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('systemSubnetPoolSiloList')
-      onDismiss()
-    },
-    onError(err) {
-      addToast({ title: 'Could not link silo', content: err.message, variant: 'error' })
-    },
+  const { linkAndMaybePromote, isPending } = useLinkSubnetPoolSiloFlow({
+    linkErrorTitle: 'Could not link silo',
+    promoteErrorTitle: 'Silo linked, but pool not set as default',
   })
 
-  function onSubmit({ silo }: LinkSiloFormValues) {
+  async function onSubmit({ silo, isDefault }: LinkSiloFormValues) {
     if (!silo) return
-    linkSilo.mutate({ path: { pool: subnetPool }, body: { silo, isDefault: false } })
+    const linked = await linkAndMaybePromote({ pool: subnetPool, silo, isDefault })
+    if (!linked) return
+    onDismiss()
   }
 
   const linkedSilos = useQuery(
@@ -457,6 +483,22 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
     })
   )
   const allSilos = useQuery(q(api.siloList, { query: { limit: ALL_ISH } }))
+
+  // The pool is fixed here, so its version fixes the default slot. To warn that
+  // linking as default would replace the selected silo's current default of that
+  // version, fetch that silo's subnet pools once a silo is picked.
+  const selectedSilo = useWatch({ control, name: 'silo' })
+  const selectedSiloPools = useQuery(
+    getListQFn(
+      api.siloSubnetPoolList,
+      // silo non-null asserted because the query is disabled until one is picked
+      { path: { silo: selectedSilo! }, query: { limit: ALL_ISH } },
+      { enabled: !!selectedSilo }
+    ).optionsFn()
+  )
+  const replacedDefault = selectedSiloPools.data?.items.find(
+    (p) => p.isDefault && p.ipVersion === poolData.ipVersion
+  )?.name
 
   const linkedSiloIds = useMemo(
     () =>
@@ -497,13 +539,22 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
               required
               control={control}
             />
+
+            <CheckboxField name="isDefault" control={control}>
+              {`Make default IP${poolData.ipVersion} subnet pool for silo`}
+              {replacedDefault && (
+                <ReplacedDefaultNote>
+                  Replaces {replacedDefault}, which stays linked
+                </ReplacedDefaultNote>
+              )}
+            </CheckboxField>
           </form>
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
-        actionLoading={linkSilo.isPending}
+        actionLoading={isPending}
         actionText="Link"
       />
     </Modal>

@@ -5,11 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { LoaderFunctionArgs } from 'react-router'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 
-import { EditImageSideModalForm } from '~/forms/image-edit'
+import { ImageDetailSideModal } from '~/components/ImageDetailSideModal'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getSiloImageSelector, useSiloImageSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
@@ -23,11 +23,12 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = titleCrumb('Edit Image')
+export const handle = titleCrumb('Image')
 
-export default function SiloImageEdit() {
+export default function SiloImageDetail() {
   const selector = useSiloImageSelector()
+  const navigate = useNavigate()
   const { data } = usePrefetchedQuery(imageView(selector))
 
-  return <EditImageSideModalForm image={data} dismissLink={pb.siloImages()} type="Silo" />
+  return <ImageDetailSideModal image={data} onDismiss={() => navigate(pb.siloImages())} />
 }

@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useQuery } from '@tanstack/react-query'
-import { filesize } from 'filesize'
 import { useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
@@ -53,6 +52,7 @@ import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
+import { Size, ValueUnit } from '~/ui/lib/ValueUnit'
 import { instanceMetricsBase, pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 import { pluralize } from '~/util/str'
@@ -168,8 +168,6 @@ export default function InstancePage() {
     enabled: !!primaryVpcId,
   })
 
-  const memory = filesize(instance.memory, { output: 'object', base: 2 })
-
   return (
     <>
       <PageHeader>
@@ -217,12 +215,10 @@ export default function InstancePage() {
       </PageHeader>
       <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.Row label="cpu">
-          <span className="text-default">{instance.ncpus}</span>
-          <span className="text-tertiary ml-1">{pluralize(' vCPU', instance.ncpus)}</span>
+          <ValueUnit value={instance.ncpus} unit={pluralize('vCPU', instance.ncpus)} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="ram">
-          <span className="text-default">{memory.value}</span>
-          <span className="text-tertiary ml-1"> {memory.unit}</span>
+          <Size bytes={instance.memory} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="state">
           <div className="flex items-center gap-2">
@@ -301,9 +297,6 @@ export function ResizeInstanceModal({
           : undefined, // Only link to the instance if we're not already on that page
       })
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
   })
 
   const form = useForm({
@@ -329,6 +322,7 @@ export function ResizeInstanceModal({
         bootDisk: instance.bootDiskId || null,
         cpuPlatform: instance.cpuPlatform || null,
         autoRestartPolicy: instance.autoRestartPolicy || null,
+        enableJumboFrames: instance.enableJumboFrames,
       },
     })
   })

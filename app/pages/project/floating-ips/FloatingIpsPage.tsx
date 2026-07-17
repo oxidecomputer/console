@@ -34,7 +34,7 @@ import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
-import { IpPoolCell } from '~/table/cells/IpPoolCell'
+import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -78,10 +78,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
       .fetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
-          const { queryKey } = q(api.ipPoolView, {
-            path: { pool: pool.id },
-          })
-          queryClient.setQueryData(queryKey, pool)
+          // IpPoolCell uses the errors-allowed query shape, so seed that exact
+          // cache entry instead of the normal ipPoolView query.
+          const { queryKey } = ipPoolErrorsAllowedQuery(pool.id)
+          queryClient.setQueryData(queryKey, { type: 'success', data: pool })
         }
       }),
   ])
@@ -153,7 +153,7 @@ export default function FloatingIpsPage() {
                     path: { floatingIp: floatingIp.name },
                     query: { project },
                   }),
-                modalTitle: 'Detach Floating IP',
+                modalTitle: 'Detach floating IP',
                 // instanceName! non-null because we only see this if there is an instance
                 modalContent: (
                   <p>
@@ -196,6 +196,7 @@ export default function FloatingIpsPage() {
                 query: { project },
               }),
             label: floatingIp.name,
+            resourceKind: 'floating IP',
           }),
         },
       ]

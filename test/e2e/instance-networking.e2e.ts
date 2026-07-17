@@ -22,6 +22,25 @@ const selectASiloImage = async (page: Page, name: string) => {
   await page.getByRole('option', { name }).click()
 }
 
+test('Instance networking tab — firewall rules card', async ({ page }) => {
+  // db1 has a primary NIC in mock-vpc, so the card names that VPC
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await expect(
+    page.getByText('Manage firewall rules affecting this instance in VPC mock-vpc')
+  ).toBeVisible()
+
+  // you-fail has no NICs, so there's no primary VPC and we show the fallback copy
+  await page.goto('/projects/mock-project/instances/you-fail/networking')
+  await expect(
+    page.getByText(
+      'Firewall rules are managed on the VPC associated with the primary network interface.'
+    )
+  ).toBeVisible()
+  await expect(
+    page.getByText('Manage firewall rules affecting this instance in VPC')
+  ).toBeHidden()
+})
+
 test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
@@ -100,7 +119,13 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await clickRowAction(page, 'my-nic', 'Delete')
   await expect(page.getByText('Are you sure you want to delete my-nic?')).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(page.getByRole('cell', { name: 'my-nic' })).toBeHidden()
+  // Wait for the NIC list refetch to land before opening nic-3's menu.
+  // Otherwise `multipleNics` is still true, Delete renders disabled (wrapped
+  // in a tooltip), and the unwrap when the refetch lands detaches the
+  // menuitem and closes the menu on Safari/FF. Row count (vs. checking my-nic
+  // is gone) because any absence check passes transiently while the confirm
+  // modal closes and the page is inert.
+  await expect(nicTable.getByRole('row')).toHaveCount(2) // header + nic-3
 
   // Now the primary NIC is deletable
   await clickRowAction(page, 'nic-3', 'Delete')
@@ -148,7 +173,7 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   // an explicit ipVersion selector), then reattach it.
   await clickRowAction(page, 'fd00::1', 'Detach')
   const confirmDetachDialog = page.getByRole('dialog', {
-    name: 'Confirm detach ephemeral IP',
+    name: 'Detach ephemeral IP',
   })
   await expect(confirmDetachDialog).toBeVisible()
   await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
@@ -204,6 +229,26 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
     Version: 'v4',
     'IP pool': 'ip-pool-1',
   })
+})
+
+test('Attach ephemeral IP — error renders in modal, not toast', async ({ page }) => {
+  // Selecting the sentinel `attach-fail` pool causes the mock handler to 500.
+  // See ipPoolEphemeralAttachFail.
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await page.getByRole('button', { name: 'Attach ephemeral IP' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+  await expect(modal).toBeVisible()
+
+  await page.getByLabel('Pool').click()
+  await page.getByRole('option', { name: 'attach-fail' }).click()
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+
+  const errorText = 'Cannot attach ephemeral IP'
+  await expect(modal.getByText(errorText)).toBeVisible()
+  await expect(page.getByTestId('Toasts')).not.toContainText(errorText)
+  // Modal stays open so the user can retry or dismiss
+  await expect(modal).toBeVisible()
 })
 
 test('Instance networking tab — floating IPs', async ({ page }) => {
@@ -290,10 +335,8 @@ test('Instance networking tab — SNAT IPs', async ({ page }) => {
 })
 
 test('Edit network interface - Transit IPs', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  // Stop the instance to enable editing
-  await stopInstance(page)
+  // use a stopped instance so editing is enabled
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   await clickRowAction(page, 'my-nic', 'Edit')
 

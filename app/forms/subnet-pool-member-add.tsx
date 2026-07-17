@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm, type FieldErrors } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
 import {
@@ -41,65 +41,59 @@ const defaultValues: MemberAddForm = {
   maxPrefixLength: NaN,
 }
 
-// Using a resolver overrides all field-level validation (required, min, max,
-// etc.), so this function must cover everything. Field-level props like
-// `required` on subnet and `min`/`max` on NumberFields still affect UI display
-// and stepper behavior, but their RHF validation rules are inert.
-export function createResolver(poolVersion: IpVersion) {
-  return (values: MemberAddForm) => {
-    const errors: FieldErrors<MemberAddForm> = {}
-    const maxBound = poolVersion === 'v4' ? 32 : 128
+type ValidationErrors = Partial<Record<keyof MemberAddForm, string>>
 
-    const parsed = parseIpNet(values.subnet)
-    if (parsed.type === 'error') {
-      errors.subnet = { type: 'pattern', message: parsed.message }
-    } else if (parsed.type !== poolVersion) {
-      errors.subnet = {
-        type: 'pattern',
-        message: `IP${parsed.type} subnet not allowed in IP${poolVersion} pool`,
-      }
-    }
+/**
+ * This function is a sneaky way to back into cross-field validation while only
+ * hooking into the field-level `validate` callback. This function looks at all
+ * the form `values` together and sets errors for each field in the form, and
+ * then the callsites look like this: they all call it the same way and just
+ * pluck their own error off the result.
+ *
+ * ```ts
+ * validate={(_maxPrefixLength, values) =>
+ *   validateMember(poolData.ipVersion, values).maxPrefixLength
+ * }
+ * ```
+ */
+export function validateMember(
+  poolVersion: IpVersion,
+  values: MemberAddForm
+): ValidationErrors {
+  const maxBound = poolVersion === 'v4' ? 32 : 128
+  const parsed = parseIpNet(values.subnet)
+  const { minPrefixLength: minPL, maxPrefixLength: maxPL } = values
+  const subnetWidth = parsed.type !== 'error' ? parsed.width : undefined
+  const inRange = (v: number) => !Number.isNaN(v) && v >= 0 && v <= maxBound
 
-    const { minPrefixLength: minPL, maxPrefixLength: maxPL } = values
-    const subnetWidth = parsed.type !== 'error' ? parsed.width : undefined
-    const inRange = (v: number) => !Number.isNaN(v) && v >= 0 && v <= maxBound
+  const errors: ValidationErrors = {}
 
-    // min and max prefix length are optional, and NaN is the value they have
-    // when they're unset (matching NumberField)
-
-    // min prefix: bounds → ordering → subnet width
-    if (!Number.isNaN(minPL) && !inRange(minPL)) {
-      errors.minPrefixLength = {
-        type: 'validate',
-        message: `Must be between 0 and ${maxBound}`,
-      }
-    } else if (inRange(minPL) && inRange(maxPL) && minPL > maxPL) {
-      errors.minPrefixLength = {
-        type: 'validate',
-        message: 'Min prefix length must be ≤ max prefix length',
-      }
-    } else if (inRange(minPL) && subnetWidth !== undefined && minPL < subnetWidth) {
-      errors.minPrefixLength = {
-        type: 'validate',
-        message: `Must be ≥ subnet prefix length (${subnetWidth})`,
-      }
-    }
-
-    // max prefix: bounds → subnet width
-    if (!Number.isNaN(maxPL) && !inRange(maxPL)) {
-      errors.maxPrefixLength = {
-        type: 'validate',
-        message: `Must be between 0 and ${maxBound}`,
-      }
-    } else if (inRange(maxPL) && subnetWidth !== undefined && maxPL < subnetWidth) {
-      errors.maxPrefixLength = {
-        type: 'validate',
-        message: `Must be ≥ subnet prefix length (${subnetWidth})`,
-      }
-    }
-
-    return { values: Object.keys(errors).length > 0 ? {} : values, errors }
+  if (parsed.type === 'error') {
+    errors.subnet = parsed.message
+  } else if (parsed.type !== poolVersion) {
+    errors.subnet = `IP${parsed.type} subnet not allowed in IP${poolVersion} pool`
   }
+
+  // min and max prefix length are optional, and NaN is the value they have
+  // when they're unset (matching NumberField)
+
+  // min prefix: bounds → ordering → subnet width
+  if (!Number.isNaN(minPL) && !inRange(minPL)) {
+    errors.minPrefixLength = `Must be between 0 and ${maxBound}`
+  } else if (inRange(minPL) && inRange(maxPL) && minPL > maxPL) {
+    errors.minPrefixLength = 'Min prefix length must be ≤ max prefix length'
+  } else if (inRange(minPL) && subnetWidth !== undefined && minPL < subnetWidth) {
+    errors.minPrefixLength = `Must be ≥ subnet prefix length (${subnetWidth})`
+  }
+
+  // max prefix: bounds → subnet width
+  if (!Number.isNaN(maxPL) && !inRange(maxPL)) {
+    errors.maxPrefixLength = `Must be between 0 and ${maxBound}`
+  } else if (inRange(maxPL) && subnetWidth !== undefined && maxPL < subnetWidth) {
+    errors.maxPrefixLength = `Must be ≥ subnet prefix length (${subnetWidth})`
+  }
+
+  return errors
 }
 
 export const handle = titleCrumb('Add Member')
@@ -123,11 +117,7 @@ export default function SubnetPoolMemberAdd() {
     },
   })
 
-  const form = useForm<MemberAddForm>({
-    defaultValues,
-    // doesn't need to be memoized, doesn't trigger renders
-    resolver: createResolver(poolData.ipVersion),
-  })
+  const form = useForm<MemberAddForm>({ defaultValues })
 
   const maxBound = poolData.ipVersion === 'v4' ? 32 : 128
 
@@ -161,6 +151,8 @@ export default function SubnetPoolMemberAdd() {
         description="CIDR notation (e.g., 10.0.0.0/16)"
         control={form.control}
         required
+        validate={(_subnet, values) => validateMember(poolData.ipVersion, values).subnet}
+        deps={['minPrefixLength', 'maxPrefixLength']}
       />
       <NumberField
         name="minPrefixLength"
@@ -169,6 +161,9 @@ export default function SubnetPoolMemberAdd() {
         control={form.control}
         min={0}
         max={maxBound}
+        validate={(_minPrefixLength, values) =>
+          validateMember(poolData.ipVersion, values).minPrefixLength
+        }
       />
       <NumberField
         name="maxPrefixLength"
@@ -177,6 +172,10 @@ export default function SubnetPoolMemberAdd() {
         control={form.control}
         min={0}
         max={maxBound}
+        validate={(_maxPrefixLength, values) =>
+          validateMember(poolData.ipVersion, values).maxPrefixLength
+        }
+        deps="minPrefixLength"
       />
       <SideModalFormDocs docs={[docLinks.subnetPools]} />
     </SideModalForm>
