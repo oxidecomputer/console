@@ -18,6 +18,12 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { MiniTable } from '~/ui/lib/MiniTable'
 import { Radio } from '~/ui/lib/Radio'
 
+const networkInterfaceTableColumns = [
+  { header: 'Name', cell: (item: InstanceNetworkInterfaceCreate) => item.name },
+  { header: 'VPC', cell: (item: InstanceNetworkInterfaceCreate) => item.vpcName },
+  { header: 'Subnet', cell: (item: InstanceNetworkInterfaceCreate) => item.subnetName },
+]
+
 /**
  * Designed less for reuse, more to encapsulate logic that would otherwise
  * clutter the instance create form.
@@ -115,11 +121,7 @@ export function NetworkInterfaceField({
                   <MiniTable
                     ariaLabel="Network Interfaces"
                     items={value.params}
-                    columns={[
-                      { header: 'Name', cell: (item) => item.name },
-                      { header: 'VPC', cell: (item) => item.vpcName },
-                      { header: 'Subnet', cell: (item) => item.subnetName },
-                    ]}
+                    columns={networkInterfaceTableColumns}
                     rowKey={(item) => item.name}
                     onRemoveItem={(item) =>
                       onChange({

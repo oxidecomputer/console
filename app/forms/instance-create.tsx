@@ -93,6 +93,11 @@ import { GiB } from '~/util/units'
 // for referential stability
 const EMPTY_NAME_OR_ID_LIST: NameOrId[] = []
 
+const floatingIpTableColumns = [
+  { header: 'Name', cell: (item: FloatingIp) => item.name },
+  { header: 'IP', cell: (item: FloatingIp) => item.ip },
+]
+
 const getBootDiskAttachment = (
   values: InstanceCreateInput,
   images: Array<Image>
@@ -1016,10 +1021,7 @@ const NetworkingSection = ({
             <MiniTable
               ariaLabel="Floating IPs"
               items={attachedFloatingIps}
-              columns={[
-                { header: 'Name', cell: (item) => item.name },
-                { header: 'IP', cell: (item) => item.ip },
-              ]}
+              columns={floatingIpTableColumns}
               rowKey={(item) => item.name}
               onRemoveItem={(item) => detachFloatingIp(item.name)}
               removeLabel={(item) => `remove floating IP ${item.name}`}
