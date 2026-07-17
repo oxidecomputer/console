@@ -186,9 +186,41 @@ type ColumnWidthProps = {
 }
 
 /**
- * For each text column, find the max text width across all items, then
- * distribute remaining table width proportionally. Returns a per-column
- * props object.
+ * Measure the widest rendered value in one text column. Returns 0 when the
+ * column is custom-rendered or contains no measurable text.
+ */
+function measureColumnWidth<T>(column: Column<T>, items: T[]) {
+  if (!isTextColumn(column)) return 0
+
+  // Keep these in sync with the table's text-sans-md class.
+  const font = '400 14px SuisseIntl'
+  const letterSpacing = '0.03rem'
+  let maxWidth = 0
+  for (const item of items) {
+    maxWidth = Math.max(maxWidth, textWidth(column.text(item), font, letterSpacing))
+  }
+  return maxWidth
+}
+
+/**
+ * Clamp measured text-column widths around their shared average. Using the
+ * square root of the ratio for both bounds keeps the clamp symmetric while
+ * limiting the widest-to-narrowest allocation to 2.5. Zero marks a column
+ * without measurable text and is preserved.
+ */
+function clampColumnWidths(widths: number[], averageWidth: number) {
+  const spread = Math.sqrt(5 / 2)
+  const floor = averageWidth / spread
+  const ceiling = averageWidth * spread
+  return widths.map((width) => (width > 0 ? Math.min(Math.max(width, floor), ceiling) : 0))
+}
+
+/**
+ * Build sizing props for every table column. Text columns are measured
+ * independently, clamped together to prevent extreme allocations, and then
+ * normalized into percentages. Custom-rendered columns receive no sizing
+ * props and remain fit-to-content. When no text is measurable, the first
+ * column receives the table's original `w-full` fallback.
  */
 function useColumnWidths<T>(columns: Column<T>[], items: T[]): ColumnWidthProps[] {
   return useMemo(() => {
@@ -198,19 +230,7 @@ function useColumnWidths<T>(columns: Column<T>[], items: T[]): ColumnWidthProps[
       return columns.map((_, i) => (i === 0 ? { className: 'w-full' } : {}))
     }
 
-    // Measure max natural text width per text column.
-    // text-sans-md = 400 14px/1.125rem SuisseIntl, letter-spacing 0.03rem
-    const font = '400 14px SuisseIntl'
-    const letterSpacing = '0.03rem'
-    const maxWidths = columns.map((col) => {
-      if (!isTextColumn(col)) return 0
-      let max = 0
-      for (const item of items) {
-        const w = textWidth(col.text(item), font, letterSpacing)
-        if (w > max) max = w
-      }
-      return max
-    })
+    const maxWidths = columns.map((column) => measureColumnWidth(column, items))
 
     const textColCount = maxWidths.filter((w) => w > 0).length
     const totalTextWidth = maxWidths.reduce((sum, w) => sum + w, 0)
@@ -218,22 +238,14 @@ function useColumnWidths<T>(columns: Column<T>[], items: T[]): ColumnWidthProps[
       return columns.map((_, i) => (i === 0 ? { className: 'w-full' } : {}))
     }
 
-    // Max ratio between widest and narrowest text column.
-    // 1 = all equal, higher = more variation.
-    const maxWidthRatio = 5 / 2
-    const equalShare = totalTextWidth / textColCount
-    const spread = Math.sqrt(maxWidthRatio)
-    const floor = equalShare / spread
-    const ceiling = equalShare * spread
-    const clamped = maxWidths.map((w) =>
-      w > 0 ? Math.min(Math.max(w, floor), ceiling) : 0
-    )
-    const clampedTotal = clamped.reduce((sum, w) => sum + w, 0)
+    const averageWidth = totalTextWidth / textColCount
+    const clampedWidths = clampColumnWidths(maxWidths, averageWidth)
+    const totalClampedWidth = clampedWidths.reduce((sum, width) => sum + width, 0)
 
     // Text columns share available space proportionally; others fit content
     return columns.map((col, i) => {
       if (!isTextColumn(col)) return {}
-      const pct = (clamped[i] / clampedTotal) * 100
+      const pct = (clampedWidths[i] / totalClampedWidth) * 100
       return { style: { width: `${pct.toFixed(1)}%` } }
     })
   }, [columns, items])
