@@ -180,17 +180,22 @@ function isTextColumn<T>(
   return 'text' in col
 }
 
+type ColumnWidthProps = {
+  className?: string
+  style?: React.CSSProperties
+}
+
 /**
  * For each text column, find the max text width across all items, then
  * distribute remaining table width proportionally. Returns a per-column
- * style object (undefined for fit-to-content columns).
+ * props object.
  */
-function useColumnWidths<T>(columns: Column<T>[], items: T[]) {
+function useColumnWidths<T>(columns: Column<T>[], items: T[]): ColumnWidthProps[] {
   return useMemo(() => {
     const hasTextCols = columns.some(isTextColumn)
     if (!hasTextCols || items.length === 0) {
       // Fall back to the old behavior: first column gets w-full
-      return columns.map((_, i) => (i === 0 ? 'w-full' : undefined))
+      return columns.map((_, i) => (i === 0 ? { className: 'w-full' } : {}))
     }
 
     // Measure max natural text width per text column.
@@ -210,7 +215,7 @@ function useColumnWidths<T>(columns: Column<T>[], items: T[]) {
     const textColCount = maxWidths.filter((w) => w > 0).length
     const totalTextWidth = maxWidths.reduce((sum, w) => sum + w, 0)
     if (totalTextWidth === 0 || textColCount === 0) {
-      return columns.map((_, i) => (i === 0 ? 'w-full' : undefined))
+      return columns.map((_, i) => (i === 0 ? { className: 'w-full' } : {}))
     }
 
     // Max ratio between widest and narrowest text column.
@@ -227,9 +232,9 @@ function useColumnWidths<T>(columns: Column<T>[], items: T[]) {
 
     // Text columns share available space proportionally; others fit content
     return columns.map((col, i) => {
-      if (!isTextColumn(col)) return undefined
+      if (!isTextColumn(col)) return {}
       const pct = (clamped[i] / clampedTotal) * 100
-      return { width: `${pct.toFixed(1)}%` } as const
+      return { style: { width: `${pct.toFixed(1)}%` } }
     })
   }, [columns, items])
 }
@@ -264,11 +269,8 @@ export function MiniTable<T>({
           items.map((item, index) => (
             <Row tabIndex={0} aria-rowindex={index + 1} key={rowKey(item, index)}>
               {columns.map((column, colIndex) => {
-                const w = colWidths[colIndex]
-                const className = typeof w === 'string' ? w : undefined
-                const style = typeof w === 'object' ? w : undefined
                 return (
-                  <Cell key={colIndex} className={className} style={style}>
+                  <Cell key={colIndex} {...colWidths[colIndex]}>
                     {isTextColumn(column) ? (
                       <TruncateCell text={column.text(item)} />
                     ) : (
