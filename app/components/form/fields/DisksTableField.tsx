@@ -23,6 +23,26 @@ export type DiskTableItem =
   | (DiskCreate & { action: 'create' })
   | { name: string; action: 'attach'; size: number; diskType: DiskType }
 
+const diskTableColumns = [
+  {
+    header: 'Name',
+    cell: (item: DiskTableItem) => <Truncate text={item.name} maxLength={35} />,
+  },
+  {
+    header: 'Action',
+    cell: (item: DiskTableItem) => <Badge color="neutral">{item.action}</Badge>,
+  },
+  {
+    header: 'Type',
+    cell: (item: DiskTableItem) => (
+      <Badge color="neutral">
+        {item.action === 'create' ? item.diskBackend.type : item.diskType}
+      </Badge>
+    ),
+  },
+  { header: 'Size', cell: (item: DiskTableItem) => <Size bytes={item.size} /> },
+]
+
 /**
  * Designed less for reuse, more to encapsulate logic that would otherwise
  * clutter the instance create form.
@@ -49,28 +69,7 @@ export function DisksTableField({
         <MiniTable
           ariaLabel="Disks"
           items={items}
-          columns={[
-            {
-              header: 'Name',
-              cell: (item) => <Truncate text={item.name} maxLength={35} />,
-            },
-            {
-              header: 'Action',
-              cell: (item) => <Badge color="neutral">{item.action}</Badge>,
-            },
-            {
-              header: 'Type',
-              cell: (item) => (
-                <Badge color="neutral">
-                  {item.action === 'create' ? item.diskBackend.type : item.diskType}
-                </Badge>
-              ),
-            },
-            {
-              header: 'Size',
-              cell: (item) => <Size bytes={item.size} />,
-            },
-          ]}
+          columns={diskTableColumns}
           rowKey={(item) => item.name}
           onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
           removeLabel={(item) => `Remove disk ${item.name}`}
