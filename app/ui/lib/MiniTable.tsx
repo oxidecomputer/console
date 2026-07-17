@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode, useMemo } from 'react'
+import * as R from 'remeda'
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -234,14 +235,13 @@ function useColumnWidths<T>(columns: Column<T>[], items: T[]): ColumnWidthProps[
     const maxWidths = columns.map((column) => measureColumnWidth(column, items))
 
     const textColCount = maxWidths.filter((w) => w > 0).length
-    const totalTextWidth = maxWidths.reduce((sum, w) => sum + w, 0)
-    if (totalTextWidth === 0 || textColCount === 0) {
+    if (textColCount === 0) {
       return columns.map((_, i) => (i === 0 ? { className: 'w-full' } : {}))
     }
 
-    const averageWidth = totalTextWidth / textColCount
+    const averageWidth = R.sum(maxWidths) / textColCount
     const clampedWidths = clampColumnWidths(maxWidths, averageWidth)
-    const totalClampedWidth = clampedWidths.reduce((sum, width) => sum + width, 0)
+    const totalClampedWidth = R.sum(clampedWidths)
 
     // Text columns share available space proportionally; others fit content
     return columns.map((col, i) => {
