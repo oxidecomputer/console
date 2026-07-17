@@ -44,7 +44,7 @@ const Cell = ({
 }) => {
   return (
     <td className={className} style={style}>
-      <div className="relative">{children}</div>
+      <div className="relative whitespace-nowrap">{children}</div>
     </td>
   )
 }
