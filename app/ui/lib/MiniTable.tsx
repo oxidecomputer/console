@@ -151,7 +151,7 @@ export const ClearAndAddButtons = ({
 type Column<T> = {
   header: string
 } & (
-  | { cell: (item: T, index: number) => React.ReactNode }
+  | { cell: (item: T) => React.ReactNode }
   | {
       /** Columns with `text` auto-truncate and share remaining table width
        *  proportionally based on their measured text content. */
@@ -162,6 +162,7 @@ type Column<T> = {
 type MiniTableProps<T> = {
   ariaLabel: string
   items: T[]
+  /** Keep this array referentially stable so column-width memoization is effective. */
   columns: Column<T>[]
   rowKey: (item: T, index: number) => string
   onRemoveItem: (item: T) => void
@@ -286,7 +287,7 @@ export function MiniTable<T>({
                     {isTextColumn(column) ? (
                       <TruncateCell text={column.text(item)} />
                     ) : (
-                      column.cell(item, index)
+                      column.cell(item)
                     )}
                   </Cell>
                 )

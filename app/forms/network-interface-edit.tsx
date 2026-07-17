@@ -34,6 +34,8 @@ import { KEYS } from '~/ui/util/keys'
 import { parseIpNet, validateIpNet } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
 
+const transitIpTableColumns = [{ header: 'Transit IPs', text: (ip: string) => ip }]
+
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
   onDismiss: () => void
@@ -164,7 +166,7 @@ export function EditNetworkInterfaceForm({
         className="mb-4"
         ariaLabel="Transit IPs"
         items={transitIps}
-        columns={[{ header: 'Transit IPs', text: (ip) => ip }]}
+        columns={transitIpTableColumns}
         rowKey={(ip) => ip}
         onRemoveItem={(ip) => {
           form.setValue(
