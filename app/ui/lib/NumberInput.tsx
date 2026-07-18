@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { useRef, type Ref } from 'react'
+import { useEffect, useRef, type Ref } from 'react'
 import {
   useButton,
   useLocale,
@@ -30,6 +30,20 @@ export function NumberInput(props: NumberInputProps) {
   const inputRef = useRef(null)
   const { groupProps, inputProps, incrementButtonProps, decrementButtonProps } =
     useNumberField(props, state, inputRef)
+
+  // react-aria only fires props.onChange on commit (blur / Enter / stepper),
+  // but we want form state to update as soon as it would produce a different
+  // field value. Committing whenever state.inputValue changes to an
+  // unambiguous number lets react-aria keep controlling parsing, clamping
+  // etc., but forces it to be more eager.
+  //
+  // Context: https://github.com/adobe/react-spectrum/issues/7984
+  useEffect(() => {
+    if (String(Number(state.inputValue)) === state.inputValue || state.inputValue === '') {
+      state.commit()
+    }
+    // eslint-disable-next-line exhaustive-deps
+  }, [state.inputValue])
 
   return (
     <div
