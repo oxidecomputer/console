@@ -26,6 +26,8 @@ import type {
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
 
+export { snakeify } from './__generated__/util'
+
 // API limits encoded in https://github.com/oxidecomputer/omicron/blob/9dd23096de93c7d6d05ea21f6323de4410060652/nexus/src/app/mod.rs#L142
 
 // These are not actually used in app code, just the mock server. In the app we
