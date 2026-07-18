@@ -2311,6 +2311,23 @@ export const handlers = makeHandlers({
     )
     return paginated(query, affinityGroups)
   },
+  auditLogList: ({ query }) => {
+    let filteredLogs = db.auditLog
+
+    if (query.startTime) {
+      filteredLogs = filteredLogs.filter(
+        (log) => new Date(log.time_completed) >= query.startTime!
+      )
+    }
+
+    if (query.endTime) {
+      filteredLogs = filteredLogs.filter(
+        (log) => new Date(log.time_completed) < query.endTime!
+      )
+    }
+
+    return paginated(query, filteredLogs)
+  },
 
   // SCIM token endpoints
   scimTokenList({ query, cookies }) {
@@ -2640,7 +2657,6 @@ export const handlers = makeHandlers({
   alertReceiverSubscriptionRemove: NotImplemented,
   alertReceiverView: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
-  auditLogList: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,

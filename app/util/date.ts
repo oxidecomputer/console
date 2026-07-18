@@ -53,3 +53,19 @@ export const toLocaleTimeString = (d: Date, locale?: string) =>
 
 export const toLocaleDateTimeString = (d: Date, locale?: string) =>
   new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(d)
+
+// `Jan 21`
+export const toSyslogDateString = (d: Date, locale?: string) =>
+  new Intl.DateTimeFormat(locale, {
+    month: 'short',
+    day: 'numeric',
+  }).format(d)
+
+// `23:33:45`
+export const toSyslogTimeString = (d: Date, locale?: string) =>
+  new Intl.DateTimeFormat(locale, {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).format(d)
