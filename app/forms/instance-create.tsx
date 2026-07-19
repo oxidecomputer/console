@@ -70,6 +70,7 @@ import { Button } from '~/ui/lib/Button'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { ItemDescription } from '~/ui/lib/ItemDescription'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { MiniTable } from '~/ui/lib/MiniTable'
@@ -862,19 +863,17 @@ export default function CreateInstanceForm() {
 }
 
 const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
-  <div>
+  <div className="flex flex-col gap-1">
     <div>{ip.name}</div>
-    <div className="text-secondary selected:text-accent-secondary flex gap-0.5">
-      <div>{ip.ip}</div>
+    <ItemDescription>
+      {ip.ip}
       {ip.description && (
         <>
           <Slash />
-          <div className="grow overflow-hidden text-left text-ellipsis whitespace-pre">
-            {ip.description}
-          </div>
+          {ip.description}
         </>
       )}
-    </div>
+    </ItemDescription>
   </div>
 )
 

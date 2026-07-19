@@ -11,6 +11,7 @@ import type { Image } from '@oxide/api'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import type { ComboboxItem } from '~/ui/lib/Combobox'
+import { ItemDescription } from '~/ui/lib/ItemDescription'
 import { Slash } from '~/ui/lib/Slash'
 import { diskSizeNearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
@@ -82,7 +83,7 @@ export function toImageComboboxItem(
     label: (
       <div className="flex flex-col gap-1">
         <div>{name}</div>
-        <div className="text-secondary selected:text-accent-secondary">{itemMetadata}</div>
+        <ItemDescription>{itemMetadata}</ItemDescription>
       </div>
     ),
   }

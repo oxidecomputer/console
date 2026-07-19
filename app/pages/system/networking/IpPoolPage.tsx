@@ -53,6 +53,7 @@ import { type ComboboxItem } from '~/ui/lib/Combobox'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { ItemDescription } from '~/ui/lib/ItemDescription'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -479,11 +480,7 @@ const toSiloComboboxItem = ({ name, description }: Silo): ComboboxItem => ({
   label: (
     <div className="flex flex-col gap-1">
       <div>{name}</div>
-      {description && (
-        <div className="text-secondary selected:text-accent-secondary line-clamp-2 break-words">
-          {description}
-        </div>
-      )}
+      {description && <ItemDescription>{description}</ItemDescription>}
     </div>
   ),
 })
