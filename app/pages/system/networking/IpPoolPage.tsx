@@ -49,7 +49,7 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { UtilizationFraction } from '~/ui/lib/BigNum'
-import { toComboboxItems } from '~/ui/lib/Combobox'
+import { type ComboboxItem } from '~/ui/lib/Combobox'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -472,6 +472,22 @@ type LinkSiloFormValues = {
 
 const defaultValues: LinkSiloFormValues = { silo: undefined, isDefault: false }
 
+// Combobox item showing the silo name with its description underneath.
+const toSiloComboboxItem = ({ name, description }: Silo): ComboboxItem => ({
+  value: name,
+  selectedLabel: name,
+  label: (
+    <div className="flex flex-col gap-1">
+      <div>{name}</div>
+      {description && (
+        <div className="text-secondary selected:text-accent-secondary line-clamp-2 break-words">
+          {description}
+        </div>
+      )}
+    </div>
+  ),
+})
+
 function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   const { pool } = useIpPoolSelector()
   const { data: poolData } = usePrefetchedQuery(ipPoolView({ pool }))
@@ -522,7 +538,9 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   const unlinkedSiloItems = useMemo(
     () =>
       allSilos.data && linkedSiloIds
-        ? toComboboxItems(allSilos.data.items.filter((s) => !linkedSiloIds.has(s.id)))
+        ? allSilos.data.items
+            .filter((s) => !linkedSiloIds.has(s.id))
+            .map(toSiloComboboxItem)
         : [],
     [allSilos, linkedSiloIds]
   )
