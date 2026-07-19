@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import type { ReactNode } from 'react'
+
 import { classed } from '~/util/classed'
 
 /**
@@ -17,4 +19,22 @@ import { classed } from '~/util/classed'
  * instead of overflowing. Content must be inline (no flex/block children) or
  * the line clamp won't apply.
  */
-export const ItemDescription = classed.div`text-secondary selected:text-accent-secondary line-clamp-2 break-words`
+const ItemDescription = classed.div`text-secondary selected:text-accent-secondary line-clamp-2 break-words`
+
+type ItemLabelProps = {
+  /** Resource name, plus any badges (the name row is a flex row with gap) */
+  name: ReactNode
+  /** Secondary line: a description, slash-separated metadata, or both */
+  children?: ReactNode
+}
+
+/**
+ * Standard two-line label for combobox and listbox items: resource name over
+ * an optional secondary line.
+ */
+export const ItemLabel = ({ name, children }: ItemLabelProps) => (
+  <div className="flex flex-col gap-1">
+    <div className="flex items-center gap-1.5">{name}</div>
+    {children && <ItemDescription>{children}</ItemDescription>}
+  </div>
+)

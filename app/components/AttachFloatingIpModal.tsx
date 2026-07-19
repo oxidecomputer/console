@@ -20,7 +20,7 @@ import {
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
-import { ItemDescription } from '~/ui/lib/ItemDescription'
+import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { Message } from '~/ui/lib/Message'
 import { Slash } from '~/ui/lib/Slash'
 
@@ -51,19 +51,16 @@ function IpPoolName({ ipPoolId }: { ipPoolId: string }) {
 
 function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
   return (
-    <div className="flex flex-col gap-1">
-      <div>{fip.name}</div>
-      <ItemDescription>
-        {fip.ip}
-        <IpPoolName ipPoolId={fip.ipPoolId} />
-        {fip.description && (
-          <>
-            <Slash />
-            {fip.description}
-          </>
-        )}
-      </ItemDescription>
-    </div>
+    <ItemLabel name={fip.name}>
+      {fip.ip}
+      <IpPoolName ipPoolId={fip.ipPoolId} />
+      {fip.description && (
+        <>
+          <Slash />
+          {fip.description}
+        </>
+      )}
+    </ItemLabel>
   )
 }
 

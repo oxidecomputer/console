@@ -34,7 +34,7 @@ import { HL } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
-import { ItemDescription } from '~/ui/lib/ItemDescription'
+import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
@@ -421,14 +421,11 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) 
           value: i.id,
           selectedLabel: i.name,
           label: (
-            <div className="flex flex-col gap-1">
-              <div>{i.name}</div>
-              <ItemDescription>
-                Created on {toLocaleDateString(i.timeCreated)}
-                <DiskNameFromId disk={i.diskId} /> <Slash /> {formattedSize.value}{' '}
-                {formattedSize.unit}
-              </ItemDescription>
-            </div>
+            <ItemLabel name={i.name}>
+              Created on {toLocaleDateString(i.timeCreated)}
+              <DiskNameFromId disk={i.diskId} /> <Slash /> {formattedSize.value}{' '}
+              {formattedSize.unit}
+            </ItemLabel>
           ),
         }
       })}

@@ -70,7 +70,7 @@ import { Button } from '~/ui/lib/Button'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { ItemDescription } from '~/ui/lib/ItemDescription'
+import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { MiniTable } from '~/ui/lib/MiniTable'
@@ -863,18 +863,15 @@ export default function CreateInstanceForm() {
 }
 
 const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
-  <div className="flex flex-col gap-1">
-    <div>{ip.name}</div>
-    <ItemDescription>
-      {ip.ip}
-      {ip.description && (
-        <>
-          <Slash />
-          {ip.description}
-        </>
-      )}
-    </ItemDescription>
-  </div>
+  <ItemLabel name={ip.name}>
+    {ip.ip}
+    {ip.description && (
+      <>
+        <Slash />
+        {ip.description}
+      </>
+    )}
+  </ItemLabel>
 )
 
 const NetworkingSection = ({

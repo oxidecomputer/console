@@ -53,7 +53,7 @@ import { type ComboboxItem } from '~/ui/lib/Combobox'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { ItemDescription } from '~/ui/lib/ItemDescription'
+import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -477,12 +477,7 @@ const defaultValues: LinkSiloFormValues = { silo: undefined, isDefault: false }
 const toSiloComboboxItem = ({ name, description }: Silo): ComboboxItem => ({
   value: name,
   selectedLabel: name,
-  label: (
-    <div className="flex flex-col gap-1">
-      <div>{name}</div>
-      {description && <ItemDescription>{description}</ItemDescription>}
-    </div>
-  ),
+  label: <ItemLabel name={name}>{description}</ItemLabel>,
 })
 
 function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
