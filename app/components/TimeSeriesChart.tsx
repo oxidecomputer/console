@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 import { format } from 'date-fns'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
 import uPlot from 'uplot'
@@ -262,6 +262,13 @@ export function TimeSeriesChart({
     []
   )
 
+  const uRef = useRef<uPlot | null>(null)
+  const yAxisTickFormatterRef = useRef<(val: number) => string>(yAxisTickFormatter)
+  yAxisTickFormatterRef.current = yAxisTickFormatter
+  useEffect(() => {
+    uRef.current?.redraw()
+  }, [yAxisTickFormatter])
+
   // uplot-react rebuilds the whole chart (they call this the "create" path) when any top-level
   // option (other than width or height) changes by reference.
   const chartOptions = useMemo(
@@ -317,7 +324,7 @@ export function TimeSeriesChart({
               filter: (_u, yValues) => yValues.map((v) => (v === 0 ? null : v)),
             },
             values: (_u, yValues) =>
-              yValues.map((v) => (v === 0 ? '' : yAxisTickFormatter(v))),
+              yValues.map((v) => (v === 0 ? '' : yAxisTickFormatterRef.current(v))),
             grid: { show: true, stroke: theme.axisLine, width: 1 },
             size: (_self, values) => {
               const axisBase = AXIS_TICK_LENGTH + AXIS_TICK_GAP
@@ -337,7 +344,7 @@ export function TimeSeriesChart({
         legend: { show: false },
         plugins: [tooltipPlugin],
       }) satisfies Omit<uPlot.Options, 'width' | 'height'>,
-    [formatTime, tooltipPlugin, yAxisTickFormatter, interpolation, theme, axisFont, fontPx]
+    [formatTime, tooltipPlugin, interpolation, theme, axisFont, fontPx]
   )
 
   // Width/height changes cause a cheaper "update" path for uplot, instead of "create", so it gets
@@ -384,7 +391,7 @@ export function TimeSeriesChart({
   return (
     <figure aria-label={title} className="m-0 pt-8 pr-5 pb-5 pl-0">
       <div ref={sizeRef} className="relative">
-        <UplotReact options={options} data={aligned} />
+        <UplotReact options={options} data={aligned} onCreate={(u) => (uRef.current = u)} />
         {tooltip && hovered && hovered.value !== null && (
           <div
             className="pointer-events-none absolute z-10 w-max"
