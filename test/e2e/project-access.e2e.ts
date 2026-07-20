@@ -7,7 +7,14 @@
  */
 import { user3, user4 } from '@oxide/api-mocks'
 
-import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
+import {
+  expect,
+  expectNotVisible,
+  expectRowVisible,
+  expectVisible,
+  getPageAsUser,
+  test,
+} from './utils'
 
 test('Click through project access page', async ({ page }) => {
   await page.goto('/projects/mock-project')
@@ -47,6 +54,18 @@ test('Click through project access page', async ({ page }) => {
     `role=cell[name="Simone de Beauvoir"]`,
   ])
 
+  // Hannah Arendt has only a silo role, so the action reads "Add project role"
+  // and the form opens with nothing preselected
+  await page
+    .getByRole('row', { name: 'Hannah Arendt', exact: false })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.click('role=menuitem[name="Add project role"]')
+  const editDialog = page.getByRole('dialog')
+  await expect(editDialog.getByRole('heading', { name: /Add project role/ })).toBeVisible()
+  await expect(editDialog.getByRole('radio', { checked: true })).toHaveCount(0)
+  await editDialog.getByRole('button', { name: 'Cancel' }).click()
+
   // Add user 4 as collab
   await page.click('role=button[name="Add user or group"]')
   await expectVisible(page, ['role=heading[name*="Add user or group"]'])
@@ -80,9 +99,9 @@ test('Click through project access page', async ({ page }) => {
     .locator('role=row', { hasText: user4.display_name })
     .locator('role=button[name="Row actions"]')
     .click()
-  await page.click('role=menuitem[name="Change role"]')
+  await page.click('role=menuitem[name="Change project role"]')
 
-  await expectVisible(page, ['role=heading[name*="Edit role"]'])
+  await expectVisible(page, ['role=heading[name*="Edit project role"]'])
 
   // Verify Collaborator is currently selected
   await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
@@ -98,7 +117,7 @@ test('Click through project access page', async ({ page }) => {
   const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })
   await expect(user3Row).toBeVisible()
   await user3Row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('menuitem', { name: 'Remove project role' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(user3Row).toBeHidden()
 
@@ -115,4 +134,33 @@ test('Click through project access page', async ({ page }) => {
     Type: 'User',
     Role: 'silo.admin+1',
   })
+})
+
+test('Non-admin cannot change or remove roles', async ({ browser }) => {
+  // Jacob Klein is only a project collaborator (not project admin or silo
+  // collaborator/admin), so he lacks `modify` on the project and can't change
+  // role assignments. Both row actions should be disabled.
+  const page = await getPageAsUser(browser, 'Jacob Klein')
+  await page.goto('/projects/mock-project/access')
+
+  await expect(page.getByRole('heading', { name: /Access/ })).toBeVisible()
+
+  await page
+    .getByRole('row', { name: 'Herbert Marcuse', exact: false })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+
+  const changeRole = page.getByRole('menuitem', { name: 'Change project role' })
+  await expect(changeRole).toBeDisabled()
+  await changeRole.hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    "You don't have permission to change project roles"
+  )
+
+  const deleteItem = page.getByRole('menuitem', { name: 'Remove project role' })
+  await expect(deleteItem).toBeDisabled()
+  await deleteItem.hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    "You don't have permission to remove roles"
+  )
 })
