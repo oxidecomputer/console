@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 import { format } from 'date-fns'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
 import uPlot from 'uplot'
@@ -17,6 +17,7 @@ import type { ChartDatum } from '@oxide/api'
 import { Error12Icon } from '@oxide/design-system/icons/react'
 
 import { useElementSize } from '~/hooks/use-element-size'
+import { subscribeToTheme } from '~/stores/theme'
 import { classed } from '~/util/classed'
 
 /**
@@ -41,40 +42,57 @@ const shortDateTime = (ts: number) => {
 const shortTime = (ts: number) => format(new Date(ts), 'HH:mm')
 const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss zz')
 
-// const GRID_GRAY = 'var(--stroke-secondary)'
-// const CURSOR = 'var(--chart-stroke-item)'
-// const GREEN_400 = 'var(--surface-accent-secondary)'
-// const GREEN_600 = 'var(--content-accent-tertiary)'
-// const GREEN_800 = 'var(--content-accent)'
-
-// TODO: figure out how to do this with TW classes instead. As far as I can tell
-// ticks only take direct styling
-// TODO(joe) the above isn't going to change. but now it's even more fun, because i need to set the
-// desired rem (0.6875) in px
-const textMonoMd = {
-  fontSize: '11px',
-  fontFamily: '"GT America Mono", monospace',
-  fill: 'var(--content-quaternary)',
+const remToPx = (rem: number) =>
+  rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
+// We measure axis label widths on a detached canvas instead of uPlot's to avoid overwriting its
+// own font setting.
+const measureCtx = document.createElement('canvas').getContext('2d')
+const measureTextWidth = (text: string, font: string) => {
+  // getContext('2d') is only null if '2d' is unsupported, which, hey, you're not getting a graph
+  if (!measureCtx) return 0
+  measureCtx.font = font
+  return measureCtx.measureText(text).width
 }
 
-// The length of a character in pixels at 11px with GT America Mono
-// Used for dynamically sizing the yAxis. If this were to fallback
-// the font would likely be thinner than the monospaced character
-// and therefore not overflow
-// const TEXT_CHAR_WIDTH = 6.82
-
-// TODO(joe): swap for design-system CSS vars like Terminal.tsx does
-const GREEN_STROKE = 'oklch(0.563 0.1714 170.4)'
-const GREEN_FILL = 'oklch(0.379 0.1169 177 / 0.6)'
-const AXIS_LINE = 'oklch(0.247 0.007 260)'
-const AXIS_TEXT = 'oklch(0.483 0.0041 260)'
-const AXIS_FONT = `${textMonoMd.fontSize} ${textMonoMd.fontFamily}`
+const AXIS_FONT_REM_XS = 0.6875
 const AXIS_TICK_LENGTH = 6
 const AXIS_TICK_GAP = 8
-// left padding (px-5) taken from the container and given to uPlot instead, so the plot sits flush
-// left while x-tick labels can bleed into the gutter without clipping
+// Left padding (px-5) is taken from the container and given to uPlot instead, so the plot sits
+// flush left while x-tick labels can bleed into the gutter without clipping.
 const CHART_LEFT_PAD = 20
 const TOOLTIP_GAP = 12
+
+type ChartTheme = {
+  fontFamily: string
+  stroke: string
+  fill: string
+  axisLine: string
+  axisText: string
+}
+
+// Append an alpha channel to a resolved color, e.g. `oklch(l c h)` -> `oklch(l c h / 0.6)`. Assumes
+// our colors are set in oklch!
+const withAlpha = (color: string, alpha: number) => color.replace(/\)\s*$/, ` / ${alpha})`)
+
+// uPlot draws to a canvas, so it can't consume CSS custom properties directly. We subscribe to the
+// theme instead.
+function getChartTheme(): ChartTheme {
+  const style = getComputedStyle(document.body)
+  const v = (name: string) => style.getPropertyValue(name)
+  return {
+    fontFamily: v('--font-mono'),
+    stroke: v('--content-accent-tertiary'),
+    fill: withAlpha(v('--surface-accent-secondary'), 0.6),
+    axisLine: v('--stroke-secondary'),
+    axisText: v('--content-quaternary'),
+  }
+}
+
+function useChartTheme(): ChartTheme {
+  const [colors, setColors] = useState(getChartTheme)
+  useEffect(() => subscribeToTheme(() => setColors(getChartTheme())), [])
+  return colors
+}
 
 /** Offset the box into the quadrant away from the point so it never overflows an edge */
 type LeftRight = 'left' | 'right'
@@ -186,6 +204,10 @@ export function TimeSeriesChart({
   // re-render on every render of the parent when the data is undefined
   const data = useMemo(() => rawData || [], [rawData])
 
+  const theme = useChartTheme()
+  const fontPx = remToPx(AXIS_FONT_REM_XS)
+  const axisFont = `${fontPx}px ${theme.fontFamily}`
+
   const [size, sizeRef] = useElementSize()
 
   const formatTime = isSameDay(startTime, endTime) ? shortTime : shortDateTime
@@ -255,8 +277,8 @@ export function TimeSeriesChart({
           {},
           {
             show: true,
-            stroke: GREEN_STROKE,
-            fill: GREEN_FILL,
+            stroke: theme.stroke,
+            fill: theme.fill,
             points: { show: false },
             paths: match(interpolation)
               .with('linear', () => uPlot.paths.linear?.())
@@ -266,43 +288,42 @@ export function TimeSeriesChart({
         ],
         axes: [
           {
-            stroke: AXIS_TEXT,
-            font: AXIS_FONT,
+            stroke: theme.axisText,
+            font: axisFont,
             space: (_u, _axisIdx, _min, _max, plotDim) => plotDim / 5,
             values: (_u, times) => times.map((t) => formatTime(t * 1000)),
-            border: { show: true, stroke: AXIS_LINE, width: 1 },
+            border: { show: true, stroke: theme.axisLine, width: 1 },
             gap: AXIS_TICK_GAP,
-            // TODO(joe): evil!
-            size: parseInt(textMonoMd.fontSize, 10) + AXIS_TICK_GAP + AXIS_TICK_LENGTH,
+            grid: { show: false },
+            size: fontPx + AXIS_TICK_GAP + AXIS_TICK_LENGTH,
             ticks: {
               show: true,
-              stroke: AXIS_LINE,
+              stroke: theme.axisLine,
               width: 1,
               size: AXIS_TICK_LENGTH,
             },
           },
           {
-            stroke: AXIS_TEXT,
-            font: AXIS_FONT,
+            stroke: theme.axisText,
+            font: axisFont,
             side: 1,
-            border: { show: true, stroke: AXIS_LINE, width: 1 },
+            border: { show: true, stroke: theme.axisLine, width: 1 },
             gap: AXIS_TICK_GAP,
             ticks: {
               show: true,
-              stroke: AXIS_LINE,
+              stroke: theme.axisLine,
               width: 1,
               size: AXIS_TICK_LENGTH,
               filter: (_u, yValues) => yValues.map((v) => (v === 0 ? null : v)),
             },
             values: (_u, yValues) =>
               yValues.map((v) => (v === 0 ? '' : yAxisTickFormatter(v))),
-            grid: { show: true, stroke: AXIS_LINE, width: 1 },
-            size: (self, values) => {
+            grid: { show: true, stroke: theme.axisLine, width: 1 },
+            size: (_self, values) => {
               const axisBase = AXIS_TICK_LENGTH + AXIS_TICK_GAP
               // given the monospace font, longest by char count is longest by rendered width
               const longestVal = R.firstBy(values ?? [], (s) => -s.length) || ''
-              self.ctx.font = AXIS_FONT
-              return axisBase + self.ctx.measureText(longestVal).width
+              return axisBase + measureTextWidth(longestVal, axisFont)
             },
           },
         ],
@@ -310,13 +331,13 @@ export function TimeSeriesChart({
         cursor: {
           x: false,
           y: false,
-          // i like the drag and we should put it back in. but one thing at a time
+          // TODO: i like the drag and we should put it back in
           drag: { x: false },
         },
         legend: { show: false },
         plugins: [tooltipPlugin],
       }) satisfies Omit<uPlot.Options, 'width' | 'height'>,
-    [formatTime, tooltipPlugin, yAxisTickFormatter, interpolation]
+    [formatTime, tooltipPlugin, yAxisTickFormatter, interpolation, theme, axisFont, fontPx]
   )
 
   // Width/height changes cause a cheaper "update" path for uplot, instead of "create", so it gets
