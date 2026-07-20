@@ -10,6 +10,7 @@ import type { IpVersion } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
 import { IpVersionBadge } from '~/components/IpVersionBadge'
+import { ItemLabel } from '~/ui/lib/ItemLabel'
 import type { ListboxItem } from '~/ui/lib/Listbox'
 
 /** Common fields of SiloIpPool and SiloSubnetPool used for display */
@@ -25,16 +26,17 @@ export function toPoolItem(p: PoolLike): ListboxItem {
   const value = p.name
   const selectedLabel = p.name
   const label = (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-1.5">
-        {p.name}
-        {p.isDefault && <Badge color="neutral">default</Badge>}
-        <IpVersionBadge ipVersion={p.ipVersion} />
-      </div>
-      {!!p.description && (
-        <div className="text-secondary selected:text-accent-secondary">{p.description}</div>
-      )}
-    </div>
+    <ItemLabel
+      name={
+        <>
+          {p.name}
+          {p.isDefault && <Badge color="neutral">default</Badge>}
+          <IpVersionBadge ipVersion={p.ipVersion} />
+        </>
+      }
+    >
+      {p.description}
+    </ItemLabel>
   )
   return { value, selectedLabel, label }
 }
