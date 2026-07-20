@@ -19,9 +19,9 @@ import { MiniTable } from '~/ui/lib/MiniTable'
 import { Radio } from '~/ui/lib/Radio'
 
 const networkInterfaceTableColumns = [
-  { header: 'Name', cell: (item: InstanceNetworkInterfaceCreate) => item.name },
-  { header: 'VPC', cell: (item: InstanceNetworkInterfaceCreate) => item.vpcName },
-  { header: 'Subnet', cell: (item: InstanceNetworkInterfaceCreate) => item.subnetName },
+  { header: 'Name', text: (item: InstanceNetworkInterfaceCreate) => item.name },
+  { header: 'VPC', text: (item: InstanceNetworkInterfaceCreate) => item.vpcName },
+  { header: 'Subnet', text: (item: InstanceNetworkInterfaceCreate) => item.subnetName },
 ]
 
 /**

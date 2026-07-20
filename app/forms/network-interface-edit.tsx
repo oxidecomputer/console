@@ -34,7 +34,7 @@ import { KEYS } from '~/ui/util/keys'
 import { parseIpNet, validateIpNet } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
 
-const transitIpTableColumns = [{ header: 'Transit IPs', cell: (ip: string) => ip }]
+const transitIpTableColumns = [{ header: 'Transit IPs', text: (ip: string) => ip }]
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface

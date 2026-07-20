@@ -43,7 +43,6 @@
 @import './components/Tabs.css' layer(components);
 @import './components/form.css' layer(components);
 @import './components/login-page.css' layer(components);
-@import './components/mini-table.css' layer(components);
 @import './components/side-modal.css' layer(components);
 @import './components/spinner.css' layer(components);
 @import './components/tooltip.css' layer(components);
