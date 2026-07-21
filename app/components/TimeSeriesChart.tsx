@@ -391,7 +391,14 @@ export function TimeSeriesChart({
   return (
     <figure aria-label={title} className="m-0 pt-8 pr-5 pb-5 pl-0">
       <div ref={sizeRef} className="relative">
-        <UplotReact options={options} data={aligned} onCreate={(u) => (uRef.current = u)} />
+        {/* uPlot does not recover its x scale when initialized at zero width in production */}
+        {size && size.width > 0 && (
+          <UplotReact
+            options={options}
+            data={aligned}
+            onCreate={(u) => (uRef.current = u)}
+          />
+        )}
         {tooltip && hovered && hovered.value !== null && (
           <div
             className="pointer-events-none absolute z-10 w-max"
