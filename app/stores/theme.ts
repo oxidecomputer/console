@@ -44,6 +44,20 @@ function getSystemIsLight() {
 }
 
 /**
+ * Run `cb` whenever the resolved theme (data-theme on <html>) changes. Use for
+ * canvas renderers that can't consume CSS custom properties directly. Returns
+ * an unsubscribe function.
+ */
+export function subscribeToTheme(cb: () => void) {
+  const observer = new MutationObserver(cb)
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  })
+  return () => observer.disconnect()
+}
+
+/**
  * Hook that applies the resolved theme to the document. Renders in RootLayout
  * so it runs on every page.
  */

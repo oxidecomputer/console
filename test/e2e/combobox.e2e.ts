@@ -179,6 +179,8 @@ test('arbitrary-values combobox keeps typed values and resets submitted fields',
     'db2',
     'db-stopped',
     'db3',
+    'sentinel-metrics-flat',
+    'sentinel-metrics-slope',
   ])
 
   await instanceInput.fill('d')
