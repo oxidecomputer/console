@@ -71,9 +71,7 @@ export default function EditProjectSideModalForm() {
       submitError={editProject.error}
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={project.id} />
-        <PropertiesTable.DateRow label="Created" date={project.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={project.timeModified} />
+        <PropertiesTable.ResourceRows resource={project} />
       </PropertiesTable>
       <FormDivider />
       <NameField name="name" control={form.control} />

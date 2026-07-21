@@ -137,9 +137,7 @@ export default function EditFirewallRuleForm() {
       submitError={updateRules.error}
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={originalRule.id} />
-        <PropertiesTable.DateRow label="Created" date={originalRule.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={originalRule.timeModified} />
+        <PropertiesTable.ResourceRows resource={originalRule} />
       </PropertiesTable>
       <FormDivider />
       <CommonFields

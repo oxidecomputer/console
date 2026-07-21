@@ -141,9 +141,7 @@ export function EditNetworkInterfaceForm({
       submitError={editNetworkInterface.error}
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={editing.id} />
-        <PropertiesTable.DateRow label="Created" date={editing.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={editing.timeModified} />
+        <PropertiesTable.ResourceRows resource={editing} />
         {ips.v4 && (
           <PropertiesTable.Row label="Private IPv4">
             <CopyableIp ip={ips.v4} isLinked={false} />

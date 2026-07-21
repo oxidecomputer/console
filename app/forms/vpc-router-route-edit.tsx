@@ -103,9 +103,7 @@ export default function EditRouterRouteSideModalForm() {
       submitDisabled={disabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={route.id} />
-        <PropertiesTable.DateRow label="Created" date={route.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={route.timeModified} />
+        <PropertiesTable.ResourceRows resource={route} />
         <PropertiesTable.Row label="Kind">
           <Badge color="neutral">{route.kind.replace('_', ' ')}</Badge>
         </PropertiesTable.Row>

@@ -82,9 +82,7 @@ export default function EditRouterSideModalForm() {
       submitError={editRouter.error}
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={routerData.id} />
-        <PropertiesTable.DateRow label="Created" date={routerData.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={routerData.timeModified} />
+        <PropertiesTable.ResourceRows resource={routerData} />
         <PropertiesTable.Row label="Kind">
           <Badge color="neutral">{routerData.kind}</Badge>
         </PropertiesTable.Row>

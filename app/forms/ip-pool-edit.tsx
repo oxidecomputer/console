@@ -76,9 +76,7 @@ export default function EditIpPoolSideModalForm() {
       submitError={editPool.error}
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={pool.id} />
-        <PropertiesTable.DateRow label="Created" date={pool.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={pool.timeModified} />
+        <PropertiesTable.ResourceRows resource={pool} />
       </PropertiesTable>
       <FormDivider />
       <IpPoolVisibilityMessage />

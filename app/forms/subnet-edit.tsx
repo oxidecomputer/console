@@ -97,9 +97,7 @@ export default function EditSubnetForm() {
       submitError={updateSubnet.error}
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={subnet.id} />
-        <PropertiesTable.DateRow label="Created" date={subnet.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={subnet.timeModified} />
+        <PropertiesTable.ResourceRows resource={subnet} />
         <PropertiesTable.Row label="IPv4 block">{subnet.ipv4Block}</PropertiesTable.Row>
         <PropertiesTable.Row label="IPv6 block">{subnet.ipv6Block}</PropertiesTable.Row>
       </PropertiesTable>

@@ -78,9 +78,7 @@ export default function EditVpcSideModalForm() {
       submitError={editVpc.error}
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={vpc.id} />
-        <PropertiesTable.DateRow label="Created" date={vpc.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={vpc.timeModified} />
+        <PropertiesTable.ResourceRows resource={vpc} />
       </PropertiesTable>
       <FormDivider />
       <NameField name="name" control={form.control} />

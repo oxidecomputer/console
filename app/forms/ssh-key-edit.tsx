@@ -56,9 +56,7 @@ export default function EditSSHKeySideModalForm() {
       }
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={data.id} />
-        <PropertiesTable.DateRow date={data.timeCreated} label="Created" />
-        <PropertiesTable.DateRow date={data.timeModified} label="Updated" />
+        <PropertiesTable.ResourceRows resource={data} />
       </PropertiesTable>
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} disabled />

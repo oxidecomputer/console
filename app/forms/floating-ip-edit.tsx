@@ -101,9 +101,7 @@ export default function EditFloatingIpSideModalForm() {
       submitError={editFloatingIp.error}
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={floatingIp.id} />
-        <PropertiesTable.DateRow label="Created" date={floatingIp.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={floatingIp.timeModified} />
+        <PropertiesTable.ResourceRows resource={floatingIp} />
         <PropertiesTable.Row label="IP Address">
           <CopyableIp ip={floatingIp.ip} isLinked={false} />
         </PropertiesTable.Row>
