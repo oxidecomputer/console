@@ -15,7 +15,16 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+  type Ref,
+} from 'react'
+import { mergeRefs } from 'react-merge-refs'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -33,10 +42,12 @@ const NO_MATCH_ITEM: ComboboxItem = {
 }
 const isNoMatch = (item: ComboboxItem | null) => item === NO_MATCH_ITEM
 
-// HUI's virtualizer needs the scroll container to have a non-zero height.
-// Must match the actual rendered row height (.ox-menu-item: text-sans-md +
-// py-2 + 1px border ≈ 34px) or the panel min-height overshoots the content
-// and leaves empty space at the bottom.
+// HUI's virtualizer needs the scroll container to have a non-zero height to
+// render into, so we seed `minHeight` with a rough estimate. This must be a
+// *lower bound* on the real rendered row height (.ox-menu-item: text-sans-md +
+// py-2 + 1px border ≈ 35px): the panel is `overflow-y-auto`, so once the rows
+// render it grows to fit their measured total. If the estimate overshoots the
+// real content, the excess shows as empty space at the bottom of the panel.
 const ITEM_HEIGHT = 34
 const MAX_PANEL_HEIGHT = 280
 
@@ -85,8 +96,9 @@ type ComboboxProps = {
   hasError?: boolean
   /** Fires when the user *selects* an item from the list */
   onChange: (value: string) => void
-  /** Necessary if you want RHF to be able to focus it on error */
-  inputRef?: Ref<HTMLInputElement>
+  /** Necessary if you want RHF to be able to focus it on error. Goes on the
+   * input's wrapper div (see usage), so it's a div ref despite the name. */
+  inputRef?: Ref<HTMLDivElement>
 } & ComboboxBaseProps
 
 export const Combobox = ({
@@ -187,6 +199,17 @@ export const Combobox = ({
   // instead of letting HUI select — hard to notice manually but caused
   // consistent e2e flakes in Firefox.
   const isOpenRef = useRef(false)
+
+  // HUI measures `--input-width`/`--button-width` a frame after the panel's
+  // first render, so with `immediate` the panel paints once at ~0 width, wrapping
+  // rows and ballooning tall before snapping to size. Measure the always-mounted
+  // input wrapper as a min-width floor so the correct width applies on frame one.
+  // See https://github.com/tailwindlabs/headlessui/issues/3834
+  const [panelWidth, setPanelWidth] = useState<number>()
+  const measureRef = useCallback((el: HTMLDivElement | null) => {
+    if (el) setPanelWidth(el.clientWidth)
+  }, [])
+
   return (
     <HCombobox
       // items are re-created each render, so compare by value field
@@ -239,8 +262,8 @@ export const Combobox = ({
               )}
               // Putting the inputRef on the div makes it so the div can be focused by RHF when there's an error.
               // We want to focus on the div (rather than the input) so the combobox doesn't open automatically
-              // and obscure the error message.
-              ref={inputRef}
+              // and obscure the error message. measureRef reads its width to size the options panel (see above).
+              ref={mergeRefs([inputRef, measureRef])}
               // tabIndex=-1 is necessary to make the div focusable
               tabIndex={-1}
             >
@@ -305,7 +328,7 @@ export const Combobox = ({
                 anchor="bottom start"
                 // 13px gap is presumably because it's measured from inside the outline or something
                 className={`ox-menu shadow-menu-inset pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border [--anchor-gap:13px]`}
-                style={{ minHeight }}
+                style={{ minHeight, minWidth: panelWidth }}
                 modal={false}
               >
                 {({ option }: { option: ComboboxItem }) => {
