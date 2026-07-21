@@ -27,6 +27,8 @@ import {
   useVpcSelector,
 } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ALL_ISH } from '~/util/consts'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
@@ -134,6 +136,12 @@ export default function EditFirewallRuleForm() {
       loading={updateRules.isPending}
       submitError={updateRules.error}
     >
+      <PropertiesTable>
+        <PropertiesTable.IdRow id={originalRule.id} />
+        <PropertiesTable.DateRow label="Created" date={originalRule.timeCreated} />
+        <PropertiesTable.DateRow label="Updated" date={originalRule.timeModified} />
+      </PropertiesTable>
+      <FormDivider />
       <CommonFields
         control={form.control}
         // error if name is being changed to something that conflicts with some other rule

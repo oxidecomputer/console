@@ -33,6 +33,7 @@ import { getVpcSubnetSelector, useVpcSubnetSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -95,6 +96,14 @@ export default function EditSubnetForm() {
       loading={updateSubnet.isPending}
       submitError={updateSubnet.error}
     >
+      <PropertiesTable>
+        <PropertiesTable.IdRow id={subnet.id} />
+        <PropertiesTable.DateRow label="Created" date={subnet.timeCreated} />
+        <PropertiesTable.DateRow label="Updated" date={subnet.timeModified} />
+        <PropertiesTable.Row label="IPv4 block">{subnet.ipv4Block}</PropertiesTable.Row>
+        <PropertiesTable.Row label="IPv6 block">{subnet.ipv6Block}</PropertiesTable.Row>
+      </PropertiesTable>
+      <FormDivider />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
