@@ -70,6 +70,10 @@ async function streamBootLog(socket: WebSocket, text: string) {
 
 export async function startMockAPI() {
   // dynamic imports to make extremely sure none of this code ends up in the prod bundle
+  const { z } = await import('zod/v4')
+  // Configure Zod before importing the handlers, which create schemas during module evaluation.
+  // https://github.com/colinhacks/zod/issues/4461#issuecomment-2900137130
+  z.config({ jitless: true })
   const { handlers } = await import('../mock-api/msw/handlers')
   const { http, HttpResponse, ws } = await import('msw')
   const { setupWorker } = await import('msw/browser')
