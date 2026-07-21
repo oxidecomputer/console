@@ -58,6 +58,7 @@ export default function EditIdpSideModalForm() {
       <PropertiesTable>
         <PropertiesTable.ResourceRows resource={idp} />
       </PropertiesTable>
+      <FormDivider />
 
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} required disabled />
