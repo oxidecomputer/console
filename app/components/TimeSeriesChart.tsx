@@ -66,6 +66,7 @@ type ChartTheme = {
   fontFamily: string
   stroke: string
   fill: string
+  hoverPoint: string
   axisLine: string
   axisText: string
 }
@@ -83,6 +84,7 @@ function getChartTheme(): ChartTheme {
     fontFamily: v('--font-mono'),
     stroke: v('--content-accent-tertiary'),
     fill: withAlpha(v('--surface-accent-secondary'), 0.6),
+    hoverPoint: v('--content-accent'),
     axisLine: v('--stroke-secondary'),
     axisText: v('--content-quaternary'),
   }
@@ -340,6 +342,10 @@ export function TimeSeriesChart({
           y: false,
           // TODO: i like the drag and we should put it back in
           drag: { x: false },
+          points: {
+            size: 6,
+            fill: theme.hoverPoint,
+          },
         },
         legend: { show: false },
         plugins: [tooltipPlugin],
