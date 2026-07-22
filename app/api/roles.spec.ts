@@ -14,6 +14,7 @@ import {
   effectiveScopedRole,
   getEffectiveRole,
   roleOrder,
+  rolesByIdFromPolicy,
   updateRole,
   userScopedRoleEntries,
   type Policy,
@@ -123,6 +124,19 @@ test('byGroupThenName sorts as expected', () => {
   const e = { identityType: 'silo_user' as const, name: 'e' }
 
   expect([c, e, b, d, a].sort(byGroupThenName)).toEqual([a, b, c, d, e])
+})
+
+describe('rolesByIdFromPolicy', () => {
+  it('maps each identity to its role', () => {
+    expect(rolesByIdFromPolicy(abcAdminPolicy)).toEqual(new Map([['abc', 'admin']]))
+  })
+
+  it('keeps the strongest role when an identity has multiple assignments', () => {
+    const policy: Policy = { roleAssignments: [abcViewer, abcAdmin] }
+    expect(rolesByIdFromPolicy(policy)).toEqual(new Map([['abc', 'admin']]))
+    const reversed: Policy = { roleAssignments: [abcAdmin, abcViewer] }
+    expect(rolesByIdFromPolicy(reversed)).toEqual(new Map([['abc', 'admin']]))
+  })
 })
 
 describe('userScopedRoleEntries', () => {

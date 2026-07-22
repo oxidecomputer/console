@@ -6,31 +6,31 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback, useMemo, useState, type ComponentType } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import * as R from 'remeda'
 
 import {
   api,
   deleteRole,
-  effectiveScopedRole,
+  getEffectiveRole,
   q,
+  queryClient,
   roleOrder,
   rolesByIdFromPolicy,
+  useApiMutation,
   useGroupsByUserId,
   usePrefetchedQuery,
-  userScopedRoleEntries,
-  type AccessScope,
-  type Policy,
+  type Group,
   type RoleKey,
-  type ScopedPolicy,
   type User,
 } from '@oxide/api'
 import { Person24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { type EditRoleModalProps } from '~/forms/access-util'
+import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
+import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -43,7 +43,7 @@ import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
 import { buildRoleActions } from './roleActions'
-import { useCanEditPolicy } from './use-can-edit-policy'
+import { useCanEditSiloPolicy } from './use-can-edit-policy'
 import { UserDetailsSideModal } from './UserDetailsSideModal'
 
 // The API only sorts users by id, so fetch the full set and sort by name
@@ -51,6 +51,7 @@ import { UserDetailsSideModal } from './UserDetailsSideModal'
 // that would have its tail dropped in (arbitrary) id order.
 const userListAll = q(api.userList, { query: { limit: ALL_ISH } })
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
+const policyView = q(api.policyView, {})
 
 const colHelper = createColumnHelper<User>()
 
@@ -66,25 +67,36 @@ const EmptyState = () => (
   </TableEmptyBox>
 )
 
-type EditingState = { user: User; defaultRole: RoleKey | undefined }
-
-type Props = {
-  /** Policies that contribute to a user's effective role on this page. */
-  scopedPolicies: ScopedPolicy[]
-  /** Scope managed by this tab — its direct roles are assignable/removable. */
-  managedScope: AccessScope
-  /** Modal for assigning/editing a role on the managed policy. */
-  EditModal: ComponentType<EditRoleModalProps>
-  /** Update the managed policy. Called when removing a role. */
-  updateManagedPolicy: (newPolicy: Policy) => Promise<unknown>
+/**
+ * A user's effective silo role: the strongest of their direct assignment and
+ * any roles inherited from their groups. When no direct assignment covers the
+ * effective role, `viaGroups` lists the groups it comes from.
+ */
+function effectiveSiloRole(
+  userId: string,
+  userGroups: Group[],
+  roleById: Map<string, RoleKey>
+): { role: RoleKey; viaGroups: Group[] } | null {
+  const directRole = roleById.get(userId)
+  const groupEntries = userGroups.flatMap((group) => {
+    const role = roleById.get(group.id)
+    return role ? [{ group, role }] : []
+  })
+  const role = getEffectiveRole([
+    ...(directRole ? [directRole] : []),
+    ...groupEntries.map((e) => e.role),
+  ])
+  if (!role) return null
+  const directCovers = directRole && roleOrder[directRole] <= roleOrder[role]
+  const viaGroups = directCovers
+    ? []
+    : groupEntries.filter((e) => roleOrder[e.role] <= roleOrder[role]).map((e) => e.group)
+  return { role, viaGroups }
 }
 
-export function AccessUsersTab({
-  scopedPolicies,
-  managedScope,
-  EditModal,
-  updateManagedPolicy,
-}: Props) {
+type EditingState = { user: User; defaultRole: RoleKey | undefined }
+
+export function AccessUsersTab() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [editingUser, setEditingUser] = useState<EditingState | null>(null)
 
@@ -97,13 +109,18 @@ export function AccessUsersTab({
   const { data: groups } = usePrefetchedQuery(groupListAll)
   const groupsByUserId = useGroupsByUserId(groups.items)
 
-  // non-null: caller is responsible for including the managed scope
-  const managedPolicy = scopedPolicies.find((sp) => sp.scope === managedScope)!.policy
+  const { data: siloPolicy } = usePrefetchedQuery(policyView)
+  const roleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
 
-  const managedRoleById = useMemo(() => rolesByIdFromPolicy(managedPolicy), [managedPolicy])
-
-  const canEdit = useCanEditPolicy(scopedPolicies, managedScope)
+  const canEdit = useCanEditSiloPolicy(siloPolicy)
   const { me } = useCurrentUser()
+
+  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('policyView')
+      addToast({ content: 'Role removed' })
+    },
+  })
 
   const roleCol = useMemo(
     () =>
@@ -112,41 +129,15 @@ export function AccessUsersTab({
         header: 'Role',
         cell: ({ row }) => {
           const userGroups = groupsByUserId.get(row.original.id) ?? []
-          const entries = userScopedRoleEntries(row.original.id, userGroups, scopedPolicies)
-          const effective = effectiveScopedRole(entries)
+          const effective = effectiveSiloRole(row.original.id, userGroups, roleById)
           if (!effective) return <EmptyCell />
-          // show "via groups" tooltip when the displayed role+scope isn't
-          // covered by a direct assignment in that scope. (a direct project
-          // role doesn't suppress the tooltip if the displayed badge is the
-          // silo scope coming via a group, since silo wins ties.)
-          const displayedScopeHasDirect = entries.some(
-            (e) =>
-              e.source.type === 'direct' &&
-              e.scope === effective.scope &&
-              roleOrder[e.roleName] <= roleOrder[effective.role]
-          )
-          const viaGroupsMap = new Map<string, { id: string; displayName: string }>()
-          if (!displayedScopeHasDirect) {
-            for (const e of entries) {
-              if (
-                e.source.type === 'group' &&
-                e.scope === effective.scope &&
-                roleOrder[e.roleName] <= roleOrder[effective.role]
-              ) {
-                viaGroupsMap.set(e.source.group.id, e.source.group)
-              }
-            }
-          }
-          const viaGroups = [...viaGroupsMap.values()]
           return (
             <div className="flex items-center gap-1.5">
-              <Badge color={roleColor[effective.role]}>
-                {effective.scope}.{effective.role}
-              </Badge>
-              {viaGroups.length > 0 && (
+              <Badge color={roleColor[effective.role]}>silo.{effective.role}</Badge>
+              {effective.viaGroups.length > 0 && (
                 <TipIcon>
                   via{' '}
-                  {viaGroups.map((g, i) => (
+                  {effective.viaGroups.map((g, i) => (
                     <span key={g.id}>
                       {i > 0 && ', '}
                       {g.displayName}
@@ -158,7 +149,7 @@ export function AccessUsersTab({
           )
         },
       }),
-    [groupsByUserId, scopedPolicies]
+    [groupsByUserId, roleById]
   )
 
   const groupsCol = useMemo(
@@ -199,35 +190,19 @@ export function AccessUsersTab({
 
   const makeActions = useCallback(
     (user: User): MenuAction[] => {
-      const directManagedRole = managedRoleById.get(user.id)
       const userGroups = groupsByUserId.get(user.id) ?? []
-      const entries = userScopedRoleEntries(user.id, userGroups, scopedPolicies)
-      const effective = effectiveScopedRole(entries)
-      const inheritedReason = `Role is inherited; modify the source ${
-        entries.find((e) => e.source.type === 'group') ? 'group' : 'silo assignment'
-      } to revoke`
+      const effective = effectiveSiloRole(user.id, userGroups, roleById)
       return buildRoleActions({
         name: user.displayName,
-        managedScope,
-        directManagedRole,
-        effective,
-        inheritedReason,
+        directRole: roleById.get(user.id),
+        effectiveRole: effective?.role,
         canEdit,
         isSelf: user.id === me.id,
         openEditModal: (defaultRole) => setEditingUser({ user, defaultRole }),
-        doRemove: () => updateManagedPolicy(deleteRole(user.id, managedPolicy)),
+        doRemove: () => updatePolicy({ body: deleteRole(user.id, siloPolicy) }),
       })
     },
-    [
-      managedRoleById,
-      managedPolicy,
-      updateManagedPolicy,
-      groupsByUserId,
-      scopedPolicies,
-      managedScope,
-      canEdit,
-      me,
-    ]
+    [roleById, siloPolicy, updatePolicy, groupsByUserId, canEdit, me]
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
@@ -243,9 +218,9 @@ export function AccessUsersTab({
     <>
       {sortedUsers.length === 0 ? <EmptyState /> : <Table table={table} />}
       {editingUser && (
-        <EditModal
+        <SiloAccessEditUserSideModal
           onDismiss={() => setEditingUser(null)}
-          policy={managedPolicy}
+          policy={siloPolicy}
           name={editingUser.user.displayName}
           identityId={editingUser.user.id}
           identityType="silo_user"
@@ -256,7 +231,7 @@ export function AccessUsersTab({
         <UserDetailsSideModal
           user={selectedUser}
           onDismiss={() => setSelectedUser(null)}
-          scopedPolicies={scopedPolicies}
+          scopedPolicies={[{ scope: 'silo', policy: siloPolicy }]}
           userGroups={groupsByUserId.get(selectedUser.id) ?? []}
         />
       )}

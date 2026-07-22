@@ -85,11 +85,20 @@ export function updateRole<Role extends RoleKey>(
   return { roleAssignments }
 }
 
-/** Map from identity ID to role name for quick lookup. */
+/**
+ * Map from identity ID to role name for quick lookup. If an actor has multiple
+ * assignments in the same policy (which the API allows) take the strongest one.
+ */
 export function rolesByIdFromPolicy<Role extends RoleKey>(
   policy: Policy<Role>
 ): Map<string, Role> {
-  return new Map(policy.roleAssignments.map((a) => [a.identityId, a.roleName]))
+  const map = new Map<string, Role>()
+  for (const { identityId, roleName } of policy.roleAssignments) {
+    const existing = map.get(identityId)
+    // non-null: list is non-empty
+    map.set(identityId, getEffectiveRole(existing ? [existing, roleName] : [roleName])!)
+  }
+  return map
 }
 
 /**
