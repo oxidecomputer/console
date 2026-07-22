@@ -77,6 +77,7 @@
 - Breadcrumbs come from route `handle.crumb`; use `makeCrumb`/`titleCrumb` and provide a `path` when the parent route redirects (`app/hooks/use-crumbs.ts:21-64`). Use `titleCrumb` for side modal forms that should appear in page title but not nav breadcrumbs (check `Crumb.titleOnly` flag).
 - When adding tabs or redirects, wire the canonical link in the path builder (e.g., point to the default tab) and update the sidebar/quick actions as needed.
 - For tabs synced with query params, use `QueryParamTabs` component which manages `?tab=` param and removes it when default tab is selected (`app/components/QueryParamTabs.tsx`).
+- Adding a new _top-level_ path segment (e.g., `/users`) requires a matching console page endpoint in Nexus, or direct navigation and refresh at that URL will 404. Nexus can't use a catchall route (it would overlap API routes), so each top-level console prefix is registered as an `unpublished` endpoint serving the console index: definitions in [`nexus/external-api/src/lib.rs`](https://github.com/oxidecomputer/omicron/blob/4b0ce4b/nexus/external-api/src/lib.rs#L8921-L8928), handlers in [`nexus/src/external_api/http_entrypoints.rs`](https://github.com/oxidecomputer/omicron/blob/4b0ce4b/nexus/src/external_api/http_entrypoints.rs#L8765-L8769). Routes nested under existing prefixes (`/projects/*`, `/system/*`, `/settings/*`, `/lookup/*`) need no Nexus change.
 
 # Forms
 
