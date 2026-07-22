@@ -5,14 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
 import {
   api,
-  q,
   queryClient,
   useApiMutation,
   type InstanceNetworkInterface,
@@ -26,7 +24,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { SubnetNameFromId } from '~/table/cells/SubnetNameCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
@@ -40,17 +38,6 @@ import { parseIpNet, validateIpNet } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
 
 const transitIpTableColumns = [{ header: 'Transit IPs', cell: (ip: string) => ip }]
-
-// The NIC's subnet stores only an ID; look up the name for display. The
-// networking tab that opens this form prefetches subnet views by ID, so this
-// usually hits a warm cache.
-const SubnetNameFromId = ({ subnetId }: { subnetId: string }) => {
-  const { data: subnet } = useQuery(
-    q(api.vpcSubnetView, { path: { subnet: subnetId } }, { throwOnError: false })
-  )
-  if (!subnet) return <SkeletonCell />
-  return subnet.name
-}
 
 // IP addresses aren't editable — a new interface must be created to change them
 // — so surface them as read-only metadata. A NIC has a v4 address, a v6

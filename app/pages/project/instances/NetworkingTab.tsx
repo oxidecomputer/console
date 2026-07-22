@@ -52,6 +52,7 @@ import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { SubnetNameFromId } from '~/table/cells/SubnetNameCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
@@ -86,18 +87,6 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   if (isError) return <Badge color="neutral">Deleted</Badge>
   if (!vpc) return <SkeletonCell />
   return <LinkCell to={pb.vpc({ project, vpc: vpc.name })}>{vpc.name}</LinkCell>
-}
-
-const SubnetNameFromId = ({ value }: { value: string }) => {
-  const { data: subnet, isError } = useQuery(
-    q(api.vpcSubnetView, { path: { subnet: value } }, { throwOnError: false })
-  )
-
-  // same deal as VPC: probably not possible but let's be safe
-  if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!subnet) return <SkeletonCell /> // loading
-
-  return <span className="text-default">{subnet.name}</span>
 }
 
 const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
@@ -242,7 +231,7 @@ const staticCols = [
   }),
   colHelper.accessor('subnetId', {
     header: 'subnet',
-    cell: (info) => <SubnetNameFromId value={info.getValue()} />,
+    cell: (info) => <SubnetNameFromId subnetId={info.getValue()} />,
   }),
   colHelper.display({
     id: 'transitIps',
