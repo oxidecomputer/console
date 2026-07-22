@@ -34,6 +34,7 @@ import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
@@ -114,7 +115,16 @@ export default function RouterPage() {
   const routerRoutesColHelper = createColumnHelper<RouterRoute>()
 
   const routerRoutesStaticCols = [
-    routerRoutesColHelper.accessor('name', { header: 'Name' }),
+    routerRoutesColHelper.accessor('name', {
+      header: 'Name',
+      cell: (info) => (
+        <LinkCell
+          to={pb.vpcRouterRouteEdit({ project, vpc, router, route: info.getValue() })}
+        >
+          {info.getValue()}
+        </LinkCell>
+      ),
+    }),
     routerRoutesColHelper.accessor('kind', {
       header: 'Kind',
       cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,

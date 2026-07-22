@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
@@ -34,6 +34,7 @@ import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
+import { makeLinkCell } from '~/table/cells/LinkCell'
 import { SubnetPoolCell } from '~/table/cells/SubnetPoolCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -77,7 +78,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 const colHelper = createColumnHelper<ExternalSubnet>()
 const staticCols = [
-  colHelper.accessor('name', {}),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('subnet', {
     header: 'Subnet',
@@ -189,7 +189,20 @@ export default function ExternalSubnetsPage() {
     [deleteExternalSubnet, externalSubnetDetach, navigate, project, instances]
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  // name column links to the edit side modal; defined here (not in staticCols)
+  // because the link needs the project from the route
+  const cols = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((externalSubnet) =>
+          pb.externalSubnetEdit({ project, externalSubnet })
+        ),
+      }),
+      ...staticCols,
+    ],
+    [project]
+  )
+  const columns = useColsWithActions(cols, makeActions)
   const { table } = useQueryTable({
     query: subnetList(project),
     columns,
