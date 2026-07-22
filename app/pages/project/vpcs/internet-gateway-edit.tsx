@@ -128,8 +128,8 @@ export default function EditInternetGatewayForm() {
         />
         <PropertiesTable.IdRow id={internetGateway.id} />
       </PropertiesTable>
-
       <FormDivider />
+
       <div className="flex flex-col gap-3">
         <SideModal.Heading>
           Internet gateway IP address

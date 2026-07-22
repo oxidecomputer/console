@@ -101,9 +101,7 @@ export default function EditExternalSubnetSideModalForm() {
       submitError={editExternalSubnet.error}
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={subnet.id} />
-        <PropertiesTable.DateRow label="Created" date={subnet.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={subnet.timeModified} />
+        <PropertiesTable.ResourceRows resource={subnet} />
         <PropertiesTable.Row label="Subnet">{subnet.subnet}</PropertiesTable.Row>
         <PropertiesTable.Row label="Subnet Pool">
           <SubnetPoolCell subnetPoolId={subnet.subnetPoolId} />

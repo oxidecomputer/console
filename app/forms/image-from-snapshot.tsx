@@ -25,6 +25,7 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSnapshotSelector, useProjectSnapshotSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
@@ -97,6 +98,7 @@ export default function CreateImageFromSnapshotSideModalForm() {
           {formatBytes(data.size).label}
         </PropertiesTable.Row>
       </PropertiesTable>
+      <FormDivider />
 
       <NameField name="name" control={form.control} required />
       <DescriptionField name="description" control={form.control} required />

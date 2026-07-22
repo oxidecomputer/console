@@ -37,6 +37,7 @@ export function PropertiesTable({
       PropertiesTable.DateRow,
       PropertiesTable.SizeRow,
       PropertiesTable.CopyableRow,
+      PropertiesTable.ResourceRows,
     ]),
     'PropertiesTable only accepts specific Row components as children'
   )
@@ -121,4 +122,21 @@ PropertiesTable.CopyableRow = ({ label, text }: { label: string; text: string })
     {text}
     <CopyToClipboard className="ml-1" text={text} />
   </PropertiesTable.Row>
+)
+
+/**
+ * The ID + created/updated timestamps every API resource carries. Renders the
+ * three rows nearly every edit side modal opens with; pass additional
+ * resource-specific `PropertiesTable.*` rows as siblings after it.
+ */
+PropertiesTable.ResourceRows = ({
+  resource,
+}: {
+  resource: { id: string; timeCreated: Date; timeModified: Date }
+}) => (
+  <>
+    <PropertiesTable.IdRow id={resource.id} />
+    <PropertiesTable.DateRow label="Created" date={resource.timeCreated} />
+    <PropertiesTable.DateRow label="Updated" date={resource.timeModified} />
+  </>
 )

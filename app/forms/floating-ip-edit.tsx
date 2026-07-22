@@ -27,6 +27,7 @@ import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
+import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
@@ -100,9 +101,7 @@ export default function EditFloatingIpSideModalForm() {
       submitError={editFloatingIp.error}
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={floatingIp.id} />
-        <PropertiesTable.DateRow label="Created" date={floatingIp.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={floatingIp.timeModified} />
+        <PropertiesTable.ResourceRows resource={floatingIp} />
         <PropertiesTable.Row label="IP Address">
           <CopyableIp ip={floatingIp.ip} isLinked={false} />
         </PropertiesTable.Row>
@@ -113,6 +112,7 @@ export default function EditFloatingIpSideModalForm() {
           <InstanceLink instanceId={floatingIp.instanceId} tab="networking" />
         </PropertiesTable.Row>
       </PropertiesTable>
+      <FormDivider />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <SideModalFormDocs docs={[docLinks.floatingIps]} />

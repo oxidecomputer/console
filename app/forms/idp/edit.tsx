@@ -56,10 +56,9 @@ export default function EditIdpSideModalForm() {
       }
     >
       <PropertiesTable>
-        <PropertiesTable.IdRow id={idp.id} />
-        <PropertiesTable.DateRow date={idp.timeCreated} label="Created" />
-        <PropertiesTable.DateRow date={idp.timeModified} label="Updated" />
+        <PropertiesTable.ResourceRows resource={idp} />
       </PropertiesTable>
+      <FormDivider />
 
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} required disabled />

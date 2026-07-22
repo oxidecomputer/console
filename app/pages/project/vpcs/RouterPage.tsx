@@ -7,7 +7,7 @@
  */
 
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
@@ -34,6 +34,7 @@ import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
@@ -73,6 +74,8 @@ const routeTypes = {
   vpc: 'VPC',
 }
 
+const routerRoutesColHelper = createColumnHelper<RouterRoute>()
+
 // All will have a type and a value except `Drop`, which only has a type
 const RouterRouteTypeValueBadge = ({
   type,
@@ -111,23 +114,33 @@ export default function RouterPage() {
   )
   const navigate = useNavigate()
 
-  const routerRoutesColHelper = createColumnHelper<RouterRoute>()
-
-  const routerRoutesStaticCols = [
-    routerRoutesColHelper.accessor('name', { header: 'Name' }),
-    routerRoutesColHelper.accessor('kind', {
-      header: 'Kind',
-      cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
-    }),
-    routerRoutesColHelper.accessor('destination', {
-      header: 'Destination',
-      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
-    }),
-    routerRoutesColHelper.accessor('target', {
-      header: 'Target',
-      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
-    }),
-  ]
+  const routerRoutesStaticCols = useMemo(
+    () => [
+      routerRoutesColHelper.accessor('name', {
+        header: 'Name',
+        cell: (info) => (
+          <LinkCell
+            to={pb.vpcRouterRouteEdit({ project, vpc, router, route: info.getValue() })}
+          >
+            {info.getValue()}
+          </LinkCell>
+        ),
+      }),
+      routerRoutesColHelper.accessor('kind', {
+        header: 'Kind',
+        cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
+      }),
+      routerRoutesColHelper.accessor('destination', {
+        header: 'Destination',
+        cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+      }),
+      routerRoutesColHelper.accessor('target', {
+        header: 'Target',
+        cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+      }),
+    ],
+    [project, vpc, router]
+  )
 
   const makeRangeActions = useCallback(
     (routerRoute: RouterRoute): MenuAction[] => [

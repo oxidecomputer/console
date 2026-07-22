@@ -24,17 +24,30 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SubnetNameFromId } from '~/table/cells/SubnetNameCell'
+import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { HintLink, TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { parseIpNet, validateIpNet } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
 
 const transitIpTableColumns = [{ header: 'Transit IPs', cell: (ip: string) => ip }]
+
+// IP addresses aren't editable — a new interface must be created to change them
+// — so surface them as read-only metadata. A NIC has a v4 address, a v6
+// address, or both, depending on its stack type.
+const privateIps = (ipStack: InstanceNetworkInterface['ipStack']) =>
+  match(ipStack)
+    .with({ type: 'v4' }, ({ value }) => ({ v4: value.ip, v6: undefined }))
+    .with({ type: 'v6' }, ({ value }) => ({ v4: undefined, v6: value.ip }))
+    .with({ type: 'dual_stack' }, ({ value }) => ({ v4: value.v4.ip, v6: value.v6.ip }))
+    .exhaustive()
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
@@ -46,6 +59,7 @@ export function EditNetworkInterfaceForm({
   editing,
 }: EditNetworkInterfaceFormProps) {
   const instanceSelector = useInstanceSelector()
+  const ips = privateIps(editing.ipStack)
 
   const editNetworkInterface = useApiMutation(api.instanceNetworkInterfaceUpdate, {
     onSuccess(nic) {
@@ -113,6 +127,24 @@ export function EditNetworkInterfaceForm({
       loading={editNetworkInterface.isPending}
       submitError={editNetworkInterface.error}
     >
+      <PropertiesTable>
+        <PropertiesTable.ResourceRows resource={editing} />
+        {ips.v4 && (
+          <PropertiesTable.Row label="Private IPv4">
+            <CopyableIp ip={ips.v4} isLinked={false} />
+          </PropertiesTable.Row>
+        )}
+        {ips.v6 && (
+          <PropertiesTable.Row label="Private IPv6">
+            <CopyableIp ip={ips.v6} isLinked={false} />
+          </PropertiesTable.Row>
+        )}
+        <PropertiesTable.Row label="MAC address">{editing.mac}</PropertiesTable.Row>
+        <PropertiesTable.Row label="Subnet">
+          <SubnetNameFromId subnetId={editing.subnetId} />
+        </PropertiesTable.Row>
+      </PropertiesTable>
+      <FormDivider />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
