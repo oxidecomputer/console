@@ -6,27 +6,25 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback, useMemo, useState, type ComponentType } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import * as R from 'remeda'
 
 import {
   api,
   deleteRole,
-  effectiveScopedRole,
   q,
+  queryClient,
   rolesByIdFromPolicy,
+  useApiMutation,
   usePrefetchedQuery,
-  userScopedRoleEntries,
-  type AccessScope,
   type Group,
-  type Policy,
   type RoleKey,
-  type ScopedPolicy,
 } from '@oxide/api'
 import { PersonGroup24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { type EditRoleModalProps } from '~/forms/access-util'
+import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
+import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { MemberCountCell } from '~/table/cells/MemberCountCell'
@@ -40,12 +38,13 @@ import { ALL_ISH } from '~/util/consts'
 
 import { GroupMembersSideModal } from './GroupMembersSideModal'
 import { buildRoleActions } from './roleActions'
-import { useCanEditPolicy } from './use-can-edit-policy'
+import { useCanEditSiloPolicy } from './use-can-edit-policy'
 
 // The API only sorts groups by id, so fetch the full set and sort by name
 // client-side. ALL_ISH is the practical ceiling; a silo with more groups than
 // that would have its tail dropped in (arbitrary) id order.
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
+const policyView = q(api.policyView, {})
 
 const colHelper = createColumnHelper<Group>()
 
@@ -61,23 +60,7 @@ const GroupEmptyState = () => (
 
 type EditingState = { group: Group; defaultRole: RoleKey | undefined }
 
-type Props = {
-  /** Policies that contribute to a group's effective role on this page. */
-  scopedPolicies: ScopedPolicy[]
-  /** Scope managed by this tab — its direct roles are assignable/removable. */
-  managedScope: AccessScope
-  /** Modal for assigning/editing a role on the managed policy. */
-  EditModal: ComponentType<EditRoleModalProps>
-  /** Update the managed policy. Called when removing a role. */
-  updateManagedPolicy: (newPolicy: Policy) => Promise<unknown>
-}
-
-export function AccessGroupsTab({
-  scopedPolicies,
-  managedScope,
-  EditModal,
-  updateManagedPolicy,
-}: Props) {
+export function AccessGroupsTab() {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
   const [editingGroup, setEditingGroup] = useState<EditingState | null>(null)
 
@@ -87,12 +70,17 @@ export function AccessGroupsTab({
     [groups]
   )
 
-  // non-null: caller is responsible for including the managed scope
-  const managedPolicy = scopedPolicies.find((sp) => sp.scope === managedScope)!.policy
+  const { data: siloPolicy } = usePrefetchedQuery(policyView)
+  const roleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
 
-  const managedRoleById = useMemo(() => rolesByIdFromPolicy(managedPolicy), [managedPolicy])
+  const canEdit = useCanEditSiloPolicy(siloPolicy)
 
-  const canEdit = useCanEditPolicy(scopedPolicies, managedScope)
+  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('policyView')
+      addToast({ content: 'Role removed' })
+    },
+  })
 
   const roleCol = useMemo(
     () =>
@@ -100,18 +88,13 @@ export function AccessGroupsTab({
         id: 'role',
         header: 'Role',
         cell: ({ row }) => {
-          // groups never inherit, so passing no groups yields direct roles only
-          const entries = userScopedRoleEntries(row.original.id, [], scopedPolicies)
-          const effective = effectiveScopedRole(entries)
-          if (!effective) return <EmptyCell />
-          return (
-            <Badge color={roleColor[effective.role]}>
-              {effective.scope}.{effective.role}
-            </Badge>
-          )
+          // groups never inherit, so their only silo role is a direct one
+          const role = roleById.get(row.original.id)
+          if (!role) return <EmptyCell />
+          return <Badge color={roleColor[role]}>silo.{role}</Badge>
         },
       }),
-    [scopedPolicies]
+    [roleById]
   )
 
   const staticColumns = useMemo(
@@ -137,29 +120,18 @@ export function AccessGroupsTab({
 
   const makeActions = useCallback(
     (group: Group): MenuAction[] => {
-      const directManagedRole = managedRoleById.get(group.id)
-      const entries = userScopedRoleEntries(group.id, [], scopedPolicies)
-      const effective = effectiveScopedRole(entries)
+      const directRole = roleById.get(group.id)
       return buildRoleActions({
         name: group.displayName,
-        managedScope,
-        directManagedRole,
-        effective,
-        inheritedReason: 'Role is inherited from another scope; modify it there to revoke',
+        directRole,
+        effectiveRole: directRole,
         canEdit,
         isSelf: false, // a group is never the current user
         openEditModal: (defaultRole) => setEditingGroup({ group, defaultRole }),
-        doRemove: () => updateManagedPolicy(deleteRole(group.id, managedPolicy)),
+        doRemove: () => updatePolicy({ body: deleteRole(group.id, siloPolicy) }),
       })
     },
-    [
-      managedRoleById,
-      managedPolicy,
-      updateManagedPolicy,
-      scopedPolicies,
-      managedScope,
-      canEdit,
-    ]
+    [roleById, siloPolicy, updatePolicy, canEdit]
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
@@ -175,9 +147,9 @@ export function AccessGroupsTab({
     <>
       {sortedGroups.length === 0 ? <GroupEmptyState /> : <Table table={table} />}
       {editingGroup && (
-        <EditModal
+        <SiloAccessEditUserSideModal
           onDismiss={() => setEditingGroup(null)}
-          policy={managedPolicy}
+          policy={siloPolicy}
           name={editingGroup.group.displayName}
           identityId={editingGroup.group.id}
           identityType="silo_group"
@@ -188,7 +160,7 @@ export function AccessGroupsTab({
         <GroupMembersSideModal
           group={selectedGroup}
           onDismiss={() => setSelectedGroup(null)}
-          scopedPolicies={scopedPolicies}
+          scopedPolicies={[{ scope: 'silo', policy: siloPolicy }]}
         />
       )}
     </>

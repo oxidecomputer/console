@@ -68,79 +68,65 @@ export function buildRemoveRoleAction({
 type BuildRoleActionsArgs = {
   /** Display name of the user or group, used in the confirm-delete copy. */
   name: string
-  /** Scope managed by this tab; determines labels and project-specific framing. */
-  managedScope: AccessScope
-  /** Direct role on the managed policy, if any. Required to remove a role. */
-  directManagedRole: RoleKey | undefined
-  /** Effective role across all scopes, or null if the identity has no role. */
-  effective: { role: RoleKey } | null
-  /** Disabled reason shown when there's no direct managed role to remove. */
-  inheritedReason: string
-  /** Whether the current user can add/change/remove roles in the managed scope. */
+  /** Direct role on the silo policy, if any. Required to remove a role. */
+  directRole: RoleKey | undefined
+  /** Effective role including group-inherited, undefined if none. */
+  effectiveRole: RoleKey | undefined
+  /** Whether the current user can add/change/remove silo roles. */
   canEdit: boolean
   /** Whether this row is the current user (shows a self-removal warning). */
   isSelf: boolean
   /** Open the edit modal, pre-filled with the given role (undefined = assign). */
   openEditModal: (defaultRole: RoleKey | undefined) => void
-  /** Remove the direct managed role. */
+  /** Remove the direct silo role. */
   doRemove: () => Promise<unknown>
 }
 
 /**
- * Row-action menu for a user or group in the access tabs. Identical logic for
- * both; callers supply how the effective role was computed and the
- * inherited-role message (which differs because a user can inherit via a group
- * or the silo, while a group only inherits from another scope).
+ * Row-action menu for a user or group in the silo users/groups tabs. For
+ * groups, direct and effective are the same role (groups don't inherit). For
+ * users, an inherited (via group) role can be promoted to a direct silo
+ * assignment via the change action, pre-filled with the effective role.
  */
 export function buildRoleActions({
   name,
-  managedScope,
-  directManagedRole,
-  effective,
-  inheritedReason,
+  directRole,
+  effectiveRole,
   canEdit,
   isSelf,
   openEditModal,
   doRemove,
 }: BuildRoleActionsArgs): MenuAction[] {
-  const addAction: MenuAction = {
-    label: roleActionLabel(managedScope, 'add'),
-    onActivate: () => openEditModal(undefined),
-    disabled: !canEdit && noRolePermissionReason(managedScope, 'add'),
-  }
-  const removeAction = buildRemoveRoleAction({
-    name,
-    role: directManagedRole,
-    scope: managedScope,
-    isSelf,
-    disabledReason: !canEdit
-      ? noRolePermissionReason(managedScope, 'remove')
-      : // a direct role on the managed policy is required to remove anything
-        !directManagedRole
-        ? inheritedReason
-        : undefined,
-    doRemove,
-  })
   // No role at all — direct or inherited.
-  if (!effective) {
-    return [addAction]
+  if (!effectiveRole) {
+    return [
+      {
+        label: roleActionLabel('silo', 'add'),
+        onActivate: () => openEditModal(undefined),
+        disabled: !canEdit && noRolePermissionReason('silo', 'add'),
+      },
+    ]
   }
-  // For the project tab, an inherited silo role doesn't give us anything to
-  // "change" on the project policy — frame it as adding a project role. For
-  // the silo tab, an inherited (via group) role can be promoted to a direct
-  // silo assignment via the change action, pre-filled with the effective role.
-  if (managedScope === 'project' && !directManagedRole) {
-    return [addAction, removeAction]
-  }
-  // Pre-fill with the direct managed role if any; otherwise the effective role
-  // so the modal opens in 'edit' mode showing the role currently in effect.
-  const defaultRole = directManagedRole ?? effective.role
   return [
     {
-      label: roleActionLabel(managedScope, 'change'),
-      onActivate: () => openEditModal(defaultRole),
-      disabled: !canEdit && noRolePermissionReason(managedScope, 'change'),
+      label: roleActionLabel('silo', 'change'),
+      // pre-fill with the direct role if any; otherwise the effective role so
+      // the modal opens in 'edit' mode showing the role currently in effect
+      onActivate: () => openEditModal(directRole ?? effectiveRole),
+      disabled: !canEdit && noRolePermissionReason('silo', 'change'),
     },
-    removeAction,
+    buildRemoveRoleAction({
+      name,
+      role: directRole,
+      scope: 'silo',
+      isSelf,
+      disabledReason: !canEdit
+        ? noRolePermissionReason('silo', 'remove')
+        : // a direct role is required to remove anything
+          !directRole
+          ? "Role is inherited from a group; change the group's role to revoke"
+          : undefined,
+      doRemove,
+    }),
   ]
 }

@@ -10,6 +10,7 @@ import {
   userScopedRoleEntries,
   type AccessScope,
   type FleetRolePolicy,
+  type Policy,
   type ScopedPolicy,
 } from '@oxide/api'
 
@@ -41,6 +42,11 @@ export function useCanEditPolicy(
     : roleInScope('project') === 'admin' ||
         siloRole === 'admin' ||
         siloRole === 'collaborator'
+}
+
+/** `useCanEditPolicy` for the silo-only tabs, which have no scope machinery. */
+export function useCanEditSiloPolicy(siloPolicy: Policy): boolean {
+  return useCanEditPolicy([{ scope: 'silo', policy: siloPolicy }], 'silo')
 }
 
 /**

@@ -85,11 +85,20 @@ export function updateRole<Role extends RoleKey>(
   return { roleAssignments }
 }
 
-/** Map from identity ID to role name for quick lookup. */
+/**
+ * Map from identity ID to role name for quick lookup. If an actor has multiple
+ * assignments in the same policy (which the API allows) take the strongest one.
+ */
 export function rolesByIdFromPolicy<Role extends RoleKey>(
   policy: Policy<Role>
 ): Map<string, Role> {
-  return new Map(policy.roleAssignments.map((a) => [a.identityId, a.roleName]))
+  const map = new Map<string, Role>()
+  for (const { identityId, roleName } of policy.roleAssignments) {
+    const existing = map.get(identityId)
+    // non-null: list is non-empty
+    map.set(identityId, getEffectiveRole(existing ? [existing, roleName] : [roleName])!)
+  }
+  return map
 }
 
 /**
@@ -160,12 +169,6 @@ export type ScopedRoleEntry = {
   source: { type: 'direct' } | { type: 'group'; group: { id: string; displayName: string } }
 }
 
-/** Strongest role assigned to an identity in a policy, if any. */
-const roleForId = (policy: Policy, id: string) =>
-  getEffectiveRole(
-    policy.roleAssignments.filter((ra) => ra.identityId === id).map((ra) => ra.roleName)
-  )
-
 /**
  * Enumerate all role assignments relevant to a user — one entry per direct
  * assignment and one per group assignment — across the given policies. Each
@@ -181,12 +184,13 @@ export function userScopedRoleEntries(
 ): ScopedRoleEntry[] {
   const entries: ScopedRoleEntry[] = []
   for (const { scope, policy } of scopedPolicies) {
-    const direct = roleForId(policy, userId)
+    const roleById = rolesByIdFromPolicy(policy)
+    const direct = roleById.get(userId)
     if (direct) {
       entries.push({ roleName: direct, scope, source: { type: 'direct' } })
     }
     for (const group of userGroups) {
-      const via = roleForId(policy, group.id)
+      const via = roleById.get(group.id)
       if (via) {
         entries.push({ roleName: via, scope, source: { type: 'group', group } })
       }
