@@ -217,28 +217,19 @@ export const sortRoleEntries = (entries: ScopedRoleEntry[]) =>
 /**
  * Builds a map from user ID to the list of groups that user belongs to,
  * firing one query per group to fetch members. Shared between user tabs.
- *
- * The returned Map is referentially stable between data updates, which keeps
- * downstream useMemos (column definitions) from invalidating every render.
- * `useQueries` returns a new array reference each render, so we can't put it in
- * a useMemo deps array directly — instead we encode the relevant inputs (group
- * IDs and per-query updated-at timestamps) into a single version string and
- * memoize on that.
  */
 export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> {
-  const groupMemberQueries = useQueries({
+  const groupMemberPages = useQueries({
     queries: groups.map((g) => q(api.userList, { query: { group: g.id, limit: ALL_ISH } })),
+    // useQueries returns a new array each render; combine structurally shares
+    // the selected data so the Map only changes with groups or memberships
+    combine: (results) => results.map((result) => result.data),
   })
-
-  const version = [
-    groups.map((g) => g.id).join(','),
-    ...groupMemberQueries.map((query) => query.dataUpdatedAt),
-  ].join('|')
 
   return useMemo(() => {
     const map = new Map<string, Group[]>()
     groups.forEach((group, i) => {
-      const members = groupMemberQueries[i]?.data?.items ?? []
+      const members = groupMemberPages[i]?.items ?? []
       members.forEach((member) => {
         const existing = map.get(member.id)
         if (existing) existing.push(group)
@@ -246,6 +237,5 @@ export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> {
       })
     })
     return map
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- groups and queries are encoded in version
-  }, [version])
+  }, [groups, groupMemberPages])
 }
