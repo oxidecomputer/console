@@ -129,6 +129,8 @@
     --content-gutter: 2.5rem;
     --top-bar-height: 54px;
     --sidebar-width: 14.25rem;
+    /* overridden by PreviewBannerLayout when the banner is enabled */
+    --preview-banner-height: 0px;
 
     @media (max-width: 767px) {
       --content-gutter: 1.5rem;

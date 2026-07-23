@@ -8,7 +8,7 @@
 import { useEffect, useRef } from 'react'
 import { Outlet, useNavigation } from 'react-router'
 
-import { MswBanner } from '~/components/MswBanner'
+import { PreviewBannerLayout } from '~/components/MswBanner'
 import { ToastStack } from '~/components/ToastStack'
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useApplyTheme } from '~/stores/theme'
@@ -36,12 +36,11 @@ export default function RootLayout() {
   }, [title])
 
   return (
-    <>
+    <PreviewBannerLayout>
       <LoadingBar />
-      {process.env.MSW_BANNER ? <MswBanner /> : null}
       <Outlet />
       <ToastStack />
-    </>
+    </PreviewBannerLayout>
   )
 }
 

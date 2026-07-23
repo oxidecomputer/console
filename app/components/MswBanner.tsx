@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import cn from 'classnames'
 import { useState, type ReactNode } from 'react'
 
 import { Info16Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
@@ -43,13 +44,35 @@ type Props = {
   disableButton?: boolean
 }
 
-export function MswBanner({ disableButton }: Props) {
+/**
+ * Renders the preview banner (when enabled at build time) and sets
+ * `--preview-banner-height` for the rest of the app. The banner is `fixed`, so
+ * it can't push anything down through normal flow. Instead, the fixed-position
+ * chrome (top bar, sidebar) and viewport-height calcs consume the variable to
+ * offset themselves, the same way they use `--top-bar-height`. When the banner
+ * is off, the variable stays at its 0px default (set in index.css) and the
+ * offsets collapse to nothing, so consumers don't need their own conditionals.
+ */
+export function PreviewBannerLayout({
+  children,
+  disableButton,
+}: Props & { children: ReactNode }) {
+  return (
+    <div
+      className={cn('h-full', process.env.MSW_BANNER && '[--preview-banner-height:2.5rem]')}
+    >
+      {process.env.MSW_BANNER ? <MswBanner disableButton={disableButton} /> : null}
+      {children}
+    </div>
+  )
+}
+
+function MswBanner({ disableButton }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const closeModal = () => setIsOpen(false)
   return (
     <>
-      {/* The [&+*]:pt-10 style is to ensure the page container isn't pushed out of screen as it uses 100vh for layout */}
-      <aside className="text-sans-md text-info bg-info absolute z-(--z-top-bar) flex h-10 w-full items-center justify-center [&+*]:pt-10">
+      <aside className="text-sans-md text-info bg-info fixed top-0 z-(--z-top-bar) flex h-(--preview-banner-height) w-full items-center justify-center">
         <Info16Icon className="mr-2" /> This is a technical preview.
         <button
           type="button"

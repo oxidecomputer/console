@@ -17,7 +17,7 @@ import {
 } from '~/layouts/helpers'
 import { classed } from '~/util/classed'
 
-import { MswBanner } from './MswBanner'
+import { PreviewBannerLayout } from './MswBanner'
 
 const Block = classed.div`motion-safe:animate-pulse2 rounded-md bg-tertiary`
 
@@ -31,8 +31,7 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
 
   // we need the msw banner here so it doesn't pop in on load
   return (
-    <>
-      {process.env.MSW_BANNER ? <MswBanner disableButton /> : null}
+    <PreviewBannerLayout disableButton>
       <PageContainer>
         {/* TopBar */}
         <div className={topBarWrapperClass}>
@@ -65,6 +64,6 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
         {/* Content */}
         <ContentPane />
       </PageContainer>
-    </>
+    </PreviewBannerLayout>
   )
 }
