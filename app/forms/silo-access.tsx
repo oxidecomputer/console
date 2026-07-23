@@ -54,7 +54,6 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         onDismiss()
       }}
       onSubmit={({ identityId, roleName }) => {
-        // TODO: DRY logic
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 
@@ -86,6 +85,7 @@ export function SiloAccessEditUserSideModal({
   policy,
   defaultValues,
 }: EditRoleModalProps) {
+  const isAssigning = !defaultValues.roleName
   const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('policyView')
@@ -97,15 +97,16 @@ export function SiloAccessEditUserSideModal({
   return (
     <SideModalForm
       form={form}
-      formType="edit"
+      formType={isAssigning ? 'create' : 'edit'}
       resourceName="role"
-      title="Edit role"
+      title={isAssigning ? 'Add silo role' : 'Edit silo role'}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {name}
         </ResourceLabel>
       }
       onSubmit={({ roleName }) => {
+        if (!roleName) return
         updatePolicy.mutate({
           body: updateRole({ identityId, identityType, roleName }, policy),
         })

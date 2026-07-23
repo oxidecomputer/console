@@ -19,22 +19,21 @@ import {
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
-  useUserRows,
   type FleetRole,
   type IdentityType,
 } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import { roleActions } from '~/components/access/roleActions'
+import { useCanEditFleetPolicy } from '~/components/access/use-can-edit-policy'
 import { DocsPopover } from '~/components/DocsPopover'
-import { HL } from '~/components/HL'
 import {
   FleetAccessAddUserSideModal,
   FleetAccessEditUserSideModal,
 } from '~/forms/fleet-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useQuickActions } from '~/hooks/use-quick-actions'
-import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
@@ -64,8 +63,8 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 )
 
 const systemPolicyView = q(api.systemPolicyView, {})
-const userList = q(api.userList, {})
-const groupList = q(api.groupList, {})
+const userList = q(api.userList, { query: { limit: ALL_ISH } })
+const groupList = q(api.groupList, { query: { limit: ALL_ISH } })
 const siloList = q(api.siloList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {
@@ -107,17 +106,35 @@ export default function FleetAccessPage() {
   const navigate = useNavigate()
   const { me } = useCurrentUser()
   const { data: fleetPolicy } = usePrefetchedQuery(systemPolicyView)
+  const canEditRoles = useCanEditFleetPolicy(fleetPolicy)
+  const { data: users } = usePrefetchedQuery(userList)
+  const { data: groups } = usePrefetchedQuery(groupList)
   const { data: silos } = usePrefetchedQuery(siloList)
-  const fleetRows = useUserRows(fleetPolicy.roleAssignments, 'fleet')
 
   const rows: AccessRow[] = useMemo(() => {
-    const assignmentRows: AssignmentRow[] = groupBy(fleetRows, (u) => u.id)
-      .map(([userId, userAssignments]) => {
-        const { name, identityType } = userAssignments[0]
-        // non-null: userAssignments is non-empty (groupBy only creates groups for existing items)
+    // A user might not appear here if they're not in the current user's silo
+    // (can happen for cross-silo fleet assignments), so fall back to the raw ID.
+    // The name column detects the fallback and shows an explanatory tooltip.
+    const nameById = new Map(
+      [...users.items, ...groups.items].map((u) => [u.id, u.displayName])
+    )
+
+    const assignmentRows: AssignmentRow[] = groupBy(
+      fleetPolicy.roleAssignments,
+      (ra) => ra.identityId
+    )
+      .map(([userId, assignments]) => {
+        const { identityType } = assignments[0]
+        // non-null: assignments is non-empty (groupBy only creates groups for existing items)
         // getEffectiveRole needed because API allows multiple fleet role assignments for the same user, even though that's probably rare
-        const fleetRole = getEffectiveRole(userAssignments.map((a) => a.roleName))!
-        return { kind: 'assignment' as const, id: userId, identityType, name, fleetRole }
+        const fleetRole = getEffectiveRole(assignments.map((a) => a.roleName))!
+        return {
+          kind: 'assignment' as const,
+          id: userId,
+          identityType,
+          name: nameById.get(userId) ?? userId,
+          fleetRole,
+        }
       })
       .sort(byGroupThenName)
 
@@ -135,7 +152,7 @@ export default function FleetAccessPage() {
       )
 
     return [...assignmentRows, ...mappingRows]
-  }, [fleetRows, silos])
+  }, [fleetPolicy, users, groups, silos])
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.systemPolicyUpdate, {
     onSuccess: () => {
@@ -214,30 +231,22 @@ export default function FleetAccessPage() {
               onActivate: () => navigate(pb.siloFleetRoles({ silo: row.siloName })),
             },
           ])
-          .with({ kind: 'assignment' }, (row) => [
-            {
-              label: 'Change role',
-              onActivate: () => setEditingUserRow(row),
-            },
-            {
-              label: 'Delete',
-              onActivate: confirmDelete({
-                doDelete: () => updatePolicy({ body: deleteRole(row.id, fleetPolicy) }),
-                label: (
-                  <span>
-                    the <HL>{row.fleetRole}</HL> role for <HL>{row.name}</HL>
-                  </span>
-                ),
-                resourceKind: 'role assignment',
-                extraContent:
-                  row.id === me.id ? 'This will remove your own fleet access.' : undefined,
+          .with({ kind: 'assignment' }, (row) => {
+            const actions = roleActions('fleet', canEditRoles)
+            return [
+              actions.change(() => setEditingUserRow(row)),
+              actions.remove({
+                name: row.name,
+                directRole: row.fleetRole,
+                isSelf: row.id === me.id,
+                doRemove: () => updatePolicy({ body: deleteRole(row.id, fleetPolicy) }),
               }),
-            },
-          ])
+            ]
+          })
           .exhaustive()
       ),
     ],
-    [fleetPolicy, updatePolicy, me, navigate]
+    [canEditRoles, fleetPolicy, updatePolicy, me, navigate]
   )
 
   useQuickActions(

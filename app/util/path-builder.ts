@@ -111,6 +111,8 @@ export const pb = {
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
+  siloUsers: () => '/users',
+  siloGroups: () => '/groups',
   siloImages: () => '/images',
   siloImage: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}`,
 

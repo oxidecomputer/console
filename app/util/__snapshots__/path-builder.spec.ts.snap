@@ -637,6 +637,12 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/silos/s/fleet-roles",
     },
   ],
+  "siloGroups (/groups)": [
+    {
+      "label": "Users & Groups",
+      "path": "/users",
+    },
+  ],
   "siloIdps (/system/silos/s/idps)": [
     {
       "label": "Silos",
@@ -731,6 +737,12 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Subnet Pools",
       "path": "/system/silos/s/subnet-pools",
+    },
+  ],
+  "siloUsers (/users)": [
+    {
+      "label": "Users & Groups",
+      "path": "/users",
     },
   ],
   "siloUtilization (/utilization)": [
