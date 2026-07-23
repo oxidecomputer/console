@@ -124,7 +124,7 @@ export function buildRoleActions({
         ? noRolePermissionReason('silo', 'remove')
         : // a direct role is required to remove anything
           !directRole
-          ? "Role is inherited from a group; change the group's role to revoke"
+          ? 'Role is inherited from a group; it can only be removed from the group.'
           : undefined,
       doRemove,
     }),
