@@ -12,22 +12,23 @@ import * as R from 'remeda'
 import {
   api,
   deleteRole,
-  getEffectiveRole,
   q,
   queryClient,
-  roleOrder,
   rolesByIdFromPolicy,
+  sortRoleEntries,
   useApiMutation,
   useGroupsByUserId,
   usePrefetchedQuery,
-  type Group,
+  userScopedRoleEntries,
   type RoleKey,
+  type ScopedPolicy,
+  type ScopedRoleEntry,
   type User,
 } from '@oxide/api'
 import { Person24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { ListPlusCell } from '~/components/ListPlusCell'
+import { ListPlusCell, ListPlusOverflow } from '~/components/ListPlusCell'
 import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { addToast } from '~/stores/toast'
@@ -38,7 +39,6 @@ import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
-import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
@@ -67,32 +67,9 @@ const EmptyState = () => (
   </TableEmptyBox>
 )
 
-/**
- * A user's effective silo role: the strongest of their direct assignment and
- * any roles inherited from their groups. When no direct assignment covers the
- * effective role, `viaGroups` lists the groups it comes from.
- */
-function effectiveSiloRole(
-  userId: string,
-  userGroups: Group[],
-  roleById: Map<string, RoleKey>
-): { role: RoleKey; viaGroups: Group[] } | null {
-  const directRole = roleById.get(userId)
-  const groupEntries = userGroups.flatMap((group) => {
-    const role = roleById.get(group.id)
-    return role ? [{ group, role }] : []
-  })
-  const role = getEffectiveRole([
-    ...(directRole ? [directRole] : []),
-    ...groupEntries.map((e) => e.role),
-  ])
-  if (!role) return null
-  const directCovers = directRole && roleOrder[directRole] <= roleOrder[role]
-  const viaGroups = directCovers
-    ? []
-    : groupEntries.filter((e) => roleOrder[e.role] <= roleOrder[role]).map((e) => e.group)
-  return { role, viaGroups }
-}
+/** How a user came to hold a role, shown as the source in the "other roles" tooltip. */
+const sourceLabel = (source: ScopedRoleEntry['source']) =>
+  source.type === 'direct' ? 'Assigned' : `via ${source.group.displayName}`
 
 type EditingState = { user: User; defaultRole: RoleKey | undefined }
 
@@ -111,6 +88,11 @@ export function AccessUsersTab() {
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const roleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
+  // silo is the only scope on this page, but userScopedRoleEntries takes a list
+  const scopedPolicies = useMemo(
+    () => [{ scope: 'silo', policy: siloPolicy }] satisfies ScopedPolicy[],
+    [siloPolicy]
+  )
 
   const canEdit = useCanEditSiloPolicy(siloPolicy)
   const { me } = useCurrentUser()
@@ -129,27 +111,28 @@ export function AccessUsersTab() {
         header: 'Role',
         cell: ({ row }) => {
           const userGroups = groupsByUserId.get(row.original.id) ?? []
-          const effective = effectiveSiloRole(row.original.id, userGroups, roleById)
-          if (!effective) return <EmptyCell />
+          const entries = sortRoleEntries(
+            userScopedRoleEntries(row.original.id, userGroups, scopedPolicies)
+          )
+          if (entries.length === 0) return <EmptyCell />
+          // strongest is the effective role; the rest go in the +N tooltip
+          const [effective, ...rest] = entries
           return (
-            <div className="flex items-center gap-1.5">
-              <Badge color={roleColor[effective.role]}>silo.{effective.role}</Badge>
-              {effective.viaGroups.length > 0 && (
-                <TipIcon>
-                  via{' '}
-                  {effective.viaGroups.map((g, i) => (
-                    <span key={g.id}>
-                      {i > 0 && ', '}
-                      {g.displayName}
-                    </span>
-                  ))}
-                </TipIcon>
-              )}
+            <div className="flex items-center gap-2">
+              <Badge color={roleColor[effective.roleName]}>silo.{effective.roleName}</Badge>
+              <ListPlusOverflow tooltipTitle="Other roles">
+                {rest.map((entry, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Badge color={roleColor[entry.roleName]}>silo.{entry.roleName}</Badge>
+                    <span className="text-secondary">{sourceLabel(entry.source)}</span>
+                  </div>
+                ))}
+              </ListPlusOverflow>
             </div>
           )
         },
       }),
-    [groupsByUserId, roleById]
+    [groupsByUserId, scopedPolicies]
   )
 
   const groupsCol = useMemo(
@@ -191,18 +174,20 @@ export function AccessUsersTab() {
   const makeActions = useCallback(
     (user: User): MenuAction[] => {
       const userGroups = groupsByUserId.get(user.id) ?? []
-      const effective = effectiveSiloRole(user.id, userGroups, roleById)
+      const entries = sortRoleEntries(
+        userScopedRoleEntries(user.id, userGroups, scopedPolicies)
+      )
       return buildRoleActions({
         name: user.displayName,
         directRole: roleById.get(user.id),
-        effectiveRole: effective?.role,
+        effectiveRole: entries[0]?.roleName,
         canEdit,
         isSelf: user.id === me.id,
         openEditModal: (defaultRole) => setEditingUser({ user, defaultRole }),
         doRemove: () => updatePolicy({ body: deleteRole(user.id, siloPolicy) }),
       })
     },
-    [roleById, siloPolicy, updatePolicy, groupsByUserId, canEdit, me]
+    [roleById, siloPolicy, updatePolicy, groupsByUserId, scopedPolicies, canEdit, me]
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)

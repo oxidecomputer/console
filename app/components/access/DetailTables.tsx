@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as R from 'remeda'
-
-import { roleOrder, type ScopedRoleEntry } from '@oxide/api'
+import { sortRoleEntries, type ScopedRoleEntry } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
 import { RowActions } from '~/table/columns/action-col'
@@ -20,7 +18,7 @@ import { roleColor } from '~/util/access'
  * entries are all direct). Sorted strongest-first.
  */
 export function RoleAssignmentsTable({ entries }: { entries: ScopedRoleEntry[] }) {
-  const sorted = R.sortBy(entries, (e) => roleOrder[e.roleName])
+  const sorted = sortRoleEntries(entries)
   return (
     <table className="ox-table text-sans-md w-full border-separate">
       <Table.Header>
