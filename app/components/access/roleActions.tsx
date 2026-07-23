@@ -55,10 +55,19 @@ export const roleActions = (scope: RoleScope, canEdit: boolean) => {
       inheritedReason?: string
       doRemove: () => Promise<unknown>
     }): MenuAction {
+      const disabled = !canEdit
+        ? noRolePermissionReason(scope, 'remove')
+        : // if role is not direct, it is inherited from a silo or group, so
+          // we use inheritedReason to direct them to the appropriate spot to
+          // remove it
+          !directRole
+          ? inheritedReason
+          : undefined
+
       return {
-        // the action is not named "Delete", so set destructive styling explicitly
+        // Match RowActions' Delete behavior: destructive styling only while enabled.
         label: roleActionLabel(scope, 'remove'),
-        className: 'destructive',
+        className: disabled ? undefined : 'destructive',
         onActivate: confirmDelete({
           doDelete: doRemove,
           label: (
@@ -69,14 +78,7 @@ export const roleActions = (scope: RoleScope, canEdit: boolean) => {
           resourceKind: 'role assignment',
           extraContent: isSelf ? `This will remove your own ${scope} access.` : undefined,
         }),
-        disabled: !canEdit
-          ? noRolePermissionReason(scope, 'remove')
-          : // if role is not direct, it is inherited from a silo or group, so
-            // we use inheritedReason to direct them to the appropriate spot to
-            // remove it
-            !directRole
-            ? inheritedReason
-            : undefined,
+        disabled,
       }
     },
   }

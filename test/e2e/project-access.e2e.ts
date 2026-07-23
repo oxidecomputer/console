@@ -74,7 +74,9 @@ test('Project access shows and edits project role assignments', async ({ page })
   // remove Jacob's project role
   const jacobRow = page.getByRole('row', { name: user3.display_name, exact: false })
   await jacobRow.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Remove project role' }).click()
+  const removeRole = page.getByRole('menuitem', { name: 'Remove project role' })
+  await expect(removeRole).toHaveClass(/destructive/)
+  await removeRole.click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(jacobRow).toBeHidden()
 
@@ -110,6 +112,7 @@ test('Inherited-only row offers Add project role, not a disabled Change', async 
   await expect(page.getByRole('menuitem', { name: 'Add project role' })).toBeEnabled()
   const removeItem = page.getByRole('menuitem', { name: 'Remove project role' })
   await expect(removeItem).toBeDisabled()
+  await expect(removeItem).not.toHaveClass(/destructive/)
   await removeItem.hover()
   await expect(page.getByRole('tooltip')).toHaveText('This role comes from the silo policy')
 
