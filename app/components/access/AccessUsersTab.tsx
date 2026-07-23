@@ -21,13 +21,12 @@ import {
   usePrefetchedQuery,
   userScopedRoleEntries,
   type RoleKey,
-  type ScopedRoleEntry,
   type User,
 } from '@oxide/api'
-import { Person24Icon } from '@oxide/design-system/icons/react'
+import { Person24Icon, PersonGroup16Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { ListPlusCell, ListPlusOverflow } from '~/components/ListPlusCell'
+import { ListPlusCell } from '~/components/ListPlusCell'
 import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { addToast } from '~/stores/toast'
@@ -38,6 +37,7 @@ import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
@@ -65,10 +65,6 @@ const EmptyState = () => (
     />
   </TableEmptyBox>
 )
-
-/** How a user came to hold a role, shown as the source in the "other roles" tooltip. */
-const sourceLabel = (source: ScopedRoleEntry['source']) =>
-  source.type === 'direct' ? 'Assigned' : `via ${source.group.displayName}`
 
 type EditingState = { user: User; defaultRole: RoleKey | undefined }
 
@@ -105,23 +101,21 @@ export function AccessUsersTab() {
         header: 'Role',
         cell: ({ row }) => {
           const userGroups = groupsByUserId.get(row.original.id) ?? []
-          const entries = sortRoleEntries(
+          // strongest assignment is the effective role; any others are shown in
+          // the user detail side modal, reached by clicking the name
+          const effective = sortRoleEntries(
             userScopedRoleEntries(row.original.id, userGroups, siloPolicy)
-          )
-          if (entries.length === 0) return <EmptyCell />
-          // strongest is the effective role; the rest go in the +N tooltip
-          const [effective, ...rest] = entries
+          ).at(0)
+          if (!effective) return <EmptyCell />
           return (
             <div className="flex items-center gap-2">
               <Badge color={roleColor[effective.roleName]}>silo.{effective.roleName}</Badge>
-              <ListPlusOverflow tooltipTitle="Other roles">
-                {rest.map((entry, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <Badge color={roleColor[entry.roleName]}>silo.{entry.roleName}</Badge>
-                    <span className="text-secondary">{sourceLabel(entry.source)}</span>
-                  </div>
-                ))}
-              </ListPlusOverflow>
+              {/* call out when the effective role is inherited rather than direct */}
+              {effective.source.type === 'group' && (
+                <TipIcon icon={<PersonGroup16Icon className="text-quaternary h-3 w-3" />}>
+                  via {effective.source.group.displayName}
+                </TipIcon>
+              )}
             </div>
           )
         },

@@ -70,7 +70,7 @@ export default function SiloLayout() {
           <NavLinkItem to={pb.siloUtilization()}>
             <Metrics16Icon /> Utilization
           </NavLinkItem>
-          <NavLinkItem to={pb.siloAccess()} end>
+          <NavLinkItem to={pb.siloAccess()}>
             <Access16Icon /> Silo Access
           </NavLinkItem>
           <NavLinkItem to={pb.siloUsers()} isActive={inUsersGroups}>

@@ -146,20 +146,17 @@ test('Users & Groups page lands on Users tab; shows direct + via-group silo role
 
   // Jane Austen has a direct silo.viewer role but inherits the stronger
   // silo.collaborator via real-estate-devs, so her effective role is
-  // collaborator with a "+1" revealing the other role
+  // collaborator; the other role is only shown in the detail side modal
   await expectRowVisible(table, {
     Name: 'Jane Austen',
-    Role: 'silo.collaborator+1',
+    Role: 'silo.collaborator',
     Groups: 'real-estate-devs',
   })
 
-  // hovering the +1 lists the other role and where it comes from
+  // the effective role is inherited, so an info icon names the source group
   const janeRow = table.getByRole('row', { name: 'Jane Austen', exact: false })
-  await janeRow.getByText('+1').hover()
-  const tooltip = page.getByRole('tooltip')
-  await expect(tooltip).toContainText('Other roles')
-  await expect(tooltip).toContainText('silo.viewer')
-  await expect(tooltip).toContainText('Assigned')
+  await janeRow.getByRole('button', { name: 'Tip' }).hover()
+  await expect(page.getByRole('tooltip')).toContainText('via real-estate-devs')
 
   // Groups tab comes second
   await page.getByRole('tab', { name: 'Groups' }).click()

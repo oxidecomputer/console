@@ -128,6 +128,22 @@ describe('userScopedRoleEntries', () => {
       { roleName: 'admin', scope: 'project', source: { type: 'direct' } },
     ])
   })
+
+  it('keeps a separate entry per group even when the role is identical', () => {
+    const groupA = { id: 'a', displayName: 'a' }
+    const groupB = { id: 'b', displayName: 'b' }
+    const silo: Policy = {
+      roleAssignments: [
+        { identityId: 'a', identityType: 'silo_group', roleName: 'collaborator' },
+        { identityId: 'b', identityType: 'silo_group', roleName: 'collaborator' },
+      ],
+    }
+    // same role via two groups must not collapse — each source is shown separately
+    expect(userScopedRoleEntries('u', [groupA, groupB], silo)).toEqual([
+      { roleName: 'collaborator', scope: 'silo', source: { type: 'group', group: groupA } },
+      { roleName: 'collaborator', scope: 'silo', source: { type: 'group', group: groupB } },
+    ])
+  })
 })
 
 test('allRoles', () => {
