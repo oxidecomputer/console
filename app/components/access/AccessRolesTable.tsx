@@ -12,9 +12,9 @@ import {
   api,
   byGroupThenName,
   deleteRole,
-  getEffectiveRole,
   q,
   roleOrder,
+  rolesByIdFromPolicy,
   useGroupsByUserId,
   usePrefetchedQuery,
   type AccessScope,
@@ -116,10 +116,11 @@ export function AccessRolesTable({
     const nameById = new Map(
       [...users.items, ...groups.items].map((u) => [u.id, u.displayName])
     )
-    const roleIn = (policy: Policy, id: string) =>
-      getEffectiveRole(
-        policy.roleAssignments.filter((ra) => ra.identityId === id).map((ra) => ra.roleName)
-      )
+    const managedRoleById = rolesByIdFromPolicy(managedPolicy)
+    const scopedRolesById = scopedPolicies.map(({ scope, policy }) => ({
+      scope,
+      roleById: rolesByIdFromPolicy(policy),
+    }))
 
     // an identity appears if it has a direct role in any of the scoped policies
     const identities = new Map<string, IdentityType>()
@@ -130,9 +131,9 @@ export function AccessRolesTable({
 
     return [...identities.entries()]
       .map(([id, identityType]) => {
-        const roleBadges = scopedPolicies
-          .map(({ scope, policy }) => {
-            const roleName = roleIn(policy, id)
+        const roleBadges = scopedRolesById
+          .map(({ scope, roleById }) => {
+            const roleName = roleById.get(id)
             return roleName ? { scope, roleName } : undefined
           })
           .filter((b) => !!b)
@@ -142,7 +143,7 @@ export function AccessRolesTable({
           id,
           identityType,
           name: nameById.get(id) ?? id,
-          managedRole: roleIn(managedPolicy, id),
+          managedRole: managedRoleById.get(id),
           roleBadges,
         } satisfies AccessRow
       })
