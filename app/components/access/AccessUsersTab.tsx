@@ -21,7 +21,6 @@ import {
   usePrefetchedQuery,
   userScopedRoleEntries,
   type RoleKey,
-  type ScopedPolicy,
   type ScopedRoleEntry,
   type User,
 } from '@oxide/api'
@@ -42,7 +41,7 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
-import { buildRoleActions } from './roleActions'
+import { roleActions } from './roleActions'
 import { useCanEditSiloPolicy } from './use-can-edit-policy'
 import { UserDetailsSideModal } from './UserDetailsSideModal'
 
@@ -88,11 +87,6 @@ export function AccessUsersTab() {
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const roleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
-  // silo is the only scope on this page, but userScopedRoleEntries takes a list
-  const scopedPolicies = useMemo(
-    () => [{ scope: 'silo', policy: siloPolicy }] satisfies ScopedPolicy[],
-    [siloPolicy]
-  )
 
   const canEdit = useCanEditSiloPolicy(siloPolicy)
   const { me } = useCurrentUser()
@@ -112,7 +106,7 @@ export function AccessUsersTab() {
         cell: ({ row }) => {
           const userGroups = groupsByUserId.get(row.original.id) ?? []
           const entries = sortRoleEntries(
-            userScopedRoleEntries(row.original.id, userGroups, scopedPolicies)
+            userScopedRoleEntries(row.original.id, userGroups, siloPolicy)
           )
           if (entries.length === 0) return <EmptyCell />
           // strongest is the effective role; the rest go in the +N tooltip
@@ -132,7 +126,7 @@ export function AccessUsersTab() {
           )
         },
       }),
-    [groupsByUserId, scopedPolicies]
+    [groupsByUserId, siloPolicy]
   )
 
   const groupsCol = useMemo(
@@ -174,20 +168,33 @@ export function AccessUsersTab() {
   const makeActions = useCallback(
     (user: User): MenuAction[] => {
       const userGroups = groupsByUserId.get(user.id) ?? []
+      const directRole = roleById.get(user.id)
       const entries = sortRoleEntries(
-        userScopedRoleEntries(user.id, userGroups, scopedPolicies)
+        userScopedRoleEntries(user.id, userGroups, siloPolicy)
       )
-      return buildRoleActions({
-        name: user.displayName,
-        directRole: roleById.get(user.id),
-        effectiveRole: entries[0]?.roleName,
-        canEdit,
-        isSelf: user.id === me.id,
-        openEditModal: (defaultRole) => setEditingUser({ user, defaultRole }),
-        doRemove: () => updatePolicy({ body: deleteRole(user.id, siloPolicy) }),
-      })
+      const effectiveRole = entries[0]?.roleName
+      const actions = roleActions('silo', canEdit)
+      // No role at all, either direct or inherited.
+      if (!effectiveRole) {
+        return [actions.add(() => setEditingUser({ user, defaultRole: undefined }))]
+      }
+      return [
+        // An inherited role can be promoted to a direct assignment; prefill the
+        // modal with the role the user already has.
+        actions.change(() =>
+          setEditingUser({ user, defaultRole: directRole ?? effectiveRole })
+        ),
+        actions.remove({
+          name: user.displayName,
+          directRole,
+          isSelf: user.id === me.id,
+          inheritedReason:
+            'Role is inherited from a group; it can only be removed from the group.',
+          doRemove: () => updatePolicy({ body: deleteRole(user.id, siloPolicy) }),
+        }),
+      ]
     },
-    [roleById, siloPolicy, updatePolicy, groupsByUserId, scopedPolicies, canEdit, me]
+    [roleById, siloPolicy, updatePolicy, groupsByUserId, canEdit, me]
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)

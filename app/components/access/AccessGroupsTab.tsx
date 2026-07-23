@@ -37,7 +37,7 @@ import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
 import { GroupMembersSideModal } from './GroupMembersSideModal'
-import { buildRoleActions } from './roleActions'
+import { roleActions } from './roleActions'
 import { useCanEditSiloPolicy } from './use-can-edit-policy'
 
 // The API only sorts groups by id, so fetch the full set and sort by name
@@ -88,7 +88,7 @@ export function AccessGroupsTab() {
         id: 'role',
         header: 'Role',
         cell: ({ row }) => {
-          // groups never inherit, so their only silo role is a direct one
+          // groups can't be in other groups, so their only silo role is a direct one
           const role = roleById.get(row.original.id)
           if (!role) return <EmptyCell />
           return <Badge color={roleColor[role]}>silo.{role}</Badge>
@@ -121,15 +121,19 @@ export function AccessGroupsTab() {
   const makeActions = useCallback(
     (group: Group): MenuAction[] => {
       const directRole = roleById.get(group.id)
-      return buildRoleActions({
-        name: group.displayName,
-        directRole,
-        effectiveRole: directRole,
-        canEdit,
-        isSelf: false, // a group is never the current user
-        openEditModal: (defaultRole) => setEditingGroup({ group, defaultRole }),
-        doRemove: () => updatePolicy({ body: deleteRole(group.id, siloPolicy) }),
-      })
+      const actions = roleActions('silo', canEdit)
+      // Groups do not inherit silo roles, so no direct role means no role at all.
+      if (!directRole) {
+        return [actions.add(() => setEditingGroup({ group, defaultRole: undefined }))]
+      }
+      return [
+        actions.change(() => setEditingGroup({ group, defaultRole: directRole })),
+        actions.remove({
+          name: group.displayName,
+          directRole,
+          doRemove: () => updatePolicy({ body: deleteRole(group.id, siloPolicy) }),
+        }),
+      ]
     },
     [roleById, siloPolicy, updatePolicy, canEdit]
   )

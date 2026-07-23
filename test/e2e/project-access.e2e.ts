@@ -111,7 +111,7 @@ test('Inherited-only row offers Add project role, not a disabled Change', async 
   const removeItem = page.getByRole('menuitem', { name: 'Remove project role' })
   await expect(removeItem).toBeDisabled()
   await removeItem.hover()
-  await expect(page.getByRole('tooltip')).toHaveText('This role is inherited from the silo')
+  await expect(page.getByRole('tooltip')).toHaveText('This role comes from the silo policy')
 
   await page.getByRole('menuitem', { name: 'Add project role' }).click()
   await expect(page.getByRole('heading', { name: 'Add project role' })).toBeVisible()

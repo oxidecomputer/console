@@ -25,11 +25,7 @@ import {
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import {
-  buildRemoveRoleAction,
-  noRolePermissionReason,
-  roleActionLabel,
-} from '~/components/access/roleActions'
+import { roleActions } from '~/components/access/roleActions'
 import { useCanEditFleetPolicy } from '~/components/access/use-can-edit-policy'
 import { DocsPopover } from '~/components/DocsPopover'
 import {
@@ -235,23 +231,18 @@ export default function FleetAccessPage() {
               onActivate: () => navigate(pb.siloFleetRoles({ silo: row.siloName })),
             },
           ])
-          .with({ kind: 'assignment' }, (row) => [
-            {
-              label: roleActionLabel('fleet', 'change'),
-              onActivate: () => setEditingUserRow(row),
-              disabled: !canEditRoles && noRolePermissionReason('fleet', 'change'),
-            },
-            buildRemoveRoleAction({
-              name: row.name,
-              role: row.fleetRole,
-              scope: 'fleet',
-              isSelf: row.id === me.id,
-              disabledReason: canEditRoles
-                ? undefined
-                : noRolePermissionReason('fleet', 'remove'),
-              doRemove: () => updatePolicy({ body: deleteRole(row.id, fleetPolicy) }),
-            }),
-          ])
+          .with({ kind: 'assignment' }, (row) => {
+            const actions = roleActions('fleet', canEditRoles)
+            return [
+              actions.change(() => setEditingUserRow(row)),
+              actions.remove({
+                name: row.name,
+                directRole: row.fleetRole,
+                isSelf: row.id === me.id,
+                doRemove: () => updatePolicy({ body: deleteRole(row.id, fleetPolicy) }),
+              }),
+            ]
+          })
           .exhaustive()
       ),
     ],

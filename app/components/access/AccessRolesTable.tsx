@@ -41,11 +41,7 @@ import { identityTypeLabel, roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
 import { GroupMembersSideModal } from './GroupMembersSideModal'
-import {
-  buildRemoveRoleAction,
-  noRolePermissionReason,
-  roleActionLabel,
-} from './roleActions'
+import { roleActions } from './roleActions'
 import { useCanEditPolicy } from './use-can-edit-policy'
 import { UserDetailsSideModal } from './UserDetailsSideModal'
 
@@ -214,24 +210,17 @@ export function AccessRolesTable({
         // show on the project page) without a direct role in the managed scope.
         // There's nothing to change or remove in that case, but a managed-scope
         // role can still be added.
-        const editVerb = row.managedRole ? 'change' : 'add'
+        const actions = roleActions(managedScope, canEditRoles)
+        const editAction = row.managedRole
+          ? actions.change(() => setEditing({ row, defaultRole: row.managedRole }))
+          : actions.add(() => setEditing({ row, defaultRole: row.managedRole }))
         return [
-          {
-            label: roleActionLabel(managedScope, editVerb),
-            onActivate: () => setEditing({ row, defaultRole: row.managedRole }),
-            disabled: !canEditRoles && noRolePermissionReason(managedScope, editVerb),
-          },
-          buildRemoveRoleAction({
+          editAction,
+          actions.remove({
             name: row.name,
-            role: row.managedRole,
-            scope: managedScope,
+            directRole: row.managedRole,
             isSelf: row.id === me.id,
-            disabledReason: !canEditRoles
-              ? noRolePermissionReason(managedScope, 'remove')
-              : // no direct role in this scope to remove — it's inherited from the silo
-                !row.managedRole
-                ? 'This role is inherited from the silo'
-                : undefined,
+            inheritedReason: 'This role comes from the silo policy',
             doRemove: () => updateManagedPolicy(deleteRole(row.id, managedPolicy)),
           }),
         ]
