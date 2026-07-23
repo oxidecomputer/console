@@ -13,7 +13,7 @@ import { type MenuAction } from '~/table/columns/action-col'
 import { capitalize } from '~/util/str'
 
 /** Scopes whose role assignments are editable from a row action. */
-export type RoleScope = AccessScope | 'fleet'
+type RoleScope = AccessScope | 'fleet'
 type RoleVerb = 'add' | 'change' | 'remove'
 
 /** Row-action label, scoped so it reads e.g. "Change project role". */

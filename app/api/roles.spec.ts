@@ -11,14 +11,12 @@ import {
   allRoles,
   byGroupThenName,
   deleteRole,
-  effectiveScopedRole,
   getEffectiveRole,
   roleOrder,
   rolesByIdFromPolicy,
   updateRole,
   userScopedRoleEntries,
   type Policy,
-  type ScopedRoleEntry,
 } from './roles'
 
 describe('getEffectiveRole', () => {
@@ -75,44 +73,6 @@ describe('updateRole', () => {
 describe('deleteRole', () => {
   it('deletes a user by ID', () => {
     expect(deleteRole('abc', abcViewerPolicy)).toEqual(emptyPolicy)
-  })
-})
-
-describe('effectiveScopedRole', () => {
-  const direct = { type: 'direct' } as const
-  const viaGroup = { type: 'group', group: { id: 'g', displayName: 'g' } } as const
-  const entry = (
-    roleName: ScopedRoleEntry['roleName'],
-    scope: ScopedRoleEntry['scope'],
-    source: ScopedRoleEntry['source'] = direct
-  ): ScopedRoleEntry => ({ roleName, scope, source })
-
-  it('returns null when there are no entries', () => {
-    expect(effectiveScopedRole([])).toBeNull()
-  })
-
-  it('picks the strongest role regardless of scope', () => {
-    expect(
-      effectiveScopedRole([entry('viewer', 'silo'), entry('admin', 'project')])
-    ).toEqual({ role: 'admin', scope: 'project' })
-  })
-
-  it('gives ties to silo scope, since silo roles cascade into projects', () => {
-    expect(
-      effectiveScopedRole([entry('collaborator', 'project'), entry('collaborator', 'silo')])
-    ).toEqual({ role: 'collaborator', scope: 'silo' })
-  })
-
-  it('gives ties to silo even if permission comes via a group', () => {
-    expect(
-      effectiveScopedRole([entry('admin', 'project'), entry('admin', 'silo', viaGroup)])
-    ).toEqual({ role: 'admin', scope: 'silo' })
-  })
-
-  it('keeps project scope when the project role is strictly stronger', () => {
-    expect(
-      effectiveScopedRole([entry('admin', 'project'), entry('viewer', 'silo')])
-    ).toEqual({ role: 'admin', scope: 'project' })
   })
 })
 
