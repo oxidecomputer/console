@@ -160,7 +160,7 @@ export function AccessGroupsTab() {
         <GroupMembersSideModal
           group={selectedGroup}
           onDismiss={() => setSelectedGroup(null)}
-          scopedPolicies={[{ scope: 'silo', policy: siloPolicy }]}
+          siloPolicy={siloPolicy}
         />
       )}
     </>

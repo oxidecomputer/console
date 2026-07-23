@@ -11,42 +11,39 @@ import {
   type AccessScope,
   type FleetRolePolicy,
   type Policy,
-  type ScopedPolicy,
 } from '@oxide/api'
 
 import { useCurrentUser } from '~/hooks/use-current-user'
 
 /**
  * Whether the current user can add, change, or remove role assignments in the
- * managed scope. Editing a scope's policy requires `modify` on that resource:
- * silo modify comes from the silo admin role; project modify comes from the
- * project admin role or a silo collaborator/admin role (a silo collaborator is
- * an admin on every project in the silo).
+ * managed scope: the project when a project policy is given, otherwise the
+ * silo. Editing a scope's policy requires `modify` on that resource: silo
+ * modify comes from the silo admin role; project modify comes from the project
+ * admin role or a silo collaborator/admin role (a silo collaborator is an
+ * admin on every project in the silo).
  *
  * Fleet roles also grant modify, but they aren't present in these policies, so a
  * fleet admin/collaborator may see actions disabled here that would in fact
  * succeed. That's the same limitation the access pages have always had.
  * https://github.com/oxidecomputer/omicron/blob/main/nexus/auth/src/authz/omicron.polar
  */
-export function useCanEditPolicy(
-  scopedPolicies: ScopedPolicy[],
-  managedScope: AccessScope
-): boolean {
+export function useCanEditPolicy(siloPolicy: Policy, projectPolicy?: Policy): boolean {
   const { me, myGroups } = useCurrentUser()
-  const entries = userScopedRoleEntries(me.id, myGroups.items, scopedPolicies)
+  const entries = userScopedRoleEntries(me.id, myGroups.items, siloPolicy, projectPolicy)
   const roleInScope = (scope: AccessScope) =>
     getEffectiveRole(entries.filter((e) => e.scope === scope).map((e) => e.roleName))
   const siloRole = roleInScope('silo')
-  return managedScope === 'silo'
-    ? siloRole === 'admin'
-    : roleInScope('project') === 'admin' ||
+  return projectPolicy
+    ? roleInScope('project') === 'admin' ||
         siloRole === 'admin' ||
         siloRole === 'collaborator'
+    : siloRole === 'admin'
 }
 
-/** `useCanEditPolicy` for the silo-only tabs, which have no scope machinery. */
+/** `useCanEditPolicy` for the silo-only tabs, named for symmetry with fleet. */
 export function useCanEditSiloPolicy(siloPolicy: Policy): boolean {
-  return useCanEditPolicy([{ scope: 'silo', policy: siloPolicy }], 'silo')
+  return useCanEditPolicy(siloPolicy)
 }
 
 /**

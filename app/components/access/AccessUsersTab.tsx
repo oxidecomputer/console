@@ -216,7 +216,7 @@ export function AccessUsersTab() {
         <UserDetailsSideModal
           user={selectedUser}
           onDismiss={() => setSelectedUser(null)}
-          scopedPolicies={[{ scope: 'silo', policy: siloPolicy }]}
+          siloPolicy={siloPolicy}
           userGroups={groupsByUserId.get(selectedUser.id) ?? []}
         />
       )}

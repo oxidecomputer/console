@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 
-import { api, q, userScopedRoleEntries, type Group, type ScopedPolicy } from '@oxide/api'
+import { api, q, userScopedRoleEntries, type Group, type Policy } from '@oxide/api'
 import { PersonGroup16Icon } from '@oxide/design-system/icons/react'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
@@ -20,15 +20,21 @@ import { IdentityListTable, RoleAssignmentsTable } from './DetailTables'
 type Props = {
   group: Group
   onDismiss: () => void
-  scopedPolicies: ScopedPolicy[]
+  siloPolicy: Policy
+  projectPolicy?: Policy
 }
 
-export function GroupMembersSideModal({ group, onDismiss, scopedPolicies }: Props) {
+export function GroupMembersSideModal({
+  group,
+  onDismiss,
+  siloPolicy,
+  projectPolicy,
+}: Props) {
   const { data } = useQuery(q(api.userList, { query: { group: group.id, limit: ALL_ISH } }))
   const members = data?.items ?? []
 
   // groups never inherit, so passing no groups yields the group's direct roles
-  const roleEntries = userScopedRoleEntries(group.id, [], scopedPolicies)
+  const roleEntries = userScopedRoleEntries(group.id, [], siloPolicy, projectPolicy)
 
   return (
     <ReadOnlySideModalForm

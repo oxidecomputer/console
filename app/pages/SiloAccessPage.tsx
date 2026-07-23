@@ -5,16 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
-import {
-  api,
-  q,
-  queryClient,
-  useApiMutation,
-  usePrefetchedQuery,
-  type ScopedPolicy,
-} from '@oxide/api'
+import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
 import { AccessRolesTable } from '~/components/access/AccessRolesTable'
@@ -57,11 +50,6 @@ export default function SiloAccessPage() {
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
 
-  const scopedPolicies = useMemo(
-    () => [{ scope: 'silo', policy: siloPolicy }] satisfies ScopedPolicy[],
-    [siloPolicy]
-  )
-
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('policyView')
@@ -99,8 +87,7 @@ export default function SiloAccessPage() {
         />
       )}
       <AccessRolesTable
-        scopedPolicies={scopedPolicies}
-        managedScope="silo"
+        siloPolicy={siloPolicy}
         EditModal={SiloAccessEditUserSideModal}
         updateManagedPolicy={(body) => updatePolicy({ body })}
         onAddClick={() => setAddModalOpen(true)}

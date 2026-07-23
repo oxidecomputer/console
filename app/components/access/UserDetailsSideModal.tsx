@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { userScopedRoleEntries, type Group, type ScopedPolicy, type User } from '@oxide/api'
+import { userScopedRoleEntries, type Group, type Policy, type User } from '@oxide/api'
 import { Person16Icon } from '@oxide/design-system/icons/react'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
@@ -18,16 +18,18 @@ type Props = {
   user: User
   onDismiss: () => void
   userGroups: Group[]
-  scopedPolicies: ScopedPolicy[]
+  siloPolicy: Policy
+  projectPolicy?: Policy
 }
 
 export function UserDetailsSideModal({
   user,
   onDismiss,
   userGroups,
-  scopedPolicies,
+  siloPolicy,
+  projectPolicy,
 }: Props) {
-  const roleEntries = userScopedRoleEntries(user.id, userGroups, scopedPolicies)
+  const roleEntries = userScopedRoleEntries(user.id, userGroups, siloPolicy, projectPolicy)
 
   return (
     <ReadOnlySideModalForm

@@ -108,7 +108,7 @@ describe('userScopedRoleEntries', () => {
         { identityId: 'u', identityType: 'silo_user', roleName: 'admin' },
       ],
     }
-    expect(userScopedRoleEntries('u', [], [{ scope: 'silo', policy }])).toEqual([
+    expect(userScopedRoleEntries('u', [], policy)).toEqual([
       { roleName: 'admin', scope: 'silo', source: { type: 'direct' } },
     ])
   })
@@ -123,16 +123,7 @@ describe('userScopedRoleEntries', () => {
     const project: Policy = {
       roleAssignments: [{ identityId: 'u', identityType: 'silo_user', roleName: 'admin' }],
     }
-    expect(
-      userScopedRoleEntries(
-        'u',
-        [group],
-        [
-          { scope: 'silo', policy: silo },
-          { scope: 'project', policy: project },
-        ]
-      )
-    ).toEqual([
+    expect(userScopedRoleEntries('u', [group], silo, project)).toEqual([
       { roleName: 'viewer', scope: 'silo', source: { type: 'group', group } },
       { roleName: 'admin', scope: 'project', source: { type: 'direct' } },
     ])

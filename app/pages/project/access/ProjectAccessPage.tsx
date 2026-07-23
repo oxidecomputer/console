@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -15,7 +15,6 @@ import {
   useApiMutation,
   usePrefetchedQuery,
   type Policy,
-  type ScopedPolicy,
 } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
@@ -65,15 +64,6 @@ export default function ProjectAccessPage() {
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
 
-  const scopedPolicies = useMemo(
-    () =>
-      [
-        { scope: 'silo', policy: siloPolicy },
-        { scope: 'project', policy: projectPolicy },
-      ] satisfies ScopedPolicy[],
-    [siloPolicy, projectPolicy]
-  )
-
   const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
@@ -111,8 +101,8 @@ export default function ProjectAccessPage() {
         />
       )}
       <AccessRolesTable
-        scopedPolicies={scopedPolicies}
-        managedScope="project"
+        siloPolicy={siloPolicy}
+        projectPolicy={projectPolicy}
         EditModal={ProjectAccessEditUserSideModal}
         updateManagedPolicy={(body: Policy) =>
           updatePolicy({ path: { project: projectSelector.project }, body })

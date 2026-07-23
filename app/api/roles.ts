@@ -161,7 +161,6 @@ export function useActorsNotInPolicy<Role extends RoleKey = RoleKey>(
 }
 
 export type AccessScope = 'silo' | 'project'
-export type ScopedPolicy = { scope: AccessScope; policy: Policy }
 
 export type ScopedRoleEntry = {
   roleName: RoleKey
@@ -180,20 +179,32 @@ export type ScopedRoleEntry = {
 export function userScopedRoleEntries(
   userId: string,
   userGroups: { id: string; displayName: string }[],
-  scopedPolicies: ScopedPolicy[]
+  siloPolicy: Policy,
+  projectPolicy?: Policy
 ): ScopedRoleEntry[] {
+  const entries = policyRoleEntries('silo', siloPolicy, userId, userGroups)
+  if (projectPolicy) {
+    entries.push(...policyRoleEntries('project', projectPolicy, userId, userGroups))
+  }
+  return entries
+}
+
+function policyRoleEntries(
+  scope: AccessScope,
+  policy: Policy,
+  userId: string,
+  userGroups: { id: string; displayName: string }[]
+): ScopedRoleEntry[] {
+  const roleById = rolesByIdFromPolicy(policy)
   const entries: ScopedRoleEntry[] = []
-  for (const { scope, policy } of scopedPolicies) {
-    const roleById = rolesByIdFromPolicy(policy)
-    const direct = roleById.get(userId)
-    if (direct) {
-      entries.push({ roleName: direct, scope, source: { type: 'direct' } })
-    }
-    for (const group of userGroups) {
-      const via = roleById.get(group.id)
-      if (via) {
-        entries.push({ roleName: via, scope, source: { type: 'group', group } })
-      }
+  const direct = roleById.get(userId)
+  if (direct) {
+    entries.push({ roleName: direct, scope, source: { type: 'direct' } })
+  }
+  for (const group of userGroups) {
+    const via = roleById.get(group.id)
+    if (via) {
+      entries.push({ roleName: via, scope, source: { type: 'group', group } })
     }
   }
   return entries

@@ -22,7 +22,6 @@ import {
   type IdentityType,
   type Policy,
   type RoleKey,
-  type ScopedPolicy,
   type User,
 } from '@oxide/api'
 import { Access24Icon } from '@oxide/design-system/icons/react'
@@ -68,10 +67,14 @@ type AccessRow = {
 const colHelper = createColumnHelper<AccessRow>()
 
 type Props = {
-  /** Policies that contribute to an identity's effective role on this page. */
-  scopedPolicies: ScopedPolicy[]
-  /** Scope managed by this page — its direct roles are editable/removable. */
-  managedScope: AccessScope
+  /** Silo roles contribute to an identity's effective role on both pages. */
+  siloPolicy: Policy
+  /**
+   * Present on the Project Access page only. The managed scope — the one whose
+   * direct roles are editable/removable — is the project when this is given,
+   * otherwise the silo.
+   */
+  projectPolicy?: Policy
   /** Modal for editing a role on the managed policy. */
   EditModal: ComponentType<EditRoleModalProps>
   /** Update the managed policy. Called when removing a role. */
@@ -86,8 +89,8 @@ type Props = {
  * in the managed scope. Shared by the Silo Access and Project Access pages.
  */
 export function AccessRolesTable({
-  scopedPolicies,
-  managedScope,
+  siloPolicy,
+  projectPolicy,
   EditModal,
   updateManagedPolicy,
   onAddClick,
@@ -107,37 +110,36 @@ export function AccessRolesTable({
   const usersById = useMemo(() => new Map(users.items.map((u) => [u.id, u])), [users])
   const groupsById = useMemo(() => new Map(groups.items.map((g) => [g.id, g])), [groups])
 
-  // non-null: caller is responsible for including the managed scope
-  const managedPolicy = scopedPolicies.find((sp) => sp.scope === managedScope)!.policy
+  const managedScope: AccessScope = projectPolicy ? 'project' : 'silo'
+  const managedPolicy = projectPolicy ?? siloPolicy
 
-  const canEditRoles = useCanEditPolicy(scopedPolicies, managedScope)
+  const canEditRoles = useCanEditPolicy(siloPolicy, projectPolicy)
 
   const rows = useMemo(() => {
     const nameById = new Map(
       [...users.items, ...groups.items].map((u) => [u.id, u.displayName])
     )
-    const managedRoleById = rolesByIdFromPolicy(managedPolicy)
-    const scopedRolesById = scopedPolicies.map(({ scope, policy }) => ({
-      scope,
-      roleById: rolesByIdFromPolicy(policy),
-    }))
+    const siloRoleById = rolesByIdFromPolicy(siloPolicy)
+    const projectRoleById = projectPolicy && rolesByIdFromPolicy(projectPolicy)
+    const managedRoleById = projectRoleById ?? siloRoleById
 
-    // an identity appears if it has a direct role in any of the scoped policies
+    // an identity appears if it has a direct role in either policy
     const identities = new Map<string, IdentityType>()
-    for (const { policy } of scopedPolicies) {
-      for (const ra of policy.roleAssignments)
-        identities.set(ra.identityId, ra.identityType)
+    for (const ra of siloPolicy.roleAssignments) {
+      identities.set(ra.identityId, ra.identityType)
+    }
+    for (const ra of projectPolicy?.roleAssignments ?? []) {
+      identities.set(ra.identityId, ra.identityType)
     }
 
     return [...identities.entries()]
       .map(([id, identityType]) => {
-        const roleBadges = scopedRolesById
-          .map(({ scope, roleById }) => {
-            const roleName = roleById.get(id)
-            return roleName ? { scope, roleName } : undefined
-          })
-          .filter((b) => !!b)
-          .sort((a, b) => roleOrder[a.roleName] - roleOrder[b.roleName]) // strongest first
+        const roleBadges: AccessRow['roleBadges'] = []
+        const siloRole = siloRoleById.get(id)
+        if (siloRole) roleBadges.push({ scope: 'silo', roleName: siloRole })
+        const projectRole = projectRoleById?.get(id)
+        if (projectRole) roleBadges.push({ scope: 'project', roleName: projectRole })
+        roleBadges.sort((a, b) => roleOrder[a.roleName] - roleOrder[b.roleName]) // strongest first
 
         return {
           id,
@@ -148,9 +150,9 @@ export function AccessRolesTable({
         } satisfies AccessRow
       })
       .sort(byGroupThenName)
-  }, [scopedPolicies, managedPolicy, users, groups])
+  }, [siloPolicy, projectPolicy, users, groups])
 
-  const multiScope = scopedPolicies.length > 1
+  const multiScope = !!projectPolicy
 
   const columns = useMemo(
     () => [
@@ -272,7 +274,8 @@ export function AccessRolesTable({
         <UserDetailsSideModal
           user={selectedUser}
           onDismiss={() => setSelectedUser(null)}
-          scopedPolicies={scopedPolicies}
+          siloPolicy={siloPolicy}
+          projectPolicy={projectPolicy}
           userGroups={groupsByUserId.get(selectedUser.id) ?? []}
         />
       )}
@@ -280,7 +283,8 @@ export function AccessRolesTable({
         <GroupMembersSideModal
           group={selectedGroup}
           onDismiss={() => setSelectedGroup(null)}
-          scopedPolicies={scopedPolicies}
+          siloPolicy={siloPolicy}
+          projectPolicy={projectPolicy}
         />
       )}
       {rows.length === 0 ? (
