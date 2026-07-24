@@ -8,7 +8,6 @@
 import { useEffect, useRef } from 'react'
 import { Outlet, useNavigation } from 'react-router'
 
-import { PreviewBannerLayout } from '~/components/MswBanner'
 import { ToastStack } from '~/components/ToastStack'
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useApplyTheme } from '~/stores/theme'
@@ -36,11 +35,11 @@ export default function RootLayout() {
   }, [title])
 
   return (
-    <PreviewBannerLayout>
+    <>
       <LoadingBar />
       <Outlet />
       <ToastStack />
-    </PreviewBannerLayout>
+    </>
   )
 }
 

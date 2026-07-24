@@ -17,8 +17,6 @@ import {
 } from '~/layouts/helpers'
 import { classed } from '~/util/classed'
 
-import { PreviewBannerLayout } from './MswBanner'
-
 const Block = classed.div`motion-safe:animate-pulse2 rounded-md bg-tertiary`
 
 export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
@@ -29,41 +27,38 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
   // layout, all we can do is match the path
   if (skipPaths?.some((regex) => regex.test(pathname))) return null
 
-  // we need the msw banner here so it doesn't pop in on load
   return (
-    <PreviewBannerLayout disableButton>
-      <PageContainer>
-        {/* TopBar */}
-        <div className={topBarWrapperClass}>
-          <div className="border-secondary flex items-center gap-2 border-r p-3">
-            <Block className="h-8 w-8" />
-            <Block className="h-4 w-24" />
-          </div>
-          <div className="flex items-center justify-between gap-2 p-3">
-            <Block className="h-4 w-24" />
-            <div className="flex items-center gap-2">
-              <Block className="h-6 w-16" />
-              <Block className="h-6 w-32" />
-            </div>
+    <PageContainer>
+      {/* TopBar */}
+      <div className={topBarWrapperClass}>
+        <div className="border-secondary flex items-center gap-2 border-r p-3">
+          <Block className="h-8 w-8" />
+          <Block className="h-4 w-24" />
+        </div>
+        <div className="flex items-center justify-between gap-2 p-3">
+          <Block className="h-4 w-24" />
+          <div className="flex items-center gap-2">
+            <Block className="h-6 w-16" />
+            <Block className="h-6 w-32" />
           </div>
         </div>
-        {/* Sidebar */}
-        <div className={cn(sidebarWrapperClass, 'p-4')}>
-          <Block className="mb-10 h-4 w-full" />
-          <div className="mb-6 space-y-2">
-            <Block className="h-4 w-32" />
-            <Block className="h-4 w-24" />
-          </div>
-          <div className="space-y-2">
-            <Block className="h-4 w-14" />
-            <Block className="h-4 w-32" />
-            <Block className="h-4 w-24" />
-            <Block className="h-4 w-14" />
-          </div>
+      </div>
+      {/* Sidebar */}
+      <div className={cn(sidebarWrapperClass, 'p-4')}>
+        <Block className="mb-10 h-4 w-full" />
+        <div className="mb-6 space-y-2">
+          <Block className="h-4 w-32" />
+          <Block className="h-4 w-24" />
         </div>
-        {/* Content */}
-        <ContentPane />
-      </PageContainer>
-    </PreviewBannerLayout>
+        <div className="space-y-2">
+          <Block className="h-4 w-14" />
+          <Block className="h-4 w-32" />
+          <Block className="h-4 w-24" />
+          <Block className="h-4 w-14" />
+        </div>
+      </div>
+      {/* Content */}
+      <ContentPane />
+    </PageContainer>
   )
 }

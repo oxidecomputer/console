@@ -18,6 +18,7 @@ import { queryClient } from '@oxide/api'
 
 import { ConfirmActionModal } from './components/ConfirmActionModal'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { PreviewBannerLayout } from './components/MswBanner'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
@@ -51,11 +52,13 @@ function render() {
         <QueryClientProvider client={queryClient}>
           <LazyMotion strict features={loadFeatures}>
             <MotionConfig reducedMotion="user">
-              <ErrorBoundary>
-                <ConfirmActionModal />
-                <SkipLink id="skip-nav" />
-                <RouterProvider router={router} />
-              </ErrorBoundary>
+              <PreviewBannerLayout>
+                <ErrorBoundary>
+                  <ConfirmActionModal />
+                  <SkipLink id="skip-nav" />
+                  <RouterProvider router={router} />
+                </ErrorBoundary>
+              </PreviewBannerLayout>
             </MotionConfig>
           </LazyMotion>
           {/* <ReactQueryDevtools initialIsOpen={false} /> */}

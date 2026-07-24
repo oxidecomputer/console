@@ -27,23 +27,6 @@ function ExternalLink({ href, children }: { href: string; children: ReactNode })
   )
 }
 
-type Props = {
-  /**
-   * HACK to avoid the user opening the modal while on the loading skeleton
-   * -- it immediately closes when the page finishes loading because the
-   * banner is dropped when the HydrateFallback unmounts and re-rendered in
-   * RootLayout. A more ideal solution would be to render the banner outside
-   * the RouterProvider and therefore have it be the same banner in both the
-   * HydrateFallback and normal page situations, but it's a lot more work to
-   * get the layout right in that case with respect to things like the loading
-   * bar. When we switch to framework mode, we can manage all this in the root
-   * route using the Layout export. In the meantime, this is tolerable and only
-   * applies to the preview deploys, and only burdens someone who manages to
-   * click the Learn More button in the half second before the content loads.
-   */
-  disableButton?: boolean
-}
-
 /**
  * Renders the preview banner (when enabled at build time) and sets
  * `--preview-banner-height` for the rest of the app. The banner is `fixed`, so
@@ -52,22 +35,22 @@ type Props = {
  * offset themselves, the same way they use `--top-bar-height`. When the banner
  * is off, the variable stays at its 0px default (set in index.css) and the
  * offsets collapse to nothing, so consumers don't need their own conditionals.
+ *
+ * Rendered once in main.tsx, outside the router, so the same banner instance
+ * persists across hydration (skeleton to real page) and error states.
  */
-export function PreviewBannerLayout({
-  children,
-  disableButton,
-}: Props & { children: ReactNode }) {
+export function PreviewBannerLayout({ children }: { children: ReactNode }) {
   return (
     <div
       className={cn('h-full', process.env.MSW_BANNER && '[--preview-banner-height:2.5rem]')}
     >
-      {process.env.MSW_BANNER ? <MswBanner disableButton={disableButton} /> : null}
+      {process.env.MSW_BANNER ? <MswBanner /> : null}
       {children}
     </div>
   )
 }
 
-function MswBanner({ disableButton }: Props) {
+function MswBanner() {
   const [isOpen, setIsOpen] = useState(false)
   const closeModal = () => setIsOpen(false)
   return (
@@ -78,7 +61,6 @@ function MswBanner({ disableButton }: Props) {
           type="button"
           className="text-sans-md hover:text-info ml-2 flex items-center gap-0.5"
           onClick={() => setIsOpen(true)}
-          disabled={disableButton}
         >
           Learn more <NextArrow12Icon />
         </button>
