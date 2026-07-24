@@ -5,28 +5,47 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useReducer, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
 import {
   api,
+  getListQFn,
+  queryClient,
   useApiMutation,
+  usePrefetchedQuery,
   camelToSnake,
   type Timeseries,
+  type FieldSchema,
+  type FieldType,
   type OxqlTable,
   type TimeseriesQuery,
+  type TimeseriesSchema,
+  type TimeseriesSchemaResultsPage,
   type Values,
-  type OxqlQueryResult,
 } from '@oxide/api'
-import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/react'
+import {
+  Close16Icon,
+  Monitoring16Icon,
+  Monitoring24Icon,
+} from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { oxqlTimestamp } from '~/components/oxql-metrics/util'
 import { ChartContainer, ChartHeader, TimeSeriesChart } from '~/components/TimeSeriesChart'
 import { Button } from '~/ui/lib/Button'
+import { Checkbox } from '~/ui/lib/Checkbox'
+import { Combobox } from '~/ui/lib/Combobox'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { Tabs } from '~/ui/lib/Tabs'
+import { TextInput } from '~/ui/lib/TextInput'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 
 const queries = {
@@ -63,6 +82,17 @@ const queries = {
 
 const defaultValues: TimeseriesQuery = {
   query: queries.bytesSentAndReceived,
+}
+
+const schemaList = getListQFn(api.systemTimeseriesSchemaList, {
+  query: { limit: ALL_ISH },
+})
+
+export async function clientLoader() {
+  // Not entirely sure this merits prefetching; might depend on whether we want to go builder-only,
+  // in which case there's not much to do without the schema
+  await queryClient.prefetchQuery(schemaList.optionsFn())
+  return null
 }
 
 export const handle = { crumb: 'OxQL Explorer' }
@@ -259,12 +289,457 @@ const formatTick = (n: number): string => {
   return (n / divisor).toLocaleString() + suffix
 }
 
-export default function OxqlPage() {
-  const query = useApiMutation(api.systemTimeseriesQuery, {
-    onSuccess(queryResult: OxqlQueryResult) {
-      console.info({ queryResult })
+type Schema = Omit<TimeseriesSchema, 'timeseriesName'>
+
+type Schemas = Record<string, Record<string, Schema>>
+type ByConsoleSupport = {
+  supported: Schemas
+  unsupported: Schemas
+}
+
+const arrangeSchemas = (data: TimeseriesSchemaResultsPage): ByConsoleSupport =>
+  data.items.reduce<ByConsoleSupport>(
+    (acc, { timeseriesName, ...schema }) => {
+      const [target, metric] = timeseriesName.split(':')
+      match(schema.datumType)
+        .with(
+          // we'll just treat it as a 1/0
+          'bool',
+          // actual numbers
+          'i8',
+          'u8',
+          'i16',
+          'u16',
+          'i32',
+          'u32',
+          'i64',
+          'u64',
+          'f32',
+          'f64',
+          // since we're encouraging alignment, cumulatives end up as gauges instead of deltas. nice
+          // and easy
+          'cumulative_i64',
+          'cumulative_u64',
+          'cumulative_f32',
+          'cumulative_f64',
+          () => {
+            acc.supported[target] = acc.supported[target] || {}
+            acc.supported[target][metric] = schema
+          }
+        )
+        .with(
+          // no instances currently, but i think it'd have to be a table?
+          'string',
+          // no instances either, this seems like a unit snuck in to the wrong club!
+          'bytes',
+          // you can express these with a heatmap, but we have to let people skip alignment
+          'histogram_i8',
+          'histogram_u8',
+          'histogram_i16',
+          'histogram_u16',
+          'histogram_i32',
+          'histogram_u32',
+          'histogram_i64',
+          'histogram_u64',
+          'histogram_f32',
+          'histogram_f64',
+          () => {
+            acc.unsupported[target] = acc.unsupported[target] || {}
+            acc.unsupported[target][metric] = schema
+          }
+        )
+        .exhaustive()
+
+      return acc
     },
+    { supported: {}, unsupported: {} }
+  )
+
+// Bucket sizes for `align mean_within(X)`. In practice, aligning seems much more likely to happen
+// than not; it's required if you're grouping, and in our case, collecting two timeseries into the
+// same chart is kind of wild without aligned times (if series A has a point every second with .00
+// hanging over, and series B has a point every second with .25 hanging over, you've either got to
+// fill in a bunch of nulls (which may obscure a _meaningful_ null!), or interpolate between
+// missing values, which is basically the same problem.
+//
+// For what it's worth, though, you can avoid that by detecting whether the resulting data is
+// aligned (by checking the timestamps lists) and just not collating together timeseries that aren't
+// aligned!
+const BUCKET_SIZES = [
+  { value: '5s', label: '5 seconds' },
+  { value: '10s', label: '10 seconds' },
+  { value: '30s', label: '30 seconds' },
+  { value: '1m', label: '1 minute' },
+  { value: '5m', label: '5 minutes' },
+  { value: '10m', label: '10 minutes' },
+  { value: '30m', label: '30 minutes' },
+  { value: '1h', label: '1 hour' },
+]
+
+const GROUP_BY_OPS = [
+  { value: 'mean', label: 'mean' },
+  { value: 'sum', label: 'sum' },
+]
+
+type GroupBy = { cols: string[]; op: string }
+
+const buildQuery = (
+  target: string,
+  metric: string,
+  startTime: Date,
+  endTime: Date,
+  bucket: string,
+  filterClauses: string[],
+  groupBy: GroupBy | null
+) =>
+  [
+    `get ${target}:${metric}`,
+    `    | filter timestamp >= @${oxqlTimestamp(startTime)}`,
+    `          && timestamp < @${oxqlTimestamp(endTime)}`,
+    // each user filter is its own stage; OxQL ANDs successive filters together
+    ...filterClauses.map((clause) => `    | filter ${clause}`),
+    `    | align mean_within(${bucket})`,
+    // group_by must come after align, since it requires aligned input
+    ...(groupBy ? [`    | group_by [${groupBy.cols.join(', ')}], ${groupBy.op}`] : []),
+  ].join('\n')
+
+type Filter = {
+  // just a monotonically increasing number for react keys
+  id: number
+  field: string
+  op: string
+  value: string
+}
+
+// Comparison operators only make sense for numbers; everything else (strings,
+// bools, UUIDs, IPs) gets equality only.
+const NUMERIC_FIELD_TYPES = new Set<FieldType>([
+  'i8',
+  'u8',
+  'i16',
+  'u16',
+  'i32',
+  'u32',
+  'i64',
+  'u64',
+])
+const COMPARISON_OPS = [
+  { value: '>', label: '>' },
+  { value: '>=', label: '>=' },
+  { value: '<', label: '<' },
+  { value: '<=', label: '<=' },
+]
+const EQUALITY_OPS = [
+  { value: '==', label: '==' },
+  { value: '!=', label: '!=' },
+]
+
+const opsForType = (fieldType: FieldType | undefined) =>
+  fieldType && NUMERIC_FIELD_TYPES.has(fieldType)
+    ? [...EQUALITY_OPS, ...COMPARISON_OPS]
+    : EQUALITY_OPS
+
+// Rather than making people know that uuids go in double quotes and strings go in single quotes, we
+// can try to be nice and wrap quotes for them. Then the preview can be their education, instead of
+// the error message.
+const formatFilterValue = (fieldType: FieldType | undefined, value: string) => {
+  if (fieldType && (NUMERIC_FIELD_TYPES.has(fieldType) || fieldType === 'bool'))
+    return value
+  if (fieldType === 'uuid') return `"${value}"`
+  return `'${value}'`
+}
+
+function FilterRow({
+  fields,
+  filter,
+  onChange,
+  onRemove,
+}: {
+  fields: FieldSchema[]
+  filter: Filter
+  onChange: (next: Filter) => void
+  onRemove: () => void
+}) {
+  const fieldType = fields.find((f) => f.name === filter.field)?.fieldType
+
+  return (
+    <div className="flex items-center gap-2">
+      <Listbox
+        className="flex-1"
+        label="Filter field"
+        hideLabel
+        placeholder="Field"
+        selected={filter.field || null}
+        items={fields.map((f) => ({ value: f.name, label: f.name }))}
+        onChange={(field) => {
+          const ops = opsForType(fields.find((f) => f.name === field)?.fieldType)
+          const op = ops.some((o) => o.value === filter.op) ? filter.op : '=='
+          onChange({ ...filter, field, op })
+        }}
+      />
+      <Listbox
+        className="w-20"
+        label="Filter operator"
+        hideLabel
+        selected={filter.op}
+        items={opsForType(fieldType)}
+        onChange={(op) => onChange({ ...filter, op })}
+      />
+      <TextInput
+        className="flex-1"
+        aria-label="Filter value"
+        placeholder="Value"
+        value={filter.value}
+        onChange={(e) => onChange({ ...filter, value: e.target.value })}
+      />
+      {/* Doesn't look how I'd like, but it _is_ an icon button */}
+      <Button variant="secondary" size="icon" aria-label="Remove filter" onClick={onRemove}>
+        <Close16Icon />
+      </Button>
+    </div>
+  )
+}
+
+type BuilderState = {
+  target: string | null
+  metric: string | null
+  bucket: string
+  filters: Filter[]
+  groupCols: string[]
+  groupOp: string
+  nextFilterId: number
+}
+
+const initialBuilderState: BuilderState = {
+  target: null,
+  metric: null,
+  bucket: '5s',
+  filters: [],
+  groupCols: [],
+  groupOp: 'mean',
+  nextFilterId: 0,
+}
+
+type BuilderAction =
+  | { type: 'setTarget'; target: string }
+  | { type: 'setMetric'; metric: string }
+  | { type: 'setBucket'; bucket: string }
+  // field is resolved by the caller, which has the schema in scope
+  | { type: 'addFilter'; field: string }
+  | { type: 'updateFilter'; filter: Filter }
+  | { type: 'removeFilter'; id: number }
+  | { type: 'toggleGroupCol'; name: string }
+  | { type: 'setGroupOp'; op: string }
+
+function builderReducer(state: BuilderState, action: BuilderAction): BuilderState {
+  return {
+    ...state,
+    ...match(action)
+      .with({ type: 'setTarget' }, ({ target }) => ({
+        target,
+        metric: null,
+        filters: [],
+        groupCols: [],
+      }))
+      .with({ type: 'setMetric' }, ({ metric }) => ({
+        metric,
+        filters: [],
+        groupCols: [],
+      }))
+      .with({ type: 'setBucket' }, ({ bucket }) => ({ bucket }))
+      .with({ type: 'addFilter' }, ({ field }) => ({
+        filters: [...state.filters, { id: state.nextFilterId, field, op: '==', value: '' }],
+        nextFilterId: state.nextFilterId + 1,
+      }))
+      .with({ type: 'updateFilter' }, ({ filter }) => ({
+        filters: state.filters.map((f) => (f.id === filter.id ? filter : f)),
+      }))
+      .with({ type: 'removeFilter' }, ({ id }) => ({
+        filters: state.filters.filter((f) => f.id !== id),
+      }))
+      .with({ type: 'toggleGroupCol' }, ({ name }) => {
+        const groupCols = state.groupCols.includes(name)
+          ? state.groupCols.filter((c) => c !== name)
+          : [...state.groupCols, name]
+        // try to keep filters downstream of the grouping toggles
+        const filters = groupCols.length
+          ? state.filters.filter((f) => !f.field || groupCols.includes(f.field))
+          : state.filters
+        return { groupCols, filters }
+      })
+      .with({ type: 'setGroupOp' }, ({ op }) => ({ groupOp: op }))
+      .exhaustive(),
+  }
+}
+
+function QueryBuilder({
+  schemas,
+  onRun,
+}: {
+  schemas: Schemas
+  onRun: (query: string) => void
+}) {
+  const [state, dispatch] = useReducer(builderReducer, initialBuilderState)
+  const { target, metric, bucket, filters, groupCols, groupOp } = state
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
+    initialPreset: 'lastHour',
   })
+
+  const targetItems = Object.keys(schemas)
+    .sort()
+    .map((t) => ({ value: t, label: t, selectedLabel: t }))
+  const metricItems = (target ? Object.keys(schemas[target]) : [])
+    .sort()
+    .map((m) => ({ value: m, label: m, selectedLabel: m }))
+
+  const fields = target && metric ? schemas[target][metric].fieldSchema : []
+  const fieldTypes = new Map(fields.map((f) => [f.name, f.fieldType]))
+
+  const isGrouping = groupCols.length > 0
+  // You can only filter by fields that are grouped (unless you're not grouping at all)
+  const filterableFields = isGrouping
+    ? fields.filter((f) => groupCols.includes(f.name))
+    : fields
+
+  const filterClauses = filters
+    .filter((f) => f.field && f.value.trim() !== '')
+    .map((f) => `${f.field} ${f.op} ${formatFilterValue(fieldTypes.get(f.field), f.value)}`)
+
+  const query =
+    target && metric
+      ? buildQuery(
+          target,
+          metric,
+          startTime,
+          endTime,
+          bucket,
+          filterClauses,
+          isGrouping ? { cols: groupCols, op: groupOp } : null
+        )
+      : null
+
+  return (
+    <div className="flex max-w-2xl flex-col gap-4">
+      <Combobox
+        label="Target"
+        placeholder="Select a target"
+        items={targetItems}
+        selectedItemValue={target ?? ''}
+        onChange={(value) => dispatch({ type: 'setTarget', target: value })}
+        required
+      />
+      <Combobox
+        label="Metric"
+        placeholder="Select a metric"
+        items={metricItems}
+        selectedItemValue={metric ?? ''}
+        onChange={(value) => dispatch({ type: 'setMetric', metric: value })}
+        disabled={!target}
+        required
+      />
+      <div className="flex flex-col gap-2">
+        <FieldLabel id="time-range-label" as="span">
+          Time range
+        </FieldLabel>
+        {dateTimeRangePicker}
+      </div>
+      <Listbox
+        label="Bucket size"
+        description="Aligns points onto a grid with mean_within"
+        items={BUCKET_SIZES}
+        selected={bucket}
+        onChange={(value) => dispatch({ type: 'setBucket', bucket: value })}
+        required
+      />
+      <div className="flex flex-col gap-2">
+        <FieldLabel id="group-by-label" as="span">
+          Group by
+        </FieldLabel>
+        {metric ? (
+          <>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              {fields.map((f) => (
+                <Checkbox
+                  key={f.name}
+                  checked={groupCols.includes(f.name)}
+                  onChange={() => dispatch({ type: 'toggleGroupCol', name: f.name })}
+                >
+                  {f.name}
+                </Checkbox>
+              ))}
+            </div>
+            {isGrouping && (
+              <Listbox
+                className="w-48"
+                label="Reducer"
+                selected={groupOp}
+                items={GROUP_BY_OPS}
+                onChange={(value) => dispatch({ type: 'setGroupOp', op: value })}
+              />
+            )}
+          </>
+        ) : (
+          <span className="text-sans-md text-secondary">Select a metric first</span>
+        )}
+      </div>
+      <div className="flex flex-col gap-2">
+        <FieldLabel id="filters-label" as="span">
+          Filters
+        </FieldLabel>
+        {filters.map((filter) => (
+          <FilterRow
+            key={filter.id}
+            fields={filterableFields}
+            filter={filter}
+            onChange={(next) => dispatch({ type: 'updateFilter', filter: next })}
+            onRemove={() => dispatch({ type: 'removeFilter', id: filter.id })}
+          />
+        ))}
+        <div>
+          <Button
+            variant="secondary"
+            size="sm"
+            // field is resolved here where the schema is in scope, not in the reducer
+            onClick={() =>
+              dispatch({ type: 'addFilter', field: filterableFields[0]?.name ?? '' })
+            }
+            disabled={!metric}
+            disabledReason="Select a metric first"
+          >
+            Add filter
+          </Button>
+        </div>
+      </div>
+      {query && (
+        <pre className="text-mono-sm text-secondary bg-raise border-secondary rounded-lg border p-3">
+          {query}
+        </pre>
+      )}
+      <Button disabled={!query} onClick={() => query && onRun(query)}>
+        Run query
+      </Button>
+    </div>
+  )
+}
+
+export default function OxqlPage() {
+  const query = useApiMutation(api.systemTimeseriesQuery)
+
+  const schemas = arrangeSchemas(usePrefetchedQuery(schemaList.optionsFn()).data)
+  useEffect(() => {
+    const unsupported = Object.entries(schemas.unsupported)
+      .flatMap(([target, metricSchema]) =>
+        Object.entries(metricSchema).map(
+          ([metric, schema]) =>
+            `\u2022 ${target}:${metric} has type \`${schema.datumType}\``
+        )
+      )
+      .join('\n')
+    console.info(`The following metrics aren't supported in the console due to their type:
+
+${unsupported}`)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const form = useForm({ defaultValues })
   const control = form.control
@@ -294,22 +769,36 @@ export default function OxqlPage() {
           links={[docLinks.oxql]}
         />
       </PageHeader>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <DescriptionField name="query" required control={control} />
-        <div className="mt-2 flex flex-wrap gap-2">
-          {Object.entries(queries).map(([key, text]) => (
-            <Button
-              key={key}
-              size="sm"
-              variant="secondary"
-              onClick={() => form.setValue('query', text)}
-            >
-              {key.replace(/([A-Z])/g, ' $1')}
-            </Button>
-          ))}
-        </div>
-        <input type="submit" />
-      </form>
+      <Tabs.Root defaultValue="raw" className="mt-4">
+        <Tabs.List>
+          <Tabs.Trigger value="raw">Raw query</Tabs.Trigger>
+          <Tabs.Trigger value="builder">Builder</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="raw" className="pt-4">
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <DescriptionField name="query" required control={control} />
+            <div className="mt-2 flex flex-wrap gap-2">
+              {Object.entries(queries).map(([key, text]) => (
+                <Button
+                  key={key}
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => form.setValue('query', text)}
+                >
+                  {key.replace(/([A-Z])/g, ' $1')}
+                </Button>
+              ))}
+            </div>
+            <input type="submit" />
+          </form>
+        </Tabs.Content>
+        <Tabs.Content value="builder" className="pt-4">
+          <QueryBuilder
+            schemas={schemas.supported}
+            onRun={(built) => query.mutate({ body: { query: built } })}
+          />
+        </Tabs.Content>
+      </Tabs.Root>
 
       {match(query)
         .with({ status: 'pending' }, () => 'Loading...')
