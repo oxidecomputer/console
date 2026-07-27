@@ -7,7 +7,14 @@
  */
 import { user3, user4 } from '@oxide/api-mocks'
 
-import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
+import {
+  expect,
+  expectNotVisible,
+  expectRowVisible,
+  expectVisible,
+  getPageAsUser,
+  test,
+} from './utils'
 
 test('Click through silo access page', async ({ page }) => {
   await page.goto('/')
@@ -59,7 +66,7 @@ test('Click through silo access page', async ({ page }) => {
     .locator('role=row', { hasText: user3.display_name })
     .locator('role=button[name="Row actions"]')
     .click()
-  await page.click('role=menuitem[name="Change role"]')
+  await page.click('role=menuitem[name="Change silo role"]')
 
   await expectVisible(page, ['role=heading[name*="Edit role"]'])
 
@@ -76,7 +83,36 @@ test('Click through silo access page', async ({ page }) => {
   const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })
   await expect(user3Row).toBeVisible()
   await user3Row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('menuitem', { name: 'Remove silo role' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(user3Row).toBeHidden()
+})
+
+test('Non-admin cannot change or remove roles', async ({ browser }) => {
+  // Hans Jonas is only a silo collaborator (via the real-estate-devs group), so
+  // he lacks `modify` on the silo and can't change role assignments. Both row
+  // actions should be disabled.
+  const page = await getPageAsUser(browser, 'Hans Jonas')
+  await page.goto('/access')
+
+  await expect(page.getByRole('heading', { name: /Access/ })).toBeVisible()
+
+  await page
+    .getByRole('row', { name: 'Hannah Arendt', exact: false })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+
+  const changeRole = page.getByRole('menuitem', { name: 'Change silo role' })
+  await expect(changeRole).toBeDisabled()
+  await changeRole.hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    "You don't have permission to change roles"
+  )
+
+  const removeRole = page.getByRole('menuitem', { name: 'Remove silo role' })
+  await expect(removeRole).toBeDisabled()
+  await removeRole.hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    "You don't have permission to remove roles"
+  )
 })
