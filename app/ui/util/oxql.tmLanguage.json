@@ -1,0 +1,72 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "oxql",
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.oxql",
+          "match": "\\b(if|while|for|return)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.oxql",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.oxql",
+          "match": "\\\\."
+        }
+      ]
+    }
+  },
+  "scopeName": "source.oxql",
+  "patterns": [
+    {
+      "name": "keyword.control.oxql",
+      "match": "\\b(get|join|align|filter|group_by)\\b"
+    },
+    {
+      "name": "string.quoted.double.oxql",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.oxql",
+          "match": "\\\\."
+        }
+      ]
+    },
+    {
+      "name": "constant.numeric.oxql",
+      "match": "\\b\\d+[smhdw]\\b"
+    },
+    {
+      "name": "constant.numeric.datetime.oxql",
+      "match": "@\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+    },
+    {
+      "name": "constant.numeric.function.oxql",
+      "match": "@now\\(\\)"
+    },
+    {
+      "name": "constant.numeric.oxql",
+      "match": "\\b\\d+\\b"
+    },
+    {
+      "name": "comment.block.oxql",
+      "begin": "/\\*",
+      "end": "\\*/"
+    },
+    {
+      "name": "comment.line.double-slash.oxql",
+      "match": "//.*$"
+    },
+    {
+      "name": "keyword.operator.oxql",
+      "match": "\\|"
+    }
+  ]
+}

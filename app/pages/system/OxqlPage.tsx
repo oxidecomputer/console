@@ -42,6 +42,7 @@ import { Checkbox } from '~/ui/lib/Checkbox'
 import { Combobox } from '~/ui/lib/Combobox'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Listbox } from '~/ui/lib/Listbox'
+import { OxqlBlock } from '~/ui/lib/OxqlBlock'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInput } from '~/ui/lib/TextInput'
@@ -711,9 +712,10 @@ function QueryBuilder({
         </div>
       </div>
       {query && (
-        <pre className="text-mono-sm text-secondary bg-raise border-secondary rounded-lg border p-3">
-          {query}
-        </pre>
+        <div>
+          <div>Query we'll send</div>
+          <OxqlBlock>{query}</OxqlBlock>
+        </div>
       )}
       <Button disabled={!query} onClick={() => query && onRun(query)}>
         Run query
