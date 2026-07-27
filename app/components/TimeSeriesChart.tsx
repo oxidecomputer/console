@@ -231,7 +231,10 @@ export function TimeSeriesChart({
   const formatTime = isSameDay(startTime, endTime) ? shortTime : shortDateTime
 
   const [tooltip, setTooltip] = useState<{
+    // the x position
     hoveredDataIndex: number
+    // which series is hovered
+    hoveredSeriesIndex: number
     left: number
     top: number
     // which side of the point the box sits on
@@ -249,12 +252,19 @@ export function TimeSeriesChart({
             return
           }
 
-          const x = self.data[0][idx]
-          const y = self.data[1][idx]
-          if (y == null) {
+          // We hunt down the series whose Y is closest to the cursor position at the given X index.
+          // Reminder that the first series is the X values, so we start at series index 1 here.
+          const nearestSeriesIndex = R.firstBy(
+            R.range(1, self.series.length).filter((s) => self.data[s][idx] != null),
+            // non-null: the filter above dropped series that are null at this idx
+            (s) => Math.abs(self.valToPos(self.data[s][idx]!, 'y') - top)
+          )
+          if (nearestSeriesIndex === undefined) {
             setTooltip(null)
             return
           }
+
+          const x = self.data[0][idx]
 
           const plotRect = self.over.getBoundingClientRect()
           const chartRect = self.root.getBoundingClientRect()
@@ -264,6 +274,7 @@ export function TimeSeriesChart({
 
           setTooltip({
             hoveredDataIndex: idx,
+            hoveredSeriesIndex: nearestSeriesIndex - 1,
             // cursor coords are relative to the plot area, so we add in the diff between the plot
             // and the whole container
             left: plotRect.left - chartRect.left + left,
@@ -361,7 +372,11 @@ export function TimeSeriesChart({
           },
         ],
         padding: [null, null, null, CHART_LEFT_PAD],
+        focus: { alpha: 0.5 },
         cursor: {
+          // setting this property causes non-focused series to dim on hover.
+          // 1e9 just means "any proximity will do"
+          focus: { prox: 1e9 },
           x: false,
           y: false,
           // TODO: i like the drag and we should put it back in
@@ -417,7 +432,7 @@ export function TimeSeriesChart({
   const hovered: ChartDatum | undefined = tooltip
     ? {
         timestamp: timestamps[tooltip.hoveredDataIndex],
-        value: data[0][tooltip.hoveredDataIndex], // TODO(joe): no no no.
+        value: data[tooltip.hoveredSeriesIndex][tooltip.hoveredDataIndex],
       }
     : undefined
   return (
@@ -436,7 +451,11 @@ export function TimeSeriesChart({
             <ChartTooltip
               timestamp={hovered.timestamp}
               value={hovered.value}
-              seriesName={title}
+              seriesName={
+                seriesLabels
+                  ? seriesLabel(title, tooltip.hoveredSeriesIndex, seriesLabels)
+                  : title
+              }
               unit={unit}
             />
           </div>
