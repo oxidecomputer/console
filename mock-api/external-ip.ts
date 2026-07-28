@@ -8,6 +8,7 @@
 import type { ExternalIp } from '@oxide/api'
 
 import {
+  defaultProjectInstance,
   failedInstance,
   instance,
   instanceDb2,
@@ -84,6 +85,18 @@ export const ephemeralIps: DbExternalIp[] = [
 // Note that SNAT IPs are subdivided into four ranges of ports,
 // with each instance getting a unique range.
 export const snatIps: DbExternalIp[] = [
+  // web1 gets one because its primary NIC has a v4 stack. there is no v6 SNAT:
+  // https://github.com/oxidecomputer/omicron/issues/9683
+  {
+    instance_id: defaultProjectInstance.id,
+    external_ip: {
+      ip: '123.4.56.11',
+      ip_pool_id: ipPool1.id,
+      kind: 'snat',
+      first_port: 0,
+      last_port: 16383,
+    },
+  },
   {
     instance_id: instance.id,
     external_ip: {

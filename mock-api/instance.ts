@@ -12,7 +12,7 @@ import type { Instance } from '@oxide/api'
 import { GiB } from '~/util/units'
 
 import type { Json } from './json-type'
-import { project, project2 } from './project'
+import { defaultProject, project, project2 } from './project'
 
 const base = {
   time_created: new Date().toISOString(),
@@ -157,7 +157,19 @@ export const instanceDb3: Json<Instance> = {
   run_state: 'running',
 }
 
+/** Instance as `instance_create` leaves one: a `net0` NIC and a single IPv4 SNAT IP */
+export const defaultProjectInstance: Json<Instance> = {
+  ...base,
+  id: 'abc97524-bc1d-4af6-aeee-9aaa908b608a',
+  name: 'web1',
+  description: 'a web server',
+  hostname: 'web1',
+  project_id: defaultProject.id,
+  run_state: 'running',
+}
+
 export const instances: Json<Instance>[] = [
+  defaultProjectInstance,
   instance,
   failedInstance,
   startingInstance,

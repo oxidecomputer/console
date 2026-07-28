@@ -7,9 +7,34 @@
  */
 import type { InstanceNetworkInterface } from '@oxide/api'
 
-import { instance, stoppedInstance } from './instance'
+import { defaultProjectInstance, instance, stoppedInstance } from './instance'
 import type { Json } from './json-type'
-import { vpc, vpcSubnet } from './vpc'
+import { defaultVpc, defaultVpcTree, vpc, vpcSubnet } from './vpc'
+
+/**
+ * Primary NIC for a default dual-stack attachment: `net0`, a guest-range MAC, and
+ * the first assignable address in the subnet (the first five are reserved).
+ * https://github.com/oxidecomputer/omicron/blob/b62dc0c/nexus/src/app/sagas/instance_create.rs#L739-L760
+ */
+export const defaultProjectNic: Json<InstanceNetworkInterface> = {
+  id: '1feb4adf-351d-409e-b6df-ea872b4a1c9d',
+  name: 'net0',
+  description: `default primary interface for ${defaultProjectInstance.name}`,
+  primary: true,
+  instance_id: defaultProjectInstance.id,
+  ip_stack: {
+    type: 'dual_stack',
+    value: {
+      v4: { ip: '172.30.0.5', transit_ips: [] },
+      v6: { ip: 'fd0d:5b6f:a3c1::5', transit_ips: [] },
+    },
+  },
+  mac: 'A8:40:25:F1:2C:0B',
+  subnet_id: defaultVpcTree.subnet.id,
+  vpc_id: defaultVpc.id,
+  time_created: new Date(2021, 0, 1).toISOString(),
+  time_modified: new Date(2021, 0, 1).toISOString(),
+}
 
 export const networkInterface: Json<InstanceNetworkInterface> = {
   id: 'f6d63297-287c-4035-b262-e8303cfd6a0f',

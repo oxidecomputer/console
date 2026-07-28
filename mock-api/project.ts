@@ -36,6 +36,16 @@ export const project: DbProject = {
   silo_id: defaultSilo.id,
 }
 
+/** Project whose VPC tree and instance match what the Nexus sagas create */
+export const defaultProject: DbProject = {
+  id: 'e2d4099f-80ff-4940-b888-7a8509e03d76',
+  name: 'default',
+  description: 'a project whose resources match what the Nexus sagas create',
+  time_created: new Date(2021, 0, 1).toISOString(),
+  time_modified: new Date(2021, 0, 1).toISOString(),
+  silo_id: defaultSilo.id,
+}
+
 export const project2: DbProject = {
   id: 'e7bd835e-831e-4257-b600-f1db32844c8c',
   name: 'other-project',
@@ -83,6 +93,7 @@ export const projectAdorno: DbProject = {
 }
 
 export const projects: DbProject[] = [
+  defaultProject,
   project,
   project2,
   projectNoVpcs,

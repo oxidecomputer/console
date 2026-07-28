@@ -37,7 +37,7 @@ import { GiB } from '~/util/units'
 
 import { defaultSilo, toIdp } from '../silo'
 import { getTimestamps } from '../util'
-import { defaultFirewallRules } from '../vpc'
+import { defaultUnicastPools, subnetRoute, subnetRouteName, vpcDefaults } from '../vpc'
 import {
   db,
   getIpFromPool,
@@ -78,6 +78,18 @@ import {
 // the snake-cased objects coming straight from the API before the generated
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
+
+/** A subnet's system router route. Matched on target because names get deconflicted. */
+function findSubnetRoute(subnet: Json<Api.VpcSubnet>) {
+  const vpc = lookupById(db.vpcs, subnet.vpc_id)
+  return db.vpcRouterRoutes.find(
+    (r) =>
+      r.vpc_router_id === vpc.system_router_id &&
+      r.kind === 'vpc_subnet' &&
+      r.target.type === 'subnet' &&
+      r.target.value === subnet.name
+  )
+}
 
 export const handlers = makeHandlers({
   logout: () => 204,
@@ -1556,25 +1568,22 @@ export const handlers = makeHandlers({
       system_router_id: uuid(),
       ...body,
       // API is supposed to generate one if none provided. close enough
-      ipv6_prefix: body.ipv6_prefix || 'fd2d:4569:88b2::/64',
+      ipv6_prefix: body.ipv6_prefix || 'fd2d:4569:88b2::/48',
       ...getTimestamps(),
     }
     db.vpcs.push(newVpc)
 
-    // Also create a default subnet
-    const newSubnet: Json<Api.VpcSubnet> = {
-      id: uuid(),
-      name: 'default',
-      vpc_id: newVpc.id,
-      ipv6_block: 'fd2d:4569:88b1::/64',
-      description: '',
-      ipv4_block: '',
-      ...getTimestamps(),
-    }
-    db.vpcSubnets.push(newSubnet)
-
-    // populate default firewall rules
-    db.vpcFirewallRules.push(...defaultFirewallRules(newVpc.id))
+    // everything the vpc-create saga makes
+    const defaults = vpcDefaults(
+      newVpc,
+      defaultUnicastPools(project.silo_id, db.ipPools, db.ipPoolSilos)
+    )
+    db.vpcRouters.push(defaults.router)
+    db.vpcRouterRoutes.push(...defaults.routes)
+    db.vpcSubnets.push(defaults.subnet)
+    db.internetGateways.push(defaults.gateway)
+    db.internetGatewayIpPools.push(...defaults.gatewayIpPools)
+    db.vpcFirewallRules.push(...defaults.firewallRules)
 
     return json(newVpc, { status: 201 })
   },
@@ -1742,7 +1751,6 @@ export const handlers = makeHandlers({
     const vpc = lookup.vpc(query)
     errIfExists(db.vpcSubnets, { vpc_id: vpc.id, name: body.name })
 
-    // TODO: Create a route for the subnet in the default router
     const newSubnet: Json<Api.VpcSubnet> = {
       id: uuid(),
       vpc_id: vpc.id,
@@ -1757,11 +1765,13 @@ export const handlers = makeHandlers({
       ...getTimestamps(),
     }
     db.vpcSubnets.push(newSubnet)
+    db.vpcRouterRoutes.push(subnetRoute(uuid(), vpc.system_router_id, newSubnet.name))
     return json(newSubnet, { status: 201 })
   },
   vpcSubnetView: ({ path, query }) => lookup.vpcSubnet({ ...path, ...query }),
   vpcSubnetUpdate({ body, path, query }) {
     const subnet = lookup.vpcSubnet({ ...path, ...query })
+    const route = findSubnetRoute(subnet)
 
     if (body.name) {
       subnet.name = body.name
@@ -1772,11 +1782,20 @@ export const handlers = makeHandlers({
     // not present and value of null are treated the same
     subnet.custom_router_id = body.custom_router
 
+    // the system route tracks the subnet's name
+    if (route) {
+      route.name = subnetRouteName(subnet.name, route.id)
+      route.target = { type: 'subnet', value: subnet.name }
+      route.destination = { type: 'subnet', value: subnet.name }
+    }
+
     return subnet
   },
   vpcSubnetDelete({ path, query }) {
     const subnet = lookup.vpcSubnet({ ...path, ...query })
+    const route = findSubnetRoute(subnet)
     db.vpcSubnets = db.vpcSubnets.filter((s) => s.id !== subnet.id)
+    db.vpcRouterRoutes = db.vpcRouterRoutes.filter((r) => r.id !== route?.id)
 
     return 204
   },

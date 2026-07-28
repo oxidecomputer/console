@@ -13,7 +13,7 @@ import type {
 
 import { ipPool1, ipPool2 } from './ip-pool'
 import type { Json } from './json-type'
-import { vpc, vpc2 } from './vpc'
+import { defaultVpcTree, vpc, vpc2 } from './vpc'
 
 const time_created = new Date(2021, 0, 1).toISOString()
 const time_modified = new Date(2021, 0, 2).toISOString()
@@ -49,6 +49,7 @@ const internetGateway3: Json<InternetGateway> = {
 }
 
 export const internetGateways: Json<InternetGateway>[] = [
+  defaultVpcTree.gateway,
   internetGateway1,
   internetGateway2,
   internetGateway3,
@@ -90,6 +91,7 @@ const internetGatewayIpPool2: Json<InternetGatewayIpPool> = {
 }
 
 export const internetGatewayIpPools: Json<InternetGatewayIpPool>[] = [
+  ...defaultVpcTree.gatewayIpPools,
   internetGatewayIpPool1,
   internetGatewayIpPool2,
 ]

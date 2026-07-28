@@ -511,8 +511,9 @@ test('create from existing rule', async ({ page }) => {
   const portFilters = modal.getByRole('table', { name: 'Port filters' })
   await expect(portFilters).toBeHidden()
 
+  // default rules target their own VPC by name
   const targets = modal.getByRole('table', { name: 'Targets' })
-  await expect(targets.getByRole('row', { name: 'vpc default' })).toBeVisible()
+  await expect(targets.getByRole('row', { name: 'vpc mock-vpc' })).toBeVisible()
 
   // close the modal
   await page.keyboard.press('Escape')
@@ -533,7 +534,7 @@ test('create from existing rule', async ({ page }) => {
   await expect(protocolTable.getByText('UDP')).toBeHidden()
   await expect(protocolTable.getByText('ICMPv4')).toBeHidden()
 
-  await expect(targets.getByRole('row', { name: 'vpc default' })).toBeVisible()
+  await expect(targets.getByRole('row', { name: 'vpc mock-vpc' })).toBeVisible()
 })
 
 const rulePath = '/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit'

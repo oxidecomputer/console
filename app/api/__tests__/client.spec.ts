@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { project } from '@oxide/api-mocks'
+import { defaultProject } from '@oxide/api-mocks'
 
 import { api, q } from '..'
 import { overrideOnce } from '../../../test/unit/server'
@@ -26,8 +26,8 @@ describe('API response parsing', () => {
     const result = await api.projectList({})
     expect(result.type).toEqual('success')
     if (result.type !== 'success') return
-    expect(result.data.items.length).toEqual(3)
-    expect(result.data.items[0].id).toEqual(project.id)
+    expect(result.data.items.length).toEqual(4)
+    expect(result.data.items[0].id).toEqual(defaultProject.id)
   })
 
   it('passes through error responses with status and parsed body', async () => {
