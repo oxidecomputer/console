@@ -268,7 +268,15 @@ export function TimeSeriesChart({
   const yAxisTickFormatterRef = useRef<(val: number) => string>(yAxisTickFormatter)
   yAxisTickFormatterRef.current = yAxisTickFormatter
   useEffect(() => {
-    uRef.current?.redraw()
+    uRef.current?.redraw(
+      // Setting the `rebuildPaths` argument to true causes uPlot to reapply the _current_ x bounds,
+      // which in the right conditions (e.g., initial render) can leave the chart blank. We only
+      // need the axes recalculated anyways!
+      //
+      // See https://github.com/leeoniya/uPlot/issues/1099
+      false, // rebuildPaths
+      true // recalcAxes
+    )
   }, [yAxisTickFormatter])
 
   // uplot-react rebuilds the whole chart (they call this the "create" path) when any top-level
