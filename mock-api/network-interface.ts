@@ -19,7 +19,7 @@ import { defaultVpc, defaultVpcTree, vpc, vpcSubnet } from './vpc'
 export const defaultProjectNic: Json<InstanceNetworkInterface> = {
   id: '1feb4adf-351d-409e-b6df-ea872b4a1c9d',
   name: 'net0',
-  description: `default primary interface for ${defaultProjectInstance.name}`,
+  description: `default primary NIC for project ${defaultProjectInstance.name}`,
   primary: true,
   instance_id: defaultProjectInstance.id,
   ip_stack: {

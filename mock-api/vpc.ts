@@ -214,7 +214,7 @@ export function vpcDefaults(
   const subnet: Json<VpcSubnet> = {
     id: ids.subnet,
     name: 'default',
-    description: `The default subnet for ${vpc.name}`,
+    description: `The default subnet for VPC ${vpc.name}`,
     vpc_id: vpc.id,
     ipv4_block: DEFAULT_VPC_SUBNET_IPV4_BLOCK,
     ipv6_block: firstSubnetBlock(vpc.ipv6_prefix),
