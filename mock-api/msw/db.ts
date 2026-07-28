@@ -366,6 +366,25 @@ export const lookup = {
 
     return ip
   },
+  internetGatewayIpPool({
+    pool: id,
+    ...gatewaySelector
+  }: Sel.InternetGatewayIpPool): Json<Api.InternetGatewayIpPool> {
+    if (!id) throw notFoundErr('no IP pool specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('IP pool', gatewaySelector)
+      return lookupById(db.internetGatewayIpPools, id)
+    }
+
+    const gateway = lookup.internetGateway(gatewaySelector)
+    const pool = db.internetGatewayIpPools.find(
+      (p) => p.internet_gateway_id === gateway.id && p.name === id
+    )
+    if (!pool) throw notFoundErr(`IP pool '${id}'`)
+
+    return pool
+  },
   image({ image: id, project: projectId }: Sel.Image): Json<Api.Image> {
     if (!id) throw notFoundErr('no image specified')
 

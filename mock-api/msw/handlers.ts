@@ -1632,6 +1632,98 @@ export const handlers = makeHandlers({
     return paginated(query, gateways)
   },
   internetGatewayView: ({ path, query }) => lookup.internetGateway({ ...path, ...query }),
+  internetGatewayCreate({ body, query }) {
+    const vpc = lookup.vpc(query)
+    errIfExists(db.internetGateways, { vpc_id: vpc.id, name: body.name })
+
+    const newGateway: Json<Api.InternetGateway> = {
+      id: uuid(),
+      vpc_id: vpc.id,
+      ...body,
+      ...getTimestamps(),
+    }
+    db.internetGateways.push(newGateway)
+    return json(newGateway, { status: 201 })
+  },
+  internetGatewayDelete({ path, query }) {
+    const gateway = lookup.internetGateway({ ...path, ...query })
+
+    const hasPools = db.internetGatewayIpPools.some(
+      (p) => p.internet_gateway_id === gateway.id
+    )
+    const hasAddresses = db.internetGatewayIpAddresses.some(
+      (a) => a.internet_gateway_id === gateway.id
+    )
+    // without cascade, deletion fails if any IP pools or addresses are attached
+    // https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/vpc.rs#L1645-L1711
+    if (!query.cascade && (hasPools || hasAddresses)) {
+      const attached = [hasPools && 'IP pools', hasAddresses && 'IP addresses']
+        .filter(Boolean)
+        .join(' and ')
+      throw invalidRequest(
+        `${attached} referencing this gateway exist. To perform a cascading delete set the cascade option`
+      )
+    }
+
+    db.internetGateways = db.internetGateways.filter((g) => g.id !== gateway.id)
+    db.internetGatewayIpPools = db.internetGatewayIpPools.filter(
+      (p) => p.internet_gateway_id !== gateway.id
+    )
+    db.internetGatewayIpAddresses = db.internetGatewayIpAddresses.filter(
+      (a) => a.internet_gateway_id !== gateway.id
+    )
+    db.vpcRouterRoutes = db.vpcRouterRoutes.filter(
+      (r) => !(r.target.type === 'internet_gateway' && r.target.value === gateway.name)
+    )
+    return 204
+  },
+  internetGatewayIpPoolCreate({ body, query }) {
+    const gateway = lookup.internetGateway(query)
+    const ipPool = lookup.ipPool({ pool: body.ip_pool })
+    errIfExists(db.internetGatewayIpPools, {
+      internet_gateway_id: gateway.id,
+      name: body.name,
+    })
+
+    const newGatewayIpPool: Json<Api.InternetGatewayIpPool> = {
+      id: uuid(),
+      internet_gateway_id: gateway.id,
+      ip_pool_id: ipPool.id,
+      name: body.name,
+      description: body.description,
+      ...getTimestamps(),
+    }
+    db.internetGatewayIpPools.push(newGatewayIpPool)
+    return json(newGatewayIpPool, { status: 201 })
+  },
+  internetGatewayIpPoolDelete({ path, query }) {
+    const pool = lookup.internetGatewayIpPool({ ...path, ...query })
+    db.internetGatewayIpPools = db.internetGatewayIpPools.filter((p) => p.id !== pool.id)
+    return 204
+  },
+  internetGatewayIpAddressCreate({ body, query }) {
+    const gateway = lookup.internetGateway(query)
+    errIfExists(db.internetGatewayIpAddresses, {
+      internet_gateway_id: gateway.id,
+      name: body.name,
+    })
+
+    const newGatewayIpAddress: Json<Api.InternetGatewayIpAddress> = {
+      id: uuid(),
+      internet_gateway_id: gateway.id,
+      ...body,
+      ...getTimestamps(),
+    }
+    db.internetGatewayIpAddresses.push(newGatewayIpAddress)
+    return json(newGatewayIpAddress, { status: 201 })
+  },
+  internetGatewayIpAddressDelete({ path, query }) {
+    const address = lookup.internetGatewayIpAddress({ ...path, ...query })
+    db.internetGatewayIpAddresses = db.internetGatewayIpAddresses.filter(
+      (a) => a.id !== address.id
+    )
+    return 204
+  },
   internetGatewayIpPoolList({ query }) {
     const gateway = lookup.internetGateway(query)
     const pools = db.internetGatewayIpPools.filter(
@@ -2651,12 +2743,6 @@ export const handlers = makeHandlers({
   instanceSerialConsole: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
-  internetGatewayCreate: NotImplemented,
-  internetGatewayDelete: NotImplemented,
-  internetGatewayIpAddressCreate: NotImplemented,
-  internetGatewayIpAddressDelete: NotImplemented,
-  internetGatewayIpPoolCreate: NotImplemented,
-  internetGatewayIpPoolDelete: NotImplemented,
   systemIpPoolServiceRangeAdd: NotImplemented,
   systemIpPoolServiceRangeList: NotImplemented,
   systemIpPoolServiceRangeRemove: NotImplemented,
