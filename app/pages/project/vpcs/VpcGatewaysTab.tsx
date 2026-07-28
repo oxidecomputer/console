@@ -50,19 +50,9 @@ const projectIpPoolList = getListQFn(api.ipPoolList, {
 
 const IpAddressCell = (gatewaySelector: PP.VpcInternetGateway) => {
   const { data: addresses } = useQuery(gatewayIpAddressList(gatewaySelector).optionsFn())
-  const [first, ...rest] = addresses?.items || []
-  if (!first) return <EmptyCell />
-  return (
-    <div className="flex items-center gap-1">
-      {/* only the leading address is copyable; the rest live in the +N tooltip */}
-      <CopyableIp ip={first.address} isLinked={false} />
-      <ListPlusOverflow tooltipTitle="Other IP addresses">
-        {rest.map((address) => (
-          <div key={address.id}>{address.address}</div>
-        ))}
-      </ListPlusOverflow>
-    </div>
-  )
+  const address = addresses?.items[0]
+  if (!address) return <EmptyCell />
+  return <CopyableIp ip={address.address} isLinked={false} />
 }
 
 // plain pool name for the +N tooltip, where IpPoolCell's interactive button

@@ -426,6 +426,18 @@ test('can attach and detach IP pools and addresses on an internet gateway', asyn
     .filter({ has: page.getByRole('columnheader', { name: 'address' }) })
   await expectRowVisible(addressesTable, { name: 'my-address', address: '123.4.56.7' })
 
+  // gateways can have at most one IP address attached, so with one attached
+  // the form shows a message and disables submit
+  await page.getByRole('link', { name: 'Attach IP address' }).click()
+  await expect(
+    addressDialog.getByText('Internet gateways can have at most one IP address attached')
+  ).toBeVisible()
+  await expect(
+    addressDialog.getByRole('button', { name: 'Attach IP address' })
+  ).toBeDisabled()
+  await addressDialog.getByRole('button', { name: 'Cancel' }).click()
+  await expect(addressDialog).toBeHidden()
+
   // detach it again
   await clickRowAction(page, 'my-address', 'Detach')
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -462,6 +474,31 @@ test('can attach and detach IP pools and addresses on an internet gateway', asyn
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectToast(page, 'IP pool internet-gateway-pool-2 detached')
   await expect(poolsTable.locator('tbody >> tr')).toHaveCount(1)
+})
+
+test('cannot detach IP pool or address in use by routes and instances', async ({
+  page,
+}) => {
+  // internet-gateway-1 is targeted by route dc2, and db1's ephemeral IP
+  // (123.4.56.0) is in ip-pool-1's range, so detaching without cascade fails
+  await page.goto(
+    '/projects/mock-project/vpcs/mock-vpc/internet-gateways/internet-gateway-1'
+  )
+
+  await clickRowAction(page, 'internet-gateway-pool-1', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, /Could not detach IP pool/)
+
+  const poolsTable = page
+    .getByRole('table')
+    .filter({ has: page.getByRole('columnheader', { name: 'IP pool' }) })
+  await expectRowVisible(poolsTable, { name: 'internet-gateway-pool-1' })
+
+  // the attached address (123.4.56.3) is not held by any instance, so
+  // detaching it works even though routes target the gateway
+  await clickRowAction(page, 'internet-gateway-address-1', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, 'IP address internet-gateway-address-1 detached')
 })
 
 test('internet gateway shows proper list of routes targeting it', async ({ page }) => {
