@@ -16,16 +16,19 @@ import {
   api,
   useApiMutation,
   camelToSnake,
-  type Timeseries,
-  type Points,
+  type Distributiondouble,
+  type MetricType,
   type OxqlTable,
+  type Points,
+  type Timeseries,
   type TimeseriesQuery,
-  type Values,
+  type ValueArray,
 } from '@oxide/api'
 import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { OxqlField } from '~/components/form/fields/OxqlField'
+import { Heatmap } from '~/components/Heatmap'
 import { ChartContainer, ChartHeader, TimeSeriesChart } from '~/components/TimeSeriesChart'
 import { useElementSize } from '~/hooks/use-element-size'
 import { Button } from '~/ui/lib/Button'
@@ -63,6 +66,12 @@ const exampleItems: { label: string; value: string }[] = [
   | filter timestamp > @now() - 10m
   | join`,
   },
+  {
+    label: 'Virtual disk write latencies',
+    value: `get virtual_disk:io_latency
+  | filter timestamp > @now() - 10m
+  | filter io_kind == 'write'`,
+  },
 ]
 
 const defaultValues: TimeseriesQuery = {
@@ -71,8 +80,8 @@ const defaultValues: TimeseriesQuery = {
 
 export const handle = { crumb: 'OxQL Explorer' }
 
-const narrowToNumbers = (vs: Values): (number | null)[] =>
-  match(vs.values)
+const narrowToNumbers = (vs: ValueArray): (number | null)[] =>
+  match(vs)
     .with({ type: 'integer' }, ({ values }) => values)
     .with({ type: 'double' }, ({ values }) => values)
     .with({ type: 'boolean' }, ({ values }) =>
@@ -85,9 +94,20 @@ const narrowToNumbers = (vs: Values): (number | null)[] =>
       )
     )
     .with({ type: 'string' }, () => []) // these don't exist in practice
-    .with({ type: 'integer_distribution' }, () => []) // by only calling this on aligned/joined tables, we know this is unreachable
+    // by only calling this on non-distribution tables (distributions can't be
+    // aligned/joined), we know this is unreachable
+    .with({ type: 'integer_distribution' }, () => [])
     .with({ type: 'double_distribution' }, () => []) // these don't exist in practice, and are also unreachable per above
     .exhaustive()
+
+const narrowToDistributions = (vs: ValueArray): (Distributiondouble | null)[] =>
+  match(vs)
+    .with(
+      { type: 'integer_distribution' },
+      { type: 'double_distribution' },
+      ({ values }) => values
+    )
+    .otherwise(() => [])
 
 const leftPad = <T,>(items: T[], length: number): (T | null)[] =>
   items.length >= length ? items : [...Array(length - items.length).fill(null), ...items]
@@ -97,6 +117,15 @@ const leftPad = <T,>(items: T[], length: number): (T | null)[] =>
 type OxqlTimestamp = Points['timestamps'][number]
 const parseTs = (ts: OxqlTimestamp): number => new Date(ts).getTime()
 const toPosix = (timestamps: OxqlTimestamp[]): number[] => timestamps.map(parseTs)
+
+// Distributions always carry start_times in practice, but this isn't a
+// guaranteed invariant. But start times are generally "the timestamp
+// preceding the current one", so we can derive that ourselves.
+const fakeStartTimes = (timestamps: number[]): number[] => {
+  if (timestamps.length === 0) return []
+  const interval = timestamps.length > 1 ? timestamps[1] - timestamps[0] : 0
+  return [timestamps[0] - interval, ...timestamps.slice(0, -1)]
+}
 
 type TimeseriesKind = 'joined' | 'aligned' | 'unaligned'
 
@@ -157,11 +186,17 @@ type Chart<Data> = {
 }
 
 type Multiline = Chart<{ label: string; values: (number | null)[] }[]>
+type Line = Chart<(number | null)[]> & { metricType: MetricType }
+type Heatmap = Chart<(Distributiondouble | null)[]> & {
+  metricType: MetricType
+  startTimes: number[]
+}
 
 type ChartGroup =
   | 'empty-timeseries'
   | ({ startTime: Date; endTime: Date } & (
-      | { kind: 'unaligned'; charts: Chart<Values>[] }
+      | { kind: 'unaligned'; charts: Line[] }
+      | { kind: 'distributions'; charts: Heatmap[] }
       | { kind: 'aligned'; charts: Multiline[] }
       | { kind: 'joined'; charts: Multiline[] }
     ))
@@ -212,7 +247,7 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
               metricNames[i] ||
               // should be unreachable
               `${getFormattedFields(series)} #${i + 1}`,
-            values: narrowToNumbers(v),
+            values: narrowToNumbers(v.values),
           })),
         })),
       }
@@ -227,22 +262,52 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
             .filter((s) => s.points.values.length > 0)
             .map((series) => ({
               label: getFormattedFields(series),
-              values: leftPad(narrowToNumbers(series.points.values[0]), timestamps.length),
+              values: leftPad(
+                narrowToNumbers(series.points.values[0].values),
+                timestamps.length
+              ),
             })),
         },
       ],
     }))
-    .with('unaligned', (kind) => ({
-      kind,
-      charts: timeseries
-        .filter((s) => s.points.values.length > 0)
-        .map((series) => ({
-          name,
-          description: getFormattedFields(series),
-          timestamps: toPosix(series.points.timestamps),
-          data: series.points.values[0],
-        })),
-    }))
+    .with('unaligned', () => {
+      const seriesList = timeseries.filter((s) => s.points.values.length > 0)
+      // all schemas in a table are the same, so we can just check the first
+      // https://github.com/oxidecomputer/omicron/blob/3de7e909b196c07811025bbf41aaa8a35e6fa3cf/oximeter/oxql-types/src/table.rs#L280
+      const valueType = seriesList[0]?.points.values[0]?.values.type
+      // if no series had any values, there's nothing to chart
+      if (valueType === undefined) return { kind: 'unaligned' as const, charts: [] }
+
+      return match(valueType)
+        .with('integer_distribution', 'double_distribution', () => ({
+          kind: 'distributions' as const,
+          charts: seriesList.map((series): Heatmap => {
+            const timestamps = toPosix(series.points.timestamps)
+            return {
+              name,
+              description: getFormattedFields(series),
+              timestamps,
+              metricType: series.points.values[0].metricType,
+              startTimes:
+                series.points.startTimes?.map(parseTs) ?? fakeStartTimes(timestamps),
+              data: narrowToDistributions(series.points.values[0].values),
+            }
+          }),
+        }))
+        .with('integer', 'double', 'boolean', 'string', () => ({
+          kind: 'unaligned' as const,
+          charts: seriesList.map(
+            (series): Line => ({
+              name,
+              description: getFormattedFields(series),
+              timestamps: toPosix(series.points.timestamps),
+              metricType: series.points.values[0].metricType,
+              data: narrowToNumbers(series.points.values[0].values),
+            })
+          ),
+        }))
+        .exhaustive()
+    })
     .exhaustive()
   const timestamps = chart.charts.flatMap(({ timestamps }) => timestamps)
   const min = R.firstBy(timestamps, (t) => t)
@@ -270,16 +335,31 @@ const formatTick = (n: number): string => {
   return (n / divisor).toLocaleString() + suffix
 }
 
-// Drops (or keeps, without copying) the first sample of a series. We trim timestamps and values at
-// the same time to be confident they're in sync.
-type TimeAndData = { timestamps: number[]; data: (number | null)[][] }
-type Trim = (t: TimeAndData) => TimeAndData
-const firstPointDropper =
-  (drop: boolean): Trim =>
-  ({ timestamps, data }) =>
-    drop
-      ? { timestamps: timestamps.slice(1), data: data.map((d) => d.slice(1)) }
-      : { timestamps, data }
+// Drops (or keeps, without copying) the first sample of a series.
+const dropFirst =
+  (drop: boolean) =>
+  <T,>(xs: T[]): T[] =>
+    drop ? xs.slice(1) : xs
+
+// We trim timestamps and data at the same time to be confident they're in sync.
+const trimSeries = <T,>(
+  trim: boolean,
+  { timestamps, data }: { timestamps: number[]; data: T[][] }
+) => {
+  const d = dropFirst(trim)
+  return { timestamps: d(timestamps), data: data.map(d) }
+}
+const trimHeatmap = <T,>(
+  trim: boolean,
+  {
+    timestamps,
+    startTimes,
+    data,
+  }: { timestamps: number[]; startTimes: number[]; data: T[] }
+) => {
+  const d = dropFirst(trim)
+  return { timestamps: d(timestamps), startTimes: d(startTimes), data: d(data) }
+}
 
 // The first aligned point of a cumulative counter is diffed against the counter's start_time,
 // collapsing all pre-window history into one giant bucket. It's not "erroneous" but it's usually
@@ -290,16 +370,17 @@ const groupHasPointWorthDropping = (g: ChartGroup): boolean =>
     // Aligned/joined tables may be derived from cumulatives, so we assume it's worth offering
     .with({ kind: 'joined' }, { kind: 'aligned' }, () => true)
     // Gauges are, by definition, not cumulative, so you'll never see a giant first point
-    .with({ kind: 'unaligned' }, ({ charts }) =>
-      charts.some((c) => c.data.metricType !== 'gauge')
+    .with({ kind: 'unaligned' }, { kind: 'distributions' }, ({ charts }) =>
+      charts.some((c) => c.metricType !== 'gauge')
     )
     .exhaustive()
 
-// A simplified representation of a single chart.
+// A flattened representation of a single chart.
 type ChartDisplay = { key: string; showDivider: boolean } & (
   | { kind: 'empty' }
   | { kind: 'multiline'; startTime: Date; endTime: Date; chart: Multiline }
-  | { kind: 'line'; startTime: Date; endTime: Date; chart: Chart<Values> }
+  | { kind: 'line'; startTime: Date; endTime: Date; chart: Line }
+  | { kind: 'heatmap'; chart: Heatmap }
 )
 
 // Virtualization relies on a list of near-same-size items, so we flatten out all the groups
@@ -309,6 +390,16 @@ const toDisplays = (groups: ChartGroup[]): ChartDisplay[] =>
       return [{ kind: 'empty', key: `t${t}`, showDivider: true }]
     const { startTime, endTime } = g
     return match(g)
+      .with({ kind: 'distributions' }, ({ charts }) =>
+        charts.map(
+          (chart, i): ChartDisplay => ({
+            kind: 'heatmap',
+            key: `t${t}.${i}`,
+            showDivider: i === 0,
+            chart,
+          })
+        )
+      )
       .with({ kind: 'unaligned' }, ({ charts }) =>
         charts.map(
           (chart, i): ChartDisplay => ({
@@ -341,10 +432,10 @@ function MultilineChart({
   trim,
 }: {
   display: Extract<ChartDisplay, { kind: 'multiline' }>
-  trim: Trim
+  trim: boolean
 }) {
   const { chart, startTime, endTime } = display
-  const trimmed = trim({
+  const trimmed = trimSeries(trim, {
     timestamps: chart.timestamps,
     data: chart.data.map((d) => d.values),
   })
@@ -373,25 +464,10 @@ function LineChart({
   trim,
 }: {
   display: Extract<ChartDisplay, { kind: 'line' }>
-  trim: Trim
+  trim: boolean
 }) {
   const { chart, startTime, endTime } = display
-  const data = match(chart.data.values)
-    .with({ type: 'integer' }, ({ values }) => values)
-    .with({ type: 'double' }, ({ values }) => values)
-    .with({ type: 'boolean' }, ({ values }) =>
-      values.map((b) =>
-        match(b)
-          .with(true, () => 1)
-          .with(false, () => 0)
-          .with(null, () => null)
-          .exhaustive()
-      )
-    )
-    .with({ type: 'string' }, () => []) // these don't exist in practice
-    .with({ type: 'integer_distribution' }, { type: 'double_distribution' }, () => []) // heatmaps!
-    .exhaustive()
-  const trimmed = trim({ data: [data], timestamps: chart.timestamps })
+  const trimmed = trimSeries(trim, { data: [chart.data], timestamps: chart.timestamps })
   return (
     <ChartContainer>
       <ChartHeader title={chart.name} label="" description={chart.description} />
@@ -410,7 +486,34 @@ function LineChart({
   )
 }
 
-function ChartEntry({ display, trim }: { display: ChartDisplay; trim: Trim }) {
+function HeatmapChart({
+  display,
+  trim,
+}: {
+  display: Extract<ChartDisplay, { kind: 'heatmap' }>
+  trim: boolean
+}) {
+  const { chart } = display
+  const trimmed = trimHeatmap(trim, {
+    timestamps: chart.timestamps,
+    startTimes: chart.startTimes,
+    data: chart.data,
+  })
+  return (
+    <ChartContainer>
+      <ChartHeader title={chart.name} label="" description={chart.description} />
+      <Heatmap
+        title={chart.name}
+        timestamps={trimmed.timestamps}
+        startTimes={trimmed.startTimes}
+        distributions={trimmed.data}
+        yAxisTickFormatter={formatTick}
+      />
+    </ChartContainer>
+  )
+}
+
+function ChartEntry({ display, trim }: { display: ChartDisplay; trim: boolean }) {
   return (
     <>
       {display.showDivider ? (
@@ -425,6 +528,7 @@ function ChartEntry({ display, trim }: { display: ChartDisplay; trim: Trim }) {
         .with({ kind: 'empty' }, () => <p className="text-secondary">No results</p>)
         .with({ kind: 'multiline' }, (r) => <MultilineChart display={r} trim={trim} />)
         .with({ kind: 'line' }, (r) => <LineChart display={r} trim={trim} />)
+        .with({ kind: 'heatmap' }, (r) => <HeatmapChart display={r} trim={trim} />)
         .exhaustive()}
     </>
   )
@@ -473,7 +577,7 @@ export default function OxqlPage() {
   )
 
   const hasTrimmableCharts = chartGroups?.some(groupHasPointWorthDropping) ?? false
-  const trim = firstPointDropper(dropFirstPoint && hasTrimmableCharts)
+  const trim = dropFirstPoint && hasTrimmableCharts
 
   const charts = useMemo(() => (chartGroups ? toDisplays(chartGroups) : []), [chartGroups])
 
