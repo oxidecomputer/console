@@ -16,7 +16,6 @@ import { HL } from '~/components/HL'
 import { ListPlusOverflow } from '~/components/ListPlusCell'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
-import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
@@ -39,6 +38,7 @@ import {
   routerList,
   useGatewayRoutes,
 } from './gateway-data'
+import { confirmDeleteGateway } from './gateway-delete'
 
 export const handle = { crumb: 'Internet Gateways' }
 
@@ -155,16 +155,11 @@ export default function VpcInternetGatewaysTab() {
       {
         label: 'Delete',
         className: 'destructive',
-        onActivate: confirmDelete({
-          doDelete: () =>
-            deleteGateway({
-              path: { gateway: gateway.name },
-              query: { project, vpc, cascade: true },
-            }),
-          label: gateway.name,
-          resourceKind: 'internet gateway',
-          extraContent:
-            'Any attached IP pools and IP addresses will be detached, and routes targeting this gateway will be deleted.',
+        onActivate: confirmDeleteGateway({
+          project,
+          vpc,
+          gateway: gateway.name,
+          deleteGateway,
         }),
       },
     ],

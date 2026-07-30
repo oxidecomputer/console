@@ -402,6 +402,20 @@ test('can create and delete an internet gateway', async ({ page }) => {
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectToast(page, 'Internet gateway new-gateway deleted')
   await expect(table.locator('tbody >> tr')).toHaveCount(2)
+
+  // this gateway has attachments, so the non-cascading option is disabled
+  // and the notice explains why, with cascade preselected
+  await clickRowAction(page, 'internet-gateway-1', 'Delete')
+  await expect(page.getByRole('radio', { name: 'Delete gateway only' })).toBeDisabled()
+  await expect(
+    page.getByText('1 IP pool and 1 IP address must be detached first')
+  ).toBeVisible()
+  await expect(
+    page.getByRole('radio', { name: 'Delete gateway and detach resources' })
+  ).toBeChecked()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, 'Internet gateway internet-gateway-1 deleted')
+  await expect(table.locator('tbody >> tr')).toHaveCount(1)
 })
 
 test('can attach and detach IP pools and addresses on an internet gateway', async ({

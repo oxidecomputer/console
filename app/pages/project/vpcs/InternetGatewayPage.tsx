@@ -30,7 +30,6 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
-import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
 import { LinkCell } from '~/table/cells/LinkCell'
@@ -58,6 +57,7 @@ import {
   routerList,
   useGatewayRoutes,
 } from './gateway-data'
+import { confirmDeleteGateway } from './gateway-delete'
 
 export const handle = makeCrumb((p) => p.gateway!)
 
@@ -278,17 +278,7 @@ export default function InternetGatewayPage() {
             <CopyIdItem id={gatewayData.id} />
             <DropdownMenu.Item
               label="Delete"
-              onSelect={confirmDelete({
-                doDelete: () =>
-                  deleteGateway({
-                    path: { gateway },
-                    query: { project, vpc, cascade: true },
-                  }),
-                label: gateway,
-                resourceKind: 'internet gateway',
-                extraContent:
-                  'Any attached IP pools and IP addresses will be detached, and routes targeting this gateway will be deleted.',
-              })}
+              onSelect={confirmDeleteGateway({ project, vpc, gateway, deleteGateway })}
               className="destructive"
             />
           </MoreActionsMenu>
