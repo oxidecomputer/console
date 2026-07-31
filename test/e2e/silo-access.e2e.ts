@@ -350,3 +350,41 @@ test('Assign a role to a group with no direct role from the row action', async (
 
   await expectRowVisible(table, { Name: 'kernel-devs', Role: 'silo.viewer' })
 })
+
+// changing your own role away from admin requires confirmation because you
+// may not be able to undo it
+test('Removing your own admin role requires confirmation', async ({ page }) => {
+  await page.goto('/access')
+
+  const table = page.getByRole('table')
+
+  // Hannah Arendt is the mock session user and a silo admin
+  const openEditForm = async () => {
+    await page
+      .getByRole('row', { name: 'Hannah Arendt' })
+      .getByRole('button', { name: 'Row actions' })
+      .click()
+    await page.getByRole('menuitem', { name: 'Change silo role' }).click()
+    await page.getByRole('radio', { name: /^Viewer / }).click()
+    await page.getByRole('button', { name: 'Update role' }).click()
+  }
+  const editForm = page.getByRole('dialog', { name: 'Edit silo role' })
+  const confirmModal = page.getByRole('dialog', { name: 'Remove your own admin role' })
+
+  // confirmation modal pops up over the side modal. cancel out of it, then
+  // close the form and check nothing changed
+  await openEditForm()
+  await expect(confirmModal).toBeVisible()
+  await confirmModal.getByRole('button', { name: 'Cancel' }).click()
+  await expect(confirmModal).toBeHidden()
+  await expect(editForm).toBeVisible()
+  await editForm.getByRole('button', { name: 'Cancel' }).click()
+  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.admin' })
+
+  // this time, confirm
+  await openEditForm()
+  await confirmModal.getByRole('button', { name: 'Confirm' }).click()
+
+  await expect(editForm).toBeHidden()
+  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.viewer' })
+})

@@ -108,7 +108,7 @@ export const ClearAndAddButtons = ({
 
 type Column<T> = {
   header: string
-  cell: (item: T, index: number) => React.ReactNode
+  cell: (item: T) => React.ReactNode
 }
 
 type MiniTableProps<T> = {
@@ -154,7 +154,7 @@ export function MiniTable<T>({
           items.map((item, index) => (
             <Row tabIndex={0} aria-rowindex={index + 1} key={rowKey(item, index)}>
               {columns.map((column, colIndex) => (
-                <Cell key={colIndex}>{column.cell(item, index)}</Cell>
+                <Cell key={colIndex}>{column.cell(item)}</Cell>
               ))}
 
               <RemoveCell

@@ -22,6 +22,10 @@ import { ErrorMessage } from './ErrorMessage'
 import { FileField } from './FileField'
 import { NameField } from './NameField'
 
+const tlsCertTableColumns = [
+  { header: 'Name', cell: (item: CertificateCreate) => item.name },
+]
+
 export function TlsCertsField({ control }: { control: Control<SiloCreateFormValues> }) {
   const [showAddCert, setShowAddCert] = useState(false)
 
@@ -49,7 +53,7 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
           className="mb-4"
           ariaLabel="TLS Certificates"
           items={items}
-          columns={[{ header: 'Name', cell: (item) => item.name }]}
+          columns={tlsCertTableColumns}
           rowKey={(item) => item.name}
           onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
           removeLabel={(item) => `remove cert ${item.name}`}
