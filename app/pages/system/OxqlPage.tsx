@@ -25,6 +25,7 @@ import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/r
 import { DocsPopover } from '~/components/DocsPopover'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ChartContainer, ChartHeader, TimeSeriesChart } from '~/components/TimeSeriesChart'
+import { Button } from '~/ui/lib/Button'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 
@@ -295,6 +296,18 @@ export default function OxqlPage() {
       </PageHeader>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <DescriptionField name="query" required control={control} />
+        <div className="mt-2 flex flex-wrap gap-2">
+          {Object.entries(queries).map(([key, text]) => (
+            <Button
+              key={key}
+              size="sm"
+              variant="secondary"
+              onClick={() => form.setValue('query', text)}
+            >
+              {key.replace(/([A-Z])/g, ' $1')}
+            </Button>
+          ))}
+        </div>
         <input type="submit" />
       </form>
 
