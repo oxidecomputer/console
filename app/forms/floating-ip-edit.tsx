@@ -19,6 +19,7 @@ import {
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
@@ -27,7 +28,6 @@ import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
-import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
@@ -100,8 +100,7 @@ export default function EditFloatingIpSideModalForm() {
       loading={editFloatingIp.isPending}
       submitError={editFloatingIp.error}
     >
-      <PropertiesTable>
-        <PropertiesTable.ResourceRows resource={floatingIp} />
+      <FormMetadata resource={floatingIp}>
         <PropertiesTable.Row label="IP Address">
           <CopyableIp ip={floatingIp.ip} isLinked={false} />
         </PropertiesTable.Row>
@@ -111,8 +110,7 @@ export default function EditFloatingIpSideModalForm() {
         <PropertiesTable.Row label="Instance">
           <InstanceLink instanceId={floatingIp.instanceId} tab="networking" />
         </PropertiesTable.Row>
-      </PropertiesTable>
-      <FormDivider />
+      </FormMetadata>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <SideModalFormDocs docs={[docLinks.floatingIps]} />

@@ -20,6 +20,7 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextFieldInner } from '~/components/form/fields/TextField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
@@ -127,8 +128,7 @@ export function EditNetworkInterfaceForm({
       loading={editNetworkInterface.isPending}
       submitError={editNetworkInterface.error}
     >
-      <PropertiesTable>
-        <PropertiesTable.ResourceRows resource={editing} />
+      <FormMetadata resource={editing}>
         {ips.v4 && (
           <PropertiesTable.Row label="Private IPv4">
             <CopyableIp ip={ips.v4} isLinked={false} />
@@ -143,8 +143,7 @@ export function EditNetworkInterfaceForm({
         <PropertiesTable.Row label="Subnet">
           <SubnetNameFromId subnetId={editing.subnetId} />
         </PropertiesTable.Row>
-      </PropertiesTable>
-      <FormDivider />
+      </FormMetadata>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <FormDivider />

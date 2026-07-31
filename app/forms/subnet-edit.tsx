@@ -26,6 +26,7 @@ import {
   customRouterFormToData,
   useCustomRouterItems,
 } from '~/components/form/fields/useItemsList'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
@@ -96,12 +97,10 @@ export default function EditSubnetForm() {
       loading={updateSubnet.isPending}
       submitError={updateSubnet.error}
     >
-      <PropertiesTable>
-        <PropertiesTable.ResourceRows resource={subnet} />
+      <FormMetadata resource={subnet}>
         <PropertiesTable.Row label="IPv4 block">{subnet.ipv4Block}</PropertiesTable.Row>
         <PropertiesTable.Row label="IPv6 block">{subnet.ipv6Block}</PropertiesTable.Row>
-      </PropertiesTable>
-      <FormDivider />
+      </FormMetadata>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <FormDivider />

@@ -20,12 +20,12 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
@@ -81,13 +81,11 @@ export default function EditRouterSideModalForm() {
       loading={editRouter.isPending}
       submitError={editRouter.error}
     >
-      <PropertiesTable>
-        <PropertiesTable.ResourceRows resource={routerData} />
+      <FormMetadata resource={routerData}>
         <PropertiesTable.Row label="Kind">
           <Badge color="neutral">{routerData.kind}</Badge>
         </PropertiesTable.Row>
-      </PropertiesTable>
-      <FormDivider />
+      </FormMetadata>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <SideModalFormDocs docs={[docLinks.routers]} />

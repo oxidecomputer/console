@@ -12,14 +12,13 @@ import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
-import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -70,10 +69,7 @@ export default function EditProjectSideModalForm() {
       loading={editProject.isPending}
       submitError={editProject.error}
     >
-      <PropertiesTable>
-        <PropertiesTable.ResourceRows resource={project} />
-      </PropertiesTable>
-      <FormDivider />
+      <FormMetadata resource={project} />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <SideModalFormDocs docs={[docLinks.projects]} />
