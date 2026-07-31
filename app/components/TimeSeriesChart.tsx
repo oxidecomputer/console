@@ -82,7 +82,7 @@ function getChartTheme(): ChartTheme {
   const v = (name: string) => style.getPropertyValue(name)
   return {
     fontFamily: v('--font-mono'),
-    stroke: v('--content-accent-tertiary'),
+    stroke: v('--stroke-accent-secondary'),
     fill: withAlpha(v('--surface-accent-secondary'), 0.6),
     hoverPoint: v('--content-accent'),
     axisLine: v('--stroke-secondary'),
