@@ -323,12 +323,26 @@ export default function OxqlPage() {
         />
       </PageHeader>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <OxqlField
-          rows={defaultValues.query.split('\n').length || 4}
-          name="query"
-          required
-          control={control}
-        />
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(queries).map(([key, text]) => (
+            <Button
+              key={key}
+              size="sm"
+              variant="secondary"
+              onClick={() => form.setValue('query', text)}
+            >
+              {key.replace(/([A-Z])/g, ' $1')}
+            </Button>
+          ))}
+        </div>
+        <div className="mt-2">
+          <OxqlField
+            rows={defaultValues.query.split('\n').length || 4}
+            name="query"
+            required
+            control={control}
+          />
+        </div>
         <Button className="mt-4" type="submit" disabled={query.status === 'pending'}>
           Run query
         </Button>
