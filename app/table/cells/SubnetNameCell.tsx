@@ -9,7 +9,8 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { api, q } from '@oxide/api'
-import { Badge } from '@oxide/design-system/ui'
+
+import { Truncate } from '~/ui/lib/Truncate'
 
 import { SkeletonCell } from './EmptyCell'
 
@@ -18,8 +19,8 @@ export const SubnetNameFromId = ({ subnetId }: { subnetId: string }) => {
   const { data: subnet, isError } = useQuery(
     q(api.vpcSubnetView, { path: { subnet: subnetId } }, { throwOnError: false })
   )
-  // probably not possible but let's be safe
-  if (isError) return <Badge color="neutral">Deleted</Badge>
+  // If fetch fails, just show ID instead of name
+  if (isError) return <Truncate text={subnetId} maxLength={32} />
   if (!subnet) return <SkeletonCell /> // loading
   return <span className="text-default">{subnet.name}</span>
 }
