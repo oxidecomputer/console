@@ -275,10 +275,6 @@ export const routes = createRoutesFromElements(
               path=":bundleId/edit"
               lazy={() => import('./forms/support-bundle-edit').then(convert)}
             />
-            <Route
-              path=":bundleId/files"
-              lazy={() => import('./pages/system/SupportBundleFilesModal').then(convert)}
-            />
           </Route>
           <Route
             path="support-bundles-new"

@@ -116,7 +116,6 @@ test('path builder', () => {
         "subnetPools": "/system/networking/subnet-pools",
         "subnetPoolsNew": "/system/networking/subnet-pools-new",
         "supportBundleEdit": "/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31/edit",
-        "supportBundleFiles": "/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31/files",
         "supportBundles": "/system/support-bundles",
         "supportBundlesNew": "/system/support-bundles-new",
         "systemUpdate": "/system/update",

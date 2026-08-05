@@ -35,7 +35,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { Tooltip } from '~/ui/lib/Tooltip'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { truncate, Truncate } from '~/ui/lib/Truncate'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -51,15 +51,12 @@ const EmptyState = () => (
   />
 )
 
-const StateCell = ({ bundle }: { bundle: SupportBundleInfo }) => {
-  const badge = <SupportBundleStateBadge state={bundle.state} />
-  if (!bundle.reasonForFailure) return badge
-  return (
-    <Tooltip content={bundle.reasonForFailure} placement="top">
-      <div className="w-fit">{badge}</div>
-    </Tooltip>
-  )
-}
+const StateCell = ({ bundle }: { bundle: SupportBundleInfo }) => (
+  <div className="flex items-center gap-1.5">
+    <SupportBundleStateBadge state={bundle.state} />
+    {bundle.reasonForFailure && <TipIcon>{bundle.reasonForFailure}</TipIcon>}
+  </div>
+)
 
 const colHelper = createColumnHelper<SupportBundleInfo>()
 
@@ -73,13 +70,13 @@ const staticColumns = [
   colHelper.accessor('state', {
     cell: (info) => <StateCell bundle={info.row.original} />,
   }),
-  colHelper.accessor('reasonForCreation', {
-    header: 'Reason',
-    cell: (info) => <DescriptionCell text={info.getValue()} />,
-  }),
   colHelper.accessor('userComment', {
     header: 'Comment',
     cell: (info) => <DescriptionCell text={info.getValue() ?? undefined} />,
+  }),
+  colHelper.accessor('reasonForCreation', {
+    header: 'Reason',
+    cell: (info) => <DescriptionCell text={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
@@ -90,7 +87,7 @@ const POLL_INTERVAL = 10 * SEC
 
 const bundleList = getListQFn(
   api.supportBundleList,
-  {},
+  { query: { sortBy: 'time_and_id_descending' } },
   {
     refetchInterval: ({ state: { data } }) =>
       data?.items.some((b) => b.state === 'collecting' || b.state === 'destroying')
@@ -121,15 +118,6 @@ export default function SupportBundlesPage() {
 
   const makeActions = useCallback(
     (bundle: SupportBundleInfo): MenuAction[] => [
-      {
-        label: 'View files',
-        onActivate() {
-          navigate(pb.supportBundleFiles({ bundleId: bundle.id }))
-        },
-        disabled:
-          bundle.state !== 'active' &&
-          'Only bundles that have completed collection can be viewed',
-      },
       {
         label: 'Download',
         onActivate() {

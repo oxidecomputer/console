@@ -36,7 +36,6 @@ import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { defaultSilo, toIdp } from '../silo'
-import { supportBundleFiles, supportBundleIndexText } from '../support-bundle'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
 import {
@@ -2015,7 +2014,15 @@ export const handlers = makeHandlers({
 
   supportBundleList({ query, cookies }) {
     requireFleetViewer(cookies)
-    return paginated(query, db.supportBundles)
+    const bundles =
+      query.sortBy === 'time_and_id_descending'
+        ? R.sortBy(
+            db.supportBundles,
+            [(b) => b.time_created, 'desc'],
+            [(b) => b.id, 'desc']
+          )
+        : db.supportBundles
+    return paginated(query, bundles)
   },
   supportBundleView({ path, cookies }) {
     requireFleetViewer(cookies)
@@ -2104,37 +2111,6 @@ export const handlers = makeHandlers({
         'Content-Disposition': `attachment; filename="support-bundle-${bundle.id}.zip"`,
       },
     })
-  },
-  // @ts-expect-error Response passthrough, see supportBundleDownload
-  supportBundleIndex({ path, cookies }) {
-    requireFleetViewer(cookies)
-    const bundle = lookupById(db.supportBundles, path.bundleId)
-    if (bundle.state !== 'active') {
-      throw invalidRequest('Cannot download bundle in non-active state')
-    }
-    return new HttpResponse(supportBundleIndexText, {
-      headers: { 'Content-Type': 'text/plain' },
-    })
-  },
-  // @ts-expect-error Response passthrough, see supportBundleDownload
-  supportBundleDownloadFile({ path, cookies }) {
-    requireFleetViewer(cookies)
-    const bundle = lookupById(db.supportBundles, path.bundleId)
-    if (bundle.state !== 'active') {
-      throw invalidRequest('Cannot download bundle in non-active state')
-    }
-    // the client encodes slashes in the file path so it fits in one segment
-    const file = decodeURIComponent(path.file)
-    const content = supportBundleFiles[file]
-    if (content === undefined) throw notFoundErr(`file '${file}' in support bundle`)
-    if (file.endsWith('.zip')) {
-      const emptyZip = new Uint8Array(22)
-      emptyZip.set([0x50, 0x4b, 0x05, 0x06])
-      return new HttpResponse(emptyZip, {
-        headers: { 'Content-Type': 'application/zip' },
-      })
-    }
-    return new HttpResponse(content, { headers: { 'Content-Type': 'text/plain' } })
   },
   switchList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
@@ -2849,8 +2825,10 @@ export const handlers = makeHandlers({
   siloUserView: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
+  supportBundleDownloadFile: NotImplemented,
   supportBundleHead: NotImplemented,
   supportBundleHeadFile: NotImplemented,
+  supportBundleIndex: NotImplemented,
   switchView: NotImplemented,
   systemNetworkingSettingsUpdate: NotImplemented,
   systemNetworkingSettingsView: NotImplemented,

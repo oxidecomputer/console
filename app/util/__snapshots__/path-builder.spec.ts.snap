@@ -903,12 +903,6 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/support-bundles",
     },
   ],
-  "supportBundleFiles (/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31/files)": [
-    {
-      "label": "Support Bundles",
-      "path": "/system/support-bundles",
-    },
-  ],
   "supportBundles (/system/support-bundles)": [
     {
       "label": "Support Bundles",

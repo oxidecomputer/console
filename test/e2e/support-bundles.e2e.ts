@@ -29,6 +29,12 @@ test('support bundle list', async ({ page }) => {
   })
   await expectRowVisible(table, { state: 'failed' })
 
+  // sorted newest first: collecting (Aug 1), active (Jul 30), failed (Jul 28)
+  const rows = table.getByRole('row')
+  await expect(rows.nth(1)).toContainText('collecting')
+  await expect(rows.nth(2)).toContainText('active')
+  await expect(rows.nth(3)).toContainText('failed')
+
   // docs popover links to the troubleshooting guide. filter to external links
   // because the sidebar and breadcrumb links have the same name
   await page.getByRole('button', { name: 'Learn about support bundles' }).click()
@@ -41,11 +47,11 @@ test('support bundle list', async ({ page }) => {
   )
 })
 
-test('failed bundle state badge shows failure reason on hover', async ({ page }) => {
+test('failed bundle shows failure reason on tip icon hover', async ({ page }) => {
   await page.goto('/system/support-bundles')
 
   const row = page.getByRole('row', { name: 'failed' })
-  await row.getByText('failed').hover()
+  await row.getByRole('button', { name: 'Tip' }).hover()
   await expect(page.getByRole('tooltip')).toHaveText('Allocated dataset no longer exists')
 })
 
@@ -72,57 +78,6 @@ test('download only available for active bundles', async ({ page }) => {
   expect(download.suggestedFilename()).toBe(
     'support-bundle-ccdac005-66a8-4921-9e8b-30531c359c31.zip'
   )
-})
-
-test('view files in an active bundle', async ({ page }) => {
-  await page.goto('/system/support-bundles')
-
-  await clickRowAction(page, 'Investigating slow', 'View files')
-  await expect(page).toHaveURL(
-    '/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31/files'
-  )
-
-  const modal = page.getByRole('dialog', { name: 'Support bundle files' })
-  await expect(modal).toBeVisible()
-
-  // root listing: dirs first, then files
-  await expect(modal.getByRole('button', { name: 'meta' })).toBeVisible()
-  await expect(modal.getByRole('button', { name: 'bundle_id.txt' })).toBeVisible()
-
-  // Download bundle button at top fetches the whole bundle zip
-  const bundleDownloadPromise = page.waitForEvent('download')
-  await modal.getByRole('button', { name: 'Download bundle', exact: true }).click()
-  const bundleDownload = await bundleDownloadPromise
-  expect(bundleDownload.suggestedFilename()).toBe(
-    'support-bundle-ccdac005-66a8-4921-9e8b-30531c359c31.zip'
-  )
-
-  // drill into meta/ and view a JSON file inline
-  await modal.getByRole('button', { name: 'meta', exact: true }).click()
-  await modal.getByRole('button', { name: 'report.json' }).click()
-  await expect(modal.getByText('"host info: sled 0"')).toBeVisible()
-
-  // back returns to the meta/ listing
-  await modal.getByRole('button', { name: 'Back' }).click()
-  await expect(modal.getByRole('button', { name: 'reason_for_creation.txt' })).toBeVisible()
-
-  // breadcrumb root button returns to the root listing, where the nested
-  // zip is download-only
-  await modal.getByRole('button', { name: '/', exact: true }).click()
-  await modal.getByRole('button', { name: 'sp_task_dumps' }).click()
-  await modal.getByRole('button', { name: 'switch_0' }).click()
-  const downloadPromise = page.waitForEvent('download')
-  await modal.getByRole('button', { name: 'dump-0.zip' }).click()
-  const download = await downloadPromise
-  expect(download.suggestedFilename()).toBe('dump-0.zip')
-})
-
-test('view files disabled for collecting bundle', async ({ page }) => {
-  await page.goto('/system/support-bundles')
-
-  const row = page.getByRole('row', { name: 'fan failure' })
-  await row.getByRole('button', { name: 'Row actions' }).click()
-  await expect(page.getByRole('menuitem', { name: 'View files' })).toBeDisabled()
 })
 
 test('create support bundle and poll to active', async ({ page }) => {
