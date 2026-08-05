@@ -34,6 +34,11 @@ import { docLinks } from '~/util/links'
 const queries = {
   basicTctl: `get hardware_component:amd_cpu_tctl
   | filter timestamp > @now() - 1m`,
+  unalignedTables: `{
+  get hardware_component:temperature;
+  get hardware_component:sensor_error_count
+}
+  | filter timestamp > @now() - 1m`,
   multiJoinedTable: `{
   {
     get sled_data_link:bytes_sent;
