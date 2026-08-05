@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { addHours } from 'date-fns'
-import { delay } from 'msw'
+import { delay, HttpResponse } from 'msw'
 import * as R from 'remeda'
 import { lt as semverLessThan, rcompare as semverRCompare } from 'semver'
 import { match } from 'ts-pattern'
@@ -36,6 +36,11 @@ import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { defaultSilo, toIdp } from '../silo'
+import {
+  supportBundleFiles,
+  supportBundleIndexText,
+  supportBundleSizes,
+} from '../support-bundle'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
 import {
@@ -2012,6 +2017,146 @@ export const handlers = makeHandlers({
     return paginated(query, db.users)
   },
 
+  supportBundleList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    return paginated(query, db.supportBundles)
+  },
+  supportBundleView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookupById(db.supportBundles, path.bundleId)
+  },
+  supportBundleCreate({ body, cookies }) {
+    requireFleetAdmin(cookies)
+
+    // sentinel for testing the one-bundle-per-external-disk policy error
+    // https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/support_bundle.rs#L47-L49
+    if (body.user_comment === 'no space') {
+      throw json(
+        {
+          error_code: 'InsufficientCapacity',
+          message:
+            "Insufficient capacity: Current policy limits support bundle creation to 'one per external disk', and no disks are available. You must delete old support bundles before new ones can be created",
+        },
+        { status: 507 }
+      )
+    }
+
+    const newBundle: Json<Api.SupportBundleInfo> = {
+      id: uuid(),
+      reason_for_creation: 'Created by external API',
+      state: 'collecting',
+      time_created: new Date().toISOString(),
+      user_comment: body.user_comment,
+    }
+    db.supportBundles.push(newBundle)
+
+    // simulate collection finishing, with a sentinel to exercise failure
+    setTimeout(() => {
+      if (body.user_comment === 'fail collection') {
+        newBundle.state = 'failed'
+        newBundle.reason_for_failure = 'Bundle collection failed'
+      } else {
+        newBundle.state = 'active'
+      }
+    }, 3000)
+
+    return json(newBundle, { status: 201 })
+  },
+  supportBundleUpdate({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+    // https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/support_bundle.rs#L736-L742
+    if (body.user_comment && body.user_comment.length > 4096) {
+      throw invalidRequest('User comment cannot exceed 4096 bytes')
+    }
+    bundle.user_comment = body.user_comment
+    return bundle
+  },
+  supportBundleDelete({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+
+    // a failed bundle's storage is already reclaimed, so it's deleted
+    // immediately. otherwise the bundle sits in state 'destroying' until a
+    // background task frees its storage, which we simulate with a timeout
+    if (bundle.state === 'failed') {
+      db.supportBundles = db.supportBundles.filter((b) => b.id !== bundle.id)
+    } else {
+      bundle.state = 'destroying'
+      setTimeout(() => {
+        db.supportBundles = db.supportBundles.filter((b) => b.id !== bundle.id)
+      }, 3000)
+    }
+
+    return 204
+  },
+  // the generated handler type only allows status code returns for binary
+  // endpoints, but the dispatcher passes Response instances through untouched
+  // @ts-expect-error
+  supportBundleDownload({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+    if (bundle.state !== 'active') {
+      throw invalidRequest('Cannot download bundle in non-active state')
+    }
+    // smallest valid zip: an empty end-of-central-directory record
+    const emptyZip = new Uint8Array(22)
+    emptyZip.set([0x50, 0x4b, 0x05, 0x06])
+    return new HttpResponse(emptyZip, {
+      headers: {
+        'Content-Type': 'application/zip',
+        'Content-Disposition': `attachment; filename="support-bundle-${bundle.id}.zip"`,
+      },
+    })
+  },
+  // the generated handler type only allows status code returns for binary
+  // endpoints, but the dispatcher passes Response instances through untouched
+  // @ts-expect-error
+  supportBundleHead({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+    if (bundle.state !== 'active') {
+      throw invalidRequest('Cannot download bundle in non-active state')
+    }
+    const size = supportBundleSizes[bundle.id] ?? GiB
+    return new HttpResponse(null, {
+      headers: {
+        'Content-Length': size.toString(),
+        'Content-Type': 'application/zip',
+      },
+    })
+  },
+  // @ts-expect-error Response passthrough, see supportBundleHead
+  supportBundleIndex({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+    if (bundle.state !== 'active') {
+      throw invalidRequest('Cannot download bundle in non-active state')
+    }
+    return new HttpResponse(supportBundleIndexText, {
+      headers: { 'Content-Type': 'text/plain' },
+    })
+  },
+  // @ts-expect-error Response passthrough, see supportBundleHead
+  supportBundleDownloadFile({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+    if (bundle.state !== 'active') {
+      throw invalidRequest('Cannot download bundle in non-active state')
+    }
+    // the client encodes slashes in the file path so it fits in one segment
+    const file = decodeURIComponent(path.file)
+    const content = supportBundleFiles[file]
+    if (content === undefined) throw notFoundErr(`file '${file}' in support bundle`)
+    if (file.endsWith('.zip')) {
+      const emptyZip = new Uint8Array(22)
+      emptyZip.set([0x50, 0x4b, 0x05, 0x06])
+      return new HttpResponse(emptyZip, {
+        headers: { 'Content-Type': 'application/zip' },
+      })
+    }
+    return new HttpResponse(content, { headers: { 'Content-Type': 'text/plain' } })
+  },
   switchList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
     return paginated(query, db.switches)
@@ -2725,16 +2870,7 @@ export const handlers = makeHandlers({
   siloUserView: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
-  supportBundleCreate: NotImplemented,
-  supportBundleDelete: NotImplemented,
-  supportBundleDownload: NotImplemented,
-  supportBundleDownloadFile: NotImplemented,
-  supportBundleHead: NotImplemented,
   supportBundleHeadFile: NotImplemented,
-  supportBundleIndex: NotImplemented,
-  supportBundleList: NotImplemented,
-  supportBundleUpdate: NotImplemented,
-  supportBundleView: NotImplemented,
   switchView: NotImplemented,
   systemNetworkingSettingsUpdate: NotImplemented,
   systemNetworkingSettingsView: NotImplemented,

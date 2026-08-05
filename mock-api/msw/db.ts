@@ -642,6 +642,7 @@ const initDb = {
   snapshots: [...mock.snapshots],
   snatIps: [...mock.snatIps],
   sshKeys: [...mock.sshKeys],
+  supportBundles: [...mock.supportBundles],
   tufRepos: [...mock.tufRepos],
   updateStatus: mock.updateStatus,
   users: [...mock.users],

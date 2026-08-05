@@ -14,6 +14,7 @@ import {
   type DiskType,
   type InstanceState,
   type SnapshotState,
+  type SupportBundleState,
 } from '@oxide/api'
 import { Badge, type BadgeColor } from '@oxide/design-system/ui'
 
@@ -80,6 +81,28 @@ export const SnapshotStateBadge = (props: { state: SnapshotState; className?: st
   <Badge color={SNAPSHOT_COLORS[props.state]} className={cn(props.className, badgeClasses)}>
     {props.state === 'creating' && (
       <Spinner size="sm" variant={SNAPSHOT_COLORS[props.state]} />
+    )}
+    {props.state}
+  </Badge>
+)
+
+const SUPPORT_BUNDLE_COLORS: Record<SupportBundleState, BadgeColor> = {
+  collecting: 'blue',
+  active: 'default',
+  destroying: 'neutral',
+  failed: 'destructive',
+}
+
+export const SupportBundleStateBadge = (props: {
+  state: SupportBundleState
+  className?: string
+}) => (
+  <Badge
+    color={SUPPORT_BUNDLE_COLORS[props.state]}
+    className={cn(props.className, badgeClasses)}
+  >
+    {(props.state === 'collecting' || props.state === 'destroying') && (
+      <Spinner size="sm" variant={SUPPORT_BUNDLE_COLORS[props.state]} />
     )}
     {props.state}
   </Badge>

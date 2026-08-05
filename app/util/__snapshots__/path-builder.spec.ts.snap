@@ -897,6 +897,30 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/networking/",
     },
   ],
+  "supportBundleEdit (/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31/edit)": [
+    {
+      "label": "Support Bundles",
+      "path": "/system/",
+    },
+  ],
+  "supportBundleFiles (/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31/files)": [
+    {
+      "label": "Support Bundles",
+      "path": "/system/",
+    },
+  ],
+  "supportBundles (/system/support-bundles)": [
+    {
+      "label": "Support Bundles",
+      "path": "/system/",
+    },
+  ],
+  "supportBundlesNew (/system/support-bundles-new)": [
+    {
+      "label": "Support Bundles",
+      "path": "/system/",
+    },
+  ],
   "systemUpdate (/system/update)": [
     {
       "label": "System Update",
