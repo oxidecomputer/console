@@ -36,11 +36,7 @@ import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { defaultSilo, toIdp } from '../silo'
-import {
-  supportBundleFiles,
-  supportBundleIndexText,
-  supportBundleSizes,
-} from '../support-bundle'
+import { supportBundleFiles, supportBundleIndexText } from '../support-bundle'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
 import {
@@ -2109,24 +2105,7 @@ export const handlers = makeHandlers({
       },
     })
   },
-  // the generated handler type only allows status code returns for binary
-  // endpoints, but the dispatcher passes Response instances through untouched
-  // @ts-expect-error
-  supportBundleHead({ path, cookies }) {
-    requireFleetViewer(cookies)
-    const bundle = lookupById(db.supportBundles, path.bundleId)
-    if (bundle.state !== 'active') {
-      throw invalidRequest('Cannot download bundle in non-active state')
-    }
-    const size = supportBundleSizes[bundle.id] ?? GiB
-    return new HttpResponse(null, {
-      headers: {
-        'Content-Length': size.toString(),
-        'Content-Type': 'application/zip',
-      },
-    })
-  },
-  // @ts-expect-error Response passthrough, see supportBundleHead
+  // @ts-expect-error Response passthrough, see supportBundleDownload
   supportBundleIndex({ path, cookies }) {
     requireFleetViewer(cookies)
     const bundle = lookupById(db.supportBundles, path.bundleId)
@@ -2137,7 +2116,7 @@ export const handlers = makeHandlers({
       headers: { 'Content-Type': 'text/plain' },
     })
   },
-  // @ts-expect-error Response passthrough, see supportBundleHead
+  // @ts-expect-error Response passthrough, see supportBundleDownload
   supportBundleDownloadFile({ path, cookies }) {
     requireFleetViewer(cookies)
     const bundle = lookupById(db.supportBundles, path.bundleId)
@@ -2870,6 +2849,7 @@ export const handlers = makeHandlers({
   siloUserView: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
+  supportBundleHead: NotImplemented,
   supportBundleHeadFile: NotImplemented,
   switchView: NotImplemented,
   systemNetworkingSettingsUpdate: NotImplemented,

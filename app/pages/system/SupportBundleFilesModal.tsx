@@ -122,8 +122,9 @@ export default function SupportBundleFilesModal() {
               >
                 /
               </button>
+              {/* key by index because segment names can repeat within a path */}
               {dirSegments.map((segment, i) => (
-                <Fragment key={segment}>
+                <Fragment key={i}>
                   <button
                     type="button"
                     className="hover:text-raise rounded px-1"

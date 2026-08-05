@@ -107,13 +107,3 @@ export const bundleFileQuery = (bundleId: string, filePath: string) => ({
   },
   staleTime: Infinity,
 })
-
-export const bundleSizeQuery = (bundleId: string) => ({
-  queryKey: ['supportBundleSize', bundleId],
-  queryFn: async ({ signal }: { signal: AbortSignal }) => {
-    const res = await fetch(bundleDownloadUrl(bundleId), { method: 'HEAD', signal })
-    if (!res.ok) throw new Error(`Error fetching bundle size (${res.status})`)
-    return Number(res.headers.get('content-length'))
-  },
-  staleTime: Infinity,
-})

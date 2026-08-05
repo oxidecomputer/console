@@ -9,8 +9,6 @@ import * as R from 'remeda'
 
 import type { SupportBundleInfo } from '@oxide/api'
 
-import { GiB } from '~/util/units'
-
 import type { Json } from './json-type'
 
 export const supportBundles: Json<SupportBundleInfo>[] = [
@@ -37,11 +35,6 @@ export const supportBundles: Json<SupportBundleInfo>[] = [
     time_created: new Date('2025-07-28T11:00:00Z').toISOString(),
   },
 ]
-
-/** Zip sizes reported by the HEAD handler. Bundles not listed get 1 GiB. */
-export const supportBundleSizes: Record<string, number> = {
-  'ccdac005-66a8-4921-9e8b-30531c359c31': Math.floor(2.4 * GiB),
-}
 
 /**
  * Contents served by the index and per-file download handlers for any active

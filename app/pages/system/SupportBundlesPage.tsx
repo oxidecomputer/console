@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet, useNavigate } from 'react-router'
@@ -24,11 +23,11 @@ import { Logs16Icon, Logs24Icon } from '@oxide/design-system/icons/react'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { SupportBundleStateBadge } from '~/components/StateBadge'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
-import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -38,10 +37,9 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate, Truncate } from '~/ui/lib/Truncate'
-import { Size } from '~/ui/lib/ValueUnit'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
-import { bundleDownloadUrl, bundleSizeQuery, triggerDownload } from '~/util/support-bundle'
+import { bundleDownloadUrl, triggerDownload } from '~/util/support-bundle'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -63,15 +61,6 @@ const StateCell = ({ bundle }: { bundle: SupportBundleInfo }) => {
   )
 }
 
-function SizeCell({ bundle }: { bundle: SupportBundleInfo }) {
-  const active = bundle.state === 'active'
-  // only active bundles have a zip backing them, so there's nothing to HEAD otherwise
-  const { data: size } = useQuery({ ...bundleSizeQuery(bundle.id), enabled: active })
-  if (!active) return <EmptyCell />
-  if (size === undefined) return <SkeletonCell />
-  return <Size bytes={size} />
-}
-
 const colHelper = createColumnHelper<SupportBundleInfo>()
 
 const staticColumns = [
@@ -83,11 +72,6 @@ const staticColumns = [
   }),
   colHelper.accessor('state', {
     cell: (info) => <StateCell bundle={info.row.original} />,
-  }),
-  colHelper.display({
-    id: 'size',
-    header: 'Size',
-    cell: (info) => <SizeCell bundle={info.row.original} />,
   }),
   colHelper.accessor('reasonForCreation', {
     header: 'Reason',
@@ -120,7 +104,9 @@ export async function clientLoader() {
   return null
 }
 
-export const handle = { crumb: 'Support Bundles' }
+// path is needed because the crumb attaches to a pathless route, whose
+// pathname is /system/
+export const handle = makeCrumb('Support Bundles', pb.supportBundles())
 
 export default function SupportBundlesPage() {
   const navigate = useNavigate()

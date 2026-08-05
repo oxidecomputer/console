@@ -20,16 +20,14 @@ test('support bundle list', async ({ page }) => {
 
   await expectRowVisible(table, {
     state: 'active',
-    Size: '2.4 GiB',
     Reason: 'Created by external API',
     Comment: 'Investigating slow instance start times',
   })
   await expectRowVisible(table, {
     state: 'collecting',
-    Size: '—',
     Reason: 'Diagnosis: fan failure on sled BRM42220031',
   })
-  await expectRowVisible(table, { state: 'failed', Size: '—' })
+  await expectRowVisible(table, { state: 'failed' })
 
   // docs popover links to the troubleshooting guide. filter to external links
   // because the sidebar and breadcrumb links have the same name
