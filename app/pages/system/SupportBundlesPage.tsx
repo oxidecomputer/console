@@ -179,7 +179,7 @@ export default function SupportBundlesPage() {
         <DocsPopover
           heading="support bundles"
           icon={<Logs16Icon />}
-          summary="Support bundles capture diagnostic data from the rack to share with Oxide Support. They consume rack storage, so delete them when no longer needed."
+          summary="Support bundles capture diagnostic data from the rack to share with Oxide Support."
           links={[docLinks.supportBundles]}
         />
       </PageHeader>
