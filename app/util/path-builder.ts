@@ -129,6 +129,11 @@ export const pb = {
   subnetPoolEdit: (params: PP.SubnetPool) => `${pb.subnetPool(params)}/edit`,
   subnetPoolMemberAdd: (params: PP.SubnetPool) => `${pb.subnetPool(params)}/members-add`,
 
+  alertReceivers: () => '/system/alerts',
+  alertReceiversNew: () => '/system/alerts-new',
+  alertReceiver: (params: PP.AlertReceiver) => `${pb.alertReceivers()}/${params.receiver}`,
+  alertReceiverEdit: (params: PP.AlertReceiver) => `${pb.alertReceiver(params)}/edit`,
+
   sledInventory: () => `${inventoryBase()}/sleds`,
   diskInventory: () => `${inventoryBase()}/disks`,
   sledInstances: ({ sledId }: PP.Sled) => `${pb.sledInventory()}/${sledId}/instances`,

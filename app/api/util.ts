@@ -39,6 +39,11 @@ export const INSTANCE_MAX_CPU = 254
 export const INSTANCE_MIN_RAM_GiB = 1
 export const INSTANCE_MAX_RAM_GiB = 1536
 
+// Valid alert subscription: an event class or a glob pattern matching multiple
+// classes. https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/types/versions/src/initial/alert.rs#L22-L23
+export const ALERT_SUBSCRIPTION_REGEX =
+  /^([a-zA-Z0-9_]+|\*|\*\*)(\.([a-zA-Z0-9_]+|\*|\*\*))*$/
+
 export const MIN_DISK_SIZE_GiB = 1
 /**
  * Disk size limited to 1023 as that's the maximum we can safely allocate right now

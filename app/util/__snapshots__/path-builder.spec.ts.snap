@@ -40,6 +40,42 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/",
     },
   ],
+  "alertReceiver (/system/alerts/rc)": [
+    {
+      "label": "Alerts",
+      "path": "/system/alerts",
+    },
+    {
+      "label": "rc",
+      "path": "/system/alerts/rc",
+    },
+  ],
+  "alertReceiverEdit (/system/alerts/rc/edit)": [
+    {
+      "label": "Alerts",
+      "path": "/system/alerts",
+    },
+    {
+      "label": "rc",
+      "path": "/system/alerts/rc",
+    },
+    {
+      "label": "Edit webhook",
+      "path": "/system/alerts/rc/edit",
+    },
+  ],
+  "alertReceivers (/system/alerts)": [
+    {
+      "label": "Alerts",
+      "path": "/system/",
+    },
+  ],
+  "alertReceiversNew (/system/alerts-new)": [
+    {
+      "label": "Alerts",
+      "path": "/system/",
+    },
+  ],
   "antiAffinityGroup (/projects/p/affinity/aag)": [
     {
       "label": "Projects",
