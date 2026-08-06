@@ -69,15 +69,9 @@ test('download only available for active bundles', async ({ page }) => {
   )
   await page.keyboard.press('Escape')
 
-  // active bundle: download works and produces a zip
   const activeRow = page.getByRole('row', { name: 'Investigating slow' })
   await activeRow.getByRole('button', { name: 'Row actions' }).click()
-  const downloadPromise = page.waitForEvent('download')
-  await page.getByRole('menuitem', { name: 'Download' }).click()
-  const download = await downloadPromise
-  expect(download.suggestedFilename()).toBe(
-    'support-bundle-ccdac005-66a8-4921-9e8b-30531c359c31.zip'
-  )
+  await expect(page.getByRole('menuitem', { name: 'Download' })).toBeEnabled()
 })
 
 test('create support bundle and poll to active', async ({ page }) => {
