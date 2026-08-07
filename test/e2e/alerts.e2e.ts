@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 import {
   clickRowAction,
@@ -137,16 +137,49 @@ test('Webhook detail: properties, event classes, secrets', async ({ page }) => {
   await page.getByRole('button', { name: 'Cancel' }).click()
 })
 
-test('Developer tab documents the request format', async ({ page }) => {
+test('Testing tab: probe result and signature format', async ({ page }) => {
   await page.goto('/system/alerts/webhook-1')
-  await page.getByRole('tab', { name: 'Developer' }).click()
+  await page.getByRole('tab', { name: 'Testing' }).click()
 
-  const headers = page.getByRole('table', { name: 'Request headers' })
-  await expect(headers.getByRole('cell', { name: 'x-oxide-alert-class' })).toBeVisible()
+  const panel = page.getByRole('tabpanel')
   await expect(
-    page.getByRole('cell', { name: 'x-oxide-signature', exact: true })
+    panel.getByText('Send a liveness probe to see the result here')
   ).toBeVisible()
-  await expect(page.getByText('HMAC-SHA256')).toBeVisible()
+
+  await panel.getByRole('button', { name: 'Send liveness probe' }).click()
+  const probeModal = page.getByRole('dialog', { name: 'Send liveness probe' })
+  await probeModal.getByRole('button', { name: 'Send probe' }).click()
+
+  await expect(panel.getByText('Succeeded')).toBeVisible()
+  await expect(panel.getByText('200')).toBeVisible()
+  await expect(panel.getByText('123ms')).toBeVisible()
+
+  // signature format docs
+  await expect(panel.getByText('a={algorithm}&id={secret-id}&s={signature}')).toBeVisible()
+  await expect(panel.getByText('The HMAC signature of the request body')).toBeVisible()
+})
+
+test('Testing tab: probe failure', async ({ page }) => {
+  await page.goto('/system/alerts')
+
+  // the mock backend fails probes for endpoints containing 'unreachable'
+  await clickRowAction(page, 'power-mon', 'Edit')
+  await page
+    .getByRole('dialog', { name: 'Edit webhook' })
+    .getByRole('textbox', { name: 'Endpoint URL' })
+    .fill('https://unreachable.example.com')
+  await page.getByRole('button', { name: 'Update webhook' }).click()
+  await expectToast(page, 'Webhook power-mon updated')
+
+  await page.getByRole('tab', { name: 'Testing' }).click()
+  const panel = page.getByRole('tabpanel')
+  await panel.getByRole('button', { name: 'Send liveness probe' }).click()
+  await page
+    .getByRole('dialog', { name: 'Send liveness probe' })
+    .getByRole('button', { name: 'Send probe' })
+    .click()
+
+  await expect(panel.getByText('Unreachable')).toBeVisible()
 })
 
 test('Webhook edit', async ({ page }) => {
@@ -167,6 +200,52 @@ test('Webhook edit', async ({ page }) => {
   // lands on the detail page for the new name
   await expect(page).toHaveURL('/system/alerts/general-webhook')
   await expect(page.getByText('https://hooks.example.dev')).toBeVisible()
+})
+
+// The mock backend retries a pending delivery 5s after the list is first
+// fetched, so refresh until the state settles rather than sleeping.
+const refreshUntil = (page: Page, expectation: () => Promise<void>) =>
+  expect(async () => {
+    await page.getByRole('button', { name: 'Refresh data' }).click()
+    await expectation()
+  }).toPass({ timeout: 30_000 })
+
+test('Pending delivery resolves to delivered', async ({ page }) => {
+  await page.goto('/system/alerts/webhook-1?tab=deliveries')
+
+  const row = page.getByRole('row', { name: /a3d830ee/ })
+  await expect(row.getByText('pending')).toBeVisible()
+
+  await refreshUntil(page, () =>
+    expect(row.getByText('delivered')).toBeVisible({ timeout: 1000 })
+  )
+
+  // the retry shows up as a second attempt on the delivery
+  await clickRowAction(page, 'a3d830ee-a590-40df-8281-42282c056196', 'View details')
+  const sideModal = page.getByRole('dialog', { name: 'Webhook delivery' })
+  await expect(sideModal.getByRole('table').getByRole('row')).toHaveCount(3) // header + 2
+})
+
+test('Pending delivery fails after exhausting retries', async ({ page }) => {
+  await page.goto('/system/alerts')
+
+  // the mock backend fails delivery to endpoints containing 'unreachable'
+  await clickRowAction(page, 'webhook-1', 'Edit')
+  await page
+    .getByRole('dialog', { name: 'Edit webhook' })
+    .getByRole('textbox', { name: 'Endpoint URL' })
+    .fill('https://unreachable.example.com')
+  await page.getByRole('button', { name: 'Update webhook' }).click()
+  await expectToast(page, 'Webhook webhook-1 updated')
+
+  await page.getByRole('tab', { name: 'Deliveries' }).click()
+  const row = page.getByRole('row', { name: /a3d830ee/ })
+  await expect(row.getByText('pending')).toBeVisible()
+
+  // one attempt already failed, so it takes two more to hit the 3-attempt limit
+  await refreshUntil(page, () =>
+    expect(row.getByText('failed')).toBeVisible({ timeout: 1000 })
+  )
 })
 
 test('Webhook deliveries', async ({ page }) => {
@@ -196,10 +275,23 @@ test('Webhook deliveries', async ({ page }) => {
   // delivery detail side modal shows attempts
   await clickRowAction(page, '30ece63e-5efd-4365-99a6-d4f09dfa685e', 'View details')
   const sideModal = page.getByRole('dialog', { name: 'Webhook delivery' })
-  await expect(sideModal.getByText('Attempts')).toBeVisible()
   const attempts = sideModal.getByRole('table')
   await expect(attempts.getByRole('row')).toHaveCount(4) // header + 3 attempts
   await expect(attempts.getByRole('cell', { name: 'HTTP error' })).toBeVisible()
+
+  // request tab reconstructs the payload and headers from the delivery
+  await sideModal.getByRole('tab', { name: 'Request' }).click()
+  await expect(attempts).toBeHidden()
+  const request = sideModal.getByRole('tabpanel')
+  await expect(
+    request.getByText('"id": "30ece63e-5efd-4365-99a6-d4f09dfa685e"')
+  ).toBeVisible()
+  await expect(request.getByText('"data": <alert data>')).toBeVisible()
+  await expect(request.getByText('x-oxide-alert-class')).toBeVisible()
+  await expect(
+    request.getByText('hardware.power_shelf.psu.insert', { exact: true })
+  ).toBeVisible()
+
   await sideModal.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
 
   // resend a failed delivery requires confirmation, then creates a new
@@ -222,16 +314,18 @@ test('Webhook deliveries', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: 'Resend' })).toBeDisabled()
   await page.keyboard.press('Escape')
 
-  // send a liveness probe from the page actions menu, resending failed
-  // deliveries on success
-  await page.getByRole('button', { name: 'Webhook actions' }).click()
-  await page.getByRole('menuitem', { name: 'Send liveness probe' }).click()
+  // send a liveness probe from the testing tab, resending failed deliveries on
+  // success
+  await page.getByRole('tab', { name: 'Testing' }).click()
+  await page.getByRole('button', { name: 'Send liveness probe' }).click()
   const probeModal = page.getByRole('dialog', { name: 'Send liveness probe' })
   await probeModal
     .getByRole('checkbox', { name: 'Resend failed deliveries if the probe succeeds' })
     .click()
   await probeModal.getByRole('button', { name: 'Send probe' }).click()
-  await expectToast(page, 'Liveness probe delivered')
+  await expect(page.getByText('2 failed deliveries resent')).toBeVisible()
+
+  await page.getByRole('tab', { name: 'Deliveries' }).click()
   // 8 rows + 1 probe + 2 resends of the 2 failed deliveries
   await expect(table.getByRole('row')).toHaveCount(11)
   await expectRowVisible(table, {

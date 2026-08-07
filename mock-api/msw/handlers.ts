@@ -102,6 +102,53 @@ function toWebhookReceiver(receiver: Json<Api.AlertReceiver>): Json<Api.WebhookR
   return { ...rest, endpoint: kind.endpoint, secrets: kind.secrets }
 }
 
+/** How long a pending delivery waits before its next attempt */
+const RETRY_DELAY_MS = 5000
+/** After this many failed attempts the delivery fails permanently */
+const MAX_ATTEMPTS = 3
+
+/** When each pending delivery, by ID, makes its next attempt */
+const nextAttemptAt = new Map<string, number>()
+
+/**
+ * In the real system the deliverator RPW retries pending deliveries in the
+ * background, so pending is a transient state. Stand in for that by making one
+ * more attempt whenever the list is fetched after the retry delay has passed.
+ * State transitions match
+ * https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/db-queries/src/db/datastore/webhook_delivery.rs#L449-L473
+ */
+function retryPendingDeliveries(receiver: Json<Api.AlertReceiver>) {
+  const now = Date.now()
+  // same sentinel as the liveness probe: endpoints we can't reach keep failing
+  const success = !receiver.kind.endpoint.includes('unreachable')
+
+  for (const delivery of db.alertDeliveries) {
+    if (delivery.receiver_id !== receiver.id || delivery.state !== 'pending') continue
+
+    const dueAt = nextAttemptAt.get(delivery.id)
+    if (dueAt === undefined) {
+      nextAttemptAt.set(delivery.id, now + RETRY_DELAY_MS)
+      continue
+    }
+    if (now < dueAt) continue
+
+    const attempt = delivery.attempts.webhook.length + 1
+    delivery.attempts.webhook.push({
+      attempt,
+      result: success ? 'succeeded' : 'failed_unreachable',
+      response: success ? { status: 200, duration_ms: 137 } : null,
+      time_sent: new Date().toISOString(),
+    })
+    delivery.state = success ? 'delivered' : attempt >= MAX_ATTEMPTS ? 'failed' : 'pending'
+
+    if (delivery.state === 'pending') {
+      nextAttemptAt.set(delivery.id, now + RETRY_DELAY_MS)
+    } else {
+      nextAttemptAt.delete(delivery.id)
+    }
+  }
+}
+
 export const handlers = makeHandlers({
   logout: () => 204,
   ping: () => ({ status: 'ok' }),
@@ -2670,6 +2717,7 @@ export const handlers = makeHandlers({
   alertDeliveryList({ path, query, cookies }) {
     requireFleetViewer(cookies)
     const receiver = lookup.alertReceiver(path)
+    retryPendingDeliveries(receiver)
     let deliveries = db.alertDeliveries.filter((d) => d.receiver_id === receiver.id)
     // if any state filters are specified, only include deliveries in those states
     const states = [

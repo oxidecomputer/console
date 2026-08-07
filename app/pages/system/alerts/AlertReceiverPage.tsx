@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 import { match } from 'ts-pattern'
@@ -22,10 +22,16 @@ import {
   usePrefetchedQuery,
   type AlertDelivery,
   type AlertDeliveryState,
+  type AlertProbeResult,
   type WebhookDeliveryAttempt,
   type WebhookSecret,
 } from '@oxide/api'
-import { Webhooks16Icon, Webhooks24Icon } from '@oxide/design-system/icons/react'
+import {
+  Error12Icon,
+  Success12Icon,
+  Webhooks16Icon,
+  Webhooks24Icon,
+} from '@oxide/design-system/icons/react'
 import { Badge, Button, type BadgeColor } from '@oxide/design-system/ui'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
@@ -34,6 +40,7 @@ import { TextField } from '~/components/form/fields/TextField'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { SubscriptionMatchPreview } from '~/components/SubscriptionMatchPreview'
 import { validateSubscription } from '~/forms/webhook-create'
 import { makeCrumb } from '~/hooks/use-crumbs'
@@ -41,12 +48,14 @@ import { getAlertReceiverSelector, useAlertReceiverSelector } from '~/hooks/use-
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Table } from '~/table/Table'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { type ComboboxItem } from '~/ui/lib/Combobox'
+import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { DateTime } from '~/ui/lib/DateTime'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -58,7 +67,7 @@ import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
-import { Table as UITable, TableEmptyBox } from '~/ui/lib/Table'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -107,8 +116,6 @@ export default function AlertReceiverPage() {
     },
   })
 
-  const [showProbeModal, setShowProbeModal] = useState(false)
-
   return (
     <>
       <PageHeader>
@@ -117,10 +124,6 @@ export default function AlertReceiverPage() {
           <Dropdown.LinkItem to={pb.alertReceiverEdit(receiverSelector)}>
             Edit
           </Dropdown.LinkItem>
-          <Dropdown.Item
-            label="Send liveness probe"
-            onSelect={() => setShowProbeModal(true)}
-          />
           <Dropdown.Item
             label="Delete"
             onSelect={confirmDelete({
@@ -133,7 +136,6 @@ export default function AlertReceiverPage() {
           />
         </MoreActionsMenu>
       </PageHeader>
-      {showProbeModal && <ProbeModal onDismiss={() => setShowProbeModal(false)} />}
       <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.Row label="Endpoint">
           <span className="text-default">{receiver.kind.endpoint}</span>
@@ -146,7 +148,7 @@ export default function AlertReceiverPage() {
         <Tabs.List>
           <Tabs.Trigger value="details">Details</Tabs.Trigger>
           <Tabs.Trigger value="deliveries">Deliveries</Tabs.Trigger>
-          <Tabs.Trigger value="developer">Developer</Tabs.Trigger>
+          <Tabs.Trigger value="testing">Testing</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="details" className="space-y-6">
           <EventClassesCard />
@@ -155,8 +157,8 @@ export default function AlertReceiverPage() {
         <Tabs.Content value="deliveries">
           <DeliveriesTab />
         </Tabs.Content>
-        <Tabs.Content value="developer" className="space-y-6">
-          <DeveloperTab />
+        <Tabs.Content value="testing" className="space-y-6">
+          <TestingTab />
         </Tabs.Content>
       </QueryParamTabs>
       <Outlet /> {/* for edit form */}
@@ -164,25 +166,114 @@ export default function AlertReceiverPage() {
   )
 }
 
-function ProbeModal({ onDismiss }: { onDismiss: () => void }) {
+// Testing: send a liveness probe and show the result, plus static documentation
+// of the signature scheme, which is defined by RFD 538 and implemented in
+// https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/src/app/webhook.rs
+
+function TestingTab() {
+  return (
+    <>
+      <WebhookTesterCard />
+      <SignatureFormatCard />
+    </>
+  )
+}
+
+function WebhookTesterCard() {
+  const [showProbeModal, setShowProbeModal] = useState(false)
+  const [result, setResult] = useState<AlertProbeResult | null>(null)
+
+  return (
+    <CardBlock>
+      <CardBlock.Header
+        title="Webhook tester"
+        description="Send test events to your endpoint"
+      >
+        <Button size="sm" onClick={() => setShowProbeModal(true)}>
+          Send liveness probe
+        </Button>
+      </CardBlock.Header>
+      <CardBlock.Body>
+        <p className="text-sans-md text-default">
+          To test your integration, send a liveness probe to the endpoint. A probe is a
+          synthetic <InlineCode>probe</InlineCode> event: it checks that the endpoint is
+          reachable, but does not count as a real event and is not retried.
+        </p>
+        {result ? (
+          <ProbeResult result={result} />
+        ) : (
+          <TableEmptyBox>
+            <EmptyMessage
+              title="Probe result"
+              body="Send a liveness probe to see the result here"
+            />
+          </TableEmptyBox>
+        )}
+      </CardBlock.Body>
+      {showProbeModal && (
+        <ProbeModal onDismiss={() => setShowProbeModal(false)} onSuccess={setResult} />
+      )}
+    </CardBlock>
+  )
+}
+
+function ProbeResult({ result }: { result: AlertProbeResult }) {
+  // a probe is delivered once and never retried, so there is at most one attempt
+  const attempt = result.probe.attempts.webhook.at(0)
+  if (!attempt) return null // can't happen: the API always returns the attempt it made
+
+  const status = attempt.response?.status
+  const durationMs = attempt.response?.durationMs
+  const resends = result.resendsStarted
+
+  return (
+    <PropertiesTable>
+      <PropertiesTable.Row label="Result">
+        {attemptResultBadge(attempt.result)}
+      </PropertiesTable.Row>
+      <PropertiesTable.Row label="Status">
+        {status ? (
+          <span className="flex items-center gap-1.5">
+            {attempt.result === 'succeeded' ? (
+              <Success12Icon className="text-accent" />
+            ) : (
+              <Error12Icon className="text-error" />
+            )}
+            {status}
+          </span>
+        ) : (
+          <EmptyCell />
+        )}
+      </PropertiesTable.Row>
+      <PropertiesTable.Row label="Duration">
+        {durationMs != null ? `${durationMs}ms` : <EmptyCell />}
+      </PropertiesTable.Row>
+      <PropertiesTable.Row label="Sent">
+        <DateTime date={attempt.timeSent} />
+      </PropertiesTable.Row>
+      {resends != null && (
+        <PropertiesTable.Row label="Resends">
+          {resends} failed {resends === 1 ? 'delivery' : 'deliveries'} resent
+        </PropertiesTable.Row>
+      )}
+    </PropertiesTable>
+  )
+}
+
+function ProbeModal({
+  onDismiss,
+  onSuccess,
+}: {
+  onDismiss: () => void
+  onSuccess: (result: AlertProbeResult) => void
+}) {
   const receiverSelector = useAlertReceiverSelector()
   const { control, handleSubmit } = useForm({ defaultValues: { resend: false } })
 
   const sendProbe = useApiMutation(api.alertReceiverProbe, {
     onSuccess(result) {
       queryClient.invalidateEndpoint('alertDeliveryList')
-      if (result.probe.state === 'delivered') {
-        const resends = result.resendsStarted
-        addToast({
-          title: 'Liveness probe delivered',
-          content:
-            resends != null
-              ? `Resending ${resends} failed ${resends === 1 ? 'delivery' : 'deliveries'}`
-              : undefined,
-        })
-      } else {
-        addToast({ content: 'Liveness probe failed', variant: 'error' })
-      }
+      onSuccess(result)
       onDismiss()
     },
     onError(err) {
@@ -217,65 +308,36 @@ function ProbeModal({ onDismiss }: { onDismiss: () => void }) {
   )
 }
 
-// Developer: static documentation of the delivery request format. Headers and
-// signature scheme are defined by RFD 538 and implemented in
-// https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/src/app/webhook.rs
-
-const REQUEST_HEADERS: [string, string][] = [
-  ['x-oxide-alert-id', 'UUID of the alert'],
-  ['x-oxide-alert-class', 'Class of the alert'],
-  ['x-oxide-delivery-id', 'UUID of this delivery, stable across retries'],
-  ['x-oxide-receiver-id', 'UUID of this receiver'],
-  ['x-oxide-signature', 'HMAC signature of the request body, one header per secret'],
+const SIGNATURE_PARTS: [string, string][] = [
+  ['algorithm', 'Currently only the SHA256 algorithm is supported'],
+  ['secret-id', 'The ID of the secret used to create the signature'],
+  ['signature', 'The HMAC signature of the request body'],
 ]
 
-function DeveloperTab() {
+function SignatureFormatCard() {
   return (
-    <>
-      <CardBlock>
-        <CardBlock.Header
-          title="Request format"
-          description="Each delivery is an HTTP POST to the endpoint with a JSON body describing the alert"
-        />
-        <CardBlock.Body>
-          <UITable aria-label="Request headers">
-            <UITable.Header>
-              <UITable.HeaderRow>
-                <UITable.HeadCell>Header</UITable.HeadCell>
-                <UITable.HeadCell>Description</UITable.HeadCell>
-              </UITable.HeaderRow>
-            </UITable.Header>
-            <UITable.Body>
-              {REQUEST_HEADERS.map(([name, description]) => (
-                <UITable.Row key={name}>
-                  <UITable.Cell>
-                    <InlineCode>{name}</InlineCode>
-                  </UITable.Cell>
-                  <UITable.Cell>{description}</UITable.Cell>
-                </UITable.Row>
-              ))}
-            </UITable.Body>
-          </UITable>
-        </CardBlock.Body>
-      </CardBlock>
-      <CardBlock>
-        <CardBlock.Header
-          title="Verifying payloads"
-          description="Use the shared secrets to check that a request really came from the rack"
-        />
-        <CardBlock.Body>
-          <p className="text-sans-md text-default">
-            Requests are signed with HMAC-SHA256 using every secret on the receiver. Each
-            request carries one <InlineCode>x-oxide-signature</InlineCode> header per secret
-            in the form{' '}
-            <InlineCode>a=sha256&id=&lt;secret ID&gt;&s=&lt;signature&gt;</InlineCode>. To
-            verify a request, find the header whose <InlineCode>id</InlineCode> matches a
-            secret you hold, compute the HMAC-SHA256 of the raw request body with that
-            secret, and compare the hex digest to <InlineCode>s</InlineCode>.
-          </p>
-        </CardBlock.Body>
-      </CardBlock>
-    </>
+    <CardBlock>
+      <CardBlock.Header title="Signature format" />
+      <CardBlock.Body>
+        <p className="text-sans-md text-default">
+          For each secret key assigned to a webhook receiver, an{' '}
+          <InlineCode>x-oxide-signature</InlineCode> header is added with the HMAC digest of
+          the payload signed with that secret key. This data is encoded in the following
+          format:
+        </p>
+        <pre className="text-mono-md bg-raise border-secondary w-full rounded-md border px-4 py-3 tracking-normal! normal-case!">
+          a=&#123;algorithm&#125;&id=&#123;secret-id&#125;&s=&#123;signature&#125;
+        </pre>
+        <dl className="text-sans-md space-y-1">
+          {SIGNATURE_PARTS.map(([name, description]) => (
+            <div key={name} className="flex gap-2">
+              <dt className="text-sans-semi-md text-raise">{name}:</dt>
+              <dd className="text-default">{description}</dd>
+            </div>
+          ))}
+        </dl>
+      </CardBlock.Body>
+    </CardBlock>
   )
 }
 
@@ -687,15 +749,24 @@ function DeliveriesTab() {
   )
 
   const columns = useColsWithActions(staticDeliveryCols, makeActions)
-  const { table } = useQueryTable({
+  const { table, query } = useQueryTable({
     query: deliveryList(receiver, filter),
     columns,
     emptyState,
   })
 
+  // deliveries are dispatched asynchronously, so pending ones resolve on their
+  // own while the page is open
+  const { intervalPicker } = useIntervalPicker({
+    enabled: true,
+    isLoading: query.isFetching,
+    fn: () => queryClient.invalidateEndpoint('alertDeliveryList'),
+  })
+
   return (
     <>
-      <div className="mb-3 flex justify-end">
+      <div className="mb-3 flex items-center justify-between">
+        {intervalPicker}
         <Listbox
           selected={filter}
           onChange={setFilter}
@@ -783,8 +854,15 @@ function DeliverySideModal({
             </PropertiesTable.Row>
             <PropertiesTable.IdRow id={delivery.receiverId} label="Webhook ID" />
           </PropertiesTable>
-          <div className="space-y-3">
-            <SideModal.Heading>Attempts</SideModal.Heading>
+        </SideModal.Section>
+        <Tabs.Root className="full-width" defaultValue="attempts">
+          <Tabs.List aria-label="Delivery details">
+            <Tabs.Trigger value="attempts">Attempts</Tabs.Trigger>
+            <Tabs.Trigger value="request">Request</Tabs.Trigger>
+          </Tabs.List>
+          {/* full-width tabs put the panel at the modal gutter; the extra
+              padding lines the content up with the properties table above */}
+          <Tabs.Content value="attempts" className="px-8">
             {delivery.attempts.webhook.length ? (
               <Table table={attemptsTable} aria-label="Attempts" />
             ) : (
@@ -795,8 +873,11 @@ function DeliverySideModal({
                 />
               </TableEmptyBox>
             )}
-          </div>
-        </SideModal.Section>
+          </Tabs.Content>
+          <Tabs.Content value="request" className="px-8">
+            <RequestTab delivery={delivery} />
+          </Tabs.Content>
+        </Tabs.Root>
       </SideModal.Body>
       <SideModal.Footer>
         <Button variant="ghost" size="sm" onClick={onDismiss}>
@@ -804,5 +885,89 @@ function DeliverySideModal({
         </Button>
       </SideModal.Footer>
     </SideModal>
+  )
+}
+
+// The delivery request format is defined by RFD 538 and built in
+// https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/src/app/webhook.rs#L395-L555
+// The API does not return the request that was sent, so we reconstruct it from
+// the delivery record. Alert data, the alert version, and the signature can't
+// be known from here, so they show up as angle-bracket placeholders.
+const payloadJson = (delivery: AlertDelivery, sentAt: string) => `{
+  "alert_class": ${JSON.stringify(delivery.alertClass)},
+  "alert_version": <version>,
+  "alert_id": ${JSON.stringify(delivery.alertId)},
+  "data": <alert data>,
+  "delivery": {
+    "id": ${JSON.stringify(delivery.id)},
+    "receiver_id": ${JSON.stringify(delivery.receiverId)},
+    "sent_at": ${JSON.stringify(sentAt)},
+    "trigger": ${JSON.stringify(delivery.trigger)}
+  }
+}`
+
+const requestHeaders = (delivery: AlertDelivery, sentAt: string): [string, string][] => [
+  ['x-oxide-receiver-id', delivery.receiverId],
+  ['x-oxide-delivery-id', delivery.id],
+  ['x-oxide-alert-id', delivery.alertId],
+  ['x-oxide-alert-class', delivery.alertClass],
+  ['x-oxide-alert-version', '<version>'],
+  ['x-oxide-timestamp', sentAt],
+  ['content-type', 'application/json'],
+  // one signature header per secret on the receiver
+  ['x-oxide-signature', 'a=sha256&id=<secret ID>&s=<signature>'],
+]
+
+function RequestTab({ delivery }: { delivery: AlertDelivery }) {
+  // every attempt is signed and timestamped when it is sent, so the timestamp
+  // shown is the one from the most recent attempt
+  const lastSent = delivery.attempts.webhook.at(-1)?.timeSent
+  const sentAt = lastSent ? lastSent.toISOString() : '<timestamp>'
+  const payload = payloadJson(delivery, sentAt)
+  const headers = requestHeaders(delivery, sentAt)
+  const headersText = headers.map(([name, value]) => `${name}: ${value}`).join('\n')
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sans-md text-secondary">
+        The API does not return the request that was sent, so this is reconstructed from the
+        delivery record. Values in angle brackets are not available through the API.
+      </p>
+      <RequestSection title="Payload" copyText={payload}>
+        <pre className="text-mono-md border-secondary bg-default w-full overflow-x-auto rounded-md border px-4 py-3 tracking-normal! normal-case!">
+          {payload}
+        </pre>
+      </RequestSection>
+      <RequestSection title="Headers" copyText={headersText}>
+        <div className="border-secondary *:border-b-secondary rounded-md border *:border-b *:px-4 *:py-3 *:last:border-b-0">
+          {headers.map(([name, value]) => (
+            <div key={name}>
+              <div className="text-mono-sm text-secondary">{name}</div>
+              <div className="text-sans-md text-default break-all">{value}</div>
+            </div>
+          ))}
+        </div>
+      </RequestSection>
+    </div>
+  )
+}
+
+function RequestSection({
+  title,
+  copyText,
+  children,
+}: {
+  title: string
+  copyText: string
+  children: ReactNode
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <SideModal.Heading>{title}</SideModal.Heading>
+        <CopyToClipboard text={copyText} ariaLabel={`Copy ${title.toLowerCase()}`} />
+      </div>
+      {children}
+    </div>
   )
 }
