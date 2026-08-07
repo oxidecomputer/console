@@ -82,7 +82,6 @@ const staticColumns = [
 ]
 
 const SEC = 1000 // ms
-/** Poll fast while any bundle is in a transitional state */
 const POLL_INTERVAL = 10 * SEC
 
 const bundleList = getListQFn(
@@ -111,8 +110,10 @@ export default function SupportBundlesPage() {
   const { mutateAsync: deleteBundle } = useApiMutation(api.supportBundleDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('supportBundleList')
+      // "deleting" rather than "deleted" because the bundle sits in state
+      // 'destroying' until a background task frees its backing storage
       // prettier-ignore
-      addToast(<>Support bundle <HL>{truncate(variables.path.bundleId, 14, 'middle')}</HL> deleted</>)
+      addToast(<>Deleting support bundle <HL>{truncate(variables.path.bundleId, 14, 'middle')}</HL></>)
     },
   })
 

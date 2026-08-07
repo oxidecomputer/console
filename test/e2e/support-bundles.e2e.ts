@@ -132,7 +132,7 @@ test('delete failed bundle removes it immediately', async ({ page }) => {
 
   await clickRowAction(page, 'failed', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectToast(page, /deleted/)
+  await expectToast(page, /Deleting support bundle/)
 
   await expect(table.getByRole('row')).toHaveCount(3)
 })
@@ -142,7 +142,7 @@ test('delete active bundle transitions to destroying', async ({ page }) => {
 
   await clickRowAction(page, 'Investigating slow', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectToast(page, /deleted/)
+  await expectToast(page, /Deleting support bundle/)
 
   const table = page.getByRole('table')
   await expectRowVisible(table, { state: 'destroying' })

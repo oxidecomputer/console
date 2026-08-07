@@ -8,7 +8,13 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { api, queryClient, useApiMutation } from '@oxide/api'
+import {
+  api,
+  MAX_BUNDLE_COMMENT_BYTES,
+  queryClient,
+  useApiMutation,
+  utf8ByteLength,
+} from '@oxide/api'
 
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -16,11 +22,6 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
-
-// the API only enforces this on update, but apply it at create time too so
-// the comment doesn't become uneditable later
-// https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/support_bundle.rs#L736-L742
-export const MAX_COMMENT_LENGTH = 4096
 
 const defaultValues = { userComment: '' }
 
@@ -65,8 +66,8 @@ export default function CreateSupportBundleSideModalForm() {
         rows={4}
         control={form.control}
         validate={(value) =>
-          value.length > MAX_COMMENT_LENGTH
-            ? `Comment cannot exceed ${MAX_COMMENT_LENGTH} characters`
+          utf8ByteLength(value) > MAX_BUNDLE_COMMENT_BYTES
+            ? `Comment cannot exceed ${MAX_BUNDLE_COMMENT_BYTES} bytes`
             : true
         }
       />

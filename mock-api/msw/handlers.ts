@@ -2069,7 +2069,8 @@ export const handlers = makeHandlers({
     requireFleetAdmin(cookies)
     const bundle = lookupById(db.supportBundles, path.bundleId)
     // https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/support_bundle.rs#L736-L742
-    if (body.user_comment && body.user_comment.length > 4096) {
+    // byte length, not string length, to match Nexus
+    if (body.user_comment && new TextEncoder().encode(body.user_comment).length > 4096) {
       throw invalidRequest('User comment cannot exceed 4096 bytes')
     }
     bundle.user_comment = body.user_comment

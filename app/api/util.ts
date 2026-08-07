@@ -46,6 +46,14 @@ export const MIN_DISK_SIZE_GiB = 1
  */
 export const MAX_DISK_SIZE_GiB = 1023
 
+// the API only enforces this on update, but apply it at create time too so
+// the comment doesn't become uneditable later
+// https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/support_bundle.rs#L736-L742
+export const MAX_BUNDLE_COMMENT_BYTES = 4096
+
+/** Nexus limits by UTF-8 byte length, not JS string length */
+export const utf8ByteLength = (s: string) => new TextEncoder().encode(s).length
+
 type PortRange = [number, number]
 
 /** Parse '1234' into [1234, 1234] and '80-100' into [80, 100] */

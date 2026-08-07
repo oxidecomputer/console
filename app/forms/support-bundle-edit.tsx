@@ -8,7 +8,15 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
+import {
+  api,
+  MAX_BUNDLE_COMMENT_BYTES,
+  q,
+  queryClient,
+  useApiMutation,
+  usePrefetchedQuery,
+  utf8ByteLength,
+} from '@oxide/api'
 
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -17,8 +25,6 @@ import { getSupportBundleSelector, useSupportBundleSelector } from '~/hooks/use-
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-
-import { MAX_COMMENT_LENGTH } from './support-bundle-create'
 
 const bundleView = ({ bundleId }: PP.SupportBundle) =>
   q(api.supportBundleView, { path: { bundleId } })
@@ -73,8 +79,8 @@ export default function EditSupportBundleSideModalForm() {
         rows={4}
         control={form.control}
         validate={(value) =>
-          value.length > MAX_COMMENT_LENGTH
-            ? `Comment cannot exceed ${MAX_COMMENT_LENGTH} characters`
+          utf8ByteLength(value) > MAX_BUNDLE_COMMENT_BYTES
+            ? `Comment cannot exceed ${MAX_BUNDLE_COMMENT_BYTES} bytes`
             : true
         }
       />
