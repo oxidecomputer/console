@@ -37,7 +37,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Affinity Groups",
-      "path": "/projects/p/",
+      "path": "/projects/p/affinity",
     },
   ],
   "antiAffinityGroup (/projects/p/affinity/aag)": [
@@ -456,13 +456,13 @@ exports[`breadcrumbs 2`] = `
   "ipPools (/system/networking/ip-pools)": [
     {
       "label": "IP Pools",
-      "path": "/system/networking/",
+      "path": "/system/networking/ip-pools",
     },
   ],
   "ipPoolsNew (/system/networking/ip-pools-new)": [
     {
       "label": "IP Pools",
-      "path": "/system/networking/",
+      "path": "/system/networking/ip-pools",
     },
   ],
   "profile (/settings/profile)": [
@@ -592,7 +592,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "i",
-      "path": "/projects/p/instances/i",
+      "path": "/projects/p/instances/i/storage",
     },
     {
       "label": "Serial Console",
@@ -750,7 +750,7 @@ exports[`breadcrumbs 2`] = `
   "sledInstances (/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances)": [
     {
       "label": "Inventory",
-      "path": "/system/inventory",
+      "path": "/system/inventory/sleds",
     },
     {
       "label": "Sleds",
@@ -880,13 +880,13 @@ exports[`breadcrumbs 2`] = `
   "subnetPools (/system/networking/subnet-pools)": [
     {
       "label": "Subnet Pools",
-      "path": "/system/networking/",
+      "path": "/system/networking/subnet-pools",
     },
   ],
   "subnetPoolsNew (/system/networking/subnet-pools-new)": [
     {
       "label": "Subnet Pools",
-      "path": "/system/networking/",
+      "path": "/system/networking/subnet-pools",
     },
   ],
   "systemUpdate (/system/update)": [
@@ -960,7 +960,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Firewall Rules",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/firewall-rules",
     },
   ],
   "vpcFirewallRuleEdit (/projects/p/vpcs/v/firewall-rules/fr/edit)": [
@@ -982,7 +982,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Firewall Rules",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/firewall-rules",
     },
   ],
   "vpcFirewallRules (/projects/p/vpcs/v/firewall-rules)": [
@@ -1026,7 +1026,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Firewall Rules",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/firewall-rules",
     },
   ],
   "vpcInternetGateway (/projects/p/vpcs/v/internet-gateways/g)": [
@@ -1088,7 +1088,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "v",
-      "path": "/projects/p/vpcs/v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
       "label": "Routers",
@@ -1122,7 +1122,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Routers",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/routers",
     },
   ],
   "vpcRouterRouteEdit (/projects/p/vpcs/v/routers/r/routes/rr/edit)": [
@@ -1140,7 +1140,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "v",
-      "path": "/projects/p/vpcs/v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
       "label": "Routers",
@@ -1170,7 +1170,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "v",
-      "path": "/projects/p/vpcs/v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
       "label": "Routers",
@@ -1204,7 +1204,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Routers",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/routers",
     },
   ],
   "vpcRoutersNew (/projects/p/vpcs/v/routers-new)": [
@@ -1226,7 +1226,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Routers",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/routers",
     },
   ],
   "vpcSubnets (/projects/p/vpcs/v/subnets)": [
@@ -1248,7 +1248,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "VPC Subnets",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/subnets",
     },
   ],
   "vpcSubnetsEdit (/projects/p/vpcs/v/subnets/su/edit)": [
@@ -1270,7 +1270,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "VPC Subnets",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/subnets",
     },
   ],
   "vpcSubnetsNew (/projects/p/vpcs/v/subnets-new)": [
@@ -1292,7 +1292,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "VPC Subnets",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/subnets",
     },
   ],
   "vpcs (/projects/p/vpcs)": [

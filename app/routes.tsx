@@ -18,7 +18,7 @@ import {
 import { NotFound } from './components/ErrorPage'
 import { PageSkeleton } from './components/PageSkeleton.tsx'
 import { makeCrumb, type Crumb } from './hooks/use-crumbs'
-import { getInstanceSelector, getVpcSelector } from './hooks/use-params'
+import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
 import { pb } from './util/path-builder'
 
 // hack because RR doesn't export the redirect type
@@ -195,7 +195,7 @@ export const routes = createRoutesFromElements(
             lazy={() => import('./pages/system/inventory/DisksTab').then(convert)}
           />
         </Route>
-        <Route path="inventory" handle={{ crumb: 'Inventory' }}>
+        <Route path="inventory" handle={makeCrumb('Inventory', pb.sledInventory())}>
           <Route path="sleds" handle={{ crumb: 'Sleds' }}>
             {/* a crumb for the sled ID looks ridiculous, unfortunately */}
             <Route
@@ -330,7 +330,13 @@ export const routes = createRoutesFromElements(
           lazy={() => import('./layouts/SerialConsoleLayout').then(convert)}
         >
           <Route path="instances" handle={{ crumb: 'Instances' }}>
-            <Route path=":instance" handle={makeCrumb((p) => p.instance!)}>
+            <Route
+              path=":instance"
+              handle={makeCrumb(
+                (p) => p.instance!,
+                (p) => pb.instance(getInstanceSelector(p))
+              )}
+            >
               <Route
                 path="serial-console"
                 lazy={() =>
@@ -446,7 +452,12 @@ export const routes = createRoutesFromElements(
                     element={null}
                     handle={{ crumb: 'Firewall Rules' }}
                   />
-                  <Route element={null} handle={{ crumb: 'Firewall Rules' }}>
+                  <Route
+                    element={null}
+                    handle={makeCrumb('Firewall Rules', (p) =>
+                      pb.vpcFirewallRules(getVpcSelector(p))
+                    )}
+                  >
                     <Route
                       path="firewall-rules-new/:rule?"
                       lazy={() => import('./forms/firewall-rules-create').then(convert)}
@@ -499,7 +510,13 @@ export const routes = createRoutesFromElements(
             </Route>
           </Route>
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
-            <Route path=":vpc" handle={makeCrumb((p) => p.vpc!)}>
+            <Route
+              path=":vpc"
+              handle={makeCrumb(
+                (p) => p.vpc!,
+                (p) => pb.vpc(getVpcSelector(p))
+              )}
+            >
               <Route path="routers" handle={{ crumb: 'Routers' }}>
                 <Route
                   path=":router"
@@ -593,7 +610,7 @@ export const routes = createRoutesFromElements(
           />
           <Route
             lazy={() => import('./pages/project/affinity/AffinityPage').then(convert)}
-            handle={{ crumb: 'Affinity Groups' }}
+            handle={makeCrumb('Affinity Groups', (p) => pb.affinity(getProjectSelector(p)))}
           >
             <Route
               path="affinity-new"
