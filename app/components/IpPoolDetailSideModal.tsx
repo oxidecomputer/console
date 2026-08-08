@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type IpPool } from '@oxide/api'
+import { type SiloIpPool } from '@oxide/api'
 import { IpGlobal16Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -17,7 +17,7 @@ import { ResourceLabel } from '~/ui/lib/SideModal'
 import { docLinks } from '~/util/links'
 
 type IpPoolDetailSideModalProps = {
-  pool: IpPool
+  pool: SiloIpPool
   onDismiss: () => void
 }
 

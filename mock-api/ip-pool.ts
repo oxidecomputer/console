@@ -17,6 +17,7 @@ export const ipPool1: Json<IpPool> = {
   description: 'public IPs',
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
+  assignment: 'silos',
   ip_version: 'v4',
   pool_type: 'unicast',
 }
@@ -27,6 +28,7 @@ export const ipPool2: Json<IpPool> = {
   description: 'VPN IPs',
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
+  assignment: 'silos',
   ip_version: 'v6',
   pool_type: 'unicast',
 }
@@ -37,6 +39,7 @@ export const ipPool3: Json<IpPool> = {
   description: '',
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
+  assignment: 'silos',
   ip_version: 'v4',
   pool_type: 'unicast',
 }
@@ -47,6 +50,7 @@ export const ipPool4: Json<IpPool> = {
   description: '',
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
+  assignment: 'silos',
   ip_version: 'v6',
   pool_type: 'unicast',
 }
@@ -58,6 +62,7 @@ export const ipPool5Multicast: Json<IpPool> = {
   description: 'Multicast v4 pool',
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
+  assignment: 'silos',
   ip_version: 'v4',
   pool_type: 'multicast',
 }
@@ -68,6 +73,7 @@ export const ipPool6Multicast: Json<IpPool> = {
   description: 'Multicast v6 pool',
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
+  assignment: 'silos',
   ip_version: 'v6',
   pool_type: 'multicast',
 }
@@ -80,6 +86,7 @@ export const ipPoolEphemeralAttachFail: Json<IpPool> = {
   description: 'Sentinel: ephemeral IP attach returns 500',
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
+  assignment: 'silos',
   ip_version: 'v6',
   pool_type: 'unicast',
 }

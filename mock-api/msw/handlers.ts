@@ -1418,6 +1418,7 @@ export const handlers = makeHandlers({
       // See https://zod.dev/v4/changelog?id=defaults-applied-within-optional-fields#defaults-applied-within-optional-fields
       ip_version: body.ip_version || 'v4',
       pool_type: body.pool_type || 'unicast',
+      assignment: body.assignment || 'silos',
       ...getTimestamps(),
     }
     db.ipPools.push(newPool)
@@ -2657,10 +2658,6 @@ export const handlers = makeHandlers({
   internetGatewayIpAddressDelete: NotImplemented,
   internetGatewayIpPoolCreate: NotImplemented,
   internetGatewayIpPoolDelete: NotImplemented,
-  systemIpPoolServiceRangeAdd: NotImplemented,
-  systemIpPoolServiceRangeList: NotImplemented,
-  systemIpPoolServiceRangeRemove: NotImplemented,
-  systemIpPoolServiceView: NotImplemented,
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
@@ -2736,6 +2733,7 @@ export const handlers = makeHandlers({
   supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
+  systemIpPoolAssign: NotImplemented,
   systemNetworkingSettingsUpdate: NotImplemented,
   systemNetworkingSettingsView: NotImplemented,
   systemQuotasList: NotImplemented,
