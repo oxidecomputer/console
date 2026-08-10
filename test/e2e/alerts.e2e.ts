@@ -68,23 +68,19 @@ test('Webhook create', async ({ page }) => {
   ).toBeVisible()
   await expect(main.getByText('At least one secret is required')).toBeHidden()
 
-  // add a subscription: bad glob is rejected, good glob lands in the mini table
-  const combobox = page.getByRole('combobox', { name: 'Event classes' })
-  await combobox.fill('hardware..bad')
-  await page.getByRole('button', { name: 'Add event class' }).click()
+  // add a subscription: a bad glob is rejected on Enter, a good one becomes a chip
+  const subsInput = page.getByRole('combobox', { name: 'Event subscriptions' })
+  await subsInput.fill('hardware..bad')
+  await subsInput.press('Enter')
   await expect(
     main.getByText('Must be an event class or a glob pattern like hardware.**')
   ).toBeVisible()
-  await combobox.fill('hardware.**')
-  // glob preview shows which classes the pattern currently matches
-  await expect(main.getByText('Matches 2 event classes')).toBeVisible()
-  await page.getByRole('button', { name: 'Add event class' }).click()
+  await subsInput.fill('hardware.**')
+  await subsInput.press('Enter')
   await expect(
-    page.getByRole('table', { name: 'Event classes' }).getByRole('cell', {
-      name: 'hardware.**',
-      exact: true,
-    })
+    page.getByRole('button', { name: 'remove subscription hardware.**' })
   ).toBeVisible()
+  await expect(subsInput).toHaveValue('')
 
   await page.getByRole('button', { name: 'Create webhook receiver' }).click()
   await expectToast(page, 'Webhook deploy-hook created')
@@ -94,6 +90,89 @@ test('Webhook create', async ({ page }) => {
     Events: 'hardware.**',
     description: 'CI deploys',
   })
+})
+
+test('Webhook create subscriptions field', async ({ page }) => {
+  await page.goto('/system/alerts-new')
+
+  const subsInput = page.getByRole('combobox', { name: 'Event subscriptions' })
+  const listbox = page.getByRole('listbox')
+  const chipRemove = (sub: string) =>
+    page.getByRole('button', { name: `remove subscription ${sub}` })
+
+  // focusing opens the catalog showing all classes
+  await subsInput.click()
+  await expect(listbox.getByText('All classes')).toBeVisible()
+  await expect(listbox.getByRole('option')).toHaveCount(17)
+
+  // a glob query filters the catalog and labels matched rows with the pattern
+  await subsInput.fill('instance.*')
+  await expect(listbox.getByText('Matching “instance.*”')).toBeVisible()
+  // 6 direct children match instance.*; the two ephemeral_ip classes are shown
+  // as near misses labeled with the broader pattern that would cover them
+  await expect(listbox.getByText('Showing 8 of 17')).toBeVisible()
+  const pendingRow = listbox.getByRole('option', { name: 'instance.create' })
+  await expect(pendingRow.getByText('instance.*', { exact: true })).toBeVisible()
+  const nearMissRow = listbox.getByRole('option', { name: 'instance.ephemeral_ip.attach' })
+  await expect(nearMissRow.getByText('instance.**', { exact: true })).toBeVisible()
+
+  // Enter commits the glob as a chip and clears the query
+  await subsInput.press('Enter')
+  await expect(chipRemove('instance.*')).toBeVisible()
+  await expect(subsInput).toHaveValue('')
+
+  // rows matched by the committed glob are locked and can't be double-added
+  await subsInput.fill('instance')
+  const coveredRow = listbox.getByRole('option', { name: 'instance.create' })
+  await expect(coveredRow.getByText('via instance.*')).toBeVisible()
+  await expect(coveredRow).toHaveAttribute('aria-disabled', 'true')
+  // force because playwright refuses to click aria-disabled elements; we want
+  // to verify the click is a no-op anyway
+  await coveredRow.click({ force: true })
+  await expect(chipRemove('instance.create')).toBeHidden()
+
+  // plain-text filter + ticking rows commits exact classes without resetting the query
+  await subsInput.fill('proj')
+  await expect(listbox.getByText('Showing 3 of 17')).toBeVisible()
+  await listbox.getByRole('option', { name: 'project.create' }).click()
+  await listbox.getByRole('option', { name: 'project.delete' }).click()
+  await expect(chipRemove('project.create')).toBeVisible()
+  await expect(chipRemove('project.delete')).toBeVisible()
+  await expect(subsInput).toHaveValue('proj')
+  await expect(listbox).toBeVisible()
+
+  // clicking a picked row unpicks it
+  await listbox.getByRole('option', { name: 'project.create' }).click()
+  await expect(chipRemove('project.create')).toBeHidden()
+
+  // zero matches shows an explicit empty state with a clear action
+  await subsInput.fill('zzz')
+  await expect(listbox.getByText('No classes match')).toBeVisible()
+  await listbox.getByRole('button', { name: 'Clear' }).click()
+  await expect(listbox.getByText('All classes')).toBeVisible()
+
+  // backspace on an empty query arms the last chip, a second one removes it
+  await subsInput.press('Backspace')
+  await expect(chipRemove('project.delete')).toBeVisible()
+  await subsInput.press('Backspace')
+  await expect(chipRemove('project.delete')).toBeHidden()
+
+  // typing disarms, so the chip survives
+  await subsInput.press('Backspace')
+  await subsInput.pressSequentially('x')
+  await subsInput.press('Backspace')
+  await subsInput.press('Backspace')
+  await expect(chipRemove('instance.*')).toBeVisible()
+
+  // arrow keys move the armed selection, so a specific chip can be deleted
+  await subsInput.fill('probe')
+  await subsInput.press('Enter')
+  await expect(chipRemove('probe')).toBeVisible()
+  await subsInput.press('ArrowLeft') // arm probe
+  await subsInput.press('ArrowLeft') // arm instance.*
+  await subsInput.press('Backspace')
+  await expect(chipRemove('instance.*')).toBeHidden()
+  await expect(chipRemove('probe')).toBeVisible()
 })
 
 test('Webhook detail: properties, event classes, secrets', async ({ page }) => {

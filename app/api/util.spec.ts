@@ -7,7 +7,53 @@
  */
 import { describe, expect, it, test } from 'vitest'
 
-import { diskCan, genName, instanceCan, parsePortRange, synthesizeData } from './util'
+import {
+  diskCan,
+  genName,
+  instanceCan,
+  parsePortRange,
+  subscriptionRegex,
+  synthesizeData,
+} from './util'
+
+describe('subscriptionRegex', () => {
+  it('matches exact class names', () => {
+    expect(subscriptionRegex('probe').test('probe')).toBe(true)
+    expect(subscriptionRegex('probe').test('probes')).toBe(false)
+    expect(subscriptionRegex('instance.create').test('instance.create')).toBe(true)
+  })
+
+  it('* matches exactly one segment', () => {
+    const re = subscriptionRegex('disk.*')
+    expect(re.test('disk.create')).toBe(true)
+    expect(re.test('disk.snapshot.create')).toBe(false)
+    expect(re.test('disk')).toBe(false)
+  })
+
+  it('* can appear in any position', () => {
+    const re = subscriptionRegex('*.create')
+    expect(re.test('disk.create')).toBe(true)
+    expect(re.test('instance.create')).toBe(true)
+    expect(re.test('instance.ephemeral_ip.create')).toBe(false)
+  })
+
+  it('** matches one or more segments', () => {
+    const re = subscriptionRegex('hardware.**')
+    expect(re.test('hardware.power_shelf.psu.insert')).toBe(true)
+    expect(re.test('hardware.psu')).toBe(true)
+    expect(re.test('hardware')).toBe(false)
+
+    const suffix = subscriptionRegex('**.delete')
+    expect(suffix.test('project.delete')).toBe(true)
+    expect(suffix.test('instance.ephemeral_ip.delete')).toBe(true)
+    expect(suffix.test('delete')).toBe(false)
+  })
+
+  it('does not match substrings within a segment', () => {
+    expect(subscriptionRegex('instance.**').test('silo.instance_quota.hit')).toBe(false)
+    expect(subscriptionRegex('disk.*').test('bigdisk.create')).toBe(false)
+  })
+})
 
 describe('parsePortRange', () => {
   describe('parses', () => {

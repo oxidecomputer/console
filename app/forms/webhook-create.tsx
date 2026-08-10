@@ -5,30 +5,27 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useQuery } from '@tanstack/react-query'
 import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { api, q, queryClient, useApiMutation } from '@oxide/api'
+import { api, queryClient, useApiMutation } from '@oxide/api'
 import { Webhooks24Icon } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
 
-import { ALERT_SUBSCRIPTION_REGEX } from '~/api/util'
-import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ErrorMessage } from '~/components/form/fields/ErrorMessage'
 import { NameField } from '~/components/form/fields/NameField'
+import { SubscriptionsField } from '~/components/form/fields/SubscriptionsField'
 import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
-import { SubscriptionMatchPreview } from '~/components/SubscriptionMatchPreview'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
-import { ItemLabel } from '~/ui/lib/ItemLabel'
+import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { KEYS } from '~/ui/util/keys'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 export const validateEndpoint = (value: string) => {
@@ -43,13 +40,7 @@ export const validateEndpoint = (value: string) => {
   }
 }
 
-// segments may only contain [a-zA-Z0-9_], unlike resource names
-export const validateSubscription = (value: string) =>
-  ALERT_SUBSCRIPTION_REGEX.test(value)
-    ? undefined
-    : 'Must be an event class or a glob pattern like hardware.** (letters, numbers, and underscores only)'
-
-type WebhookCreateFormValues = {
+export type WebhookCreateFormValues = {
   name: string
   description: string
   endpoint: string
@@ -127,70 +118,28 @@ function SecretsField({ control }: { control: Control<WebhookCreateFormValues> }
   )
 }
 
-const subscriptionColumns = [
-  {
-    header: 'Event class',
-    cell: (subscription: string) => <Badge color="neutral">{subscription}</Badge>,
-  },
-]
+const globCode = 'text-mono-sm bg-info-secondary text-info rounded-sm px-1'
 
-function SubscriptionsField({ control }: { control: Control<WebhookCreateFormValues> }) {
-  const { field } = useController({ control, name: 'subscriptions' })
-  const subform = useForm({ defaultValues: { subscription: '' } })
-  const subscription = useWatch({ control: subform.control, name: 'subscription' })
-
-  const { data: classes } = useQuery(q(api.alertClassList, {}))
-  const classItems = (classes?.items || [])
-    .filter((c) => !field.value.includes(c.name))
-    .map((c) => ({
-      value: c.name,
-      selectedLabel: c.name,
-      label: <ItemLabel name={c.name}>{c.description}</ItemLabel>,
-    }))
-
-  const submitSubform = subform.handleSubmit(({ subscription }) => {
-    if (!field.value.includes(subscription)) {
-      field.onChange([...field.value, subscription])
-    }
-    subform.reset()
-  })
-
-  return (
-    <>
-      <div className="flex max-w-lg flex-col gap-3">
-        <ComboboxField
-          control={subform.control}
-          name="subscription"
-          label="Event classes"
-          description="Events to subscribe the webhook to. Globs like hardware.** match multiple classes."
-          items={classItems}
-          allowArbitraryValues
-          onEnter={submitSubform}
-          validate={validateSubscription}
-          hideOptionalTag
-        />
-        <SubscriptionMatchPreview pattern={subscription} />
-        <ClearAndAddButtons
-          addButtonCopy="Add event class"
-          disabled={!subscription}
-          onClear={() => subform.reset()}
-          onSubmit={submitSubform}
-        />
-      </div>
-      <MiniTable
-        className="max-w-lg"
-        ariaLabel="Event classes"
-        items={field.value}
-        columns={subscriptionColumns}
-        rowKey={(subscription) => subscription}
-        onRemoveItem={(subscription) =>
-          field.onChange(field.value.filter((s) => s !== subscription))
-        }
-        removeLabel={(subscription) => `remove subscription ${subscription}`}
-      />
-    </>
-  )
-}
+const SubscriptionsMessage = (
+  <>
+    Event subscriptions may include simple globs to subscribe to multiple categories of
+    events. E.g. <code className={globCode}>instance.*</code> or{' '}
+    <code className={globCode}>*.delete</code>.{' '}
+    <a
+      href={links.webhooksGuide}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-1 inline-block"
+    >
+      Read the Webhooks guide
+    </a>{' '}
+    and the{' '}
+    <a href={links.webhooksApiDocs} target="_blank" rel="noreferrer">
+      API docs
+    </a>{' '}
+    to learn more.
+  </>
+)
 
 export const handle = { crumb: 'New webhook receiver' }
 
@@ -235,11 +184,14 @@ export default function CreateWebhookForm() {
           validate={validateEndpoint}
         />
         <FormDivider />
+        <Form.Heading id="subscriptions">Subscriptions</Form.Heading>
+        <div className="flex flex-col gap-4">
+          <SubscriptionsField control={form.control} />
+          <Message variant="info" className="max-w-lg" content={SubscriptionsMessage} />
+        </div>
+        <FormDivider />
         <Form.Heading id="secrets">Secrets</Form.Heading>
         <SecretsField control={form.control} />
-        <FormDivider />
-        <Form.Heading id="subscriptions">Subscriptions</Form.Heading>
-        <SubscriptionsField control={form.control} />
         <Form.Actions>
           <Form.Submit loading={createWebhook.isPending}>
             Create webhook receiver

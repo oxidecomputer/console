@@ -30,6 +30,28 @@ export const alertClasses: Json<AlertClass>[] = [
     description:
       'Synthetic events sent for webhook receiver liveness probes. Receivers should return 2xx HTTP responses for these events, but they should NOT be treated as notifications of an actual event in the system.',
   },
+  // The classes below are mock-only, based on examples in RFD 538. They are not
+  // yet defined in Omicron's alert.rs; they exist to exercise the catalog UI.
+  { name: 'instance.create', description: 'An instance has been created' },
+  { name: 'instance.start', description: 'An instance has been started' },
+  { name: 'instance.stop', description: 'An instance has been stopped' },
+  { name: 'instance.delete', description: 'An instance has been deleted' },
+  { name: 'instance.reboot', description: 'An instance has been rebooted' },
+  { name: 'instance.fail', description: 'An instance has entered a failed state' },
+  {
+    name: 'instance.ephemeral_ip.attach',
+    description: 'An ephemeral IP has been attached to an instance',
+  },
+  {
+    name: 'instance.ephemeral_ip.detach',
+    description: 'An ephemeral IP has been detached from an instance',
+  },
+  { name: 'project.create', description: 'A project has been created' },
+  { name: 'project.update', description: 'A project has been updated' },
+  { name: 'project.delete', description: 'A project has been deleted' },
+  { name: 'image.delete', description: 'An image has been deleted' },
+  { name: 'image.promote', description: 'An image has been promoted to a silo image' },
+  { name: 'image.demote', description: 'An image has been demoted to a project image' },
 ]
 
 export const receiverWebhook1: Json<AlertReceiver> = {
