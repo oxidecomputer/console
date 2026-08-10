@@ -370,6 +370,10 @@ test('Silo IP pools link pool', async ({ page }) => {
   await page.getByPlaceholder('Select a pool').fill('x')
   await expect(page.getByText('No items match')).toBeVisible()
 
+  // system service pools cannot be linked to silos
+  await page.getByPlaceholder('Select a pool').fill('service-pool-v4')
+  await expect(page.getByText('No items match')).toBeVisible()
+
   // before a pool is selected, the default checkbox label is generic
   await expect(
     page.getByRole('checkbox', { name: 'Make default pool for silo' })
