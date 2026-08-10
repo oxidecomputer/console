@@ -91,6 +91,17 @@ export const ipPoolEphemeralAttachFail: Json<IpPool> = {
   pool_type: 'unicast',
 }
 
+export const systemServicesIpPool: Json<IpPool> = {
+  id: 'd2d2e5c1-6d18-4c83-ae62-849f187df1ce',
+  name: 'service-pool-v4',
+  description: 'IPv4 pool for system services',
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+  assignment: 'system_services',
+  ip_version: 'v4',
+  pool_type: 'unicast',
+}
+
 export const ipPools: Json<IpPool>[] = [
   ipPool1,
   ipPool2,
@@ -99,6 +110,7 @@ export const ipPools: Json<IpPool>[] = [
   ipPool5Multicast,
   ipPool6Multicast,
   ipPoolEphemeralAttachFail,
+  systemServicesIpPool,
 ]
 
 export const ipPoolSilos: Json<IpPoolSiloLink>[] = [

@@ -91,7 +91,10 @@ function EmptyState({ onLinkPool }: { onLinkPool: () => void }) {
 
 const colHelper = createColumnHelper<SiloIpPool>()
 
-const allPoolsQuery = getListQFn(api.systemIpPoolList, { query: { limit: ALL_ISH } })
+// system service pools cannot be linked to silos
+const allPoolsQuery = getListQFn(api.systemIpPoolList, {
+  query: { assignment: 'silos', limit: ALL_ISH },
+})
 
 const allSiloPoolsQuery = (silo: string) =>
   getListQFn(api.siloIpPoolList, { path: { silo }, query: { limit: ALL_ISH } })

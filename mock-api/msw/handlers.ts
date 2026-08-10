@@ -1203,7 +1203,10 @@ export const handlers = makeHandlers({
   },
   systemIpPoolList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
-    return paginated(query, db.ipPools)
+    const pools = query.assignment
+      ? db.ipPools.filter((pool) => pool.assignment === query.assignment)
+      : db.ipPools
+    return paginated(query, pools)
   },
   systemIpPoolUtilizationView({ path, cookies }) {
     requireFleetViewer(cookies)
