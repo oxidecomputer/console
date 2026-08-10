@@ -67,13 +67,17 @@ exports[`breadcrumbs 2`] = `
   "alertReceivers (/system/alerts)": [
     {
       "label": "Alerts",
-      "path": "/system/",
+      "path": "/system/alerts",
     },
   ],
   "alertReceiversNew (/system/alerts-new)": [
     {
       "label": "Alerts",
-      "path": "/system/",
+      "path": "/system/alerts",
+    },
+    {
+      "label": "New webhook receiver",
+      "path": "/system/alerts-new",
     },
   ],
   "antiAffinityGroup (/projects/p/affinity/aag)": [

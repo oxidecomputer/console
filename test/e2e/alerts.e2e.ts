@@ -39,38 +39,54 @@ test('Webhook create', async ({ page }) => {
   await page.getByRole('link', { name: 'New webhook' }).click()
   await expect(page).toHaveURL('/system/alerts-new')
 
-  const modal = page.getByRole('dialog', { name: 'Create webhook' })
-  await modal.getByRole('textbox', { name: 'Name' }).fill('deploy-hook')
-  await modal.getByRole('textbox', { name: 'Description' }).fill('CI deploys')
-  await modal.getByRole('textbox', { name: 'Secret' }).fill('super-secret')
+  await expect(page.getByRole('heading', { name: 'Create webhook receiver' })).toBeVisible()
+
+  // scope text assertions to main to avoid matching the aria-live announcer,
+  // which repeats validation error messages at the body level
+  const main = page.getByRole('main')
+
+  await page.getByRole('textbox', { name: 'Name' }).fill('deploy-hook')
+  await page.getByRole('textbox', { name: 'Description' }).fill('CI deploys')
 
   // endpoint must be a valid URL
-  await modal.getByRole('textbox', { name: 'Endpoint URL' }).fill('not-a-url')
-  await page.getByRole('button', { name: 'Create webhook' }).click()
+  await page.getByRole('textbox', { name: 'Endpoint URL' }).fill('not-a-url')
+  await page.getByRole('button', { name: 'Create webhook receiver' }).click()
   await expect(
-    modal.getByText('Must be a valid URL, including the scheme (e.g., https://)')
+    main.getByText('Must be a valid URL, including the scheme (e.g., https://)')
   ).toBeVisible()
-  await modal.getByRole('textbox', { name: 'Endpoint URL' }).fill('https://ci.example.com')
+  // at least one secret is required
+  await expect(main.getByText('At least one secret is required')).toBeVisible()
+  await page.getByRole('textbox', { name: 'Endpoint URL' }).fill('https://ci.example.com')
+
+  // add a secret; it lands in the mini table
+  await page.getByRole('textbox', { name: 'Secret' }).fill('super-secret')
+  await page.getByRole('button', { name: 'Add secret' }).click()
+  await expect(
+    page
+      .getByRole('table', { name: 'Secrets' })
+      .getByRole('cell', { name: 'super-secret', exact: true })
+  ).toBeVisible()
+  await expect(main.getByText('At least one secret is required')).toBeHidden()
 
   // add a subscription: bad glob is rejected, good glob lands in the mini table
-  const combobox = modal.getByRole('combobox', { name: 'Event classes' })
+  const combobox = page.getByRole('combobox', { name: 'Event classes' })
   await combobox.fill('hardware..bad')
-  await modal.getByRole('button', { name: 'Add event class' }).click()
+  await page.getByRole('button', { name: 'Add event class' }).click()
   await expect(
-    modal.getByText('Must be an event class or a glob pattern like hardware.**')
+    main.getByText('Must be an event class or a glob pattern like hardware.**')
   ).toBeVisible()
   await combobox.fill('hardware.**')
   // glob preview shows which classes the pattern currently matches
-  await expect(modal.getByText('Matches 2 event classes')).toBeVisible()
-  await modal.getByRole('button', { name: 'Add event class' }).click()
+  await expect(main.getByText('Matches 2 event classes')).toBeVisible()
+  await page.getByRole('button', { name: 'Add event class' }).click()
   await expect(
-    modal.getByRole('table', { name: 'Event classes' }).getByRole('cell', {
+    page.getByRole('table', { name: 'Event classes' }).getByRole('cell', {
       name: 'hardware.**',
       exact: true,
     })
   ).toBeVisible()
 
-  await page.getByRole('button', { name: 'Create webhook' }).click()
+  await page.getByRole('button', { name: 'Create webhook receiver' }).click()
   await expectToast(page, 'Webhook deploy-hook created')
 
   await expectRowVisible(page.getByRole('table'), {

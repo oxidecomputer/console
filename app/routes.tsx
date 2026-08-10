@@ -265,22 +265,23 @@ export const routes = createRoutesFromElements(
             />
           </Route>
         </Route>
-        <Route
-          lazy={() => import('./pages/system/alerts/AlertReceiversPage').then(convert)}
-        >
-          <Route path="alerts" element={null} />
-          <Route
-            path="alerts-new"
-            lazy={() => import('./forms/webhook-create').then(convert)}
-          />
-        </Route>
         <Route path="alerts" handle={{ crumb: 'Alerts' }}>
+          <Route
+            index
+            lazy={() => import('./pages/system/alerts/AlertReceiversPage').then(convert)}
+          />
           <Route
             path=":receiver"
             lazy={() => import('./pages/system/alerts/AlertReceiverPage').then(convert)}
           >
             <Route path="edit" lazy={() => import('./forms/webhook-edit').then(convert)} />
           </Route>
+        </Route>
+        <Route element={null} handle={makeCrumb('Alerts', pb.alertReceivers())}>
+          <Route
+            path="alerts-new"
+            lazy={() => import('./forms/webhook-create').then(convert)}
+          />
         </Route>
         <Route
           path="update"

@@ -10,20 +10,25 @@ import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, useApiMutation } from '@oxide/api'
+import { Webhooks24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { ALERT_SUBSCRIPTION_REGEX } from '~/api/util'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ErrorMessage } from '~/components/form/fields/ErrorMessage'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { Form } from '~/components/form/Form'
+import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
 import { SubscriptionMatchPreview } from '~/components/SubscriptionMatchPreview'
-import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
 import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { KEYS } from '~/ui/util/keys'
 import { pb } from '~/util/path-builder'
 
 export const validateEndpoint = (value: string) => {
@@ -48,7 +53,7 @@ type WebhookCreateFormValues = {
   name: string
   description: string
   endpoint: string
-  secret: string
+  secrets: string[]
   subscriptions: string[]
 }
 
@@ -56,8 +61,70 @@ const defaultValues: WebhookCreateFormValues = {
   name: '',
   description: '',
   endpoint: '',
-  secret: '',
+  secrets: [],
   subscriptions: [],
+}
+
+const secretColumns = [
+  {
+    header: 'Secrets',
+    cell: (secret: string) => secret,
+  },
+]
+
+function SecretsField({ control }: { control: Control<WebhookCreateFormValues> }) {
+  const { field, fieldState } = useController({
+    control,
+    name: 'secrets',
+    rules: {
+      validate: (secrets) => secrets.length > 0 || 'At least one secret is required',
+    },
+  })
+  const subform = useForm({ defaultValues: { secret: '' } })
+  const secret = useWatch({ control: subform.control, name: 'secret' })
+
+  const submitSubform = subform.handleSubmit(({ secret }) => {
+    if (!field.value.includes(secret)) {
+      field.onChange([...field.value, secret])
+    }
+    subform.reset()
+  })
+
+  return (
+    <>
+      <div className="flex max-w-lg flex-col gap-3">
+        <TextField
+          control={subform.control}
+          name="secret"
+          label="Secret"
+          description="Shared secret used to sign payloads"
+          required
+          onKeyDown={(e) => {
+            if (e.key === KEYS.enter) {
+              e.preventDefault() // prevent full form submission
+              submitSubform(e)
+            }
+          }}
+        />
+        <ClearAndAddButtons
+          addButtonCopy="Add secret"
+          disabled={!secret}
+          onClear={() => subform.reset()}
+          onSubmit={submitSubform}
+        />
+      </div>
+      <MiniTable
+        className="max-w-lg"
+        ariaLabel="Secrets"
+        items={field.value}
+        columns={secretColumns}
+        rowKey={(secret) => secret}
+        onRemoveItem={(secret) => field.onChange(field.value.filter((s) => s !== secret))}
+        removeLabel={(secret) => `remove secret ${secret}`}
+      />
+      <ErrorMessage error={fieldState.error} label="Secrets" />
+    </>
+  )
 }
 
 const subscriptionColumns = [
@@ -90,25 +157,28 @@ function SubscriptionsField({ control }: { control: Control<WebhookCreateFormVal
 
   return (
     <>
-      <ComboboxField
-        control={subform.control}
-        name="subscription"
-        label="Event classes"
-        description="Events to subscribe the webhook to. Globs like hardware.** match multiple classes."
-        items={classItems}
-        allowArbitraryValues
-        onEnter={submitSubform}
-        validate={validateSubscription}
-        hideOptionalTag
-      />
-      <SubscriptionMatchPreview pattern={subscription} />
-      <ClearAndAddButtons
-        addButtonCopy="Add event class"
-        disabled={!subscription}
-        onClear={() => subform.reset()}
-        onSubmit={submitSubform}
-      />
+      <div className="flex max-w-lg flex-col gap-3">
+        <ComboboxField
+          control={subform.control}
+          name="subscription"
+          label="Event classes"
+          description="Events to subscribe the webhook to. Globs like hardware.** match multiple classes."
+          items={classItems}
+          allowArbitraryValues
+          onEnter={submitSubform}
+          validate={validateSubscription}
+          hideOptionalTag
+        />
+        <SubscriptionMatchPreview pattern={subscription} />
+        <ClearAndAddButtons
+          addButtonCopy="Add event class"
+          disabled={!subscription}
+          onClear={() => subform.reset()}
+          onSubmit={submitSubform}
+        />
+      </div>
       <MiniTable
+        className="max-w-lg"
         ariaLabel="Event classes"
         items={field.value}
         columns={subscriptionColumns}
@@ -122,12 +192,10 @@ function SubscriptionsField({ control }: { control: Control<WebhookCreateFormVal
   )
 }
 
-export const handle = titleCrumb('New webhook')
+export const handle = { crumb: 'New webhook receiver' }
 
-export default function CreateWebhookSideModalForm() {
+export default function CreateWebhookForm() {
   const navigate = useNavigate()
-
-  const onDismiss = () => navigate(pb.alertReceivers())
 
   const createWebhook = useApiMutation(api.webhookReceiverCreate, {
     onSuccess(receiver) {
@@ -141,37 +209,44 @@ export default function CreateWebhookSideModalForm() {
   const form = useForm({ defaultValues })
 
   return (
-    <SideModalForm
-      form={form}
-      formType="create"
-      resourceName="webhook"
-      onDismiss={onDismiss}
-      onSubmit={({ name, description, endpoint, secret, subscriptions }) => {
-        createWebhook.mutate({
-          body: { name, description, endpoint, secrets: [secret], subscriptions },
-        })
-      }}
-      loading={createWebhook.isPending}
-      submitError={createWebhook.error}
-    >
-      <NameField name="name" control={form.control} />
-      <DescriptionField name="description" control={form.control} />
-      <TextField
-        name="endpoint"
-        label="Endpoint URL"
-        description="The URL that payloads should be sent to"
-        control={form.control}
-        required
-        validate={validateEndpoint}
-      />
-      <TextField
-        name="secret"
-        label="Secret"
-        description="Shared secret used to sign webhook payloads. More secrets can be added later."
-        control={form.control}
-        required
-      />
-      <SubscriptionsField control={form.control} />
-    </SideModalForm>
+    <>
+      <PageHeader>
+        <PageTitle icon={<Webhooks24Icon />}>Create webhook receiver</PageTitle>
+      </PageHeader>
+      <FullPageForm
+        id="create-webhook-form"
+        form={form}
+        onSubmit={async ({ name, description, endpoint, secrets, subscriptions }) => {
+          await createWebhook.mutateAsync({
+            body: { name, description, endpoint, secrets, subscriptions },
+          })
+        }}
+        loading={createWebhook.isPending}
+        submitError={createWebhook.error}
+      >
+        <NameField name="name" control={form.control} />
+        <DescriptionField name="description" control={form.control} />
+        <TextField
+          name="endpoint"
+          label="Endpoint URL"
+          description="The URL that webhook notification requests should be sent to"
+          control={form.control}
+          required
+          validate={validateEndpoint}
+        />
+        <FormDivider />
+        <Form.Heading id="secrets">Secrets</Form.Heading>
+        <SecretsField control={form.control} />
+        <FormDivider />
+        <Form.Heading id="subscriptions">Subscriptions</Form.Heading>
+        <SubscriptionsField control={form.control} />
+        <Form.Actions>
+          <Form.Submit loading={createWebhook.isPending}>
+            Create webhook receiver
+          </Form.Submit>
+          <Form.Cancel onClick={() => navigate(pb.alertReceivers())} />
+        </Form.Actions>
+      </FullPageForm>
+    </>
   )
 }

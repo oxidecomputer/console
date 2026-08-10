@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Outlet, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -76,8 +76,6 @@ export async function clientLoader() {
   await queryClient.prefetchQuery(receiverList.optionsFn())
   return null
 }
-
-export const handle = { crumb: 'Alerts' }
 
 export default function AlertReceiversPage() {
   const navigate = useNavigate()
@@ -153,7 +151,6 @@ export default function AlertReceiversPage() {
         <CreateLink to={pb.alertReceiversNew()}>New webhook</CreateLink>
       </TableActions>
       {table}
-      <Outlet />
     </>
   )
 }
