@@ -58,6 +58,7 @@ import {
   handleOxqlMetrics,
   internalError,
   invalidRequest,
+  ipInAnyRange,
   ipRangeLen,
   mockFlags,
   NotImplemented,
@@ -78,6 +79,33 @@ import {
 // the snake-cased objects coming straight from the API before the generated
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
+
+// Omicron matches routes on the serialized target `inetgw:<name>` globally,
+// not scoped to the gateway's VPC, so we match on name globally too
+// https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/vpc.rs#L2030-L2038
+const routesTargetGateway = (gateway: Json<Api.InternetGateway>) =>
+  db.vpcRouterRoutes.some(
+    (r) => r.target.type === 'internet_gateway' && r.target.value === gateway.name
+  )
+
+// external IPs (ephemeral, SNAT, attached floating) on instances with a NIC in
+// the given VPC, used for the internet gateway detach dependency checks
+const vpcInstanceExternalIps = (vpcId: string) => {
+  const instanceIds = new Set(
+    db.networkInterfaces.filter((n) => n.vpc_id === vpcId).map((n) => n.instance_id)
+  )
+  return [
+    ...db.ephemeralIps
+      .filter((e) => instanceIds.has(e.instance_id))
+      .map((e) => e.external_ip.ip),
+    ...db.snatIps
+      .filter((s) => instanceIds.has(s.instance_id))
+      .map((s) => s.external_ip.ip),
+    ...db.floatingIps
+      .filter((f) => f.instance_id && instanceIds.has(f.instance_id))
+      .map((f) => f.ip),
+  ]
+}
 
 export const handlers = makeHandlers({
   logout: () => 204,
@@ -1632,6 +1660,145 @@ export const handlers = makeHandlers({
     return paginated(query, gateways)
   },
   internetGatewayView: ({ path, query }) => lookup.internetGateway({ ...path, ...query }),
+  internetGatewayCreate({ body, query }) {
+    const vpc = lookup.vpc(query)
+    errIfExists(db.internetGateways, { vpc_id: vpc.id, name: body.name })
+
+    const newGateway: Json<Api.InternetGateway> = {
+      id: uuid(),
+      vpc_id: vpc.id,
+      ...body,
+      ...getTimestamps(),
+    }
+    db.internetGateways.push(newGateway)
+    return json(newGateway, { status: 201 })
+  },
+  internetGatewayDelete({ path, query }) {
+    const gateway = lookup.internetGateway({ ...path, ...query })
+
+    const hasPools = db.internetGatewayIpPools.some(
+      (p) => p.internet_gateway_id === gateway.id
+    )
+    const hasAddresses = db.internetGatewayIpAddresses.some(
+      (a) => a.internet_gateway_id === gateway.id
+    )
+    // without cascade, deletion fails if any IP pools or addresses are
+    // attached. Omicron checks pools first, so a gateway with both attached
+    // gets the pools message.
+    // https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/vpc.rs#L1645-L1711
+    if (!query.cascade && (hasPools || hasAddresses)) {
+      const attached = hasPools ? 'Ip pools' : 'Ip addresses'
+      throw invalidRequest(
+        `${attached} referencing this gateway exist. To perform a cascading delete set the cascade option`
+      )
+    }
+
+    db.internetGateways = db.internetGateways.filter((g) => g.id !== gateway.id)
+    db.internetGatewayIpPools = db.internetGatewayIpPools.filter(
+      (p) => p.internet_gateway_id !== gateway.id
+    )
+    db.internetGatewayIpAddresses = db.internetGatewayIpAddresses.filter(
+      (a) => a.internet_gateway_id !== gateway.id
+    )
+    // only cascade deletes routes targeting the gateway (scoped to the VPC's
+    // routers); a plain delete leaves them dangling
+    // https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/vpc.rs#L1713-L1791
+    if (query.cascade) {
+      const routerIds = new Set(
+        db.vpcRouters.filter((r) => r.vpc_id === gateway.vpc_id).map((r) => r.id)
+      )
+      db.vpcRouterRoutes = db.vpcRouterRoutes.filter(
+        (r) =>
+          !(
+            routerIds.has(r.vpc_router_id) &&
+            r.target.type === 'internet_gateway' &&
+            r.target.value === gateway.name
+          )
+      )
+    }
+    return 204
+  },
+  internetGatewayIpPoolCreate({ body, query }) {
+    const gateway = lookup.internetGateway(query)
+    const ipPool = lookup.ipPool({ pool: body.ip_pool })
+
+    const newGatewayIpPool: Json<Api.InternetGatewayIpPool> = {
+      id: uuid(),
+      internet_gateway_id: gateway.id,
+      ip_pool_id: ipPool.id,
+      name: body.name,
+      description: body.description,
+      ...getTimestamps(),
+    }
+    db.internetGatewayIpPools.push(newGatewayIpPool)
+    return json(newGatewayIpPool, { status: 201 })
+  },
+  internetGatewayIpPoolDelete({ path, query }) {
+    const pool = lookup.internetGatewayIpPool({ ...path, ...query })
+    // without cascade, detach fails if routes target the parent gateway and an
+    // instance in the VPC has an external IP from the pool being detached.
+    // Cascade skips the check; it does not delete the routes.
+    // https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/vpc.rs#L2009-L2109
+    if (!query.cascade) {
+      const gateway = lookupById(db.internetGateways, pool.internet_gateway_id)
+      if (routesTargetGateway(gateway)) {
+        const ranges = db.ipPoolRanges
+          .filter((r) => r.ip_pool_id === pool.ip_pool_id)
+          .map((r) => r.range)
+        const dependent = vpcInstanceExternalIps(gateway.vpc_id).some((ip) =>
+          ipInAnyRange(ip, ranges)
+        )
+        if (dependent) {
+          throw invalidRequest(
+            'VPC routes dependent on this IP pool. To perform a cascading delete set the cascade option'
+          )
+        }
+      }
+    }
+    db.internetGatewayIpPools = db.internetGatewayIpPools.filter((p) => p.id !== pool.id)
+    return 204
+  },
+  internetGatewayIpAddressCreate({ body, query }) {
+    const gateway = lookup.internetGateway(query)
+    // a gateway can have at most one IP address attached: the unique index is
+    // on internet_gateway_id alone
+    // https://github.com/oxidecomputer/omicron/blob/99249b4/schema/crdb/dbinit.sql#L2314-L2317
+    if (db.internetGatewayIpAddresses.some((a) => a.internet_gateway_id === gateway.id)) {
+      throw alreadyExistsErr(`already exists: internet-gateway-ip-address "${body.name}"`)
+    }
+
+    const newGatewayIpAddress: Json<Api.InternetGatewayIpAddress> = {
+      id: uuid(),
+      internet_gateway_id: gateway.id,
+      ...body,
+      ...getTimestamps(),
+    }
+    db.internetGatewayIpAddresses.push(newGatewayIpAddress)
+    return json(newGatewayIpAddress, { status: 201 })
+  },
+  internetGatewayIpAddressDelete({ path, query }) {
+    const address = lookup.internetGatewayIpAddress({ ...path, ...query })
+    // same dependency check as pool detach, but against this exact address.
+    // The error message says "IP pool" even here, matching Omicron.
+    // https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/vpc.rs#L2174-L2253
+    if (!query.cascade) {
+      const gateway = lookupById(db.internetGateways, address.internet_gateway_id)
+      if (routesTargetGateway(gateway)) {
+        const dependent = vpcInstanceExternalIps(gateway.vpc_id).some(
+          (ip) => ip === address.address
+        )
+        if (dependent) {
+          throw invalidRequest(
+            'VPC routes dependent on this IP pool. To perform a cascading delete set the cascade option'
+          )
+        }
+      }
+    }
+    db.internetGatewayIpAddresses = db.internetGatewayIpAddresses.filter(
+      (a) => a.id !== address.id
+    )
+    return 204
+  },
   internetGatewayIpPoolList({ query }) {
     const gateway = lookup.internetGateway(query)
     const pools = db.internetGatewayIpPools.filter(
@@ -2651,12 +2818,6 @@ export const handlers = makeHandlers({
   instanceSerialConsole: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
-  internetGatewayCreate: NotImplemented,
-  internetGatewayDelete: NotImplemented,
-  internetGatewayIpAddressCreate: NotImplemented,
-  internetGatewayIpAddressDelete: NotImplemented,
-  internetGatewayIpPoolCreate: NotImplemented,
-  internetGatewayIpPoolDelete: NotImplemented,
   systemIpPoolServiceRangeAdd: NotImplemented,
   systemIpPoolServiceRangeList: NotImplemented,
   systemIpPoolServiceRangeRemove: NotImplemented,

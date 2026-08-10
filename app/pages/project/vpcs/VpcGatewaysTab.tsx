@@ -8,17 +8,23 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
-import { api, getListQFn, queryClient, type InternetGateway } from '~/api'
+import { api, getListQFn, queryClient, useApiMutation, type InternetGateway } from '~/api'
+import { HL } from '~/components/HL'
+import { ListPlusOverflow } from '~/components/ListPlusCell'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
+import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
 import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { ALL_ISH } from '~/util/consts'
@@ -32,6 +38,7 @@ import {
   routerList,
   useGatewayRoutes,
 } from './gateway-data'
+import { confirmDeleteGateway } from './gateway-delete'
 
 export const handle = { crumb: 'Internet Gateways' }
 
@@ -43,14 +50,33 @@ const projectIpPoolList = getListQFn(api.ipPoolList, {
 
 const IpAddressCell = (gatewaySelector: PP.VpcInternetGateway) => {
   const { data: addresses } = useQuery(gatewayIpAddressList(gatewaySelector).optionsFn())
-  if (!addresses || addresses.items.length < 1) return <EmptyCell />
-  return <CopyableIp ip={addresses.items[0].address} isLinked={false} />
+  const address = addresses?.items[0]
+  if (!address) return <EmptyCell />
+  return <CopyableIp ip={address.address} isLinked={false} />
+}
+
+// plain pool name for the +N tooltip, where IpPoolCell's interactive button
+// wouldn't be usable
+const IpPoolName = ({ ipPoolId }: { ipPoolId: string }) => {
+  const { data: result } = useQuery(ipPoolErrorsAllowedQuery(ipPoolId))
+  if (!result || result.type === 'error') return null
+  return <div>{result.data.name}</div>
 }
 
 const GatewayIpPoolCell = (gatewaySelector: PP.VpcInternetGateway) => {
-  const { data: gateways } = useQuery(gatewayIpPoolList(gatewaySelector).optionsFn())
-  if (!gateways || gateways.items.length < 1) return <EmptyCell />
-  return <IpPoolCell ipPoolId={gateways.items[0].ipPoolId} />
+  const { data: pools } = useQuery(gatewayIpPoolList(gatewaySelector).optionsFn())
+  const [first, ...rest] = pools?.items || []
+  if (!first) return <EmptyCell />
+  return (
+    <div className="flex items-center gap-1">
+      <IpPoolCell ipPoolId={first.ipPoolId} />
+      <ListPlusOverflow tooltipTitle="Other IP pools">
+        {rest.map((pool) => (
+          <IpPoolName key={pool.id} ipPoolId={pool.ipPoolId} />
+        ))}
+      </ListPlusOverflow>
+    </div>
+  )
 }
 
 const GatewayRoutes = ({ project, vpc, gateway }: PP.VpcInternetGateway) => {
@@ -111,12 +137,36 @@ export default function VpcInternetGatewaysTab() {
     <EmptyMessage
       title="No internet gateways"
       body="Create an internet gateway to see it here"
-      // buttonText="New internet gateway"
-      // buttonTo={pb.vpcInternetGatewaysNew(vpcSelector)}
+      buttonText="New internet gateway"
+      buttonTo={pb.vpcInternetGatewaysNew({ project, vpc })}
     />
   )
 
-  const columns = useMemo(
+  const { mutateAsync: deleteGateway } = useApiMutation(api.internetGatewayDelete, {
+    onSuccess(_data, variables) {
+      queryClient.invalidateEndpoint('internetGatewayList')
+      // prettier-ignore
+      addToast(<>Internet gateway <HL>{variables.path.gateway}</HL> deleted</>)
+    },
+  })
+
+  const makeActions = useCallback(
+    (gateway: InternetGateway): MenuAction[] => [
+      {
+        label: 'Delete',
+        className: 'destructive',
+        onActivate: confirmDeleteGateway({
+          project,
+          vpc,
+          gateway: gateway.name,
+          deleteGateway,
+        }),
+      },
+    ],
+    [deleteGateway, project, vpc]
+  )
+
+  const staticColumns = useMemo(
     () => [
       colHelper.accessor('name', {
         cell: makeLinkCell((gateway) => pb.vpcInternetGateway({ project, vpc, gateway })),
@@ -151,14 +201,32 @@ export default function VpcInternetGatewaysTab() {
     [project, vpc]
   )
 
+  const columns = useColsWithActions(staticColumns, makeActions)
+
   const { table } = useQueryTable({
     query: gatewayList({ project, vpc }),
     columns,
     emptyState,
   })
 
+  useQuickActions(
+    () => [
+      {
+        value: 'New internet gateway',
+        navGroup: 'Actions',
+        action: pb.vpcInternetGatewaysNew({ project, vpc }),
+      },
+    ],
+    [project, vpc]
+  )
+
   return (
     <>
+      <div className="mb-3 flex justify-end space-x-2">
+        <CreateLink to={pb.vpcInternetGatewaysNew({ project, vpc })}>
+          New internet gateway
+        </CreateLink>
+      </div>
       {table}
       <Outlet />
     </>

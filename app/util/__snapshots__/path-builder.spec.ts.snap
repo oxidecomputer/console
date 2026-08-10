@@ -1052,11 +1052,67 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "v",
-      "path": "/projects/p/vpcs/v/firewall-rules",
+      "path": "/projects/p/vpcs/v",
     },
     {
       "label": "Internet Gateways",
       "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+    {
+      "label": "g",
+      "path": "/projects/p/vpcs/v/internet-gateways/g",
+    },
+  ],
+  "vpcInternetGatewayIpAddressesNew (/projects/p/vpcs/v/internet-gateways/g/ip-addresses-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+    {
+      "label": "g",
+      "path": "/projects/p/vpcs/v/internet-gateways/g",
+    },
+  ],
+  "vpcInternetGatewayIpPoolsNew (/projects/p/vpcs/v/internet-gateways/g/ip-pools-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+    {
+      "label": "g",
+      "path": "/projects/p/vpcs/v/internet-gateways/g",
     },
   ],
   "vpcInternetGateways (/projects/p/vpcs/v/internet-gateways)": [
@@ -1078,7 +1134,29 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Internet Gateways",
-      "path": "/projects/p/vpcs/v/internet-gateways",
+      "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcInternetGatewaysNew (/projects/p/vpcs/v/internet-gateways-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/",
     },
   ],
   "vpcRouter (/projects/p/vpcs/v/routers/r)": [

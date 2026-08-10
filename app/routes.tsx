@@ -485,14 +485,12 @@ export const routes = createRoutesFromElements(
                   />
                 </Route>
                 <Route
-                  path="internet-gateways"
                   lazy={() => import('./pages/project/vpcs/VpcGatewaysTab').then(convert)}
                 >
+                  <Route path="internet-gateways" element={null} />
                   <Route
-                    path=":gateway"
-                    lazy={() =>
-                      import('./pages/project/vpcs/internet-gateway-edit').then(convert)
-                    }
+                    path="internet-gateways-new"
+                    lazy={() => import('./forms/internet-gateway-create').then(convert)}
                   />
                 </Route>
               </Route>
@@ -516,6 +514,28 @@ export const routes = createRoutesFromElements(
                       lazy={() => import('./forms/vpc-router-route-edit').then(convert)}
                     />
                   </Route>
+                </Route>
+              </Route>
+              <Route path="internet-gateways" handle={{ crumb: 'Internet Gateways' }}>
+                <Route
+                  path=":gateway"
+                  lazy={() =>
+                    import('./pages/project/vpcs/InternetGatewayPage').then(convert)
+                  }
+                >
+                  <Route index element={null} />
+                  <Route
+                    path="ip-pools-new"
+                    lazy={() =>
+                      import('./forms/internet-gateway-ip-pool-create').then(convert)
+                    }
+                  />
+                  <Route
+                    path="ip-addresses-new"
+                    lazy={() =>
+                      import('./forms/internet-gateway-ip-address-create').then(convert)
+                    }
+                  />
                 </Route>
               </Route>
             </Route>
