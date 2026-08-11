@@ -613,16 +613,16 @@ function ChartLegend({
   theme: ChartTheme
 }) {
   return (
-    <div className="mt-2 flex max-h-24 flex-wrap gap-x-4 gap-y-1.5 overflow-y-auto pl-5">
+    <ul className="mt-2 flex max-h-24 flex-wrap gap-x-4 gap-y-1.5 overflow-y-auto pl-5">
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} className="text-mono-xs text-secondary flex items-center gap-2">
+        <li key={i} className="text-mono-xs text-secondary flex items-center gap-2">
           <span
             className="h-0.5 w-3 shrink-0 rounded-full"
             style={{ backgroundColor: seriesColor(i, theme) }}
           />
           {seriesLabel(title, i, seriesLabels)}
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   )
 }

@@ -17,5 +17,14 @@ export function OxqlField<
 >(
   props: Omit<TextFieldProps<TFieldValues, TName>, 'validate'> & Omit<TextAreaProps, 'as'>
 ) {
-  return <TextField as="textarea" fieldClassName="font-mono!" {...props} />
+  return (
+    <TextField
+      as="textarea"
+      fieldClassName="font-mono!"
+      validate={(value) =>
+        typeof value === 'string' && value.trim() ? undefined : 'Enter a query'
+      }
+      {...props}
+    />
+  )
 }
