@@ -1183,14 +1183,22 @@ test('default network interface option disabled when there is no default VPC', a
   const customRadio = page.getByRole('radio', { name: 'Custom', exact: true })
   const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
 
-  await expect(
-    page.getByText('Choose Custom to select an existing VPC and subnet, or')
-  ).toBeVisible()
-
   // default is out, but the project has a VPC, so custom interfaces still work
   await expect(defaultRadio).toBeDisabled()
   await expect(defaultRadio).not.toBeChecked()
   await expect(customRadio).toBeEnabled()
+
+  const defaultRow = defaultRadio.locator('..').locator('..').locator('..')
+  const defaultTip = defaultRow.getByRole('button', { name: 'Tip' })
+  const tooltip = page.getByRole('tooltip')
+
+  await defaultTip.hover()
+  await expect(tooltip).toHaveText('Default networking requires a VPC named default')
+
+  await page.mouse.move(0, 0)
+  await expect(tooltip).toBeHidden()
+  await defaultTip.focus()
+  await expect(tooltip).toHaveText('Default networking requires a VPC named default')
 
   await expect(noneRadio).toBeEnabled()
   await expect(noneRadio).toBeChecked()

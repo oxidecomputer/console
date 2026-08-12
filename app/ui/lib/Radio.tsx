@@ -27,7 +27,7 @@ const fieldStyles = `
 `
 
 export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
-  <label className="text-sans-md inline-flex items-start">
+  <label className="group text-sans-md inline-flex items-start">
     {/* Center the 1rem (h-4) radio button with the first line of text.
         1lh is the line height, so (1lh - 1rem) / 2 is the top offset
         that vertically centers the indicator within that line. */}
@@ -37,7 +37,11 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
       <div className="bg-accent-inverse light:bg-(--theme-accent-600) pointer-events-none absolute top-1 left-1 hidden h-2 w-2 rounded-full peer-checked:block" />
     </span>
 
-    {children && <span className="text-default ml-2.5">{children}</span>}
+    {children && (
+      <span className="text-default group-has-[:disabled]:text-disabled ml-2.5">
+        {children}
+      </span>
+    )}
   </label>
 )
 

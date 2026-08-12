@@ -14,7 +14,6 @@ import type { SetRequired } from 'type-fest'
 
 import {
   api,
-  DEFAULT_VPC_NAME,
   diskCan,
   genName,
   hasDefaultVpc,
@@ -958,13 +957,6 @@ const NetworkingSection = ({
       <>
         A VPC is required to add network interfaces.{' '}
         <Link to={pb.vpcsNew({ project })}>Create a VPC</Link> to enable networking.
-      </>
-    ) : !hasDefaultVpc(vpcs) ? (
-      <>
-        This project has no VPC named <HL>{DEFAULT_VPC_NAME}</HL>. Choose Custom to select
-        an existing VPC and subnet, or{' '}
-        <Link to={pb.vpcsNew({ project })}>create a VPC</Link> named{' '}
-        <HL>{DEFAULT_VPC_NAME}</HL>.
       </>
     ) : null
 

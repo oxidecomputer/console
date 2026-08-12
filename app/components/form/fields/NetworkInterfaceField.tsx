@@ -8,8 +8,14 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import { hasDefaultVpc, type InstanceNetworkInterfaceCreate, type Vpc } from '@oxide/api'
+import {
+  DEFAULT_VPC_NAME,
+  hasDefaultVpc,
+  type InstanceNetworkInterfaceCreate,
+  type Vpc,
+} from '@oxide/api'
 
+import { HL } from '~/components/HL'
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { Button } from '~/ui/lib/Button'
@@ -17,6 +23,7 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Listbox } from '~/ui/lib/Listbox'
 import { MiniTable } from '~/ui/lib/MiniTable'
 import { Radio } from '~/ui/lib/Radio'
+import { TipIcon } from '~/ui/lib/TipIcon'
 
 const networkInterfaceTableColumns = [
   { header: 'Name', cell: (item: InstanceNetworkInterfaceCreate) => item.name },
@@ -38,6 +45,7 @@ export function NetworkInterfaceField({
   vpcs: Vpc[]
 }) {
   const [showForm, setShowForm] = useState(false)
+  const defaultVpcExists = hasDefaultVpc(vpcs)
 
   /**
    * Used to preserve previous user choices in case they accidentally
@@ -79,15 +87,22 @@ export function NetworkInterfaceField({
         aria-labelledby="network-interface-type-label"
       >
         <div className="space-y-2">
-          <Radio
-            name="networkInterfaceType"
-            value="default"
-            disabled={!hasDefaultVpc(vpcs) || disabled}
-            checked={currentMode === 'default'}
-            onChange={(e) => handleModeChange(e.target.value)}
-          >
-            Default
-          </Radio>
+          <span className="inline-flex items-center gap-1.5">
+            <Radio
+              name="networkInterfaceType"
+              value="default"
+              disabled={!defaultVpcExists || disabled}
+              checked={currentMode === 'default'}
+              onChange={(e) => handleModeChange(e.target.value)}
+            >
+              Default
+            </Radio>
+            {vpcs.length > 0 && !defaultVpcExists && (
+              <TipIcon>
+                Default networking requires a VPC named <HL>{DEFAULT_VPC_NAME}</HL>
+              </TipIcon>
+            )}
+          </span>
           {currentMode === 'default' && (
             <div className="mb-2 ml-6">
               <Listbox
