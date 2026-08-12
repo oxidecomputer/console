@@ -60,6 +60,7 @@ const AXIS_TICK_GAP = 8
 // Left padding (px-5) is taken from the container and given to uPlot instead, so the plot sits
 // flush left while x-tick labels can bleed into the gutter without clipping.
 const CHART_LEFT_PAD = 20
+const CHART_HEIGHT = 300
 const TOOLTIP_GAP = 12
 
 type ChartTheme = {
@@ -142,7 +143,6 @@ function ChartTooltip({
 }
 
 type TimeSeriesChartProps = {
-  className?: string
   data: ChartDatum[] | undefined
   title: string
   interpolation?: 'linear' | 'stepAfter'
@@ -164,7 +164,7 @@ const SkeletonMetric = ({
   shimmer?: boolean
   className?: string
 }) => (
-  <div className="relative flex h-[300px] w-full items-center">
+  <div className="relative flex w-full items-center" style={{ height: CHART_HEIGHT }}>
     <div
       className={cn(
         shimmer && 'motion-safe:animate-pulse',
@@ -202,9 +202,9 @@ export function TimeSeriesChart({
   hasError = false,
   loading,
 }: TimeSeriesChartProps) {
-  // falling back here instead of in the parent lets us avoid causing a
-  // re-render on every render of the parent when the data is undefined
-  const data = useMemo(() => rawData || [], [rawData])
+  // no memo needed: nothing depends on `data`'s identity — uplot-react
+  // deep-compares the aligned data values
+  const data = rawData || []
 
   const theme = useChartTheme()
   const fontPx = remToPx(AXIS_FONT_REM_XS)
@@ -368,7 +368,7 @@ export function TimeSeriesChart({
       ({
         ...chartOptions,
         width: size?.width ?? 0,
-        height: 300,
+        height: CHART_HEIGHT,
       }) satisfies uPlot.Options,
     [chartOptions, size?.width]
   )
@@ -388,7 +388,7 @@ export function TimeSeriesChart({
       </SkeletonMetric>
     )
   }
-  if (!data || data.length === 0) {
+  if (data.length === 0) {
     return (
       <SkeletonMetric>
         <MetricsEmpty />
