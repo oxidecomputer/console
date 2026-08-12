@@ -1171,6 +1171,31 @@ test('network interface options disabled when no VPCs exist', async ({ page }) =
   await expect(noneRadio).toBeChecked()
 })
 
+// The default_* attachment types resolve a VPC named 'default', so they 404 if
+// that VPC has been deleted. other-project has a VPC, just not one named
+// 'default', so only custom interfaces work there.
+test('default network interface option disabled when there is no default VPC', async ({
+  page,
+}) => {
+  await page.goto('/projects/other-project/instances-new')
+
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  const customRadio = page.getByRole('radio', { name: 'Custom', exact: true })
+  const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
+
+  await expect(
+    page.getByText('Choose Custom to select an existing VPC and subnet, or')
+  ).toBeVisible()
+
+  // default is out, but the project has a VPC, so custom interfaces still work
+  await expect(defaultRadio).toBeDisabled()
+  await expect(defaultRadio).not.toBeChecked()
+  await expect(customRadio).toBeEnabled()
+
+  await expect(noneRadio).toBeEnabled()
+  await expect(noneRadio).toBeChecked()
+})
+
 test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 

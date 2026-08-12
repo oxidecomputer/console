@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import type { InstanceNetworkInterfaceCreate } from '@oxide/api'
+import { hasDefaultVpc, type InstanceNetworkInterfaceCreate, type Vpc } from '@oxide/api'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
@@ -31,11 +31,11 @@ const networkInterfaceTableColumns = [
 export function NetworkInterfaceField({
   control,
   disabled,
-  hasVpcs,
+  vpcs,
 }: {
   control: Control<InstanceCreateInput>
   disabled: boolean
-  hasVpcs: boolean
+  vpcs: Vpc[]
 }) {
   const [showForm, setShowForm] = useState(false)
 
@@ -82,7 +82,7 @@ export function NetworkInterfaceField({
           <Radio
             name="networkInterfaceType"
             value="default"
-            disabled={!hasVpcs || disabled}
+            disabled={!hasDefaultVpc(vpcs) || disabled}
             checked={currentMode === 'default'}
             onChange={(e) => handleModeChange(e.target.value)}
           >
@@ -108,7 +108,7 @@ export function NetworkInterfaceField({
           <Radio
             name="networkInterfaceType"
             value="create"
-            disabled={!hasVpcs || disabled}
+            disabled={vpcs.length === 0 || disabled}
             checked={currentMode === 'create'}
             onChange={(e) => handleModeChange(e.target.value)}
           >
