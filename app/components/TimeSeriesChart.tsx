@@ -404,8 +404,23 @@ export function TimeSeriesChart({
   const hovered = tooltip ? data[tooltip.hoveredDataIndex] : undefined
   return (
     <figure aria-label={title} className="m-0 pt-8 pr-5 pb-5 pl-0">
-      <div ref={sizeRef} className="relative">
-        <UplotReact options={options} data={aligned} onCreate={(u) => (uRef.current = u)} />
+      {/* The chart is absolutely positioned so its fixed pixel width doesn't feed back into the
+          container's min-content width — otherwise the chart props the container open and it can
+          grow but never shrink. The wrapper needs an explicit height because the absolute child
+          contributes none, so it gets the same fixed height passed to uPlot. */}
+      <div ref={sizeRef} className="relative" style={{ height: CHART_HEIGHT }}>
+        {/* Wait for the container measurement rather than creating a zero-width chart and
+            immediately resizing it. The chart may appear a frame after the container, but the
+            zero-width version had the same gap: an invisible chart until the measurement
+            arrived through the same ResizeObserver → setState path. */}
+        {size && (
+          <UplotReact
+            className="absolute top-0 left-0"
+            options={options}
+            data={aligned}
+            onCreate={(u) => (uRef.current = u)}
+          />
+        )}
         {tooltip && hovered && hovered.value !== null && (
           <div
             className="pointer-events-none absolute z-10 w-max"

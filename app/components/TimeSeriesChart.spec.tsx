@@ -14,6 +14,12 @@ import { TimeSeriesChart } from './TimeSeriesChart'
 
 const redraw = vi.fn()
 
+// the chart only mounts once the container is measured, and jsdom's
+// ResizeObserver stub never fires
+vi.mock('~/hooks/use-element-size', () => ({
+  useElementSize: () => [{ width: 600, height: 300 }, () => {}],
+}))
+
 vi.mock('uplot-react', () => {
   const MeplotReactComponent = (props: ComponentProps<typeof UplotReactComponent>) => {
     useEffect(() => {
