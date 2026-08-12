@@ -19,7 +19,7 @@ import {
 test('Alert receivers list', async ({ page }) => {
   await page.goto('/system/alerts')
   await expect(page).toHaveTitle('Alerts / Oxide Console')
-  await expect(page.getByRole('heading', { name: 'Alert Receivers' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Webhooks' })).toBeVisible()
 
   const table = page.getByRole('table')
   await expect(table.getByRole('row')).toHaveCount(4) // header + 3 receivers
@@ -112,6 +112,10 @@ test('Webhook detail: properties, event classes, secrets', async ({ page }) => {
   const secrets = page.getByRole('table', { name: 'Secrets' })
   await expect(secrets.getByRole('row')).toHaveCount(3) // header + 2
 
+  // newest first
+  await expect(secrets.getByRole('row').nth(1)).toContainText('b15f4584')
+  await expect(secrets.getByRole('row').nth(2)).toContainText('88c7b9bb')
+
   // add a secret
   await page.getByRole('button', { name: 'Add secret' }).click()
   const secretModal = page.getByRole('dialog', { name: 'Add secret' })
@@ -119,6 +123,8 @@ test('Webhook detail: properties, event classes, secrets', async ({ page }) => {
   await secretModal.getByRole('button', { name: 'Add' }).click()
   await expectToast(page, 'Secret added')
   await expect(secrets.getByRole('row')).toHaveCount(4)
+  // the new secret sorts above the seeded ones
+  await expect(secrets.getByRole('row').nth(1)).not.toContainText('b15f4584')
 
   // delete one of the seeded secrets
   await clickRowAction(page, '88c7b9bb-fa79-4516-8f12-abebd2626062', 'Delete')
@@ -314,25 +320,19 @@ test('Webhook deliveries', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: 'Resend' })).toBeDisabled()
   await page.keyboard.press('Escape')
 
-  // send a liveness probe from the testing tab, resending failed deliveries on
-  // success
+  // send a liveness probe from the testing tab
   await page.getByRole('tab', { name: 'Testing' }).click()
   await page.getByRole('button', { name: 'Send liveness probe' }).click()
   const probeModal = page.getByRole('dialog', { name: 'Send liveness probe' })
-  await probeModal
-    .getByRole('checkbox', { name: 'Resend failed deliveries if the probe succeeds' })
-    .click()
   await probeModal.getByRole('button', { name: 'Send probe' }).click()
-  await expect(page.getByText('2 failed deliveries resent')).toBeVisible()
+  const panel = page.getByRole('tabpanel')
+  await expect(panel.getByText('Succeeded')).toBeVisible()
+  // the modal has no resend option, so nothing gets resent
+  await expect(panel.getByText('resent')).toBeHidden()
 
   await page.getByRole('tab', { name: 'Deliveries' }).click()
-  // 8 rows + 1 probe + 2 resends of the 2 failed deliveries
-  await expect(table.getByRole('row')).toHaveCount(11)
-  await expectRowVisible(table, {
-    'Event class': 'hardware.power_shelf.psu.remove',
-    state: 'pending',
-    trigger: 'resend',
-  })
+  // 8 rows + the probe. no resends: the probe modal doesn't offer them
+  await expect(table.getByRole('row')).toHaveCount(9)
 })
 
 test('Webhook delete', async ({ page }) => {

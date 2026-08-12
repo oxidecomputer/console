@@ -67,13 +67,13 @@ exports[`breadcrumbs 2`] = `
   "alertReceivers (/system/alerts)": [
     {
       "label": "Alerts",
-      "path": "/system/",
+      "path": "/system/alerts",
     },
   ],
   "alertReceiversNew (/system/alerts-new)": [
     {
       "label": "Alerts",
-      "path": "/system/",
+      "path": "/system/alerts",
     },
   ],
   "antiAffinityGroup (/projects/p/affinity/aag)": [

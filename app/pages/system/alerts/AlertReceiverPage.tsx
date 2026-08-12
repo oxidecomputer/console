@@ -11,6 +11,7 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
 import {
@@ -34,7 +35,6 @@ import {
 } from '@oxide/design-system/icons/react'
 import { Badge, Button, type BadgeColor } from '@oxide/design-system/ui'
 
-import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { TextField } from '~/components/form/fields/TextField'
 import { HL } from '~/components/HL'
@@ -195,9 +195,7 @@ function WebhookTesterCard() {
       </CardBlock.Header>
       <CardBlock.Body>
         <p className="text-sans-md text-default">
-          To test your integration, send a liveness probe to the endpoint. A probe is a
-          synthetic <InlineCode>probe</InlineCode> event: it checks that the endpoint is
-          reachable, but does not count as a real event and is not retried.
+          To test your integration, send a liveness probe to the endpoint.
         </p>
         {result ? (
           <ProbeResult result={result} />
@@ -224,7 +222,6 @@ function ProbeResult({ result }: { result: AlertProbeResult }) {
 
   const status = attempt.response?.status
   const durationMs = attempt.response?.durationMs
-  const resends = result.resendsStarted
 
   return (
     <PropertiesTable>
@@ -251,11 +248,6 @@ function ProbeResult({ result }: { result: AlertProbeResult }) {
       <PropertiesTable.Row label="Sent">
         <DateTime date={attempt.timeSent} />
       </PropertiesTable.Row>
-      {resends != null && (
-        <PropertiesTable.Row label="Resends">
-          {resends} failed {resends === 1 ? 'delivery' : 'deliveries'} resent
-        </PropertiesTable.Row>
-      )}
     </PropertiesTable>
   )
 }
@@ -268,7 +260,6 @@ function ProbeModal({
   onSuccess: (result: AlertProbeResult) => void
 }) {
   const receiverSelector = useAlertReceiverSelector()
-  const { control, handleSubmit } = useForm({ defaultValues: { resend: false } })
 
   const sendProbe = useApiMutation(api.alertReceiverProbe, {
     onSuccess(result) {
@@ -281,26 +272,19 @@ function ProbeModal({
     },
   })
 
-  const onSubmit = handleSubmit(({ resend }) => {
-    sendProbe.mutate({ path: receiverSelector, query: { resend } })
-  })
-
   return (
     <Modal isOpen onDismiss={onDismiss} title="Send liveness probe">
       <Modal.Body>
         <Modal.Section>
           <p>
             Sends a synthetic <InlineCode>probe</InlineCode> event to the endpoint to check
-            that it is reachable. Probes do not count as real events and are not retried.
+            that it is reachable.
           </p>
-          <CheckboxField name="resend" control={control}>
-            Resend failed deliveries if the probe succeeds
-          </CheckboxField>
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         onDismiss={onDismiss}
-        onAction={onSubmit}
+        onAction={() => sendProbe.mutate({ path: receiverSelector })}
         actionLoading={sendProbe.isPending}
         actionText="Send probe"
       />
@@ -560,9 +544,14 @@ function SecretsCard() {
   )
 
   const columns = useColsWithActions(secretCols, makeActions)
+  // API returns secrets oldest first, but newest is more interesting
+  const secrets = useMemo(
+    () => R.sortBy(receiver.kind.secrets, [(s) => s.timeCreated, 'desc']),
+    [receiver.kind.secrets]
+  )
   const table = useReactTable({
     columns,
-    data: receiver.kind.secrets,
+    data: secrets,
     getCoreRowModel: getCoreRowModel(),
   })
 
