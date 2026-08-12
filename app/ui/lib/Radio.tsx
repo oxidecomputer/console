@@ -38,7 +38,7 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
     </span>
 
     {children && (
-      <span className="text-default group-has-[:disabled]:text-disabled ml-2.5">
+      <span className="text-default group-has-disabled:text-disabled ml-2.5">
         {children}
       </span>
     )}
