@@ -97,11 +97,15 @@ export function NetworkInterfaceField({
             >
               Default
             </Radio>
-            {vpcs.length > 0 && !defaultVpcExists && (
-              <TipIcon>
-                Default networking requires a VPC named <HL>{DEFAULT_VPC_NAME}</HL>
-              </TipIcon>
-            )}
+            {
+              // the no VPCs case is covered by a separate yellow banner message
+              // saying you can't have any network interfaces
+              vpcs.length > 0 && !defaultVpcExists && (
+                <TipIcon>
+                  Default networking requires a VPC named <HL>{DEFAULT_VPC_NAME}</HL>
+                </TipIcon>
+              )
+            }
           </span>
           {currentMode === 'default' && (
             <div className="mb-2 ml-6">

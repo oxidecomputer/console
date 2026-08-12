@@ -1174,9 +1174,7 @@ test('network interface options disabled when no VPCs exist', async ({ page }) =
 // The default_* attachment types resolve a VPC named 'default', so they 404 if
 // that VPC has been deleted. other-project has a VPC, just not one named
 // 'default', so only custom interfaces work there.
-test('custom network interface works without a default VPC', async ({
-  page,
-}) => {
+test('custom network interface works without a default VPC', async ({ page }) => {
   await page.goto('/projects/other-project/instances-new')
   const instanceName = 'custom-nic-without-default-vpc'
 
