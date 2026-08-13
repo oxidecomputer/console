@@ -960,7 +960,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Firewall Rules",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/firewall-rules",
     },
   ],
   "vpcFirewallRuleEdit (/projects/p/vpcs/v/firewall-rules/fr/edit)": [
@@ -982,7 +982,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Firewall Rules",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/firewall-rules",
     },
   ],
   "vpcFirewallRules (/projects/p/vpcs/v/firewall-rules)": [
@@ -1026,7 +1026,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Firewall Rules",
-      "path": "/projects/p/vpcs/v/",
+      "path": "/projects/p/vpcs/v/firewall-rules",
     },
   ],
   "vpcInternetGateway (/projects/p/vpcs/v/internet-gateways/g)": [

@@ -5,8 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useLocation, useNavigation } from 'react-router'
+
+import { usePagePath } from './use-crumbs'
 
 function getScrollPosition(key: string) {
   const pos = window.sessionStorage.getItem(key)
@@ -33,15 +35,36 @@ function setScrollPosition(key: string, pos: number) {
 export function useScrollRestoration() {
   const key = `scroll-position-${useLocation().key}`
   const { state } = useNavigation()
+  // The page on screen at this location: a side modal route renders its parent
+  // page underneath, so it counts as that page. Navigating within the same
+  // page (opening or closing a side modal over it) shouldn't move the scroll.
+  const page = usePagePath()
+  // last committed location, tracked at idle. We can't track this in the
+  // loading state because a navigation whose loader data is already cached
+  // can complete without ever rendering with state === 'loading'.
+  const prev = useRef<{ key: string; page: string } | null>(null)
   useEffect(() => {
     // opt out of the browser's native scroll restoration so it doesn't jump
     // the still-visible old page to the new page's saved position on POP,
     // before the new route's loader resolves. We restore manually below.
     window.history.scrollRestoration = 'manual'
     if (state === 'loading') {
+      // during a navigation, location still reflects the old route
       setScrollPosition(key, window.scrollY)
-    } else if (state === 'idle') {
-      window.scrollTo(0, getScrollPosition(key))
+    } else if (state === 'idle' && prev.current?.key !== key) {
+      // both checks are needed: key changes on every nav, including same-page
+      // ones like opening a side modal, so key says we just landed on a new
+      // location (or this is the initial render) and page decides whether the
+      // nav stayed within the same page
+      if (prev.current?.page === page) {
+        // same page, new location (opened a side modal): leave the scroll alone
+        // and record it under the new location's key so back/forward to it
+        // restores correctly
+        setScrollPosition(key, window.scrollY)
+      } else {
+        window.scrollTo(0, getScrollPosition(key))
+      }
     }
-  }, [key, state])
+    if (state === 'idle') prev.current = { key, page }
+  }, [key, state, page])
 }

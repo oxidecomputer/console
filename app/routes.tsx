@@ -446,7 +446,14 @@ export const routes = createRoutesFromElements(
                     element={null}
                     handle={{ crumb: 'Firewall Rules' }}
                   />
-                  <Route element={null} handle={{ crumb: 'Firewall Rules' }}>
+                  <Route
+                    element={null}
+                    // path makes crumb link straight to the tab instead of
+                    // bouncing through the redirect at the VPC root
+                    handle={makeCrumb('Firewall Rules', (p) =>
+                      pb.vpcFirewallRules(getVpcSelector(p))
+                    )}
+                  >
                     <Route
                       path="firewall-rules-new/:rule?"
                       lazy={() => import('./forms/firewall-rules-create').then(convert)}

@@ -50,3 +50,77 @@ test('scroll restore', async ({ page }) => {
   await expect(page).toHaveURL('/projects/mock-project/snapshots')
   await expectScrollTop(page, 0)
 })
+
+// https://github.com/oxidecomputer/console/issues/3321
+test('opening and closing side modal preserves scroll', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 500 })
+
+  await page.goto('/projects/mock-project/disks')
+  await page.getByRole('heading', { name: 'Disks' }).waitFor()
+
+  // click the last disk in the table. clicking auto-scrolls it into view, so
+  // read the resulting scroll position as the baseline rather than setting one
+  const lastDisk = page
+    .locator('table')
+    .getByRole('link', { name: /^disk-/ })
+    .last()
+  await lastDisk.scrollIntoViewIfNeeded()
+  const baseline = await page.evaluate(() => window.scrollY)
+  expect(baseline).toBeGreaterThan(0)
+
+  // opening the detail side modal doesn't scroll the page underneath
+  await lastDisk.click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await expectScrollTop(page, baseline)
+
+  // closing it doesn't either
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await expectScrollTop(page, baseline)
+})
+
+// this modal route is trickier than the others: it hangs off a pathless crumb
+// wrapper route rather than being a direct child of the page route
+test('opening firewall rule modal preserves scroll', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 300 })
+
+  await page.goto('/projects/mock-project/vpcs/default/firewall-rules')
+  await page.getByRole('tab', { name: 'Firewall Rules' }).waitFor()
+  await scrollTo(page, 100)
+  await expectScrollTop(page, 100)
+
+  // clicking auto-scrolls the link into view, so read the resulting scroll
+  // position as the baseline rather than assuming it stays at 100
+  const newRuleLink = page.getByRole('link', { name: 'New rule' })
+  await newRuleLink.scrollIntoViewIfNeeded()
+  const baseline = await page.evaluate(() => window.scrollY)
+  expect(baseline).toBeGreaterThan(0)
+
+  await newRuleLink.click()
+  await expect(page.getByRole('dialog', { name: 'Add firewall rule' })).toBeVisible()
+  await expectScrollTop(page, baseline)
+
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await expectScrollTop(page, baseline)
+})
+
+test('navigating from a side modal to a new page resets scroll', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 300 })
+
+  await page.goto('/projects/mock-project/vpcs')
+  await page.getByRole('heading', { name: 'VPCs' }).waitFor()
+  await scrollTo(page, 100)
+  await expectScrollTop(page, 100)
+
+  await page.getByRole('link', { name: 'New VPC' }).click()
+  await expect(page.getByRole('dialog', { name: 'Create VPC' })).toBeVisible()
+  await expectScrollTop(page, 100)
+
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('scroll-test-vpc')
+  await page.getByRole('textbox', { name: 'DNS name' }).fill('scroll-test-vpc')
+  await page.getByRole('button', { name: 'Create VPC' }).click()
+
+  await expect(page.getByRole('heading', { name: 'scroll-test-vpc' })).toBeVisible()
+  await expectScrollTop(page, 0)
+})
