@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { useRef, useState, type ReactNode } from 'react'
+import { useRef, useState, type JSX, type ReactNode } from 'react'
 
 import { Error16Icon } from '@oxide/design-system/icons/react'
 
@@ -22,40 +22,35 @@ import { Tooltip } from './Tooltip'
  * table semantics anyway, we use divs with explicit ARIA table roles rather
  * than the semantic elements.
  */
-/* eslint-disable jsx-a11y/prefer-tag-over-role */
+
+/** Like `classed.div`, but with an ARIA role too */
+function roleDiv(role: string, baseClassName: string) {
+  const Comp = ({ className, ...rest }: JSX.IntrinsicElements['div']) => (
+    <div role={role} className={cn(baseClassName, className)} {...rest} />
+  )
+  Comp.displayName = `roled.${role}`
+  return Comp
+}
 
 /** Divider between cells, inset so it doesn't touch the row's y borders */
 const headerSeparator = `relative before:border-secondary before:absolute before:inset-y-px before:left-0 before:w-px before:border-l before:content-['']`
 const rowSeparator = `relative before:border-tertiary before:absolute before:inset-y-px before:left-0 before:w-px before:border-l before:content-['']`
 
-const HeadCell = ({
-  className,
-  children,
-}: {
-  className?: string
-  children?: ReactNode
-}) => (
-  <div
-    role="columnheader"
-    className={cn(
-      className,
-      'text-mono-sm text-secondary bg-secondary border-default flex h-9 items-center border-y px-3'
-    )}
-  >
-    {children}
-  </div>
+const Table = roleDiv('table', 'text-sans-md grid w-full')
+const RowGroup = roleDiv('rowgroup', 'contents')
+const HeaderRow = roleDiv('row', 'col-span-full grid grid-cols-subgrid')
+const HeadCell = roleDiv(
+  'columnheader',
+  'text-mono-sm text-secondary bg-secondary border-default flex h-9 items-center border-y px-3'
+)
+const Cell = roleDiv(
+  'cell',
+  'border-default flex h-9 min-w-0 items-center border-y pr-4 pl-3'
 )
 
-const Cell = ({ className, children }: { className?: string; children: ReactNode }) => (
-  <div
-    role="cell"
-    className={cn(
-      className,
-      'border-default flex h-9 min-w-0 items-center border-y pr-4 pl-3'
-    )}
-  >
-    {children}
-  </div>
+const ItemRow = roleDiv(
+  'row',
+  `bg-default before:border-default relative col-span-full grid grid-cols-subgrid pt-2 before:pointer-events-none before:absolute before:inset-0 before:border-x before:content-[''] last:pb-2 last:before:rounded-b-lg last:before:border-b`
 )
 
 const TruncateCell = ({ text }: { text: string }) => {
@@ -85,21 +80,26 @@ const TruncateCell = ({ text }: { text: string }) => {
   )
 }
 
+const EmptyRow = roleDiv(
+  'row',
+  `bg-default before:border-default relative col-span-full grid grid-cols-subgrid py-2 before:pointer-events-none before:absolute before:inset-0 before:rounded-b-lg before:border-x before:border-b before:content-['']`
+)
+const EmptyCell = roleDiv('cell', 'col-span-full flex flex-col items-center py-4')
+
 const EmptyState = (props: { title: string; body: string }) => (
-  <div
-    role="row"
-    className="bg-default before:border-default relative col-span-full grid grid-cols-subgrid py-2 before:pointer-events-none before:absolute before:inset-0 before:rounded-b-lg before:border-x before:border-b before:content-['']"
-  >
-    <div role="cell" className="col-span-full flex flex-col items-center py-4">
+  <EmptyRow>
+    <EmptyCell>
       <EmptyMessage title={props.title} body={props.body} />
-    </div>
-  </div>
+    </EmptyCell>
+  </EmptyRow>
 )
 
 // followed this for icon in button best practices
 // https://www.sarasoueidan.com/blog/accessible-icon-buttons/
+const RemoveCellWrapper = roleDiv('cell', 'flex h-9 w-11 items-center justify-center')
+
 const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) => (
-  <div role="cell" className="flex h-9 w-11 items-center justify-center">
+  <RemoveCellWrapper>
     <button
       type="button"
       className="text-tertiary hover:text-secondary focus:text-secondary -m-2 flex items-center justify-center p-2"
@@ -108,7 +108,7 @@ const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) 
     >
       <Error16Icon aria-hidden focusable="false" />
     </button>
-  </div>
+  </RemoveCellWrapper>
 )
 
 type ClearAndAddButtonsProps = {
@@ -204,14 +204,9 @@ export function MiniTable<T>({
   ].join(' ')
 
   return (
-    <div
-      role="table"
-      aria-label={ariaLabel}
-      style={{ gridTemplateColumns }}
-      className={cn('text-sans-md grid w-full', className)}
-    >
-      <div role="rowgroup" className="contents">
-        <div role="row" className="col-span-full grid grid-cols-subgrid">
+    <Table aria-label={ariaLabel} style={{ gridTemplateColumns }} className={className}>
+      <RowGroup>
+        <HeaderRow>
           {columns.map((column, index) => (
             <HeadCell
               key={index}
@@ -222,19 +217,13 @@ export function MiniTable<T>({
           ))}
           {/* For remove button */}
           <HeadCell className={cn(headerSeparator, 'w-11 rounded-tr-lg border-r')} />
-        </div>
-      </div>
+        </HeaderRow>
+      </RowGroup>
 
-      <div role="rowgroup" className="contents">
+      <RowGroup>
         {items.length ? (
           items.map((item, index) => (
-            <div
-              role="row"
-              tabIndex={0}
-              aria-rowindex={index + 1}
-              key={rowKey(item, index)}
-              className="bg-default before:border-default relative col-span-full grid grid-cols-subgrid pt-2 before:pointer-events-none before:absolute before:inset-0 before:border-x before:content-[''] last:pb-2 last:before:rounded-b-lg last:before:border-b"
-            >
+            <ItemRow tabIndex={0} aria-rowindex={index + 1} key={rowKey(item, index)}>
               {columns.map((column, colIndex) => (
                 <Cell
                   key={colIndex}
@@ -255,12 +244,12 @@ export function MiniTable<T>({
                 onClick={() => onRemoveItem(item)}
                 label={removeLabel?.(item) || `Remove item ${index + 1}`}
               />
-            </div>
+            </ItemRow>
           ))
         ) : emptyState ? (
           <EmptyState title={emptyState.title} body={emptyState.body} />
         ) : null}
-      </div>
-    </div>
+      </RowGroup>
+    </Table>
   )
 }
