@@ -17,12 +17,12 @@ import { Tooltip } from './Tooltip'
 /*
  * The table is laid out with CSS grid rather than native table layout so text
  * columns can share leftover space and shrink (truncating their contents)
- * when there isn't enough room, which table layout can't express. The
- * explicit ARIA roles look redundant but are required: `display: grid` (and
- * `display: contents` on thead/tbody/tr) strips the implicit table semantics
- * in some browsers.
+ * when there isn't enough room, which table layout can't express. Because
+ * `display: grid` (and `display: contents` on the row groups) strips implicit
+ * table semantics anyway, we use divs with explicit ARIA table roles rather
+ * than the semantic elements.
  */
-/* eslint-disable jsx-a11y/no-redundant-roles, jsx-a11y/no-interactive-element-to-noninteractive-role */
+/* eslint-disable jsx-a11y/prefer-tag-over-role */
 
 /** Divider between cells, inset so it doesn't touch the row's y borders */
 const headerSeparator = `relative before:border-secondary before:absolute before:inset-y-px before:left-0 before:w-px before:border-l before:content-['']`
@@ -35,7 +35,7 @@ const HeadCell = ({
   className?: string
   children?: ReactNode
 }) => (
-  <th
+  <div
     role="columnheader"
     className={cn(
       className,
@@ -43,11 +43,11 @@ const HeadCell = ({
     )}
   >
     {children}
-  </th>
+  </div>
 )
 
 const Cell = ({ className, children }: { className?: string; children: ReactNode }) => (
-  <td
+  <div
     role="cell"
     className={cn(
       className,
@@ -55,7 +55,7 @@ const Cell = ({ className, children }: { className?: string; children: ReactNode
     )}
   >
     {children}
-  </td>
+  </div>
 )
 
 const TruncateCell = ({ text }: { text: string }) => {
@@ -86,20 +86,20 @@ const TruncateCell = ({ text }: { text: string }) => {
 }
 
 const EmptyState = (props: { title: string; body: string }) => (
-  <tr
+  <div
     role="row"
     className="bg-default before:border-default relative col-span-full grid grid-cols-subgrid py-2 before:pointer-events-none before:absolute before:inset-0 before:rounded-b-lg before:border-x before:border-b before:content-['']"
   >
-    <td role="cell" className="col-span-full flex flex-col items-center py-4">
+    <div role="cell" className="col-span-full flex flex-col items-center py-4">
       <EmptyMessage title={props.title} body={props.body} />
-    </td>
-  </tr>
+    </div>
+  </div>
 )
 
 // followed this for icon in button best practices
 // https://www.sarasoueidan.com/blog/accessible-icon-buttons/
 const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) => (
-  <td role="cell" className="flex h-9 w-11 items-center justify-center">
+  <div role="cell" className="flex h-9 w-11 items-center justify-center">
     <button
       type="button"
       className="text-tertiary hover:text-secondary focus:text-secondary -m-2 flex items-center justify-center p-2"
@@ -108,7 +108,7 @@ const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) 
     >
       <Error16Icon aria-hidden focusable="false" />
     </button>
-  </td>
+  </div>
 )
 
 type ClearAndAddButtonsProps = {
@@ -204,14 +204,14 @@ export function MiniTable<T>({
   ].join(' ')
 
   return (
-    <table
+    <div
       role="table"
       aria-label={ariaLabel}
       style={{ gridTemplateColumns }}
       className={cn('text-sans-md grid w-full', className)}
     >
-      <thead role="rowgroup" className="contents">
-        <tr role="row" className="col-span-full grid grid-cols-subgrid">
+      <div role="rowgroup" className="contents">
+        <div role="row" className="col-span-full grid grid-cols-subgrid">
           {columns.map((column, index) => (
             <HeadCell
               key={index}
@@ -222,13 +222,13 @@ export function MiniTable<T>({
           ))}
           {/* For remove button */}
           <HeadCell className={cn(headerSeparator, 'w-11 rounded-tr-lg border-r')} />
-        </tr>
-      </thead>
+        </div>
+      </div>
 
-      <tbody role="rowgroup" className="contents">
+      <div role="rowgroup" className="contents">
         {items.length ? (
           items.map((item, index) => (
-            <tr
+            <div
               role="row"
               tabIndex={0}
               aria-rowindex={index + 1}
@@ -255,12 +255,12 @@ export function MiniTable<T>({
                 onClick={() => onRemoveItem(item)}
                 label={removeLabel?.(item) || `Remove item ${index + 1}`}
               />
-            </tr>
+            </div>
           ))
         ) : emptyState ? (
           <EmptyState title={emptyState.title} body={emptyState.body} />
         ) : null}
-      </tbody>
-    </table>
+      </div>
+    </div>
   )
 }
