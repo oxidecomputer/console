@@ -14,6 +14,8 @@ import { TimeSeriesChart } from './TimeSeriesChart'
 
 const redraw = vi.fn()
 
+const dataPropsPassed: unknown[] = []
+
 // the chart only mounts once the container is measured, and jsdom's
 // ResizeObserver stub never fires
 vi.mock('~/hooks/use-element-size', () => ({
@@ -22,6 +24,7 @@ vi.mock('~/hooks/use-element-size', () => ({
 
 vi.mock('uplot-react', () => {
   const MeplotReactComponent = (props: ComponentProps<typeof UplotReactComponent>) => {
+    dataPropsPassed.push(props.data)
     useEffect(() => {
       props.onCreate?.({ redraw } as never)
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,5 +72,24 @@ describe('safe redrawing', () => {
     rerender(<TimeSeriesChart {...props((v) => `${v} pct`)} />)
     expect(redraw).toHaveBeenCalled()
     expectAllRedrawsSafe()
+  })
+
+  // uplot-react will do a deep comparison if the data reference changes to avoid rebuilding the
+  // chart, but it would be even better to skip that comparison by maintaining a reference
+  test('an unchanged data prop sends a stable reference down to uplot-react', () => {
+    const data = [
+      { timestamp: 0, value: 10 },
+      { timestamp: 1000, value: 20 },
+    ]
+
+    dataPropsPassed.length = 0
+    const { rerender } = render(<TimeSeriesChart {...props((v) => `${v}%`)} data={data} />)
+    rerender(<TimeSeriesChart {...props((v) => `${v} pct`)} data={data} />)
+
+    expect(dataPropsPassed.length).toBeGreaterThan(1) // it re-rendered
+    expect(new Set(dataPropsPassed).size).toBe(1) // but every render passed the identical reference
+
+    rerender(<TimeSeriesChart {...props((v) => `${v}%`)} data={[...data]} />)
+    expect(new Set(dataPropsPassed).size).toBe(2) // unless the reference changes
   })
 })

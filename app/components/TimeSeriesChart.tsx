@@ -192,7 +192,7 @@ const SkeletonMetric = ({
 const defaultYAxisTickFormatter = (val: number) => val.toLocaleString()
 
 export function TimeSeriesChart({
-  data: rawData,
+  data,
   title,
   interpolation = 'linear',
   startTime,
@@ -202,10 +202,6 @@ export function TimeSeriesChart({
   hasError = false,
   loading,
 }: TimeSeriesChartProps) {
-  // no memo needed: nothing depends on `data`'s identity — uplot-react
-  // deep-compares the aligned data values
-  const data = rawData || []
-
   const theme = useChartTheme()
   const fontPx = remToPx(AXIS_FONT_REM_XS)
   const axisFont = `${fontPx}px ${theme.fontFamily}`
@@ -373,6 +369,14 @@ export function TimeSeriesChart({
     [chartOptions, size?.width]
   )
 
+  const aligned = useMemo<uPlot.AlignedData>(() => {
+    const points = data ?? []
+    return [
+      points.map(({ timestamp }) => timestamp / 1000),
+      points.map(({ value }) => value),
+    ]
+  }, [data])
+
   if (hasError) {
     return (
       <SkeletonMetric>
@@ -388,18 +392,14 @@ export function TimeSeriesChart({
       </SkeletonMetric>
     )
   }
-  if (data.length === 0) {
+
+  if (!data || data.length === 0) {
     return (
       <SkeletonMetric>
         <MetricsEmpty />
       </SkeletonMetric>
     )
   }
-
-  const aligned: uPlot.AlignedData = [
-    data.map(({ timestamp }) => timestamp / 1000),
-    data.map(({ value }) => value),
-  ]
 
   const hovered = tooltip ? data[tooltip.hoveredDataIndex] : undefined
   return (
