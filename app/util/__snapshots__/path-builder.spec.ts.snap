@@ -59,10 +59,6 @@ exports[`breadcrumbs 2`] = `
       "label": "rc",
       "path": "/system/alerts/rc",
     },
-    {
-      "label": "Edit webhook",
-      "path": "/system/alerts/rc/edit",
-    },
   ],
   "alertReceivers (/system/alerts)": [
     {

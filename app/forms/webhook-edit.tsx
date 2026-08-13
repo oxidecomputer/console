@@ -15,7 +15,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
-import { makeCrumb } from '~/hooks/use-crumbs'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getAlertReceiverSelector, useAlertReceiverSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -32,7 +32,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = makeCrumb('Edit webhook')
+export const handle = titleCrumb('Edit webhook')
 
 export default function EditWebhookSideModalForm() {
   const navigate = useNavigate()
