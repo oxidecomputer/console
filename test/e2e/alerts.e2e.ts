@@ -100,50 +100,54 @@ test('Webhook create subscriptions field', async ({ page }) => {
   const chipRemove = (sub: string) =>
     page.getByRole('button', { name: `remove subscription ${sub}` })
 
+  // accessible-name matching is brittle here because the highlighted name is
+  // split across elements, so filter rows by rendered text instead
+  const option = (name: string) => listbox.getByRole('option').filter({ hasText: name })
+
   // focusing opens the catalog showing all classes
   await subsInput.click()
   await expect(listbox.getByText('All classes')).toBeVisible()
-  await expect(listbox.getByRole('option')).toHaveCount(17)
+  await expect(listbox.getByRole('option')).toHaveCount(15)
 
   // a glob query filters the catalog and labels matched rows with the pattern
-  await subsInput.fill('instance.*')
-  await expect(listbox.getByText('Matching “instance.*”')).toBeVisible()
-  // 6 direct children match instance.*; the two ephemeral_ip classes are shown
-  // as near misses labeled with the broader pattern that would cover them
-  await expect(listbox.getByText('Showing 8 of 17')).toBeVisible()
-  const pendingRow = listbox.getByRole('option', { name: 'instance.create' })
-  await expect(pendingRow.getByText('instance.*', { exact: true })).toBeVisible()
-  const nearMissRow = listbox.getByRole('option', { name: 'instance.ephemeral_ip.attach' })
-  await expect(nearMissRow.getByText('instance.**', { exact: true })).toBeVisible()
+  await subsInput.fill('hardware.*.fault')
+  await expect(listbox.getByText('Matching “hardware.*.fault”')).toBeVisible()
+  // 3 classes match; psu.fault is one segment too deep, shown as a near miss
+  // labeled with the broader pattern that would cover it
+  await expect(listbox.getByText('Showing 4 of 15')).toBeVisible()
+  const pendingRow = option('hardware.disk.fault')
+  await expect(pendingRow.getByText('hardware.*.fault', { exact: true })).toBeVisible()
+  const nearMissRow = option('hardware.power_shelf.psu.fault')
+  await expect(nearMissRow.getByText('hardware.**.fault', { exact: true })).toBeVisible()
 
   // Enter commits the glob as a chip and clears the query
   await subsInput.press('Enter')
-  await expect(chipRemove('instance.*')).toBeVisible()
+  await expect(chipRemove('hardware.*.fault')).toBeVisible()
   await expect(subsInput).toHaveValue('')
 
   // rows matched by the committed glob are locked and can't be double-added
-  await subsInput.fill('instance')
-  const coveredRow = listbox.getByRole('option', { name: 'instance.create' })
-  await expect(coveredRow.getByText('via instance.*')).toBeVisible()
+  await subsInput.fill('fault')
+  const coveredRow = option('hardware.disk.fault')
+  await expect(coveredRow.getByText('via hardware.*.fault')).toBeVisible()
   await expect(coveredRow).toHaveAttribute('aria-disabled', 'true')
   // force because playwright refuses to click aria-disabled elements; we want
   // to verify the click is a no-op anyway
   await coveredRow.click({ force: true })
-  await expect(chipRemove('instance.create')).toBeHidden()
+  await expect(chipRemove('hardware.disk.fault')).toBeHidden()
 
   // plain-text filter + ticking rows commits exact classes without resetting the query
-  await subsInput.fill('proj')
-  await expect(listbox.getByText('Showing 3 of 17')).toBeVisible()
-  await listbox.getByRole('option', { name: 'project.create' }).click()
-  await listbox.getByRole('option', { name: 'project.delete' }).click()
-  await expect(chipRemove('project.create')).toBeVisible()
-  await expect(chipRemove('project.delete')).toBeVisible()
-  await expect(subsInput).toHaveValue('proj')
+  await subsInput.fill('update')
+  await expect(listbox.getByText('Showing 3 of 15')).toBeVisible()
+  await option('system.update.start').click()
+  await option('system.update.complete').click()
+  await expect(chipRemove('system.update.start')).toBeVisible()
+  await expect(chipRemove('system.update.complete')).toBeVisible()
+  await expect(subsInput).toHaveValue('update')
   await expect(listbox).toBeVisible()
 
   // clicking a picked row unpicks it
-  await listbox.getByRole('option', { name: 'project.create' }).click()
-  await expect(chipRemove('project.create')).toBeHidden()
+  await option('system.update.start').click()
+  await expect(chipRemove('system.update.start')).toBeHidden()
 
   // zero matches shows an explicit empty state with a clear action
   await subsInput.fill('zzz')
@@ -151,28 +155,42 @@ test('Webhook create subscriptions field', async ({ page }) => {
   await listbox.getByRole('button', { name: 'Clear' }).click()
   await expect(listbox.getByText('All classes')).toBeVisible()
 
+  // an incomplete glob shows the full catalog, not a bogus empty state
+  await subsInput.fill('*.')
+  await expect(listbox.getByRole('option')).toHaveCount(15)
+  await subsInput.fill('')
+
   // backspace on an empty query arms the last chip, a second one removes it
   await subsInput.press('Backspace')
-  await expect(chipRemove('project.delete')).toBeVisible()
+  await expect(chipRemove('system.update.complete')).toBeVisible()
   await subsInput.press('Backspace')
-  await expect(chipRemove('project.delete')).toBeHidden()
+  await expect(chipRemove('system.update.complete')).toBeHidden()
 
   // typing disarms, so the chip survives
   await subsInput.press('Backspace')
   await subsInput.pressSequentially('x')
   await subsInput.press('Backspace')
   await subsInput.press('Backspace')
-  await expect(chipRemove('instance.*')).toBeVisible()
+  await expect(chipRemove('hardware.*.fault')).toBeVisible()
 
   // arrow keys move the armed selection, so a specific chip can be deleted
   await subsInput.fill('probe')
   await subsInput.press('Enter')
   await expect(chipRemove('probe')).toBeVisible()
   await subsInput.press('ArrowLeft') // arm probe
-  await subsInput.press('ArrowLeft') // arm instance.*
+  await subsInput.press('ArrowLeft') // arm hardware.*.fault
   await subsInput.press('Backspace')
-  await expect(chipRemove('instance.*')).toBeHidden()
+  await expect(chipRemove('hardware.*.fault')).toBeHidden()
   await expect(chipRemove('probe')).toBeVisible()
+
+  // uncommitted text is discarded on blur so it doesn't read as added
+  await subsInput.fill('leftover')
+  await page.getByRole('textbox', { name: 'Name' }).click()
+  await expect(subsInput).toHaveValue('')
+
+  // subscribed classes sort to the top when the panel opens
+  await subsInput.click()
+  await expect(listbox.getByRole('option').first()).toContainText('probe')
 })
 
 test('Webhook detail: properties, event classes, secrets', async ({ page }) => {

@@ -9,6 +9,8 @@ import { useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
 import { useCallback, useId, useRef, useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
+import * as R from 'remeda'
+import { match, P } from 'ts-pattern'
 
 import { api, q } from '@oxide/api'
 import { Close8Icon } from '@oxide/design-system/icons/react'
@@ -18,6 +20,7 @@ import type { WebhookCreateFormValues } from '~/forms/webhook-create'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { TextInputError } from '~/ui/lib/TextInput'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { KEYS } from '~/ui/util/keys'
@@ -36,32 +39,13 @@ function SubscriptionChip({
   onRemove,
 }: {
   value: string
-  /** Number of event classes a glob matches; undefined while classes load */
+  /** Glob chips only: matched class count for the tooltip; undefined while loading */
   matchCount?: number
   armed: boolean
   onRemove: () => void
 }) {
-  const glob = isGlobPattern(value)
-  const chip = (
-    <span
-      className={cn(
-        'text-sans-md inline-flex h-6 items-center rounded-sm pl-1.5',
-        glob ? 'bg-accent text-accent' : 'bg-accent-alt text-accent-alt',
-        armed && 'outline-2 -outline-offset-1 outline-accent-secondary'
-      )}
-    >
-      {value}
-      <button
-        type="button"
-        aria-label={`remove subscription ${value}`}
-        className="flex h-full cursor-pointer items-center px-1.5 opacity-60 hover:opacity-100"
-        onClick={onRemove}
-      >
-        <Close8Icon />
-      </button>
-    </span>
-  )
-  return glob ? (
+  return (
+    // Tooltip renders just the chip when content is undefined (exact chips, loading)
     <Tooltip
       content={
         matchCount === undefined
@@ -69,10 +53,24 @@ function SubscriptionChip({
           : `Matches ${matchCount} event ${matchCount === 1 ? 'class' : 'classes'}`
       }
     >
-      {chip}
+      <span
+        className={cn(
+          'text-sans-md inline-flex h-6 items-center rounded-sm pl-1.5',
+          isGlobPattern(value) ? 'bg-accent text-accent' : 'bg-accent-alt text-accent-alt',
+          armed && 'outline-2 -outline-offset-1 outline-accent-secondary'
+        )}
+      >
+        {value}
+        <button
+          type="button"
+          aria-label={`remove subscription ${value}`}
+          className="flex h-full cursor-pointer items-center px-1.5 opacity-60 hover:opacity-100"
+          onClick={onRemove}
+        >
+          <Close8Icon />
+        </button>
+      </span>
     </Tooltip>
-  ) : (
-    chip
   )
 }
 
@@ -80,11 +78,11 @@ function HighlightedName({ name, query }: { name: string; query: string }) {
   const idx = name.toLowerCase().indexOf(query.toLowerCase())
   if (!query || idx === -1) return <>{name}</>
   return (
-    <>
+    <div>
       {name.slice(0, idx)}
       <span className="text-raise">{name.slice(idx, idx + query.length)}</span>
       <span className="text-secondary">{name.slice(idx + query.length)}</span>
-    </>
+    </div>
   )
 }
 
@@ -95,6 +93,16 @@ type RowState =
   /** Not matched by the query glob, but would be by a broader `**` version */
   | { kind: 'promoted'; via: string }
   | { kind: 'plain' }
+
+/** Split subscriptions into glob matchers and exact class names */
+function toMatchers(subscriptions: string[]) {
+  return {
+    globs: subscriptions
+      .filter(isGlobPattern)
+      .map((g) => [g, subscriptionRegex(g)] as const),
+    exacts: new Set(subscriptions.filter((s) => !isGlobPattern(s))),
+  }
+}
 
 export function SubscriptionsField({
   control,
@@ -141,34 +149,45 @@ export function SubscriptionsField({
   const classes = data?.items ?? []
 
   const committed = field.value
-  const globRegexes = committed
-    .filter(isGlobPattern)
-    .map((g) => [g, subscriptionRegex(g)] as const)
-  const exacts = new Set(committed.filter((s) => !isGlobPattern(s)))
+  const matchers = toMatchers(committed)
+
+  // glob chip tooltip counts; empty while classes load so lookups come back
+  // undefined and the tooltip stays off
+  const chipMatchCounts = new Map(
+    data
+      ? matchers.globs.map(([g, re]) => [g, classes.filter((c) => re.test(c.name)).length])
+      : []
+  )
 
   const queryTrimmed = query.trim()
   const queryIsValidGlob =
     isGlobPattern(queryTrimmed) && ALERT_SUBSCRIPTION_REGEX.test(queryTrimmed)
   const queryRegex = queryIsValidGlob ? subscriptionRegex(queryTrimmed) : null
-  // broadest version of the query glob (all `*` promoted to `**`), used to keep
-  // near-miss rows visible with a hint about the pattern that would cover them
+  // broadest version of the query glob (every wildcard segment widened to `**`),
+  // used to keep near-miss rows visible with a hint about the covering pattern
   const promotedGlob = queryIsValidGlob
-    ? queryTrimmed.replaceAll('*', '**').replaceAll('****', '**')
+    ? queryTrimmed
+        .split('.')
+        .map((seg) => (seg.includes('*') ? '**' : seg))
+        .join('.')
     : null
   const promotedRegex = promotedGlob ? subscriptionRegex(promotedGlob) : null
 
-  const visible =
-    queryTrimmed === ''
-      ? classes
-      : promotedRegex
-        ? classes.filter((c) => promotedRegex.test(c.name))
-        : classes.filter((c) => c.name.toLowerCase().includes(queryTrimmed.toLowerCase()))
+  // valid glob → its (widened) matches; glob still being typed (e.g. `*.`) →
+  // everything, since substring matching on `*` can never hit a class name;
+  // otherwise substring filter (which is a no-op for an empty query)
+  const visible = classes.filter((c) =>
+    promotedRegex
+      ? promotedRegex.test(c.name)
+      : isGlobPattern(queryTrimmed) ||
+        c.name.toLowerCase().includes(queryTrimmed.toLowerCase())
+  )
 
   // precedence: covered > picked > pending > promoted > plain
   function rowState(name: string): RowState {
-    const via = globRegexes.find(([, re]) => re.test(name))?.[0]
+    const via = matchers.globs.find(([, re]) => re.test(name))?.[0]
     if (via) return { kind: 'covered', via }
-    if (exacts.has(name)) return { kind: 'picked' }
+    if (matchers.exacts.has(name)) return { kind: 'picked' }
     if (queryRegex?.test(name)) return { kind: 'pending' }
     if (promotedGlob && promotedGlob !== queryTrimmed) {
       return { kind: 'promoted', via: promotedGlob }
@@ -176,7 +195,23 @@ export function SubscriptionsField({
     return { kind: 'plain' }
   }
 
-  const rows = visible.map((c) => ({ ...c, state: rowState(c.name) }))
+  // Subscribed (picked or covered) classes sort to the top, based on what was
+  // committed when the panel opened rather than live state, so rows don't
+  // jump to the top mid-picking; new picks group on the next open.
+  const committedAtOpen = useRef<string[]>([])
+
+  function openPanel() {
+    if (open) return
+    committedAtOpen.current = committed
+    setOpen(true)
+  }
+
+  const frozen = toMatchers(committedAtOpen.current)
+  const [subscribedRows, restRows] = R.partition(
+    visible.map((c) => ({ ...c, state: rowState(c.name) })),
+    (row) => frozen.exacts.has(row.name) || frozen.globs.some(([, re]) => re.test(row.name))
+  )
+  const rows = [...subscribedRows, ...restRows]
   // covered rows can't be toggled, so keyboard nav skips them
   const selectableIdxs = rows.flatMap((row, i) => (row.state.kind === 'covered' ? [] : [i]))
 
@@ -211,17 +246,20 @@ export function SubscriptionsField({
   }
 
   function moveActive(dir: 1 | -1) {
-    if (selectableIdxs.length === 0) return
-    const pos = activeIdx === null ? -1 : selectableIdxs.indexOf(activeIdx)
-    const nextPos =
-      pos === -1
-        ? dir === 1
-          ? 0
-          : selectableIdxs.length - 1
-        : (pos + dir + selectableIdxs.length) % selectableIdxs.length
-    const next = selectableIdxs[nextPos]
+    const n = selectableIdxs.length
+    if (n === 0) return
+    // with no active row, down enters at the top and up at the bottom
+    const pos =
+      activeIdx === null ? (dir === 1 ? -1 : n) : selectableIdxs.indexOf(activeIdx)
+    const next = selectableIdxs[(pos + dir + n) % n]
     setActiveIdx(next)
     document.getElementById(optionId(next))?.scrollIntoView({ block: 'nearest' })
+  }
+
+  function closePanel() {
+    setOpen(false)
+    setArmedIdx(null)
+    setActiveIdx(null)
   }
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -258,12 +296,10 @@ export function SubscriptionsField({
       // keep focus but close the panel; stop the event so the page/form
       // doesn't also react to Escape
       e.stopPropagation()
-      setOpen(false)
-      setArmedIdx(null)
-      setActiveIdx(null)
+      closePanel()
     } else if (e.key === KEYS.down) {
       e.preventDefault()
-      if (!open) setOpen(true)
+      openPanel()
       setArmedIdx(null)
       moveActive(1)
     } else if (e.key === KEYS.up) {
@@ -284,9 +320,9 @@ export function SubscriptionsField({
         className="relative"
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget)) {
-            setOpen(false)
-            setArmedIdx(null)
-            setActiveIdx(null)
+            closePanel()
+            // discard uncommitted text so it doesn't read as added
+            setQuery('')
             setCommitError(undefined)
           }
         }}
@@ -308,11 +344,7 @@ export function SubscriptionsField({
             <SubscriptionChip
               key={value}
               value={value}
-              matchCount={
-                isGlobPattern(value) && data
-                  ? classes.filter((c) => subscriptionRegex(value).test(c.name)).length
-                  : undefined
-              }
+              matchCount={chipMatchCounts.get(value)}
               armed={armedIdx === i}
               onRemove={() => removeChip(value)}
             />
@@ -336,9 +368,9 @@ export function SubscriptionsField({
               setArmedIdx(null)
               setCommitError(undefined)
               setActiveIdx(null)
-              setOpen(true)
+              openPanel()
             }}
-            onFocus={() => setOpen(true)}
+            onFocus={openPanel}
             onKeyDown={onKeyDown}
           />
         </div>
@@ -386,6 +418,24 @@ export function SubscriptionsField({
               rows.map((row, i) => {
                 const { state } = row
                 const covered = state.kind === 'covered'
+                // right-aligned mono label: the pattern that covers (or would
+                // cover) this row
+                const label = match(state)
+                  .returnType<{ text: string; className: string } | null>()
+                  .with({ kind: 'covered' }, ({ via }) => ({
+                    text: `via ${via}`,
+                    className: 'text-tertiary',
+                  }))
+                  .with({ kind: 'pending' }, () => ({
+                    text: queryTrimmed,
+                    className: 'text-accent-secondary',
+                  }))
+                  .with({ kind: 'promoted' }, ({ via }) => ({
+                    text: via,
+                    className: 'text-tertiary',
+                  }))
+                  .with({ kind: P.union('picked', 'plain') }, () => null)
+                  .exhaustive()
                 return (
                   // oxlint-disable-next-line click-events-have-key-events, interactive-supports-focus
                   <div
@@ -396,7 +446,7 @@ export function SubscriptionsField({
                     aria-selected={state.kind === 'picked'}
                     aria-disabled={covered || undefined}
                     className={cn(
-                      'ox-menu-item border-secondary flex items-center gap-2.5 py-1.5 border-b last:border-0',
+                      'ox-menu-item border-secondary flex items-start gap-2.5 py-1.5 border-b last:border-0',
                       { 'is-highlighted': i === activeIdx },
                       'hover:bg-hover',
                       covered && 'cursor-default'
@@ -412,23 +462,25 @@ export function SubscriptionsField({
                         tabIndex={-1}
                       />
                     </span>
-                    <span className={cn('flex-1', covered && 'text-disabled')}>
-                      {queryTrimmed && !queryRegex ? (
-                        <HighlightedName name={row.name} query={queryTrimmed} />
-                      ) : (
-                        row.name
-                      )}
+                    <span className={cn('min-w-0 flex-1', covered && 'text-disabled')}>
+                      <ItemLabel
+                        name={
+                          queryTrimmed && !queryRegex ? (
+                            <HighlightedName name={row.name} query={queryTrimmed} />
+                          ) : (
+                            row.name
+                          )
+                        }
+                      >
+                        {row.description}
+                      </ItemLabel>
                     </span>
-                    {state.kind === 'covered' && (
-                      <span className="text-mono-xs text-tertiary">via {state.via}</span>
-                    )}
-                    {state.kind === 'pending' && (
-                      <span className="text-mono-xs text-accent-secondary">
-                        {queryTrimmed}
+                    {label && (
+                      // mt-1 optically centers the 1rem mono label on the
+                      // 1.5rem name line
+                      <span className={cn('text-mono-xs mt-1', label.className)}>
+                        {label.text}
                       </span>
-                    )}
-                    {state.kind === 'promoted' && (
-                      <span className="text-mono-xs text-tertiary">{state.via}</span>
                     )}
                   </div>
                 )

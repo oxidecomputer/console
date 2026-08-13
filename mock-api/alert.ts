@@ -30,28 +30,35 @@ export const alertClasses: Json<AlertClass>[] = [
     description:
       'Synthetic events sent for webhook receiver liveness probes. Receivers should return 2xx HTTP responses for these events, but they should NOT be treated as notifications of an actual event in the system.',
   },
-  // The classes below are mock-only, based on examples in RFD 538. They are not
-  // yet defined in Omicron's alert.rs; they exist to exercise the catalog UI.
-  { name: 'instance.create', description: 'An instance has been created' },
-  { name: 'instance.start', description: 'An instance has been started' },
-  { name: 'instance.stop', description: 'An instance has been stopped' },
-  { name: 'instance.delete', description: 'An instance has been deleted' },
-  { name: 'instance.reboot', description: 'An instance has been rebooted' },
-  { name: 'instance.fail', description: 'An instance has entered a failed state' },
+  // The classes below are mock-only: alerts are system-level events, so these
+  // are modeled on Omicron's hardware.power_shelf.psu.* taxonomy and the fault
+  // management subsystem (RFD 538 says alerts come from FMA, RFD 307). They
+  // are not yet defined in Omicron's alert.rs; they exist to exercise the
+  // catalog UI.
+  { name: 'hardware.sled.insert', description: 'A sled has been inserted into the rack' },
+  { name: 'hardware.sled.remove', description: 'A sled has been removed from the rack' },
+  { name: 'hardware.sled.fault', description: 'A sled has reported a hardware fault' },
   {
-    name: 'instance.ephemeral_ip.attach',
-    description: 'An ephemeral IP has been attached to an instance',
+    name: 'hardware.disk.insert',
+    description: 'A physical disk has been inserted into a sled',
   },
   {
-    name: 'instance.ephemeral_ip.detach',
-    description: 'An ephemeral IP has been detached from an instance',
+    name: 'hardware.disk.remove',
+    description: 'A physical disk has been removed from a sled',
   },
-  { name: 'project.create', description: 'A project has been created' },
-  { name: 'project.update', description: 'A project has been updated' },
-  { name: 'project.delete', description: 'A project has been deleted' },
-  { name: 'image.delete', description: 'An image has been deleted' },
-  { name: 'image.promote', description: 'An image has been promoted to a silo image' },
-  { name: 'image.demote', description: 'An image has been demoted to a project image' },
+  { name: 'hardware.disk.fault', description: 'A physical disk has reported a fault' },
+  { name: 'hardware.fan.fault', description: 'A fan has failed or is running out of spec' },
+  {
+    name: 'hardware.power_shelf.psu.fault',
+    description: 'A power supply unit (PSU) has reported a fault',
+  },
+  {
+    name: 'hardware.sensor.overtemp',
+    description: 'A temperature sensor has exceeded its critical threshold',
+  },
+  { name: 'system.update.start', description: 'A system software update has started' },
+  { name: 'system.update.complete', description: 'A system software update has completed' },
+  { name: 'system.update.fail', description: 'A system software update has failed' },
 ]
 
 export const receiverWebhook1: Json<AlertReceiver> = {
