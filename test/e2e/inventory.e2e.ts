@@ -77,7 +77,10 @@ test('Disk inventory page', async ({ page }) => {
   await expect(disksTab).toHaveClass(/is-selected/)
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { id: expect.stringContaining(physicalDisks[0].id), 'Form factor': 'U.2' })
+  await expectRowVisible(table, {
+    id: expect.stringContaining(physicalDisks[0].id),
+    'Form factor': 'U.2',
+  })
   await expectRowVisible(table, {
     id: expect.stringContaining(physicalDisks[3].id),
     'Form factor': 'M.2',
