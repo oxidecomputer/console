@@ -26,7 +26,7 @@ export type DiskTableItem =
 const diskTableColumns = [
   {
     header: 'Name',
-    cell: (item: DiskTableItem) => <Truncate text={item.name} maxLength={35} />,
+    cell: (item: DiskTableItem) => <Truncate text={item.name} maxWidth="max-w-64" />,
   },
   {
     header: 'Action',

@@ -29,6 +29,7 @@ import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { Truncate } from '~/ui/lib/Truncate'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -78,7 +79,14 @@ export default function AccessTokensPage() {
             </TipIcon>
           </>
         ),
-        cell: (info) => <span>{info.getValue()}</span>,
+        cell: (info) => (
+          <Truncate
+            text={info.getValue()}
+            position="middle"
+            maxWidth="max-w-48"
+            hasCopyButton
+          />
+        ),
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       colHelper.accessor('timeExpires', {

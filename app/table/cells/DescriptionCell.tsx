@@ -9,11 +9,5 @@
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Truncate } from '~/ui/lib/Truncate'
 
-export type Props = { text?: string; maxLength?: number; sideModal?: boolean }
-
-export const DescriptionCell = ({ text, maxLength, sideModal }: Props) =>
-  text ? (
-    <Truncate text={text} maxLength={maxLength ?? (sideModal ? 20 : 48)} />
-  ) : (
-    <EmptyCell />
-  )
+export const DescriptionCell = ({ text }: { text?: string }) =>
+  text ? <Truncate text={text} maxWidth="max-w-96" /> : <EmptyCell />

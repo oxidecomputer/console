@@ -10,9 +10,10 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { api, getListQFn, queryClient, type Sled } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
-import { makeLinkCell } from '~/table/cells/LinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './sled/SledBadges'
@@ -29,7 +30,11 @@ export const handle = { crumb: 'Sleds' }
 const colHelper = createColumnHelper<Sled>()
 const staticCols = [
   colHelper.accessor('id', {
-    cell: makeLinkCell((sledId) => pb.sledInstances({ sledId })),
+    cell: (info) => (
+      <LinkCell to={pb.sledInstances({ sledId: info.getValue() })}>
+        <Truncate text={info.getValue()} position="middle" maxWidth="max-w-48" />
+      </LinkCell>
+    ),
   }),
   // TODO: colHelper.accessor('baseboard.serviceAddress', { header: 'service address' }),
   colHelper.group({

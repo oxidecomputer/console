@@ -23,28 +23,28 @@ test('Sled inventory page', async ({ page }) => {
   // expectRowVisible currently only looks at the last header row in case of
   // grouping, hence the slightly weird column names
   await expectRowVisible(sledsTable, {
-    id: sleds[0].id,
+    id: expect.stringContaining(sleds[0].id),
     'serial number': sleds[0].baseboard.serial,
     Kind: 'In service',
     'Provision policy': 'Provisionable',
     state: 'active',
   })
   await expectRowVisible(sledsTable, {
-    id: sleds[1].id,
+    id: expect.stringContaining(sleds[1].id),
     'serial number': sleds[1].baseboard.serial,
     Kind: 'In service',
     'Provision policy': 'Not provisionable',
     state: 'active',
   })
   await expectRowVisible(sledsTable, {
-    id: sleds[2].id,
+    id: expect.stringContaining(sleds[2].id),
     'serial number': sleds[2].baseboard.serial,
     Kind: 'Expunged',
     'Provision policy': '—',
     state: 'active',
   })
   await expectRowVisible(sledsTable, {
-    id: sleds[3].id,
+    id: expect.stringContaining(sleds[3].id),
     'serial number': sleds[3].baseboard.serial,
     Kind: 'Expunged',
     'Provision policy': '—',
@@ -77,21 +77,21 @@ test('Disk inventory page', async ({ page }) => {
   await expect(disksTab).toHaveClass(/is-selected/)
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { id: physicalDisks[0].id, 'Form factor': 'U.2' })
+  await expectRowVisible(table, { id: expect.stringContaining(physicalDisks[0].id), 'Form factor': 'U.2' })
   await expectRowVisible(table, {
-    id: physicalDisks[3].id,
+    id: expect.stringContaining(physicalDisks[3].id),
     'Form factor': 'M.2',
     policy: 'in service',
     state: 'active',
   })
   await expectRowVisible(table, {
-    id: physicalDisks[4].id,
+    id: expect.stringContaining(physicalDisks[4].id),
     'Form factor': 'M.2',
     policy: 'expunged',
     state: 'active',
   })
   await expectRowVisible(table, {
-    id: physicalDisks[5].id,
+    id: expect.stringContaining(physicalDisks[5].id),
     'Form factor': 'M.2',
     policy: 'expunged',
     state: 'decommissioned',

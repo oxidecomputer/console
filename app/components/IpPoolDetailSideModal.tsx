@@ -35,7 +35,7 @@ export function IpPoolDetailSideModal({ pool, onDismiss }: IpPoolDetailSideModal
     >
       <PropertiesTable>
         <PropertiesTable.IdRow id={pool.id} />
-        <PropertiesTable.DescriptionRow description={pool.description} sideModal />
+        <PropertiesTable.DescriptionRow description={pool.description} />
         <PropertiesTable.Row label="IP version">
           <IpVersionBadge ipVersion={pool.ipVersion} />
         </PropertiesTable.Row>

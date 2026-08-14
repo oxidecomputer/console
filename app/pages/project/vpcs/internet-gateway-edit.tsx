@@ -122,10 +122,7 @@ export default function EditInternetGatewayForm() {
       />
       <PropertiesTable key={internetGateway.id}>
         <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
-        <PropertiesTable.DescriptionRow
-          description={internetGateway.description}
-          sideModal
-        />
+        <PropertiesTable.DescriptionRow description={internetGateway.description} />
         <PropertiesTable.IdRow id={internetGateway.id} />
       </PropertiesTable>
 
@@ -141,10 +138,7 @@ export default function EditInternetGatewayForm() {
               <PropertiesTable.Row label="Name">
                 {gatewayIpAddress.name}
               </PropertiesTable.Row>
-              <PropertiesTable.DescriptionRow
-                description={gatewayIpAddress.description}
-                sideModal
-              />
+              <PropertiesTable.DescriptionRow description={gatewayIpAddress.description} />
               <PropertiesTable.Row label="IP Address">
                 <CopyableIp ip={gatewayIpAddress.address} />
               </PropertiesTable.Row>
