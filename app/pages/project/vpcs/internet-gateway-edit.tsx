@@ -121,12 +121,12 @@ export default function EditInternetGatewayForm() {
         content="Gateways can only be modified through the CLI or API."
       />
       <PropertiesTable key={internetGateway.id}>
+        <PropertiesTable.IdRow id={internetGateway.id} />
         <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
         <PropertiesTable.DescriptionRow
           description={internetGateway.description}
           sideModal
         />
-        <PropertiesTable.IdRow id={internetGateway.id} />
       </PropertiesTable>
       <FormDivider />
 
