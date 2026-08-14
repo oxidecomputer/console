@@ -48,6 +48,7 @@ import {
   utilizationForSilo,
 } from './db'
 import {
+  alreadyExistsErr,
   currentUser,
   errIfExists,
   errIfInvalidDiskSize,
@@ -1202,7 +1203,10 @@ export const handlers = makeHandlers({
   },
   systemIpPoolList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
-    return paginated(query, db.ipPools)
+    const pools = query.assignment
+      ? db.ipPools.filter((pool) => pool.assignment === query.assignment)
+      : db.ipPools
+    return paginated(query, pools)
   },
   systemIpPoolUtilizationView({ path, cookies }) {
     requireFleetViewer(cookies)
@@ -1275,19 +1279,40 @@ export const handlers = makeHandlers({
     const pool = lookup.ipPool(path)
     const silo_id = lookup.silo({ silo: body.silo }).id
 
+    // Re-linking the same (pool, silo) pair hits the ip_pool_resource PK
+    // (ip_pool_id, resource_type, resource_id); linking as default when the silo
+    // already has a default for this IP version and pool type hits the partial
+    // unique index one_default_ip_pool_per_resource_type_version. The IP pool
+    // API does not inspect the constraint name, so both conflicts surface as the
+    // same 400 ObjectAlreadyExists.
+    // https://github.com/oxidecomputer/omicron/blob/13937a1/nexus/db-queries/src/db/datastore/ip_pool.rs#L1127-L1141
+    // https://github.com/oxidecomputer/omicron/blob/13937a1/schema/crdb/dbinit.sql#L2402-L2412
+    const alreadyLinked = db.ipPoolSilos.some(
+      (ips) => ips.ip_pool_id === pool.id && ips.silo_id === silo_id
+    )
+    const defaultConflict =
+      body.is_default &&
+      db.ipPoolSilos.some((ips) => {
+        if (ips.silo_id !== silo_id || !ips.is_default) return false
+        const other = db.ipPools.find((p) => p.id === ips.ip_pool_id)
+        return (
+          other &&
+          other.ip_version === pool.ip_version &&
+          other.pool_type === pool.pool_type
+        )
+      })
+    if (alreadyLinked || defaultConflict) {
+      throw alreadyExistsErr(
+        `already exists: ip_pool_resource "ip_pool_id: ${pool.id}, resource_id: ${silo_id}, resource_type: Silo"`
+      )
+    }
+
     const assoc = {
       ip_pool_id: pool.id,
       silo_id,
       is_default: body.is_default,
     }
-
-    const alreadyThere = db.ipPoolSilos.find(
-      (ips) => ips.ip_pool_id === pool.id && ips.silo_id === silo_id
-    )
-
-    // TODO: this matches current API logic but makes no sense because is_default
-    // could be different. Need to fix that. Should 400 or 409 on conflict.
-    if (!alreadyThere) db.ipPoolSilos.push(assoc)
+    db.ipPoolSilos.push(assoc)
 
     return json(assoc, { status: 201 })
   },
@@ -1396,6 +1421,7 @@ export const handlers = makeHandlers({
       // See https://zod.dev/v4/changelog?id=defaults-applied-within-optional-fields#defaults-applied-within-optional-fields
       ip_version: body.ip_version || 'v4',
       pool_type: body.pool_type || 'unicast',
+      assignment: body.assignment || 'silos',
       ...getTimestamps(),
     }
     db.ipPools.push(newPool)
@@ -2478,17 +2504,45 @@ export const handlers = makeHandlers({
     const pool = lookup.subnetPool({ subnetPool: path.pool })
     const silo_id = lookup.silo({ silo: body.silo }).id
 
+    // Re-linking the same (pool, silo) pair hits the subnet_pool_silo_link PK
+    // (subnet_pool_id, silo_id) and 400s as ObjectAlreadyExists.
+    // https://github.com/oxidecomputer/omicron/blob/13937a1/nexus/db-queries/src/db/datastore/external_subnet.rs#L316-L329
+    // https://github.com/oxidecomputer/omicron/blob/13937a1/schema/crdb/dbinit.sql#L2807
+    const alreadyLinked = db.subnetPoolSilos.some(
+      (sps) => sps.subnet_pool_id === pool.id && sps.silo_id === silo_id
+    )
+    if (alreadyLinked) {
+      throw alreadyExistsErr(
+        `already exists: subnet_pool_silo_link "subnet_pool_id: ${pool.id}, silo_id: ${silo_id}"`
+      )
+    }
+
+    // Linking as default when the silo already has a default for this IP version
+    // hits the partial unique index single_default_per_silo. Unlike the IP pool
+    // API, this case is detected by constraint name and returns a distinct 400
+    // invalid_request with a message pointing the caller at the link-then-promote
+    // workflow.
+    // https://github.com/oxidecomputer/omicron/blob/13937a1/nexus/db-queries/src/db/datastore/external_subnet.rs#L305-L315
+    // https://github.com/oxidecomputer/omicron/blob/13937a1/schema/crdb/dbinit.sql#L2810-L2813
+    if (body.is_default) {
+      const defaultConflict = db.subnetPoolSilos.some((sps) => {
+        if (sps.silo_id !== silo_id || !sps.is_default) return false
+        const other = db.subnetPools.find((p) => p.id === sps.subnet_pool_id)
+        return other && other.ip_version === pool.ip_version
+      })
+      if (defaultConflict) {
+        throw invalidRequest(
+          'Silo already has a default subnet pool for this IP version. Link the pool as non-default, then make it the default, which will demote the existing one.'
+        )
+      }
+    }
+
     const assoc: Json<Api.SubnetPoolSiloLink> = {
       subnet_pool_id: pool.id,
       silo_id,
       is_default: body.is_default,
     }
-
-    const alreadyThere = db.subnetPoolSilos.find(
-      (sps) => sps.subnet_pool_id === pool.id && sps.silo_id === silo_id
-    )
-
-    if (!alreadyThere) db.subnetPoolSilos.push(assoc)
+    db.subnetPoolSilos.push(assoc)
 
     return json(assoc, { status: 201 })
   },
@@ -2607,10 +2661,6 @@ export const handlers = makeHandlers({
   internetGatewayIpAddressDelete: NotImplemented,
   internetGatewayIpPoolCreate: NotImplemented,
   internetGatewayIpPoolDelete: NotImplemented,
-  systemIpPoolServiceRangeAdd: NotImplemented,
-  systemIpPoolServiceRangeList: NotImplemented,
-  systemIpPoolServiceRangeRemove: NotImplemented,
-  systemIpPoolServiceView: NotImplemented,
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
@@ -2635,6 +2685,7 @@ export const handlers = makeHandlers({
   networkingBgpConfigCreate: NotImplemented,
   networkingBgpConfigDelete: NotImplemented,
   networkingBgpConfigList: NotImplemented,
+  networkingBgpConfigUpdate: NotImplemented,
   networkingBgpExported: NotImplemented,
   networkingBgpImported: NotImplemented,
   networkingBgpMessageHistory: NotImplemented,
@@ -2685,6 +2736,7 @@ export const handlers = makeHandlers({
   supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
+  systemIpPoolAssign: NotImplemented,
   systemNetworkingSettingsUpdate: NotImplemented,
   systemNetworkingSettingsView: NotImplemented,
   systemQuotasList: NotImplemented,

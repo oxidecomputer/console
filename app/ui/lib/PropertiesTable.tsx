@@ -13,8 +13,10 @@ import { EmptyCell } from '~/table/cells/EmptyCell'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
 
+import { CopyToClipboard } from './CopyToClipboard'
 import { DateTime } from './DateTime'
 import { Truncate } from './Truncate'
+import { Size } from './ValueUnit'
 
 export interface PropertiesTableProps {
   className?: string
@@ -33,6 +35,9 @@ export function PropertiesTable({
       PropertiesTable.IdRow,
       PropertiesTable.DescriptionRow,
       PropertiesTable.DateRow,
+      PropertiesTable.SizeRow,
+      PropertiesTable.CopyableRow,
+      PropertiesTable.ResourceRows,
     ]),
     'PropertiesTable only accepts specific Row components as children'
   )
@@ -98,4 +103,39 @@ PropertiesTable.DateRow = ({
   <PropertiesTable.Row label={label}>
     <DateTime date={date} />
   </PropertiesTable.Row>
+)
+
+PropertiesTable.SizeRow = ({
+  bytes,
+  label = 'Size',
+}: {
+  bytes: number
+  label?: string
+}) => (
+  <PropertiesTable.Row label={label}>
+    <Size bytes={bytes} />
+  </PropertiesTable.Row>
+)
+
+PropertiesTable.CopyableRow = ({ label, text }: { label: string; text: string }) => (
+  <PropertiesTable.Row label={label}>
+    {text}
+    <CopyToClipboard className="ml-1" text={text} />
+  </PropertiesTable.Row>
+)
+
+/** The bits of an API resource `ResourceRows` needs */
+export type ResourceMetadata = { id: string; timeCreated: Date; timeModified: Date }
+
+/**
+ * The ID + created/updated timestamps every API resource carries. Renders the
+ * three rows nearly every edit side modal opens with; pass additional
+ * resource-specific `PropertiesTable.*` rows as siblings after it.
+ */
+PropertiesTable.ResourceRows = ({ resource }: { resource: ResourceMetadata }) => (
+  <>
+    <PropertiesTable.IdRow id={resource.id} />
+    <PropertiesTable.DateRow label="Created" date={resource.timeCreated} />
+    <PropertiesTable.DateRow label="Updated" date={resource.timeModified} />
+  </>
 )

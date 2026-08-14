@@ -246,6 +246,8 @@ export default function ImageCreate() {
   const finalizeDisk = useApiMutation(api.diskFinalizeImport)
   const createImage = useApiMutation(api.imageCreate)
   const deleteDisk = useApiMutation(api.diskDelete)
+  // no invalidation needed: the deleted snapshot is the transient one created
+  // by this flow, so nothing can be displaying it
   const deleteSnapshot = useApiMutation(api.snapshotDelete)
 
   // TODO: Distinguish cleanup mutations being called after successful run vs.
@@ -515,7 +517,9 @@ export default function ImageCreate() {
     setAllDone(true)
   }
 
-  const form = useForm({ defaultValues })
+  // Surface file validation as soon as the user picks a file. Block-size
+  // changes are still validated on submit.
+  const form = useForm({ defaultValues, mode: 'onChange' })
   const file = form.watch('imageFile')
   const blockSize = form.watch('blockSize')
 
@@ -622,6 +626,13 @@ export default function ImageCreate() {
           label="Image file"
           required
           control={form.control}
+          // Crucible rejects bulk-write imports whose total size isn't a
+          // multiple of the block size, so catch it before the long upload.
+          validate={(f, { blockSize }) => {
+            if (f && f.size % blockSize !== 0) {
+              return `File size must be a multiple of the block size (${blockSize} bytes)`
+            }
+          }}
         />
         {imageValidation && <BootableNotice {...imageValidation} />}
       </div>

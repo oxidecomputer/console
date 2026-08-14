@@ -1295,6 +1295,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `POST /v1/system/ip-pools/:pool/assignment` */
+  systemIpPoolAssign: (params: {
+    path: Api.SystemIpPoolAssignPathParams
+    body: Json<Api.IpPoolAssignParam>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.IpPool>>
   /** `GET /v1/system/ip-pools/:pool/ranges` */
   systemIpPoolRangeList: (params: {
     path: Api.SystemIpPoolRangeListPathParams
@@ -1349,29 +1356,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.IpPoolUtilization>>
-  /** `GET /v1/system/ip-pools-service` */
-  systemIpPoolServiceView: (params: {
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPool>>
-  /** `GET /v1/system/ip-pools-service/ranges` */
-  systemIpPoolServiceRangeList: (params: {
-    query: Api.SystemIpPoolServiceRangeListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolRangeResultsPage>>
-  /** `POST /v1/system/ip-pools-service/ranges/add` */
-  systemIpPoolServiceRangeAdd: (params: {
-    body: Json<Api.IpRange>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolRange>>
-  /** `POST /v1/system/ip-pools-service/ranges/remove` */
-  systemIpPoolServiceRangeRemove: (params: {
-    body: Json<Api.IpRange>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
   /** `GET /v1/system/metrics/:metricName` */
   systemMetric: (params: {
     path: Api.SystemMetricPathParams
@@ -1444,6 +1428,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.BgpConfigResultsPage>>
+  /** `PUT /v1/system/networking/bgp` */
+  networkingBgpConfigUpdate: (params: {
+    query: Api.NetworkingBgpConfigUpdateQueryParams
+    body: Json<Api.BgpConfigUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.BgpConfig>>
   /** `POST /v1/system/networking/bgp` */
   networkingBgpConfigCreate: (params: {
     body: Json<Api.BgpConfigCreate>
@@ -3243,6 +3234,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/system/ip-pools/:pool',
       handler(handlers['systemIpPoolDelete'], schema.SystemIpPoolDeleteParams, null)
     ),
+    http.post(
+      '/v1/system/ip-pools/:pool/assignment',
+      handler(
+        handlers['systemIpPoolAssign'],
+        schema.SystemIpPoolAssignParams,
+        schema.IpPoolAssignParam
+      )
+    ),
     http.get(
       '/v1/system/ip-pools/:pool/ranges',
       handler(handlers['systemIpPoolRangeList'], schema.SystemIpPoolRangeListParams, null)
@@ -3294,26 +3293,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.SystemIpPoolUtilizationViewParams,
         null
       )
-    ),
-    http.get(
-      '/v1/system/ip-pools-service',
-      handler(handlers['systemIpPoolServiceView'], null, null)
-    ),
-    http.get(
-      '/v1/system/ip-pools-service/ranges',
-      handler(
-        handlers['systemIpPoolServiceRangeList'],
-        schema.SystemIpPoolServiceRangeListParams,
-        null
-      )
-    ),
-    http.post(
-      '/v1/system/ip-pools-service/ranges/add',
-      handler(handlers['systemIpPoolServiceRangeAdd'], null, schema.IpRange)
-    ),
-    http.post(
-      '/v1/system/ip-pools-service/ranges/remove',
-      handler(handlers['systemIpPoolServiceRangeRemove'], null, schema.IpRange)
     ),
     http.get(
       '/v1/system/metrics/:metricName',
@@ -3381,6 +3360,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         handlers['networkingBgpConfigList'],
         schema.NetworkingBgpConfigListParams,
         null
+      )
+    ),
+    http.put(
+      '/v1/system/networking/bgp',
+      handler(
+        handlers['networkingBgpConfigUpdate'],
+        schema.NetworkingBgpConfigUpdateParams,
+        schema.BgpConfigUpdate
       )
     ),
     http.post(

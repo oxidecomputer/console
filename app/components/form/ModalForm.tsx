@@ -39,7 +39,7 @@ export function ModalForm<TFieldValues extends FieldValues>({
   submitError,
   title,
   onSubmit,
-  submitLabel = 'Save',
+  submitLabel,
   loading,
   width = 'medium',
   overlay = true,

@@ -27,6 +27,21 @@ import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
 
+/**
+ * Spread onto a field to stop password managers (1Password, Bitwarden,
+ * LastPass) from showing their fill icon and offering autofill. Use for
+ * fields whose name/label a password manager might mistake for a credential
+ * or personal detail (e.g. `first`/`last`, which read as first/last name).
+ *
+ * https://www.stefanjudis.com/snippets/turn-off-password-managers/
+ */
+export const noPasswordManager = {
+  'data-1p-ignore': true,
+  'data-bwignore': true,
+  'data-lpignore': 'true',
+  'data-form-type': 'other',
+} as const
+
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,

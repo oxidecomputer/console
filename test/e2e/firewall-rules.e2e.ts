@@ -11,6 +11,7 @@ import {
   expect,
   expectRowVisible,
   fillAndSelectComboboxOption,
+  fillNumberInput,
   selectOption,
   test,
   type Locator,
@@ -19,7 +20,7 @@ import {
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
 test('can create firewall rule', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc')
+  await page.goto('/projects/mock-project/vpcs/default')
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   // default rules are all there
@@ -41,7 +42,7 @@ test('can create firewall rule', async ({ page }) => {
   await page.fill('input[name=name]', 'my-new-rule')
   await page.getByRole('radio', { name: 'Outbound' }).click()
 
-  await page.fill('role=textbox[name="Priority"]', '5')
+  await fillNumberInput(page.getByRole('textbox', { name: 'Priority' }), '5')
 
   // add targets with overlapping names and types to test delete
   const targets = page.getByRole('table', { name: 'Targets' })
@@ -156,7 +157,7 @@ const deleteRowAndVerifyRowCount = async (table: Locator, expectedCount: number)
 }
 
 test('firewall rule form targets table', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc')
+  await page.goto('/projects/mock-project/vpcs/default')
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   // open modal
@@ -176,23 +177,23 @@ test('firewall rule form targets table', async ({ page }) => {
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
-  // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
-  await fillAndSelectComboboxOption(targetVpcNameField, page, 'mock-subnet', 'mock-subnet')
+  // enter a VPC called 'default', even if that doesn't make sense here, to test dropdown later
+  await fillAndSelectComboboxOption(targetVpcNameField, page, 'default', 'default')
   await addButton.click()
-  await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-subnet' })
+  await expectRowVisible(targets, { Type: 'vpc', Value: 'default' })
 
   // add VPC subnet targets
   const subnetNameField = page.getByRole('combobox', { name: 'Subnet name' })
 
-  // add a subnet by selecting from a dropdown; make sure 'mock-subnet' is present in the dropdown,
-  // even though VPC:'mock-subnet' has already been added
+  // add a subnet by selecting from a dropdown; make sure 'default' is present in the dropdown,
+  // even though VPC:'default' has already been added
   await selectOption(page, 'Target type', 'VPC subnet')
   // addButton should be disabled again, as type has changed but no value has been entered
   await expect(addButton).toBeDisabled()
-  await selectOption(page, subnetNameField, 'mock-subnet')
+  await selectOption(page, subnetNameField, 'default')
   await expect(addButton).toBeEnabled()
   await addButton.click()
-  await expectRowVisible(targets, { Type: 'subnet', Value: 'mock-subnet' })
+  await expectRowVisible(targets, { Type: 'subnet', Value: 'default' })
 
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
@@ -220,7 +221,7 @@ test('firewall rule form targets table', async ({ page }) => {
 })
 
 test('firewall rule form target validation', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+  await page.goto('/projects/mock-project/vpcs/default/firewall-rules-new')
 
   const addButton = page.getByRole('button', { name: 'Add target' })
   const targets = page.getByRole('table', { name: 'Targets' })
@@ -284,7 +285,7 @@ test('firewall rule form target validation', async ({ page }) => {
 // that code.
 
 test('firewall rule form host validation', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+  await page.goto('/projects/mock-project/vpcs/default/firewall-rules-new')
 
   const addButton = page.getByRole('button', { name: 'Add host filter' })
   const hosts = page.getByRole('table', { name: 'Host filters' })
@@ -349,7 +350,7 @@ test('firewall rule form host validation', async ({ page }) => {
 })
 
 test('firewall rule form hosts table', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc')
+  await page.goto('/projects/mock-project/vpcs/default')
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   // open modal
@@ -370,9 +371,9 @@ test('firewall rule form hosts table', async ({ page }) => {
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
   await selectOption(page, 'Host type', 'VPC subnet')
-  await selectOption(page, 'Subnet name', 'mock-subnet')
+  await selectOption(page, 'Subnet name', 'default')
   await addButton.click()
-  await expectRowVisible(hosts, { Type: 'subnet', Value: 'mock-subnet' })
+  await expectRowVisible(hosts, { Type: 'subnet', Value: 'default' })
 
   await selectOption(page, 'Host type', 'VPC subnet')
   const subnetNameField2 = page.getByRole('combobox', { name: 'Subnet name' })
@@ -397,7 +398,7 @@ test('firewall rule form hosts table', async ({ page }) => {
 })
 
 test('can update firewall rule', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc')
+  await page.goto('/projects/mock-project/vpcs/default')
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   const rows = page.locator('tbody >> tr')
@@ -486,7 +487,7 @@ test('can update firewall rule', async ({ page }) => {
 })
 
 test('create from existing rule', async ({ page }) => {
-  const url = '/projects/mock-project/vpcs/mock-vpc/firewall-rules'
+  const url = '/projects/mock-project/vpcs/default/firewall-rules'
   await page.goto(url)
 
   const modal = page.getByRole('dialog', { name: 'Add firewall rule' })
@@ -535,7 +536,7 @@ test('create from existing rule', async ({ page }) => {
   await expect(targets.getByRole('row', { name: 'vpc default' })).toBeVisible()
 })
 
-const rulePath = '/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit'
+const rulePath = '/projects/mock-project/vpcs/default/firewall-rules/allow-icmp/edit'
 
 test('can edit rule directly by URL', async ({ page }) => {
   await page.goto(rulePath)
@@ -553,7 +554,7 @@ test('404s on edit non-existent rule', async ({ page }) => {
 // when creating a rule, giving it the same name as an existing rule is an
 // error. if you want to overwrite a rule, you need to edit it
 test('name conflict error on create', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+  await page.goto('/projects/mock-project/vpcs/default/firewall-rules-new')
 
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('allow-ssh')
 
@@ -567,7 +568,7 @@ test('name conflict error on create', async ({ page }) => {
 // when editing a rule, on the other hand, we only check for conflicts against rules
 // other than the one being edited, because of course its name can stay the same
 test('name conflict error on edit', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit')
+  await page.goto('/projects/mock-project/vpcs/default/firewall-rules/allow-icmp/edit')
 
   // changing the name to one taken by another rule is an error
   const nameField = page.getByRole('textbox', { name: 'Name', exact: true })
@@ -583,7 +584,7 @@ test('name conflict error on edit', async ({ page }) => {
   await nameField.fill('allow-icmp')
 
   // changing a value _without_ changing the name is allowed
-  await page.getByRole('textbox', { name: 'Priority' }).fill('37')
+  await fillNumberInput(page.getByRole('textbox', { name: 'Priority' }), '37')
   await page.getByRole('button', { name: 'Update rule' }).click()
   await expect(error).toBeHidden()
   await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp', Priority: '37' })
@@ -596,7 +597,7 @@ test('name conflict error on edit', async ({ page }) => {
 })
 
 test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+  await page.goto('/projects/mock-project/vpcs/default/firewall-rules-new')
 
   const protocolTable = page.getByRole('table', { name: 'Protocol filters' })
   await expect(protocolTable).toBeHidden()

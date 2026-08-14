@@ -18,7 +18,6 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-import { formatBytes } from '~/util/units'
 
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './SledBadges'
 
@@ -37,8 +36,6 @@ export const handle = makeCrumb(
 export default function SledPage() {
   const { sledId } = useSledParams()
   const { data: sled } = usePrefetchedQuery(sledView({ sledId }))
-
-  const ram = formatBytes(sled.usablePhysicalRam)
 
   return (
     <>
@@ -74,10 +71,10 @@ export default function SledPage() {
         <PropertiesTable.Row label="rack id">
           <span className="text-default">{sled.rackId}</span>
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="usable physical ram">
-          <span className="text-default pr-0.5">{ram.value}</span>
-          <span className="text-tertiary">{ram.unit}</span>
-        </PropertiesTable.Row>
+        <PropertiesTable.SizeRow
+          label="usable physical ram"
+          bytes={sled.usablePhysicalRam}
+        />
       </PropertiesTable>
 
       <RouteTabs fullWidth>

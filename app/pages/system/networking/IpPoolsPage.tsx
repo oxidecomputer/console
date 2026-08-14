@@ -76,7 +76,11 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-const ipPoolList = getListQFn(api.systemIpPoolList, {})
+// Filter out system services pools. Eventually we probably want to show both
+// types of pool, with a column indicating the assignment, but for now keep the
+// page working like it did before the service and silo pool lists were unified.
+// There is currently no way to manage service pools in the console.
+const ipPoolList = getListQFn(api.systemIpPoolList, { query: { assignment: 'silos' } })
 
 export async function clientLoader() {
   await queryClient.prefetchQuery(ipPoolList.optionsFn())
@@ -130,7 +134,7 @@ export default function IpPoolsPage() {
   })
 
   const { data: allPools } = useQuery(
-    q(api.systemIpPoolList, { query: { limit: ALL_ISH } })
+    q(api.systemIpPoolList, { query: { assignment: 'silos', limit: ALL_ISH } })
   )
 
   useQuickActions(

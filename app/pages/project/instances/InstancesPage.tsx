@@ -26,6 +26,7 @@ import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { RefreshButton } from '~/components/RefreshButton'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
+import { ExternalIpsCell } from '~/table/cells/ExternalIpsCell'
 import { InstanceStateCell } from '~/table/cells/InstanceStateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
@@ -36,12 +37,12 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { Tooltip } from '~/ui/lib/Tooltip'
+import { Size, ValueUnit } from '~/ui/lib/ValueUnit'
 import { setDiff } from '~/util/array'
 import { ALL_ISH } from '~/util/consts'
 import { toLocaleTimeString } from '~/util/date'
 import { pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
-import { formatBytes } from '~/util/units'
 
 import { useMakeInstanceActions } from './actions'
 import { ResizeInstanceModal } from './InstancePage'
@@ -67,13 +68,32 @@ const instanceList = (
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
-  await queryClient.prefetchQuery(instanceList(project).optionsFn())
+  const instances = await queryClient.fetchQuery(instanceList(project).optionsFn())
+  // Warm the external IP cache for each instance in parallel as the route
+  // loads. This doesn't add requests: ExternalIpsCell would issue the same
+  // ones on mount, showing a skeleton until its list arrives. Prefetching
+  // just starts them earlier.
+  const ipPrefetches = instances.items.map(({ name: instance }) =>
+    queryClient.prefetchQuery(
+      q(api.instanceExternalIpList, { path: { instance }, query: { project } })
+    )
+  )
+  // Block render on the first few so the top of the table doesn't flash
+  // skeletons, but let the rest roll in after. Awaiting all of them would
+  // block render on the slowest of up to 50 requests, and the odds of hitting
+  // a slow one (while low) grow with N. 6 is a magic number: enough to usually
+  // paint the top of the table without skeletons, but still small. It happens
+  // to match the browser's per-host connection limit, but that only applies
+  // over HTTP/1.1; in production, Nexus uses HTTP/2, so requests multiplex and
+  // that limit shouldn't matter.
+  await Promise.all(ipPrefetches.slice(0, 6))
   return null
 }
 
 const refetchInstances = () =>
   Promise.all([
     queryClient.invalidateEndpoint('instanceList'),
+    queryClient.invalidateEndpoint('instanceExternalIpList'),
     queryClient.invalidateEndpoint('antiAffinityGroupMemberList'),
   ])
 
@@ -101,26 +121,6 @@ export default function InstancesPage() {
       colHelper.accessor('name', {
         cell: makeLinkCell((instance) => pb.instance({ project, instance })),
       }),
-      colHelper.accessor('ncpus', {
-        header: 'CPU',
-        cell: (info) => (
-          <>
-            {info.getValue()}{' '}
-            <span className="text-tertiary ml-1">{pluralize('vCPU', info.getValue())}</span>
-          </>
-        ),
-      }),
-      colHelper.accessor('memory', {
-        header: 'Memory',
-        cell: (info) => {
-          const memory = formatBytes(info.getValue())
-          return (
-            <>
-              {memory.value} <span className="text-tertiary ml-1">{memory.unit}</span>
-            </>
-          )
-        },
-      }),
       colHelper.accessor(
         (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),
         {
@@ -128,6 +128,23 @@ export default function InstancesPage() {
           cell: (info) => <InstanceStateCell value={info.getValue()} />,
         }
       ),
+      colHelper.accessor('ncpus', {
+        header: 'CPU',
+        cell: (info) => (
+          <ValueUnit value={info.getValue()} unit={pluralize('vCPU', info.getValue())} />
+        ),
+      }),
+      colHelper.accessor('memory', {
+        header: 'Memory',
+        cell: (info) => <Size bytes={info.getValue()} />,
+      }),
+      colHelper.display({
+        id: 'externalIps',
+        header: 'External IPs',
+        cell: (info) => (
+          <ExternalIpsCell project={project} instance={info.row.original.name} />
+        ),
+      }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol((instance: Instance) => [
         ...makeButtonActions(instance),

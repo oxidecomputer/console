@@ -30,6 +30,7 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { DiskSourceName } from '~/table/cells/DiskSourceCell'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -90,6 +91,8 @@ export default function DisksPage() {
   const { mutateAsync: deleteDisk } = useApiMutation(api.diskDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('diskList')
+      // deleted disk may be a snapshot's source, shown in the snapshot detail modal
+      queryClient.invalidateEndpoint('diskView')
       // prettier-ignore
       addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>)
     },
@@ -176,6 +179,14 @@ export default function DisksPage() {
           cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
         }),
         colHelper.accessor('size', Columns.size),
+        colHelper.accessor(
+          (row) => ({ imageId: row.imageId, snapshotId: row.snapshotId }),
+          {
+            id: 'source',
+            header: 'Source',
+            cell: (info) => <DiskSourceName {...info.getValue()} />,
+          }
+        ),
         colHelper.accessor('state.state', {
           header: 'state',
           cell: (info) => <DiskStateBadge state={info.getValue()} />,

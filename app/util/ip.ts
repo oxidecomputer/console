@@ -6,8 +6,14 @@
  * Copyright Oxide Computer Company
  */
 
+import * as R from 'remeda'
+
 import type { ExternalIp, InstanceNetworkInterface, IpVersion, UnicastIpPool } from '~/api'
 import { setDiff, setIntersection } from '~/util/array'
+
+/** Order IPs: floating first, then ephemeral, then SNAT */
+const IP_ORDER = { floating: 0, ephemeral: 1, snat: 2 } as const
+export const orderIps = (ips: ExternalIp[]) => R.sortBy(ips, (a) => IP_ORDER[a.kind])
 
 // Borrowed from Valibot. I tried some from Zod and an O'Reilly regex cookbook
 // but they didn't match results with std::net on simple test cases

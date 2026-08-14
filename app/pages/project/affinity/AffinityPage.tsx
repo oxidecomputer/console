@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
@@ -42,15 +43,15 @@ import { pb } from '~/util/path-builder'
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   const groups = await queryClient.fetchQuery(antiAffinityGroupList({ project }))
-  const memberFetches = groups.items.map(({ name }) =>
+  // Warm the cache for each group's member count in parallel as the route loads,
+  // but don't block render on them: the count cells read with useQuery and show a
+  // skeleton until their list arrives. This keeps the page responsive no matter
+  // how many groups there are.
+  for (const { name } of groups.items) {
     queryClient.prefetchQuery(
       antiAffinityGroupMemberList({ antiAffinityGroup: name, project })
     )
-  )
-  // The browser will fetch up to 6 anti-affinity group member lists without queuing,
-  // so we can prefetch them without slowing down the page. If there are more than 6 groups,
-  // we won't bother to wait for the promises to fulfill, and will just load the actual page content.
-  if (groups.items.length < 6) await Promise.all(memberFetches)
+  }
   return null
 }
 
@@ -190,7 +191,10 @@ export const AffinityGroupMembersCell = ({
   antiAffinityGroup: string
 }) => {
   const { project } = useProjectSelector()
-  const { data: members } = usePrefetchedQuery(
+  // Not usePrefetchedQuery: the loader prefetches these member lists without
+  // awaiting them, so they may not be in cache at render time. useQuery lets us
+  // show a skeleton instead of tripping the prefetch invariant.
+  const { data: members } = useQuery(
     antiAffinityGroupMemberList({ antiAffinityGroup, project })
   )
   if (!members) return <SkeletonCell />

@@ -29,7 +29,7 @@ type Props = { children: ReactNode; message?: string }
 
 export function ErrorPage({ children }: Props) {
   return (
-    <div className="flex w-full justify-center">
+    <div className="flex w-full justify-center pt-(--preview-banner-height)">
       <GradientBackground />
       <div className="relative flex w-full justify-between">
         <Link

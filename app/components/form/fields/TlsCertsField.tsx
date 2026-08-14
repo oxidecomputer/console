@@ -28,6 +28,10 @@ import { ErrorMessage } from './ErrorMessage'
 import { FileField } from './FileField'
 import { NameField } from './NameField'
 
+const tlsCertTableColumns = [
+  { header: 'Name', cell: (item: CertificateCreate) => item.name },
+]
+
 export function TlsCertsField({
   control,
   siloName,
@@ -61,7 +65,7 @@ export function TlsCertsField({
           className="mb-4"
           ariaLabel="TLS Certificates"
           items={items}
-          columns={[{ header: 'Name', cell: (item) => item.name }]}
+          columns={tlsCertTableColumns}
           rowKey={(item) => item.name}
           onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
           removeLabel={(item) => `remove cert ${item.name}`}

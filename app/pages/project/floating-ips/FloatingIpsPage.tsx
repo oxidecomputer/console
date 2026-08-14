@@ -35,6 +35,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -88,9 +89,15 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
+/** Reads project from the route so the name column can stay static */
+const NameCell = ({ name }: { name: string }) => {
+  const { project } = useProjectSelector()
+  return <LinkCell to={pb.floatingIpEdit({ project, floatingIp: name })}>{name}</LinkCell>
+}
+
 const colHelper = createColumnHelper<FloatingIp>()
 const staticCols = [
-  colHelper.accessor('name', {}),
+  colHelper.accessor('name', { cell: (info) => <NameCell name={info.getValue()} /> }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('ip', {
     header: 'IP address',

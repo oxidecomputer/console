@@ -32,6 +32,7 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { DiskSourceName } from '~/table/cells/DiskSourceCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -100,6 +101,11 @@ export default function StorageTab() {
         cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
       }),
       colHelper.accessor('size', Columns.size),
+      colHelper.accessor((row) => ({ imageId: row.imageId, snapshotId: row.snapshotId }), {
+        id: 'source',
+        header: 'Source',
+        cell: (info) => <DiskSourceName {...info.getValue()} />,
+      }),
       colHelper.accessor((row) => row.state.state, {
         header: 'state',
         cell: (info) => <DiskStateBadge state={info.getValue()} />,

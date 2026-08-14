@@ -115,6 +115,12 @@ export const NotImplemented = () => {
 export const invalidRequest = (message: string) =>
   json({ error_code: 'InvalidRequest', message }, { status: 400 })
 
+// Omicron maps a UniqueViolation through ErrorHandler::Conflict to a 400
+// ObjectAlreadyExists.
+// https://github.com/oxidecomputer/omicron/blob/13937a1/nexus/db-errors/src/transaction_error.rs#L266-L270
+export const alreadyExistsErr = (message: string) =>
+  json({ error_code: 'ObjectAlreadyExists', message }, { status: 400 })
+
 // 500s in Omicron come from  Error::InternalError, which turns into dropshot's
 // `for_internal_error`, which sets error_code "Internal" and a external message
 // of "Internal Server Error". It also has an `internal_message` that gets
@@ -142,13 +148,7 @@ export const errIfExists = <T extends Record<string, unknown>>(
         : 'id' in match && match.id
           ? match.id
           : '<resource>'
-    throw json(
-      {
-        error_code: 'ObjectAlreadyExists',
-        message: `already exists: ${resourceLabel} "${name.toString()}"`,
-      },
-      { status: 400 }
-    )
+    throw alreadyExistsErr(`already exists: ${resourceLabel} "${name.toString()}"`)
   }
 }
 

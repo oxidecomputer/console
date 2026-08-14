@@ -920,6 +920,20 @@ export type BgpConfigResultsPage = {
 }
 
 /**
+ * Parameters for updating a BGP configuration
+ *
+ * If a value is not specified, it will remain unchanged.
+ */
+export type BgpConfigUpdate = {
+  /** Update the BGP announce set associated with this configuration. */
+  bgpAnnounceSetId?: NameOrId | null
+  description?: string | null
+  /** Update the maximum number of equal-cost paths. */
+  maxPaths?: MaxPathConfig | null
+  name?: Name | null
+}
+
+/**
  * Route exported to a peer.
  */
 export type BgpExported = {
@@ -3001,6 +3015,15 @@ export type InternetGatewayResultsPage = {
 }
 
 /**
+ * Assignment of an IP pool to resources and services.
+ */
+export type IpPoolAssignment = /** Pool is available to be linked to customer silos. */
+| 'silos'
+
+/** Pool is reserved for Oxide-operated rack services (NTP, DNS, etc.). */
+| 'system_services'
+
+/**
  * Type of IP pool.
  */
 export type IpPoolType = /** Unicast IP pool for standard IP allocations. */
@@ -3012,9 +3035,11 @@ All ranges in a multicast pool must be either ASM or SSM (not mixed). */
 | 'multicast'
 
 /**
- * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo.
+ * A collection of IP ranges.
  */
 export type IpPool = {
+  /** What this pool is currently assigned to. */
+  assignment: IpPoolAssignment
   /** Human-readable free-form text about a resource */
   description: string
   /** Unique, immutable, system-controlled identifier for each resource */
@@ -3032,6 +3057,11 @@ export type IpPool = {
 }
 
 /**
+ * Body parameters for reassigning an IP pool.
+ */
+export type IpPoolAssignParam = { assignment: IpPoolAssignment }
+
+/**
  * Create-time parameters for an `IpPool`.
  *
  * For multicast pools, all ranges must be either Any-Source Multicast (ASM) or Source-Specific Multicast (SSM), but not both. Mixing ASM and SSM ranges in the same pool is not allowed.
@@ -3039,6 +3069,8 @@ export type IpPool = {
  * ASM: IPv4 addresses outside 232.0.0.0/8, IPv6 addresses with flag field != 3 SSM: IPv4 addresses in 232.0.0.0/8, IPv6 addresses with flag field = 3
  */
 export type IpPoolCreate = {
+  /** What this pool is assigned to (defaults to Silos). */
+  assignment?: IpPoolAssignment
   description: string
   /** The IP version of the pool.
 
@@ -6522,8 +6554,10 @@ export interface InternetGatewayDeleteQueryParams {
 }
 
 export interface IpPoolListQueryParams {
+  ipVersion?: IpVersion
   limit?: number | null
   pageToken?: string | null
+  poolType?: IpPoolType
   sortBy?: NameOrIdSortMode
 }
 
@@ -6913,8 +6947,11 @@ export interface SamlIdentityProviderViewQueryParams {
 }
 
 export interface SystemIpPoolListQueryParams {
+  assignment?: IpPoolAssignment
+  ipVersion?: IpVersion
   limit?: number | null
   pageToken?: string | null
+  poolType?: IpPoolType
   sortBy?: NameOrIdSortMode
 }
 
@@ -6927,6 +6964,10 @@ export interface SystemIpPoolUpdatePathParams {
 }
 
 export interface SystemIpPoolDeletePathParams {
+  pool: NameOrId
+}
+
+export interface SystemIpPoolAssignPathParams {
   pool: NameOrId
 }
 
@@ -6975,11 +7016,6 @@ export interface SystemIpPoolUtilizationViewPathParams {
   pool: NameOrId
 }
 
-export interface SystemIpPoolServiceRangeListQueryParams {
-  limit?: number | null
-  pageToken?: string | null
-}
-
 export interface SystemMetricPathParams {
   metricName: SystemMetricName
 }
@@ -7021,6 +7057,10 @@ export interface NetworkingBgpConfigListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: NameOrIdSortMode
+}
+
+export interface NetworkingBgpConfigUpdateQueryParams {
+  nameOrId: NameOrId
 }
 
 export interface NetworkingBgpConfigDeleteQueryParams {
@@ -7544,7 +7584,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026060800.0.0'
+  apiVersion = '2026073100.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -10591,6 +10631,20 @@ export class Api {
       })
     },
     /**
+     * Assign IP pool
+     */
+    systemIpPoolAssign: (
+      { path, body }: { path: SystemIpPoolAssignPathParams; body: IpPoolAssignParam },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPool>({
+        path: `/v1/system/ip-pools/${path.pool}/assignment`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
      * List ranges for IP pool
      */
     systemIpPoolRangeList: (
@@ -10706,58 +10760,6 @@ export class Api {
       return this.request<IpPoolUtilization>({
         path: `/v1/system/ip-pools/${path.pool}/utilization`,
         method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch Oxide service IP pool
-     */
-    systemIpPoolServiceView: (_: EmptyObj, params: FetchParams = {}) => {
-      return this.request<IpPool>({
-        path: `/v1/system/ip-pools-service`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List IP ranges for the Oxide service pool
-     */
-    systemIpPoolServiceRangeList: (
-      { query = {} }: { query?: SystemIpPoolServiceRangeListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<IpPoolRangeResultsPage>({
-        path: `/v1/system/ip-pools-service/ranges`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Add IP range to Oxide service pool
-     */
-    systemIpPoolServiceRangeAdd: (
-      { body }: { body: IpRange },
-      params: FetchParams = {}
-    ) => {
-      return this.request<IpPoolRange>({
-        path: `/v1/system/ip-pools-service/ranges/add`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Remove IP range from Oxide service pool
-     */
-    systemIpPoolServiceRangeRemove: (
-      { body }: { body: IpRange },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/system/ip-pools-service/ranges/remove`,
-        method: 'POST',
-        body,
         ...params,
       })
     },
@@ -10924,6 +10926,24 @@ export class Api {
       return this.request<BgpConfigResultsPage>({
         path: `/v1/system/networking/bgp`,
         method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update the mutable fields of an existing BGP configuration
+     */
+    networkingBgpConfigUpdate: (
+      {
+        query,
+        body,
+      }: { query: NetworkingBgpConfigUpdateQueryParams; body: BgpConfigUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpConfig>({
+        path: `/v1/system/networking/bgp`,
+        method: 'PUT',
+        body,
         query,
         ...params,
       })
