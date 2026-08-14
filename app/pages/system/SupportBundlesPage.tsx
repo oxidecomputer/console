@@ -40,7 +40,7 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { truncate } from '~/ui/lib/Truncate'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
-import { bundleDownloadUrl, triggerDownload } from '~/util/support-bundle'
+import { downloadBundle, DOWNLOAD_DISABLED_REASON } from '~/util/support-bundle'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -125,11 +125,9 @@ export default function SupportBundlesPage() {
       {
         label: 'Download',
         onActivate() {
-          triggerDownload(bundleDownloadUrl(bundle.id), `support-bundle-${bundle.id}.zip`)
+          downloadBundle(bundle.id)
         },
-        disabled:
-          bundle.state !== 'active' &&
-          'Only bundles that have completed collection can be downloaded',
+        disabled: bundle.state !== 'active' && DOWNLOAD_DISABLED_REASON,
       },
       {
         label: 'View details',

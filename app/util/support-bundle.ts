@@ -19,11 +19,18 @@ export const bundleDownloadUrl = (bundleId: string) =>
 const bundleIndexUrl = (bundleId: string) =>
   `/experimental/v1/system/support-bundles/${bundleId}/index`
 
-export function triggerDownload(url: string, filename: string) {
+export const DOWNLOAD_DISABLED_REASON =
+  'Only bundles that have completed collection can be downloaded'
+
+function triggerDownload(url: string, filename: string) {
   const link = document.createElement('a')
   link.href = url
   link.download = filename
   link.click()
+}
+
+export function downloadBundle(bundleId: string) {
+  triggerDownload(bundleDownloadUrl(bundleId), `support-bundle-${bundleId}.zip`)
 }
 
 /**

@@ -12,43 +12,53 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  MAX_BUNDLE_COMMENT_BYTES,
   q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
-  utf8ByteLength,
+  type SupportBundleInfo,
 } from '@oxide/api'
 import { Logs16Icon } from '@oxide/design-system/icons/react'
 
-import { TextField } from '~/components/form/fields/TextField'
+import { BundleCommentField } from '~/components/form/fields/BundleCommentField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { SupportBundleStateBadge } from '~/components/StateBadge'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getSupportBundleSelector, useSupportBundleSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
-import { EmptyCell } from '~/table/cells/EmptyCell'
+import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
-import { Spinner } from '~/ui/lib/Spinner'
 import { truncate } from '~/ui/lib/Truncate'
 import { Size } from '~/ui/lib/ValueUnit'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 import {
-  bundleDownloadUrl,
   bundleIndexQuery,
   bundleSizeQuery,
-  triggerDownload,
+  downloadBundle,
+  DOWNLOAD_DISABLED_REASON,
 } from '~/util/support-bundle'
 
-const bundleView = ({ bundleId }: PP.SupportBundle) =>
-  q(api.supportBundleView, { path: { bundleId } })
+const SEC = 1000 // ms
+const POLL_INTERVAL = 10 * SEC
+
+const bundleView = ({ bundleId }: PP.SupportBundle) => ({
+  ...q(api.supportBundleView, { path: { bundleId } }),
+  // keep transitional states moving while the modal is open, matching the
+  // list's polling, so a collecting bundle flips to active in place
+  refetchInterval: ({
+    state: { data },
+  }: {
+    state: { data: SupportBundleInfo | undefined }
+  }) =>
+    data?.state === 'collecting' || data?.state === 'destroying' ? POLL_INTERVAL : false,
+})
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   await queryClient.prefetchQuery(bundleView(getSupportBundleSelector(params)))
@@ -57,7 +67,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 export const handle = titleCrumb('Support bundle')
 
-/** Spinner while the query is in flight, em dash if it failed */
+/** Skeleton while the query is in flight, em dash if it failed */
 function AsyncValue<T>({
   query,
   children,
@@ -65,7 +75,7 @@ function AsyncValue<T>({
   query: UseQueryResult<T>
   children: (data: T) => ReactNode
 }) {
-  if (query.isPending) return <Spinner />
+  if (query.isPending) return <SkeletonCell />
   if (query.isError) return <EmptyCell />
   return <>{children(query.data)}</>
 }
@@ -153,27 +163,14 @@ export default function SupportBundleDetail() {
           className="w-full"
           size="sm"
           disabled={!isActive}
-          disabledReason="Only bundles that have completed collection can be downloaded"
-          onClick={() =>
-            triggerDownload(bundleDownloadUrl(bundle.id), `support-bundle-${bundle.id}.zip`)
-          }
+          disabledReason={DOWNLOAD_DISABLED_REASON}
+          onClick={() => downloadBundle(bundle.id)}
         >
           Download bundle
         </Button>
       </div>
       <FormDivider />
-      <TextField
-        as="textarea"
-        name="userComment"
-        label="Comment"
-        rows={4}
-        control={form.control}
-        validate={(value) =>
-          utf8ByteLength(value) > MAX_BUNDLE_COMMENT_BYTES
-            ? `Comment cannot exceed ${MAX_BUNDLE_COMMENT_BYTES} bytes`
-            : true
-        }
-      />
+      <BundleCommentField control={form.control} />
       <SideModalFormDocs docs={[docLinks.supportBundles]} />
     </SideModalForm>
   )

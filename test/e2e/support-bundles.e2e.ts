@@ -126,6 +126,28 @@ test('bundle detail modal for failed bundle', async ({ page }) => {
   ).toBeVisible()
 })
 
+test('detail modal polls a collecting bundle to active', async ({ page }) => {
+  await page.goto('/system/support-bundles')
+
+  await page.getByRole('link', { name: 'New Support Bundle' }).click()
+  await page.getByRole('textbox', { name: 'Comment' }).fill('poll me')
+  await page.getByRole('button', { name: 'Create support bundle' }).click()
+  await expectToast(page, 'Support bundle created')
+
+  // open the new bundle's detail modal while it's still collecting. the ID
+  // link is the only link in the row
+  await page.getByRole('row', { name: 'poll me' }).getByRole('link').click()
+
+  const modal = page.getByRole('dialog', { name: 'Support bundle' })
+  await expect(modal.getByText('collecting')).toBeVisible()
+  await expect(modal.getByRole('button', { name: 'Download bundle' })).toBeDisabled()
+
+  // mock flips the bundle to active after 3s; the modal's view query polls
+  // every 10s, so the open modal updates in place
+  await expect(modal.getByText('active')).toBeVisible({ timeout: 20_000 })
+  await expect(modal.getByRole('button', { name: 'Download bundle' })).toBeEnabled()
+})
+
 test('create support bundle and poll to active', async ({ page }) => {
   await page.goto('/system/support-bundles')
 

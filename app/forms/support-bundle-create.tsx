@@ -8,15 +8,9 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import {
-  api,
-  MAX_BUNDLE_COMMENT_BYTES,
-  queryClient,
-  useApiMutation,
-  utf8ByteLength,
-} from '@oxide/api'
+import { api, queryClient, useApiMutation } from '@oxide/api'
 
-import { TextField } from '~/components/form/fields/TextField'
+import { BundleCommentField } from '~/components/form/fields/BundleCommentField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
@@ -58,18 +52,7 @@ export default function CreateSupportBundleSideModalForm() {
         variant="info"
         content="Bundle collection runs in the background and can take several minutes. The bundle can be downloaded once collection is complete."
       />
-      <TextField
-        as="textarea"
-        name="userComment"
-        label="Comment"
-        rows={4}
-        control={form.control}
-        validate={(value) =>
-          utf8ByteLength(value) > MAX_BUNDLE_COMMENT_BYTES
-            ? `Comment cannot exceed ${MAX_BUNDLE_COMMENT_BYTES} bytes`
-            : true
-        }
-      />
+      <BundleCommentField control={form.control} />
     </SideModalForm>
   )
 }
