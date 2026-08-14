@@ -122,21 +122,40 @@ export const sumValues = (timeseries: Timeseries[], arrLen: number): (number | n
     )
   )
 
+export const countValues = (timeseries: Timeseries[], arrLen: number): number[] =>
+  Array.from({ length: arrLen }).map((_, i) =>
+    R.pipe(
+      timeseries,
+      // get point at that index for each timeseries
+      R.map((ts) => ts.points.values.at(0)?.values.values?.[i]),
+      // filter out nulls (undefined shouldn't happen)
+      R.filter((p) => typeof p === 'number'),
+      // count non-null elements per series
+      (points) => points.length
+    )
+  )
+
 // Take the OxQL Query Result and return the data in a format that the chart can use
 // We'll do this by creating two arrays: one for the timestamps and one for the values
 // We'll then combine these into an array of objects, each with a timestamp and a value
 // Note that this data will need to be processed further, based on the kind of chart we're creating
 export const composeOxqlData = (data: OxqlQueryResult | undefined) => {
   let timeseriesCount = 0
-  if (!data) return { chartData: [], timeseriesCount }
+  if (!data) return { chartData: [], valueCounts: [] }
   const timeseriesData = data.tables[0].timeseries
   timeseriesCount = timeseriesData.length
-  if (!timeseriesCount) return { chartData: [], timeseriesCount }
-  // Extract timestamps (all series should have the same timestamps)
-  const timestamps =
-    timeseriesData[0]?.points.timestamps.map((t) => new Date(t).getTime()) || []
-  // Sum up the values across all time series
+  if (!timeseriesCount) return { chartData: [], valueCounts: [] }
+  // Extract timestamps. Series may have different timestamps, e.g. when new
+  // resources are created within the query interval
+  const timestamps = R.pipe(
+    timeseriesData,
+    R.map((series) => series.points.timestamps.map((t) => new Date(t).getTime())),
+    R.flat(),
+    R.unique(),
+    R.sort((a, b) => a - b)
+  )
   const summedValues = sumValues(timeseriesData, timestamps.length)
+  const valueCounts = countValues(timeseriesData, timestamps.length)
   const chartData = timestamps
     .map((timestamp, idx) => ({ timestamp, value: summedValues[idx] }))
     // Drop the first datapoint, which — for delta metric types — is the cumulative sum of all previous
@@ -144,7 +163,7 @@ export const composeOxqlData = (data: OxqlQueryResult | undefined) => {
     // We could use a more elegant approach to this down the road
     .slice(1)
 
-  return { chartData, timeseriesCount }
+  return { chartData, valueCounts }
 }
 
 // What each function will return
@@ -204,16 +223,17 @@ export const getCountChartProps = (chartData: ChartDatum[]): OxqlMetricChartProp
 
 export const getUtilizationChartProps = (
   chartData: ChartDatum[],
-  nCPUs: number
+  valueCounts: number[]
 ): OxqlMetricChartProps => {
-  // The divisor is the oximeter logging interval for CPU data (5 seconds) * 1,000,000,000 (nanoseconds) * nCPUs
-  const divisor = VCPU_KSTAT_INTERVAL_SEC * 1000 * 1000 * 1000 * nCPUs
+  // The divisor is the oximeter logging interval for CPU data (5 seconds) * 1,000,000,000 (nanoseconds)
+  const baseDivisor = VCPU_KSTAT_INTERVAL_SEC * 1000 * 1000 * 1000
+  const hasData = R.sum(valueCounts) > 0
   const data =
-    // dividing by 0 would blow it up, so on the off chance that timeSeriesCount is 0, data should be an empty array
-    divisor > 0
-      ? chartData.map(({ timestamp, value }) => ({
+    // dividing by 0 would blow it up, so on the off chance that all series are empty, data should be an empty array
+    hasData
+      ? chartData.map(({ timestamp, value }, idx) => ({
           timestamp,
-          value: value !== null ? (value * 100) / divisor : null,
+          value: value !== null ? (value * 100) / baseDivisor / valueCounts[idx] : null,
         }))
       : []
   return { data, label: '(%)', unitForSet: '%', yAxisTickFormatter: (n: number) => `${n}%` }
