@@ -56,7 +56,7 @@ export function RouteTabs({
   /* TODO: Add aria-describedby for active tab */
   return (
     <div
-      className={cn(sideTabs ? 'ox-side-tabs flex' : 'ox-tabs', {
+      className={cn(sideTabs ? 'ox-side-tabs flex' : 'ox-tabs', 'flex-1', {
         'full-width': !sideTabs && fullWidth,
       })}
     >
