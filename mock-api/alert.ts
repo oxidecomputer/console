@@ -69,13 +69,14 @@ export const receiverWebhook1: Json<AlertReceiver> = {
     kind: 'webhook',
     endpoint: 'https://fma.corp.oxide.computer',
     secrets: [
+      // distinct timestamps so newest-first ordering is deterministic
       {
         id: '88c7b9bb-fa79-4516-8f12-abebd2626062',
-        time_created: new Date().toISOString(),
+        time_created: '2024-03-01T00:00:00Z',
       },
       {
         id: 'b15f4584-98f1-4cac-b0d3-67294e41aab7',
-        time_created: new Date().toISOString(),
+        time_created: '2024-06-01T00:00:00Z',
       },
     ],
   },

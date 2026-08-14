@@ -24,6 +24,7 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -41,8 +42,8 @@ import { pb } from '~/util/path-builder'
 const EmptyState = () => (
   <EmptyMessage
     icon={<Webhooks24Icon />}
-    title="No alert receivers"
-    body="Create a webhook receiver to see it here"
+    title="No webhooks"
+    body="Create a webhook to see it here"
     buttonText="New webhook"
     buttonTo={pb.alertReceiversNew()}
   />
@@ -76,6 +77,10 @@ export async function clientLoader() {
   await queryClient.prefetchQuery(receiverList.optionsFn())
   return null
 }
+
+// this handle is on a pathless layout route, so its pathname is /system. give
+// the crumb an explicit path so it links to the list instead
+export const handle = makeCrumb('Alerts', pb.alertReceivers())
 
 export default function AlertReceiversPage() {
   const navigate = useNavigate()
@@ -136,7 +141,7 @@ export default function AlertReceiversPage() {
       ...(allReceivers?.items || []).map((r) => ({
         value: r.name,
         action: pb.alertReceiver({ receiver: r.name }),
-        navGroup: 'Go to alert receiver',
+        navGroup: 'Go to webhook',
       })),
     ],
     [allReceivers]
@@ -145,7 +150,9 @@ export default function AlertReceiversPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Webhooks24Icon />}>Alert Receivers</PageTitle>
+        {/* webhooks are the only kind of alert receiver for now, so the page
+            says webhook everywhere. the section is still called Alerts */}
+        <PageTitle icon={<Webhooks24Icon />}>Webhooks</PageTitle>
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.alertReceiversNew()}>New webhook</CreateLink>

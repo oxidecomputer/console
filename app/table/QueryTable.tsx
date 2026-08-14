@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useQuery } from '@tanstack/react-query'
+import { hashKey, useQuery } from '@tanstack/react-query'
 import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
 import { useEffect, useMemo, useRef } from 'react'
 
@@ -63,7 +63,10 @@ export function useQueryTable<TItem>({
   columns,
   getId,
 }: QueryTableProps<TItem>) {
-  const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
+  // hash the first-page key, not the current one, so paging through the same
+  // query doesn't read as a query change
+  const queryId = hashKey(query.optionsFn().queryKey)
+  const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination(queryId)
   const queryOptions = query.optionsFn(currentPage)
   const queryResult = useQuery(queryOptions)
   // only ensure prefetched if we're on the first page

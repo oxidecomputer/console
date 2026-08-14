@@ -11,6 +11,7 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
 import {
@@ -34,10 +35,10 @@ import {
 } from '@oxide/design-system/icons/react'
 import { Badge, Button, type BadgeColor } from '@oxide/design-system/ui'
 
-import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { validateSubscription } from '~/components/form/fields/SubscriptionsField'
 import { TextField } from '~/components/form/fields/TextField'
+import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
@@ -195,9 +196,7 @@ function WebhookTesterCard() {
       </CardBlock.Header>
       <CardBlock.Body>
         <p className="text-sans-md text-default">
-          To test your integration, send a liveness probe to the endpoint. A probe is a
-          synthetic <InlineCode>probe</InlineCode> event: it checks that the endpoint is
-          reachable, but does not count as a real event and is not retried.
+          To test your integration, send a liveness probe to the endpoint.
         </p>
         {result ? (
           <ProbeResult result={result} />
@@ -224,7 +223,6 @@ function ProbeResult({ result }: { result: AlertProbeResult }) {
 
   const status = attempt.response?.status
   const durationMs = attempt.response?.durationMs
-  const resends = result.resendsStarted
 
   return (
     <PropertiesTable>
@@ -251,11 +249,6 @@ function ProbeResult({ result }: { result: AlertProbeResult }) {
       <PropertiesTable.Row label="Sent">
         <DateTime date={attempt.timeSent} />
       </PropertiesTable.Row>
-      {resends != null && (
-        <PropertiesTable.Row label="Resends">
-          {resends} failed {resends === 1 ? 'delivery' : 'deliveries'} resent
-        </PropertiesTable.Row>
-      )}
     </PropertiesTable>
   )
 }
@@ -268,7 +261,6 @@ function ProbeModal({
   onSuccess: (result: AlertProbeResult) => void
 }) {
   const receiverSelector = useAlertReceiverSelector()
-  const { control, handleSubmit } = useForm({ defaultValues: { resend: false } })
 
   const sendProbe = useApiMutation(api.alertReceiverProbe, {
     onSuccess(result) {
@@ -281,26 +273,19 @@ function ProbeModal({
     },
   })
 
-  const onSubmit = handleSubmit(({ resend }) => {
-    sendProbe.mutate({ path: receiverSelector, query: { resend } })
-  })
-
   return (
     <Modal isOpen onDismiss={onDismiss} title="Send liveness probe">
       <Modal.Body>
         <Modal.Section>
           <p>
             Sends a synthetic <InlineCode>probe</InlineCode> event to the endpoint to check
-            that it is reachable. Probes do not count as real events and are not retried.
+            that it is reachable.
           </p>
-          <CheckboxField name="resend" control={control}>
-            Resend failed deliveries if the probe succeeds
-          </CheckboxField>
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         onDismiss={onDismiss}
-        onAction={onSubmit}
+        onAction={() => sendProbe.mutate({ path: receiverSelector })}
         actionLoading={sendProbe.isPending}
         actionText="Send probe"
       />
@@ -443,7 +428,8 @@ const toClassComboboxItem = ({
 function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
   const receiverSelector = useAlertReceiverSelector()
   const { data: receiver } = usePrefetchedQuery(receiverView(receiverSelector))
-  const { control, handleSubmit } = useForm({ defaultValues: { subscription: '' } })
+  const form = useForm({ defaultValues: { subscription: '' } })
+  const { control } = form
   const subscription = useWatch({ control, name: 'subscription' })
 
   const classes = useQuery(q(api.alertClassList, {}))
@@ -459,64 +445,43 @@ function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
       addToast(<>Subscribed to <HL>{result.subscription}</HL></>)
       onDismiss()
     },
-    onError(err) {
-      addToast({
-        title: 'Could not add subscription',
-        content: err.message,
-        variant: 'error',
-      })
-    },
-  })
-
-  const onSubmit = handleSubmit(({ subscription }) => {
-    if (!subscription) return // can't happen, subscription is required
-    addSubscription.mutate({ path: receiverSelector, body: { subscription } })
   })
 
   return (
-    <Modal isOpen onDismiss={onDismiss} title="Add event class">
-      <Modal.Body>
-        <Modal.Section>
-          <form
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.stopPropagation()
-              onSubmit(e)
-            }}
-            className="space-y-4"
-          >
-            <Message
-              variant="info"
-              content={
-                <>
-                  Event subscriptions may include simple globs to subscribe to multiple
-                  categories of events, like <InlineCode>hardware.**</InlineCode> or{' '}
-                  <InlineCode>**.remove</InlineCode>.
-                </>
-              }
-            />
-            <ComboboxField
-              control={control}
-              name="subscription"
-              label="Subscription"
-              placeholder="Enter event pattern"
-              items={classItems}
-              isLoading={classes.isPending}
-              allowArbitraryValues
-              required
-              validate={validateSubscription}
-            />
-            <SubscriptionMatchPreview pattern={subscription} />
-          </form>
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        onDismiss={onDismiss}
-        onAction={onSubmit}
-        actionLoading={addSubscription.isPending}
-        actionText="Add"
+    <ModalForm
+      form={form}
+      onDismiss={onDismiss}
+      title="Add event class"
+      submitLabel="Add"
+      onSubmit={({ subscription }) =>
+        addSubscription.mutate({ path: receiverSelector, body: { subscription } })
+      }
+      loading={addSubscription.isPending}
+      submitError={addSubscription.error}
+    >
+      <Message
+        variant="info"
+        content={
+          <>
+            Event subscriptions may include simple globs to subscribe to multiple categories
+            of events, like <InlineCode>hardware.**</InlineCode> or{' '}
+            <InlineCode>**.remove</InlineCode>.
+          </>
+        }
       />
-    </Modal>
+      <ComboboxField
+        control={control}
+        name="subscription"
+        label="Subscription"
+        placeholder="Enter event pattern"
+        items={classItems}
+        isLoading={classes.isPending}
+        allowArbitraryValues
+        required
+        validate={validateSubscription}
+      />
+      <SubscriptionMatchPreview pattern={subscription} />
+    </ModalForm>
   )
 }
 
@@ -560,9 +525,14 @@ function SecretsCard() {
   )
 
   const columns = useColsWithActions(secretCols, makeActions)
+  // API returns secrets oldest first, but newest is more interesting
+  const secrets = useMemo(
+    () => R.sortBy(receiver.kind.secrets, [(s) => s.timeCreated, 'desc']),
+    [receiver.kind.secrets]
+  )
   const table = useReactTable({
     columns,
-    data: receiver.kind.secrets,
+    data: secrets,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -596,7 +566,7 @@ function SecretsCard() {
 
 function AddSecretModal({ onDismiss }: { onDismiss: () => void }) {
   const { receiver } = useAlertReceiverSelector()
-  const { control, handleSubmit } = useForm({ defaultValues: { secret: '' } })
+  const form = useForm({ defaultValues: { secret: '' } })
 
   const addSecret = useApiMutation(api.webhookSecretsAdd, {
     onSuccess() {
@@ -604,46 +574,27 @@ function AddSecretModal({ onDismiss }: { onDismiss: () => void }) {
       addToast('Secret added')
       onDismiss()
     },
-    onError(err) {
-      addToast({ title: 'Could not add secret', content: err.message, variant: 'error' })
-    },
-  })
-
-  const onSubmit = handleSubmit(({ secret }) => {
-    if (!secret) return // can't happen, secret is required
-    addSecret.mutate({ query: { receiver }, body: { secret } })
   })
 
   return (
-    <Modal isOpen onDismiss={onDismiss} title="Add secret">
-      <Modal.Body>
-        <Modal.Section>
-          <form
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.stopPropagation()
-              onSubmit(e)
-            }}
-            className="space-y-4"
-          >
-            <TextField
-              name="secret"
-              label="Secret"
-              description="Shared secret used to sign payloads. The value is not visible after adding."
-              placeholder="Enter secret"
-              control={control}
-              required
-            />
-          </form>
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        onDismiss={onDismiss}
-        onAction={onSubmit}
-        actionLoading={addSecret.isPending}
-        actionText="Add"
+    <ModalForm
+      form={form}
+      onDismiss={onDismiss}
+      title="Add secret"
+      submitLabel="Add"
+      onSubmit={({ secret }) => addSecret.mutate({ query: { receiver }, body: { secret } })}
+      loading={addSecret.isPending}
+      submitError={addSecret.error}
+    >
+      <TextField
+        name="secret"
+        label="Secret"
+        description="Shared secret used to sign payloads. The value is not visible after adding."
+        placeholder="Enter secret"
+        control={form.control}
+        required
       />
-    </Modal>
+    </ModalForm>
   )
 }
 
@@ -676,7 +627,7 @@ const staticDeliveryCols = [
   deliveryColHelper.accessor('state', {
     cell: (info) => <DeliveryStateBadge state={info.getValue()} />,
   }),
-  deliveryColHelper.accessor('timeStarted', { ...Columns.timeCreated, header: 'started' }),
+  deliveryColHelper.accessor('timeStarted', { ...Columns.timeCreated, header: 'Started' }),
   deliveryColHelper.accessor('trigger', {
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
   }),
