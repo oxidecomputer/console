@@ -95,8 +95,8 @@ import { GiB } from '~/util/units'
 const EMPTY_NAME_OR_ID_LIST: NameOrId[] = []
 
 const floatingIpTableColumns = [
-  { header: 'Name', cell: (item: FloatingIp) => item.name },
-  { header: 'IP', cell: (item: FloatingIp) => item.ip },
+  { header: 'Name', text: (item: FloatingIp) => item.name },
+  { header: 'IP', text: (item: FloatingIp) => item.ip },
 ]
 
 const getBootDiskAttachment = (
