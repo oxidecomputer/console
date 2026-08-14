@@ -89,7 +89,7 @@ test('bundle detail modal shows metadata for active bundle', async ({ page }) =>
 
   // file count comes from the index endpoint, size from a HEAD of download
   await expect(modal.getByText('8', { exact: true })).toBeVisible()
-  await expect(modal.getByText('27.5 MiB')).toBeVisible()
+  await expect(modal.getByText('2.4 GiB')).toBeVisible()
 
   await expect(modal.getByRole('button', { name: 'Download bundle' })).toBeEnabled()
 
