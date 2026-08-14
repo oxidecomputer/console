@@ -40,16 +40,6 @@ import { docLinks, links } from '~/util/links'
 
 const transitIpTableColumns = [{ header: 'Transit IPs', cell: (ip: string) => ip }]
 
-// IP addresses aren't editable — a new interface must be created to change them
-// — so surface them as read-only metadata. A NIC has a v4 address, a v6
-// address, or both, depending on its stack type.
-const privateIps = (ipStack: InstanceNetworkInterface['ipStack']) =>
-  match(ipStack)
-    .with({ type: 'v4' }, ({ value }) => ({ v4: value.ip, v6: undefined }))
-    .with({ type: 'v6' }, ({ value }) => ({ v4: undefined, v6: value.ip }))
-    .with({ type: 'dual_stack' }, ({ value }) => ({ v4: value.v4.ip, v6: value.v6.ip }))
-    .exhaustive()
-
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
   onDismiss: () => void
@@ -60,7 +50,6 @@ export function EditNetworkInterfaceForm({
   editing,
 }: EditNetworkInterfaceFormProps) {
   const instanceSelector = useInstanceSelector()
-  const ips = privateIps(editing.ipStack)
 
   const editNetworkInterface = useApiMutation(api.instanceNetworkInterfaceUpdate, {
     onSuccess(nic) {
@@ -71,23 +60,29 @@ export function EditNetworkInterfaceForm({
     },
   })
 
-  // Extract transitIps from ipStack for the form
-  const extractedTransitIps =
-    editing.ipStack.type === 'dual_stack'
-      ? [...editing.ipStack.value.v4.transitIps, ...editing.ipStack.value.v6.transitIps]
-      : editing.ipStack.value.transitIps
+  // A NIC has an IPv4 stack, an IPv6 stack, or both
+  const { ipStack } = editing
+  const v4 = match(ipStack)
+    .with({ type: 'v4' }, ({ value }) => value)
+    .with({ type: 'dual_stack' }, ({ value }) => value.v4)
+    .with({ type: 'v6' }, () => null)
+    .exhaustive()
+  const v6 = match(ipStack)
+    .with({ type: 'v6' }, ({ value }) => value)
+    .with({ type: 'dual_stack' }, ({ value }) => value.v6)
+    .with({ type: 'v4' }, () => null)
+    .exhaustive()
 
   const defaultValues = {
     name: editing.name,
     description: editing.description,
-    transitIps: extractedTransitIps,
+    transitIps: [...(v4?.transitIps ?? []), ...(v6?.transitIps ?? [])],
   } satisfies InstanceNetworkInterfaceUpdate
 
   const form = useForm({ defaultValues })
   const transitIps = form.watch('transitIps') || []
 
   // Determine what IP versions this NIC supports
-  const { ipStack } = editing
   const { supportedVersions, exampleIPs } = match(ipStack.type)
     .with('v4', () => ({ supportedVersions: 'IPv4', exampleIPs: '192.168.0.0/16' }))
     .with('v6', () => ({ supportedVersions: 'IPv6', exampleIPs: 'fd00::/64' }))
@@ -129,14 +124,14 @@ export function EditNetworkInterfaceForm({
       submitError={editNetworkInterface.error}
     >
       <FormMetadata resource={editing}>
-        {ips.v4 && (
+        {v4 && (
           <PropertiesTable.Row label="Private IPv4">
-            <CopyableIp ip={ips.v4} isLinked={false} />
+            <CopyableIp ip={v4.ip} isLinked={false} />
           </PropertiesTable.Row>
         )}
-        {ips.v6 && (
+        {v6 && (
           <PropertiesTable.Row label="Private IPv6">
-            <CopyableIp ip={ips.v6} isLinked={false} />
+            <CopyableIp ip={v6.ip} isLinked={false} />
           </PropertiesTable.Row>
         )}
         <PropertiesTable.Row label="MAC address">{editing.mac}</PropertiesTable.Row>
