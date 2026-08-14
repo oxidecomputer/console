@@ -28,6 +28,7 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -36,7 +37,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
-import { truncate, Truncate } from '~/ui/lib/Truncate'
+import { truncate } from '~/ui/lib/Truncate'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { bundleDownloadUrl, triggerDownload } from '~/util/support-bundle'
@@ -64,7 +65,9 @@ const staticColumns = [
   colHelper.accessor('id', {
     header: 'ID',
     cell: (info) => (
-      <Truncate text={info.getValue()} maxLength={14} position="middle" hasCopyButton />
+      <LinkCell to={pb.supportBundle({ bundleId: info.getValue() })}>
+        {truncate(info.getValue(), 14, 'middle')}
+      </LinkCell>
     ),
   }),
   colHelper.accessor('state', {
@@ -129,13 +132,13 @@ export default function SupportBundlesPage() {
           'Only bundles that have completed collection can be downloaded',
       },
       {
-        label: 'Edit comment',
+        label: 'View details',
         onActivate() {
           const bundleView = q(api.supportBundleView, {
             path: { bundleId: bundle.id },
           })
           queryClient.setQueryData(bundleView.queryKey, bundle)
-          navigate(pb.supportBundleEdit({ bundleId: bundle.id }))
+          navigate(pb.supportBundle({ bundleId: bundle.id }))
         },
       },
       {

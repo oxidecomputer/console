@@ -74,6 +74,58 @@ test('download only available for active bundles', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: 'Download' })).toBeEnabled()
 })
 
+test('bundle detail modal shows metadata for active bundle', async ({ page }) => {
+  await page.goto('/system/support-bundles')
+
+  // ID cell links to the detail modal
+  await page.getByRole('link', { name: 'ccdac0…359c31' }).click()
+  await expect(page).toHaveURL(
+    '/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31'
+  )
+
+  const modal = page.getByRole('dialog', { name: 'Support bundle' })
+  await expect(modal.getByText(/^ccdac005/)).toBeVisible()
+  await expect(modal.getByText('active')).toBeVisible()
+
+  // file count comes from the index endpoint, size from a HEAD of download
+  await expect(modal.getByText('8', { exact: true })).toBeVisible()
+  await expect(modal.getByText('27.5 MiB')).toBeVisible()
+
+  await expect(modal.getByRole('button', { name: 'Download bundle' })).toBeEnabled()
+
+  // comment is editable in place; save is disabled until it changes
+  await expect(modal.getByRole('textbox', { name: 'Comment' })).toHaveValue(
+    'Investigating slow instance start times'
+  )
+  await expect(modal.getByRole('button', { name: 'Update comment' })).toBeDisabled()
+
+  await modal.getByRole('button', { name: 'Cancel' }).click()
+  await expect(modal).toBeHidden()
+  await expect(page).toHaveURL('/system/support-bundles')
+})
+
+test('bundle detail modal for failed bundle', async ({ page }) => {
+  await page.goto('/system/support-bundles')
+
+  await page.getByRole('link', { name: 'bfc48b…fe3a7c' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Support bundle' })
+  await expect(modal.getByText('failed')).toBeVisible()
+  await expect(modal.getByText(/Allocated dataset/)).toBeVisible()
+
+  // no zip exists, so no file count or size rows and no download
+  await expect(modal.getByText('Files')).toBeHidden()
+  await expect(modal.getByText('Size')).toBeHidden()
+  const download = modal.getByRole('button', { name: 'Download bundle' })
+  await expect(download).toBeDisabled()
+  await download.hover()
+  // getByText rather than role=tooltip: the open modal makes the portaled
+  // tooltip aria-hidden, so it has no role, but it is still visible
+  await expect(
+    page.getByText('Only bundles that have completed collection can be downloaded')
+  ).toBeVisible()
+})
+
 test('create support bundle and poll to active', async ({ page }) => {
   await page.goto('/system/support-bundles')
 
@@ -108,15 +160,15 @@ test('create shows insufficient capacity error in modal', async ({ page }) => {
 test('edit support bundle comment', async ({ page }) => {
   await page.goto('/system/support-bundles')
 
-  await clickRowAction(page, 'Investigating slow', 'Edit comment')
+  await clickRowAction(page, 'Investigating slow', 'View details')
   await expect(page).toHaveURL(
-    '/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31/edit'
+    '/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31'
   )
 
   const comment = page.getByRole('textbox', { name: 'Comment' })
   await expect(comment).toHaveValue('Investigating slow instance start times')
   await comment.fill('Resolved, keeping for reference')
-  await page.getByRole('button', { name: 'Update support bundle' }).click()
+  await page.getByRole('button', { name: 'Update comment' }).click()
 
   await expectToast(page, 'Support bundle updated')
   await expectRowVisible(page.getByRole('table'), {

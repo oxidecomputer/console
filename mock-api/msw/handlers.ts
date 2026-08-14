@@ -36,6 +36,7 @@ import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { defaultSilo, toIdp } from '../silo'
+import { SUPPORT_BUNDLE_SIZE, supportBundleIndexText } from '../support-bundle'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
 import {
@@ -2113,6 +2114,31 @@ export const handlers = makeHandlers({
       },
     })
   },
+  // @ts-expect-error Response passthrough, see supportBundleDownload
+  supportBundleHead({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+    if (bundle.state !== 'active') {
+      throw invalidRequest('Cannot download bundle in non-active state')
+    }
+    return new HttpResponse(null, {
+      headers: {
+        'Content-Type': 'application/zip',
+        'Content-Length': SUPPORT_BUNDLE_SIZE.toString(),
+      },
+    })
+  },
+  // @ts-expect-error Response passthrough, see supportBundleDownload
+  supportBundleIndex({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+    if (bundle.state !== 'active') {
+      throw invalidRequest('Cannot download bundle in non-active state')
+    }
+    return new HttpResponse(supportBundleIndexText, {
+      headers: { 'Content-Type': 'text/plain' },
+    })
+  },
   switchList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
     return paginated(query, db.switches)
@@ -2827,9 +2853,7 @@ export const handlers = makeHandlers({
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
   supportBundleDownloadFile: NotImplemented,
-  supportBundleHead: NotImplemented,
   supportBundleHeadFile: NotImplemented,
-  supportBundleIndex: NotImplemented,
   switchView: NotImplemented,
   systemNetworkingSettingsUpdate: NotImplemented,
   systemNetworkingSettingsView: NotImplemented,

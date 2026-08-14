@@ -62,7 +62,6 @@ export default function CreateSupportBundleSideModalForm() {
         as="textarea"
         name="userComment"
         label="Comment"
-        description="Note about why this bundle is being collected"
         rows={4}
         control={form.control}
         validate={(value) =>

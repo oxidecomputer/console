@@ -272,8 +272,8 @@ export const routes = createRoutesFromElements(
         <Route lazy={() => import('./pages/system/SupportBundlesPage').then(convert)}>
           <Route path="support-bundles" element={null}>
             <Route
-              path=":bundleId/edit"
-              lazy={() => import('./forms/support-bundle-edit').then(convert)}
+              path=":bundleId"
+              lazy={() => import('./pages/system/SupportBundleDetail').then(convert)}
             />
           </Route>
           <Route
