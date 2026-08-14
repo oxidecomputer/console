@@ -281,7 +281,7 @@ test('create router route', async ({ page }) => {
 })
 
 test('clicking a route name opens the edit modal', async ({ page }) => {
-  const router = '/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router'
+  const router = '/projects/mock-project/vpcs/default/routers/mock-custom-router'
   await page.goto(router)
   await page.getByRole('link', { name: 'drop-local' }).click()
   await expect(page).toHaveURL(`${router}/routes/drop-local/edit`)
