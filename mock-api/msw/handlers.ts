@@ -30,7 +30,7 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
+import { instanceCan, OXQL_GROUP_BY_ERROR, subscriptionRegex } from '~/api/util'
 import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
@@ -79,19 +79,6 @@ import {
 // the snake-cased objects coming straight from the API before the generated
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
-
-/**
- * Convert an alert subscription to a regex matching the class names it covers:
- * a `*` segment matches exactly one segment, `**` matches one or more.
- * https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/db-model/src/alert_subscription.rs
- */
-function subscriptionRegex(subscription: string) {
-  const pattern = subscription
-    .split('.')
-    .map((seg) => (seg === '**' ? '.+' : seg === '*' ? '[^.]+' : seg))
-    .join('\\.')
-  return new RegExp(`^${pattern}$`)
-}
 
 /**
  * The webhook-specific endpoints return the receiver with the webhook config

@@ -28,6 +28,9 @@ export const links = {
     'https://docs.oxide.computer/guides/configuring-guest-networking#_example_4_software_routing_tunnels',
   troubleshootingAccess:
     'https://docs.oxide.computer/guides/operator/faq#_how_do_i_fix_the_something_went_wrong_error',
+  // TODO: this guide does not exist yet; make sure it does before release
+  webhooksGuide: 'https://docs.oxide.computer/guides/operator/webhooks',
+  webhooksApiDocs: 'https://docs.oxide.computer/api/webhook_receiver_create',
 }
 
 // Links with a canonical label, used in DocsPopover and SideModalFormDocs.

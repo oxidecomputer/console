@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Outlet, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -24,7 +24,6 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -77,10 +76,6 @@ export async function clientLoader() {
   await queryClient.prefetchQuery(receiverList.optionsFn())
   return null
 }
-
-// this handle is on a pathless layout route, so its pathname is /system. give
-// the crumb an explicit path so it links to the list instead
-export const handle = makeCrumb('Alerts', pb.alertReceivers())
 
 export default function AlertReceiversPage() {
   const navigate = useNavigate()
@@ -158,7 +153,6 @@ export default function AlertReceiversPage() {
         <CreateLink to={pb.alertReceiversNew()}>New webhook</CreateLink>
       </TableActions>
       {table}
-      <Outlet />
     </>
   )
 }

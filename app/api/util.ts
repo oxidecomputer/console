@@ -44,6 +44,22 @@ export const INSTANCE_MAX_RAM_GiB = 1536
 export const ALERT_SUBSCRIPTION_REGEX =
   /^([a-zA-Z0-9_]+|\*|\*\*)(\.([a-zA-Z0-9_]+|\*|\*\*))*$/
 
+/** A subscription with a `*` or `**` segment, as opposed to an exact class */
+export const isGlobPattern = (subscription: string) => subscription.includes('*')
+
+/**
+ * Convert an alert subscription to a regex matching the class names it covers:
+ * a `*` segment matches exactly one segment, `**` matches one or more.
+ * https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/db-model/src/alert_subscription.rs
+ */
+export function subscriptionRegex(subscription: string) {
+  const pattern = subscription
+    .split('.')
+    .map((seg) => (seg === '**' ? '.+' : seg === '*' ? '[^.]+' : seg))
+    .join('\\.')
+  return new RegExp(`^${pattern}$`)
+}
+
 export const MIN_DISK_SIZE_GiB = 1
 /**
  * Disk size limited to 1023 as that's the maximum we can safely allocate right now

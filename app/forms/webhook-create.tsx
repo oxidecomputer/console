@@ -5,25 +5,27 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useQuery } from '@tanstack/react-query'
 import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { api, q, queryClient, useApiMutation } from '@oxide/api'
-import { Badge } from '@oxide/design-system/ui'
+import { api, queryClient, useApiMutation } from '@oxide/api'
+import { Webhooks24Icon } from '@oxide/design-system/icons/react'
 
-import { ALERT_SUBSCRIPTION_REGEX } from '~/api/util'
-import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ErrorMessage } from '~/components/form/fields/ErrorMessage'
 import { NameField } from '~/components/form/fields/NameField'
+import { SubscriptionsField } from '~/components/form/fields/SubscriptionsField'
 import { TextField } from '~/components/form/fields/TextField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { Form } from '~/components/form/Form'
+import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
-import { SubscriptionMatchPreview } from '~/components/SubscriptionMatchPreview'
-import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
-import { ItemLabel } from '~/ui/lib/ItemLabel'
+import { FormDivider } from '~/ui/lib/Divider'
+import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { KEYS } from '~/ui/util/keys'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 export const validateEndpoint = (value: string) => {
@@ -38,17 +40,11 @@ export const validateEndpoint = (value: string) => {
   }
 }
 
-// segments may only contain [a-zA-Z0-9_], unlike resource names
-export const validateSubscription = (value: string) =>
-  ALERT_SUBSCRIPTION_REGEX.test(value)
-    ? undefined
-    : 'Must be an event class or a glob pattern like hardware.** (letters, numbers, and underscores only)'
-
-type WebhookCreateFormValues = {
+export type WebhookCreateFormValues = {
   name: string
   description: string
   endpoint: string
-  secret: string
+  secrets: string[]
   subscriptions: string[]
 }
 
@@ -56,78 +52,99 @@ const defaultValues: WebhookCreateFormValues = {
   name: '',
   description: '',
   endpoint: '',
-  secret: '',
+  secrets: [],
   subscriptions: [],
 }
 
-const subscriptionColumns = [
+const secretColumns = [
   {
-    header: 'Event class',
-    cell: (subscription: string) => <Badge color="neutral">{subscription}</Badge>,
+    header: 'Secrets',
+    cell: (secret: string) => secret,
   },
 ]
 
-function SubscriptionsField({ control }: { control: Control<WebhookCreateFormValues> }) {
-  const { field } = useController({ control, name: 'subscriptions' })
-  const subform = useForm({ defaultValues: { subscription: '' } })
-  const subscription = useWatch({ control: subform.control, name: 'subscription' })
+function SecretsField({ control }: { control: Control<WebhookCreateFormValues> }) {
+  const { field, fieldState } = useController({
+    control,
+    name: 'secrets',
+    rules: {
+      validate: (secrets) => secrets.length > 0 || 'At least one secret is required',
+    },
+  })
+  const subform = useForm({ defaultValues: { secret: '' } })
+  const secret = useWatch({ control: subform.control, name: 'secret' })
 
-  const { data: classes } = useQuery(q(api.alertClassList, {}))
-  const classItems = (classes?.items || [])
-    .filter((c) => !field.value.includes(c.name))
-    .map((c) => ({
-      value: c.name,
-      selectedLabel: c.name,
-      label: <ItemLabel name={c.name}>{c.description}</ItemLabel>,
-    }))
-
-  const submitSubform = subform.handleSubmit(({ subscription }) => {
-    if (!field.value.includes(subscription)) {
-      field.onChange([...field.value, subscription])
+  const submitSubform = subform.handleSubmit(({ secret }) => {
+    if (!field.value.includes(secret)) {
+      field.onChange([...field.value, secret])
     }
     subform.reset()
   })
 
   return (
     <>
-      <ComboboxField
-        control={subform.control}
-        name="subscription"
-        label="Event classes"
-        description="Events to subscribe the webhook to. Globs like hardware.** match multiple classes."
-        items={classItems}
-        allowArbitraryValues
-        onEnter={submitSubform}
-        validate={validateSubscription}
-        hideOptionalTag
-      />
-      <SubscriptionMatchPreview pattern={subscription} />
-      <ClearAndAddButtons
-        addButtonCopy="Add event class"
-        disabled={!subscription}
-        onClear={() => subform.reset()}
-        onSubmit={submitSubform}
-      />
+      <div className="flex max-w-lg flex-col gap-3">
+        <TextField
+          control={subform.control}
+          name="secret"
+          label="Secret"
+          description="Shared secret used to sign payloads"
+          required
+          onKeyDown={(e) => {
+            if (e.key === KEYS.enter) {
+              e.preventDefault() // prevent full form submission
+              submitSubform(e)
+            }
+          }}
+        />
+        <ClearAndAddButtons
+          addButtonCopy="Add secret"
+          disabled={!secret}
+          onClear={() => subform.reset()}
+          onSubmit={submitSubform}
+        />
+      </div>
       <MiniTable
-        ariaLabel="Event classes"
+        className="max-w-lg"
+        ariaLabel="Secrets"
         items={field.value}
-        columns={subscriptionColumns}
-        rowKey={(subscription) => subscription}
-        onRemoveItem={(subscription) =>
-          field.onChange(field.value.filter((s) => s !== subscription))
-        }
-        removeLabel={(subscription) => `remove subscription ${subscription}`}
+        columns={secretColumns}
+        rowKey={(secret) => secret}
+        onRemoveItem={(secret) => field.onChange(field.value.filter((s) => s !== secret))}
+        removeLabel={(secret) => `remove secret ${secret}`}
       />
+      <ErrorMessage error={fieldState.error} label="Secrets" />
     </>
   )
 }
 
-export const handle = titleCrumb('New webhook')
+const globCode = 'text-mono-sm bg-info-secondary text-info rounded-sm px-1'
 
-export default function CreateWebhookSideModalForm() {
+const SubscriptionsMessage = (
+  <>
+    Event subscriptions may include simple globs to subscribe to multiple categories of
+    events. E.g. <code className={globCode}>hardware.**</code> or{' '}
+    <code className={globCode}>**.fault</code>.{' '}
+    <a
+      href={links.webhooksGuide}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-1 inline-block"
+    >
+      Read the Webhooks guide
+    </a>{' '}
+    and the{' '}
+    <a href={links.webhooksApiDocs} target="_blank" rel="noreferrer">
+      API docs
+    </a>{' '}
+    to learn more.
+  </>
+)
+
+export const handle = { crumb: 'New webhook receiver' }
+
+export default function CreateWebhookForm() {
   const navigate = useNavigate()
-
-  const onDismiss = () => navigate(pb.alertReceivers())
 
   const createWebhook = useApiMutation(api.webhookReceiverCreate, {
     onSuccess(receiver) {
@@ -141,37 +158,47 @@ export default function CreateWebhookSideModalForm() {
   const form = useForm({ defaultValues })
 
   return (
-    <SideModalForm
-      form={form}
-      formType="create"
-      resourceName="webhook"
-      onDismiss={onDismiss}
-      onSubmit={({ name, description, endpoint, secret, subscriptions }) => {
-        createWebhook.mutate({
-          body: { name, description, endpoint, secrets: [secret], subscriptions },
-        })
-      }}
-      loading={createWebhook.isPending}
-      submitError={createWebhook.error}
-    >
-      <NameField name="name" control={form.control} />
-      <DescriptionField name="description" control={form.control} />
-      <TextField
-        name="endpoint"
-        label="Endpoint URL"
-        description="The URL that payloads should be sent to"
-        control={form.control}
-        required
-        validate={validateEndpoint}
-      />
-      <TextField
-        name="secret"
-        label="Secret"
-        description="Shared secret used to sign webhook payloads. More secrets can be added later."
-        control={form.control}
-        required
-      />
-      <SubscriptionsField control={form.control} />
-    </SideModalForm>
+    <>
+      <PageHeader>
+        <PageTitle icon={<Webhooks24Icon />}>Create webhook receiver</PageTitle>
+      </PageHeader>
+      <FullPageForm
+        id="create-webhook-form"
+        form={form}
+        onSubmit={async ({ name, description, endpoint, secrets, subscriptions }) => {
+          await createWebhook.mutateAsync({
+            body: { name, description, endpoint, secrets, subscriptions },
+          })
+        }}
+        loading={createWebhook.isPending}
+        submitError={createWebhook.error}
+      >
+        <NameField name="name" control={form.control} />
+        <DescriptionField name="description" control={form.control} />
+        <TextField
+          name="endpoint"
+          label="Endpoint URL"
+          description="The URL that webhook notification requests should be sent to"
+          control={form.control}
+          required
+          validate={validateEndpoint}
+        />
+        <FormDivider />
+        <Form.Heading id="subscriptions">Subscriptions</Form.Heading>
+        <div className="flex flex-col gap-4">
+          <SubscriptionsField control={form.control} />
+          <Message variant="info" className="max-w-lg" content={SubscriptionsMessage} />
+        </div>
+        <FormDivider />
+        <Form.Heading id="secrets">Secrets</Form.Heading>
+        <SecretsField control={form.control} />
+        <Form.Actions>
+          <Form.Submit loading={createWebhook.isPending}>
+            Create webhook receiver
+          </Form.Submit>
+          <Form.Cancel onClick={() => navigate(pb.alertReceivers())} />
+        </Form.Actions>
+      </FullPageForm>
+    </>
   )
 }
