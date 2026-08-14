@@ -56,7 +56,7 @@ const staticCols = [
       <Truncate
         text={info.getValue()}
         position="middle"
-        maxWidth="max-w-48"
+        className="max-w-48"
         hasCopyButton
       />
     ),

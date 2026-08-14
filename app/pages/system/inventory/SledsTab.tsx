@@ -32,7 +32,7 @@ const staticCols = [
   colHelper.accessor('id', {
     cell: (info) => (
       <LinkCell to={pb.sledInstances({ sledId: info.getValue() })}>
-        <Truncate text={info.getValue()} position="middle" maxWidth="max-w-48" />
+        <Truncate text={info.getValue()} position="middle" className="max-w-48" />
       </LinkCell>
     ),
   }),

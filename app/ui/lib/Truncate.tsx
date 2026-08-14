@@ -20,13 +20,12 @@ interface TruncateProps {
   hasCopyButton?: boolean
   tooltipDelay?: number
   /**
-   * Tailwind max-width class capping how wide the text can grow. Without a
-   * cap, the text truncates to fit its container — which is what you want in
-   * width-constrained contexts like side modals and toasts. But in auto-layout
-   * tables the column sizes itself to the text, so table cells need a cap for
-   * truncation to ever kick in.
+   * Extra classes for the wrapper, most commonly a `max-w-*` cap on how wide
+   * the text can grow. Constrained containers (side modals, toasts) don't need
+   * one, but in auto-layout tables the column sizes itself to the text, so
+   * table cells need a cap for truncation to ever kick in.
    */
-  maxWidth?: `max-w-${string}`
+  className?: string
 }
 
 export const Truncate = ({
@@ -34,7 +33,7 @@ export const Truncate = ({
   position = 'end',
   hasCopyButton,
   tooltipDelay = 300,
-  maxWidth,
+  className,
 }: TruncateProps) => {
   const ref = useRef<HTMLDivElement>(null)
   // for middle truncation, the ellipsized string; null means the full text fits
@@ -99,7 +98,7 @@ export const Truncate = ({
   return (
     // overflow-hidden required to make inner truncate work
     <div
-      className={cn('flex items-center gap-0.5 overflow-hidden', maxWidth)}
+      className={cn('flex items-center gap-0.5 overflow-hidden', className)}
       onPointerEnter={checkEndTruncation}
       onFocus={checkEndTruncation}
     >

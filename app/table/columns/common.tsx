@@ -23,7 +23,7 @@ function dateCell(info: Info<Date>) {
 
 function idCell(info: Info<string>) {
   return (
-    <Truncate text={info.getValue()} position="middle" maxWidth="max-w-48" hasCopyButton />
+    <Truncate text={info.getValue()} position="middle" className="max-w-48" hasCopyButton />
   )
 }
 

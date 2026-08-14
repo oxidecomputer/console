@@ -10,4 +10,4 @@ import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Truncate } from '~/ui/lib/Truncate'
 
 export const DescriptionCell = ({ text }: { text?: string }) =>
-  text ? <Truncate text={text} maxWidth="max-w-96" /> : <EmptyCell />
+  text ? <Truncate text={text} className="max-w-96" /> : <EmptyCell />

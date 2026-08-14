@@ -62,7 +62,7 @@ const staticColumns = [
   colHelper.accessor('id', {
     header: 'ID',
     cell: (info) => (
-      <Truncate text={info.getValue()} position="middle" maxWidth="max-w-48" />
+      <Truncate text={info.getValue()} position="middle" className="max-w-48" />
     ),
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
