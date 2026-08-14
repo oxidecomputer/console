@@ -65,10 +65,6 @@ exports[`breadcrumbs 2`] = `
       "label": "Alerts",
       "path": "/system/alerts",
     },
-    {
-      "label": "Alerts",
-      "path": "/system/alerts",
-    },
   ],
   "alertReceiversNew (/system/alerts-new)": [
     {
