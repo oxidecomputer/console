@@ -63,6 +63,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
+import { Truncate } from '~/ui/lib/Truncate'
 import { ALL_ISH } from '~/util/consts'
 import {
   getCompatibleVersionsFromNics,
@@ -75,16 +76,22 @@ import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
 
+/**
+ * Resolve a VPC ID to its name. Nexus refuses to delete a VPC while live subnets
+ * exist, and refuses to delete a subnet while a live NIC references it, so a NIC's
+ * vpcId always points at a live VPC and the error branch should be unreachable. It
+ * falls back to the ID rather than taking down the page if that turns out to be
+ * wrong — the ID is true whatever the cause, where "Deleted" would also be wrong for
+ * a transient 5xx. Matches `SubnetNameFromId`, which hedges the same way one hop down.
+ * https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/db-queries/src/db/datastore/vpc.rs#L560-L592
+ */
 const VpcNameFromId = ({ value }: { value: string }) => {
   const { project } = useProjectSelector()
   const { data: vpc, isError } = useQuery(
     q(api.vpcView, { path: { vpc: value } }, { throwOnError: false })
   )
 
-  // If we can't find it, it must have been deleted. This is probably not
-  // possible because you can't delete a VPC that has child resources, but let's
-  // be safe
-  if (isError) return <Badge color="neutral">Deleted</Badge>
+  if (isError) return <Truncate text={value} maxLength={32} />
   if (!vpc) return <SkeletonCell />
   return <LinkCell to={pb.vpc({ project, vpc: vpc.name })}>{vpc.name}</LinkCell>
 }

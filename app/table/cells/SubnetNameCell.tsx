@@ -14,12 +14,16 @@ import { Truncate } from '~/ui/lib/Truncate'
 
 import { SkeletonCell } from './EmptyCell'
 
-/** Resolve a subnet ID to its name. Callers must ensure the query is enabled. */
+/**
+ * Resolve a subnet ID to its name. Nexus refuses to delete a subnet while a live
+ * NIC references it, so the error branch should be unreachable — it falls back to
+ * the ID rather than taking down the page if that turns out to be wrong.
+ * https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/db-queries/src/db/datastore/vpc.rs#L1015-L1031
+ */
 export const SubnetNameFromId = ({ subnetId }: { subnetId: string }) => {
   const { data: subnet, isError } = useQuery(
     q(api.vpcSubnetView, { path: { subnet: subnetId } }, { throwOnError: false })
   )
-  // If fetch fails, just show ID instead of name
   if (isError) return <Truncate text={subnetId} maxLength={32} />
   if (!subnet) return <SkeletonCell /> // loading
   return <span className="text-default">{subnet.name}</span>
