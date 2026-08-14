@@ -121,8 +121,8 @@ test('can create an instance', async ({ page }) => {
   const table = page.getByRole('table', { name: 'Network interfaces' })
   await expectRowVisible(table, {
     name: 'defaultprimary',
-    vpc: 'mock-vpc',
-    subnet: 'mock-subnet',
+    vpc: 'default',
+    subnet: 'default',
   })
 })
 
@@ -822,9 +822,9 @@ test('create instance with custom IPv4-only NIC constrains ephemeral IP to IPv4'
 
   await modal.getByRole('textbox', { name: 'Name' }).fill('my-ipv4-nic')
   await modal.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Select IPv4-only IP configuration
   await modal.getByRole('radio', { name: 'IPv4', exact: true }).click()
@@ -898,9 +898,9 @@ test('create instance with custom IPv6-only NIC constrains ephemeral IP to IPv6'
 
   await modal.getByRole('textbox', { name: 'Name' }).fill('my-ipv6-nic')
   await modal.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Select IPv6-only IP configuration
   await modal.getByRole('radio', { name: 'IPv6', exact: true }).click()
@@ -974,9 +974,9 @@ test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephem
 
   await modal.getByRole('textbox', { name: 'Name' }).fill('my-dual-stack-nic')
   await modal.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Select dual-stack IP configuration (should be default)
   await modal.getByRole('radio', { name: 'IPv4 & IPv6', exact: true }).click()
@@ -1104,9 +1104,9 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
   // Create an IPv4 NIC named "new-v4-nic"
   await modal.getByRole('textbox', { name: 'Name' }).fill('new-v4-nic')
   await modal.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Select IPv4 IP configuration
   await modal.getByRole('radio', { name: 'IPv4', exact: true }).click()

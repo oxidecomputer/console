@@ -89,19 +89,19 @@ const pages = [
   { name: 'vpcs list', url: `${p}/vpcs`, heading: 'VPCs' },
   {
     name: 'vpc firewall rules',
-    url: `${p}/vpcs/mock-vpc/firewall-rules`,
-    heading: 'mock-vpc',
+    url: `${p}/vpcs/default/firewall-rules`,
+    heading: 'default',
   },
-  { name: 'vpc subnets', url: `${p}/vpcs/mock-vpc/subnets`, heading: 'mock-vpc' },
-  { name: 'vpc routers', url: `${p}/vpcs/mock-vpc/routers`, heading: 'mock-vpc' },
+  { name: 'vpc subnets', url: `${p}/vpcs/default/subnets`, heading: 'default' },
+  { name: 'vpc routers', url: `${p}/vpcs/default/routers`, heading: 'default' },
   {
     name: 'vpc internet gateways',
-    url: `${p}/vpcs/mock-vpc/internet-gateways`,
-    heading: 'mock-vpc',
+    url: `${p}/vpcs/default/internet-gateways`,
+    heading: 'default',
   },
   {
     name: 'vpc router detail',
-    url: `${p}/vpcs/mock-vpc/routers/mock-custom-router`,
+    url: `${p}/vpcs/default/routers/mock-custom-router`,
     heading: 'mock-custom-router',
   },
 

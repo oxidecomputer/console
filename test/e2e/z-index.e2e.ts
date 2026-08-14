@@ -22,9 +22,9 @@ test('Dropdown content in SidebarModal shows on screen', async ({ page }) => {
   // select the VPC and subnet via the dropdowns. The fact that the options are
   // clickable means they are not obscured due to having a too-low z-index
   await page.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'Subnet' }).click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   const sidebar = page.getByRole('dialog', { name: 'Add network interface' })
 
