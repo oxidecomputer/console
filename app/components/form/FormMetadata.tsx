@@ -8,10 +8,10 @@
 import type { ReactNode } from 'react'
 
 import { FormDivider } from '~/ui/lib/Divider'
-import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { PropertiesTable, type ResourceMetadata } from '~/ui/lib/PropertiesTable'
 
 type FormMetadataProps = {
-  resource: { id: string; timeCreated: Date; timeModified: Date }
+  resource: ResourceMetadata
   /** Resource-specific `PropertiesTable.*` rows, rendered after the standard three */
   children?: ReactNode
 }

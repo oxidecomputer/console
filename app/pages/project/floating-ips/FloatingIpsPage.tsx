@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
@@ -35,7 +35,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
-import { makeLinkCell } from '~/table/cells/LinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -89,8 +89,15 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
+/** Reads project from the route so the name column can stay static */
+const NameCell = ({ name }: { name: string }) => {
+  const { project } = useProjectSelector()
+  return <LinkCell to={pb.floatingIpEdit({ project, floatingIp: name })}>{name}</LinkCell>
+}
+
 const colHelper = createColumnHelper<FloatingIp>()
 const staticCols = [
+  colHelper.accessor('name', { cell: (info) => <NameCell name={info.getValue()} /> }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('ip', {
     header: 'IP address',
@@ -204,18 +211,7 @@ export default function FloatingIpsPage() {
     [deleteFloatingIp, floatingIpDetach, navigate, project, instances]
   )
 
-  // name column links to the edit side modal; defined here (not in staticCols)
-  // because the link needs the project from the route
-  const cols = useMemo(
-    () => [
-      colHelper.accessor('name', {
-        cell: makeLinkCell((floatingIp) => pb.floatingIpEdit({ project, floatingIp })),
-      }),
-      ...staticCols,
-    ],
-    [project]
-  )
-  const columns = useColsWithActions(cols, makeActions)
+  const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
     query: fipList(project),
     columns,

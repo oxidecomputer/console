@@ -7,7 +7,7 @@
  */
 
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
@@ -91,6 +91,31 @@ const RouterRouteTypeValueBadge = ({
   )
 }
 
+/** Reads route params so the name column can stay static */
+const NameCell = ({ route }: { route: string }) => {
+  const selector = useVpcRouterSelector()
+  return <LinkCell to={pb.vpcRouterRouteEdit({ ...selector, route })}>{route}</LinkCell>
+}
+
+const routerRoutesStaticCols = [
+  routerRoutesColHelper.accessor('name', {
+    header: 'Name',
+    cell: (info) => <NameCell route={info.getValue()} />,
+  }),
+  routerRoutesColHelper.accessor('kind', {
+    header: 'Kind',
+    cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
+  }),
+  routerRoutesColHelper.accessor('destination', {
+    header: 'Destination',
+    cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+  }),
+  routerRoutesColHelper.accessor('target', {
+    header: 'Target',
+    cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+  }),
+]
+
 export default function RouterPage() {
   const { project, vpc, router } = useVpcRouterSelector()
   const { data: routerData } = usePrefetchedQuery(routerView({ project, vpc, router }))
@@ -113,34 +138,6 @@ export default function RouterPage() {
     />
   )
   const navigate = useNavigate()
-
-  const routerRoutesStaticCols = useMemo(
-    () => [
-      routerRoutesColHelper.accessor('name', {
-        header: 'Name',
-        cell: (info) => (
-          <LinkCell
-            to={pb.vpcRouterRouteEdit({ project, vpc, router, route: info.getValue() })}
-          >
-            {info.getValue()}
-          </LinkCell>
-        ),
-      }),
-      routerRoutesColHelper.accessor('kind', {
-        header: 'Kind',
-        cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
-      }),
-      routerRoutesColHelper.accessor('destination', {
-        header: 'Destination',
-        cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
-      }),
-      routerRoutesColHelper.accessor('target', {
-        header: 'Target',
-        cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
-      }),
-    ],
-    [project, vpc, router]
-  )
 
   const makeRangeActions = useCallback(
     (routerRoute: RouterRoute): MenuAction[] => [

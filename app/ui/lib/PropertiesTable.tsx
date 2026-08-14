@@ -124,16 +124,15 @@ PropertiesTable.CopyableRow = ({ label, text }: { label: string; text: string })
   </PropertiesTable.Row>
 )
 
+/** The bits of an API resource `ResourceRows` needs */
+export type ResourceMetadata = { id: string; timeCreated: Date; timeModified: Date }
+
 /**
  * The ID + created/updated timestamps every API resource carries. Renders the
  * three rows nearly every edit side modal opens with; pass additional
  * resource-specific `PropertiesTable.*` rows as siblings after it.
  */
-PropertiesTable.ResourceRows = ({
-  resource,
-}: {
-  resource: { id: string; timeCreated: Date; timeModified: Date }
-}) => (
+PropertiesTable.ResourceRows = ({ resource }: { resource: ResourceMetadata }) => (
   <>
     <PropertiesTable.IdRow id={resource.id} />
     <PropertiesTable.DateRow label="Created" date={resource.timeCreated} />
