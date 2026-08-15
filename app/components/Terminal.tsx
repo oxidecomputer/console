@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { DirectionDownIcon, DirectionUpIcon } from '@oxide/design-system/icons/react'
 
+import { subscribeToTheme } from '~/stores/theme'
 import { classed } from '~/util/classed'
 
 import { AttachAddon } from './AttachAddon'
@@ -110,16 +111,12 @@ export function Terminal({ ws }: TerminalProps) {
     // Update terminal colors when the theme changes. getComputedStyle in
     // getTheme() forces a synchronous style recalc, so the CSS custom
     // properties already reflect the new theme by the time we read them.
-    const observer = new MutationObserver(() => {
+    const unsubscribe = subscribeToTheme(() => {
       newTerm.options.theme = getTheme()
-    })
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
     })
 
     return () => {
-      observer.disconnect()
+      unsubscribe()
       newTerm.dispose()
       window.removeEventListener('resize', resize)
     }

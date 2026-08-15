@@ -29,6 +29,7 @@
 @import '@oxide/design-system/styles/light.css';
 @import '@oxide/design-system/styles/preflight.css' layer(base);
 @import 'simplebar-react/dist/simplebar.min.css' layer(components);
+@import 'uplot/dist/uPlot.min.css' layer(components);
 
 @import '@oxide/design-system/styles/red.css';
 @import '@oxide/design-system/styles/yellow.css';

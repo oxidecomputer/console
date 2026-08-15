@@ -1,0 +1,26 @@
+diff --git a/node_modules/uplot/dist/uPlot.cjs.js b/node_modules/uplot/dist/uPlot.cjs.js
+index 98b7582..ecee6ed 100644
+--- a/node_modules/uplot/dist/uPlot.cjs.js
++++ b/node_modules/uplot/dist/uPlot.cjs.js
+@@ -2947,7 +2947,7 @@ function uPlot(opts, data, then) {
+ 	}
+ 
+ 	const can = placeTag("canvas");
+-	const ctx = self.ctx = can.getContext("2d");
++	const ctx = self.ctx = can.getContext("2d", { colorSpace: "display-p3" });
+ 
+ 	const wrap = placeDiv(WRAP, root);
+ 
+diff --git a/node_modules/uplot/dist/uPlot.esm.js b/node_modules/uplot/dist/uPlot.esm.js
+index 87473c9..4fd56a5 100644
+--- a/node_modules/uplot/dist/uPlot.esm.js
++++ b/node_modules/uplot/dist/uPlot.esm.js
+@@ -2945,7 +2945,7 @@ function uPlot(opts, data, then) {
+ 	}
+ 
+ 	const can = placeTag("canvas");
+-	const ctx = self.ctx = can.getContext("2d");
++	const ctx = self.ctx = can.getContext("2d", { colorSpace: "display-p3" });
+ 
+ 	const wrap = placeDiv(WRAP, root);
+ 
