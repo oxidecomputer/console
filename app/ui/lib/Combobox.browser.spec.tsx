@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import { expect, test } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { commands, userEvent } from 'vitest/browser'
 
@@ -18,6 +18,22 @@ declare module 'vitest/browser' {
     pressComboboxKey: (label: string, key: string) => Promise<void>
   }
 }
+
+// Combobox's onClose branches on document.hasFocus(): a focused close clears
+// the query and ends editing; an unfocused close (tab/window switch) preserves
+// the query. Vitest renders tests in an iframe whose focus state is
+// nondeterministic (Firefox CI sometimes reports unfocused mid-test), and
+// Playwright has no supported way to background a page, so we mock hasFocus
+// rather than depend on the runner's focus state. All tests assume a focused
+// document except the one that overrides this to false.
+// See https://playwright.dev/docs/pages#multiple-pages
+beforeEach(() => {
+  vi.spyOn(document, 'hasFocus').mockReturnValue(true)
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 const items = toComboboxItems([{ name: 'disk-3' }, { name: 'disk-4' }])
 
@@ -74,6 +90,40 @@ test('preserves the committed selection while editing', async () => {
 
   await screen.getByRole('button', { name: 'Outside' }).click()
   await expect.element(combobox).toHaveValue('disk-3')
+})
+
+test('clears the query when the user clicks outside', async () => {
+  const screen = await render(<ComboboxHarness />)
+  const combobox = screen.getByRole('combobox', { name: 'Disk name' })
+
+  await combobox.fill('disk')
+  await commands.pressComboboxKey('Disk name', 'ArrowDown')
+  await expect.element(combobox).toHaveValue('disk')
+  await expect.element(screen.getByRole('option', { name: 'disk-3' })).toBeVisible()
+
+  await screen.getByRole('button', { name: 'Outside' }).click()
+
+  await expect.element(screen.getByRole('option')).not.toBeInTheDocument()
+  await expect.element(combobox).toHaveValue('')
+})
+
+test('preserves the query when closing while the document is unfocused', async () => {
+  const screen = await render(<ComboboxHarness />)
+  const combobox = screen.getByRole('combobox', { name: 'Disk name' })
+
+  await combobox.fill('disk')
+  await commands.pressComboboxKey('Disk name', 'ArrowDown')
+  await expect.element(combobox).toHaveValue('disk')
+  await expect.element(screen.getByRole('option', { name: 'disk-3' })).toBeVisible()
+
+  // There's no supported way to actually background the page (see beforeEach
+  // comment), so mock hasFocus to false. The click and Headless UI close are
+  // still real.
+  vi.spyOn(document, 'hasFocus').mockReturnValue(false)
+  await screen.getByRole('button', { name: 'Outside' }).click()
+
+  await expect.element(screen.getByRole('option')).not.toBeInTheDocument()
+  await expect.element(combobox).toHaveValue('disk')
 })
 
 test('commits a different selected option after editing', async () => {
