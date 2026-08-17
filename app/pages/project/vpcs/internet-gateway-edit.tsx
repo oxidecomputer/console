@@ -121,15 +121,12 @@ export default function EditInternetGatewayForm() {
         content="Gateways can only be modified through the CLI or API."
       />
       <PropertiesTable key={internetGateway.id}>
-        <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
-        <PropertiesTable.DescriptionRow
-          description={internetGateway.description}
-          sideModal
-        />
         <PropertiesTable.IdRow id={internetGateway.id} />
+        <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
+        <PropertiesTable.DescriptionRow description={internetGateway.description} />
       </PropertiesTable>
-
       <FormDivider />
+
       <div className="flex flex-col gap-3">
         <SideModal.Heading>
           Internet gateway IP address
@@ -141,10 +138,7 @@ export default function EditInternetGatewayForm() {
               <PropertiesTable.Row label="Name">
                 {gatewayIpAddress.name}
               </PropertiesTable.Row>
-              <PropertiesTable.DescriptionRow
-                description={gatewayIpAddress.description}
-                sideModal
-              />
+              <PropertiesTable.DescriptionRow description={gatewayIpAddress.description} />
               <PropertiesTable.Row label="IP Address">
                 <CopyableIp ip={gatewayIpAddress.address} />
               </PropertiesTable.Row>

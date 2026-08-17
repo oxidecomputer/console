@@ -43,6 +43,7 @@ import { useQueryTable } from '~/table/QueryTable'
 import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { Tooltip } from '~/ui/lib/Tooltip'
@@ -55,11 +56,17 @@ function toIpPoolComboboxItem(p: IpPool): ComboboxItem {
     value: p.name,
     selectedLabel: p.name,
     label: (
-      <div className="flex items-center gap-1.5">
-        {p.name}
-        <IpVersionBadge ipVersion={p.ipVersion} />
-        <Badge color="neutral">{p.poolType}</Badge>
-      </div>
+      <ItemLabel
+        name={
+          <>
+            {p.name}
+            <IpVersionBadge ipVersion={p.ipVersion} />
+            <Badge color="neutral">{p.poolType}</Badge>
+          </>
+        }
+      >
+        {p.description}
+      </ItemLabel>
     ),
   }
 }
@@ -84,7 +91,10 @@ function EmptyState({ onLinkPool }: { onLinkPool: () => void }) {
 
 const colHelper = createColumnHelper<SiloIpPool>()
 
-const allPoolsQuery = getListQFn(api.systemIpPoolList, { query: { limit: ALL_ISH } })
+// system service pools cannot be linked to silos
+const allPoolsQuery = getListQFn(api.systemIpPoolList, {
+  query: { assignment: 'silos', limit: ALL_ISH },
+})
 
 const allSiloPoolsQuery = (silo: string) =>
   getListQFn(api.siloIpPoolList, { path: { silo }, query: { limit: ALL_ISH } })
