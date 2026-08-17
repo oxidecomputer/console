@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { commands, userEvent } from 'vitest/browser'
 
@@ -74,6 +74,45 @@ test('preserves the committed selection while editing', async () => {
 
   await screen.getByRole('button', { name: 'Outside' }).click()
   await expect.element(combobox).toHaveValue('disk-3')
+})
+
+test('clears the query when the user clicks outside', async () => {
+  const screen = await render(<ComboboxHarness />)
+  const combobox = screen.getByRole('combobox', { name: 'Disk name' })
+
+  await combobox.fill('disk')
+  await commands.pressComboboxKey('Disk name', 'ArrowDown')
+  await expect.element(combobox).toHaveValue('disk')
+  await expect.element(screen.getByRole('option', { name: 'disk-3' })).toBeVisible()
+
+  await screen.getByRole('button', { name: 'Outside' }).click()
+
+  await expect.element(screen.getByRole('option')).not.toBeInTheDocument()
+  await expect.element(combobox).toHaveValue('')
+})
+
+test('preserves the query when closing while the document is unfocused', async () => {
+  const screen = await render(<ComboboxHarness />)
+  const combobox = screen.getByRole('combobox', { name: 'Disk name' })
+
+  await combobox.fill('disk')
+  await commands.pressComboboxKey('Disk name', 'ArrowDown')
+  await expect.element(combobox).toHaveValue('disk')
+  await expect.element(screen.getByRole('option', { name: 'disk-3' })).toBeVisible()
+
+  // Playwright keeps every page active, so switching pages only blurred in Firefox;
+  // manipulating Vitest's outer runner frame is unsupported and blurred too late.
+  // Mock this browser boundary instead. See https://playwright.dev/docs/pages#multiple-pages
+  // and https://vitest.dev/api/browser/commands.html#custom-playwright-commands
+  const hasFocus = vi.spyOn(document, 'hasFocus').mockReturnValue(false)
+  try {
+    await screen.getByRole('button', { name: 'Outside' }).click()
+
+    await expect.element(screen.getByRole('option')).not.toBeInTheDocument()
+    await expect.element(combobox).toHaveValue('disk')
+  } finally {
+    hasFocus.mockRestore()
+  }
 })
 
 test('commits a different selected option after editing', async () => {
