@@ -17,6 +17,52 @@ import {
   expectVisible,
 } from './utils'
 
+// Self-signed cert whose SANs cover other-silo.sys.placeholder; notAfter
+// is 2036, so neither the mismatch nor expiry notice should fire.
+const validCertPem = `-----BEGIN CERTIFICATE-----
+MIIDCTCCAfGgAwIBAgIJANXWazDy6XofMA0GCSqGSIb3DQEBCwUAMCUxIzAhBgNV
+BAMMGm90aGVyLXNpbG8uc3lzLnBsYWNlaG9sZGVyMB4XDTI2MDUyMTExMTQyNVoX
+DTM2MDUxODExMTQyNVowJTEjMCEGA1UEAwwab3RoZXItc2lsby5zeXMucGxhY2Vo
+b2xkZXIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDI3sD73Xxa3gUN
+2cdgTYtOrmLubg19yBqs24m11PbTR8mUnPcgMLGS4EUsJax3IjYHoDTWa8BnKMO+
+ECYL3FlwUlabvnendefrDSgS8RFjFNdNBULVfDkyNvRVClfl9z2/T7T+OrDqnO55
+jfXGh5hVi2hUw2oZY5IMtGiinALisl9N4hE2GCeJ+xJs9XZbCjyuGW1V6TK8domR
+SQ/a92KnM7zmHb3ed+sqJ5w9DOReb0JFw7E50h0DttswoZvpeqVWIjnv1n9+Q3Ef
+izyWukmWMLnWbL0sZ4IzPbgoxa0nhW/cpmH2WOVfq6PiiAJ5lz5aVKtRdXyBllNm
+KxMJFaRjAgMBAAGjPDA6MDgGA1UdEQQxMC+CGm90aGVyLXNpbG8uc3lzLnBsYWNl
+aG9sZGVyghEqLnN5cy5wbGFjZWhvbGRlcjANBgkqhkiG9w0BAQsFAAOCAQEAnv7Q
+9Ye1CN0rzfS48rrKdKinsotnI9qLTCa8Yds+aGUy4Zc1+L0JOoaf++JxIruEAIEB
+QTw/K5BTTYrMtH+Z1j8oBNobz7nmqViQc1TZzbAbpLEoIDhORcR4Bfd1nFhoys44
+NuLQj2nBT4+esIq1Stnne6yWaMRGS7b4ST2fiw3YECPxZjSwDW81uis+RdvIsrRt
+5oN46xZ08uBYvjGv09FDS2eFlMxxg7v92qWvlUWDjqXgMYPTdT1lC9jT5afV3auE
+v79HkG0vgIb5q/KyEnpHs3NnJxBaxLH7+i8aEXD7235RNjROzRHTvGaTBkJQVk9X
+cx0yc+u9JD4kNu9aOA==
+-----END CERTIFICATE-----`
+
+// Self-signed cert with CN=test.example.com and SANs that won't match
+// other-silo.sys.*; notAfter is 2025-11-27, i.e. already expired.
+const expiredCertPem = `-----BEGIN CERTIFICATE-----
+MIIDbjCCAlagAwIBAgIUVF36cv2UevtKOGWP3GNV1h+TpScwDQYJKoZIhvcNAQEL
+BQAwGzEZMBcGA1UEAwwQdGVzdC5leGFtcGxlLmNvbTAeFw0yNDExMjcxNDE4MTha
+Fw0yNTExMjcxNDE4MThaMBsxGTAXBgNVBAMMEHRlc3QuZXhhbXBsZS5jb20wggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC0cBavU9cnrTY7CaOsHdfzr7e4
+mT7eRCGJa1jmuGeADGIs1IcMr/7jgiKS/1P69SehfqpFWXKAYn5OH+ickZfs55AB
+uyfh+KogmTkX6I40CnP9GohfgAaDVr119a2kdJNvinsCjNGfulMBYiw+sJBp4l/c
+zQRYMXaMk1ARKBgUuVZHZXnkWQKjp/GAQjVsUjl/dnBVeUuS4/0OVTLL8U6mGzdy
+f5s03bpBLOOJ9Owg1We5urYA6glCvvMh1VhBPsCnHFj6aYLnnWpJkVuJEKA+znEU
+U2n6T0bQorzVnn5ROtAn3ao4sGIVMbMeIaEvUt3zyVk+gtUvqSTPChFde6/LAgMB
+AAGjgakwgaYwHQYDVR0OBBYEFFzp73YRPxxu4bTQvmJy5rqHNXh7MB8GA1UdIwQY
+MBaAFFzp73YRPxxu4bTQvmJy5rqHNXh7MA8GA1UdEwEB/wQFMAMBAf8wUwYDVR0R
+BEwwSoIQdGVzdC5leGFtcGxlLmNvbYISKi50ZXN0LmV4YW1wbGUuY29tghEqLmRl
+di5leGFtcGxlLmNvbYIJbG9jYWxob3N0hwR/AAABMA0GCSqGSIb3DQEBCwUAA4IB
+AQCstbMiTwHuSlwuUslV9SxewdxTtKAjNgUnCn1Jv7hs44wNTBqvMzDq2HB26wRR
+Onbt6gReOj9GdSRmJPNcgouaAGJWCXuaZPs34LgRJir6Z0FVcK7/O3SqfTOg3tJg
+gzg4xmtzXc7Im4VgvaLS5iXCOvUaKf/rXeYDa3r37EF+vyzcETt5bXwtU8BBFvVT
+JfPDla5lYv0h9Z+XsYEAqtbChdy+fVuHnF+EygZCT9KVFBPWQrsaF1Qc/CvP/+LM
+CrdLoB+2pkWbX075tv8LIbL2dW5Gzyw+lU6lzPL9Vikm3QXGRklKHA4SVuZ3F9tr
+wPRLWb4aPmo1COkgvg3Moqdw
+-----END CERTIFICATE-----`
+
 test('Create silo', async ({ page }) => {
   await page.goto('/system/silos')
 
@@ -98,6 +144,8 @@ test('Create silo', async ({ page }) => {
   await expectVisible(page, [certRequired, keyRequired, nameRequired])
 
   await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+  // garbage content should surface the soft "couldn't parse" notice
+  await expect(certDialog.getByText("Couldn't parse certificate")).toBeVisible()
   await chooseFile(page.getByLabel('Key'), 'small')
   const certName = certDialog.getByRole('textbox', { name: 'Name' })
 
@@ -125,7 +173,30 @@ test('Create silo', async ({ page }) => {
 
   // Change the name so it's unique
   await certName.fill('test-cert-2')
-  await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+
+  // First upload a valid, non-expired cert that covers other-silo.sys.* —
+  // no soft-validation notice should be visible
+  const certInput = page.getByLabel('Cert', { exact: true })
+  await certInput.setInputFiles({
+    name: 'cert.pem',
+    mimeType: 'application/x-pem-file',
+    buffer: Buffer.from(validCertPem),
+  })
+  await expect(certDialog.getByText("Couldn't parse certificate")).toBeHidden()
+  await expect(certDialog.getByText('Certificate expired')).toBeHidden()
+  await expect(certDialog.getByText('Certificate domain mismatch')).toBeHidden()
+
+  // Now swap to a real (expired) PEM whose SANs don't match
+  // other-silo.sys.* — exercises the mismatch + expiry notices end to end
+  await certInput.setInputFiles({
+    name: 'cert.pem',
+    mimeType: 'application/x-pem-file',
+    buffer: Buffer.from(expiredCertPem),
+  })
+  await expect(certDialog.getByText('Certificate expired')).toBeVisible()
+  await expect(certDialog.getByText('Certificate domain mismatch')).toBeVisible()
+  await expect(certDialog.getByText('other-silo.sys.placeholder')).toBeVisible()
+  await expect(certDialog.getByText("Couldn't parse certificate")).toBeHidden()
   await chooseFile(page.getByLabel('Key'), 'small')
   await certSubmit.click()
   await expect(page.getByRole('cell', { name: 'test-cert-2', exact: true })).toBeVisible()
