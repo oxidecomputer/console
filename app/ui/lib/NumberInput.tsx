@@ -23,6 +23,8 @@ type NumberInputProps = AriaNumberFieldProps & {
   ref?: Ref<HTMLInputElement>
 }
 
+export const isCanonicalNumberString = (value: string) => String(Number(value)) === value
+
 export function NumberInput(props: NumberInputProps) {
   const { locale } = useLocale()
   const state = useNumberFieldState({ ...props, locale })
@@ -39,7 +41,7 @@ export function NumberInput(props: NumberInputProps) {
   //
   // Context: https://github.com/adobe/react-spectrum/issues/7984
   useEffect(() => {
-    if (String(Number(state.inputValue)) === state.inputValue || state.inputValue === '') {
+    if (isCanonicalNumberString(state.inputValue) || state.inputValue === '') {
       state.commit()
     }
     // eslint-disable-next-line exhaustive-deps

@@ -10,7 +10,7 @@ import { useState } from 'react'
 import * as R from 'remeda'
 import { describe, expect, it, vi } from 'vitest'
 
-import { NumberInput } from './NumberInput'
+import { isCanonicalNumberString, NumberInput } from './NumberInput'
 
 type Props = React.ComponentProps<typeof NumberInput>
 
@@ -31,6 +31,21 @@ function Controlled({ onChange, ...props }: Props) {
 }
 
 const getInput = (container: HTMLElement) => container.querySelector('input')!
+
+describe('isCanonicalNumberString', () => {
+  it.each([
+    ['0', true],
+    ['-1', true],
+    ['1.5', true],
+    ['', false],
+    ['01', false],
+    ['1.', false],
+    ['1.0', false],
+    ['-0', false],
+  ])('%j => %j', (value, expected) => {
+    expect(isCanonicalNumberString(value)).toBe(expected)
+  })
+})
 
 describe('NumberInput', () => {
   it('fires onChange per keystroke with the parsed number', () => {
