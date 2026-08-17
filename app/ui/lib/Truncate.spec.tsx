@@ -6,59 +6,31 @@
  * Copyright Oxide Computer Company
  */
 
-import { render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { Truncate } from './Truncate'
+import { middleTruncateToFit } from './Truncate'
 
-const measureText = vi.fn((text: string) => ({ width: text.length }))
+const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+const graphemeWidth = (text: string) => Array.from(segmenter.segment(text)).length
 
-Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
-  configurable: true,
-  value: () => ({ font: '', letterSpacing: '', measureText }),
-})
-
-afterEach(() => {
-  vi.restoreAllMocks()
-  measureText.mockClear()
-})
-
-describe('Truncate', () => {
-  it('preserves complete Unicode characters when truncating in the middle', () => {
-    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(6)
-    vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(16)
-    const text = '😀'.repeat(8)
-
-    render(<Truncate text={text} position="middle" />)
-
-    const displayedText = screen
-      .getByLabelText(text)
-      .querySelector('.absolute')?.textContent
-    expect(displayedText).toBeDefined()
-    expect(hasUnpairedSurrogate(displayedText ?? '')).toBe(false)
+describe('middleTruncateToFit', () => {
+  it.each([
+    ['emoji', '😀'.repeat(8), '😀😀😀…😀😀'],
+    ['combining marks', 'é'.repeat(8), 'ééé…éé'],
+  ])('preserves complete %s graphemes', (_name, text, expected) => {
+    expect(middleTruncateToFit(text, 6, graphemeWidth)).toBe(expected)
   })
 
-  it('truncates whenever the rendered text is wider than its container', () => {
-    vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(9)
-    vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(10)
-    const text = 'abcdefghij'
+  it('keeps the largest middle-truncated value that fits', () => {
+    expect(middleTruncateToFit('abcdefghij', 9, graphemeWidth)).toBe('abcd…ghij')
+  })
 
-    render(<Truncate text={text} position="middle" />)
+  it('accounts for variable-width graphemes', () => {
+    const variableWidth = (text: string) =>
+      Array.from(segmenter.segment(text), ({ segment }) =>
+        segment === 'W' ? 3 : 1
+      ).reduce((sum, width) => sum + width, 0)
 
-    expect(screen.getByLabelText(text).querySelector('.absolute')).not.toBeNull()
+    expect(middleTruncateToFit('WWiiiiWW', 9, variableWidth)).toBe('W…W')
   })
 })
-
-function hasUnpairedSurrogate(text: string) {
-  for (let i = 0; i < text.length; i++) {
-    const code = text.charCodeAt(i)
-    if (code >= 0xd800 && code <= 0xdbff) {
-      const next = text.charCodeAt(i + 1)
-      if (next < 0xdc00 || next > 0xdfff) return true
-      i++
-    } else if (code >= 0xdc00 && code <= 0xdfff) {
-      return true
-    }
-  }
-  return false
-}

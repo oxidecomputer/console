@@ -144,9 +144,17 @@ function truncateToFit(text: string, el: HTMLElement): string {
   const width = el.clientWidth
   if (el.scrollWidth <= width) return text
 
+  return middleTruncateToFit(text, width, (candidate) => ctx.measureText(candidate).width)
+}
+
+/** Middle-truncate known-overflowing text using rendered-width measurements. */
+export function middleTruncateToFit(
+  text: string,
+  width: number,
+  measure: (text: string) => number
+) {
   const graphemes = Array.from(graphemeSegmenter.segment(text), ({ segment }) => segment)
-  const fits = (keep: number) =>
-    ctx.measureText(middleEllipsis(graphemes, keep)).width <= width
+  const fits = (keep: number) => measure(middleEllipsis(graphemes, keep)) <= width
 
   // binary search for the largest number of kept graphemes that fits
   let lo = 0
