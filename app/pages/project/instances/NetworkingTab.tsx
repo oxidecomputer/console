@@ -91,7 +91,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
     q(api.vpcView, { path: { vpc: value } }, { throwOnError: false })
   )
 
-  if (isError) return <Truncate text={value} maxLength={32} />
+  if (isError) return <Truncate text={value} position="middle" className="max-w-48" />
   if (!vpc) return <SkeletonCell />
   return <LinkCell to={pb.vpc({ project, vpc: vpc.name })}>{vpc.name}</LinkCell>
 }

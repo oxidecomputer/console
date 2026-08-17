@@ -24,7 +24,7 @@ export const SubnetNameFromId = ({ subnetId }: { subnetId: string }) => {
   const { data: subnet, isError } = useQuery(
     q(api.vpcSubnetView, { path: { subnet: subnetId } }, { throwOnError: false })
   )
-  if (isError) return <Truncate text={subnetId} maxLength={32} />
+  if (isError) return <Truncate text={subnetId} position="middle" className="max-w-48" />
   if (!subnet) return <SkeletonCell /> // loading
   return <span className="text-default">{subnet.name}</span>
 }
