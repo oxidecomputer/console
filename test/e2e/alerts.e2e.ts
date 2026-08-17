@@ -8,6 +8,8 @@
 
 import { expect, test, type Page } from '@playwright/test'
 
+import { alerts } from '@oxide/api-mocks'
+
 import {
   clickRowAction,
   clickRowActions,
@@ -585,4 +587,43 @@ test('Webhook receiver delete', async ({ page }) => {
 
   await expect(page.getByRole('cell', { name: 'power-mon' })).toBeHidden()
   await expect(page.getByRole('table').getByRole('row')).toHaveCount(3) // header + 2
+})
+
+test('Alert list basics', async ({ page }) => {
+  // omitting the trailing /alerts because this should be the default view
+  await page.goto('/system/alerting')
+
+  await expect(page).toHaveTitle('Alerts / Alerting / Oxide Console')
+  await expect(page.getByRole('heading', { name: 'Alerting' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: 'Alerts' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  )
+
+  const table = page.getByRole('table')
+  await expect(table.getByRole('row')).toHaveCount(alerts.length + 1)
+
+  await expectRowVisible(table, { class: 'hardware.power_shelf.psu.remove' })
+  await expectRowVisible(table, { class: 'hardware.power_shelf.psu.insert' })
+  await expectRowVisible(table, { class: 'hardware.power_shelf.psu.remove' })
+})
+
+test('Alert list detail view', async ({ page }) => {
+  await page.goto('/system/alerting/alerts')
+
+  await page.getByRole('button', { name: 'Row actions' }).first().click()
+  const viewDetails = page.getByRole('menuitem', { name: 'View alert details' })
+  await expect(viewDetails).toBeVisible()
+  await viewDetails.click()
+
+  const alertBody = page.locator('pre')
+
+  await expect(alertBody).toBeVisible()
+
+  // the payload's `time` is generated relative to now in each process, so let's
+  // not bother checking it
+  const stripTime = ({ time: _, ...rest }: Record<string, unknown>) => rest
+  const rendered = JSON.parse((await alertBody.textContent()) as string)
+  // we just expect the body to look like SOME alert so we aren't brittle to sorting
+  expect(alerts.map(({ alert }) => stripTime(alert))).toContainEqual(stripTime(rendered))
 })

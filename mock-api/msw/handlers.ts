@@ -2375,6 +2375,39 @@ export const handlers = makeHandlers({
     )
     return paginated(query, affinityGroups)
   },
+  alertList: ({ query }) => {
+    const { startTime, endTime, alertClass } = query
+    let final = db.alerts
+
+    if (startTime)
+      final = final.filter((alert) => new Date(alert.time_created) >= startTime)
+    if (endTime) final = final.filter((alert) => new Date(alert.time_created) <= endTime)
+    if (alertClass) {
+      const matcher = new RegExp(
+        alertClass
+          .replace(/\./g, '\\.')
+          .replace(/\*\*/g, '[a-z_.]+')
+          .replace(/\*/g, '[a-z_]+')
+      )
+      final = final.filter((alert) => alert.class.match(matcher))
+    }
+
+    final = match(query.sortBy)
+      .with(undefined, () => final)
+      .with('time_and_id_descending', () =>
+        R.reverse(R.sortBy(final, ({ time_created, id }) => `${time_created}|${id}`))
+      )
+      .with('time_and_id_ascending', () =>
+        R.sortBy(final, ({ time_created, id }) => `${time_created}|${id}`)
+      )
+      .exhaustive()
+
+    return paginated(query, final)
+  },
+  alertView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookupById(db.alerts, path.alertId)
+  },
 
   // SCIM token endpoints
   scimTokenList({ query, cookies }) {
@@ -2693,10 +2726,6 @@ export const handlers = makeHandlers({
     // can't use paginated() because alert classes have no ID
     return { items: alertClasses.filter((c) => !filter || filter.test(c.name)) }
   },
-  alertView({ path, cookies }) {
-    requireFleetViewer(cookies)
-    return lookupById(db.alerts, path.alertId)
-  },
   alertReceiverList({ query, cookies }) {
     requireFleetViewer(cookies)
     return paginated(query, db.alertReceivers)
@@ -2898,7 +2927,6 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
-  alertList: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
   auditLogList: NotImplemented,
   certificateCreate: NotImplemented,
