@@ -141,7 +141,8 @@ function truncateToFit(text: string, el: HTMLElement): string {
   ctx.letterSpacing = style.letterSpacing === 'normal' ? '0px' : style.letterSpacing
 
   const width = el.clientWidth
-  if (ctx.measureText(text).width <= width) return text
+  // some tolerance to account for deviations in DOM and measureText
+  if (ctx.measureText(text).width - 2 <= width) return text
 
   const fits = (keep: number) => ctx.measureText(middleEllipsis(text, keep)).width <= width
 
