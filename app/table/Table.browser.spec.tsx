@@ -43,6 +43,7 @@ test('selects a row by clicking its checkbox cell', async () => {
 
   await expect.element(row.getByRole('checkbox')).toBeChecked()
   await expect.element(headerCheckbox).toBePartiallyChecked()
+  await expect.element(row).toHaveClass('is-selected')
 })
 
 test('selects and clears every row from the header checkbox', async () => {
@@ -53,8 +54,18 @@ test('selects and clears every row from the header checkbox', async () => {
   await headerCheckbox.click()
   await expect.element(checkboxes.nth(1)).toBeChecked()
   await expect.element(checkboxes.nth(2)).toBeChecked()
+  await expect
+    .element(screen.getByRole('row', { name: 'alpha' }))
+    .toHaveClass('is-selected')
+  await expect.element(screen.getByRole('row', { name: 'beta' })).toHaveClass('is-selected')
 
   await headerCheckbox.click()
   await expect.element(checkboxes.nth(1)).not.toBeChecked()
   await expect.element(checkboxes.nth(2)).not.toBeChecked()
+  await expect
+    .element(screen.getByRole('row', { name: 'alpha' }))
+    .not.toHaveClass('is-selected')
+  await expect
+    .element(screen.getByRole('row', { name: 'beta' }))
+    .not.toHaveClass('is-selected')
 })
