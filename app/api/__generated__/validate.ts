@@ -2781,6 +2781,14 @@ export const InternetGatewayResultsPage = z.preprocess(
 )
 
 /**
+ * Assignment of an IP pool to resources and services.
+ */
+export const IpPoolAssignment = z.preprocess(
+  processResponseBody,
+  z.enum(['silos', 'system_services'])
+)
+
+/**
  * Type of IP pool.
  */
 export const IpPoolType = z.preprocess(
@@ -2789,11 +2797,12 @@ export const IpPoolType = z.preprocess(
 )
 
 /**
- * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo.
+ * A collection of IP ranges.
  */
 export const IpPool = z.preprocess(
   processResponseBody,
   z.object({
+    assignment: IpPoolAssignment,
     description: z.string(),
     id: z.uuid(),
     ipVersion: IpVersion,
@@ -2802,6 +2811,14 @@ export const IpPool = z.preprocess(
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
+)
+
+/**
+ * Body parameters for reassigning an IP pool.
+ */
+export const IpPoolAssignParam = z.preprocess(
+  processResponseBody,
+  z.object({ assignment: IpPoolAssignment })
 )
 
 /**
@@ -2814,6 +2831,7 @@ export const IpPool = z.preprocess(
 export const IpPoolCreate = z.preprocess(
   processResponseBody,
   z.object({
+    assignment: IpPoolAssignment.default('silos'),
     description: z.string(),
     ipVersion: IpVersion.default('v4'),
     name: Name,
@@ -6629,8 +6647,10 @@ export const IpPoolListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
+      ipVersion: IpVersion.optional(),
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
+      poolType: IpPoolType.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -7418,8 +7438,11 @@ export const SystemIpPoolListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
+      assignment: IpPoolAssignment.optional(),
+      ipVersion: IpVersion.optional(),
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
+      poolType: IpPoolType.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -7454,6 +7477,16 @@ export const SystemIpPoolUpdateParams = z.preprocess(
 )
 
 export const SystemIpPoolDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SystemIpPoolAssignParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7548,41 +7581,6 @@ export const SystemIpPoolUtilizationViewParams = z.preprocess(
     path: z.object({
       pool: NameOrId,
     }),
-    query: z.object({}),
-  })
-)
-
-export const SystemIpPoolServiceViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SystemIpPoolServiceRangeListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
-      pageToken: z.string().nullable().optional(),
-    }),
-  })
-)
-
-export const SystemIpPoolServiceRangeAddParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SystemIpPoolServiceRangeRemoveParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
     query: z.object({}),
   })
 )

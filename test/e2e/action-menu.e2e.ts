@@ -112,13 +112,13 @@ test('router quick action "New route" hidden for system router, visible for cust
   page,
 }) => {
   // system router: action should not appear
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-system-router')
+  await page.goto('/projects/mock-project/vpcs/default/routers/mock-system-router')
   await openActionMenu(page)
   await expect(page.getByRole('option', { name: 'New route' })).toBeHidden()
   await page.keyboard.press('Escape')
 
   // custom router: action should appear
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
+  await page.goto('/projects/mock-project/vpcs/default/routers/mock-custom-router')
   await openActionMenu(page)
   await expect(page.getByRole('option', { name: 'New route' })).toBeVisible()
 })

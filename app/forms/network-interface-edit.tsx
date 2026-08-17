@@ -20,19 +20,25 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextFieldInner } from '~/components/form/fields/TextField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SubnetNameFromId } from '~/table/cells/SubnetNameCell'
+import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { HintLink, TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { parseIpNet, validateIpNet } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
+
+const transitIpTableColumns = [{ header: 'Transit IPs', text: (ip: string) => ip }]
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
@@ -54,23 +60,29 @@ export function EditNetworkInterfaceForm({
     },
   })
 
-  // Extract transitIps from ipStack for the form
-  const extractedTransitIps =
-    editing.ipStack.type === 'dual_stack'
-      ? [...editing.ipStack.value.v4.transitIps, ...editing.ipStack.value.v6.transitIps]
-      : editing.ipStack.value.transitIps
+  // A NIC has an IPv4 stack, an IPv6 stack, or both
+  const { ipStack } = editing
+  const v4 = match(ipStack)
+    .with({ type: 'v4' }, ({ value }) => value)
+    .with({ type: 'dual_stack' }, ({ value }) => value.v4)
+    .with({ type: 'v6' }, () => null)
+    .exhaustive()
+  const v6 = match(ipStack)
+    .with({ type: 'v6' }, ({ value }) => value)
+    .with({ type: 'dual_stack' }, ({ value }) => value.v6)
+    .with({ type: 'v4' }, () => null)
+    .exhaustive()
 
   const defaultValues = {
     name: editing.name,
     description: editing.description,
-    transitIps: extractedTransitIps,
+    transitIps: [...(v4?.transitIps ?? []), ...(v6?.transitIps ?? [])],
   } satisfies InstanceNetworkInterfaceUpdate
 
   const form = useForm({ defaultValues })
   const transitIps = form.watch('transitIps') || []
 
   // Determine what IP versions this NIC supports
-  const { ipStack } = editing
   const { supportedVersions, exampleIPs } = match(ipStack.type)
     .with('v4', () => ({ supportedVersions: 'IPv4', exampleIPs: '192.168.0.0/16' }))
     .with('v6', () => ({ supportedVersions: 'IPv6', exampleIPs: 'fd00::/64' }))
@@ -111,6 +123,22 @@ export function EditNetworkInterfaceForm({
       loading={editNetworkInterface.isPending}
       submitError={editNetworkInterface.error}
     >
+      <FormMetadata resource={editing}>
+        {v4 && (
+          <PropertiesTable.Row label="Private IPv4">
+            <CopyableIp ip={v4.ip} isLinked={false} />
+          </PropertiesTable.Row>
+        )}
+        {v6 && (
+          <PropertiesTable.Row label="Private IPv6">
+            <CopyableIp ip={v6.ip} isLinked={false} />
+          </PropertiesTable.Row>
+        )}
+        <PropertiesTable.Row label="MAC address">{editing.mac}</PropertiesTable.Row>
+        <PropertiesTable.Row label="Subnet">
+          <SubnetNameFromId subnetId={editing.subnetId} />
+        </PropertiesTable.Row>
+      </FormMetadata>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
@@ -164,7 +192,7 @@ export function EditNetworkInterfaceForm({
         className="mb-4"
         ariaLabel="Transit IPs"
         items={transitIps}
-        columns={[{ header: 'Transit IPs', cell: (ip) => ip }]}
+        columns={transitIpTableColumns}
         rowKey={(ip) => ip}
         onRemoveItem={(ip) => {
           form.setValue(

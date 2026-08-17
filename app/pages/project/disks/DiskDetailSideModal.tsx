@@ -74,7 +74,7 @@ export function DiskDetailSideModal({
     >
       <PropertiesTable>
         <PropertiesTable.IdRow id={disk.id} />
-        <PropertiesTable.DescriptionRow description={disk.description} sideModal />
+        <PropertiesTable.DescriptionRow description={disk.description} />
         <PropertiesTable.SizeRow bytes={disk.size} />
         <PropertiesTable.Row label="State">
           <DiskStateBadge state={disk.state.state} />

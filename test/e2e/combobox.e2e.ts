@@ -151,21 +151,22 @@ test('virtualized combobox filters and selects options outside the initial windo
 test('arbitrary-values combobox keeps typed values and resets submitted fields', async ({
   page,
 }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+  await page.goto('/projects/mock-project/vpcs/default/firewall-rules-new')
 
   const vpcInput = page.getByRole('combobox', { name: 'VPC name' }).first()
   await vpcInput.focus()
-  await expectComboboxOptions(page, ['mock-vpc'])
+  await expectComboboxOptions(page, ['default'])
 
-  await vpcInput.fill('d')
-  await expectComboboxOptions(page, ['Custom: d'])
+  // 'z' matches no VPC, so only the arbitrary-value option shows
+  await vpcInput.fill('z')
+  await expectComboboxOptions(page, ['Custom: z'])
 
   await vpcInput.blur()
   await page.getByRole('button', { name: 'Add target' }).click()
   await expect(vpcInput).toHaveValue('')
 
   await vpcInput.focus()
-  await expectComboboxOptions(page, ['mock-vpc'])
+  await expectComboboxOptions(page, ['default'])
 
   await selectOption(page, 'Target type', 'Instance')
   const instanceInput = page.getByRole('combobox', { name: 'Instance name' })
@@ -179,6 +180,8 @@ test('arbitrary-values combobox keeps typed values and resets submitted fields',
     'db2',
     'db-stopped',
     'db3',
+    'sentinel-metrics-flat',
+    'sentinel-metrics-slope',
   ])
 
   await instanceInput.fill('d')
@@ -221,25 +224,26 @@ test('arbitrary-values combobox keeps typed values and resets submitted fields',
 })
 
 test('combobox Enter selects highlighted item, not raw query', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+  await page.goto('/projects/mock-project/vpcs/default/firewall-rules-new')
 
   const targets = page.getByRole('table', { name: 'Targets' })
   const vpcInput = page.getByRole('combobox', { name: 'VPC name' }).first()
 
-  await vpcInput.fill('mock')
-  await expect(page.getByRole('option', { name: 'mock-vpc' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'Custom: mock' })).toBeVisible()
+  // 'def' matches the default VPC as well as producing an arbitrary-value option
+  await vpcInput.fill('def')
+  await expect(page.getByRole('option', { name: 'default' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'Custom: def' })).toBeVisible()
 
   await page.keyboard.press('ArrowUp')
   await page.keyboard.press('Enter')
 
-  await expect(vpcInput).toHaveValue('mock-vpc')
+  await expect(vpcInput).toHaveValue('default')
   await page.getByRole('button', { name: 'Add target' }).click()
-  await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-vpc' })
+  await expectRowVisible(targets, { Type: 'vpc', Value: 'default' })
 })
 
 test("Escape in combobox doesn't close the parent form", async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+  await page.goto('/projects/mock-project/vpcs/default/firewall-rules-new')
 
   await page.getByRole('textbox', { name: 'Name' }).fill('a')
 
@@ -257,7 +261,7 @@ test("Escape in combobox doesn't close the parent form", async ({ page }) => {
   await input.focus()
 
   await expect(page.getByRole('option').first()).toBeVisible()
-  await expectComboboxOptions(page, ['mock-vpc'])
+  await expectComboboxOptions(page, ['default'])
 
   await page.keyboard.press('Escape')
   await expect(confirmModal).toBeHidden()

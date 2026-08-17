@@ -157,6 +157,32 @@ export const instanceDb3: Json<Instance> = {
   run_state: 'running',
 }
 
+// Flat, constant series. A tooltip hover reads back a known value regardless of
+// cursor position.
+export const SENTINEL_FLAT_INSTANCE_ID = 'f0968b0d-6f4a-49e8-8d96-a58dc2c93993'
+export const sentinelFlatInstance: Json<Instance> = {
+  ...base,
+  id: SENTINEL_FLAT_INSTANCE_ID,
+  name: 'sentinel-metrics-flat',
+  description: 'returns constant metric data for tooltip tests',
+  hostname: 'oxide.com',
+  project_id: project.id,
+  run_state: 'running',
+}
+
+// Series that increases linearly with time. Lets you do slightly more thorough
+// graph testing.
+export const SENTINEL_SLOPE_INSTANCE_ID = 'c7d3b8a5-71f7-4588-bce8-38c9f1f85f2f'
+export const sentinelSlopeInstance: Json<Instance> = {
+  ...base,
+  id: SENTINEL_SLOPE_INSTANCE_ID,
+  name: 'sentinel-metrics-slope',
+  description: 'returns linearly increasing metric data for axis tests',
+  hostname: 'oxide.com',
+  project_id: project.id,
+  run_state: 'running',
+}
+
 export const instances: Json<Instance>[] = [
   instance,
   failedInstance,
@@ -168,4 +194,6 @@ export const instances: Json<Instance>[] = [
   instanceDb2,
   stoppedInstance,
   instanceDb3,
+  sentinelFlatInstance,
+  sentinelSlopeInstance,
 ]

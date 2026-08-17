@@ -41,7 +41,7 @@ export function ImageDetailSideModal({
     >
       <PropertiesTable>
         <PropertiesTable.IdRow id={image.id} />
-        <PropertiesTable.DescriptionRow description={image.description} sideModal />
+        <PropertiesTable.DescriptionRow description={image.description} />
         <PropertiesTable.Row label="Visibility">{visibility}</PropertiesTable.Row>
         <PropertiesTable.Row label="OS">{image.os}</PropertiesTable.Row>
         <PropertiesTable.Row label="Version">{image.version}</PropertiesTable.Row>
