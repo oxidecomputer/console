@@ -118,6 +118,7 @@ export const Truncate = ({
 }
 
 let canvasCtx: CanvasRenderingContext2D | null = null
+const graphemeSegmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
 
 /** null in environments without canvas support, like jsdom */
 function getCanvasCtx(): CanvasRenderingContext2D | null {
@@ -141,14 +142,15 @@ function truncateToFit(text: string, el: HTMLElement): string {
   ctx.letterSpacing = style.letterSpacing === 'normal' ? '0px' : style.letterSpacing
 
   const width = el.clientWidth
-  // some tolerance to account for deviations in DOM and measureText
-  if (ctx.measureText(text).width - 2 <= width) return text
+  if (el.scrollWidth <= width) return text
 
-  const fits = (keep: number) => ctx.measureText(middleEllipsis(text, keep)).width <= width
+  const graphemes = Array.from(graphemeSegmenter.segment(text), ({ segment }) => segment)
+  const fits = (keep: number) =>
+    ctx.measureText(middleEllipsis(graphemes, keep)).width <= width
 
-  // binary search for the largest number of kept characters that fits
+  // binary search for the largest number of kept graphemes that fits
   let lo = 0
-  let hi = text.length - 1
+  let hi = graphemes.length - 1
   while (lo < hi) {
     const mid = Math.ceil((lo + hi) / 2)
     if (fits(mid)) {
@@ -157,14 +159,14 @@ function truncateToFit(text: string, el: HTMLElement): string {
       hi = mid - 1
     }
   }
-  return middleEllipsis(text, lo)
+  return middleEllipsis(graphemes, lo)
 }
 
-function middleEllipsis(text: string, keep: number) {
+function middleEllipsis(graphemes: string[], keep: number) {
   return (
-    text.slice(0, Math.ceil(keep / 2)) +
+    graphemes.slice(0, Math.ceil(keep / 2)).join('') +
     '…' +
-    text.slice(text.length - Math.floor(keep / 2))
+    graphemes.slice(graphemes.length - Math.floor(keep / 2)).join('')
   )
 }
 
