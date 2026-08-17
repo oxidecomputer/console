@@ -346,6 +346,23 @@ export const AggregateBgpMessageHistory = z.preprocess(
 )
 
 /**
+ * An alert.
+ *
+ * Alerts provide notifications about events that occurred in the system at a point in time. See the guide-level documentation on alerts for details.
+ */
+export const Alert = z.preprocess(
+  processResponseBody,
+  z.object({
+    alert: z.record(z.string(), z.unknown()),
+    class: z.string(),
+    id: z.uuid(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+    version: z.number().min(0).max(4294967295),
+  })
+)
+
+/**
  * An alert class.
  */
 export const AlertClass = z.preprocess(
@@ -510,6 +527,14 @@ export const AlertReceiver = z.preprocess(
 export const AlertReceiverResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: AlertReceiver.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * A single page of results
+ */
+export const AlertResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: Alert.array(), nextPage: z.string().nullable().optional() })
 )
 
 export const AlertSubscriptionCreate = z.preprocess(
@@ -4051,6 +4076,7 @@ export const Sled = z.preprocess(
     id: z.uuid(),
     policy: SledPolicy,
     rackId: z.uuid(),
+    slot: z.number().min(0).max(65535).nullable().optional(),
     state: SledState,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -5354,108 +5380,6 @@ export const ProbeDeleteParams = z.preprocess(
   })
 )
 
-export const SupportBundleListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
-      pageToken: z.string().nullable().optional(),
-      sortBy: TimeAndIdSortMode.optional(),
-    }),
-  })
-)
-
-export const SupportBundleCreateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleUpdateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleDeleteParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleDownloadParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleHeadParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleDownloadFileParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-      file: z.string(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleHeadFileParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-      file: z.string(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleIndexParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
 export const LoginSamlParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -5669,6 +5593,31 @@ export const AlertReceiverSubscriptionRemoveParams = z.preprocess(
     path: z.object({
       receiver: NameOrId,
       subscription: AlertSubscription,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const AlertListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      alertClass: AlertSubscription.optional(),
+      endTime: z.coerce.date().nullable().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: TimeAndIdSortMode.optional(),
+      startTime: z.coerce.date().nullable().optional(),
+    }),
+  })
+)
+
+export const AlertViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      alertId: z.uuid(),
     }),
     query: z.object({}),
   })
@@ -8232,6 +8181,108 @@ export const SystemSubnetPoolUtilizationViewParams = z.preprocess(
   z.object({
     path: z.object({
       pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: TimeAndIdSortMode.optional(),
+    }),
+  })
+)
+
+export const SupportBundleCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDownloadParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleHeadParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDownloadFileParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+      file: z.string(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleHeadFileParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+      file: z.string(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleIndexParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
     }),
     query: z.object({}),
   })
