@@ -82,6 +82,10 @@ describe('userHasRole', () => {
       ['Simone de Beauvoir', false],
       ['Jane Austen', true],
       ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 
@@ -95,6 +99,10 @@ describe('userHasRole', () => {
       ['Simone de Beauvoir', false],
       ['Jane Austen', false],
       ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 
@@ -108,6 +116,10 @@ describe('userHasRole', () => {
       ['Simone de Beauvoir', false],
       ['Jane Austen', true],
       ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 
@@ -124,6 +136,10 @@ describe('userHasRole', () => {
       ['Simone de Beauvoir', false],
       ['Jane Austen', true],
       ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 
@@ -140,6 +156,10 @@ describe('userHasRole', () => {
       ['Simone de Beauvoir', false],
       ['Jane Austen', true],
       ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 
@@ -153,6 +173,10 @@ describe('userHasRole', () => {
       ['Simone de Beauvoir', false],
       ['Jane Austen', false],
       ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 })

@@ -11,14 +11,41 @@ import { useEffect, useRef, useState } from 'react'
 
 import { DirectionDownIcon, DirectionUpIcon } from '@oxide/design-system/icons/react'
 
+import { subscribeToTheme } from '~/stores/theme'
 import { classed } from '~/util/classed'
 
 import { AttachAddon } from './AttachAddon'
 
-const ScrollButton = classed.button`ml-4 flex h-8 w-8 items-center justify-center rounded border border-secondary hover:bg-hover`
+const ScrollButton = classed.button`ml-4 flex h-8 w-8 items-center justify-center rounded-md border border-secondary hover:bg-hover`
+
+function getTheme(): ITerminalOptions['theme'] {
+  const style = getComputedStyle(document.body)
+  return {
+    background: style.getPropertyValue('--surface-default'),
+    foreground: style.getPropertyValue('--content-default'),
+    black: style.getPropertyValue('--surface-default'),
+    brightBlack: style.getPropertyValue('--content-quinary'),
+    white: style.getPropertyValue('--content-default'),
+    brightWhite: style.getPropertyValue('--content-secondary'),
+    blue: style.getPropertyValue('--content-info-secondary'),
+    brightBlue: style.getPropertyValue('--content-info'),
+    green: style.getPropertyValue('--content-success-secondary'),
+    brightGreen: style.getPropertyValue('--content-success'),
+    red: style.getPropertyValue('--content-error-secondary'),
+    brightRed: style.getPropertyValue('--content-error'),
+    yellow: style.getPropertyValue('--content-notice-secondary'),
+    brightYellow: style.getPropertyValue('--content-notice'),
+    cyan: style.getPropertyValue('--content-accent-secondary'),
+    brightCyan: style.getPropertyValue('--content-accent'),
+    magenta: style.getPropertyValue('--content-accent-alt-secondary'),
+    brightMagenta: style.getPropertyValue('--content-accent-alt'),
+    selectionBackground: style.getPropertyValue('--surface-accent'),
+    cursor: style.getPropertyValue('--content-default'),
+    cursorAccent: style.getPropertyValue('--surface-default'),
+  }
+}
 
 function getOptions(): ITerminalOptions {
-  const style = getComputedStyle(document.body)
   return {
     // it is not easy to figure out what the exact behavior is when scrollback
     // is not defined because it seems to be used in a bunch of places in the
@@ -31,29 +58,15 @@ function getOptions(): ITerminalOptions {
     screenReaderMode: true,
     fontFamily: '"GT America Mono", monospace',
     fontSize: 13,
-    lineHeight: 1.2,
+    lineHeight: 1,
+    fontWeightBold: 400,
+    drawBoldTextInBrightColors: true,
+    letterSpacing: 0,
     windowOptions: {
       fullscreenWin: true,
       refreshWin: true,
     },
-    theme: {
-      background: style.getPropertyValue('--surface-default'),
-      foreground: style.getPropertyValue('--content-default'),
-      black: style.getPropertyValue('--surface-default'),
-      brightBlack: style.getPropertyValue('--content-quinary'),
-      white: style.getPropertyValue('--content-default'),
-      brightWhite: style.getPropertyValue('--content-secondary'),
-      blue: style.getPropertyValue('--base-blue-500'),
-      brightBlue: style.getPropertyValue('--base-blue-900'),
-      green: style.getPropertyValue('--content-success'),
-      brightGreen: style.getPropertyValue('--content-success-secondary'),
-      red: style.getPropertyValue('--content-error'),
-      brightRed: style.getPropertyValue('--content-error-secondary'),
-      yellow: style.getPropertyValue('--content-notice'),
-      brightYellow: style.getPropertyValue('--content-notice-secondary'),
-      cursor: style.getPropertyValue('--content-default'),
-      cursorAccent: style.getPropertyValue('--surface-default'),
-    },
+    theme: getTheme(),
   }
 }
 
@@ -94,7 +107,16 @@ export function Terminal({ ws }: TerminalProps) {
     }
 
     window.addEventListener('resize', resize)
+
+    // Update terminal colors when the theme changes. getComputedStyle in
+    // getTheme() forces a synchronous style recalc, so the CSS custom
+    // properties already reflect the new theme by the time we read them.
+    const unsubscribe = subscribeToTheme(() => {
+      newTerm.options.theme = getTheme()
+    })
+
     return () => {
+      unsubscribe()
       newTerm.dispose()
       window.removeEventListener('resize', resize)
     }

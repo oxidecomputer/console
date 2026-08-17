@@ -49,17 +49,15 @@ test('serial console for existing instance', async ({ page }) => {
 
 async function testSerialConsole(page: Page) {
   const xterm = page.getByRole('application')
+  const input = page.getByRole('textbox', { name: 'Terminal input' })
 
-  // MSW mocks a message. use first() because there are multiple copies on screen
-  await expect(xterm.getByText('Wake up Neo...').first()).toBeVisible()
+  // Wait for the boot log to finish so typed input does not interleave with it.
+  await expect(xterm).toContainText('oxide-instance login:', { timeout: 15_000 })
 
-  // we need to do this for our keypresses to land
-  await page.locator('.xterm-helper-textarea').focus()
+  await input.focus()
+  await expect(input).toBeFocused()
 
-  await xterm.pressSequentially('abc')
-  await expect(xterm.getByText('Wake up Neo...abc').first()).toBeVisible()
-  await xterm.press('Enter')
-  await xterm.pressSequentially('def')
-  await expect(xterm.getByText('Wake up Neo...abc').first()).toBeVisible()
-  await expect(xterm.getByText('def').first()).toBeVisible()
+  await input.press('Enter')
+  await input.pressSequentially('def')
+  await expect(xterm).toContainText('def')
 }

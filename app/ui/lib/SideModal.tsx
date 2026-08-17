@@ -5,14 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Dialog from '@radix-ui/react-dialog'
-import cn from 'classnames'
+import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import * as m from 'motion/react-m'
-import { useRef, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
 
-import { useIsOverflow } from '~/hooks/use-is-overflow'
 import { Message } from '~/ui/lib/Message'
 import { classed } from '~/util/classed'
 
@@ -54,91 +52,78 @@ export function SideModal({
 }: SideModalProps) {
   return (
     <SideModalContext.Provider value>
-      <Dialog.Root
+      <BaseDialog.Root
         open
         onOpenChange={(open) => {
           if (!open) onDismiss()
         }}
-        // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
-        modal={false}
       >
-        <Dialog.Portal>
+        <BaseDialog.Portal>
           <DialogOverlay />
-          <Dialog.Content asChild>
-            <m.div
-              initial={{ x: animate ? 40 : 0 }}
-              animate={{ x: 0 }}
-              transition={{ type: 'spring', duration: 0.4, bounce: 0 }}
-              className="DialogContent ox-side-modal bg-raise border-secondary elevation-2 pointer-events-auto fixed top-0 right-0 bottom-0 z-(--z-side-modal) m-0 flex w-lg flex-col justify-between border-l p-0"
-            >
-              <div className="items-top mt-8 mb-4">
-                <Dialog.Title className="text-sans-2xl text-raise flex w-full items-center justify-between pr-8 break-words">
-                  {title}
-                </Dialog.Title>
-                {subtitle}
+          <BaseDialog.Popup
+            render={
+              <m.div
+                initial={{ x: animate ? 40 : 0 }}
+                animate={{ x: 0 }}
+                transition={{ type: 'spring', duration: 0.4, bounce: 0 }}
+                className="ox-side-modal bg-raise shadow-modal pointer-events-auto fixed top-0 right-0 bottom-0 z-(--z-side-modal) m-0 flex w-lg flex-col justify-between p-0"
+              />
+            }
+          >
+            <div className="mt-8 mb-4">
+              <BaseDialog.Title className="text-sans-2xl text-raise flex w-full items-center justify-between pr-8 wrap-break-word">
+                {title}
+              </BaseDialog.Title>
+              {subtitle}
+            </div>
+            {errors && errors.length > 0 && (
+              <div className="mb-6">
+                <Message
+                  variant="error"
+                  content={
+                    errors.length === 1 ? (
+                      errors[0]
+                    ) : (
+                      <>
+                        <div>{errors.length} issues:</div>
+                        <ul className="ml-4 list-disc">
+                          {errors.map((error, idx) => (
+                            <li key={idx}>{error}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )
+                  }
+                  title={errors.length > 1 ? 'Errors' : 'Error'}
+                />
               </div>
-              {errors && errors.length > 0 && (
-                <div className="mb-6">
-                  <Message
-                    variant="error"
-                    content={
-                      errors.length === 1 ? (
-                        errors[0]
-                      ) : (
-                        <>
-                          <div>{errors.length} issues:</div>
-                          <ul className="ml-4 list-disc">
-                            {errors.map((error, idx) => (
-                              <li key={idx}>{error}</li>
-                            ))}
-                          </ul>
-                        </>
-                      )
-                    }
-                    title={errors.length > 1 ? 'Errors' : 'Error'}
-                  />
-                </div>
-              )}
-              {children}
+            )}
+            {children}
 
-              {/* Close button is here at the end so we aren't automatically focusing on it when the side modal is opened. Positioned in the safe area at the top */}
-              <Dialog.Close
-                className="hover:bg-hover absolute top-10 right-(--content-gutter) -m-2 flex rounded p-2"
-                aria-label="Close"
-              >
-                <Close12Icon className="text-default" />
-              </Dialog.Close>
-            </m.div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+            {/* Close button is here at the end so we aren't automatically focusing on it when the side modal is opened. Positioned in the safe area at the top */}
+            <BaseDialog.Close
+              className="hover:bg-hover absolute top-10 right-(--content-gutter) -m-2 flex rounded-md p-2"
+              aria-label="Close"
+            >
+              <Close12Icon className="text-default" />
+            </BaseDialog.Close>
+          </BaseDialog.Popup>
+        </BaseDialog.Portal>
+      </BaseDialog.Root>
     </SideModalContext.Provider>
   )
 }
 
 export const ResourceLabel = classed.h3`mt-2 flex items-center gap-1.5 text-sans-md text-accent`
 
-// separate component because otherwise eslint thinks it's not a component and
-// gets mad about the use of hooks
-function SideModalBody({ children }: { children?: ReactNode }) {
-  const overflowRef = useRef<HTMLDivElement>(null)
-  const { scrollStart } = useIsOverflow(overflowRef, 'vertical')
-
-  return (
-    <div
-      ref={overflowRef}
-      className={cn(
-        'body relative h-full overflow-y-auto pt-8 pb-12',
-        !scrollStart && 'border-t-secondary border-t'
-      )}
-      data-testid="sidemodal-scroll-container"
-    >
-      {children}
-    </div>
-  )
-}
-
-SideModal.Body = SideModalBody
+SideModal.Body = ({ children }: { children?: ReactNode }) => (
+  <div
+    className="body border-t-secondary relative h-full overflow-y-auto overscroll-none border-t pt-8 pb-12"
+    data-testid="sidemodal-scroll-container"
+  >
+    {children}
+  </div>
+)
 
 SideModal.Heading = classed.div`text-sans-semi-xl text-raise`
 

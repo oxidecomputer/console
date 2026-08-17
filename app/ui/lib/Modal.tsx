@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Dialog from '@radix-ui/react-dialog'
+import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import cn from 'classnames'
 import * as m from 'motion/react-m'
 import type { MergeExclusive } from 'type-fest'
@@ -37,9 +37,8 @@ export type ModalProps = {
   overlay?: boolean
 }
 
-// Note that the overlay has z-index 30 and content has 40. This is to make sure
-// both land on top of a side modal in the regrettable case where we have both
-// on screen at once.
+// Overlay sits above --z-side-modal and content above that, so the Modal fully
+// covers a SideModal in the regrettable case where both are on screen at once.
 
 export function Modal({
   children,
@@ -51,52 +50,48 @@ export function Modal({
 }: ModalProps) {
   return (
     <ModalContext.Provider value>
-      <Dialog.Root
+      <BaseDialog.Root
         open={isOpen}
-        onOpenChange={(open) => {
-          if (!open) onDismiss()
+        onOpenChange={(open, { reason }) => {
+          // Ignore focus-out to prevent a dismiss loop when a native confirm()
+          // dialog steals and returns focus (same role as the old Radix
+          // onFocusOutside preventDefault). See oxidecomputer/console#1745.
+          if (!open && reason !== 'focus-out') onDismiss()
         }}
-        modal={false}
       >
-        <Dialog.Portal>
+        <BaseDialog.Portal>
           {overlay && <DialogOverlay />}
-          <Dialog.Content
-            asChild // Prevents cancel loop on clicking on background over side
-            // modal to get out of image upload modal. Canceling out of
-            // confirm dialog returns focus to the dismissable layer,
-            // which triggers onDismiss again. And again.
-            // https://github.com/oxidecomputer/console/issues/1745
-            onFocusOutside={(e) => e.preventDefault()}
-            aria-describedby={undefined} // radix warns without this
+          <BaseDialog.Popup
+            render={
+              <m.div
+                initial={{ x: '-50%', y: 'calc(-50% - 25px)' }}
+                animate={{ x: '-50%', y: '-50%' }}
+                transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+                className={cn(
+                  'bg-raise light:bg-default shadow-modal pointer-events-auto fixed top-[min(50%,500px)] left-1/2 z-(--z-modal) m-0 flex max-h-[min(800px,80vh)] flex-col justify-between overflow-hidden rounded-lg p-0',
+                  widthClass[width]
+                )}
+              />
+            }
           >
-            <m.div
-              initial={{ x: '-50%', y: 'calc(-50% - 25px)' }}
-              animate={{ x: '-50%', y: '-50%' }}
-              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
-              className={cn(
-                'bg-raise border-secondary elevation-2 pointer-events-auto fixed top-[min(50%,500px)] left-1/2 z-(--z-modal) m-0 flex max-h-[min(800px,80vh)] flex-col justify-between rounded-lg border p-0',
-                widthClass[width]
-              )}
+            <BaseDialog.Title className="text-sans-semi-lg bg-secondary light:bg-raise border-b-secondary border-b px-4 py-4">
+              {title}
+            </BaseDialog.Title>
+            {children}
+            <BaseDialog.Close
+              className="hover:bg-hover absolute top-3.5 right-2 flex items-center justify-center rounded-md p-2"
+              aria-label="Close"
             >
-              <Dialog.Title className="text-sans-semi-lg bg-secondary border-b-secondary border-b px-4 py-4">
-                {title}
-              </Dialog.Title>
-              {children}
-              <Dialog.Close
-                className="hover:bg-hover absolute top-3.5 right-2 flex items-center justify-center rounded p-2"
-                aria-label="Close"
-              >
-                <Close12Icon className="text-default" />
-              </Dialog.Close>
-            </m.div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+              <Close12Icon className="text-default" />
+            </BaseDialog.Close>
+          </BaseDialog.Popup>
+        </BaseDialog.Portal>
+      </BaseDialog.Root>
     </ModalContext.Provider>
   )
 }
 
-Modal.Body = classed.div`py-2 overflow-y-auto`
+Modal.Body = classed.div`py-2 overflow-y-auto overscroll-none`
 
 Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-default last-of-type:border-none text-sans-md`
 
@@ -113,6 +108,7 @@ type FooterProps = {
   actionLoading?: boolean
   cancelText?: string
   disabled?: boolean
+  disabledReason?: React.ReactNode
   showCancel?: boolean
 } & MergeExclusive<{ formId: string }, { onAction: () => void }>
 
@@ -125,6 +121,7 @@ Modal.Footer = ({
   actionLoading,
   cancelText,
   disabled,
+  disabledReason,
   formId,
   showCancel = true,
 }: FooterProps) => (
@@ -143,6 +140,7 @@ Modal.Footer = ({
         variant={actionType}
         onClick={onAction}
         disabled={!!disabled}
+        disabledReason={disabledReason}
         loading={actionLoading}
       >
         {actionText}

@@ -12,10 +12,10 @@ import { OxideLogo } from '~/components/OxideLogo'
 export default function AuthLayout() {
   return (
     <main
-      className="relative h-screen"
+      className="relative h-screen pt-(--preview-banner-height)"
       style={{
         background:
-          'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, #161B1D 100%)',
+          'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, var(--surface-secondary) 100%)',
       }}
     >
       <OxideLogo className="absolute bottom-8 left-1/2 -translate-x-1/2" />

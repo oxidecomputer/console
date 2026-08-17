@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useLocation } from 'react-router'
 
 import {
   AccessToken16Icon,
@@ -27,26 +26,23 @@ import { ContentPane, PageContainer } from './helpers'
 export const handle = makeCrumb('Settings', pb.profile())
 
 export default function SettingsLayout() {
-  const navigate = useNavigate()
   const { pathname } = useLocation()
 
   useQuickActions(
-    useMemo(
-      () =>
-        [
-          { value: 'Profile', path: pb.profile() },
-          { value: 'SSH Keys', path: pb.sshKeys() },
-          { value: 'Access Tokens', path: pb.accessTokens() },
-        ]
-          // filter out the entry for the path we're currently on
-          .filter((i) => i.path !== pathname)
-          .map((i) => ({
-            navGroup: `Settings`,
-            value: i.value,
-            onSelect: () => navigate(i.path),
-          })),
-      [pathname, navigate]
-    )
+    () =>
+      [
+        { value: 'Profile', path: pb.profile() },
+        { value: 'SSH Keys', path: pb.sshKeys() },
+        { value: 'Access Tokens', path: pb.accessTokens() },
+      ]
+        // filter out the entry for the path we're currently on
+        .filter((i) => i.path !== pathname)
+        .map((i) => ({
+          navGroup: `Settings`,
+          value: i.value,
+          action: i.path,
+        })),
+    [pathname]
   )
 
   return (

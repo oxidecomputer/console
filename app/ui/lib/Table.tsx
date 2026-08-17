@@ -21,7 +21,7 @@ export function Table({ className, ...props }: TableProps) {
     <SimpleBar
       scrollableNodeProps={{ ref: overflowRef }}
       className={cn(
-        'overflow-x-auto rounded pb-4',
+        'overflow-x-auto rounded-md pb-4',
         !scrollStart && 'scrolled',
         isOverflow && !scrollEnd && 'overflowing'
       )}
@@ -50,7 +50,7 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
   <th
     className={cn(
       className,
-      'text-mono-sm bg-secondary border-default *:first-child:border-0 h-9 border border-x-0 pr-px pl-0 text-left'
+      'text-mono-sm bg-secondary border-default h-9 border-y pr-px pl-0 text-left'
     )}
     {...props}
   >
@@ -101,7 +101,7 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
   >
     <div
       className={cn(
-        'border-secondary relative -mr-[2px] flex items-center overflow-hidden border-b border-l px-3 py-2',
+        'border-secondary relative flex items-center overflow-hidden border-b border-l px-3 py-2',
         { 'h-11': height === 'small', 'h-14': height === 'large' }
       )}
     >
@@ -131,9 +131,4 @@ export const TableEmptyBox = ({ children, border = true }: TableEmptyBoxProps) =
   </div>
 )
 
-/**
- * Used _outside_ of the `Table`, this element includes a soon-to-be-removed description of the resource inside the table,
- * along with a link to more info, and a button to take action on the resource listed in the table.
- */
-export const TableControls = classed.div`mb-4 flex items-end justify-between space-x-8`
 export const TableTitle = classed.div`text-sans-lg text-raise`

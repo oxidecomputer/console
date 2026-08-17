@@ -9,8 +9,6 @@
 import { useEffect, useId, useState, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 
-import type { ApiError } from '@oxide/api'
-
 import { useShouldAnimateModal } from '~/hooks/use-should-animate-modal'
 import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
@@ -39,8 +37,10 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   // require loading and error so we can't forget to hook them up. there are a
   // few forms that don't need them, so we'll use dummy values
 
-  /** Error from the API call */
-  submitError: ApiError | null
+  // would be ApiError except image-upload synthesizes a local "name already
+  // exists" error that isn't from the API. The modal only reads message and
+  // errorCode anyway.
+  submitError: { message: string; errorCode?: string } | null
   loading: boolean
 
   /** Only needed if you need to override the default title (Create/Edit ${resourceName}) */

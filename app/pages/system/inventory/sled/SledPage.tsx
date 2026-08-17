@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { filesize } from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
@@ -38,8 +37,6 @@ export default function SledPage() {
   const { sledId } = useSledParams()
   const { data: sled } = usePrefetchedQuery(sledView({ sledId }))
 
-  const ram = filesize(sled.usablePhysicalRam, { output: 'object', base: 2 })
-
   return (
     <>
       <PageHeader>
@@ -47,9 +44,7 @@ export default function SledPage() {
       </PageHeader>
 
       <PropertiesTable columns={2} className="-mt-8 mb-8">
-        <PropertiesTable.Row label="sled id">
-          <span className="text-default">{sled.id}</span>
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow label="sled id" id={sled.id} />
         <PropertiesTable.Row label="policy kind">
           <SledKindBadge policy={sled.policy} />
         </PropertiesTable.Row>
@@ -71,13 +66,11 @@ export default function SledPage() {
         <PropertiesTable.Row label="usable hardware threads">
           <span className="text-default">{sled.usableHardwareThreads}</span>
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="rack id">
-          <span className="text-default">{sled.rackId}</span>
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="usable physical ram">
-          <span className="text-default pr-0.5">{ram.value}</span>
-          <span className="text-tertiary">{ram.unit}</span>
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow label="rack id" id={sled.rackId} />
+        <PropertiesTable.SizeRow
+          label="usable physical ram"
+          bytes={sled.usablePhysicalRam}
+        />
       </PropertiesTable>
 
       <RouteTabs fullWidth>

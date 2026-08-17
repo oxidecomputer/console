@@ -20,8 +20,10 @@ import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -32,6 +34,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -55,9 +58,16 @@ export const handle = { crumb: 'Images' }
 const colHelper = createColumnHelper<Image>()
 const staticCols = [
   colHelper.accessor('name', {
-    cell: makeLinkCell((image) => pb.siloImageEdit({ image })),
+    cell: makeLinkCell((image) => pb.siloImage({ image })),
   }),
   colHelper.accessor('description', Columns.description),
+  colHelper.accessor('os', {
+    header: 'OS',
+    cell: (info) => info.getValue() || <EmptyCell />,
+  }),
+  colHelper.accessor('version', {
+    cell: (info) => info.getValue() || <EmptyCell />,
+  }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
@@ -71,6 +81,7 @@ export default function SiloImagesPage() {
       // prettier-ignore
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>)
       queryClient.invalidateEndpoint('imageList')
+      queryClient.invalidateEndpoint('imageView')
     },
   })
 
@@ -85,6 +96,7 @@ export default function SiloImagesPage() {
         onActivate: confirmDelete({
           doDelete: () => deleteImage({ path: { image: image.name } }),
           label: image.name,
+          resourceKind: 'image',
         }),
       },
     ],
@@ -93,6 +105,25 @@ export default function SiloImagesPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({ query: imageList, columns, emptyState: <EmptyState /> })
+
+  const { data: allImages } = useQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
+
+  useQuickActions(
+    () => [
+      {
+        value: 'Promote image',
+        navGroup: 'Actions',
+        action: () => setShowModal(true),
+      },
+      ...(allImages?.items || []).map((i) => ({
+        value: i.name,
+        action: pb.siloImage({ image: i.name }),
+        navGroup: 'Go to silo image',
+      })),
+    ],
+    [allImages]
+  )
+
   return (
     <>
       <PageHeader>
@@ -130,11 +161,13 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
       // prettier-ignore
       addToast(<>Image <HL>{data.name}</HL> promoted</>)
       queryClient.invalidateEndpoint('imageList')
+      // promotion flips projectId; refetch the per-id view
+      queryClient.invalidateEndpoint('imageView')
+      onDismiss()
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   const projects = useQuery(q(api.projectList, {}))
@@ -226,11 +259,13 @@ const DemoteImageModal = ({
       })
 
       queryClient.invalidateEndpoint('imageList')
+      // demotion flips projectId; refetch the per-id view
+      queryClient.invalidateEndpoint('imageView')
+      onDismiss()
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   const projects = useQuery(q(api.projectList, {}))

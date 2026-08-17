@@ -24,6 +24,10 @@ export default {
   // default is 5 seconds. somehow playwright really hates async route modules,
   // takes a long time to load them. https://playwright.dev/docs/test-timeouts
   expect: { timeout: 10_000 },
+  // Local runs also emit a compact plain-text failure report to .e2e-logs/
+  // (timestamped per run, last 10 kept) via test/e2e/compact-reporter.ts, so
+  // an LLM agent can read the failures.
+  reporter: process.env.CI ? 'list' : [['list'], ['./test/e2e/compact-reporter.ts']],
   use: {
     trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
     baseURL: 'http://localhost:4009',
@@ -33,6 +37,7 @@ export default {
       name: 'chrome',
       use: {
         contextOptions: {
+          reducedMotion: 'reduce',
           permissions: ['clipboard-read', 'clipboard-write'],
         },
         ...devices['Desktop Chrome'],
@@ -41,11 +46,21 @@ export default {
     },
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: {
+        contextOptions: {
+          reducedMotion: 'reduce',
+        },
+        ...devices['Desktop Firefox'],
+      },
     },
     {
       name: 'safari',
-      use: { ...devices['Desktop Safari'] },
+      use: {
+        contextOptions: {
+          reducedMotion: 'reduce',
+        },
+        ...devices['Desktop Safari'],
+      },
     },
   ],
   // use different port so it doesn't conflict with local dev server

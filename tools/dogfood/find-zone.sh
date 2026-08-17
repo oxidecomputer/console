@@ -17,7 +17,7 @@ if [ -z "$1" ]; then
 fi
 
 ssh castle <<SSH_EOF
-  pilot tp login any # enter switch zone
+  pilot -r rack2 tp login any # enter switch zone
   pilot host exec -c "zoneadm list | grep $1 || true" 0-31
   exit
 SSH_EOF

@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { useRef, type Ref } from 'react'
+import { useEffect, useRef, type Ref } from 'react'
 import {
   useButton,
   useLocale,
@@ -23,6 +23,8 @@ type NumberInputProps = AriaNumberFieldProps & {
   ref?: Ref<HTMLInputElement>
 }
 
+export const isCanonicalNumberString = (value: string) => String(Number(value)) === value
+
 export function NumberInput(props: NumberInputProps) {
   const { locale } = useLocale()
   const state = useNumberFieldState({ ...props, locale })
@@ -31,13 +33,27 @@ export function NumberInput(props: NumberInputProps) {
   const { groupProps, inputProps, incrementButtonProps, decrementButtonProps } =
     useNumberField(props, state, inputRef)
 
+  // react-aria only fires props.onChange on commit (blur / Enter / stepper),
+  // but we want form state to update as soon as it would produce a different
+  // field value. Committing whenever state.inputValue changes to an
+  // unambiguous number lets react-aria keep controlling parsing, clamping
+  // etc., but forces it to be more eager.
+  //
+  // Context: https://github.com/adobe/react-spectrum/issues/7984
+  useEffect(() => {
+    if (isCanonicalNumberString(state.inputValue) || state.inputValue === '') {
+      state.commit()
+    }
+    // eslint-disable-next-line exhaustive-deps
+  }, [state.inputValue])
+
   return (
     <div
       className={cn(
-        'relative flex rounded border',
+        'relative flex rounded-md border',
         props.error
           ? 'border-error-secondary hover:border-error'
-          : 'border-default hover:border-hover',
+          : 'border-default hover:border-raise',
         props.isDisabled && 'border-default!',
         props.className
       )}
@@ -47,7 +63,7 @@ export function NumberInput(props: NumberInputProps) {
         {...inputProps}
         ref={mergeRefs([props.ref, inputRef])}
         className={cn(
-          `text-sans-md text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded border-none px-3 py-2.75 outline-offset-1! focus:outline-hidden disabled:cursor-not-allowed`,
+          `text-sans-md text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded-md border-none px-3 py-2.75 outline-offset-1! focus:outline-hidden disabled:cursor-not-allowed`,
           props.error && 'focus-error',
           props.isDisabled && 'text-disabled bg-disabled'
         )}

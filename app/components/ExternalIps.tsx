@@ -8,20 +8,16 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
-import * as R from 'remeda'
 
-import { api, q, type ExternalIp } from '@oxide/api'
+import { api, q } from '@oxide/api'
 
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
+import { orderIps } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-
-/** Order IPs: floating first, then ephemeral, then SNAT */
-const IP_ORDER = { floating: 0, ephemeral: 1, snat: 2 } as const
-export const orderIps = (ips: ExternalIp[]) => R.sortBy(ips, (a) => IP_ORDER[a.kind])
 
 export function ExternalIps({ project, instance }: PP.Instance) {
   const { data, isPending } = useQuery(

@@ -5,11 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, type Browser, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Browser, type Locator, type Page } from '@playwright/test'
 
 import { MiB } from '~/util/units'
 
-import { MSW_USER_COOKIE } from '../../mock-api/msw/util'
+import { MSW_FLAGS_COOKIE, MSW_USER_COOKIE, type MockFlag } from '../../mock-api/msw/util'
 
 export * from '@playwright/test'
 
@@ -51,6 +51,64 @@ export async function expectNotVisible(page: Page, selectors: Selector[]) {
   }
 }
 
+/**
+ * Locate the value cell next to a label in a PropertiesTable. The component
+ * renders label/value as adjacent sibling elements in a CSS grid, so we use
+ * the `+` combinator to hop from the label span to the value div. It's a
+ * little fragile, but if the HTML changes, we can just update this once.
+ */
+export function propertiesTableValue(container: Locator, label: string) {
+  return container.locator(`span:has-text("${label}") + div`)
+}
+
+// React Aria NumberInput can lose recent edits when the form re-renders. Commit
+// via blur and poll with short intervals until the value sticks. We consider
+// this safe for the e2es because it is working around the fact that Playwright
+// interacts with the form much faster than a real user would.
+export async function fillNumberInput(
+  input: Locator,
+  value: string,
+  expectedValue: string = value
+) {
+  await expect
+    .poll(
+      async () => {
+        await input.click()
+        await input.fill(value)
+        await input.blur()
+        return input.inputValue()
+      },
+      { intervals: [100, 250, 500] }
+    )
+    .toBe(expectedValue)
+}
+
+/**
+ * Fill a combobox and click a dropdown option. Scrolls the combobox toward the
+ * center of the viewport first so the Floating UI anchored dropdown has room to
+ * render on-screen. Without this, Safari/WebKit can place the dropdown outside
+ * the viewport when the combobox is near the bottom of a tall form, causing
+ * Playwright's click to fail.
+ */
+export async function fillAndSelectComboboxOption(
+  input: Locator,
+  page: Page,
+  text: string,
+  optionName: string
+) {
+  await input.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+  await input.fill(text)
+  await page.getByRole('option', { name: optionName }).click()
+}
+
+export async function expectComboboxOptions(page: Page, options: string[]) {
+  const selector = page.getByRole('option')
+  await expect(selector).toHaveCount(options.length)
+  for (const option of options) {
+    await expect(page.getByRole('option', { name: option })).toBeVisible()
+  }
+}
+
 // Technically this has type AsymmetricMatcher, which is not exported by
 // Playwright and is (surprisingly) just Record<string, any>. Rather than use
 // that, I think it's smarter to do the following in case they ever make the
@@ -67,13 +125,16 @@ export async function expectRowVisible(
   table: Locator,
   expectedRow: Record<string, string | StringMatcher>
 ) {
-  // wait for header and rows to avoid flake town
-  const headerLoc = table.locator('thead >> role=cell')
-  // unlike most things, waitFor has no timeout by default
-  await headerLoc.first().waitFor({ timeout: 10_000 }) // nth=0 bc error if there's more than 1
+  // locate by role rather than thead/tbody because MiniTable is divs with
+  // table roles. header rows are the ones containing column headers
+  const columnheader = table.page().getByRole('columnheader')
+  const headerRowLoc = table.getByRole('row').filter({ has: columnheader })
+  const bodyRowLoc = table.getByRole('row').filter({ hasNot: columnheader })
 
-  const rowLoc = table.locator('tbody >> role=row')
-  await rowLoc.first().waitFor({ timeout: 10_000 })
+  // wait for header and rows to avoid flake town
+  // unlike most things, waitFor has no timeout by default
+  await headerRowLoc.first().waitFor({ timeout: 10_000 }) // nth=0 bc error if there's more than 1
+  await bodyRowLoc.first().waitFor({ timeout: 10_000 })
 
   async function getRows() {
     // need to pull header keys every time because the whole page can change
@@ -81,14 +142,13 @@ export async function expectRowVisible(
 
     // filter out data-test-ignore is specifically for making the header cells
     // match up with the contents on the double-header utilization table
-    const headerKeys = await table
-      .locator('thead')
-      .getByRole('row')
+    const headerKeys = await headerRowLoc
       .last()
-      .locator('th:not([data-test-ignore])')
+      .getByRole('columnheader')
+      .and(table.page().locator(':not([data-test-ignore])'))
       .allTextContents()
 
-    const rows = await map(table.locator('tbody >> role=row'), async (row) => {
+    const rows = await map(bodyRowLoc, async (row) => {
       // accessible name would be better than cell text but it's not in yet
       // https://github.com/microsoft/playwright/issues/13517
       const textContents = await row.locator('role=cell').allTextContents()
@@ -189,19 +249,22 @@ export async function selectOption(
   }
 }
 
+function cookie(name: string, value: string) {
+  return { name, value, domain: 'localhost', path: '/' }
+}
+
 export async function getPageAsUser(
   browser: Browser,
-  user:
-    | 'Hans Jonas'
-    | 'Simone de Beauvoir'
-    | 'Jacob Klein'
-    | 'Jane Austen'
-    | 'Herbert Marcuse'
+  user: string,
+  // fleet-level overrides; see mockFlags in mock-api/msw/util.ts
+  flags: MockFlag[] = []
 ): Promise<Page> {
   const browserContext = await browser.newContext()
-  await browserContext.addCookies([
-    { name: MSW_USER_COOKIE, value: user, domain: 'localhost', path: '/' },
-  ])
+  const cookies = [cookie(MSW_USER_COOKIE, user)]
+  if (flags.length) {
+    cookies.push(cookie(MSW_FLAGS_COOKIE, flags.join(',')))
+  }
+  await browserContext.addCookies(cookies)
   return await browserContext.newPage()
 }
 
@@ -230,15 +293,8 @@ export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve
 const bigFile = Buffer.alloc(3 * MiB, 'a')
 const smallFile = Buffer.alloc(0.1 * MiB, 'a')
 
-export async function chooseFile(
-  page: Page,
-  inputLocator: Locator,
-  size: 'large' | 'small' = 'large'
-) {
-  const fileChooserPromise = page.waitForEvent('filechooser')
-  await inputLocator.click({ force: true })
-  const fileChooser = await fileChooserPromise
-  await fileChooser.setFiles({
+export async function chooseFile(input: Locator, size: 'large' | 'small' = 'large') {
+  await input.setInputFiles({
     name: 'my-image.iso',
     mimeType: 'application/octet-stream',
     // fill with nonzero content, otherwise we'll skip the whole thing, which
@@ -248,14 +304,12 @@ export async function chooseFile(
 }
 
 export async function expectScrollTop(page: Page, expected: number) {
-  const container = page.getByTestId('scroll-container')
-  const getScrollTop = () => container.evaluate((el: HTMLElement) => el.scrollTop)
+  const getScrollTop = () => page.evaluate(() => window.scrollY)
   await expect.poll(getScrollTop).toBe(expected)
 }
 
 export async function scrollTo(page: Page, to: number) {
-  const container = page.getByTestId('scroll-container')
-  await container.evaluate((el: HTMLElement, to) => el.scrollTo(0, to), to)
+  await page.evaluate((to) => window.scrollTo(0, to), to)
 }
 
 export async function addTlsCert(page: Page) {
@@ -264,12 +318,30 @@ export async function addTlsCert(page: Page) {
     .getByRole('dialog', { name: 'Add TLS certificate' })
     .getByRole('textbox', { name: 'Name' })
     .fill('test-cert')
-  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
-  await chooseFile(page, page.getByLabel('Key'), 'small')
+  await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page.getByLabel('Key'), 'small')
   await page.getByRole('button', { name: 'Add Certificate' }).click()
 }
 
-export async function hasConsoleMessage(page: Page, msg: string) {
+/**
+ * Assert that a console message matching `msg` was logged (optionally at a
+ * given level). Skips on Firefox because Playwright's `page.consoleMessages()`
+ * drops real console output there and only returns React profiling entries.
+ */
+export async function expectConsoleMessage(page: Page, msg: string, type?: string) {
+  // eslint-disable-next-line playwright/no-conditional-in-test
+  if (test.info().project.name === 'firefox') return
   const messages = await page.consoleMessages()
-  return messages.some((m) => m.text().includes(msg))
+  const match = messages.find((m) => m.text().includes(msg))
+  expect(match, `expected console message containing "${msg}"`).toBeTruthy()
+  if (type) expect(match!.type()).toBe(type)
+}
+
+/** Assert that no console message matching `msg` was logged. Skips on Firefox. */
+export async function expectNoConsoleMessage(page: Page, msg: string) {
+  // eslint-disable-next-line playwright/no-conditional-in-test
+  if (test.info().project.name === 'firefox') return
+  const messages = await page.consoleMessages()
+  const match = messages.find((m) => m.text().includes(msg))
+  expect(match, `expected no console message containing "${msg}"`).toBeFalsy()
 }

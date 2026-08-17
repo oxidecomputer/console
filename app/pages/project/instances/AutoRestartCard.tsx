@@ -27,7 +27,7 @@ import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
 import { type ListboxItem } from '~/ui/lib/Listbox'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { toLocaleDateTimeString } from '~/util/date'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 
 type FormPolicy = 'default' | 'never' | 'best_effort'
 
@@ -89,6 +89,7 @@ export function AutoRestartCard() {
         memory: instance.memory,
         cpuPlatform: instance.cpuPlatform || null,
         bootDisk: instance.bootDiskId || null,
+        enableJumboFrames: instance.enableJumboFrames,
       },
     })
   })
@@ -143,7 +144,7 @@ export function AutoRestartCard() {
           </FormMeta>
         </CardBlock.Body>
         <CardBlock.Footer>
-          <LearnMore href={links.instanceUpdateDocs} text="Auto-Restart" />
+          <LearnMore doc={docLinks.autoRestart} />
           <Button size="sm" type="submit" disabled={disableSubmit}>
             Save
           </Button>

@@ -46,7 +46,7 @@ test('Click through disks page', async ({ page }) => {
   // TODO: assert that disks 1-3 are attached and 4 is not
 
   // Create disk form
-  await page.click('role=link[name="New Disk"]')
+  await page.click('role=link[name="New disk"]')
   await expectVisible(page, [
     'role=heading[name*="Create disk"]',
     'role=textbox[name="Name"]',

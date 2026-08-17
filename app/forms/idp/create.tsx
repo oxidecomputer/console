@@ -14,7 +14,7 @@ import { api, queryClient, useApiMutation } from '@oxide/api'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
-import { TextField } from '~/components/form/fields/TextField'
+import { noPasswordManager, TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
@@ -168,6 +168,7 @@ export default function CreateIdpSideModalForm() {
         label="Technical contact email"
         required
         control={form.control}
+        {...noPasswordManager}
       />
 
       <FormDivider />
@@ -179,6 +180,7 @@ export default function CreateIdpSideModalForm() {
         label="Service provider client ID"
         required
         control={form.control}
+        {...noPasswordManager}
       />
       <div className="flex flex-col gap-2">
         <TextField

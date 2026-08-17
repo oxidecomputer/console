@@ -51,8 +51,10 @@ export function useIntervalPicker({ enabled, isLoading, fn, className }: Props) 
       <div className={cn('flex', className)}>
         <button
           type="button"
+          aria-label="Refresh data"
+          data-testid="refetch-interval-refresh"
           className={cn(
-            'border-default flex w-10 items-center justify-center rounded-l border-t border-b border-l disabled:cursor-default',
+            'border-default bg-default flex w-10 items-center justify-center rounded-l-md border-t border-b border-l disabled:cursor-default',
             isLoading && 'hover:bg-hover',
             !enabled && 'bg-disabled cursor-not-allowed'
           )}
@@ -69,6 +71,8 @@ export function useIntervalPicker({ enabled, isLoading, fn, className }: Props) 
           items={intervalItems}
           onChange={setIntervalPreset}
           disabled={!enabled}
+          label="Refresh interval"
+          hideLabel
           hideSelected
         />
       </div>

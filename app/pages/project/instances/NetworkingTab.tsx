@@ -8,28 +8,34 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { type LoaderFunctionArgs } from 'react-router'
+import { useForm } from 'react-hook-form'
+import { Link, type LoaderFunctionArgs } from 'react-router'
 import { match } from 'ts-pattern'
 
 import {
   api,
   instanceCan,
+  isUnicastPool,
   q,
   qErrorsAllowed,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
   type ExternalIp,
+  type ExternalSubnet,
   type InstanceNetworkInterface,
   type InstanceState,
+  type IpVersion,
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
-import { orderIps } from '~/components/ExternalIps'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
+import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
@@ -38,6 +44,7 @@ import {
   useInstanceSelector,
   useProjectSelector,
 } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -45,6 +52,7 @@ import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { SubnetNameFromId } from '~/table/cells/SubnetNameCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
@@ -55,35 +63,37 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
+import { Truncate } from '~/ui/lib/Truncate'
 import { ALL_ISH } from '~/util/consts'
+import {
+  getCompatibleVersionsFromNics,
+  getEphemeralIpSlots,
+  ipHasVersion,
+  orderIps,
+  parseIp,
+} from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
 
+/**
+ * Resolve a VPC ID to its name. Nexus refuses to delete a VPC while live subnets
+ * exist, and refuses to delete a subnet while a live NIC references it, so a NIC's
+ * vpcId always points at a live VPC and the error branch should be unreachable. It
+ * falls back to the ID rather than taking down the page if that turns out to be
+ * wrong — the ID is true whatever the cause, where "Deleted" would also be wrong for
+ * a transient 5xx. Matches `SubnetNameFromId`, which hedges the same way one hop down.
+ * https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/db-queries/src/db/datastore/vpc.rs#L560-L592
+ */
 const VpcNameFromId = ({ value }: { value: string }) => {
   const { project } = useProjectSelector()
   const { data: vpc, isError } = useQuery(
     q(api.vpcView, { path: { vpc: value } }, { throwOnError: false })
   )
 
-  // If we can't find it, it must have been deleted. This is probably not
-  // possible because you can't delete a VPC that has child resources, but let's
-  // be safe
-  if (isError) return <Badge color="neutral">Deleted</Badge>
+  if (isError) return <Truncate text={value} position="middle" className="max-w-48" />
   if (!vpc) return <SkeletonCell />
   return <LinkCell to={pb.vpc({ project, vpc: vpc.name })}>{vpc.name}</LinkCell>
-}
-
-const SubnetNameFromId = ({ value }: { value: string }) => {
-  const { data: subnet, isError } = useQuery(
-    q(api.vpcSubnetView, { path: { subnet: value } }, { throwOnError: false })
-  )
-
-  // same deal as VPC: probably not possible but let's be safe
-  if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!subnet) return <SkeletonCell /> // loading
-
-  return <span className="text-default">{subnet.name}</span>
 }
 
 const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
@@ -97,16 +107,52 @@ const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
   </Tooltip>
 )
 
+const PrivateIpCell = ({ ipVersion, ip }: { ipVersion: IpVersion; ip: string }) => (
+  <div className="flex items-center gap-2">
+    <IpVersionBadge ipVersion={ipVersion} />
+    <CopyableIp ip={ip} isLinked={false} />
+  </div>
+)
+
+const subnetColHelper = createColumnHelper<ExternalSubnet>()
+const staticSubnetCols = [
+  subnetColHelper.accessor('name', {}),
+  subnetColHelper.accessor('subnet', { header: 'Subnet' }),
+  subnetColHelper.accessor('description', Columns.description),
+]
+
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
+    // Prefetch the by-ID subnet views the NIC table's subnet cells look up, so
+    // SubnetNameFromId hits a warm cache. subnetIds come from the NIC list, so
+    // chain off it; NICs usually share a subnet, so dedupe (≤8 NICs, typically 1).
+    // VPC cells are handled by seeding vpcView from the vpcList fetch below.
+    queryClient
+      .fetchQuery(
+        q(api.instanceNetworkInterfaceList, {
+          // we want this to cover all NICs; TODO: determine actual limit?
+          query: { project, instance, limit: ALL_ISH },
+        })
+      )
+      .then((nics) => {
+        const subnetIds = [...new Set(nics.items.map((n) => n.subnetId))]
+        return Promise.all(
+          subnetIds.map((subnet) =>
+            queryClient.prefetchQuery(q(api.vpcSubnetView, { path: { subnet } }))
+          )
+        )
+      }),
+    queryClient.fetchQuery(q(api.floatingIpList, { query: { project, limit: ALL_ISH } })),
     queryClient.fetchQuery(
-      q(api.instanceNetworkInterfaceList, {
-        // we want this to cover all NICs; TODO: determine actual limit?
-        query: { project, instance, limit: ALL_ISH },
+      q(api.externalSubnetList, { query: { project, limit: ALL_ISH } })
+    ),
+    queryClient.fetchQuery(
+      q(api.instanceExternalSubnetList, {
+        path: { instance },
+        query: { project },
       })
     ),
-    queryClient.fetchQuery(q(api.floatingIpList, { query: { project, limit: ALL_ISH } })),
     // dupe of page-level fetch but that's fine, RQ dedupes
     queryClient.fetchQuery(
       q(api.instanceExternalIpList, { path: { instance }, query: { project } })
@@ -117,15 +163,31 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // Fetch IP Pools and preload into RQ cache so fetches by ID in
     // IpPoolCell and AttachFloatingIpModal can be mostly instant
     queryClient
-      .fetchQuery(q(api.projectIpPoolList, { query: { limit: ALL_ISH } }))
+      .fetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
-          // both IpPoolCell and the fetch in the model use errors-allowed
+          // both IpPoolCell and the fetch in the modal use errors-allowed
           // versions to avoid blowing up in the unlikely event of an error
-          const { queryKey } = qErrorsAllowed(api.projectIpPoolView, {
-            path: { pool: pool.id },
-          })
+          const { queryKey } = qErrorsAllowed(
+            api.ipPoolView,
+            { path: { pool: pool.id } },
+            {
+              errorsExpected: {
+                explanation: 'the referenced IP pool may have been deleted.',
+                statusCode: 404,
+              },
+            }
+          )
           queryClient.setQueryData(queryKey, { type: 'success', data: pool })
+        }
+      }),
+    // Fetch VPCs for the Add NIC form, and seed vpcView-by-id so the NIC
+    // table's VPC cells (VpcNameFromId) render without a skeleton.
+    queryClient
+      .fetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } }))
+      .then((vpcs) => {
+        for (const vpc of vpcs.items) {
+          queryClient.setQueryData(q(api.vpcView, { path: { vpc: vpc.id } }).queryKey, vpc)
         }
       }),
   ])
@@ -152,9 +214,23 @@ const staticCols = [
     ),
   }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('ip', {
+  colHelper.display({
+    id: 'ip',
     header: 'Private IP',
-    cell: (info) => <CopyableIp ip={info.getValue()} isLinked={false} />,
+    cell: (info) => {
+      const nic = info.row.original
+      const { ipStack } = nic
+
+      if (ipStack.type === 'dual_stack') {
+        return (
+          <div className="flex flex-col gap-0">
+            <PrivateIpCell ipVersion="v4" ip={ipStack.value.v4.ip} />
+            <PrivateIpCell ipVersion="v6" ip={ipStack.value.v6.ip} />
+          </div>
+        )
+      }
+      return <PrivateIpCell ipVersion={ipStack.type} ip={ipStack.value.ip} />
+    },
   }),
   colHelper.accessor('vpcId', {
     header: 'vpc',
@@ -162,17 +238,30 @@ const staticCols = [
   }),
   colHelper.accessor('subnetId', {
     header: 'subnet',
-    cell: (info) => <SubnetNameFromId value={info.getValue()} />,
+    cell: (info) => <SubnetNameFromId subnetId={info.getValue()} />,
   }),
-  colHelper.accessor('transitIps', {
+  colHelper.display({
+    id: 'transitIps',
     header: 'Transit IPs',
-    cell: (info) => (
-      <ListPlusCell tooltipTitle="Other transit IPs">
-        {info.getValue()?.map((ip) => (
-          <div key={ip}>{ip}</div>
-        ))}
-      </ListPlusCell>
-    ),
+    cell: (info) => {
+      const nic = info.row.original
+      const { ipStack } = nic
+
+      let transitIps: string[] = []
+      if (ipStack.type === 'v4' || ipStack.type === 'v6') {
+        transitIps = ipStack.value.transitIps
+      } else if (ipStack.type === 'dual_stack') {
+        // Combine both v4 and v6 transit IPs for dual-stack
+        transitIps = [...ipStack.value.v4.transitIps, ...ipStack.value.v6.transitIps]
+      }
+      return (
+        <ListPlusCell tooltipTitle="Other transit IPs">
+          {transitIps?.map((ip) => (
+            <div key={ip}>{ip}</div>
+          ))}
+        </ListPlusCell>
+      )
+    },
   }),
 ]
 
@@ -210,6 +299,15 @@ const staticIpCols = [
     ),
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
   }),
+  ipColHelper.accessor('ip', {
+    id: 'version',
+    header: 'Version',
+    cell: (info) => {
+      const parsed = parseIp(info.getValue())
+      if (parsed.type === 'error') return <EmptyCell />
+      return <IpVersionBadge ipVersion={parsed.type} />
+    },
+  }),
   ipColHelper.accessor('ipPoolId', {
     header: 'IP pool',
     cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
@@ -243,13 +341,55 @@ export default function NetworkingTab() {
   const [editing, setEditing] = useState<InstanceNetworkInterface | null>(null)
   const [attachEphemeralModalOpen, setAttachEphemeralModalOpen] = useState(false)
   const [attachFloatingModalOpen, setAttachFloatingModalOpen] = useState(false)
+  const [attachSubnetModalOpen, setAttachSubnetModalOpen] = useState(false)
 
   // Fetch the floating IPs to show in the "Attach floating IP" modal
   const { data: ips } = usePrefetchedQuery(
     q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
   )
-  // Filter out the IPs that are already attached to an instance
-  const availableIps = useMemo(() => ips.items.filter((ip) => !ip.instanceId), [ips])
+
+  // Fetch external subnets for this project and this instance
+  const { data: allSubnets } = usePrefetchedQuery(
+    q(api.externalSubnetList, { query: { project, limit: ALL_ISH } })
+  )
+  const { data: instanceSubnets } = usePrefetchedQuery(
+    q(api.instanceExternalSubnetList, {
+      path: { instance: instanceName },
+      query: { project },
+    })
+  )
+  const availableSubnets = allSubnets.items.filter((s) => !s.instanceId)
+
+  const nics = usePrefetchedQuery(
+    q(api.instanceNetworkInterfaceList, {
+      query: { ...instanceSelector, limit: ALL_ISH },
+    })
+  ).data.items
+
+  // Firewall rules and other external networking state live on the VPC of the
+  // primary NIC. The parent InstancePage loader prefetches this VPC, but
+  // primaryNic may be undefined, so we can't use usePrefetchedQuery.
+  const primaryVpcId = nics.find((nic) => nic.primary)?.vpcId
+  const { data: primaryVpc } = useQuery({
+    // primaryVpcId is defined when enabled, so the assertion is safe
+    ...q(api.vpcView, { path: { vpc: primaryVpcId! } }),
+    enabled: !!primaryVpcId,
+  })
+
+  const { data: siloPools } = usePrefetchedQuery(
+    q(api.ipPoolList, { query: { limit: ALL_ISH } })
+  )
+  const unicastPools = useMemo(() => siloPools.items.filter(isUnicastPool), [siloPools])
+
+  // Determine compatible IP versions from the instance's primary NIC
+  // External IPs route through the primary interface, so only its IP stack matters
+  const compatibleVersions = useMemo(() => getCompatibleVersionsFromNics(nics), [nics])
+
+  // Filter out the IPs that are already attached to an instance and filter by IP version compatibility
+  const availableIps = useMemo(
+    () => ips.items.filter((ip) => !ip.instanceId).filter(ipHasVersion(compatibleVersions)),
+    [ips, compatibleVersions]
+  )
 
   const createNic = useApiMutation(api.instanceNetworkInterfaceCreate, {
     onSuccess() {
@@ -273,11 +413,6 @@ export default function NetworkingTab() {
   const { data: instance } = usePrefetchedQuery(
     q(api.instanceView, { path: { instance: instanceName }, query: { project } })
   )
-  const nics = usePrefetchedQuery(
-    q(api.instanceNetworkInterfaceList, {
-      query: { ...instanceSelector, limit: ALL_ISH },
-    })
-  ).data.items
 
   const multipleNics = nics.length > 1
 
@@ -339,6 +474,7 @@ export default function NetworkingTab() {
                 query: instanceSelector,
               }),
             label: nic.name,
+            resourceKind: 'network interface',
           }),
           disabled: deleteDisabledReason(),
         },
@@ -373,9 +509,6 @@ export default function NetworkingTab() {
       queryClient.invalidateEndpoint('instanceExternalIpList')
       addToast({ content: 'Ephemeral IP detached' })
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
   })
 
   const { mutateAsync: floatingIpDetach } = useApiMutation(api.floatingIpDetach, {
@@ -385,9 +518,48 @@ export default function NetworkingTab() {
       // prettier-ignore
       addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> detached</>)
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
+  })
+
+  const { mutateAsync: externalSubnetDetach } = useApiMutation(api.externalSubnetDetach, {
+    onSuccess(subnet) {
+      queryClient.invalidateEndpoint('externalSubnetList')
+      queryClient.invalidateEndpoint('instanceExternalSubnetList')
+      // prettier-ignore
+      addToast(<>External subnet <HL>{subnet.name}</HL> detached</>)
     },
+  })
+
+  const makeSubnetActions = useCallback(
+    (subnet: ExternalSubnet): MenuAction[] => [
+      {
+        label: 'Detach',
+        onActivate: () =>
+          confirmAction({
+            actionType: 'danger',
+            doAction: () =>
+              externalSubnetDetach({
+                path: { externalSubnet: subnet.name },
+                query: { project },
+              }),
+            modalTitle: 'Detach external subnet',
+            modalContent: (
+              <p>
+                Are you sure you want to detach external subnet <HL>{subnet.name}</HL> from{' '}
+                <HL>{instanceName}</HL>?
+              </p>
+            ),
+            errorTitle: 'Error detaching external subnet',
+          }),
+      },
+    ],
+    [externalSubnetDetach, instanceName, project]
+  )
+
+  const subnetTableCols = useColsWithActions(staticSubnetCols, makeSubnetActions)
+  const subnetTableInstance = useReactTable({
+    columns: subnetTableCols,
+    data: instanceSubnets.items,
+    getCoreRowModel: getCoreRowModel(),
   })
 
   const makeIpActions = useCallback(
@@ -411,11 +583,14 @@ export default function NetworkingTab() {
       }
 
       const doDetach = match(externalIp)
-        .with(
-          { kind: 'ephemeral' },
-          () => () =>
-            ephemeralIpDetach({ path: { instance: instanceName }, query: { project } })
-        )
+        .with({ kind: 'ephemeral' }, () => () => {
+          const parsed = parseIp(externalIp.ip)
+          const ipVersion = parsed.type === 'error' ? undefined : parsed.type
+          return ephemeralIpDetach({
+            path: { instance: instanceName },
+            query: { project, ipVersion },
+          })
+        })
         .with(
           { kind: 'floating' },
           ({ name }) =>
@@ -441,7 +616,7 @@ export default function NetworkingTab() {
             confirmAction({
               actionType: 'danger',
               doAction: doDetach,
-              modalTitle: `Confirm detach ${externalIp.kind} IP`,
+              modalTitle: `Detach ${externalIp.kind} IP`,
               modalContent: (
                 <p>
                   Are you sure you want to detach {label} from <HL>{instanceName}</HL>? The
@@ -462,10 +637,18 @@ export default function NetworkingTab() {
     getCoreRowModel: getCoreRowModel(),
   })
 
-  // If there's already an ephemeral IP, or if there are no network interfaces,
-  // they shouldn't be able to attach an ephemeral IP
-  const enableEphemeralAttachButton =
-    eips.items.filter((ip) => ip.kind === 'ephemeral').length === 0 && nics.length > 0
+  const attachedEphemeralIps = useMemo(
+    () => eips.items.filter((ip) => ip.kind === 'ephemeral'),
+    [eips]
+  )
+  const {
+    availableVersions: ephemeralAvailableVersions,
+    disabledReason: ephemeralDisabledReason,
+    infoMessage: ephemeralInfoMessage,
+  } = useMemo(
+    () => getEphemeralIpSlots(compatibleVersions, attachedEphemeralIps, unicastPools),
+    [compatibleVersions, attachedEphemeralIps, unicastPools]
+  )
 
   const floatingDisabledReason =
     eips.items.filter((ip) => ip.kind === 'floating').length >= 32
@@ -474,21 +657,54 @@ export default function NetworkingTab() {
         ? 'No available floating IPs'
         : null
 
+  const subnetDisabledReason =
+    availableSubnets.length === 0 ? 'No available external subnets' : null
+
+  useQuickActions(
+    () =>
+      [
+        !ephemeralDisabledReason && {
+          value: 'Attach ephemeral IP',
+          navGroup: 'Actions',
+          action: () => setAttachEphemeralModalOpen(true),
+        },
+        !floatingDisabledReason && {
+          value: 'Attach floating IP',
+          navGroup: 'Actions',
+          action: () => setAttachFloatingModalOpen(true),
+        },
+        instanceCan.updateNic({ runState: instance.runState }) && {
+          value: 'Add network interface',
+          navGroup: 'Actions',
+          action: () => setCreateModalOpen(true),
+        },
+        !subnetDisabledReason && {
+          value: 'Attach external subnet',
+          navGroup: 'Actions',
+          action: () => setAttachSubnetModalOpen(true),
+        },
+      ].filter((x) => !!x),
+    [
+      ephemeralDisabledReason,
+      floatingDisabledReason,
+      instance.runState,
+      subnetDisabledReason,
+    ]
+  )
+
   return (
     <div className="space-y-5">
       <CardBlock>
         <CardBlock.Header title="External IPs" titleId="attached-ips-label">
           <div className="flex gap-3">
-            {/*
-                We normally wouldn't hide this button and would just have a disabled state on it,
-                but it is very rare for this button to be necessary, and it would be disabled
-                most of the time, for most users. To reduce clutter on the screen, we're hiding it.
-               */}
-            {enableEphemeralAttachButton && (
-              <Button size="sm" onClick={() => setAttachEphemeralModalOpen(true)}>
-                Attach ephemeral IP
-              </Button>
-            )}
+            <Button
+              size="sm"
+              onClick={() => setAttachEphemeralModalOpen(true)}
+              disabled={!!ephemeralDisabledReason}
+              disabledReason={ephemeralDisabledReason}
+            >
+              Attach ephemeral IP
+            </Button>
             <Button
               size="sm"
               onClick={() => setAttachFloatingModalOpen(true)}
@@ -519,7 +735,11 @@ export default function NetworkingTab() {
         </CardBlock.Body>
 
         {attachEphemeralModalOpen && (
-          <AttachEphemeralIpModal onDismiss={() => setAttachEphemeralModalOpen(false)} />
+          <AttachEphemeralIpModal
+            availableVersions={ephemeralAvailableVersions}
+            infoMessage={ephemeralInfoMessage}
+            onDismiss={() => setAttachEphemeralModalOpen(false)}
+          />
         )}
         {attachFloatingModalOpen && (
           <AttachFloatingIpModal
@@ -553,6 +773,7 @@ export default function NetworkingTab() {
               aria-labelledby="nics-label"
               table={tableInstance}
               className="table-inline"
+              rowHeight="large"
             />
           ) : (
             <TableEmptyBox border={false}>
@@ -577,6 +798,119 @@ export default function NetworkingTab() {
           <EditNetworkInterfaceForm editing={editing} onDismiss={() => setEditing(null)} />
         )}
       </CardBlock>
+
+      <CardBlock>
+        <CardBlock.Header title="External subnets" titleId="attached-subnets-label">
+          <Button
+            size="sm"
+            onClick={() => setAttachSubnetModalOpen(true)}
+            disabled={!!subnetDisabledReason}
+            disabledReason={subnetDisabledReason}
+          >
+            Attach external subnet
+          </Button>
+        </CardBlock.Header>
+
+        <CardBlock.Body>
+          {instanceSubnets.items.length > 0 ? (
+            <Table
+              aria-labelledby="attached-subnets-label"
+              table={subnetTableInstance}
+              className="table-inline"
+            />
+          ) : (
+            <TableEmptyBox border={false}>
+              <EmptyMessage
+                icon={<Networking24Icon />}
+                title="No external subnets"
+                body="Attach an external subnet to see it here"
+              />
+            </TableEmptyBox>
+          )}
+        </CardBlock.Body>
+
+        {attachSubnetModalOpen && (
+          <AttachExternalSubnetModal
+            subnets={availableSubnets}
+            instanceId={instance.id}
+            project={project}
+            onDismiss={() => setAttachSubnetModalOpen(false)}
+          />
+        )}
+      </CardBlock>
+      <CardBlock>
+        <CardBlock.Header title="Firewall rules" titleId="firewall-rules-label" />
+        <CardBlock.Body>
+          {primaryVpc ? (
+            <>
+              Manage firewall rules affecting this instance in VPC{' '}
+              <Link
+                className="link-with-underline"
+                to={pb.vpcFirewallRules({ project, vpc: primaryVpc.name })}
+              >
+                {primaryVpc.name}
+              </Link>
+              .
+            </>
+          ) : (
+            'Firewall rules are managed on the VPC associated with the primary network interface.'
+          )}
+        </CardBlock.Body>
+      </CardBlock>
     </div>
+  )
+}
+
+const AttachExternalSubnetModal = ({
+  subnets,
+  instanceId,
+  project,
+  onDismiss,
+}: {
+  subnets: ExternalSubnet[]
+  instanceId: string
+  project: string
+  onDismiss: () => void
+}) => {
+  const externalSubnetAttach = useApiMutation(api.externalSubnetAttach, {
+    onSuccess(subnet) {
+      queryClient.invalidateEndpoint('externalSubnetList')
+      queryClient.invalidateEndpoint('instanceExternalSubnetList')
+      // prettier-ignore
+      addToast(<>External subnet <HL>{subnet.name}</HL> attached</>)
+      onDismiss()
+    },
+  })
+
+  const form = useForm({ defaultValues: { subnetName: '' } })
+
+  return (
+    <ModalForm
+      title="Attach external subnet"
+      form={form}
+      onSubmit={({ subnetName }) => {
+        externalSubnetAttach.mutate({
+          path: { externalSubnet: subnetName },
+          query: { project },
+          body: { instance: instanceId },
+        })
+      }}
+      submitLabel="Attach"
+      submitError={externalSubnetAttach.error}
+      loading={externalSubnetAttach.isPending}
+      onDismiss={onDismiss}
+    >
+      <ListboxField
+        control={form.control}
+        name="subnetName"
+        items={subnets.map((s) => ({
+          value: s.name,
+          label: `${s.name} (${s.subnet})`,
+        }))}
+        label="External subnet"
+        required
+        placeholder="Select an external subnet"
+      />
+    </ModalForm>
   )
 }

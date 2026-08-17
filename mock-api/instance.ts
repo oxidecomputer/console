@@ -21,6 +21,7 @@ const base = {
   auto_restart_enabled: true,
   ncpus: 2,
   memory: 4 * GiB,
+  enable_jumbo_frames: false,
 }
 
 export const instance: Json<Instance> = {
@@ -107,6 +108,18 @@ const failedCooledRestartNever: Json<Instance> = {
   time_last_auto_restarted: addMinutes(new Date(), -65).toISOString(), // 65 minutes ago
 }
 
+export const instanceUpdateError: Json<Instance> = {
+  ...base,
+  id: '7a6c58e0-2b5a-4f69-b4d1-1e0e9a3f5c17',
+  name: 'instance-update-error',
+  ncpus: 2,
+  memory: 4 * GiB,
+  description: 'triggers error on update',
+  hostname: 'oxide.com',
+  project_id: project.id,
+  run_state: 'failed',
+}
+
 export const instanceDb2: Json<Instance> = {
   ...base,
   id: 'e78b49c0-e534-400c-adca-a18cc9ab0d8c',
@@ -118,6 +131,58 @@ export const instanceDb2: Json<Instance> = {
   boot_disk_id: '48f94570-60d8-401c-857f-5bf912d2d3fc', // disk-2: needs to be written out here to reduce circular dependencies
 }
 
+// Pre-stopped instance used by tests that only stop an instance to bypass a
+// "must be stopped" precondition. Lets those tests skip the stop dance.
+export const stoppedInstance: Json<Instance> = {
+  ...base,
+  id: '43ad3fc4-cf13-49ae-8171-35dbf0dd30f0',
+  name: 'db-stopped',
+  description: 'a stopped instance',
+  hostname: 'oxide.com',
+  project_id: project.id,
+  run_state: 'stopped',
+  boot_disk_id: 'f5bc2085-d18e-4698-86ab-69c62a74e541', // disk-stopped-boot
+}
+
+// 7th instance in mock-project: the instances page loader only awaits external
+// IP prefetches for the first 6 instances, so this one exercises the
+// unawaited-prefetch path in ExternalIpsCell
+export const instanceDb3: Json<Instance> = {
+  ...base,
+  id: 'a7abaacd-0721-4885-8db5-e743ee061d2b',
+  name: 'db3',
+  description: 'a third database instance',
+  hostname: 'oxide.com',
+  project_id: project.id,
+  run_state: 'running',
+}
+
+// Flat, constant series. A tooltip hover reads back a known value regardless of
+// cursor position.
+export const SENTINEL_FLAT_INSTANCE_ID = 'f0968b0d-6f4a-49e8-8d96-a58dc2c93993'
+export const sentinelFlatInstance: Json<Instance> = {
+  ...base,
+  id: SENTINEL_FLAT_INSTANCE_ID,
+  name: 'sentinel-metrics-flat',
+  description: 'returns constant metric data for tooltip tests',
+  hostname: 'oxide.com',
+  project_id: project.id,
+  run_state: 'running',
+}
+
+// Series that increases linearly with time. Lets you do slightly more thorough
+// graph testing.
+export const SENTINEL_SLOPE_INSTANCE_ID = 'c7d3b8a5-71f7-4588-bce8-38c9f1f85f2f'
+export const sentinelSlopeInstance: Json<Instance> = {
+  ...base,
+  id: SENTINEL_SLOPE_INSTANCE_ID,
+  name: 'sentinel-metrics-slope',
+  description: 'returns linearly increasing metric data for axis tests',
+  hostname: 'oxide.com',
+  project_id: project.id,
+  run_state: 'running',
+}
+
 export const instances: Json<Instance>[] = [
   instance,
   failedInstance,
@@ -125,5 +190,10 @@ export const instances: Json<Instance>[] = [
   failedRestartingSoon,
   failedRestartNever,
   failedCooledRestartNever,
+  instanceUpdateError,
   instanceDb2,
+  stoppedInstance,
+  instanceDb3,
+  sentinelFlatInstance,
+  sentinelSlopeInstance,
 ]

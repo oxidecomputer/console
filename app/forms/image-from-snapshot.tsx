@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { filesize } from 'filesize'
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
@@ -26,9 +25,13 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSnapshotSelector, useProjectSnapshotSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+import { formatBytes } from '~/util/units'
 
 const defaultValues: Omit<ImageCreate, 'source'> = {
   name: '',
@@ -92,14 +95,16 @@ export default function CreateImageFromSnapshotSideModalForm() {
         <PropertiesTable.Row label="Snapshot">{data.name}</PropertiesTable.Row>
         <PropertiesTable.Row label="Project">{project}</PropertiesTable.Row>
         <PropertiesTable.Row label="Size">
-          {filesize(data.size, { base: 2 })}
+          {formatBytes(data.size).label}
         </PropertiesTable.Row>
       </PropertiesTable>
+      <FormDivider />
 
       <NameField name="name" control={form.control} required />
       <DescriptionField name="description" control={form.control} required />
       <TextField name="os" label="OS" control={form.control} required />
       <TextField name="version" control={form.control} required />
+      <SideModalFormDocs docs={[docLinks.images]} />
     </SideModalForm>
   )
 }

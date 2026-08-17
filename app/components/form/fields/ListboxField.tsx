@@ -26,6 +26,8 @@ export type ListboxFieldProps<
   placeholder?: string
   className?: string
   label?: string
+  /** Hide visible label, using it as aria-label instead */
+  hideLabel?: boolean
   required?: boolean
   description?: string | React.ReactNode
   control: Control<TFieldValues>
@@ -54,6 +56,7 @@ export function ListboxField<
   isLoading,
   noItemsPlaceholder,
   hideOptionalTag,
+  hideLabel,
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
@@ -63,6 +66,7 @@ export function ListboxField<
       <Listbox
         description={description}
         label={label}
+        hideLabel={hideLabel}
         required={required}
         placeholder={placeholder}
         noItemsPlaceholder={noItemsPlaceholder}

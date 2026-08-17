@@ -8,15 +8,8 @@
 
 /* eslint-disable */
 
-import {
-  dateReplacer,
-  handleResponse,
-  mergeParams,
-  toQueryString,
-  type ApiResult,
-  type FetchParams,
-  type FullParams,
-} from './http-client'
+import type { FetchParams, FullParams, ApiResult } from './http-client'
+import { dateReplacer, handleResponse, mergeParams, toQueryString } from './http-client'
 import { snakeify } from './util'
 
 export type { ApiResult, ErrorBody, ErrorResult } from './http-client'
@@ -59,6 +52,46 @@ export type Address = {
 }
 
 /**
+ * The IP address version.
+ */
+export type IpVersion = 'v4' | 'v6'
+
+/**
+ * Specify which IP or external subnet pool to allocate from.
+ */
+export type PoolSelector = /** Use the specified pool by name or ID. */
+| {
+    /** The pool to allocate from. */
+    pool: NameOrId
+    type: 'explicit'
+  }
+/** Use the default pool for the silo. */
+| {
+    /** IP version to use when multiple default pools exist. Required if both IPv4 and IPv6 default pools are configured. */
+    ipVersion?: IpVersion | null
+    type: 'auto'
+  }
+
+/**
+ * Specify how to allocate a floating IP address.
+ */
+export type AddressAllocator =
+  /** Reserve a specific IP address. The pool is inferred from the address since IP pools cannot have overlapping ranges. */
+  | {
+      /** The IP address to reserve. */
+      ip: string
+      type: 'explicit'
+    }
+  /** Automatically allocate an IP address from a pool. */
+  | {
+      /** Pool selection.
+
+If omitted, the silo's default pool is used. If the silo has default pools for both IPv4 and IPv6, the request will fail unless `ip_version` is specified. */
+      poolSelector?: PoolSelector
+      type: 'auto'
+    }
+
+/**
  * A set of addresses associated with a port configuration.
  */
 export type AddressConfig = {
@@ -82,17 +115,17 @@ export type AddressLotKind =
  * Represents an address lot object, containing the id of the lot that can be used in other API calls.
  */
 export type AddressLot = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** Desired use of `AddressLot` */
   kind: AddressLotKind
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -109,7 +142,7 @@ export type AddressLotBlock = {
 }
 
 /**
- * Parameters for creating an address lot block. Fist and last addresses are inclusive.
+ * Parameters for creating an address lot block. First and last addresses are inclusive.
  */
 export type AddressLotBlockCreate = {
   /** The first address in the lot (inclusive). */
@@ -193,18 +226,18 @@ This enables a "best-effort" attempt to satisfy the affinity policy. */
  * View of an Affinity Group
  */
 export type AffinityGroup = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   failureDomain: FailureDomain
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   policy: AffinityPolicy
   projectId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -223,36 +256,35 @@ export type AffinityGroupCreate = {
  *
  * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
  */
-export type InstanceState =
-  /** The instance is being created. */
-  | 'creating'
+export type InstanceState = /** The instance is being created. */
+| 'creating'
 
-  /** The instance is currently starting up. */
-  | 'starting'
+/** The instance is currently starting up. */
+| 'starting'
 
-  /** The instance is currently running. */
-  | 'running'
+/** The instance is currently running. */
+| 'running'
 
-  /** The instance has been requested to stop and a transition to "Stopped" is imminent. */
-  | 'stopping'
+/** The instance has been requested to stop and a transition to "Stopped" is imminent. */
+| 'stopping'
 
-  /** The instance is currently stopped. */
-  | 'stopped'
+/** The instance is currently stopped. */
+| 'stopped'
 
-  /** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
-  | 'rebooting'
+/** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
+| 'rebooting'
 
-  /** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
-  | 'migrating'
+/** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
+| 'migrating'
 
-  /** The instance is attempting to recover from a failure. */
-  | 'repairing'
+/** The instance is attempting to recover from a failure. */
+| 'repairing'
 
-  /** The instance has encountered a failure. */
-  | 'failed'
+/** The instance has encountered a failure. */
+| 'failed'
 
-  /** The instance has been deleted. */
-  | 'destroyed'
+/** The instance has been deleted. */
+| 'destroyed'
 
 /**
  * A member of an Affinity Group
@@ -296,12 +328,11 @@ export type BgpMessageHistory = Record<string, unknown>
 /**
  * Identifies switch physical location
  */
-export type SwitchLocation =
-  /** Switch in upper slot */
-  | 'switch0'
+export type SwitchSlot = /** Switch in upper slot */
+| 'switch0'
 
-  /** Switch in lower slot */
-  | 'switch1'
+/** Switch in lower slot */
+| 'switch1'
 
 /**
  * BGP message history for a particular switch.
@@ -310,7 +341,7 @@ export type SwitchBgpHistory = {
   /** Message history indexed by peer address. */
   history: Record<string, BgpMessageHistory>
   /** Switch this message history is associated with. */
-  switch: SwitchLocation
+  switch: SwitchSlot
 }
 
 /**
@@ -404,15 +435,14 @@ Either no delivery attempts have yet been performed, or the delivery has failed 
 /**
  * The reason an alert was delivered
  */
-export type AlertDeliveryTrigger =
-  /** Delivery was triggered by the alert itself. */
-  | 'alert'
+export type AlertDeliveryTrigger = /** Delivery was triggered by the alert itself. */
+| 'alert'
 
-  /** Delivery was triggered by a request to resend the alert. */
-  | 'resend'
+/** Delivery was triggered by a request to resend the alert. */
+| 'resend'
 
-  /** This delivery is a liveness probe. */
-  | 'probe'
+/** This delivery is a liveness probe. */
+| 'probe'
 
 /**
  * A delivery of a webhook event.
@@ -479,6 +509,7 @@ export type AlertReceiverKind = {
   /** The URL that webhook notification requests are sent to. */
   endpoint: string
   kind: 'webhook'
+  /** A list containing the IDs of the secret keys used to sign payloads sent to this receiver. */
   secrets: WebhookSecret[]
 }
 
@@ -493,19 +524,19 @@ export type AlertSubscription = string
  * The configuration for an alert receiver.
  */
 export type AlertReceiver = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** Configuration specific to the kind of alert receiver that this is. */
   kind: AlertReceiverKind
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The list of alert classes to which this receiver is subscribed. */
   subscriptions: AlertSubscription[]
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -532,13 +563,12 @@ export type AlertSubscriptionCreated = {
 /**
  * Description of source IPs allowed to reach rack services.
  */
-export type AllowedSourceIps =
-  /** Allow traffic from any external IP address. */
-  | { allow: 'any' }
-  /** Restrict access to a specific set of source IP addresses or subnets.
+export type AllowedSourceIps = /** Allow traffic from any external IP address. */
+| { allow: 'any' }
+/** Restrict access to a specific set of source IP addresses or subnets.
 
 All others are prevented from reaching rack services. */
-  | { allow: 'list'; ips: IpNet[] }
+| { allow: 'list'; ips: IpNet[] }
 
 /**
  * Allowlist of IPs or subnets that can make requests to user-facing services.
@@ -564,18 +594,18 @@ export type AllowListUpdate = {
  * View of an Anti-Affinity Group
  */
 export type AntiAffinityGroup = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   failureDomain: FailureDomain
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   policy: AffinityPolicy
   projectId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -633,33 +663,46 @@ export type AuditLogEntryActor =
   | { kind: 'unauthenticated' }
 
 /**
+ * Authentication method used for a request
+ */
+export type AuthMethod = /** Console session cookie */
+| 'session_cookie'
+
+/** Device access token (OAuth 2.0 device authorization flow) */
+| 'access_token'
+
+/** SCIM client bearer token */
+| 'scim_token'
+
+/**
  * Result of an audit log entry
  */
-export type AuditLogEntryResult =
-  /** The operation completed successfully */
-  | {
-      /** HTTP status code */
-      httpStatusCode: number
-      kind: 'success'
-    }
-  /** The operation failed */
-  | {
-      errorCode?: string | null
-      errorMessage: string
-      /** HTTP status code */
-      httpStatusCode: number
-      kind: 'error'
-    }
-  /** After the logged operation completed, our attempt to write the result to the audit log failed, so it was automatically marked completed later by a background job. This does not imply that the operation itself timed out or failed, only our attempts to log its result. */
-  | { kind: 'unknown' }
+export type AuditLogEntryResult = /** The operation completed successfully */
+| {
+    /** HTTP status code */
+    httpStatusCode: number
+    kind: 'success'
+  }
+/** The operation failed */
+| {
+    errorCode?: string | null
+    errorMessage: string
+    /** HTTP status code */
+    httpStatusCode: number
+    kind: 'error'
+  }
+/** After the logged operation completed, our attempt to write the result to the audit log failed, so it was automatically marked completed later by a background job. This does not imply that the operation itself timed out or failed, only our attempts to log its result. */
+| { kind: 'unknown' }
 
 /**
  * Audit log entry
  */
 export type AuditLogEntry = {
   actor: AuditLogEntryActor
-  /** How the user authenticated the request. Possible values are "session_cookie" and "access_token". Optional because it will not be defined on unauthenticated requests like login attempts. */
-  authMethod?: string | null
+  /** How the user authenticated the request (access token, session, or SCIM token). Null for unauthenticated requests like login attempts. */
+  authMethod?: AuthMethod | null
+  /** ID of the credential used for authentication. Null for unauthenticated requests. The value of `auth_method` indicates what kind of credential it is (access token, session, or SCIM token). */
+  credentialId?: string | null
   /** Unique identifier for the audit log entry */
   id: string
   /** API endpoint ID, e.g., `project_create` */
@@ -695,23 +738,34 @@ export type AuditLogEntryResultsPage = {
  *
  * This describes the level at which a user must be authorized to read data from a timeseries. For example, fleet-scoping means the data is only visible to an operator or fleet reader. Project-scoped, on the other hand, indicates that a user will see data limited to the projects on which they have read permissions.
  */
-export type AuthzScope =
-  /** Timeseries data is limited to fleet readers. */
-  | 'fleet'
+export type AuthzScope = /** Timeseries data is limited to fleet readers. */
+| 'fleet'
 
-  /** Timeseries data is limited to the authorized silo for a user. */
-  | 'silo'
+/** Timeseries data is limited to the authorized silo for a user. */
+| 'silo'
 
-  /** Timeseries data is limited to the authorized projects for a user. */
-  | 'project'
+/** Timeseries data is limited to the authorized projects for a user. */
+| 'project'
 
-  /** The timeseries is viewable to all without limitation. */
-  | 'viewable_to_all'
+/** The timeseries is viewable to all without limitation. */
+| 'viewable_to_all'
 
 /**
  * Properties that uniquely identify an Oxide hardware component
  */
 export type Baseboard = { part: string; revision: number; serial: string }
+
+/**
+ * A representation of a Baseboard ID as used in the inventory subsystem.
+ *
+ * This type is essentially the same as a `Baseboard` except it doesn't have a revision or HW type (Gimlet, PC, Unknown).
+ */
+export type BaseboardId = {
+  /** Oxide Part Number */
+  partNumber: string
+  /** Serial number (unique for a given part number) */
+  serialNumber: string
+}
 
 /**
  * BFD connection mode.
@@ -724,8 +778,8 @@ export type BfdMode = 'single_hop' | 'multi_hop'
 export type BfdSessionDisable = {
   /** Address of the remote peer to disable a BFD session for. */
   remote: string
-  /** The switch to enable this session on. Must be `switch0` or `switch1`. */
-  switch: Name
+  /** The slot of the switch within the rack to disable this session on. */
+  switchSlot: SwitchSlot
 }
 
 /**
@@ -742,22 +796,21 @@ export type BfdSessionEnable = {
   remote: string
   /** The minimum interval, in microseconds, between received BFD Control packets that this system requires */
   requiredRx: number
-  /** The switch to enable this session on. Must be `switch0` or `switch1`. */
-  switch: Name
+  /** The slot of the switch within the rack to enable this session on. */
+  switchSlot: SwitchSlot
 }
 
-export type BfdState =
-  /** A stable down state. Non-responsive to incoming messages. */
-  | 'admin_down'
+export type BfdState = /** A stable down state. Non-responsive to incoming messages. */
+| 'admin_down'
 
-  /** The initial state. */
-  | 'down'
+/** The initial state. */
+| 'down'
 
-  /** The peer has detected a remote peer in the down state. */
-  | 'init'
+/** The peer has detected a remote peer in the down state. */
+| 'init'
 
-  /** The peer has detected a remote peer in the up or init state while in the init state. */
-  | 'up'
+/** The peer has detected a remote peer in the up or init state while in the init state. */
+| 'up'
 
 export type BfdStatus = {
   detectionThreshold: number
@@ -766,22 +819,22 @@ export type BfdStatus = {
   peer: string
   requiredRx: number
   state: BfdState
-  switch: Name
+  switchSlot: SwitchSlot
 }
 
 /**
  * Represents a BGP announce set by id. The id can be used with other API calls to view and manage the announce set.
  */
 export type BgpAnnounceSet = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -817,34 +870,40 @@ export type BgpAnnouncement = {
   network: IpNet
 }
 
+export type MaxPathConfig = number
+
 /**
  * A base BGP configuration.
  */
 export type BgpConfig = {
   /** The autonomous system number of this BGP configuration. */
   asn: number
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Maximum number of paths to use when multiple "best paths" exist */
+  maxPaths: MaxPathConfig
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** Optional virtual routing and forwarding identifier for this BGP configuration. */
   vrf?: string | null
 }
 
 /**
- * Parameters for creating a BGP configuration. This includes and autonomous system number (ASN) and a virtual routing and forwarding (VRF) identifier.
+ * Parameters for creating a BGP configuration. This includes an autonomous system number (ASN) and a virtual routing and forwarding (VRF) identifier.
  */
 export type BgpConfigCreate = {
   /** The autonomous system number of this BGP configuration. */
   asn: number
   bgpAnnounceSetId: NameOrId
   description: string
+  /** Maximum number of paths to use when multiple "best paths" exist */
+  maxPaths?: MaxPathConfig
   name: Name
   /** Optional virtual routing and forwarding identifier for this BGP configuration. */
   vrf?: Name | null
@@ -861,40 +920,74 @@ export type BgpConfigResultsPage = {
 }
 
 /**
- * The current status of a BGP peer.
+ * Parameters for updating a BGP configuration
+ *
+ * If a value is not specified, it will remain unchanged.
+ */
+export type BgpConfigUpdate = {
+  /** Update the BGP announce set associated with this configuration. */
+  bgpAnnounceSetId?: NameOrId | null
+  description?: string | null
+  /** Update the maximum number of equal-cost paths. */
+  maxPaths?: MaxPathConfig | null
+  name?: Name | null
+}
+
+/**
+ * Route exported to a peer.
  */
 export type BgpExported = {
-  /** Exported routes indexed by peer address. */
-  exports: Record<string, Ipv4Net[]>
+  /** Identifier for the BGP peer. */
+  peerId: string
+  /** The destination network prefix. */
+  prefix: IpNet
+  /** Switch the route is exported from. */
+  switch: SwitchSlot
 }
 
 /**
  * A route imported from a BGP peer.
  */
-export type BgpImportedRouteIpv4 = {
+export type BgpImported = {
   /** BGP identifier of the originating router. */
   id: number
   /** The nexthop the prefix is reachable through. */
   nexthop: string
   /** The destination network prefix. */
-  prefix: Ipv4Net
+  prefix: IpNet
   /** Switch the route is imported into. */
-  switch: SwitchLocation
+  switch: SwitchSlot
 }
+
+/**
+ * Router lifetime in seconds for unnumbered BGP peers
+ */
+export type RouterLifetimeConfig = number
+
+export type RouterPeerType =
+  | {
+      /** Router lifetime in seconds for unnumbered BGP peers. */
+      routerLifetime: RouterLifetimeConfig
+      type: 'unnumbered'
+    }
+  | {
+      /** IP address for numbered BGP peers. */
+      ip: string
+      type: 'numbered'
+    }
 
 /**
  * Define policy relating to the import and export of prefixes from a BGP peer.
  */
-export type ImportExportPolicy =
-  /** Do not perform any filtering. */
-  { type: 'no_filtering' } | { type: 'allow'; value: IpNet[] }
+export type ImportExportPolicy = /** Do not perform any filtering. */
+{ type: 'no_filtering' } | { type: 'allow'; value: IpNet[] }
 
 /**
- * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer identified by `addr`. The `bgp_config` parameter is a reference to global BGP parameters. The `interface_name` indicates what interface the peer should be contacted on.
+ * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer. The `bgp_config` parameter is a reference to global BGP parameters.
  */
 export type BgpPeer = {
-  /** The address of the host to peer with. */
-  addr: string
+  /** The address of the host to peer with, or specifying the configuration of an unnumbered BGP session. */
+  addr: RouterPeerType
   /** Define export policy for a peer. */
   allowedExport: ImportExportPolicy
   /** Define import policy for a peer. */
@@ -903,7 +996,7 @@ export type BgpPeer = {
   bgpConfig: NameOrId
   /** Include the provided communities in updates sent to the peer. */
   communities: number[]
-  /** How long to to wait between TCP connection retries (seconds). */
+  /** How long to wait between TCP connection retries (seconds). */
   connectRetry: number
   /** How long to delay sending an open request after establishing a TCP session (seconds). */
   delayOpen: number
@@ -913,8 +1006,6 @@ export type BgpPeer = {
   holdTime: number
   /** How long to hold a peer in idle before attempting a new session (seconds). */
   idleHoldTime: number
-  /** The name of interface to peer on. This is relative to the port configuration this BGP peer configuration is a part of. For example this value could be phy0 to refer to a primary physical interface. Or it could be vlan47 to refer to a VLAN interface. */
-  interfaceName: Name
   /** How often to send keepalive requests (seconds). */
   keepalive: number
   /** Apply a local preference to routes received from this peer. */
@@ -973,6 +1064,8 @@ export type BgpPeerStatus = {
   addr: string
   /** Local autonomous system number. */
   localAsn: number
+  /** Interface name */
+  peerId: string
   /** Remote autonomous system number. */
   remoteAsn: number
   /** State of the peer. */
@@ -980,7 +1073,7 @@ export type BgpPeerStatus = {
   /** Time of last state change. */
   stateDurationMillis: number
   /** Switch with the peer session. */
-  switch: SwitchLocation
+  switch: SwitchSlot
 }
 
 /**
@@ -988,130 +1081,120 @@ export type BgpPeerStatus = {
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangedouble =
-  /** A range unbounded below and exclusively above, `..end`. */
-  | { end: number; type: 'range_to' }
-  /** A range bounded inclusively below and exclusively above, `start..end`. */
-  | { end: number; start: number; type: 'range' }
-  /** A range bounded inclusively below and unbounded above, `start..`. */
-  | { start: number; type: 'range_from' }
+export type BinRangedouble = /** A range unbounded below and exclusively above, `..end`. */
+| { end: number; type: 'range_to' }
+/** A range bounded inclusively below and exclusively above, `start..end`. */
+| { end: number; start: number; type: 'range' }
+/** A range bounded inclusively below and unbounded above, `start..`. */
+| { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangefloat =
-  /** A range unbounded below and exclusively above, `..end`. */
-  | { end: number; type: 'range_to' }
-  /** A range bounded inclusively below and exclusively above, `start..end`. */
-  | { end: number; start: number; type: 'range' }
-  /** A range bounded inclusively below and unbounded above, `start..`. */
-  | { start: number; type: 'range_from' }
+export type BinRangefloat = /** A range unbounded below and exclusively above, `..end`. */
+| { end: number; type: 'range_to' }
+/** A range bounded inclusively below and exclusively above, `start..end`. */
+| { end: number; start: number; type: 'range' }
+/** A range bounded inclusively below and unbounded above, `start..`. */
+| { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeint16 =
-  /** A range unbounded below and exclusively above, `..end`. */
-  | { end: number; type: 'range_to' }
-  /** A range bounded inclusively below and exclusively above, `start..end`. */
-  | { end: number; start: number; type: 'range' }
-  /** A range bounded inclusively below and unbounded above, `start..`. */
-  | { start: number; type: 'range_from' }
+export type BinRangeint16 = /** A range unbounded below and exclusively above, `..end`. */
+| { end: number; type: 'range_to' }
+/** A range bounded inclusively below and exclusively above, `start..end`. */
+| { end: number; start: number; type: 'range' }
+/** A range bounded inclusively below and unbounded above, `start..`. */
+| { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeint32 =
-  /** A range unbounded below and exclusively above, `..end`. */
-  | { end: number; type: 'range_to' }
-  /** A range bounded inclusively below and exclusively above, `start..end`. */
-  | { end: number; start: number; type: 'range' }
-  /** A range bounded inclusively below and unbounded above, `start..`. */
-  | { start: number; type: 'range_from' }
+export type BinRangeint32 = /** A range unbounded below and exclusively above, `..end`. */
+| { end: number; type: 'range_to' }
+/** A range bounded inclusively below and exclusively above, `start..end`. */
+| { end: number; start: number; type: 'range' }
+/** A range bounded inclusively below and unbounded above, `start..`. */
+| { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeint64 =
-  /** A range unbounded below and exclusively above, `..end`. */
-  | { end: number; type: 'range_to' }
-  /** A range bounded inclusively below and exclusively above, `start..end`. */
-  | { end: number; start: number; type: 'range' }
-  /** A range bounded inclusively below and unbounded above, `start..`. */
-  | { start: number; type: 'range_from' }
+export type BinRangeint64 = /** A range unbounded below and exclusively above, `..end`. */
+| { end: number; type: 'range_to' }
+/** A range bounded inclusively below and exclusively above, `start..end`. */
+| { end: number; start: number; type: 'range' }
+/** A range bounded inclusively below and unbounded above, `start..`. */
+| { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeint8 =
-  /** A range unbounded below and exclusively above, `..end`. */
-  | { end: number; type: 'range_to' }
-  /** A range bounded inclusively below and exclusively above, `start..end`. */
-  | { end: number; start: number; type: 'range' }
-  /** A range bounded inclusively below and unbounded above, `start..`. */
-  | { start: number; type: 'range_from' }
+export type BinRangeint8 = /** A range unbounded below and exclusively above, `..end`. */
+| { end: number; type: 'range_to' }
+/** A range bounded inclusively below and exclusively above, `start..end`. */
+| { end: number; start: number; type: 'range' }
+/** A range bounded inclusively below and unbounded above, `start..`. */
+| { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeuint16 =
-  /** A range unbounded below and exclusively above, `..end`. */
-  | { end: number; type: 'range_to' }
-  /** A range bounded inclusively below and exclusively above, `start..end`. */
-  | { end: number; start: number; type: 'range' }
-  /** A range bounded inclusively below and unbounded above, `start..`. */
-  | { start: number; type: 'range_from' }
+export type BinRangeuint16 = /** A range unbounded below and exclusively above, `..end`. */
+| { end: number; type: 'range_to' }
+/** A range bounded inclusively below and exclusively above, `start..end`. */
+| { end: number; start: number; type: 'range' }
+/** A range bounded inclusively below and unbounded above, `start..`. */
+| { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeuint32 =
-  /** A range unbounded below and exclusively above, `..end`. */
-  | { end: number; type: 'range_to' }
-  /** A range bounded inclusively below and exclusively above, `start..end`. */
-  | { end: number; start: number; type: 'range' }
-  /** A range bounded inclusively below and unbounded above, `start..`. */
-  | { start: number; type: 'range_from' }
+export type BinRangeuint32 = /** A range unbounded below and exclusively above, `..end`. */
+| { end: number; type: 'range_to' }
+/** A range bounded inclusively below and exclusively above, `start..end`. */
+| { end: number; start: number; type: 'range' }
+/** A range bounded inclusively below and unbounded above, `start..`. */
+| { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeuint64 =
-  /** A range unbounded below and exclusively above, `..end`. */
-  | { end: number; type: 'range_to' }
-  /** A range bounded inclusively below and exclusively above, `start..end`. */
-  | { end: number; start: number; type: 'range' }
-  /** A range bounded inclusively below and unbounded above, `start..`. */
-  | { start: number; type: 'range_from' }
+export type BinRangeuint64 = /** A range unbounded below and exclusively above, `..end`. */
+| { end: number; type: 'range_to' }
+/** A range bounded inclusively below and exclusively above, `start..end`. */
+| { end: number; start: number; type: 'range' }
+/** A range bounded inclusively below and unbounded above, `start..`. */
+| { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeuint8 =
-  /** A range unbounded below and exclusively above, `..end`. */
-  | { end: number; type: 'range_to' }
-  /** A range bounded inclusively below and exclusively above, `start..end`. */
-  | { end: number; start: number; type: 'range' }
-  /** A range bounded inclusively below and unbounded above, `start..`. */
-  | { start: number; type: 'range_from' }
+export type BinRangeuint8 = /** A range unbounded below and exclusively above, `..end`. */
+| { end: number; type: 'range_to' }
+/** A range bounded inclusively below and exclusively above, `start..end`. */
+| { end: number; start: number; type: 'range' }
+/** A range bounded inclusively below and unbounded above, `start..`. */
+| { start: number; type: 'range_from' }
 
 /**
  * Type storing bin edges and a count of samples within it.
@@ -1214,7 +1297,9 @@ export type Binuint8 = {
 }
 
 /**
- * disk block size in bytes
+ * Block size in bytes
+ *
+ * Valid values are: 512, 2048, or 4096.
  */
 export type BlockSize = 512 | 2048 | 4096
 
@@ -1234,17 +1319,17 @@ export type ServiceUsingCertificate = 'external_api'
 export type Certificate = {
   /** PEM-formatted string containing public certificate chain */
   cert: string
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The service using this certificate */
   service: ServiceUsingCertificate
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -1327,6 +1412,10 @@ export type CurrentUser = {
   siloId: string
   /** Name of the silo to which this user belongs. */
   siloName: Name
+  /** Timestamp when this user was created */
+  timeCreated: Date
+  /** Timestamp when this user was last modified */
+  timeModified: Date
 }
 
 /**
@@ -1737,9 +1826,9 @@ export type Datum =
   | { datum: MissingDatum; type: 'missing' }
 
 export type DerEncodedKeyPair = {
-  /** request signing RSA private key in PKCS#1 format (base64 encoded der file) */
+  /** Request signing RSA private key in PKCS#1 format (base64 encoded DER file) */
   privateKey: string
-  /** request signing public certificate (base64 encoded der file) */
+  /** Request signing public certificate (base64 encoded DER file) */
   publicCert: string
 }
 
@@ -1747,7 +1836,9 @@ export type DerEncodedKeyPair = {
  * View of a device access token
  */
 export type DeviceAccessToken = {
-  /** A unique, immutable, system-controlled identifier for the token. Note that this ID is not the bearer token itself, which starts with "oxide-token-" */
+  /** A unique, immutable, system-controlled identifier for the token.
+
+Note that this ID is not the bearer token itself, which starts with "oxide-token-". */
   id: string
   timeCreated: Date
   /** Expiration timestamp. A null value means the token does not automatically expire. */
@@ -1789,74 +1880,84 @@ export type DiskType = 'distributed' | 'local'
 /**
  * State of a Disk
  */
-export type DiskState =
-  /** Disk is being initialized */
-  | { state: 'creating' }
-  /** Disk is ready but detached from any Instance */
-  | { state: 'detached' }
-  /** Disk is ready to receive blocks from an external source */
-  | { state: 'import_ready' }
-  /** Disk is importing blocks from a URL */
-  | { state: 'importing_from_url' }
-  /** Disk is importing blocks from bulk writes */
-  | { state: 'importing_from_bulk_writes' }
-  /** Disk is being finalized to state Detached */
-  | { state: 'finalizing' }
-  /** Disk is undergoing maintenance */
-  | { state: 'maintenance' }
-  /** Disk is being attached to the given Instance */
-  | { instance: string; state: 'attaching' }
-  /** Disk is attached to the given Instance */
-  | { instance: string; state: 'attached' }
-  /** Disk is being detached from the given Instance */
-  | { instance: string; state: 'detaching' }
-  /** Disk has been destroyed */
-  | { state: 'destroyed' }
-  /** Disk is unavailable */
-  | { state: 'faulted' }
+export type DiskState = /** Disk is being initialized */
+| { state: 'creating' }
+/** Disk is ready but detached from any Instance */
+| { state: 'detached' }
+/** Disk is ready to receive blocks from an external source */
+| { state: 'import_ready' }
+/** Disk is importing blocks from a URL */
+| { state: 'importing_from_url' }
+/** Disk is importing blocks from bulk writes */
+| { state: 'importing_from_bulk_writes' }
+/** Disk is being finalized to state Detached */
+| { state: 'finalizing' }
+/** Disk is undergoing maintenance */
+| { state: 'maintenance' }
+/** Disk is being attached to the given Instance */
+| { instance: string; state: 'attaching' }
+/** Disk is attached to the given Instance */
+| { instance: string; state: 'attached' }
+/** Disk is being detached from the given Instance */
+| { instance: string; state: 'detaching' }
+/** Disk has been destroyed */
+| { state: 'destroyed' }
+/** Disk is unavailable */
+| { state: 'faulted' }
 
 /**
  * View of a Disk
  */
 export type Disk = {
-  blockSize: ByteCount
-  /** human-readable free-form text about a resource */
+  blockSize: BlockSize
+  /** Human-readable free-form text about a resource */
   description: string
   devicePath: string
   diskType: DiskType
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** ID of image from which disk was created, if any */
   imageId?: string | null
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   projectId: string
+  /** Whether or not this disk is read-only. */
+  readOnly: boolean
   size: ByteCount
   /** ID of snapshot from which disk was created, if any */
   snapshotId?: string | null
   state: DiskState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
 /**
  * Different sources for a Distributed Disk
  */
-export type DiskSource =
-  /** Create a blank disk */
-  | {
-      /** size of blocks for this Disk. valid values are: 512, 2048, or 4096 */
-      blockSize: BlockSize
-      type: 'blank'
-    }
-  /** Create a disk from a disk snapshot */
-  | { snapshotId: string; type: 'snapshot' }
-  /** Create a disk from an image */
-  | { imageId: string; type: 'image' }
-  /** Create a blank disk that will accept bulk writes or pull blocks from an external source. */
-  | { blockSize: BlockSize; type: 'importing_blocks' }
+export type DiskSource = /** Create a blank disk */
+| {
+    /** Size of blocks for this disk. Valid values are: 512, 2048, or 4096. */
+    blockSize: BlockSize
+    type: 'blank'
+  }
+/** Create a disk from a disk snapshot */
+| {
+    /** If `true`, the disk created from this snapshot will be read-only. */
+    readOnly?: boolean
+    snapshotId: string
+    type: 'snapshot'
+  }
+/** Create a disk from an image */
+| {
+    imageId: string
+    /** If `true`, the disk created from this image will be read-only. */
+    readOnly?: boolean
+    type: 'image'
+  }
+/** Create a blank disk that will accept bulk writes or pull blocks from an external source. */
+| { blockSize: BlockSize; type: 'importing_blocks' }
 
 /**
  * The source of a `Disk`'s blocks
@@ -1934,55 +2035,58 @@ export type Distributionint64 = {
  * Parameters for creating an ephemeral IP address for an instance.
  */
 export type EphemeralIpCreate = {
-  /** Name or ID of the IP pool used to allocate an address. If unspecified, the default IP pool will be used. */
-  pool?: NameOrId | null
+  /** Pool to allocate from. */
+  poolSelector?: PoolSelector
 }
 
-export type ExternalIp =
-  /** A source NAT IP address.
+export type ExternalIp = /** A source NAT IP address.
 
 SNAT addresses are ephemeral addresses used only for outbound connectivity. */
-  | {
-      /** The first usable port within the IP address. */
-      firstPort: number
-      /** The IP address. */
-      ip: string
-      /** ID of the IP Pool from which the address is taken. */
-      ipPoolId: string
-      kind: 'snat'
-      /** The last usable port within the IP address. */
-      lastPort: number
-    }
-  | { ip: string; ipPoolId: string; kind: 'ephemeral' }
-  /** A Floating IP is a well-known IP address which can be attached and detached from instances. */
-  | {
-      /** human-readable free-form text about a resource */
-      description: string
-      /** unique, immutable, system-controlled identifier for each resource */
-      id: string
-      /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
-      instanceId?: string | null
-      /** The IP address held by this resource. */
-      ip: string
-      /** The ID of the IP pool this resource belongs to. */
-      ipPoolId: string
-      kind: 'floating'
-      /** unique, mutable, user-controlled identifier for each resource */
-      name: Name
-      /** The project this resource exists within. */
-      projectId: string
-      /** timestamp when this resource was created */
-      timeCreated: Date
-      /** timestamp when this resource was last modified */
-      timeModified: Date
-    }
+| {
+    /** The first usable port within the IP address. */
+    firstPort: number
+    /** The IP address. */
+    ip: string
+    /** ID of the IP Pool from which the address is taken. */
+    ipPoolId: string
+    kind: 'snat'
+    /** The last usable port within the IP address. */
+    lastPort: number
+  }
+| { ip: string; ipPoolId: string; kind: 'ephemeral' }
+/** A Floating IP is a well-known IP address which can be attached and detached from instances. */
+| {
+    /** Human-readable free-form text about a resource */
+    description: string
+    /** Unique, immutable, system-controlled identifier for each resource */
+    id: string
+    /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
+    instanceId?: string | null
+    /** The IP address held by this resource. */
+    ip: string
+    /** The ID of the IP pool this resource belongs to. */
+    ipPoolId: string
+    kind: 'floating'
+    /** Unique, mutable, user-controlled identifier for each resource */
+    name: Name
+    /** The project this resource exists within. */
+    projectId: string
+    /** Timestamp when this resource was created */
+    timeCreated: Date
+    /** Timestamp when this resource was last modified */
+    timeModified: Date
+  }
 
 /**
  * Parameters for creating an external IP address for instances.
  */
 export type ExternalIpCreate =
-  /** An IP address providing both inbound and outbound access. The address is automatically assigned from the provided IP pool or the default IP pool if not specified. */
-  | { pool?: NameOrId | null; type: 'ephemeral' }
+  /** An IP address providing both inbound and outbound access. The address is automatically assigned from a pool. */
+  | {
+      /** Pool to allocate from. */
+      poolSelector?: PoolSelector
+      type: 'ephemeral'
+    }
   /** An IP address providing both inbound and outbound access. The address is an existing floating IP object assigned to the current project.
 
 The floating IP must not be in use by another instance or service. */
@@ -1997,6 +2101,85 @@ export type ExternalIpResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
+
+/**
+ * An external subnet allocated from a subnet pool
+ */
+export type ExternalSubnet = {
+  /** Human-readable free-form text about a resource */
+  description: string
+  /** Unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The instance this subnet is attached to, if any */
+  instanceId?: string | null
+  /** Unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** The project this subnet belongs to */
+  projectId: string
+  /** The allocated subnet CIDR */
+  subnet: IpNet
+  /** The subnet pool this was allocated from */
+  subnetPoolId: string
+  /** The subnet pool member this subnet corresponds to */
+  subnetPoolMemberId: string
+  /** Timestamp when this resource was created */
+  timeCreated: Date
+  /** Timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Specify how to allocate an external subnet.
+ */
+export type ExternalSubnetAllocator = /** Reserve a specific subnet. */
+| {
+    /** The subnet CIDR to reserve. Must be available in the pool. */
+    subnet: IpNet
+    type: 'explicit'
+  }
+/** Automatically allocate a subnet with the specified prefix length. */
+| {
+    /** Pool selection.
+
+If omitted, this field uses the silo's default pool. If the silo has default pools for both IPv4 and IPv6, the request will fail unless `ip_version` is specified in the pool selector. */
+    poolSelector?: PoolSelector
+    /** The prefix length for the allocated subnet (e.g., 24 for a /24). */
+    prefixLength: number
+    type: 'auto'
+  }
+
+/**
+ * Attach an external subnet to an instance
+ */
+export type ExternalSubnetAttach = {
+  /** Name or ID of the instance to attach to */
+  instance: NameOrId
+}
+
+/**
+ * Create an external subnet
+ */
+export type ExternalSubnetCreate = {
+  /** Subnet allocation method. */
+  allocator: ExternalSubnetAllocator
+  description: string
+  name: Name
+}
+
+/**
+ * A single page of results
+ */
+export type ExternalSubnetResultsPage = {
+  /** list of items on this page of results */
+  items: ExternalSubnet[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * Update an external subnet
+ */
+export type ExternalSubnetUpdate = { description?: string | null; name?: Name | null }
 
 /**
  * The `FieldType` identifies the data type of a target or metric field.
@@ -2087,9 +2270,9 @@ export type FleetRolePolicy = {
  * A Floating IP is a well-known IP address which can be attached and detached from instances.
  */
 export type FloatingIp = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
   instanceId?: string | null
@@ -2097,13 +2280,13 @@ export type FloatingIp = {
   ip: string
   /** The ID of the IP pool this resource belongs to. */
   ipPoolId: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The project this resource exists within. */
   projectId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -2126,12 +2309,10 @@ export type FloatingIpAttach = {
  * Parameters for creating a new floating IP address for instances.
  */
 export type FloatingIpCreate = {
+  /** IP address allocation method. */
+  addressAllocator?: AddressAllocator
   description: string
-  /** An IP address to reserve for use as a floating IP. This field is optional: when not set, an address will be automatically chosen from `pool`. If set, then the IP must be available in the resolved `pool`. */
-  ip?: string | null
   name: Name
-  /** The parent IP pool that a floating IP is pulled from. If unset, the default pool is selected. */
-  pool?: NameOrId | null
 }
 
 /**
@@ -2158,6 +2339,10 @@ export type Group = {
   id: string
   /** Uuid of the silo to which this group belongs */
   siloId: string
+  /** Timestamp when this group was created */
+  timeCreated: Date
+  /** Timestamp when this group was last modified */
+  timeModified: Date
 }
 
 /**
@@ -2190,17 +2375,17 @@ export type IdentityProviderType = 'saml'
  * View of an Identity Provider
  */
 export type IdentityProvider = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** Identity provider type */
   providerType: IdentityProviderType
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -2224,25 +2409,25 @@ export type IdpMetadataSource =
  * If `project_id` is present then the image is only visible inside that project. If it's not present then the image is visible to all projects in the silo.
  */
 export type Image = {
-  /** size of blocks in bytes */
-  blockSize: ByteCount
-  /** human-readable free-form text about a resource */
+  /** Size of blocks in bytes */
+  blockSize: BlockSize
+  /** Human-readable free-form text about a resource */
   description: string
   /** Hash of the image contents, if applicable */
   digest?: Digest | null
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The family of the operating system like Debian, Ubuntu, etc. */
   os: string
   /** ID of the parent project if the image is a project image */
   projectId?: string | null
-  /** total size in bytes */
+  /** Total size in bytes */
   size: ByteCount
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** Version of the operating system */
   version: string
@@ -2303,14 +2488,20 @@ export type InstanceAutoRestartPolicy =
  *
  * If an instance does not specify a required CPU platform, then when it starts, the control plane selects a host for the instance and then supplies the guest with the "minimum" CPU platform supported by that host. This maximizes the number of hosts that can run the VM if it later needs to migrate to another host.
  *
- * In all cases, the CPU features presented by a given CPU platform are a subset of what the corresponding hardware may actually support; features which cannot be used from a virtual environment or do not have full hypervisor support may be masked off. See RFD 314 for specific CPU features in a CPU platform.
+ * In all cases, the CPU features presented by a given CPU platform are a subset of what the corresponding hardware may actually support; features which cannot be used from a virtual environment or do not have full hypervisor support may be masked off.
  */
-export type InstanceCpuPlatform =
-  /** An AMD Milan-like CPU platform. */
-  | 'amd_milan'
+export type InstanceCpuPlatform = /** An AMD Milan-like CPU platform. */
+| 'amd_milan'
 
-  /** An AMD Turin-like CPU platform. */
-  | 'amd_turin'
+/** An AMD Turin-like CPU platform. Prefer `amd_turin_v2` over this; this CPU platform is retained for instances that specifically requested it before `amd_turin_v2` was added.
+
+This initial version of the Turin CPU platform includes no cache or TLB information in CPUID leaf `8000_0006`. While this was intentional, Oxide later discovered some guest software interprets the zeroed leaves as reporting cache sizes of 0 bytes and behaves incorrectly and unpredictably as a result (see [Propolis#1152](https://github.com/oxidecomputer/propolis/issues/1152)). */
+| 'amd_turin'
+
+/** An AMD Turin-like CPU platform.
+
+This version of the Turin CPU platform includes cache and TLB information in CPUID leaf `8000_0006`, similar to the cache information included in the initial Milan-like CPU platform. */
+| 'amd_turin_v2'
 
 /**
  * The number of CPUs in an Instance
@@ -2331,32 +2522,34 @@ If this is not present, then either the instance has never been automatically re
 
 This policy determines whether the instance should be automatically restarted by the control plane on failure. If this is `null`, the control plane will use the default policy when determining whether or not to automatically restart this instance, which may or may not allow it to be restarted. The value of the `auto_restart_enabled` field indicates whether the instance will be auto-restarted, based on its current policy or the default if it has no configured policy. */
   autoRestartPolicy?: InstanceAutoRestartPolicy | null
-  /** the ID of the disk used to boot this Instance, if a specific one is assigned. */
+  /** The ID of the disk used to boot this instance, if a specific one is assigned */
   bootDiskId?: string | null
   /** The CPU platform for this instance. If this is `null`, the instance requires no particular CPU platform. */
   cpuPlatform?: InstanceCpuPlatform | null
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** RFC1035-compliant hostname for the Instance. */
+  /** When true, this instance has opted in to jumbo frames (8500 byte MTU) on its primary network interface. The effective MTU also depends on the fleet-wide jumbo-frames opt-in; if that is disabled, the primary interface uses the default MTU regardless of this value. Changes only take effect on the next instance restart. */
+  enableJumboFrames: boolean
+  /** RFC1035-compliant hostname for the instance */
   hostname: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** memory allocated for this Instance */
+  /** Memory allocated for this instance */
   memory: ByteCount
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** number of CPUs allocated for this Instance */
+  /** Number of CPUs allocated for this instance */
   ncpus: InstanceCpuCount
-  /** id for the project containing this Instance */
+  /** ID for the project containing this instance */
   projectId: string
   runState: InstanceState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
   /** The timestamp of the most recent time this instance was automatically restarted by the control plane.
 
 If this is not present, then this instance has not been automatically restarted. */
   timeLastAutoRestarted?: Date | null
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   timeRunStateUpdated: Date
 }
@@ -2383,17 +2576,84 @@ export type InstanceDiskAttachment =
     }
 
 /**
+ * A multicast group identifier
+ *
+ * Can be a UUID, a name, or an IP address
+ */
+export type MulticastGroupIdentifier = string
+
+/**
+ * Specification for joining a multicast group with optional source filtering.
+ *
+ * Used in `InstanceCreate` and `InstanceUpdate` to specify multicast group membership along with per-member source IP configuration.
+ */
+export type MulticastGroupJoinSpec = {
+  /** The multicast group to join, specified by name, UUID, or IP address. */
+  group: MulticastGroupIdentifier
+  /** IP version for pool selection when creating a group by name. Required if both IPv4 and IPv6 default multicast pools are linked. */
+  ipVersion?: IpVersion | null
+  /** Source IPs for source-filtered multicast (SSM). Optional for ASM groups, required for SSM groups (232.0.0.0/8, ff3x::/32). */
+  sourceIps?: string[] | null
+}
+
+/**
+ * How a VPC-private IP address is assigned to a network interface.
+ */
+export type Ipv4Assignment = /** Automatically assign an IP address from the VPC Subnet. */
+| { type: 'auto' }
+/** Explicitly assign a specific address, if available. */
+| { type: 'explicit'; value: string }
+
+/**
+ * Configuration for a network interface's IPv4 addressing.
+ */
+export type PrivateIpv4StackCreate = {
+  /** The VPC-private address to assign to the interface. */
+  ip: Ipv4Assignment
+  /** Additional IP networks the interface can send / receive on. */
+  transitIps?: Ipv4Net[]
+}
+
+/**
+ * How a VPC-private IP address is assigned to a network interface.
+ */
+export type Ipv6Assignment = /** Automatically assign an IP address from the VPC Subnet. */
+| { type: 'auto' }
+/** Explicitly assign a specific address, if available. */
+| { type: 'explicit'; value: string }
+
+/**
+ * Configuration for a network interface's IPv6 addressing.
+ */
+export type PrivateIpv6StackCreate = {
+  /** The VPC-private address to assign to the interface. */
+  ip: Ipv6Assignment
+  /** Additional IP networks the interface can send / receive on. */
+  transitIps?: Ipv6Net[]
+}
+
+/**
+ * Create parameters for a network interface's IP stack.
+ */
+export type PrivateIpStackCreate = /** The interface has only an IPv4 stack. */
+| { type: 'v4'; value: PrivateIpv4StackCreate }
+/** The interface has only an IPv6 stack. */
+| { type: 'v6'; value: PrivateIpv6StackCreate }
+/** The interface has both an IPv4 and IPv6 stack. */
+| { type: 'dual_stack'; value: { v4: PrivateIpv4StackCreate; v6: PrivateIpv6StackCreate } }
+
+/**
  * Create-time parameters for an `InstanceNetworkInterface`
  */
 export type InstanceNetworkInterfaceCreate = {
   description: string
-  /** The IP address for the interface. One will be auto-assigned if not provided. */
-  ip?: string | null
+  /** The IP stack configuration for this interface.
+
+If not provided, a default configuration will be used, which creates a dual-stack IPv4 / IPv6 interface. */
+  ipConfig?: PrivateIpStackCreate
   name: Name
   /** The VPC Subnet in which to create the interface. */
   subnetName: Name
-  /** A set of additional networks that this interface may send and receive traffic on. */
-  transitIps?: IpNet[]
   /** The VPC in which to create the interface. */
   vpcName: Name
 }
@@ -2406,8 +2666,18 @@ export type InstanceNetworkInterfaceAttachment =
 
 If more than one interface is provided, then the first will be designated the primary interface for the instance. */
   | { params: InstanceNetworkInterfaceCreate[]; type: 'create' }
-  /** The default networking configuration for an instance is to create a single primary interface with an automatically-assigned IP address. The IP will be pulled from the Project's default VPC / VPC Subnet. */
-  | { type: 'default' }
+  /** Create a single primary interface with an automatically-assigned IPv4 address.
+
+The IP will be pulled from the Project's default VPC / VPC Subnet. */
+  | { type: 'default_ipv4' }
+  /** Create a single primary interface with an automatically-assigned IPv6 address.
+
+The IP will be pulled from the Project's default VPC / VPC Subnet. */
+  | { type: 'default_ipv6' }
+  /** Create a single primary interface with automatically-assigned IPv4 and IPv6 addresses.
+
+The IPs will be pulled from the Project's default VPC / VPC Subnet. */
+  | { type: 'default_dual_stack' }
   /** No network interfaces at all will be created for the instance. */
   | { type: 'none' }
 
@@ -2415,7 +2685,7 @@ If more than one interface is provided, then the first will be designated the pr
  * Create-time parameters for an `Instance`
  */
 export type InstanceCreate = {
-  /** Anti-Affinity groups which this instance should be added. */
+  /** Anti-affinity groups to which this instance should be added. */
   antiAffinityGroups?: NameOrId[]
   /** The auto-restart policy for this instance.
 
@@ -2440,6 +2710,8 @@ Disk attachments of type "create" will be created, while those of type "attach" 
 
 The order of this list does not guarantee a boot order for the instance. Use the boot_disk attribute to specify a boot disk. When boot_disk is specified it will count against the disk attachment limit. */
   disks?: InstanceDiskAttachment[]
+  /** Enable jumbo frames (8500 byte MTU) on the instance's primary OPTE interface. Requires the fleet-wide jumbo-frames opt-in to be enabled by an operator; otherwise this field must be `false`. Changes only take effect on the next instance restart. */
+  enableJumboFrames?: boolean
   /** The external IP addresses provided to this instance.
 
 By default, all instances have outbound connectivity, but no inbound connectivity. These external addresses can be used to provide a fixed, known IP address for making inbound connections to the instance. */
@@ -2448,10 +2720,10 @@ By default, all instances have outbound connectivity, but no inbound connectivit
   hostname: Hostname
   /** The amount of RAM (in bytes) to be allocated to the instance */
   memory: ByteCount
-  /** The multicast groups this instance should join.
+  /** Multicast groups this instance should join at creation.
 
-The instance will be automatically added as a member of the specified multicast groups during creation, enabling it to send and receive multicast traffic for those groups. */
-  multicastGroups?: NameOrId[]
+Groups can be specified by name, UUID, or IP address. Non-existent groups are created automatically. */
+  multicastGroups?: MulticastGroupJoinSpec[]
   name: Name
   /** The number of vCPUs to be allocated to the instance */
   ncpus: InstanceCpuCount
@@ -2468,6 +2740,48 @@ If not provided, all SSH public keys from the user's profile will be sent. If an
 }
 
 /**
+ * Parameters for joining an instance to a multicast group.
+ *
+ * When joining by IP address, the pool containing the multicast IP is auto-discovered from all linked multicast pools.
+ */
+export type InstanceMulticastGroupJoin = {
+  /** IP version for pool selection when creating a group by name. Required if both IPv4 and IPv6 default multicast pools are linked. */
+  ipVersion?: IpVersion | null
+  /** Source IPs for source-filtered multicast (SSM). Optional for ASM groups, required for SSM groups (232.0.0.0/8, ff3x::/32). */
+  sourceIps?: string[] | null
+}
+
+/**
+ * The VPC-private IPv4 stack for a network interface
+ */
+export type PrivateIpv4Stack = {
+  /** The VPC-private IPv4 address for the interface. */
+  ip: string
+  /** A set of additional IPv4 networks that this interface may send and receive traffic on. */
+  transitIps: Ipv4Net[]
+}
+
+/**
+ * The VPC-private IPv6 stack for a network interface
+ */
+export type PrivateIpv6Stack = {
+  /** The VPC-private IPv6 address for the interface. */
+  ip: string
+  /** A set of additional IPv6 networks that this interface may send and receive traffic on. */
+  transitIps: Ipv6Net[]
+}
+
+/**
+ * The VPC-private IP stack for a network interface.
+ */
+export type PrivateIpStack = /** The interface has only an IPv4 stack. */
+| { type: 'v4'; value: PrivateIpv4Stack }
+/** The interface has only an IPv6 stack. */
+| { type: 'v6'; value: PrivateIpv6Stack }
+/** The interface is dual-stack IPv4 and IPv6. */
+| { type: 'dual_stack'; value: { v4: PrivateIpv4Stack; v6: PrivateIpv6Stack } }
+
+/**
  * A MAC address
  *
  * A Media Access Control address, in EUI-48 format
@@ -2478,28 +2792,26 @@ export type MacAddr = string
  * An `InstanceNetworkInterface` represents a virtual network interface device attached to an instance.
  */
 export type InstanceNetworkInterface = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The Instance to which the interface belongs. */
   instanceId: string
-  /** The IP address assigned to this interface. */
-  ip: string
+  /** The VPC-private IP stack for this interface. */
+  ipStack: PrivateIpStack
   /** The MAC address assigned to this interface. */
   mac: MacAddr
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** True if this interface is the primary for the instance to which it's attached. */
   primary: boolean
   /** The subnet to which the interface belongs. */
   subnetId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
-  /** A set of additional networks that this interface may send and receive traffic on. */
-  transitIps?: IpNet[]
   /** The VPC to which the interface belongs. */
   vpcId: string
 }
@@ -2528,7 +2840,7 @@ If applied to a secondary interface, that interface will become the primary on t
 
 Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error. */
   primary?: boolean
-  /** A set of additional networks that this interface may send and receive traffic on. */
+  /** A set of additional networks that this interface may send and receive traffic on */
   transitIps?: IpNet[]
 }
 
@@ -2570,14 +2882,18 @@ An instance that does not have a boot disk set will use the boot options specifi
   bootDisk: NameOrId | null
   /** The CPU platform to be used for this instance. If this is `null`, the instance requires no particular CPU platform; when it is started the instance will have the most general CPU platform supported by the sled it is initially placed on. */
   cpuPlatform: InstanceCpuPlatform | null
+  /** Update the per-instance jumbo-frames opt-in. Setting this to `true` requires the fleet-wide jumbo-frames opt-in to be enabled. Changes only take effect on the next instance restart. */
+  enableJumboFrames: boolean
   /** The amount of RAM (in bytes) to be allocated to the instance */
   memory: ByteCount
   /** Multicast groups this instance should join.
 
 When specified, this replaces the instance's current multicast group membership with the new set of groups. The instance will leave any groups not listed here and join any new groups that are specified.
 
-If not provided (None), the instance's multicast group membership will not be changed. */
-  multicastGroups?: NameOrId[] | null
+Each entry can specify the group by name, UUID, or IP address, along with optional source IP filtering for SSM (Source-Specific Multicast). When a group doesn't exist, it will be implicitly created using the default multicast pool (or you can specify `ip_version` to disambiguate if needed).
+
+If not provided, the instance's multicast group membership will not be changed. */
+  multicastGroups?: MulticastGroupJoinSpec[] | null
   /** The number of vCPUs to be allocated to the instance */
   ncpus: InstanceCpuCount
 }
@@ -2591,15 +2907,15 @@ export type InterfaceNum =
  * An internet gateway provides a path between VPC networks and external networks.
  */
 export type InternetGateway = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The VPC to which the gateway belongs. */
   vpcId: string
@@ -2614,19 +2930,19 @@ export type InternetGatewayCreate = { description: string; name: Name }
  * An IP address that is attached to an internet gateway
  */
 export type InternetGatewayIpAddress = {
-  /** The associated IP address, */
+  /** The associated IP address */
   address: string
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** The associated internet gateway. */
+  /** The associated internet gateway */
   internetGatewayId: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -2653,19 +2969,19 @@ export type InternetGatewayIpAddressResultsPage = {
  * An IP pool that is attached to an internet gateway
  */
 export type InternetGatewayIpPool = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The associated internet gateway. */
   internetGatewayId: string
   /** The associated IP pool. */
   ipPoolId: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -2699,41 +3015,51 @@ export type InternetGatewayResultsPage = {
 }
 
 /**
- * The IP address version.
+ * Assignment of an IP pool to resources and services.
  */
-export type IpVersion = 'v4' | 'v6'
+export type IpPoolAssignment = /** Pool is available to be linked to customer silos. */
+| 'silos'
+
+/** Pool is reserved for Oxide-operated rack services (NTP, DNS, etc.). */
+| 'system_services'
 
 /**
  * Type of IP pool.
  */
-export type IpPoolType =
-  /** Unicast IP pool for standard IP allocations. */
-  | 'unicast'
+export type IpPoolType = /** Unicast IP pool for standard IP allocations. */
+| 'unicast'
 
-  /** Multicast IP pool for multicast group allocations.
+/** Multicast IP pool for multicast group allocations.
 
 All ranges in a multicast pool must be either ASM or SSM (not mixed). */
-  | 'multicast'
+| 'multicast'
 
 /**
- * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
+ * A collection of IP ranges.
  */
 export type IpPool = {
-  /** human-readable free-form text about a resource */
+  /** What this pool is currently assigned to. */
+  assignment: IpPoolAssignment
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The IP version for the pool. */
   ipVersion: IpVersion
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** Type of IP pool (unicast or multicast) */
+  /** Type of IP pool (unicast or multicast). */
   poolType: IpPoolType
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
+
+/**
+ * Body parameters for reassigning an IP pool.
+ */
+export type IpPoolAssignParam = { assignment: IpPoolAssignment }
 
 /**
  * Create-time parameters for an `IpPool`.
@@ -2743,6 +3069,8 @@ export type IpPool = {
  * ASM: IPv4 addresses outside 232.0.0.0/8, IPv6 addresses with flag field != 3 SSM: IPv4 addresses in 232.0.0.0/8, IPv6 addresses with flag field = 3
  */
 export type IpPoolCreate = {
+  /** What this pool is assigned to (defaults to Silos). */
+  assignment?: IpPoolAssignment
   description: string
   /** The IP version of the pool.
 
@@ -2754,7 +3082,9 @@ The default is IPv4. */
 }
 
 export type IpPoolLinkSilo = {
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. */
   isDefault: boolean
   silo: NameOrId
 }
@@ -2807,7 +3137,9 @@ export type IpPoolResultsPage = {
  */
 export type IpPoolSiloLink = {
   ipPoolId: string
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. */
   isDefault: boolean
   siloId: string
 }
@@ -2823,7 +3155,9 @@ export type IpPoolSiloLinkResultsPage = {
 }
 
 export type IpPoolSiloUpdate = {
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo, so when a pool is made default, an existing default will remain linked but will no longer be the default. */
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. When a pool is made default, an existing default of the same type and version will remain linked but will no longer be the default. */
   isDefault: boolean
 }
 
@@ -2854,15 +3188,14 @@ export type L4PortRange = string
 /**
  * The forward error correction mode of a link.
  */
-export type LinkFec =
-  /** Firecode forward error correction. */
-  | 'firecode'
+export type LinkFec = /** Firecode forward error correction. */
+| 'firecode'
 
-  /** No forward error correction. */
-  | 'none'
+/** No forward error correction. */
+| 'none'
 
-  /** Reed-Solomon forward error correction. */
-  | 'rs'
+/** Reed-Solomon forward error correction. */
+| 'rs'
 
 /**
  * The LLDP configuration associated with a port.
@@ -2887,33 +3220,32 @@ export type LldpLinkConfigCreate = {
 /**
  * The speed of a link.
  */
-export type LinkSpeed =
-  /** Zero gigabits per second. */
-  | 'speed0_g'
+export type LinkSpeed = /** Zero gigabits per second. */
+| 'speed0_g'
 
-  /** 1 gigabit per second. */
-  | 'speed1_g'
+/** 1 gigabit per second. */
+| 'speed1_g'
 
-  /** 10 gigabits per second. */
-  | 'speed10_g'
+/** 10 gigabits per second. */
+| 'speed10_g'
 
-  /** 25 gigabits per second. */
-  | 'speed25_g'
+/** 25 gigabits per second. */
+| 'speed25_g'
 
-  /** 40 gigabits per second. */
-  | 'speed40_g'
+/** 40 gigabits per second. */
+| 'speed40_g'
 
-  /** 50 gigabits per second. */
-  | 'speed50_g'
+/** 50 gigabits per second. */
+| 'speed50_g'
 
-  /** 100 gigabits per second. */
-  | 'speed100_g'
+/** 100 gigabits per second. */
+| 'speed100_g'
 
-  /** 200 gigabits per second. */
-  | 'speed200_g'
+/** 200 gigabits per second. */
+| 'speed200_g'
 
-  /** 400 gigabits per second. */
-  | 'speed400_g'
+/** 400 gigabits per second. */
+| 'speed400_g'
 
 /**
  * Per-port tx-eq overrides.  This can be used to fine-tune the transceiver equalization settings to improve signal integrity.
@@ -3027,8 +3359,8 @@ export type LoopbackAddress = {
   id: string
   /** The id of the rack where this loopback address is assigned. */
   rackId: string
-  /** Switch location where this loopback address is assigned. */
-  switchLocation: string
+  /** The slot of the switch within the rack where this loopback address is assigned. */
+  switchSlot: SwitchSlot
 }
 
 /**
@@ -3039,14 +3371,16 @@ export type LoopbackAddressCreate = {
   address: string
   /** The name or id of the address lot this loopback address will pull an address from. */
   addressLot: NameOrId
-  /** Address is an anycast address. This allows the address to be assigned to multiple locations simultaneously. */
+  /** Address is an anycast address.
+
+This allows the address to be assigned to multiple locations simultaneously. */
   anycast: boolean
   /** The subnet mask to use for the address. */
   mask: number
   /** The rack containing the switch this loopback address will be configured on. */
   rackId: string
-  /** The location of the switch within the rack this loopback address will be configured on. */
-  switchLocation: Name
+  /** The slot of the switch within the rack this loopback address will be configured on. */
+  switchSlot: SwitchSlot
 }
 
 /**
@@ -3077,90 +3411,71 @@ export type MeasurementResultsPage = {
 /**
  * The type of the metric itself, indicating what its values represent.
  */
-export type MetricType =
-  /** The value represents an instantaneous measurement in time. */
-  | 'gauge'
+export type MetricType = /** The value represents an instantaneous measurement in time. */
+| 'gauge'
 
-  /** The value represents a difference between two points in time. */
-  | 'delta'
+/** The value represents a difference between two points in time. */
+| 'delta'
 
-  /** The value represents an accumulation between two points in time. */
-  | 'cumulative'
+/** The value represents an accumulation between two points in time. */
+| 'cumulative'
 
 /**
  * View of a Multicast Group
  */
 export type MulticastGroup = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** True if any member joined without specifying source IPs (any-source).
+
+When true, at least one member receives traffic from any source rather than filtering to specific sources. */
+  hasAnySourceMember: boolean
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The ID of the IP pool this resource belongs to. */
   ipPoolId: string
   /** The multicast IP address held by this resource. */
   multicastIp: string
-  /** Multicast VLAN (MVLAN) for egress multicast traffic to upstream networks. None means no VLAN tagging on egress. */
-  mvlan?: number | null
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** Source IP addresses for Source-Specific Multicast (SSM). Empty array means any source is allowed. */
+  /** Deduplicated union of source IPs specified by members.
+
+Contains only sources from members that joined with explicit `source_ips`. Members using any-source multicast (empty `source_ips`) do not contribute, so a non-empty value does not imply all members use source filtering. For SSM addresses (232/8, ff3x::/32), this is always non-empty. */
   sourceIps: string[]
   /** Current state of the multicast group. */
   state: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
-}
-
-/**
- * Create-time parameters for a multicast group.
- */
-export type MulticastGroupCreate = {
-  description: string
-  /** The multicast IP address to allocate. If None, one will be allocated from the default pool. */
-  multicastIp?: string | null
-  /** Multicast VLAN (MVLAN) for egress multicast traffic to upstream networks. Tags packets leaving the rack to traverse VLAN-segmented upstream networks.
-
-Valid range: 2-4094 (VLAN IDs 0-1 are reserved by IEEE 802.1Q standard). */
-  mvlan?: number | null
-  name: Name
-  /** Name or ID of the IP pool to allocate from. If None, uses the default multicast pool. */
-  pool?: NameOrId | null
-  /** Source IP addresses for Source-Specific Multicast (SSM).
-
-None uses default behavior (Any-Source Multicast). Empty list explicitly allows any source (Any-Source Multicast). Non-empty list restricts to specific sources (SSM). */
-  sourceIps?: string[] | null
 }
 
 /**
  * View of a Multicast Group Member (instance belonging to a multicast group)
  */
 export type MulticastGroupMember = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The ID of the instance that is a member of this group. */
   instanceId: string
   /** The ID of the multicast group this member belongs to. */
   multicastGroupId: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** The multicast IP address of the group this member belongs to. */
+  multicastIp: string
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
+  /** Source IP addresses for this member's multicast subscription.
+
+- **ASM**: Sources are optional. Empty array means any source is allowed. Non-empty array enables source filtering (IGMPv3/MLDv2). - **SSM**: Sources are required for SSM addresses (232/8, ff3x::/32). */
+  sourceIps: string[]
   /** Current state of the multicast group membership. */
   state: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
-}
-
-/**
- * Parameters for adding an instance to a multicast group.
- */
-export type MulticastGroupMemberAdd = {
-  /** Name or ID of the instance to add to the multicast group */
-  instance: NameOrId
 }
 
 /**
@@ -3184,26 +3499,56 @@ export type MulticastGroupResultsPage = {
 }
 
 /**
- * Update-time parameters for a multicast group.
+ * VPC-private IPv4 configuration for a network interface.
  */
-export type MulticastGroupUpdate = {
-  description?: string | null
-  /** Multicast VLAN (MVLAN) for egress multicast traffic to upstream networks. Set to null to clear the MVLAN. Valid range: 2-4094 when provided. Omit the field to leave mvlan unchanged. */
-  mvlan?: number | null
-  name?: Name | null
-  sourceIps?: string[] | null
+export type PrivateIpv4Config = {
+  /** VPC-private IP address. */
+  ip: string
+  /** The IP subnet. */
+  subnet: Ipv4Net
+  /** Additional networks on which the interface can send / receive traffic. */
+  transitIps?: Ipv4Net[]
 }
+
+/**
+ * VPC-private IPv6 configuration for a network interface.
+ */
+export type PrivateIpv6Config = {
+  /** VPC-private IP address. */
+  ip: string
+  /** The IP subnet. */
+  subnet: Ipv6Net
+  /** Additional networks on which the interface can send / receive traffic. */
+  transitIps: Ipv6Net[]
+}
+
+/**
+ * VPC-private IP address configuration for a network interface.
+ */
+export type PrivateIpConfig = /** The interface has only an IPv4 configuration. */
+| { type: 'v4'; value: PrivateIpv4Config }
+/** The interface has only an IPv6 configuration. */
+| { type: 'v6'; value: PrivateIpv6Config }
+/** The interface is dual-stack. */
+| {
+    type: 'dual_stack'
+    value: {
+      /** The interface's IPv4 configuration. */
+      v4: PrivateIpv4Config
+      /** The interface's IPv6 configuration. */
+      v6: PrivateIpv6Config
+    }
+  }
 
 /**
  * The type of network interface
  */
-export type NetworkInterfaceKind =
-  /** A vNIC attached to a guest instance */
-  | { id: string; type: 'instance' }
-  /** A vNIC associated with an internal service */
-  | { id: string; type: 'service' }
-  /** A vNIC associated with a probe */
-  | { id: string; type: 'probe' }
+export type NetworkInterfaceKind = /** A vNIC attached to a guest instance */
+| { id: string; type: 'instance' }
+/** A vNIC associated with an internal service */
+| { id: string; type: 'service' }
+/** A vNIC associated with a probe */
+| { id: string; type: 'probe' }
 
 /**
  * A Geneve Virtual Network Identifier
@@ -3215,14 +3560,12 @@ export type Vni = number
  */
 export type NetworkInterface = {
   id: string
-  ip: string
+  ipConfig: PrivateIpConfig
   kind: NetworkInterfaceKind
   mac: MacAddr
   name: Name
   primary: boolean
   slot: number
-  subnet: IpNet
-  transitIps?: IpNet[]
   vni: Vni
 }
 
@@ -3325,7 +3668,7 @@ This is a terminal state: once a particular disk ID is decommissioned, it will n
  */
 export type PhysicalDisk = {
   formFactor: PhysicalDiskKind
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   model: string
   /** The operator-defined policy for a physical disk. */
@@ -3335,11 +3678,41 @@ export type PhysicalDisk = {
   sledId?: string | null
   /** The current state Nexus believes the disk to be in. */
   state: PhysicalDiskState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   vendor: string
+}
+
+/**
+ * The unique identity of a physical disk provided by the manufacturer
+ */
+export type PhysicalDiskManufacturerIdentity = {
+  model: string
+  serial: string
+  vendor: string
+}
+
+export type PhysicalDiskAdoptionRequestUuid = string
+
+/**
+ * A request to adopt a physical disk into the control plane
+ */
+export type PhysicalDiskAdoptionRequest = {
+  diskId: PhysicalDiskManufacturerIdentity
+  id: PhysicalDiskAdoptionRequestUuid
+  timeCreated: Date
+}
+
+/**
+ * A single page of results
+ */
+export type PhysicalDiskAdoptionRequestResultsPage = {
+  /** list of items on this page of results */
+  items: PhysicalDiskAdoptionRequest[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
 }
 
 /**
@@ -3360,19 +3733,19 @@ export type Ping = {
 }
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * A networking probe
  */
 export type Probe = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   sled: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -3381,8 +3754,9 @@ export type Probe = {
  */
 export type ProbeCreate = {
   description: string
-  ipPool?: NameOrId | null
   name: Name
+  /** Pool to allocate from. */
+  poolSelector?: PoolSelector
   sled: string
 }
 
@@ -3417,15 +3791,15 @@ export type ProbeInfoResultsPage = {
  * View of a Project
  */
 export type Project = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -3473,15 +3847,41 @@ export type ProjectRolePolicy = {
 export type ProjectUpdate = { description?: string | null; name?: Name | null }
 
 /**
- * View of an Rack
+ * View of a Rack
  */
 export type Rack = {
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
+}
+
+export type RackMembershipAddSledsRequest = { sledIds: BaseboardId[] }
+
+export type RackMembershipChangeState = 'in_progress' | 'committed' | 'aborted'
+
+/**
+ * A unique, monotonically increasing number representing the set of active sleds in a rack at a given point in time.
+ */
+export type RackMembershipVersion = number
+
+/**
+ * Status of the rack membership uniquely identified by the (rack_id, version) pair
+ */
+export type RackMembershipStatus = {
+  /** All members of the rack for this version */
+  members: BaseboardId[]
+  rackId: string
+  state: RackMembershipChangeState
+  timeAborted?: Date | null
+  timeCommitted?: Date | null
+  timeCreated: Date
+  /** All members that have not yet confirmed this membership version */
+  unacknowledgedMembers: BaseboardId[]
+  /** Version that uniquely identifies the rack membership at a given point in time */
+  version: RackMembershipVersion
 }
 
 /**
@@ -3536,19 +3936,18 @@ export type RouteDestination =
 /**
  * A `RouteTarget` describes the possible locations that traffic matching a route destination can be sent.
  */
-export type RouteTarget =
-  /** Forward traffic to a particular IP address. */
-  | { type: 'ip'; value: string }
-  /** Forward traffic to a VPC */
-  | { type: 'vpc'; value: Name }
-  /** Forward traffic to a VPC Subnet */
-  | { type: 'subnet'; value: Name }
-  /** Forward traffic to a specific instance */
-  | { type: 'instance'; value: Name }
-  /** Forward traffic to an internet gateway */
-  | { type: 'internet_gateway'; value: Name }
-  /** Drop matching traffic */
-  | { type: 'drop' }
+export type RouteTarget = /** Forward traffic to a particular IP address. */
+| { type: 'ip'; value: string }
+/** Forward traffic to a VPC */
+| { type: 'vpc'; value: Name }
+/** Forward traffic to a VPC Subnet */
+| { type: 'subnet'; value: Name }
+/** Forward traffic to a specific instance */
+| { type: 'instance'; value: Name }
+/** Forward traffic to an internet gateway */
+| { type: 'internet_gateway'; value: Name }
+/** Drop matching traffic */
+| { type: 'drop' }
 
 /**
  * The kind of a `RouterRoute`
@@ -3580,21 +3979,21 @@ export type RouterRouteKind =
  * A route defines a rule that governs where traffic should be sent based on its destination.
  */
 export type RouterRoute = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** Selects which traffic this routing rule will apply to */
   destination: RouteDestination
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** Describes the kind of router. Set at creation. `read-only` */
   kind: RouterRouteKind
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The location that matched packets should be forwarded to */
   target: RouteTarget
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The ID of the VPC Router to which the route belongs */
   vpcRouterId: string
@@ -3635,20 +4034,20 @@ export type RouterRouteUpdate = {
 }
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * A SAML identity provider
  */
 export type SamlIdentityProvider = {
   /** Service provider endpoint where the response will be sent */
   acsUrl: string
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** If set, attributes with this name will be considered to denote a user's group membership, where the values will be the group names. */
   groupAttributeName?: string | null
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** IdP's entity id */
   idpEntityId: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** Optional request signing public certificate (base64 encoded der file) */
   publicCert?: string | null
@@ -3658,9 +4057,9 @@ export type SamlIdentityProvider = {
   spClientId: string
   /** Customer's technical contact for saml configuration */
   technicalContactEmail: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -3668,23 +4067,23 @@ export type SamlIdentityProvider = {
  * Create-time identity-related parameters
  */
 export type SamlIdentityProviderCreate = {
-  /** service provider endpoint where the response will be sent */
+  /** Service provider endpoint where the response will be sent */
   acsUrl: string
   description: string
   /** If set, SAML attributes with this name will be considered to denote a user's group membership, where the attribute value(s) should be a comma-separated list of group names. */
   groupAttributeName?: string | null
-  /** idp's entity id */
+  /** IdP's entity ID */
   idpEntityId: string
-  /** the source of an identity provider metadata descriptor */
+  /** The source of an identity provider metadata descriptor */
   idpMetadataSource: IdpMetadataSource
   name: Name
-  /** request signing key pair */
+  /** Request signing key pair */
   signingKeypair?: DerEncodedKeyPair | null
-  /** service provider endpoint where the idp should send log out requests */
+  /** Service provider endpoint where the IdP should send log out requests */
   sloUrl: string
-  /** sp's client id */
+  /** SP's client ID */
   spClientId: string
-  /** customer's technical contact for saml configuration */
+  /** Customer's technical contact for SAML configuration */
   technicalContactEmail: string
 }
 
@@ -3741,11 +4140,11 @@ export type SiloIdentityMode =
 export type Silo = {
   /** Optionally, silos can have a group name that is automatically granted the silo admin role. */
   adminGroupName?: string | null
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** A silo where discoverable is false can be retrieved only by its id - it will not be part of the "list all silos" output. */
   discoverable: boolean
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** How users and groups are managed in this Silo */
   identityMode: SiloIdentityMode
@@ -3753,11 +4152,11 @@ export type Silo = {
 
 The default is that no Fleet roles are conferred by any Silo roles unless there's a corresponding entry in this map. */
   mappedFleetRoles: Record<string, FleetRole[]>
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -3816,17 +4215,23 @@ The default is that no Fleet roles are conferred by any Silo roles unless there'
  * An IP pool in the context of a silo
  */
 export type SiloIpPool = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  /** The IP version for the pool. */
+  ipVersion: IpVersion
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. */
   isDefault: boolean
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Type of IP pool (unicast or multicast). */
+  poolType: IpPoolType
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -3909,6 +4314,38 @@ export type SiloRolePolicy = {
 }
 
 /**
+ * A subnet pool in the context of a silo
+ */
+export type SiloSubnetPool = {
+  /** Human-readable free-form text about a resource */
+  description: string
+  /** Unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The IP version for the pool. */
+  ipVersion: IpVersion
+  /** When a pool is the default for a silo, external subnet allocations will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per IP version (IPv4 or IPv6), allowing up to 2 default pools total. */
+  isDefault: boolean
+  /** Unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** Timestamp when this resource was created */
+  timeCreated: Date
+  /** Timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SiloSubnetPoolResultsPage = {
+  /** list of items on this page of results */
+  items: SiloSubnetPool[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
  * A collection of resource counts used to describe capacity and utilization
  */
 export type VirtualResourceCounts = {
@@ -3924,9 +4361,11 @@ export type VirtualResourceCounts = {
  * View of a silo's resource utilization and capacity
  */
 export type SiloUtilization = {
-  /** Accounts for the total amount of resources reserved for silos via their quotas */
+  /** Accounts for the total amount of resources reserved for silos via their quotas. */
   allocated: VirtualResourceCounts
-  /** Accounts for resources allocated by in silos like CPU or memory for running instances and storage for disks and snapshots Note that CPU and memory resources associated with a stopped instances are not counted here */
+  /** Accounts for the total resources allocated by the silo, including CPU and memory for running instances and storage for disks and snapshots.
+
+Note that CPU and memory resources associated with stopped instances are not counted here. */
   provisioned: VirtualResourceCounts
   siloId: string
   siloName: Name
@@ -3947,29 +4386,27 @@ export type SiloUtilizationResultsPage = {
  *
  * This controls whether new resources are going to be provisioned on this sled.
  */
-export type SledProvisionPolicy =
-  /** New resources will be provisioned on this sled. */
-  | 'provisionable'
+export type SledProvisionPolicy = /** New resources will be provisioned on this sled. */
+| 'provisionable'
 
-  /** New resources will not be provisioned on this sled. However, if the sled is currently in service, existing resources will continue to be on this sled unless manually migrated off. */
-  | 'non_provisionable'
+/** New resources will not be provisioned on this sled. However, if the sled is currently in service, existing resources will continue to be on this sled unless manually migrated off. */
+| 'non_provisionable'
 
 /**
  * The operator-defined policy of a sled.
  */
-export type SledPolicy =
-  /** The operator has indicated that the sled is in-service. */
-  | {
-      kind: 'in_service'
-      /** Determines whether new resources can be provisioned onto the sled. */
-      provisionPolicy: SledProvisionPolicy
-    }
-  /** The operator has indicated that the sled has been permanently removed from service.
+export type SledPolicy = /** The operator has indicated that the sled is in-service. */
+| {
+    kind: 'in_service'
+    /** Determines whether new resources can be provisioned onto the sled. */
+    provisionPolicy: SledProvisionPolicy
+  }
+/** The operator has indicated that the sled has been permanently removed from service.
 
 This is a terminal state: once a particular sled ID is expunged, it will never return to service. (The actual hardware may be reused, but it will be treated as a brand-new sled.)
 
 An expunged sled is always non-provisionable. */
-  | { kind: 'expunged' }
+| { kind: 'expunged' }
 
 /**
  * The current state of the sled.
@@ -3988,7 +4425,7 @@ This is a terminal state: once a particular sled ID is decommissioned, it will n
  */
 export type Sled = {
   baseboard: Baseboard
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The operator-defined policy of a sled. */
   policy: SledPolicy
@@ -3996,9 +4433,9 @@ export type Sled = {
   rackId: string
   /** The current state of the sled. */
   state: SledState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The number of hardware threads which can execute on this sled */
   usableHardwareThreads: number
@@ -4007,16 +4444,11 @@ export type Sled = {
 }
 
 /**
- * The unique ID of a sled.
- */
-export type SledId = { id: string }
-
-/**
  * An operator's view of an instance running on a given sled
  */
 export type SledInstance = {
   activeSledId: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   memory: number
   migrationId?: string | null
@@ -4025,9 +4457,9 @@ export type SledInstance = {
   projectName: Name
   siloName: Name
   state: InstanceState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4069,25 +4501,27 @@ export type SledResultsPage = {
   nextPage?: string | null
 }
 
+export type SledUuid = string
+
 export type SnapshotState = 'creating' | 'ready' | 'faulted' | 'destroyed'
 
 /**
  * View of a Snapshot
  */
 export type Snapshot = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   diskId: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   projectId: string
   size: ByteCount
   state: SnapshotState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4115,19 +4549,19 @@ export type SnapshotResultsPage = {
  * View of an SSH Key
  */
 export type SshKey = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** SSH public key, e.g., `"ssh-ed25519 AAAAC3NzaC..."` */
   publicKey: string
   /** The user to whom this key belongs */
   siloUserId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4151,31 +4585,174 @@ export type SshKeyResultsPage = {
   nextPage?: string | null
 }
 
+/**
+ * A pool of subnets for external subnet allocation
+ */
+export type SubnetPool = {
+  /** Human-readable free-form text about a resource */
+  description: string
+  /** Unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The IP version for this pool */
+  ipVersion: IpVersion
+  /** Unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** Timestamp when this resource was created */
+  timeCreated: Date
+  /** Timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create a subnet pool
+ */
+export type SubnetPoolCreate = {
+  description: string
+  /** The IP version for this pool (IPv4 or IPv6). All subnets in the pool must match this version. */
+  ipVersion: IpVersion
+  name: Name
+}
+
+/**
+ * Link a subnet pool to a silo
+ */
+export type SubnetPoolLinkSilo = {
+  /** Whether this is the default subnet pool for the silo. When true, external subnet allocations that don't specify a pool use this one. */
+  isDefault: boolean
+  /** The silo to link */
+  silo: NameOrId
+}
+
+/**
+ * A member (subnet) within a subnet pool
+ */
+export type SubnetPoolMember = {
+  /** ID of the pool member */
+  id: string
+  /** Maximum prefix length for allocations from this subnet; a larger prefix means smaller allocations are allowed (e.g. a /24 prefix yields smaller subnet allocations than a /16 prefix). */
+  maxPrefixLength: number
+  /** Minimum prefix length for allocations from this subnet; a smaller prefix means larger allocations are allowed (e.g. a /16 prefix yields larger subnet allocations than a /24 prefix). */
+  minPrefixLength: number
+  /** The subnet CIDR */
+  subnet: IpNet
+  /** ID of the parent subnet pool */
+  subnetPoolId: string
+  /** Time the pool member was created. */
+  timeCreated: Date
+}
+
+/**
+ * Add a member (subnet) to a subnet pool
+ */
+export type SubnetPoolMemberAdd = {
+  /** Maximum prefix length for allocations from this subnet; a larger prefix means smaller allocations are allowed (e.g. a /24 prefix yields smaller subnet allocations than a /16 prefix).
+
+Valid values: 0-32 for IPv4, 0-128 for IPv6. Default if not specified is 32 for IPv4 and 128 for IPv6. */
+  maxPrefixLength?: number | null
+  /** Minimum prefix length for allocations from this subnet; a smaller prefix means larger allocations are allowed (e.g. a /16 prefix yields larger subnet allocations than a /24 prefix).
+
+Valid values: 0-32 for IPv4, 0-128 for IPv6. Default if not specified is equal to the subnet's prefix length. */
+  minPrefixLength?: number | null
+  /** The subnet to add to the pool */
+  subnet: IpNet
+}
+
+/**
+ * Remove a subnet from a pool
+ */
+export type SubnetPoolMemberRemove = {
+  /** The subnet to remove from the pool. Must match an existing entry exactly. */
+  subnet: IpNet
+}
+
+/**
+ * A single page of results
+ */
+export type SubnetPoolMemberResultsPage = {
+  /** list of items on this page of results */
+  items: SubnetPoolMember[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * A single page of results
+ */
+export type SubnetPoolResultsPage = {
+  /** list of items on this page of results */
+  items: SubnetPool[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * A link between a subnet pool and a silo
+ */
+export type SubnetPoolSiloLink = {
+  isDefault: boolean
+  siloId: string
+  subnetPoolId: string
+}
+
+/**
+ * A single page of results
+ */
+export type SubnetPoolSiloLinkResultsPage = {
+  /** list of items on this page of results */
+  items: SubnetPoolSiloLink[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * Update a subnet pool's silo link
+ */
+export type SubnetPoolSiloUpdate = {
+  /** Whether this is the default subnet pool for the silo */
+  isDefault: boolean
+}
+
+/**
+ * Update a subnet pool
+ */
+export type SubnetPoolUpdate = { description?: string | null; name?: Name | null }
+
+/**
+ * Utilization of addresses in a subnet pool.
+ *
+ * Note that both the count of remaining addresses and the total capacity are integers, reported as floating point numbers. This accommodates allocations larger than a 64-bit integer, which is common with IPv6 address spaces. With very large subnet pools (> 2**53 addresses), integer precision will be lost, in exchange for representing the entire range. In such a case the pool still has many available addresses.
+ */
+export type SubnetPoolUtilization = {
+  /** The total number of addresses in the pool. */
+  capacity: number
+  /** The number of remaining addresses in the pool. */
+  remaining: number
+}
+
 export type SupportBundleCreate = {
   /** User comment for the support bundle */
   userComment?: string | null
 }
 
-export type SupportBundleState =
-  /** Support Bundle still actively being collected.
+export type SupportBundleState = /** Support Bundle still actively being collected.
 
 This is the initial state for a Support Bundle, and it will automatically transition to either "Failing" or "Active".
 
 If a user no longer wants to access a Support Bundle, they can request cancellation, which will transition to the "Destroying" state. */
-  | 'collecting'
+| 'collecting'
 
-  /** Support Bundle is being destroyed.
+/** Support Bundle is being destroyed.
 
 Once backing storage has been freed, this bundle is destroyed. */
-  | 'destroying'
+| 'destroying'
 
-  /** Support Bundle was not created successfully, or was created and has lost backing storage.
+/** Support Bundle was not created successfully, or was created and has lost backing storage.
 
 The record of the bundle still exists for readability, but the only valid operation on these bundles is to destroy them. */
-  | 'failed'
+| 'failed'
 
-  /** Support Bundle has been processed, and is ready for usage. */
-  | 'active'
+/** Support Bundle has been processed, and is ready for usage. */
+| 'active'
 
 export type SupportBundleInfo = {
   id: string
@@ -4206,43 +4783,14 @@ export type SupportBundleUpdate = {
  */
 export type Switch = {
   baseboard: Baseboard
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The rack to which this Switch is currently attached */
   rackId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
-}
-
-/**
- * Describes the kind of an switch interface.
- */
-export type SwitchInterfaceKind2 =
-  /** Primary interfaces are associated with physical links. There is exactly one primary interface per physical link. */
-  | 'primary'
-
-  /** VLAN interfaces allow physical interfaces to be multiplexed onto multiple logical links, each distinguished by a 12-bit 802.1Q Ethernet tag. */
-  | 'vlan'
-
-  /** Loopback interfaces are anchors for IP addresses that are not specific to any particular port. */
-  | 'loopback'
-
-/**
- * A switch port interface configuration for a port settings object.
- */
-export type SwitchInterfaceConfig = {
-  /** A unique identifier for this switch interface. */
-  id: string
-  /** The name of this switch interface. */
-  interfaceName: Name
-  /** The switch interface kind. */
-  kind: SwitchInterfaceKind2
-  /** The port settings object this switch interface configuration belongs to. */
-  portSettingsId: string
-  /** Whether or not IPv6 is enabled on this interface. */
-  v6Enabled: boolean
 }
 
 /**
@@ -4259,6 +4807,22 @@ export type SwitchInterfaceKind =
     }
   /** Loopback interfaces are anchors for IP addresses that are not specific to any particular port. */
   | { type: 'loopback' }
+
+/**
+ * A switch port interface configuration for a port settings object.
+ */
+export type SwitchInterfaceConfig = {
+  /** A unique identifier for this switch interface. */
+  id: string
+  /** The name of this switch interface. */
+  interfaceName: Name
+  /** The switch interface kind. */
+  kind: SwitchInterfaceKind
+  /** The port settings object this switch interface configuration belongs to. */
+  portSettingsId: string
+  /** Whether or not IPv6 is enabled on this interface. */
+  v6Enabled: boolean
+}
 
 /**
  * A layer-3 switch interface configuration. When IPv6 is enabled, a link local address will be created for the interface.
@@ -4286,8 +4850,8 @@ export type SwitchPort = {
   portSettingsId?: string | null
   /** The rack this switch port belongs to. */
   rackId: string
-  /** The switch location of this switch port. */
-  switchLocation: string
+  /** The slot of the switch within the rack of this switch port. */
+  switchSlot: SwitchSlot
 }
 
 /**
@@ -4321,7 +4885,7 @@ export type SwitchPortApplySettings = {
 /**
  * The link geometry associated with a switch port.
  */
-export type SwitchPortGeometry2 =
+export type SwitchPortGeometry =
   /** The port contains a single QSFP28 link with four lanes. */
   | 'qsfp28x1'
 
@@ -4336,23 +4900,10 @@ export type SwitchPortGeometry2 =
  */
 export type SwitchPortConfig = {
   /** The physical link geometry of the port. */
-  geometry: SwitchPortGeometry2
+  geometry: SwitchPortGeometry
   /** The id of the port settings object this configuration belongs to. */
   portSettingsId: string
 }
-
-/**
- * The link geometry associated with a switch port.
- */
-export type SwitchPortGeometry =
-  /** The port contains a single QSFP28 link with four lanes. */
-  | 'qsfp28x1'
-
-  /** The port contains two QSFP28 links each with two lanes. */
-  | 'qsfp28x2'
-
-  /** The port contains four SFP28 links each with one lane. */
-  | 'sfp28x4'
 
 /**
  * Physical switch port configuration.
@@ -4360,22 +4911,6 @@ export type SwitchPortGeometry =
 export type SwitchPortConfigCreate = {
   /** Link geometry for the switch port. */
   geometry: SwitchPortGeometry
-}
-
-/**
- * Per-port tx-eq overrides.  This can be used to fine-tune the transceiver equalization settings to improve signal integrity.
- */
-export type TxEqConfig2 = {
-  /** Main tap */
-  main?: number | null
-  /** Post-cursor tap1 */
-  post1?: number | null
-  /** Post-cursor tap2 */
-  post2?: number | null
-  /** Pre-cursor tap1 */
-  pre1?: number | null
-  /** Pre-cursor tap2 */
-  pre2?: number | null
 }
 
 /**
@@ -4397,7 +4932,7 @@ export type SwitchPortLinkConfig = {
   /** The configured speed of the link. */
   speed: LinkSpeed
   /** The tx_eq configuration for this link. */
-  txEqConfig?: TxEqConfig2 | null
+  txEqConfig?: TxEqConfig | null
 }
 
 /**
@@ -4439,16 +4974,6 @@ export type SwitchPortSettingsGroups = {
 }
 
 /**
- * A switch port VLAN interface configuration for a port settings object.
- */
-export type SwitchVlanInterfaceConfig = {
-  /** The switch interface configuration this VLAN interface configuration belongs to. */
-  interfaceConfigId: string
-  /** The virtual network id for this interface that is used for producing and consuming 802.1Q Ethernet tags. This field has a maximum value of 4095 as 802.1Q tags are twelve bits. */
-  vlanId: number
-}
-
-/**
  * This structure contains all port settings information in one place. It's a convenience data structure for getting a complete view of a particular port's settings.
  */
 export type SwitchPortSettings = {
@@ -4456,28 +4981,26 @@ export type SwitchPortSettings = {
   addresses: SwitchPortAddressView[]
   /** BGP peer settings. */
   bgpPeers: BgpPeer[]
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** Switch port settings included from other switch port settings groups. */
   groups: SwitchPortSettingsGroups[]
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** Layer 3 interface settings. */
   interfaces: SwitchInterfaceConfig[]
   /** Layer 2 link settings. */
   links: SwitchPortLinkConfig[]
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** Layer 1 physical port settings. */
   port: SwitchPortConfig
   /** IP route settings. */
   routes: SwitchPortRouteConfig[]
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
-  /** Vlan interface settings. */
-  vlanInterfaces: SwitchVlanInterfaceConfig[]
 }
 
 /**
@@ -4504,15 +5027,15 @@ export type SwitchPortSettingsCreate = {
  * A switch port settings identity whose id may be used to view additional details.
  */
 export type SwitchPortSettingsIdentity = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4534,6 +5057,22 @@ export type SwitchResultsPage = {
   items: Switch[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
+}
+
+/**
+ * Fleet-wide networking settings. Only fleet viewers may view these settings. Only fleet admins can modify them.
+ */
+export type SystemNetworkingSettings = {
+  /** When true, end users may opt in to jumbo frames (8500 byte MTU) on the primary interface of an instance. When false, instance-level opt-in is ignored and OPTE ports are created with the default MTU. */
+  externalJumboFramesOptInEnabled: boolean
+}
+
+/**
+ * Parameters for updating the fleet-wide networking settings.
+ */
+export type SystemNetworkingSettingsUpdate = {
+  /** Toggle the fleet-wide external jumbo-frames opt-in. */
+  externalJumboFramesOptInEnabled?: boolean
 }
 
 /**
@@ -4578,6 +5117,7 @@ export type Units =
   | 'amps'
   | 'watts'
   | 'degrees_celsius'
+  | 'joules'
 
   /** No meaningful units, e.g. a dimensionless quanity. */
   | 'none'
@@ -4642,24 +5182,38 @@ export type TufRepoResultsPage = {
 /**
  * Whether the uploaded TUF repo already existed or was new and had to be inserted. Part of `TufRepoUpload`.
  */
-export type TufRepoUploadStatus =
-  /** The repository already existed in the database */
-  | 'already_exists'
+export type TufRepoUploadStatus = /** The repository already existed in the database */
+| 'already_exists'
 
-  /** The repository did not exist, and was inserted into the database */
-  | 'inserted'
+/** The repository did not exist, and was inserted into the database */
+| 'inserted'
 
 export type TufRepoUpload = { repo: TufRepo; status: TufRepoUploadStatus }
+
+/**
+ * A physical disk that has not yet been adopted by the control plane
+ */
+export type UnadoptedPhysicalDisk = {
+  diskId: PhysicalDiskManufacturerIdentity
+  sledId: SledUuid
+  slot: number
+  variant: PhysicalDiskKind
+}
+
+/**
+ * A single page of results
+ */
+export type UnadoptedPhysicalDiskResultsPage = {
+  /** list of items on this page of results */
+  items: UnadoptedPhysicalDisk[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
 
 /**
  * A sled that has not been added to an initialized rack yet
  */
 export type UninitializedSled = { baseboard: Baseboard; cubby: number; rackId: string }
-
-/**
- * The unique hardware ID for a sled
- */
-export type UninitializedSledId = { part: string; serial: string }
 
 /**
  * A single page of results
@@ -4678,6 +5232,10 @@ Keys will be either:
 
 * Semver-like release version strings * "install dataset", representing the initial rack software before any updates * "unknown", which means there is no TUF repo uploaded that matches the software running on the component) */
   componentsByReleaseVersion: Record<string, number>
+  /** If true, the system has detected one or more known conditions that require Oxide support to resolve
+
+You should contact support to resolve these issues before proceeding with an update, or after one has completed. The checks underlying this field are not exhaustive, so this being `false` does not mean the entire system is completely healthy. */
+  contactSupport: boolean
   /** Whether automatic update is suspended due to manual update activity
 
 After a manual support procedure that changes the system software, automatic update activity is suspended to avoid undoing the change. To resume automatic update, first upload the TUF repository matching the manually applied update, then set that as the target release. */
@@ -4725,6 +5283,10 @@ export type User = {
   id: string
   /** Uuid of the silo to which this user belongs */
   siloId: string
+  /** Timestamp when this user was created */
+  timeCreated: Date
+  /** Timestamp when this user was last modified */
+  timeModified: Date
 }
 
 /**
@@ -4733,15 +5295,15 @@ export type User = {
  * Built-in users are identities internal to the system, used when the control plane performs actions autonomously
  */
 export type UserBuiltin = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4765,19 +5327,18 @@ export type UserId = string
 /**
  * Parameters for setting a user's password
  */
-export type UserPassword =
-  /** Sets the user's password to the provided value */
-  | { mode: 'password'; value: Password }
-  /** Invalidates any current password (disabling password authentication) */
-  | { mode: 'login_disallowed' }
+export type UserPassword = /** Sets the user's password to the provided value */
+| { mode: 'password'; value: Password }
+/** Invalidates any current password (disabling password authentication) */
+| { mode: 'login_disallowed' }
 
 /**
  * Create-time parameters for a `User`
  */
 export type UserCreate = {
-  /** username used to log in */
+  /** Username used to log in */
   externalId: UserId
-  /** how to set the user's login password */
+  /** How to set the user's login password */
   password: UserPassword
 }
 
@@ -4800,9 +5361,11 @@ export type UsernamePasswordCredentials = { password: Password; username: UserId
  * View of the current silo's resource utilization and capacity
  */
 export type Utilization = {
-  /** The total amount of resources that can be provisioned in this silo Actions that would exceed this limit will fail */
+  /** The total amount of resources that can be provisioned in this silo. Actions that would exceed this limit will fail. */
   capacity: VirtualResourceCounts
-  /** Accounts for resources allocated to running instances or storage allocated via disks or snapshots Note that CPU and memory resources associated with a stopped instances are not counted here whereas associated disks will still be counted */
+  /** Accounts for resources allocated to running instances or storage allocated via disks or snapshots.
+
+Note that CPU and memory resources associated with stopped instances are not counted here, whereas associated disks will still be counted. */
   provisioned: VirtualResourceCounts
 }
 
@@ -4810,23 +5373,23 @@ export type Utilization = {
  * View of a VPC
  */
 export type Vpc = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** The name used for the VPC in DNS. */
   dnsName: Name
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The unique local IPv6 address range for subnets in this VPC */
   ipv6Prefix: Ipv6Net
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** id for the project containing this VPC */
+  /** ID for the project containing this VPC */
   projectId: string
-  /** id for the system router where subnet default routes are registered */
+  /** ID for the system router where subnet default routes are registered */
   systemRouterId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4871,6 +5434,7 @@ export type VpcFirewallRuleProtocol =
   | { type: 'tcp' }
   | { type: 'udp' }
   | { type: 'icmp'; value: VpcFirewallIcmpFilter | null }
+  | { type: 'icmp6'; value: VpcFirewallIcmpFilter | null }
 
 /**
  * Filters reduce the scope of a firewall rule. Without filters, the rule applies to all packets to the targets (or from the targets, if it's an outbound rule). With multiple filters, the rule applies only to packets matching ALL filters. The maximum number of each type of filter is 256.
@@ -4889,17 +5453,16 @@ export type VpcFirewallRuleStatus = 'disabled' | 'enabled'
 /**
  * A `VpcFirewallRuleTarget` is used to specify the set of instances to which a firewall rule applies. You can target instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet, which will apply the rule to traffic going to all matching instances. Targets are additive: the rule applies to instances matching ANY target.
  */
-export type VpcFirewallRuleTarget =
-  /** The rule applies to all instances in the VPC */
-  | { type: 'vpc'; value: Name }
-  /** The rule applies to all instances in the VPC Subnet */
-  | { type: 'subnet'; value: Name }
-  /** The rule applies to this specific instance */
-  | { type: 'instance'; value: Name }
-  /** The rule applies to a specific IP address */
-  | { type: 'ip'; value: string }
-  /** The rule applies to a specific IP subnet */
-  | { type: 'ip_net'; value: IpNet }
+export type VpcFirewallRuleTarget = /** The rule applies to all instances in the VPC */
+| { type: 'vpc'; value: Name }
+/** The rule applies to all instances in the VPC Subnet */
+| { type: 'subnet'; value: Name }
+/** The rule applies to this specific instance */
+| { type: 'instance'; value: Name }
+/** The rule applies to a specific IP address */
+| { type: 'ip'; value: string }
+/** The rule applies to a specific IP subnet */
+| { type: 'ip_net'; value: IpNet }
 
 /**
  * A single rule in a VPC firewall
@@ -4907,15 +5470,15 @@ export type VpcFirewallRuleTarget =
 export type VpcFirewallRule = {
   /** Whether traffic matching the rule should be allowed or dropped */
   action: VpcFirewallRuleAction
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** Whether this rule is for incoming or outgoing traffic */
   direction: VpcFirewallRuleDirection
   /** Reductions on the scope of the rule */
   filters: VpcFirewallRuleFilter
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The relative priority of this rule */
   priority: number
@@ -4923,9 +5486,9 @@ export type VpcFirewallRule = {
   status: VpcFirewallRuleStatus
   /** Determine the set of instances that the rule applies to */
   targets: VpcFirewallRuleTarget[]
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The VPC to which this rule belongs */
   vpcId: string
@@ -4979,16 +5542,16 @@ export type VpcRouterKind = 'system' | 'custom'
  * A VPC router defines a series of rules that indicate where traffic should be sent depending on its destination.
  */
 export type VpcRouter = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   kind: VpcRouterKind
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The VPC to which the router belongs. */
   vpcId: string
@@ -5015,24 +5578,24 @@ export type VpcRouterResultsPage = {
 export type VpcRouterUpdate = { description?: string | null; name?: Name | null }
 
 /**
- * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionally an IPv6 subnetwork.
+ * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within an IPv4 subnetwork or optionally an IPv6 subnetwork.
  */
 export type VpcSubnet = {
   /** ID for an attached custom router. */
   customRouterId?: string | null
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The IPv4 subnet CIDR block. */
   ipv4Block: Ipv4Net
   /** The IPv6 subnet CIDR block. */
   ipv6Block: Ipv6Net
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The VPC to which the subnet belongs. */
   vpcId: string
@@ -5107,20 +5670,21 @@ If this list is empty or is not included in the request body, the webhook will n
  * The configuration for a webhook alert receiver.
  */
 export type WebhookReceiver = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** The URL that webhook notification requests are sent to. */
   endpoint: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
+  /** A list containing the IDs of the secret keys used to sign payloads sent to this receiver. */
   secrets: WebhookSecret[]
   /** The list of alert classes to which this receiver is subscribed. */
   subscriptions: AlertSubscription[]
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -5147,24 +5711,23 @@ export type WebhookSecrets = { secrets: WebhookSecret[] }
 /**
  * Supported set of sort modes for scanning by name or id
  */
-export type NameOrIdSortMode =
-  /** sort in increasing order of "name" */
-  | 'name_ascending'
+export type NameOrIdSortMode = /** Sort in increasing order of "name" */
+| 'name_ascending'
 
-  /** sort in decreasing order of "name" */
-  | 'name_descending'
+/** Sort in decreasing order of "name" */
+| 'name_descending'
 
-  /** sort in increasing order of "id" */
-  | 'id_ascending'
+/** Sort in increasing order of "id" */
+| 'id_ascending'
 
 /**
  * Supported set of sort modes for scanning by timestamp and ID
  */
 export type TimeAndIdSortMode =
-  /** sort in increasing order of timestamp and ID, i.e., earliest first */
+  /** Sort in increasing order of timestamp and ID, i.e., earliest first */
   | 'time_and_id_ascending'
 
-  /** sort in increasing order of timestamp and ID, i.e., most recent first */
+  /** Sort in increasing order of timestamp and ID, i.e., most recent first */
   | 'time_and_id_descending'
 
 /**
@@ -5550,6 +6113,57 @@ export interface DiskFinalizeImportQueryParams {
   project?: NameOrId
 }
 
+export interface ExternalSubnetListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface ExternalSubnetCreateQueryParams {
+  project: NameOrId
+}
+
+export interface ExternalSubnetViewPathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetViewQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetUpdatePathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetUpdateQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetDeletePathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetAttachPathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetAttachQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetDetachPathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetDetachQueryParams {
+  project?: NameOrId
+}
+
 export interface FloatingIpListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -5759,6 +6373,15 @@ export interface InstanceEphemeralIpDetachPathParams {
 }
 
 export interface InstanceEphemeralIpDetachQueryParams {
+  ipVersion?: IpVersion
+  project?: NameOrId
+}
+
+export interface InstanceExternalSubnetListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceExternalSubnetListQueryParams {
   project?: NameOrId
 }
 
@@ -5767,12 +6390,15 @@ export interface InstanceMulticastGroupListPathParams {
 }
 
 export interface InstanceMulticastGroupListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
   project?: NameOrId
+  sortBy?: IdSortMode
 }
 
 export interface InstanceMulticastGroupJoinPathParams {
   instance: NameOrId
-  multicastGroup: NameOrId
+  multicastGroup: MulticastGroupIdentifier
 }
 
 export interface InstanceMulticastGroupJoinQueryParams {
@@ -5781,7 +6407,7 @@ export interface InstanceMulticastGroupJoinQueryParams {
 
 export interface InstanceMulticastGroupLeavePathParams {
   instance: NameOrId
-  multicastGroup: NameOrId
+  multicastGroup: MulticastGroupIdentifier
 }
 
 export interface InstanceMulticastGroupLeaveQueryParams {
@@ -5927,13 +6553,15 @@ export interface InternetGatewayDeleteQueryParams {
   vpc?: NameOrId
 }
 
-export interface ProjectIpPoolListQueryParams {
+export interface IpPoolListQueryParams {
+  ipVersion?: IpVersion
   limit?: number | null
   pageToken?: string | null
+  poolType?: IpPoolType
   sortBy?: NameOrIdSortMode
 }
 
-export interface ProjectIpPoolViewPathParams {
+export interface IpPoolViewPathParams {
   pool: NameOrId
 }
 
@@ -5991,42 +6619,17 @@ export interface MulticastGroupListQueryParams {
 }
 
 export interface MulticastGroupViewPathParams {
-  multicastGroup: NameOrId
-}
-
-export interface MulticastGroupUpdatePathParams {
-  multicastGroup: NameOrId
-}
-
-export interface MulticastGroupDeletePathParams {
-  multicastGroup: NameOrId
+  multicastGroup: MulticastGroupIdentifier
 }
 
 export interface MulticastGroupMemberListPathParams {
-  multicastGroup: NameOrId
+  multicastGroup: MulticastGroupIdentifier
 }
 
 export interface MulticastGroupMemberListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: IdSortMode
-}
-
-export interface MulticastGroupMemberAddPathParams {
-  multicastGroup: NameOrId
-}
-
-export interface MulticastGroupMemberAddQueryParams {
-  project?: NameOrId
-}
-
-export interface MulticastGroupMemberRemovePathParams {
-  instance: NameOrId
-  multicastGroup: NameOrId
-}
-
-export interface MulticastGroupMemberRemoveQueryParams {
-  project?: NameOrId
 }
 
 export interface InstanceNetworkInterfaceListQueryParams {
@@ -6122,12 +6725,32 @@ export interface SnapshotDeleteQueryParams {
   project?: NameOrId
 }
 
+export interface SubnetPoolListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SubnetPoolViewPathParams {
+  pool: NameOrId
+}
+
 export interface AuditLogListQueryParams {
   endTime?: Date | null
   limit?: number | null
   pageToken?: string | null
   sortBy?: TimeAndIdSortMode
   startTime?: Date
+}
+
+export interface PhysicalDiskDisableAdoptionPathParams {
+  physicalDiskAdoptionReqId: string
+}
+
+export interface PhysicalDiskListAdoptionRequestsQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
 }
 
 export interface PhysicalDiskListQueryParams {
@@ -6140,10 +6763,15 @@ export interface PhysicalDiskViewPathParams {
   diskId: string
 }
 
+export interface PhysicalDiskListUnadoptedQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+}
+
 export interface NetworkingSwitchPortLldpNeighborsPathParams {
   port: Name
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortLldpNeighborsQueryParams {
@@ -6159,6 +6787,22 @@ export interface RackListQueryParams {
 }
 
 export interface RackViewPathParams {
+  rackId: string
+}
+
+export interface RackMembershipStatusPathParams {
+  rackId: string
+}
+
+export interface RackMembershipStatusQueryParams {
+  version?: RackMembershipVersion
+}
+
+export interface RackMembershipAbortPathParams {
+  rackId: string
+}
+
+export interface RackMembershipAddSledsPathParams {
   rackId: string
 }
 
@@ -6214,7 +6858,7 @@ export interface NetworkingSwitchPortLldpConfigViewPathParams {
 
 export interface NetworkingSwitchPortLldpConfigViewQueryParams {
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortLldpConfigUpdatePathParams {
@@ -6223,7 +6867,7 @@ export interface NetworkingSwitchPortLldpConfigUpdatePathParams {
 
 export interface NetworkingSwitchPortLldpConfigUpdateQueryParams {
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortApplySettingsPathParams {
@@ -6232,7 +6876,7 @@ export interface NetworkingSwitchPortApplySettingsPathParams {
 
 export interface NetworkingSwitchPortApplySettingsQueryParams {
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortClearSettingsPathParams {
@@ -6241,7 +6885,7 @@ export interface NetworkingSwitchPortClearSettingsPathParams {
 
 export interface NetworkingSwitchPortClearSettingsQueryParams {
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortStatusPathParams {
@@ -6250,7 +6894,7 @@ export interface NetworkingSwitchPortStatusPathParams {
 
 export interface NetworkingSwitchPortStatusQueryParams {
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface SwitchListQueryParams {
@@ -6302,72 +6946,74 @@ export interface SamlIdentityProviderViewQueryParams {
   silo?: NameOrId
 }
 
-export interface IpPoolListQueryParams {
+export interface SystemIpPoolListQueryParams {
+  assignment?: IpPoolAssignment
+  ipVersion?: IpVersion
   limit?: number | null
   pageToken?: string | null
+  poolType?: IpPoolType
   sortBy?: NameOrIdSortMode
 }
 
-export interface IpPoolViewPathParams {
+export interface SystemIpPoolViewPathParams {
   pool: NameOrId
 }
 
-export interface IpPoolUpdatePathParams {
+export interface SystemIpPoolUpdatePathParams {
   pool: NameOrId
 }
 
-export interface IpPoolDeletePathParams {
+export interface SystemIpPoolDeletePathParams {
   pool: NameOrId
 }
 
-export interface IpPoolRangeListPathParams {
+export interface SystemIpPoolAssignPathParams {
   pool: NameOrId
 }
 
-export interface IpPoolRangeListQueryParams {
+export interface SystemIpPoolRangeListPathParams {
+  pool: NameOrId
+}
+
+export interface SystemIpPoolRangeListQueryParams {
   limit?: number | null
   pageToken?: string | null
 }
 
-export interface IpPoolRangeAddPathParams {
+export interface SystemIpPoolRangeAddPathParams {
   pool: NameOrId
 }
 
-export interface IpPoolRangeRemovePathParams {
+export interface SystemIpPoolRangeRemovePathParams {
   pool: NameOrId
 }
 
-export interface IpPoolSiloListPathParams {
+export interface SystemIpPoolSiloListPathParams {
   pool: NameOrId
 }
 
-export interface IpPoolSiloListQueryParams {
+export interface SystemIpPoolSiloListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: IdSortMode
 }
 
-export interface IpPoolSiloLinkPathParams {
+export interface SystemIpPoolSiloLinkPathParams {
   pool: NameOrId
 }
 
-export interface IpPoolSiloUpdatePathParams {
-  pool: NameOrId
-  silo: NameOrId
-}
-
-export interface IpPoolSiloUnlinkPathParams {
+export interface SystemIpPoolSiloUpdatePathParams {
   pool: NameOrId
   silo: NameOrId
 }
 
-export interface IpPoolUtilizationViewPathParams {
+export interface SystemIpPoolSiloUnlinkPathParams {
   pool: NameOrId
+  silo: NameOrId
 }
 
-export interface IpPoolServiceRangeListQueryParams {
-  limit?: number | null
-  pageToken?: string | null
+export interface SystemIpPoolUtilizationViewPathParams {
+  pool: NameOrId
 }
 
 export interface SystemMetricPathParams {
@@ -6381,10 +7027,6 @@ export interface SystemMetricQueryParams {
   pageToken?: string | null
   startTime?: Date
   silo?: NameOrId
-}
-
-export interface LookupMulticastGroupByIpPathParams {
-  address: string
 }
 
 export interface NetworkingAddressLotListQueryParams {
@@ -6417,6 +7059,10 @@ export interface NetworkingBgpConfigListQueryParams {
   sortBy?: NameOrIdSortMode
 }
 
+export interface NetworkingBgpConfigUpdateQueryParams {
+  nameOrId: NameOrId
+}
+
 export interface NetworkingBgpConfigDeleteQueryParams {
   nameOrId: NameOrId
 }
@@ -6435,11 +7081,11 @@ export interface NetworkingBgpAnnouncementListPathParams {
   announceSet: NameOrId
 }
 
-export interface NetworkingBgpMessageHistoryQueryParams {
+export interface NetworkingBgpImportedQueryParams {
   asn: number
 }
 
-export interface NetworkingBgpImportedRoutesIpv4QueryParams {
+export interface NetworkingBgpMessageHistoryQueryParams {
   asn: number
 }
 
@@ -6453,7 +7099,7 @@ export interface NetworkingLoopbackAddressDeletePathParams {
   address: string
   rackId: string
   subnetMask: number
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortSettingsListQueryParams {
@@ -6539,6 +7185,79 @@ export interface SiloQuotasViewPathParams {
 
 export interface SiloQuotasUpdatePathParams {
   silo: NameOrId
+}
+
+export interface SiloSubnetPoolListPathParams {
+  silo: NameOrId
+}
+
+export interface SiloSubnetPoolListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SystemSubnetPoolListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SystemSubnetPoolViewPathParams {
+  pool: NameOrId
+}
+
+export interface SystemSubnetPoolUpdatePathParams {
+  pool: NameOrId
+}
+
+export interface SystemSubnetPoolDeletePathParams {
+  pool: NameOrId
+}
+
+export interface SystemSubnetPoolMemberListPathParams {
+  pool: NameOrId
+}
+
+export interface SystemSubnetPoolMemberListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+}
+
+export interface SystemSubnetPoolMemberAddPathParams {
+  pool: NameOrId
+}
+
+export interface SystemSubnetPoolMemberRemovePathParams {
+  pool: NameOrId
+}
+
+export interface SystemSubnetPoolSiloListPathParams {
+  pool: NameOrId
+}
+
+export interface SystemSubnetPoolSiloListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface SystemSubnetPoolSiloLinkPathParams {
+  pool: NameOrId
+}
+
+export interface SystemSubnetPoolSiloUpdatePathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
+export interface SystemSubnetPoolSiloUnlinkPathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
+export interface SystemSubnetPoolUtilizationViewPathParams {
+  pool: NameOrId
 }
 
 export interface SystemTimeseriesSchemaListQueryParams {
@@ -6865,7 +7584,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2025121200.0.0'
+  apiVersion = '2026073100.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -7000,7 +7719,7 @@ export class Api {
       })
     },
     /**
-     * Create a new support bundle
+     * Create support bundle
      */
     supportBundleCreate: (
       { body }: { body: SupportBundleCreate },
@@ -7014,7 +7733,7 @@ export class Api {
       })
     },
     /**
-     * View a support bundle
+     * View support bundle
      */
     supportBundleView: (
       { path }: { path: SupportBundleViewPathParams },
@@ -7027,7 +7746,7 @@ export class Api {
       })
     },
     /**
-     * Update a support bundle
+     * Update support bundle
      */
     supportBundleUpdate: (
       { path, body }: { path: SupportBundleUpdatePathParams; body: SupportBundleUpdate },
@@ -7041,7 +7760,7 @@ export class Api {
       })
     },
     /**
-     * Delete an existing support bundle
+     * Delete support bundle
      */
     supportBundleDelete: (
       { path }: { path: SupportBundleDeletePathParams },
@@ -7054,7 +7773,7 @@ export class Api {
       })
     },
     /**
-     * Download the contents of a support bundle
+     * Download support bundle contents
      */
     supportBundleDownload: (
       { path }: { path: SupportBundleDownloadPathParams },
@@ -7067,7 +7786,7 @@ export class Api {
       })
     },
     /**
-     * Download the metadata of a support bundle
+     * Download support bundle metadata
      */
     supportBundleHead: (
       { path }: { path: SupportBundleHeadPathParams },
@@ -7080,7 +7799,7 @@ export class Api {
       })
     },
     /**
-     * Download a file within a support bundle
+     * Download file from support bundle
      */
     supportBundleDownloadFile: (
       { path }: { path: SupportBundleDownloadFilePathParams },
@@ -7093,7 +7812,7 @@ export class Api {
       })
     },
     /**
-     * Download the metadata of a file within the support bundle
+     * Download metadata of file in support bundle
      */
     supportBundleHeadFile: (
       { path }: { path: SupportBundleHeadFilePathParams },
@@ -7106,7 +7825,7 @@ export class Api {
       })
     },
     /**
-     * Download the index of a support bundle
+     * Download support bundle index
      */
     supportBundleIndex: (
       { path }: { path: SupportBundleIndexPathParams },
@@ -7119,7 +7838,7 @@ export class Api {
       })
     },
     /**
-     * Authenticate a user via SAML
+     * Authenticate user via SAML
      */
     loginSaml: ({ path }: { path: LoginSamlPathParams }, params: FetchParams = {}) => {
       return this.request<void>({
@@ -7643,7 +8362,7 @@ export class Api {
       })
     },
     /**
-     * Create new system-wide x.509 certificate
+     * Create system-wide x.509 certificate
      */
     certificateCreate: (
       { body }: { body: CertificateCreate },
@@ -7697,7 +8416,7 @@ export class Api {
       })
     },
     /**
-     * Create a disk
+     * Create disk
      */
     diskCreate: (
       { query, body }: { query: DiskCreateQueryParams; body: DiskCreate },
@@ -7821,6 +8540,135 @@ export class Api {
         path: `/v1/disks/${path.disk}/finalize`,
         method: 'POST',
         body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List external subnets
+     */
+    externalSubnetList: (
+      { query = {} }: { query?: ExternalSubnetListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnetResultsPage>({
+        path: `/v1/external-subnets`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create external subnet
+     */
+    externalSubnetCreate: (
+      {
+        query,
+        body,
+      }: { query: ExternalSubnetCreateQueryParams; body: ExternalSubnetCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch external subnet
+     */
+    externalSubnetView: (
+      {
+        path,
+        query = {},
+      }: { path: ExternalSubnetViewPathParams; query?: ExternalSubnetViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update external subnet
+     */
+    externalSubnetUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: ExternalSubnetUpdatePathParams
+        query?: ExternalSubnetUpdateQueryParams
+        body: ExternalSubnetUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete external subnet
+     */
+    externalSubnetDelete: (
+      {
+        path,
+        query = {},
+      }: { path: ExternalSubnetDeletePathParams; query?: ExternalSubnetDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/external-subnets/${path.externalSubnet}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Attach external subnet to instance
+     */
+    externalSubnetAttach: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: ExternalSubnetAttachPathParams
+        query?: ExternalSubnetAttachQueryParams
+        body: ExternalSubnetAttach
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}/attach`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach external subnet from instance
+     */
+    externalSubnetDetach: (
+      {
+        path,
+        query = {},
+      }: { path: ExternalSubnetDetachPathParams; query?: ExternalSubnetDetachQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}/detach`,
+        method: 'POST',
         query,
         ...params,
       })
@@ -8316,7 +9164,27 @@ export class Api {
       })
     },
     /**
-     * List multicast groups for instance
+     * List external subnets attached to instance
+     */
+    instanceExternalSubnetList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceExternalSubnetListPathParams
+        query?: InstanceExternalSubnetListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnetResultsPage>({
+        path: `/v1/instances/${path.instance}/external-subnets`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List multicast groups for an instance
      */
     instanceMulticastGroupList: (
       {
@@ -8336,27 +9204,30 @@ export class Api {
       })
     },
     /**
-     * Join multicast group.
+     * Join multicast group by name, IP address, or UUID
      */
     instanceMulticastGroupJoin: (
       {
         path,
         query = {},
+        body,
       }: {
         path: InstanceMulticastGroupJoinPathParams
         query?: InstanceMulticastGroupJoinQueryParams
+        body: InstanceMulticastGroupJoin
       },
       params: FetchParams = {}
     ) => {
       return this.request<MulticastGroupMember>({
         path: `/v1/instances/${path.instance}/multicast-groups/${path.multicastGroup}`,
         method: 'PUT',
+        body,
         query,
         ...params,
       })
     },
     /**
-     * Leave multicast group.
+     * Leave multicast group by name, IP address, or UUID
      */
     instanceMulticastGroupLeave: (
       {
@@ -8376,7 +9247,7 @@ export class Api {
       })
     },
     /**
-     * Reboot an instance
+     * Reboot instance
      */
     instanceReboot: (
       {
@@ -8648,8 +9519,8 @@ export class Api {
     /**
      * List IP pools
      */
-    projectIpPoolList: (
-      { query = {} }: { query?: ProjectIpPoolListQueryParams },
+    ipPoolList: (
+      { query = {} }: { query?: IpPoolListQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<SiloIpPoolResultsPage>({
@@ -8662,10 +9533,7 @@ export class Api {
     /**
      * Fetch IP pool
      */
-    projectIpPoolView: (
-      { path }: { path: ProjectIpPoolViewPathParams },
-      params: FetchParams = {}
-    ) => {
+    ipPoolView: ({ path }: { path: IpPoolViewPathParams }, params: FetchParams = {}) => {
       return this.request<SiloIpPool>({
         path: `/v1/ip-pools/${path.pool}`,
         method: 'GET',
@@ -8673,7 +9541,7 @@ export class Api {
       })
     },
     /**
-     * Authenticate a user via username and password
+     * Authenticate user via username and password
      */
     loginLocal: (
       { path, body }: { path: LoginLocalPathParams; body: UsernamePasswordCredentials },
@@ -8816,7 +9684,7 @@ export class Api {
       })
     },
     /**
-     * List all multicast groups.
+     * List multicast groups
      */
     multicastGroupList: (
       { query = {} }: { query?: MulticastGroupListQueryParams },
@@ -8830,21 +9698,7 @@ export class Api {
       })
     },
     /**
-     * Create a multicast group.
-     */
-    multicastGroupCreate: (
-      { body }: { body: MulticastGroupCreate },
-      params: FetchParams = {}
-    ) => {
-      return this.request<MulticastGroup>({
-        path: `/v1/multicast-groups`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a multicast group.
+     * Fetch multicast group
      */
     multicastGroupView: (
       { path }: { path: MulticastGroupViewPathParams },
@@ -8857,34 +9711,7 @@ export class Api {
       })
     },
     /**
-     * Update a multicast group.
-     */
-    multicastGroupUpdate: (
-      { path, body }: { path: MulticastGroupUpdatePathParams; body: MulticastGroupUpdate },
-      params: FetchParams = {}
-    ) => {
-      return this.request<MulticastGroup>({
-        path: `/v1/multicast-groups/${path.multicastGroup}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete a multicast group.
-     */
-    multicastGroupDelete: (
-      { path }: { path: MulticastGroupDeletePathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/multicast-groups/${path.multicastGroup}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List members of a multicast group.
+     * List members of multicast group
      */
     multicastGroupMemberList: (
       {
@@ -8899,49 +9726,6 @@ export class Api {
       return this.request<MulticastGroupMemberResultsPage>({
         path: `/v1/multicast-groups/${path.multicastGroup}/members`,
         method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Add instance to a multicast group.
-     */
-    multicastGroupMemberAdd: (
-      {
-        path,
-        query = {},
-        body,
-      }: {
-        path: MulticastGroupMemberAddPathParams
-        query?: MulticastGroupMemberAddQueryParams
-        body: MulticastGroupMemberAdd
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<MulticastGroupMember>({
-        path: `/v1/multicast-groups/${path.multicastGroup}/members`,
-        method: 'POST',
-        body,
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Remove instance from a multicast group.
-     */
-    multicastGroupMemberRemove: (
-      {
-        path,
-        query = {},
-      }: {
-        path: MulticastGroupMemberRemovePathParams
-        query?: MulticastGroupMemberRemoveQueryParams
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/multicast-groups/${path.multicastGroup}/members/${path.instance}`,
-        method: 'DELETE',
         query,
         ...params,
       })
@@ -9111,7 +9895,7 @@ export class Api {
       })
     },
     /**
-     * Update a project
+     * Update project
      */
     projectUpdate: (
       { path, body }: { path: ProjectUpdatePathParams; body: ProjectUpdate },
@@ -9228,6 +10012,33 @@ export class Api {
       })
     },
     /**
+     * List subnet pools
+     */
+    subnetPoolList: (
+      { query = {} }: { query?: SubnetPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloSubnetPoolResultsPage>({
+        path: `/v1/subnet-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch subnet pool
+     */
+    subnetPoolView: (
+      { path }: { path: SubnetPoolViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloSubnetPool>({
+        path: `/v1/subnet-pools/${path.pool}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
      * View audit log
      */
     auditLogList: (
@@ -9236,6 +10047,47 @@ export class Api {
     ) => {
       return this.request<AuditLogEntryResultsPage>({
         path: `/v1/system/audit-log`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Enable adoption of a physical disk for general use
+     */
+    physicalDiskEnableAdoption: (
+      { body }: { body: PhysicalDiskManufacturerIdentity },
+      params: FetchParams = {}
+    ) => {
+      return this.request<PhysicalDiskAdoptionRequest>({
+        path: `/v1/system/hardware/disk-adoption-request`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Disable adoption of a physical disk for general use
+     */
+    physicalDiskDisableAdoption: (
+      { path }: { path: PhysicalDiskDisableAdoptionPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/hardware/disk-adoption-request/${path.physicalDiskAdoptionReqId}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List physical disk adoption requests
+     */
+    physicalDiskListAdoptionRequests: (
+      { query = {} }: { query?: PhysicalDiskListAdoptionRequestsQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<PhysicalDiskAdoptionRequestResultsPage>({
+        path: `/v1/system/hardware/disk-adoption-requests`,
         method: 'GET',
         query,
         ...params,
@@ -9256,7 +10108,7 @@ export class Api {
       })
     },
     /**
-     * Get a physical disk
+     * Get physical disk
      */
     physicalDiskView: (
       { path }: { path: PhysicalDiskViewPathParams },
@@ -9269,7 +10121,21 @@ export class Api {
       })
     },
     /**
-     * Fetch the LLDP neighbors seen on a switch port
+     * List physical disks that have not yet been adopted for use
+     */
+    physicalDiskListUnadopted: (
+      { query = {} }: { query?: PhysicalDiskListUnadoptedQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UnadoptedPhysicalDiskResultsPage>({
+        path: `/v1/system/hardware/disks-unadopted`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch LLDP neighbors for switch port
      */
     networkingSwitchPortLldpNeighbors: (
       {
@@ -9282,7 +10148,7 @@ export class Api {
       params: FetchParams = {}
     ) => {
       return this.request<LldpNeighborResultsPage>({
-        path: `/v1/system/hardware/rack-switch-port/${path.rackId}/${path.switchLocation}/${path.port}/lldp/neighbors`,
+        path: `/v1/system/hardware/rack-switch-port/${path.rackId}/${path.switchSlot}/${path.port}/lldp/neighbors`,
         method: 'GET',
         query,
         ...params,
@@ -9313,6 +10179,53 @@ export class Api {
       })
     },
     /**
+     * Fetch rack cluster membership status
+     */
+    rackMembershipStatus: (
+      {
+        path,
+        query = {},
+      }: { path: RackMembershipStatusPathParams; query?: RackMembershipStatusQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RackMembershipStatus>({
+        path: `/v1/system/hardware/racks/${path.rackId}/membership`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Abort the latest rack membership change
+     */
+    rackMembershipAbort: (
+      { path }: { path: RackMembershipAbortPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RackMembershipStatus>({
+        path: `/v1/system/hardware/racks/${path.rackId}/membership/abort`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * Add new sleds to rack membership
+     */
+    rackMembershipAddSleds: (
+      {
+        path,
+        body,
+      }: { path: RackMembershipAddSledsPathParams; body: RackMembershipAddSledsRequest },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RackMembershipStatus>({
+        path: `/v1/system/hardware/racks/${path.rackId}/membership/add`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
      * List sleds
      */
     sledList: (
@@ -9323,17 +10236,6 @@ export class Api {
         path: `/v1/system/hardware/sleds`,
         method: 'GET',
         query,
-        ...params,
-      })
-    },
-    /**
-     * Add sled to initialized rack
-     */
-    sledAdd: ({ body }: { body: UninitializedSledId }, params: FetchParams = {}) => {
-      return this.request<SledId>({
-        path: `/v1/system/hardware/sleds`,
-        method: 'POST',
-        body,
         ...params,
       })
     },
@@ -9427,7 +10329,7 @@ export class Api {
       })
     },
     /**
-     * Fetch the LLDP configuration for a switch port
+     * Fetch LLDP configuration for switch port
      */
     networkingSwitchPortLldpConfigView: (
       {
@@ -9447,7 +10349,7 @@ export class Api {
       })
     },
     /**
-     * Update the LLDP configuration for a switch port
+     * Update LLDP configuration for switch port
      */
     networkingSwitchPortLldpConfigUpdate: (
       {
@@ -9666,8 +10568,8 @@ export class Api {
     /**
      * List IP pools
      */
-    ipPoolList: (
-      { query = {} }: { query?: IpPoolListQueryParams },
+    systemIpPoolList: (
+      { query = {} }: { query?: SystemIpPoolListQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolResultsPage>({
@@ -9680,7 +10582,7 @@ export class Api {
     /**
      * Create IP pool
      */
-    ipPoolCreate: ({ body }: { body: IpPoolCreate }, params: FetchParams = {}) => {
+    systemIpPoolCreate: ({ body }: { body: IpPoolCreate }, params: FetchParams = {}) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools`,
         method: 'POST',
@@ -9691,7 +10593,10 @@ export class Api {
     /**
      * Fetch IP pool
      */
-    ipPoolView: ({ path }: { path: IpPoolViewPathParams }, params: FetchParams = {}) => {
+    systemIpPoolView: (
+      { path }: { path: SystemIpPoolViewPathParams },
+      params: FetchParams = {}
+    ) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools/${path.pool}`,
         method: 'GET',
@@ -9701,8 +10606,8 @@ export class Api {
     /**
      * Update IP pool
      */
-    ipPoolUpdate: (
-      { path, body }: { path: IpPoolUpdatePathParams; body: IpPoolUpdate },
+    systemIpPoolUpdate: (
+      { path, body }: { path: SystemIpPoolUpdatePathParams; body: IpPoolUpdate },
       params: FetchParams = {}
     ) => {
       return this.request<IpPool>({
@@ -9715,8 +10620,8 @@ export class Api {
     /**
      * Delete IP pool
      */
-    ipPoolDelete: (
-      { path }: { path: IpPoolDeletePathParams },
+    systemIpPoolDelete: (
+      { path }: { path: SystemIpPoolDeletePathParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -9726,13 +10631,30 @@ export class Api {
       })
     },
     /**
+     * Assign IP pool
+     */
+    systemIpPoolAssign: (
+      { path, body }: { path: SystemIpPoolAssignPathParams; body: IpPoolAssignParam },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPool>({
+        path: `/v1/system/ip-pools/${path.pool}/assignment`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
      * List ranges for IP pool
      */
-    ipPoolRangeList: (
+    systemIpPoolRangeList: (
       {
         path,
         query = {},
-      }: { path: IpPoolRangeListPathParams; query?: IpPoolRangeListQueryParams },
+      }: {
+        path: SystemIpPoolRangeListPathParams
+        query?: SystemIpPoolRangeListQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolRangeResultsPage>({
@@ -9743,10 +10665,10 @@ export class Api {
       })
     },
     /**
-     * Add range to IP pool.
+     * Add range to IP pool
      */
-    ipPoolRangeAdd: (
-      { path, body }: { path: IpPoolRangeAddPathParams; body: IpRange },
+    systemIpPoolRangeAdd: (
+      { path, body }: { path: SystemIpPoolRangeAddPathParams; body: IpRange },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolRange>({
@@ -9759,8 +10681,8 @@ export class Api {
     /**
      * Remove range from IP pool
      */
-    ipPoolRangeRemove: (
-      { path, body }: { path: IpPoolRangeRemovePathParams; body: IpRange },
+    systemIpPoolRangeRemove: (
+      { path, body }: { path: SystemIpPoolRangeRemovePathParams; body: IpRange },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -9773,11 +10695,11 @@ export class Api {
     /**
      * List IP pool's linked silos
      */
-    ipPoolSiloList: (
+    systemIpPoolSiloList: (
       {
         path,
         query = {},
-      }: { path: IpPoolSiloListPathParams; query?: IpPoolSiloListQueryParams },
+      }: { path: SystemIpPoolSiloListPathParams; query?: SystemIpPoolSiloListQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolSiloLinkResultsPage>({
@@ -9790,8 +10712,8 @@ export class Api {
     /**
      * Link IP pool to silo
      */
-    ipPoolSiloLink: (
-      { path, body }: { path: IpPoolSiloLinkPathParams; body: IpPoolLinkSilo },
+    systemIpPoolSiloLink: (
+      { path, body }: { path: SystemIpPoolSiloLinkPathParams; body: IpPoolLinkSilo },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolSiloLink>({
@@ -9804,8 +10726,8 @@ export class Api {
     /**
      * Make IP pool default for silo
      */
-    ipPoolSiloUpdate: (
-      { path, body }: { path: IpPoolSiloUpdatePathParams; body: IpPoolSiloUpdate },
+    systemIpPoolSiloUpdate: (
+      { path, body }: { path: SystemIpPoolSiloUpdatePathParams; body: IpPoolSiloUpdate },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolSiloLink>({
@@ -9818,8 +10740,8 @@ export class Api {
     /**
      * Unlink IP pool from silo
      */
-    ipPoolSiloUnlink: (
-      { path }: { path: IpPoolSiloUnlinkPathParams },
+    systemIpPoolSiloUnlink: (
+      { path }: { path: SystemIpPoolSiloUnlinkPathParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -9831,59 +10753,13 @@ export class Api {
     /**
      * Fetch IP pool utilization
      */
-    ipPoolUtilizationView: (
-      { path }: { path: IpPoolUtilizationViewPathParams },
+    systemIpPoolUtilizationView: (
+      { path }: { path: SystemIpPoolUtilizationViewPathParams },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolUtilization>({
         path: `/v1/system/ip-pools/${path.pool}/utilization`,
         method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch Oxide service IP pool
-     */
-    ipPoolServiceView: (_: EmptyObj, params: FetchParams = {}) => {
-      return this.request<IpPool>({
-        path: `/v1/system/ip-pools-service`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List IP ranges for the Oxide service pool
-     */
-    ipPoolServiceRangeList: (
-      { query = {} }: { query?: IpPoolServiceRangeListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<IpPoolRangeResultsPage>({
-        path: `/v1/system/ip-pools-service/ranges`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Add IP range to Oxide service pool
-     */
-    ipPoolServiceRangeAdd: ({ body }: { body: IpRange }, params: FetchParams = {}) => {
-      return this.request<IpPoolRange>({
-        path: `/v1/system/ip-pools-service/ranges/add`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Remove IP range from Oxide service pool
-     */
-    ipPoolServiceRangeRemove: ({ body }: { body: IpRange }, params: FetchParams = {}) => {
-      return this.request<void>({
-        path: `/v1/system/ip-pools-service/ranges/remove`,
-        method: 'POST',
-        body,
         ...params,
       })
     },
@@ -9901,19 +10777,6 @@ export class Api {
         path: `/v1/system/metrics/${path.metricName}`,
         method: 'GET',
         query,
-        ...params,
-      })
-    },
-    /**
-     * Look up multicast group by IP address.
-     */
-    lookupMulticastGroupByIp: (
-      { path }: { path: LookupMulticastGroupByIpPathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<MulticastGroup>({
-        path: `/v1/system/multicast-groups/by-ip/${path.address}`,
-        method: 'GET',
         ...params,
       })
     },
@@ -10016,7 +10879,7 @@ export class Api {
       })
     },
     /**
-     * Disable a BFD session
+     * Disable BFD session
      */
     networkingBfdDisable: (
       { body }: { body: BfdSessionDisable },
@@ -10030,7 +10893,7 @@ export class Api {
       })
     },
     /**
-     * Enable a BFD session
+     * Enable BFD session
      */
     networkingBfdEnable: (
       { body }: { body: BfdSessionEnable },
@@ -10068,7 +10931,25 @@ export class Api {
       })
     },
     /**
-     * Create new BGP configuration
+     * Update the mutable fields of an existing BGP configuration
+     */
+    networkingBgpConfigUpdate: (
+      {
+        query,
+        body,
+      }: { query: NetworkingBgpConfigUpdateQueryParams; body: BgpConfigUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpConfig>({
+        path: `/v1/system/networking/bgp`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create BGP configuration
      */
     networkingBgpConfigCreate: (
       { body }: { body: BgpConfigCreate },
@@ -10150,12 +11031,26 @@ export class Api {
       })
     },
     /**
-     * Get BGP exported routes
+     * List BGP exported routes
      */
     networkingBgpExported: (_: EmptyObj, params: FetchParams = {}) => {
-      return this.request<BgpExported>({
+      return this.request<BgpExported[]>({
         path: `/v1/system/networking/bgp-exported`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Get imported IPv4 BGP routes
+     */
+    networkingBgpImported: (
+      { query }: { query: NetworkingBgpImportedQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpImported[]>({
+        path: `/v1/system/networking/bgp-imported`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
@@ -10168,20 +11063,6 @@ export class Api {
     ) => {
       return this.request<AggregateBgpMessageHistory>({
         path: `/v1/system/networking/bgp-message-history`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Get imported IPv4 BGP routes
-     */
-    networkingBgpImportedRoutesIpv4: (
-      { query }: { query: NetworkingBgpImportedRoutesIpv4QueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<BgpImportedRouteIpv4[]>({
-        path: `/v1/system/networking/bgp-routes-ipv4`,
         method: 'GET',
         query,
         ...params,
@@ -10257,8 +11138,32 @@ export class Api {
       params: FetchParams = {}
     ) => {
       return this.request<void>({
-        path: `/v1/system/networking/loopback-address/${path.rackId}/${path.switchLocation}/${path.address}/${path.subnetMask}`,
+        path: `/v1/system/networking/loopback-address/${path.rackId}/${path.switchSlot}/${path.address}/${path.subnetMask}`,
         method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Fetch fleet-wide networking settings
+     */
+    systemNetworkingSettingsView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<SystemNetworkingSettings>({
+        path: `/v1/system/networking/settings`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update fleet-wide networking settings
+     */
+    systemNetworkingSettingsUpdate: (
+      { body }: { body: SystemNetworkingSettingsUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SystemNetworkingSettings>({
+        path: `/v1/system/networking/settings`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },
@@ -10398,7 +11303,7 @@ export class Api {
       })
     },
     /**
-     * Lists resource quotas for all silos
+     * List resource quotas for all silos
      */
     systemQuotasList: (
       { query = {} }: { query?: SystemQuotasListQueryParams },
@@ -10426,7 +11331,7 @@ export class Api {
       })
     },
     /**
-     * Create a silo
+     * Create silo
      */
     siloCreate: ({ body }: { body: SiloCreate }, params: FetchParams = {}) => {
       return this.request<Silo>({
@@ -10447,7 +11352,7 @@ export class Api {
       })
     },
     /**
-     * Delete a silo
+     * Delete silo
      */
     siloDelete: ({ path }: { path: SiloDeletePathParams }, params: FetchParams = {}) => {
       return this.request<void>({
@@ -10528,6 +11433,225 @@ export class Api {
       })
     },
     /**
+     * List subnet pools linked to a silo
+     */
+    siloSubnetPoolList: (
+      {
+        path,
+        query = {},
+      }: { path: SiloSubnetPoolListPathParams; query?: SiloSubnetPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloSubnetPoolResultsPage>({
+        path: `/v1/system/silos/${path.silo}/subnet-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List subnet pools
+     */
+    systemSubnetPoolList: (
+      { query = {} }: { query?: SystemSubnetPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolResultsPage>({
+        path: `/v1/system/subnet-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create subnet pool
+     */
+    systemSubnetPoolCreate: (
+      { body }: { body: SubnetPoolCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPool>({
+        path: `/v1/system/subnet-pools`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch subnet pool
+     */
+    systemSubnetPoolView: (
+      { path }: { path: SystemSubnetPoolViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPool>({
+        path: `/v1/system/subnet-pools/${path.pool}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update subnet pool
+     */
+    systemSubnetPoolUpdate: (
+      { path, body }: { path: SystemSubnetPoolUpdatePathParams; body: SubnetPoolUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPool>({
+        path: `/v1/system/subnet-pools/${path.pool}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete subnet pool
+     */
+    systemSubnetPoolDelete: (
+      { path }: { path: SystemSubnetPoolDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/subnet-pools/${path.pool}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List members in subnet pool
+     */
+    systemSubnetPoolMemberList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: SystemSubnetPoolMemberListPathParams
+        query?: SystemSubnetPoolMemberListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolMemberResultsPage>({
+        path: `/v1/system/subnet-pools/${path.pool}/members`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add member to subnet pool
+     */
+    systemSubnetPoolMemberAdd: (
+      {
+        path,
+        body,
+      }: { path: SystemSubnetPoolMemberAddPathParams; body: SubnetPoolMemberAdd },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolMember>({
+        path: `/v1/system/subnet-pools/${path.pool}/members/add`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Remove member from subnet pool
+     */
+    systemSubnetPoolMemberRemove: (
+      {
+        path,
+        body,
+      }: { path: SystemSubnetPoolMemberRemovePathParams; body: SubnetPoolMemberRemove },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/subnet-pools/${path.pool}/members/remove`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List silos linked to subnet pool
+     */
+    systemSubnetPoolSiloList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: SystemSubnetPoolSiloListPathParams
+        query?: SystemSubnetPoolSiloListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolSiloLinkResultsPage>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Link subnet pool to silo
+     */
+    systemSubnetPoolSiloLink: (
+      {
+        path,
+        body,
+      }: { path: SystemSubnetPoolSiloLinkPathParams; body: SubnetPoolLinkSilo },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolSiloLink>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Update subnet pool's link to silo
+     */
+    systemSubnetPoolSiloUpdate: (
+      {
+        path,
+        body,
+      }: { path: SystemSubnetPoolSiloUpdatePathParams; body: SubnetPoolSiloUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolSiloLink>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos/${path.silo}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Unlink subnet pool from silo
+     */
+    systemSubnetPoolSiloUnlink: (
+      { path }: { path: SystemSubnetPoolSiloUnlinkPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos/${path.silo}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Fetch subnet pool utilization
+     */
+    systemSubnetPoolUtilizationView: (
+      { path }: { path: SystemSubnetPoolUtilizationViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolUtilization>({
+        path: `/v1/system/subnet-pools/${path.pool}/utilization`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
      * Run timeseries query
      */
     systemTimeseriesQuery: (
@@ -10552,6 +11676,20 @@ export class Api {
         path: `/v1/system/timeseries/schemas`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Clear system recovery status
+     */
+    systemUpdateRecoveryFinish: (
+      { body }: { body: SetTargetReleaseParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/update/recovery-finish`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },
@@ -11196,7 +12334,7 @@ export class Api {
       })
     },
     /**
-     * Update a VPC
+     * Update VPC
      */
     vpcUpdate: (
       {

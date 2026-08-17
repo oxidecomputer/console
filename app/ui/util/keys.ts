@@ -21,3 +21,8 @@ export const KEYS = {
   space: ' ',
   escape: 'Escape',
 } as const
+
+/** Returns true if any modifier key is held */
+export const hasModifier = (
+  e: Pick<KeyboardEvent, 'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey'>
+) => e.metaKey || e.ctrlKey || e.shiftKey || e.altKey

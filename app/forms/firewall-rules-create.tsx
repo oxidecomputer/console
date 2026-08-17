@@ -81,7 +81,8 @@ export default function CreateFirewallRuleForm() {
 
   const updateRules = useApiMutation(api.vpcFirewallRulesUpdate, {
     onSuccess(updatedRules) {
-      const newRule = updatedRules.rules[updatedRules.rules.length - 1]
+      // We just appended a rule, so the response list is non-empty
+      const newRule = updatedRules.rules.at(-1)!
       queryClient.invalidateEndpoint('vpcFirewallRulesView')
       // prettier-ignore
       addToast(<>Firewall rule <HL>{newRule.name}</HL> created</>)

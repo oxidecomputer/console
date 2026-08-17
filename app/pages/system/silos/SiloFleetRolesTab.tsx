@@ -22,9 +22,10 @@ export default function SiloFleetRolesTab() {
   const siloSelector = useSiloSelector()
   const { data: silo } = usePrefetchedQuery(siloView(siloSelector))
 
-  const roleMapPairs = Object.entries(silo.mappedFleetRoles).flatMap(
-    ([fleetRole, siloRoles]) =>
-      siloRoles.map((siloRole) => [siloRole, fleetRole] as [string, string])
+  // `mappedFleetRoles` is keyed by silo role, with each value listing the
+  // fleet roles granted to actors who have that silo role.
+  const roleMapPairs: [string, string][] = Object.entries(silo.mappedFleetRoles).flatMap(
+    ([siloRole, fleetRoles]) => fleetRoles.map((fleetRole) => [siloRole, fleetRole])
   )
 
   if (roleMapPairs.length === 0) {

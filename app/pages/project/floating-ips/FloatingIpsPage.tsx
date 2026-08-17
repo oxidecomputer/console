@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -28,11 +29,13 @@ import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
-import { IpPoolCell } from '~/table/cells/IpPoolCell'
+import { InstanceLink } from '~/table/cells/InstanceLinkCell'
+import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -73,22 +76,28 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // IpPoolCell can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
     queryClient
-      .fetchQuery(q(api.projectIpPoolList, { query: { limit: ALL_ISH } }))
+      .fetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
-          const { queryKey } = q(api.projectIpPoolView, {
-            path: { pool: pool.id },
-          })
-          queryClient.setQueryData(queryKey, pool)
+          // IpPoolCell uses the errors-allowed query shape, so seed that exact
+          // cache entry instead of the normal ipPoolView query.
+          const { queryKey } = ipPoolErrorsAllowedQuery(pool.id)
+          queryClient.setQueryData(queryKey, { type: 'success', data: pool })
         }
       }),
   ])
   return null
 }
 
+/** Reads project from the route so the name column can stay static */
+const NameCell = ({ name }: { name: string }) => {
+  const { project } = useProjectSelector()
+  return <LinkCell to={pb.floatingIpEdit({ project, floatingIp: name })}>{name}</LinkCell>
+}
+
 const colHelper = createColumnHelper<FloatingIp>()
 const staticCols = [
-  colHelper.accessor('name', {}),
+  colHelper.accessor('name', { cell: (info) => <NameCell name={info.getValue()} /> }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('ip', {
     header: 'IP address',
@@ -99,8 +108,8 @@ const staticCols = [
     cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
   }),
   colHelper.accessor('instanceId', {
-    header: 'Attached to instance',
-    cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
+    header: 'Instance',
+    cell: (info) => <InstanceLink instanceId={info.getValue()} tab="networking" cell />,
   }),
 ]
 
@@ -116,14 +125,11 @@ export default function FloatingIpsPage() {
       // prettier-ignore
       addToast(<>Floating IP <HL>{floatingIp.name}</HL> detached</>)
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
   })
   const { mutateAsync: deleteFloatingIp } = useApiMutation(api.floatingIpDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('floatingIpList')
-      queryClient.invalidateEndpoint('ipPoolUtilizationView')
+      queryClient.invalidateEndpoint('systemIpPoolUtilizationView')
       // prettier-ignore
       addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> deleted</>)
     },
@@ -154,7 +160,7 @@ export default function FloatingIpsPage() {
                     path: { floatingIp: floatingIp.name },
                     query: { project },
                   }),
-                modalTitle: 'Detach Floating IP',
+                modalTitle: 'Detach floating IP',
                 // instanceName! non-null because we only see this if there is an instance
                 modalContent: (
                   <p>
@@ -197,6 +203,7 @@ export default function FloatingIpsPage() {
                 query: { project },
               }),
             label: floatingIp.name,
+            resourceKind: 'floating IP',
           }),
         },
       ]
@@ -210,6 +217,26 @@ export default function FloatingIpsPage() {
     columns,
     emptyState: <EmptyState />,
   })
+
+  const { data: allFips } = useQuery(
+    q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
+  )
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New floating IP',
+        navGroup: 'Actions',
+        action: pb.floatingIpsNew({ project }),
+      },
+      ...(allFips?.items || []).map((f) => ({
+        value: f.name,
+        action: pb.floatingIpEdit({ project, floatingIp: f.name }),
+        navGroup: 'Edit floating IP',
+      })),
+    ],
+    [project, allFips]
+  )
 
   return (
     <>

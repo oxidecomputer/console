@@ -8,11 +8,13 @@
 
 import { differenceInMinutes } from 'date-fns'
 import { useMemo } from 'react'
+import { Link } from 'react-router'
 import * as R from 'remeda'
 import { lt as semverLt } from 'semver'
 
 import {
   Images24Icon,
+  OpenLink12Icon,
   SoftwareUpdate16Icon,
   SoftwareUpdate24Icon,
 } from '@oxide/design-system/icons/react'
@@ -38,6 +40,7 @@ import { CardBlock } from '~/ui/lib/CardBlock'
 import { DateTime } from '~/ui/lib/DateTime'
 import { Divider } from '~/ui/lib/Divider'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
+import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TipIcon } from '~/ui/lib/TipIcon'
@@ -104,6 +107,21 @@ function calcProgress(status: UpdateStatus) {
     percentage: round(percentage(current, total), 0, 'trunc'),
   }
 }
+
+// wrapper div keeps the link out of the Message content's [&>a]:tint-underline
+const ContactSupportCta = () => (
+  <div>
+    <Link
+      className="text-mono-xs text-accent group mt-3 inline-flex items-center gap-1.5"
+      to="https://support.oxide.computer"
+      target="_blank"
+      rel="noreferrer"
+    >
+      Contact Support
+      <OpenLink12Icon />
+    </Link>
+  </div>
+)
 
 export default function UpdatePage() {
   const { data: status } = usePrefetchedQuery(statusQuery)
@@ -193,6 +211,21 @@ export default function UpdatePage() {
         </PropertiesTable.Row>
       </PropertiesTable>
 
+      {status.contactSupport && (
+        <Message
+          className="mt-4"
+          variant="notice"
+          title="Support required"
+          content={
+            <>
+              The system has detected one or more known conditions that require Oxide
+              support to resolve.
+              <ContactSupportCta />
+            </>
+          }
+        />
+      )}
+
       <Divider className="my-8" />
 
       <CardBlock>
@@ -214,7 +247,7 @@ export default function UpdatePage() {
               return (
                 <li
                   key={repo.hash}
-                  className="border-default @container flex items-center gap-2 rounded border pl-4"
+                  className="border-default @container flex items-center gap-2 rounded-md border pl-4"
                 >
                   <Images24Icon className="text-quaternary shrink-0" aria-hidden />
                   <div className="flex min-w-0 flex-1 flex-col flex-wrap items-start gap-x-4 gap-y-1 py-3 @md:flex-row @md:items-center">
@@ -245,12 +278,28 @@ export default function UpdatePage() {
                               setTargetRelease({
                                 body: { systemVersion: repo.systemVersion },
                               }),
-                            modalTitle: 'Confirm set target release',
+                            modalTitle: 'Set target release',
                             modalContent: (
-                              <p>
-                                Are you sure you want to set <HL>{repo.systemVersion}</HL>{' '}
-                                as the target release?
-                              </p>
+                              <div className="space-y-4">
+                                {status.contactSupport && (
+                                  <Message
+                                    variant="notice"
+                                    // title="Support required"
+                                    content={
+                                      <>
+                                        The system has detected known conditions that
+                                        require Oxide support to resolve. Starting an update
+                                        before talking to support is{' '}
+                                        <HL>strongly discouraged</HL>.
+                                      </>
+                                    }
+                                  />
+                                )}
+                                <p>
+                                  Are you sure you want to set <HL>{repo.systemVersion}</HL>{' '}
+                                  as the target release?
+                                </p>
+                              </div>
                             ),
                             errorTitle: `Error setting target release to ${repo.systemVersion}`,
                           })

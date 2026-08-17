@@ -29,6 +29,14 @@ test.describe('Project create', () => {
     await expect(page).toHaveURL('/projects/mock-project-2/instances')
   })
 
+  test('clicking the scrim dismisses the side modal', async ({ page }) => {
+    const dialog = page.getByRole('dialog', { name: /Create project/ })
+    await expect(dialog).toBeVisible()
+    // click well to the left of the side modal panel — that's the scrim
+    await page.mouse.click(50, 50)
+    await expect(dialog).toBeHidden()
+  })
+
   test('shows field-level validation error and does not POST', async ({ page }) => {
     const expectInputError = async (text: string, error: string) => {
       await page.getByRole('textbox', { name: 'Name' }).fill(text)

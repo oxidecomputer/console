@@ -85,14 +85,18 @@ export const RowActions = ({ id, copyIdLabel = 'Copy ID', actions }: RowActionsP
     <DropdownMenu.Root>
       {/* stopPropagation prevents clicks from toggling row select in a single select table */}
       <DropdownMenu.Trigger
-        className="headless-hide-focus flex h-full w-full items-center justify-center rounded -outline-offset-2"
+        className="flex h-full w-full items-center justify-center rounded-md -outline-offset-2"
         aria-label="Row actions"
         onClick={(e) => e.stopPropagation()}
       >
         <More12Icon />
       </DropdownMenu.Trigger>
       {/* offset moves menu in from the right so it doesn't align with the table border */}
-      <DropdownMenu.Content anchor={{ to: 'bottom end', offset: -6 }} className="-mt-2">
+      <DropdownMenu.Content
+        anchor={{ to: 'bottom end', offset: -6 }}
+        className="-mt-2"
+        collisionPadding={{ bottom: 56 }}
+      >
         {id && <CopyIdItem id={id} label={copyIdLabel} />}
         {actions?.map(({ className, ...action }) =>
           'to' in action ? (

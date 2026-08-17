@@ -26,6 +26,7 @@ import {
 } from '~/api'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -40,15 +41,29 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 
 export const handle = makeCrumb('SCIM')
+
+const scimTokenListErrorsAllowedQ = (silo: string) =>
+  qErrorsAllowed(
+    api.scimTokenList,
+    { query: { silo } },
+    {
+      errorsExpected: {
+        explanation: 'the current user may not have permission to list SCIM tokens.',
+        statusCode: 403,
+      },
+    }
+  )
 
 const colHelper = createColumnHelper<ScimClientBearerToken>()
 const staticColumns = [
   colHelper.accessor('id', {
     header: 'ID',
-    cell: (info) => <Truncate text={info.getValue()} position="middle" maxLength={18} />,
+    cell: (info) => (
+      <Truncate text={info.getValue()} position="middle" className="max-w-48" />
+    ),
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
   colHelper.accessor('timeExpires', {
@@ -74,7 +89,7 @@ const EmptyState = () => (
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
   // Use errors-allowed approach so 403s don't throw and break the loader
-  await queryClient.prefetchQuery(qErrorsAllowed(api.scimTokenList, { query: { silo } }))
+  await queryClient.prefetchQuery(scimTokenListErrorsAllowedQ(silo))
   return null
 }
 
@@ -86,10 +101,24 @@ type ModalState =
 export default function SiloScimTab() {
   const siloSelector = useSiloSelector()
   const { data: tokensResult } = usePrefetchedQuery(
-    qErrorsAllowed(api.scimTokenList, { query: siloSelector })
+    scimTokenListErrorsAllowedQ(siloSelector.silo)
   )
 
   const [modalState, setModalState] = useState<ModalState>(false)
+
+  useQuickActions(
+    () =>
+      tokensResult.type === 'success'
+        ? [
+            {
+              value: 'Create token',
+              navGroup: 'Actions',
+              action: () => setModalState({ kind: 'create' }),
+            },
+          ]
+        : [],
+    [tokensResult.type]
+  )
 
   return (
     <>
@@ -123,7 +152,7 @@ export default function SiloScimTab() {
             .exhaustive()}
         </CardBlock.Body>
         <CardBlock.Footer>
-          <LearnMore href={links.scimDocs} text="SCIM" />
+          <LearnMore doc={docLinks.scim} />
         </CardBlock.Footer>
       </CardBlock>
 
@@ -245,7 +274,7 @@ function TokenCreatedModal({
 
         <div className="mt-4">
           <div className="text-sans-md text-raise mb-2">Bearer Token</div>
-          <div className="text-sans-md text-raise bg-default border-default flex items-stretch rounded border">
+          <div className="text-sans-md text-raise bg-default border-default flex items-stretch rounded-md border">
             <div className="flex-1 overflow-hidden py-2.75 pr-5 pl-3 text-nowrap text-ellipsis">
               {token.bearerToken}
             </div>

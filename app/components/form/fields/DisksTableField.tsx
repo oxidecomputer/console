@@ -14,14 +14,33 @@ import { Badge } from '@oxide/design-system/ui'
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import type { InstanceCreateInput } from '~/forms/instance-create'
-import { sizeCellInner } from '~/table/columns/common'
 import { Button } from '~/ui/lib/Button'
 import { MiniTable } from '~/ui/lib/MiniTable'
-import { Truncate } from '~/ui/lib/Truncate'
+import { Size } from '~/ui/lib/ValueUnit'
 
 export type DiskTableItem =
   | (DiskCreate & { action: 'create' })
   | { name: string; action: 'attach'; size: number; diskType: DiskType }
+
+const diskTableColumns = [
+  {
+    header: 'Name',
+    text: (item: DiskTableItem) => item.name,
+  },
+  {
+    header: 'Action',
+    cell: (item: DiskTableItem) => <Badge color="neutral">{item.action}</Badge>,
+  },
+  {
+    header: 'Type',
+    cell: (item: DiskTableItem) => (
+      <Badge color="neutral">
+        {item.action === 'create' ? item.diskBackend.type : item.diskType}
+      </Badge>
+    ),
+  },
+  { header: 'Size', cell: (item: DiskTableItem) => <Size bytes={item.size} /> },
+]
 
 /**
  * Designed less for reuse, more to encapsulate logic that would otherwise
@@ -49,28 +68,7 @@ export function DisksTableField({
         <MiniTable
           ariaLabel="Disks"
           items={items}
-          columns={[
-            {
-              header: 'Name',
-              cell: (item) => <Truncate text={item.name} maxLength={35} />,
-            },
-            {
-              header: 'Action',
-              cell: (item) => <Badge color="neutral">{item.action}</Badge>,
-            },
-            {
-              header: 'Type',
-              cell: (item) => (
-                <Badge color="neutral">
-                  {item.action === 'create' ? item.diskBackend.type : item.diskType}
-                </Badge>
-              ),
-            },
-            {
-              header: 'Size',
-              cell: (item) => sizeCellInner(item.size),
-            },
-          ]}
+          columns={diskTableColumns}
           rowKey={(item) => item.name}
           onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
           removeLabel={(item) => `Remove disk ${item.name}`}

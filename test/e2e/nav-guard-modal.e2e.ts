@@ -10,14 +10,20 @@ import { expect, expectObscured, test } from './utils'
 
 test('navigating away from SideModal form triggers nav guard', async ({ page }) => {
   const floatingIpsPage = '/projects/mock-project/floating-ips'
-  const formModal = page.getByRole('dialog', { name: 'Create floating IP' })
+  // CSS locator for the form modal: when the confirmModal opens on top of
+  // it, base-ui aria-hides the form modal (it's outside the inner dialog's
+  // portal tree), so role-based locators can't find it.
+  const formModal = page.locator('[role=dialog]:has(h2:text-is("Create floating IP"))')
   const confirmModal = page.getByRole('dialog', { name: 'Confirm navigation' })
 
   await page.goto(floatingIpsPage)
 
   // we don't have to force click here because it's not covered by the modal overlay yet
   await expect(formModal).toBeHidden()
-  const somethingOnPage = page.getByRole('heading', { name: 'Floating IPs' })
+  // CSS locator so we can still find the heading while the dialog is open —
+  // base-ui sets aria-hidden on outside content, which hides it from the
+  // accessibility tree that getByRole walks.
+  const somethingOnPage = page.locator('h1:has-text("Floating IPs")')
   await somethingOnPage.click({ trial: true }) // test that it's not obscured
 
   // now open the modal

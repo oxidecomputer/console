@@ -16,6 +16,8 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: ProjectCreate = {
@@ -59,6 +61,7 @@ export default function ProjectCreateSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <SideModalFormDocs docs={[docLinks.projects]} />
     </SideModalForm>
   )
 }

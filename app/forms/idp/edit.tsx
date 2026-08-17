@@ -14,12 +14,14 @@ import { Access16Icon } from '@oxide/design-system/icons/react'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
-import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -53,11 +55,7 @@ export default function EditIdpSideModalForm() {
         </ResourceLabel>
       }
     >
-      <PropertiesTable>
-        <PropertiesTable.IdRow id={idp.id} />
-        <PropertiesTable.DateRow date={idp.timeCreated} label="Created" />
-        <PropertiesTable.DateRow date={idp.timeModified} label="Updated" />
-      </PropertiesTable>
+      <FormMetadata resource={idp} />
 
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} required disabled />
@@ -115,6 +113,7 @@ export default function EditIdpSideModalForm() {
         control={form.control}
         disabled
       />
+      <SideModalFormDocs docs={[docLinks.identityProviders]} />
     </ReadOnlySideModalForm>
   )
 }

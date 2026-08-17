@@ -8,6 +8,7 @@
 import { execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
+
 import { expect, it } from 'vitest'
 
 it('Generated API client version matches API version specified for deployment', () => {
@@ -25,6 +26,20 @@ it('Generated API client version matches API version specified for deployment', 
   expect(generatedVersion).toEqual(pinnedVersion)
 })
 
+// omicron releng reads API_VERSION at our pinned commit to check the console
+// client matches the API being released, so it must stay in sync with the
+// version baked into the generated client
+it('API_VERSION file matches apiVersion in generated client', () => {
+  const apiVersionFile = fs
+    .readFileSync(path.resolve(__dirname, '../__generated__/API_VERSION'), 'utf8')
+    .trim()
+
+  const apiTs = fs.readFileSync(path.resolve(__dirname, '../__generated__/Api.ts'), 'utf8')
+  const match = apiTs.match(/^\s*apiVersion = '(.+)'$/m)
+
+  expect(match?.[1]).toEqual(apiVersionFile)
+})
+
 const grepFiles = (s: string) =>
   execSync(`git grep -l "${s}"`)
     .toString()
@@ -35,10 +50,13 @@ const grepFiles = (s: string) =>
 it('mock-api is only referenced in test files', () => {
   expect(grepFiles('api-mocks')).toMatchInlineSnapshot(`
     [
-      "app/api/__tests__/client.spec.tsx",
+      "AGENTS.md",
+      "app/api/__tests__/client.spec.ts",
       "mock-api/msw/db.ts",
+      "test/e2e/fleet-access.e2e.ts",
       "test/e2e/instance-create.e2e.ts",
       "test/e2e/inventory.e2e.ts",
+      "test/e2e/ip-pool-silo-config.e2e.ts",
       "test/e2e/profile.e2e.ts",
       "test/e2e/project-access.e2e.ts",
       "test/e2e/silo-access.e2e.ts",
@@ -77,4 +95,36 @@ it('e2e tests are only in test/e2e or test/visual', () => {
   for (const file of listFiles('\\.e2e\\.')) {
     expect(file).toMatch(/^test\/(e2e|visual)/)
   }
+})
+
+// In production, Nexus only serves /assets/* and /index.html — files at other
+// paths under public/ would work in Vite dev but 404 in production.
+// https://github.com/oxidecomputer/omicron/blob/b2b1e39/nexus/src/external_api/console_api.rs#L409-L439
+it('public/ only contains assets/', () => {
+  const entries = fs.readdirSync(path.resolve(__dirname, '../../../public'))
+  expect(entries).toMatchInlineSnapshot(`
+    [
+      "assets",
+    ]
+  `)
+})
+
+// 8-4-4-4-12 hex digits
+const UUID_RE = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+
+// RFC 4122: version nibble (3rd group, 1st char) is 1-5,
+// variant nibble (4th group, 1st char) is 8, 9, a, or b
+const VALID_UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+it('all UUIDs in mock-api files are valid RFC 4122', () => {
+  const output = execSync(`git grep -n -oP '${UUID_RE}' -- 'mock-api/'`).toString().trim()
+  const invalid = output.split('\n').filter((line) => {
+    const uuid = line.split(':').slice(2).join(':')
+    return !VALID_UUID_RE.test(uuid)
+  })
+  expect(
+    invalid,
+    `Invalid UUIDs found:\n${invalid.join('\n')}\n\nUse a reliable generator (e.g., uuidgen) to create valid v4 UUIDs.`
+  ).toEqual([])
 })

@@ -9,11 +9,14 @@ import cn from 'classnames'
 import type { ReactNode } from 'react'
 
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
 
+import { CopyToClipboard } from './CopyToClipboard'
 import { DateTime } from './DateTime'
 import { Truncate } from './Truncate'
+import { Size } from './ValueUnit'
 
 export interface PropertiesTableProps {
   className?: string
@@ -32,6 +35,9 @@ export function PropertiesTable({
       PropertiesTable.IdRow,
       PropertiesTable.DescriptionRow,
       PropertiesTable.DateRow,
+      PropertiesTable.SizeRow,
+      PropertiesTable.CopyableRow,
+      PropertiesTable.ResourceRows,
     ]),
     'PropertiesTable only accepts specific Row components as children'
   )
@@ -40,7 +46,7 @@ export function PropertiesTable({
       aria-label="Properties table"
       className={cn(
         className,
-        'properties-table border-default min-w-min basis-6/12 rounded-lg border',
+        'properties-table bg-default border-default min-w-min basis-6/12 rounded-lg border',
         '*:border-secondary *:border-t *:pr-6 *:pl-3 [&>*:nth-child(-n+2)]:border-t-0!',
         'grid grid-cols-[minmax(min-content,1fr)_3fr]',
         {
@@ -69,9 +75,9 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
   </>
 )
 
-PropertiesTable.IdRow = ({ id }: { id: string }) => (
-  <PropertiesTable.Row label="ID">
-    <Truncate text={id} maxLength={32} hasCopyButton />
+PropertiesTable.IdRow = ({ id, label = 'ID' }: { id?: string | null; label?: string }) => (
+  <PropertiesTable.Row label={label}>
+    {id ? <Truncate text={id} position="middle" hasCopyButton /> : <EmptyCell />}
   </PropertiesTable.Row>
 )
 
@@ -91,4 +97,39 @@ PropertiesTable.DateRow = ({
   <PropertiesTable.Row label={label}>
     <DateTime date={date} />
   </PropertiesTable.Row>
+)
+
+PropertiesTable.SizeRow = ({
+  bytes,
+  label = 'Size',
+}: {
+  bytes: number
+  label?: string
+}) => (
+  <PropertiesTable.Row label={label}>
+    <Size bytes={bytes} />
+  </PropertiesTable.Row>
+)
+
+PropertiesTable.CopyableRow = ({ label, text }: { label: string; text: string }) => (
+  <PropertiesTable.Row label={label}>
+    {text}
+    <CopyToClipboard className="ml-1" text={text} />
+  </PropertiesTable.Row>
+)
+
+/** The bits of an API resource `ResourceRows` needs */
+export type ResourceMetadata = { id: string; timeCreated: Date; timeModified: Date }
+
+/**
+ * The ID + created/updated timestamps every API resource carries. Renders the
+ * three rows nearly every edit side modal opens with; pass additional
+ * resource-specific `PropertiesTable.*` rows as siblings after it.
+ */
+PropertiesTable.ResourceRows = ({ resource }: { resource: ResourceMetadata }) => (
+  <>
+    <PropertiesTable.IdRow id={resource.id} />
+    <PropertiesTable.DateRow label="Created" date={resource.timeCreated} />
+    <PropertiesTable.DateRow label="Updated" date={resource.timeModified} />
+  </>
 )

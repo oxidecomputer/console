@@ -5,19 +5,22 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
-import { api, getListQFn, queryClient, useApiMutation, type Image } from '@oxide/api'
+import { api, getListQFn, q, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -28,6 +31,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -64,6 +68,7 @@ export default function ImagesPage() {
       // prettier-ignore
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>)
       queryClient.invalidateEndpoint('imageList')
+      queryClient.invalidateEndpoint('imageView')
     },
   })
 
@@ -82,6 +87,7 @@ export default function ImagesPage() {
               query: { project },
             }),
           label: image.name,
+          resourceKind: 'image',
         }),
       },
     ],
@@ -91,9 +97,16 @@ export default function ImagesPage() {
   const columns = useMemo(() => {
     return [
       colHelper.accessor('name', {
-        cell: makeLinkCell((image) => pb.projectImageEdit({ project, image })),
+        cell: makeLinkCell((image) => pb.projectImage({ project, image })),
       }),
       colHelper.accessor('description', Columns.description),
+      colHelper.accessor('os', {
+        header: 'OS',
+        cell: (info) => info.getValue() || <EmptyCell />,
+      }),
+      colHelper.accessor('version', {
+        cell: (info) => info.getValue() || <EmptyCell />,
+      }),
       colHelper.accessor('size', Columns.size),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
@@ -105,6 +118,26 @@ export default function ImagesPage() {
     columns,
     emptyState: <EmptyState />,
   })
+
+  const { data: allImages } = useQuery(
+    q(api.imageList, { query: { project, limit: ALL_ISH } })
+  )
+
+  useQuickActions(
+    () => [
+      {
+        value: 'Upload image',
+        navGroup: 'Actions',
+        action: pb.projectImagesNew({ project }),
+      },
+      ...(allImages?.items || []).map((i) => ({
+        value: i.name,
+        action: pb.projectImage({ project, image: i.name }),
+        navGroup: 'Go to project image',
+      })),
+    ],
+    [project, allImages]
+  )
 
   return (
     <>
@@ -151,11 +184,14 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
         },
       })
       queryClient.invalidateEndpoint('imageList')
+      // promotion flips projectId; refetch the per-id view so cached entries
+      // reflect the new visibility
+      queryClient.invalidateEndpoint('imageView')
+      onDismiss()
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   const onAction = () => {

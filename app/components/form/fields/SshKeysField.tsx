@@ -20,6 +20,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { TextInputHint } from '~/ui/lib/TextInput'
+import { isSubset } from '~/util/array'
 
 import { CheckboxField } from './CheckboxField'
 import { ErrorMessage } from './ErrorMessage'
@@ -55,11 +56,11 @@ export function SshKeysField({
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
 }) {
-  const keys = usePrefetchedQuery(q(api.currentUserSshKeyList, {})).data?.items || []
+  const allKeys = usePrefetchedQuery(q(api.currentUserSshKeyList, {})).data.items
   const [showAddSshKey, setShowAddSshKey] = useState(false)
 
   const {
-    field: { value, onChange },
+    field: { value: selectedKeys, onChange },
     fieldState: { error },
   } = useController({
     control,
@@ -73,6 +74,17 @@ export function SshKeysField({
     },
   })
 
+  // do this with a subset instead of just counting the items because there's a
+  // weird window right after adding but before the invalidate has gone through
+  // where you can have the new one selected but it's not in the list of all
+  // keys, which can cause the counts to match even though the sets don't
+  const allAreSelected =
+    allKeys.length > 0 &&
+    isSubset(
+      allKeys.map((k) => k.id),
+      new Set(selectedKeys)
+    )
+
   return (
     <div className="max-w-lg">
       <div className="mb-2">
@@ -81,11 +93,11 @@ export function SshKeysField({
           SSH keys can be added and removed in your user settings
         </TextInputHint>
       </div>
-      {keys.length > 0 ? (
+      {allKeys.length > 0 ? (
         <>
           <div className="space-y-2">
             <div className="flex flex-col space-y-2">
-              {keys.map((key) => (
+              {allKeys.map((key) => (
                 <CheckboxField
                   name="sshPublicKeys"
                   control={control}
@@ -102,12 +114,10 @@ export function SshKeysField({
 
             <Divider />
             <Checkbox
-              checked={value.length === keys.length}
-              indeterminate={value.length > 0 && value.length < keys.length}
+              checked={allAreSelected}
+              indeterminate={selectedKeys.length > 0 && !allAreSelected}
               // if fewer than all are checked, check all. if all are checked, check none
-              onChange={() =>
-                onChange(value.length < keys.length ? keys.map((key) => key.id) : [])
-              }
+              onChange={() => onChange(allAreSelected ? [] : allKeys.map((key) => key.id))}
               disabled={isSubmitting}
             >
               <span className="select-none">Select all</span>
@@ -140,6 +150,7 @@ export function SshKeysField({
       {showAddSshKey && (
         <SSHKeyCreate
           onDismiss={() => setShowAddSshKey(false)}
+          onSuccess={(sshKey) => onChange([...selectedKeys, sshKey.id])}
           message={
             <Message
               variant="info"

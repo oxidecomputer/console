@@ -15,18 +15,24 @@ export const userGroup1: Json<Group> = {
   id: '0ff6da96-5d6d-4326-b059-2b72c1b51457',
   silo_id: defaultSilo.id,
   display_name: 'web-devs',
+  time_created: new Date(2021, 3, 1).toISOString(),
+  time_modified: new Date(2021, 3, 1).toISOString(),
 }
 
 export const userGroup2: Json<Group> = {
   id: '1b5fa004-a378-4225-960f-60f089684b05',
   silo_id: defaultSilo.id,
   display_name: 'kernel-devs',
+  time_created: new Date(2021, 3, 1).toISOString(),
+  time_modified: new Date(2021, 3, 1).toISOString(),
 }
 
 export const userGroup3: Json<Group> = {
   id: '5e30797c-cae3-4402-aeb7-d5044c4bed29',
   silo_id: defaultSilo.id,
   display_name: 'real-estate-devs',
+  time_created: new Date(2021, 3, 1).toISOString(),
+  time_modified: new Date(2021, 3, 1).toISOString(),
 }
 
 export const userGroups = [userGroup1, userGroup2, userGroup3]

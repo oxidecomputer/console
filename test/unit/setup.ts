@@ -11,9 +11,8 @@
  * in this file does _not_ impact end-to-end tests.
  */
 import '@testing-library/jest-dom/vitest'
-
 import { cleanup } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll } from 'vitest'
+import { afterAll, afterEach, beforeAll, vi } from 'vitest'
 
 import { resetDb } from '../../mock-api/msw/db'
 import { server } from './server'
@@ -21,6 +20,28 @@ import { server } from './server'
 // xterm calls this when it's imported, so defining it here suppresses
 // an error that the method is not implemented
 HTMLCanvasElement.prototype.getContext = () => null
+
+// uPlot wants to matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+})
+
+// jsdom has no ResizeObserver, but Headless UI (e.g. Listbox) constructs one for
+// popover positioning. A no-op stub is enough — there's no real layout to observe
+// in jsdom, so the callback never needs to fire.
+globalThis.ResizeObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
 
 beforeAll(() => server.listen())
 afterEach(() => {

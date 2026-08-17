@@ -15,7 +15,7 @@ import { project } from './project'
 const base = {
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
-  block_size: 512,
+  block_size: 512 as const,
 }
 
 export const images: Json<Image>[] = [

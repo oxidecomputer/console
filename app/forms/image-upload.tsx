@@ -7,7 +7,6 @@
  */
 import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
-import { filesize } from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
@@ -19,7 +18,6 @@ import {
   q,
   queryClient,
   useApiMutation,
-  type ApiError,
   type BlockSize,
   type Disk,
   type Snapshot,
@@ -41,18 +39,38 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Progress } from '~/ui/lib/Progress'
 import { Spinner } from '~/ui/lib/Spinner'
 import { anySignal } from '~/util/abort'
 import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
-import { links } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { isAllZeros } from '~/util/str'
-import { GiB, KiB } from '~/util/units'
+import { formatBytes, GiB, KiB } from '~/util/units'
 
-/** Format file size with two decimal points */
-const fsize = (bytes: number) => filesize(bytes, { base: 2, pad: true })
+// Padded because otherwise the numbers jump around a bit, e.g., when it goes
+// from 10.55 to 14.7 to 19.23
+const fsize = (bytes: number) => formatBytes(bytes, { pad: true }).label
+const genericUploadErrorMessage = 'Something went wrong. Please try again.'
+
+function getUploadErrorMessage(e: unknown): string {
+  if (!e || typeof e !== 'object') return genericUploadErrorMessage
+  const errorCode = 'errorCode' in e ? e.errorCode : undefined
+  const message = 'message' in e ? e.message : undefined
+
+  // Mutation errors are ApiErrors with user-facing messages from
+  // processServerError. Show the API message only when it's actually
+  // user-facing: errorCode "Internal" maps to dropshot's generic 500
+  // ("Internal Server Error") with no real detail, and a missing message
+  // means we got nothing to display.
+  return typeof errorCode === 'string' &&
+    typeof message === 'string' &&
+    errorCode !== 'Internal'
+    ? message
+    : genericUploadErrorMessage
+}
 
 type FormValues = {
   imageName: string
@@ -106,7 +124,7 @@ function Step({ children, state, label, className }: StepProps) {
   return (
     // data-status used only for e2e testing
     <div
-      className={cn('upload-step items-top flex gap-2 px-4 py-3', className)}
+      className={cn('upload-step flex gap-2 px-4 py-3', className)}
       data-testid={`upload-step: ${label}`}
       data-status={status}
     >
@@ -131,6 +149,7 @@ function getTmpDiskName(imageName: string) {
     // do the right thing in
     const specialNames = new Set([
       'disk-create-500',
+      'disk-create-quota',
       'import-start-500',
       'import-stop-500',
       'disk-finalize-500',
@@ -194,7 +213,7 @@ export default function ImageCreate() {
   // are submitting, we rely on the RQ mutations themselves, plus a synthetic
   // mutation state representing the many calls of the bulk upload step.
 
-  const [formError, setFormError] = useState<ApiError | null>(null)
+  const [formError, setFormError] = useState<{ message: string } | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalError, setModalError] = useState<string | null>(null)
 
@@ -227,6 +246,8 @@ export default function ImageCreate() {
   const finalizeDisk = useApiMutation(api.diskFinalizeImport)
   const createImage = useApiMutation(api.imageCreate)
   const deleteDisk = useApiMutation(api.diskDelete)
+  // no invalidation needed: the deleted snapshot is the transient one created
+  // by this flow, so nothing can be displaying it
   const deleteSnapshot = useApiMutation(api.snapshotDelete)
 
   // TODO: Distinguish cleanup mutations being called after successful run vs.
@@ -489,12 +510,16 @@ export default function ImageCreate() {
     // now delete the snapshot and the disk. don't use cleanup() because that
     // uses different mutations
     await deleteSnapshot.mutateAsync({ path: { snapshot: snapshot.current.id } })
+    snapshot.current = null
     await deleteDisk.mutateAsync({ path: { disk: disk.current.id } })
+    disk.current = null
 
     setAllDone(true)
   }
 
-  const form = useForm({ defaultValues })
+  // Surface file validation as soon as the user picks a file. Block-size
+  // changes are still validated on submit.
+  const form = useForm({ defaultValues, mode: 'onChange' })
   const file = form.watch('imageFile')
   const blockSize = form.watch('blockSize')
 
@@ -516,28 +541,26 @@ export default function ImageCreate() {
         // check that image name isn't taken before starting the whole thing
         const image = await queryClient
           .fetchQuery(
-            q(api.imageView, {
-              path: { image: values.imageName },
-              query: { project },
-            })
+            q(
+              api.imageView,
+              { path: { image: values.imageName }, query: { project } },
+              {
+                errorsExpected: {
+                  explanation: 'the image name may not exist yet.',
+                  statusCode: 404,
+                },
+              }
+            )
           )
           .catch((e) => {
             // eat a 404 since that's what we want. anything else should still blow up
-            if (e.statusCode === 404) {
-              console.info(
-                '/v1/images 404 is expected. It means the image name is not taken.'
-              )
-              return null
-            }
+            if (e.statusCode === 404) return null
             throw e
           })
         if (image) {
           // TODO: set this error on the field instead of the whole form
           // TODO: make setError available here somehow :(
-          setFormError({
-            errorCode: 'ObjectAlreadyExists',
-            message: 'Image name already exists',
-          })
+          setFormError({ message: 'Image name already exists' })
           return
         }
 
@@ -550,7 +573,7 @@ export default function ImageCreate() {
         } catch (e) {
           if (e !== ABORT_ERROR) {
             console.error(e)
-            setModalError('Something went wrong. Please try again.')
+            setModalError(getUploadErrorMessage(e))
             // abort anything in flight in case
             cancelEverything()
           }
@@ -570,18 +593,6 @@ export default function ImageCreate() {
       submitError={formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
-      <Message
-        variant="info"
-        content={
-          <>
-            Read the{' '}
-            <a target="_blank" rel="noreferrer" href={links.imagesDocs}>
-              Images
-            </a>{' '}
-            guide to learn more about image requirements.
-          </>
-        }
-      />
       <NameField name="imageName" label="Name" control={form.control} />
       <DescriptionField
         name="imageDescription"
@@ -615,6 +626,13 @@ export default function ImageCreate() {
           label="Image file"
           required
           control={form.control}
+          // Crucible rejects bulk-write imports whose total size isn't a
+          // multiple of the block size, so catch it before the long upload.
+          validate={(f, { blockSize }) => {
+            if (f && f.size % blockSize !== 0) {
+              return `File size must be a multiple of the block size (${blockSize} bytes)`
+            }
+          }}
         />
         {imageValidation && <BootableNotice {...imageValidation} />}
       </div>
@@ -675,7 +693,7 @@ export default function ImageCreate() {
                   label="Image uploaded successfully"
                   className={
                     allDone
-                      ? 'bg-accent-secondary *:text-accent transition-colors'
+                      ? 'bg-accent *:text-accent transition-colors'
                       : 'transition-colors'
                   }
                 />
@@ -691,6 +709,7 @@ export default function ImageCreate() {
           />
         </Modal>
       )}
+      <SideModalFormDocs docs={[docLinks.images]} />
     </SideModalForm>
   )
 }

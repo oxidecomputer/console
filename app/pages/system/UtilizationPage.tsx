@@ -77,7 +77,7 @@ export default function SystemUtilizationPage() {
         provisioned={totalProvisioned}
         allocatedLabel="Quota (Total)"
       />
-      <QueryParamTabs defaultValue="summary" className="full-width">
+      <QueryParamTabs defaultValue="summary" className="full-width mt-8">
         <Tabs.List>
           <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
           <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
@@ -133,7 +133,8 @@ const MetricsTab = () => {
           <Listbox
             selected={filterId}
             className="w-52"
-            aria-labelledby="filter-id-label"
+            label="Filter by silo"
+            hideLabel
             name="filter-id"
             items={siloItems}
             onChange={setFilterId}

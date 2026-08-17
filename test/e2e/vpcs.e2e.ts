@@ -12,41 +12,43 @@ import { clickRowAction, expectRowVisible, getPageAsUser, selectOption } from '.
 test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
+  await page.waitForURL('**/projects/mock-project/**')
   await page.getByRole('link', { name: 'VPCs' }).click()
+  await page.waitForURL('**/vpcs**')
 
   await expectRowVisible(page.getByRole('table'), {
-    name: 'mock-vpc',
-    'DNS name': 'mock-vpc',
+    name: 'default',
+    'DNS name': 'default',
     description: 'a fake vpc',
     'Firewall Rules': '3',
   })
 
   // click the vpc name cell to go there
-  await page.getByRole('link', { name: 'mock-vpc' }).click()
+  await page.getByRole('link', { name: 'default' }).click()
 
-  await expect(page.getByRole('heading', { name: 'mock-vpc' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'default' })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Firewall rules' })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeVisible()
-  await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc/firewall-rules')
+  await expect(page).toHaveURL('/projects/mock-project/vpcs/default/firewall-rules')
   await expect(page).toHaveTitle(
-    'Firewall Rules / mock-vpc / VPCs / mock-project / Projects / Oxide Console'
+    'Firewall Rules / default / VPCs / mock-project / Projects / Oxide Console'
   )
 
   // we can also click the firewall rules cell to get to the VPC detail
   await page.goBack()
-  await expect(page.getByRole('heading', { name: 'mock-vpc' })).toBeHidden()
+  await expect(page.getByRole('heading', { name: 'default' })).toBeHidden()
   await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeHidden()
   await page.getByRole('link', { name: '3' }).click()
-  await expect(page.getByRole('heading', { name: 'mock-vpc' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'default' })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeVisible()
 })
 
 test('can edit VPC', async ({ page }) => {
   // update the VPC name, starting from the VPCs list page
   await page.goto('/projects/mock-project/vpcs')
-  await expectRowVisible(page.getByRole('table'), { name: 'mock-vpc' })
-  await clickRowAction(page, 'mock-vpc', 'Edit')
-  await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc/edit')
+  await expectRowVisible(page.getByRole('table'), { name: 'default' })
+  await clickRowAction(page, 'default', 'Edit')
+  await expect(page).toHaveURL('/projects/mock-project/vpcs/default/edit')
   await page.getByRole('textbox', { name: 'Name' }).first().fill('mock-vpc-2')
   await page.getByRole('button', { name: 'Update VPC' }).click()
   await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc-2/firewall-rules')
@@ -67,109 +69,111 @@ test('can edit VPC', async ({ page }) => {
   await expect(page.getByRole('table').locator('tbody >> tr')).toHaveCount(1)
   await expectRowVisible(page.getByRole('table'), {
     name: 'mock-vpc-2',
-    'DNS name': 'mock-vpc',
+    'DNS name': 'default',
     description: 'updated description',
   })
 })
 
 test('can create and delete subnet', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc')
-  await page.getByRole('tab', { name: 'Subnets' }).click()
-  // only one row in table, the default mock-subnet
+  await page.goto('/projects/mock-project/vpcs/default')
+  await page.getByRole('tab', { name: 'VPC Subnets' }).click()
+  // two rows in table: default and mock-subnet-2
   const table = page.getByRole('table')
   const rows = page.getByRole('table').getByRole('row')
-  await expect(rows).toHaveCount(2)
+  await expect(rows).toHaveCount(3)
 
   await expectRowVisible(table, {
-    name: 'mock-subnet',
+    name: 'default',
     'Custom Router': '—',
     'IP Block': expect.stringContaining('10.1.1.1/24'),
   })
 
   // open modal, fill out form, submit
-  await page.getByRole('link', { name: 'New subnet' }).click()
+  await page.getByRole('link', { name: 'New VPC subnet' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Create subnet' })
+  const dialog = page.getByRole('dialog', { name: 'Create VPC subnet' })
   await expect(dialog).toBeVisible()
 
-  await dialog.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-2')
-  await dialog.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.2/24')
+  await dialog.getByRole('textbox', { name: 'Name' }).fill('default-3')
+  await dialog.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.3/24')
 
   // little hack to catch a bug where we weren't handling empty input here properly
   await dialog.getByRole('textbox', { name: 'IPv6 block' }).fill('abc')
   await dialog.getByRole('textbox', { name: 'IPv6 block' }).clear()
 
-  await dialog.getByRole('button', { name: 'Create subnet' }).click()
+  await dialog.getByRole('button', { name: 'Create VPC subnet' }).click()
 
   await expect(dialog).toBeHidden()
-  await expect(rows).toHaveCount(3)
+  await expect(rows).toHaveCount(4)
 
   await expectRowVisible(table, {
-    name: 'mock-subnet',
+    name: 'default',
     'Custom Router': '—',
     'IP Block': expect.stringContaining('10.1.1.1/24'),
   })
   await expectRowVisible(table, {
-    name: 'mock-subnet-2',
+    name: 'default-3',
     'Custom Router': '—',
-    'IP Block': expect.stringContaining('10.1.1.2/24'),
+    'IP Block': expect.stringContaining('10.1.1.3/24'),
   })
 
   // click more button on row to get menu, then click Delete
-  await clickRowAction(page, 'mock-subnet-2', 'Delete')
+  await clickRowAction(page, 'default-3', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expect(rows).toHaveCount(2)
+  await expect(rows).toHaveCount(3)
 })
 
 test('can create and update subnets with a custom router', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/subnets')
-  await page.getByRole('link', { name: 'New subnet' }).click()
+  await page.goto('/projects/mock-project/vpcs/default/subnets')
 
+  // Check initial table state before opening the dialog — once it's open the
+  // table is aria-hidden and role-based locators won't find it.
   const table = page.getByRole('table')
   const rows = table.getByRole('row')
-  await expect(rows).toHaveCount(2)
+  await expect(rows).toHaveCount(3)
   await expectRowVisible(table, {
-    name: 'mock-subnet',
+    name: 'default',
     'Custom Router': '—',
     'IP Block': expect.stringContaining('10.1.1.1/24'),
   })
 
-  const dialog = page.getByRole('dialog', { name: 'Create subnet' })
+  await page.getByRole('link', { name: 'New VPC subnet' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Create VPC subnet' })
   await expect(dialog).toBeVisible()
 
-  await page.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-2')
-  await page.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.2/24')
+  await page.getByRole('textbox', { name: 'Name' }).fill('default-3')
+  await page.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.3/24')
 
   await page.getByRole('button', { name: 'Custom router' }).click()
   await page.getByRole('option', { name: 'mock-custom-router' }).click()
 
-  await page.getByRole('button', { name: 'Create subnet' }).click()
+  await page.getByRole('button', { name: 'Create VPC subnet' }).click()
   await expect(dialog).toBeHidden()
 
-  await expect(rows).toHaveCount(3)
+  await expect(rows).toHaveCount(4)
   await expectRowVisible(table, {
-    name: 'mock-subnet-2',
+    name: 'default-3',
     'Custom Router': 'mock-custom-router',
-    'IP Block': expect.stringContaining('10.1.1.2/24'),
+    'IP Block': expect.stringContaining('10.1.1.3/24'),
   })
 
   // now remove the router
-  await page.getByRole('link', { name: 'mock-subnet-2' }).click()
+  await page.getByRole('link', { name: 'default-3' }).click()
   await page.getByRole('button', { name: 'Custom router' }).click()
   await page.getByRole('option', { name: 'None' }).click()
-  await page.getByRole('button', { name: 'Update subnet' }).click()
+  await page.getByRole('button', { name: 'Update VPC subnet' }).click()
   await expect(dialog).toBeHidden()
 
   await expectRowVisible(table, {
-    name: 'mock-subnet-2',
+    name: 'default-3',
     'Custom Router': '—',
   })
 })
 
 test('can create, update, and delete Router', async ({ page }) => {
-  // load the VPC page for mock-vpc, to the firewall-rules tab
-  await page.goto('/projects/mock-project/vpcs/mock-vpc')
+  // load the VPC page for default, to the firewall-rules tab
+  await page.goto('/projects/mock-project/vpcs/default')
   await page.getByRole('tab', { name: 'Routers' }).click()
 
   // expect to see the list of routers, including mock-system-router and mock-custom-router
@@ -196,13 +200,13 @@ test('can create, update, and delete Router', async ({ page }) => {
   // click on mock-system-router to go to the router detail page
   await page.getByText('mock-system-router').click()
   await expect(page).toHaveURL(
-    '/projects/mock-project/vpcs/mock-vpc/routers/mock-system-router'
+    '/projects/mock-project/vpcs/default/routers/mock-system-router'
   )
 })
 
 test('can’t create or delete Routes on system routers', async ({ page }) => {
   // load the router
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-system-router')
+  await page.goto('/projects/mock-project/vpcs/default/routers/mock-system-router')
 
   // verify that the "new route" link isn't present, since users can't add routes to system routers
   await expect(page.getByRole('link', { name: 'New route' })).toBeHidden()
@@ -220,7 +224,7 @@ test('can’t create or delete Routes on system routers', async ({ page }) => {
 })
 
 test('create router route', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
+  await page.goto('/projects/mock-project/vpcs/default/routers/mock-custom-router')
 
   // Selectors
   const form = page.getByRole('dialog', { name: 'Create route' })
@@ -276,8 +280,16 @@ test('create router route', async ({ page }) => {
   })
 })
 
+test('clicking a route name opens the edit modal', async ({ page }) => {
+  const router = '/projects/mock-project/vpcs/default/routers/mock-custom-router'
+  await page.goto(router)
+  await page.getByRole('link', { name: 'drop-local' }).click()
+  await expect(page).toHaveURL(`${router}/routes/drop-local/edit`)
+  await expect(page.getByRole('dialog', { name: 'Edit route' })).toBeVisible()
+})
+
 test('edit and delete router route', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
+  await page.goto('/projects/mock-project/vpcs/default/routers/mock-custom-router')
 
   const table = page.getByRole('table')
   await expect(table.locator('tbody >> tr')).toHaveCount(2)
@@ -304,14 +316,14 @@ test('edit and delete router route', async ({ page }) => {
 
   // Change destination to subnet
   await selectOption(page, 'Destination type', 'Subnet')
-  await selectOption(page, 'Destination value', 'mock-subnet')
+  await selectOption(page, 'Destination value', 'default')
 
   await submitButton.click()
   await expect(form).toBeHidden()
 
   await expectRowVisible(table, {
     Name: 'new-name',
-    Destination: 'VPC subnetmock-subnet',
+    Destination: 'VPC subnetdefault',
     Target: 'IP10.0.0.2',
   })
 
@@ -323,7 +335,7 @@ test('edit and delete router route', async ({ page }) => {
 })
 
 test('can view internet gateways', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc')
+  await page.goto('/projects/mock-project/vpcs/default')
   await page.getByRole('tab', { name: 'Internet Gateways' }).click()
 
   const table = page.getByRole('table')
@@ -347,9 +359,10 @@ test('can view internet gateways', async ({ page }) => {
 
   await page.getByRole('link', { name: 'internet-gateway-1' }).click()
   await expect(page).toHaveURL(
-    '/projects/mock-project/vpcs/mock-vpc/internet-gateways/internet-gateway-1'
+    '/projects/mock-project/vpcs/default/internet-gateways/internet-gateway-1'
   )
-  const sidemodal = page.getByLabel('Internet Gateway')
+  // Use getByRole instead of getByLabel to avoid matching truncated descriptions
+  const sidemodal = page.getByRole('dialog', { name: 'Internet gateway' })
 
   await expect(sidemodal.getByText('123.4.56.3')).toBeVisible()
 
@@ -364,7 +377,7 @@ test('can view internet gateways', async ({ page }) => {
 test('internet gateway shows proper list of routes targeting it', async ({ page }) => {
   // open up the internet gateway detail page for internet-gateway-1
   await page.goto(
-    '/projects/mock-project/vpcs/mock-vpc/internet-gateways/internet-gateway-1'
+    '/projects/mock-project/vpcs/default/internet-gateways/internet-gateway-1'
   )
   // verify that it has a table with the row showing "mock-custom-router" and "dc2"
   const sidemodal = page.getByRole('dialog', { name: 'Internet Gateway' })
@@ -383,7 +396,7 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await page.getByRole('link', { name: 'mock-custom-router' }).click()
   // expect to be on the view page
   await expect(page).toHaveURL(
-    '/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router'
+    '/projects/mock-project/vpcs/default/routers/mock-custom-router'
   )
 
   await page.getByRole('link', { name: 'mock-custom-router' }).click()
@@ -395,8 +408,8 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await selectOption(page, 'Target value', 'internet-gateway-1')
   await page.getByRole('button', { name: 'Create route' }).click()
 
-  // go back to the mock-vpc page by clicking on the link in the header
-  await page.getByRole('link', { name: 'mock-vpc' }).click()
+  // go back to the default page by clicking on the link in the header
+  await page.getByRole('link', { name: 'default' }).click()
   // click on the internet gateways tab and then the internet-gateway-1 link to go to the detail page
   await page.getByRole('tab', { name: 'Internet Gateways' }).click()
   // verify that the route count is now 2: click on the link to go to the edit gateway sidemodal
@@ -411,7 +424,7 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await sidemodal.getByRole('link', { name: 'mock-custom-router' }).first().click()
   // expect to be on the view page
   await expect(page).toHaveURL(
-    '/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router'
+    '/projects/mock-project/vpcs/default/routers/mock-custom-router'
   )
 })
 
@@ -422,7 +435,7 @@ test('collaborator can create VPC', async ({ browser }) => {
   const table = page.getByRole('table')
 
   // Create a new VPC
-  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('link', { name: 'New VPC' }).click()
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('collab-test-vpc')
   await page.getByRole('textbox', { name: 'DNS name' }).fill('collab-test-vpc')
   await page.getByRole('button', { name: 'Create VPC' }).click()
@@ -450,7 +463,7 @@ test('user in group with silo collaborator role can create VPC', async ({ browse
   const table = page.getByRole('table')
 
   // Create a new VPC
-  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('link', { name: 'New VPC' }).click()
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('group-test-vpc')
   await page.getByRole('textbox', { name: 'DNS name' }).fill('group-test-vpc')
   await page.getByRole('button', { name: 'Create VPC' }).click()
@@ -474,7 +487,7 @@ test('limited collaborator cannot create VPC', async ({ browser }) => {
   await page.goto('/projects/mock-project/vpcs')
 
   // Try to create a new VPC
-  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('link', { name: 'New VPC' }).click()
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('limited-test-vpc')
   await page.getByRole('textbox', { name: 'DNS name' }).fill('limited-test-vpc')
   await page.getByRole('button', { name: 'Create VPC' }).click()

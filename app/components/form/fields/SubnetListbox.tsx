@@ -55,7 +55,7 @@ export function SubnetListbox<
       items={subnets.map(({ name }) => ({ value: name, label: name }))}
       disabled={!vpcExists}
       control={control}
-      placeholder="Select a subnet"
+      placeholder="Select a VPC subnet"
       noItemsPlaceholder={vpcName ? 'No subnets found' : 'Select a VPC to see subnets'}
     />
   )

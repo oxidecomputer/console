@@ -31,16 +31,19 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
+import { CardBlock } from '~/ui/lib/CardBlock'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
+import { Divider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { TableControls, TableTitle } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -71,6 +74,8 @@ const routeTypes = {
   vpc: 'VPC',
 }
 
+const routerRoutesColHelper = createColumnHelper<RouterRoute>()
+
 // All will have a type and a value except `Drop`, which only has a type
 const RouterRouteTypeValueBadge = ({
   type,
@@ -85,6 +90,31 @@ const RouterRouteTypeValueBadge = ({
     <Badge>{routeTypes[type]}</Badge>
   )
 }
+
+/** Reads route params so the name column can stay static */
+const NameCell = ({ route }: { route: string }) => {
+  const selector = useVpcRouterSelector()
+  return <LinkCell to={pb.vpcRouterRouteEdit({ ...selector, route })}>{route}</LinkCell>
+}
+
+const routerRoutesStaticCols = [
+  routerRoutesColHelper.accessor('name', {
+    header: 'Name',
+    cell: (info) => <NameCell route={info.getValue()} />,
+  }),
+  routerRoutesColHelper.accessor('kind', {
+    header: 'Kind',
+    cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
+  }),
+  routerRoutesColHelper.accessor('destination', {
+    header: 'Destination',
+    cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+  }),
+  routerRoutesColHelper.accessor('target', {
+    header: 'Target',
+    cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+  }),
+]
 
 export default function RouterPage() {
   const { project, vpc, router } = useVpcRouterSelector()
@@ -103,29 +133,11 @@ export default function RouterPage() {
       icon={<Networking24Icon />}
       title="No routes"
       body="Add a route to see it here"
-      buttonText="Add route"
+      buttonText="New route"
       buttonTo={pb.vpcRouterRoutesNew({ project, vpc, router })}
     />
   )
   const navigate = useNavigate()
-
-  const routerRoutesColHelper = createColumnHelper<RouterRoute>()
-
-  const routerRoutesStaticCols = [
-    routerRoutesColHelper.accessor('name', { header: 'Name' }),
-    routerRoutesColHelper.accessor('kind', {
-      header: 'Kind',
-      cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
-    }),
-    routerRoutesColHelper.accessor('destination', {
-      header: 'Destination',
-      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
-    }),
-    routerRoutesColHelper.accessor('target', {
-      header: 'Target',
-      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
-    }),
-  ]
 
   const makeRangeActions = useCallback(
     (routerRoute: RouterRoute): MenuAction[] => [
@@ -150,8 +162,8 @@ export default function RouterPage() {
         onActivate: () =>
           confirmAction({
             doAction: () => deleteRouterRoute({ path: { route: routerRoute.id } }),
-            errorTitle: 'Could not remove route',
-            modalTitle: 'Confirm remove route',
+            errorTitle: 'Could not delete route',
+            modalTitle: 'Delete route',
             modalContent: (
               <p>
                 Are you sure you want to delete route <HL>{routerRoute.name}</HL>?
@@ -175,6 +187,20 @@ export default function RouterPage() {
   // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L201-L205
   const canCreateNewRoute = routerData.kind === 'custom'
 
+  useQuickActions(
+    () =>
+      canCreateNewRoute
+        ? [
+            {
+              value: 'New route',
+              navGroup: 'Actions',
+              action: pb.vpcRouterRoutesNew({ project, vpc, router }),
+            },
+          ]
+        : [],
+    [canCreateNewRoute, project, vpc, router]
+  )
+
   return (
     <>
       <PageHeader>
@@ -183,8 +209,8 @@ export default function RouterPage() {
           <DocsPopover
             heading="routers"
             icon={<Networking16Icon />}
-            summary="Routers are collections of routes that direct traffic between VPCs and their subnets."
-            links={[docLinks.routers]}
+            summary="A router is a collection of routes that control where traffic leaving a VPC subnet is forwarded based on its destination."
+            links={[docLinks.routers, docLinks.routes]}
           />
           <MoreActionsMenu label="Router actions">
             <CopyIdItem id={routerData.id} />
@@ -199,22 +225,24 @@ export default function RouterPage() {
         <PropertiesTable.DateRow date={routerData.timeCreated} label="Created" />
         <PropertiesTable.DateRow date={routerData.timeModified} label="Last Modified" />
       </PropertiesTable>
-      <TableControls className="mb-3">
-        <TableTitle>Routes</TableTitle>
-        {canCreateNewRoute ? (
-          <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
-            New route
-          </CreateLink>
-        ) : (
-          <CreateButton
-            disabled
-            disabledReason={routeFormMessage.noNewRoutesOnSystemRouter}
-          >
-            New route
-          </CreateButton>
-        )}
-      </TableControls>
-      {table}
+      <Divider className="my-8" />
+      <CardBlock>
+        <CardBlock.Header title="Routes" description="Rules for directing network traffic">
+          {canCreateNewRoute ? (
+            <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
+              New route
+            </CreateLink>
+          ) : (
+            <CreateButton
+              disabled
+              disabledReason={routeFormMessage.noNewRoutesOnSystemRouter}
+            >
+              New route
+            </CreateButton>
+          )}
+        </CardBlock.Header>
+        <CardBlock.Body>{table}</CardBlock.Body>
+      </CardBlock>
       <Outlet />
     </>
   )

@@ -18,7 +18,12 @@ import { Access16Icon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HL } from '~/components/HL'
+import { useCurrentUser } from '~/hooks/use-current-user'
+import { confirmAction } from '~/stores/confirm-action'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 
 import {
   actorToItem,
@@ -47,7 +52,10 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       resourceName="role"
       title="Add user or group"
       submitLabel="Assign role"
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        updatePolicy.reset() // clear API error state so it doesn't persist on next open
+        onDismiss()
+      }}
       onSubmit={({ identityId, roleName }) => {
         // TODO: DRY logic
         // actor is guaranteed to be in the list because it came from there
@@ -68,6 +76,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         control={form.control}
       />
       <RoleRadioField name="roleName" control={form.control} scope="Silo" />
+      <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )
 }
@@ -80,6 +89,7 @@ export function SiloAccessEditUserSideModal({
   policy,
   defaultValues,
 }: EditRoleModalProps) {
+  const { me } = useCurrentUser()
   const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('policyView')
@@ -100,15 +110,41 @@ export function SiloAccessEditUserSideModal({
         </ResourceLabel>
       }
       onSubmit={({ roleName }) => {
-        updatePolicy.mutate({
-          body: updateRole({ identityId, identityType, roleName }, policy),
-        })
+        const body = updateRole({ identityId, identityType, roleName }, policy)
+        // Only silo admins can edit the policy, so an admin who removes their
+        // own admin role may not be able to undo the change. "May" because
+        // they could still be an admin through a group.
+        if (
+          identityId === me.id &&
+          defaultValues.roleName === 'admin' &&
+          roleName !== 'admin'
+        ) {
+          confirmAction({
+            actionType: 'danger',
+            doAction: () => updatePolicy.mutateAsync({ body }),
+            modalTitle: 'Remove your own admin role',
+            modalContent: (
+              <p>
+                You are removing the <HL>admin</HL> role from your own account. You may lose
+                the ability to manage access to this silo, including restoring your own
+                role. Are you sure?
+              </p>
+            ),
+            errorTitle: 'Could not update role',
+          })
+          return
+        }
+        updatePolicy.mutate({ body })
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        updatePolicy.reset() // clear API error state so it doesn't persist on next open
+        onDismiss()
+      }}
     >
       <RoleRadioField name="roleName" control={form.control} scope="Silo" />
+      <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )
 }

@@ -14,12 +14,14 @@ import { Key16Icon } from '@oxide/design-system/icons/react'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getSshKeySelector, useSshKeySelector } from '~/hooks/use-params'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
-import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -53,11 +55,7 @@ export default function EditSSHKeySideModalForm() {
         </ResourceLabel>
       }
     >
-      <PropertiesTable>
-        <PropertiesTable.IdRow id={data.id} />
-        <PropertiesTable.DateRow date={data.timeCreated} label="Created" />
-        <PropertiesTable.DateRow date={data.timeModified} label="Updated" />
-      </PropertiesTable>
+      <FormMetadata resource={data} />
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} disabled />
       <div className="relative">
@@ -72,6 +70,7 @@ export default function EditSSHKeySideModalForm() {
           disabled
         />
       </div>
+      <SideModalFormDocs docs={[docLinks.sshKeys]} />
     </ReadOnlySideModalForm>
   )
 }

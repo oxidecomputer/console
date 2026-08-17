@@ -9,17 +9,19 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery, type Disk } from '@oxide/api'
 import { Storage16Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getDiskSelector, useDiskSelector } from '~/hooks/use-params'
-import { EmptyCell } from '~/table/cells/EmptyCell'
+import { DiskSourceName } from '~/table/cells/DiskSourceCell'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-import { bytesToGiB } from '~/util/units'
 
 const diskView = ({ disk, project }: PP.Disk) =>
   q(api.diskView, { path: { disk }, query: { project } })
@@ -73,7 +75,7 @@ export function DiskDetailSideModal({
       <PropertiesTable>
         <PropertiesTable.IdRow id={disk.id} />
         <PropertiesTable.DescriptionRow description={disk.description} />
-        <PropertiesTable.Row label="Size">{bytesToGiB(disk.size)} GiB</PropertiesTable.Row>
+        <PropertiesTable.SizeRow bytes={disk.size} />
         <PropertiesTable.Row label="State">
           <DiskStateBadge state={disk.state.state} />
         </PropertiesTable.Row>
@@ -81,11 +83,11 @@ export function DiskDetailSideModal({
           <DiskTypeBadge diskType={disk.diskType} />
         </PropertiesTable.Row>
         {/* TODO: show attached instance by name like the table does? */}
-        <PropertiesTable.Row label="Image ID">
-          {disk.imageId ?? <EmptyCell />}
+        <PropertiesTable.Row label="Source">
+          <DiskSourceName imageId={disk.imageId} snapshotId={disk.snapshotId} />
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="Snapshot ID">
-          {disk.snapshotId ?? <EmptyCell />}
+        <PropertiesTable.Row label="Read only">
+          <Badge color="neutral">{disk.readOnly ? 'True' : 'False'}</Badge>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Block size">
           {disk.blockSize.toLocaleString()} bytes
@@ -93,6 +95,7 @@ export function DiskDetailSideModal({
         <PropertiesTable.DateRow label="Created" date={disk.timeCreated} />
         <PropertiesTable.DateRow label="Last Modified" date={disk.timeModified} />
       </PropertiesTable>
+      <SideModalFormDocs docs={[docLinks.disks]} />
     </ReadOnlySideModalForm>
   )
 }

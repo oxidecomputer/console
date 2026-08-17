@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { filesize } from 'filesize'
 import {
   useRef,
   useState,
@@ -20,6 +19,7 @@ import { mergeRefs } from 'react-merge-refs'
 import { Document16Icon, Error16Icon } from '@oxide/design-system/icons/react'
 
 import { Truncate } from '~/ui/lib/Truncate'
+import { formatBytes } from '~/util/units'
 
 export type FileInputProps = Omit<ComponentProps<'input'>, 'type' | 'onChange'> & {
   onChange: (f: File | null) => void
@@ -63,13 +63,13 @@ export function FileInput({
   }
 
   return (
-    <label className={cn(className, 'group relative block')}>
+    <label className={cn(className, 'group relative block contain-[inline-size]')}>
       <input
         ref={mergeRefs([inputRef, ref])}
         type="file"
         name="file"
         className={cn(
-          'absolute inset-0 -z-1 w-full cursor-pointer rounded',
+          'absolute inset-0 -z-1 w-full cursor-pointer rounded-md',
           error && 'focus-error'
         )}
         {...inputProps}
@@ -80,32 +80,32 @@ export function FileInput({
       />
       <div
         className={cn(
-          'text-raise bg-default pointer-events-none relative z-1 flex flex-col items-center justify-center space-y-0.5 rounded border px-4 py-6',
-          dragOver && 'bg-accent-secondary border-accent-secondary!',
+          'text-raise bg-default pointer-events-none relative z-1 flex flex-col items-center justify-center space-y-0.5 rounded-md border px-4 py-6',
+          dragOver && 'bg-accent border-accent-secondary!',
           error
             ? 'border-error-secondary! group-hover:border-error'
-            : 'border-default group-hover:border-hover'
+            : 'border-default group-hover:border-raise'
         )}
       >
         <div
           className={cn(
-            'text-accent bg-accent-secondary flex items-center justify-center rounded p-1',
-            dragOver && 'bg-accent-secondary-hover'
+            'text-accent bg-accent flex items-center justify-center rounded-md p-1',
+            dragOver && 'bg-accent-hover'
           )}
         >
           <Document16Icon className="h-4 w-4" />
         </div>
-        <div className="text-sans-md flex h-8 items-center">
+        <div className="text-sans-md flex h-8 max-w-full items-center">
           {file && !dragOver ? (
-            <div className="text-raise flex items-center">
-              <Truncate text={file.name} maxLength={32} position="middle" />
-              <span className="text-tertiary ml-1">
-                ({filesize(file.size, { base: 2, pad: true })})
+            <div className="text-raise flex min-w-0 items-center">
+              <Truncate text={file.name} position="middle" />
+              <span className="text-tertiary ml-1 whitespace-nowrap">
+                ({formatBytes(file.size).label})
               </span>
               <button
                 type="button"
                 onClick={handleResetInput}
-                className="hover:*:text-secondary pointer-events-auto ml-1 inline-flex rounded p-1"
+                className="hover:*:text-secondary pointer-events-auto ml-1 inline-flex rounded-md p-1"
                 aria-label="Clear file"
               >
                 <Error16Icon className="text-tertiary" />

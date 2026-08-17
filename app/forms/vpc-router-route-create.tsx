@@ -12,7 +12,11 @@ import { api, q, queryClient, useApiMutation } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
-import { RouteFormFields, type RouteFormValues } from '~/forms/vpc-router-route-common'
+import {
+  RouteFormDocs,
+  RouteFormFields,
+  type RouteFormValues,
+} from '~/forms/vpc-router-route-common'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -79,6 +83,7 @@ export default function CreateRouterRouteSideModalForm() {
       submitError={createRouterRoute.error}
     >
       <RouteFormFields form={form} />
+      <RouteFormDocs />
     </SideModalForm>
   )
 }
