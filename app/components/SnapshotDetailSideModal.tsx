@@ -38,7 +38,7 @@ export function SnapshotDetailSideModal({
     >
       <PropertiesTable>
         <PropertiesTable.IdRow id={snapshot.id} />
-        <PropertiesTable.DescriptionRow description={snapshot.description} sideModal />
+        <PropertiesTable.DescriptionRow description={snapshot.description} />
         <PropertiesTable.Row label="State">
           <SnapshotStateBadge state={snapshot.state} />
         </PropertiesTable.Row>

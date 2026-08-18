@@ -9,8 +9,8 @@
 import type { InstanceState } from '~/api'
 import { InstanceStateBadge } from '~/components/StateBadge'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
-import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { DateTime } from '~/ui/lib/DateTime'
+import { Truncate } from '~/ui/lib/Truncate'
 import { Size } from '~/ui/lib/ValueUnit'
 
 // the full type of the info arg is CellContext<Row, Item> from RT, but in these
@@ -22,14 +22,8 @@ function dateCell(info: Info<Date>) {
 }
 
 function idCell(info: Info<string>) {
-  const text = info.getValue()
   return (
-    <div className="flex items-center gap-0.5 overflow-hidden">
-      {text}
-      <div className="flex items-center p-0.5">
-        <CopyToClipboard text={text} />
-      </div>
-    </div>
+    <Truncate text={info.getValue()} position="middle" className="max-w-48" hasCopyButton />
   )
 }
 

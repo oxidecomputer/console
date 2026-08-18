@@ -44,9 +44,7 @@ export default function SledPage() {
       </PageHeader>
 
       <PropertiesTable columns={2} className="-mt-8 mb-8">
-        <PropertiesTable.Row label="sled id">
-          <span className="text-default">{sled.id}</span>
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow label="sled id" id={sled.id} />
         <PropertiesTable.Row label="policy kind">
           <SledKindBadge policy={sled.policy} />
         </PropertiesTable.Row>
@@ -68,9 +66,7 @@ export default function SledPage() {
         <PropertiesTable.Row label="usable hardware threads">
           <span className="text-default">{sled.usableHardwareThreads}</span>
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="rack id">
-          <span className="text-default">{sled.rackId}</span>
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow label="rack id" id={sled.rackId} />
         <PropertiesTable.SizeRow
           label="usable physical ram"
           bytes={sled.usablePhysicalRam}

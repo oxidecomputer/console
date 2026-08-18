@@ -39,6 +39,7 @@ import { parseIp } from '~/util/ip'
 import { GiB, TiB } from '~/util/units'
 
 import type { DbRoleAssignmentResourceType } from '..'
+import { SENTINEL_FLAT_INSTANCE_ID, SENTINEL_SLOPE_INSTANCE_ID } from '../instance'
 import { genI64Data } from '../metrics'
 import { getMockOxqlInstanceData } from '../oxql-metrics'
 import { db, lookupById } from './db'
@@ -581,10 +582,35 @@ const getCpuStateFromQuery = (query: string): OxqlVcpuState | undefined => {
   return match ? (match[1] as OxqlVcpuState) : undefined
 }
 
+// Pull the instance UUID out of the `instance_id == "..."` filter (also matches
+// the `attached_instance_id` used by disk metrics).
+const getInstanceIdFromQuery = (query: string): string | undefined =>
+  query.match(/(?:attached_)?instance_id\s*==\s*"([^"]+)"/)?.[1]
+
+// getUtilizationChartProps renders raw values on screen as value * 100 / (5s *
+// 1e9 * 1 series); invertUtilization goes the other way — from a target percent
+// to the raw value that produces it.
+const invertUtilization = (percent: number): number => (percent * 5 * 1e9) / 100
+const SENTINEL_CONSTANT_RAW_VALUE = invertUtilization(12345) // 12,345%
+const sentinelSlopeRawValue = (i: number) => invertUtilization((i + 1) * 1000) // (i + 1) * 1000%
+
 export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryResult> {
   const metricName = getMetricNameFromQuery(query) as OxqlNetworkMetricName
   const stateValue = getCpuStateFromQuery(query)
-  return getMockOxqlInstanceData(metricName, stateValue)
+  const data = getMockOxqlInstanceData(metricName, stateValue)
+
+  // Sentinel instances: replace the series with synthetic data — flat (constant)
+  // or a slope that increases with time — so tests can assert on plotted values.
+  const instanceId = getInstanceIdFromQuery(query)
+  const points = data.tables[0].timeseries[0].points
+  const series = points.values[0].values.values
+  if (instanceId === SENTINEL_FLAT_INSTANCE_ID) {
+    points.values[0].values.values = series.map(() => SENTINEL_CONSTANT_RAW_VALUE)
+  } else if (instanceId === SENTINEL_SLOPE_INSTANCE_ID) {
+    points.values[0].values.values = series.map((_, i) => sentinelSlopeRawValue(i))
+  }
+
+  return data
 }
 
 export function randomHex(length: number) {

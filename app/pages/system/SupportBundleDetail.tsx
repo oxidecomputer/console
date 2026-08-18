@@ -136,11 +136,11 @@ export default function SupportBundleDetail() {
           </PropertiesTable.Row>
           {bundle.reasonForFailure && (
             <PropertiesTable.Row label="Failure reason">
-              <DescriptionCell text={bundle.reasonForFailure} sideModal />
+              <DescriptionCell text={bundle.reasonForFailure} />
             </PropertiesTable.Row>
           )}
           <PropertiesTable.Row label="Reason">
-            <DescriptionCell text={bundle.reasonForCreation} sideModal />
+            <DescriptionCell text={bundle.reasonForCreation} />
           </PropertiesTable.Row>
           <PropertiesTable.DateRow label="Created" date={bundle.timeCreated} />
           {isActive && (

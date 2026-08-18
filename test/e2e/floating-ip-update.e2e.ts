@@ -50,6 +50,13 @@ test('can update a floating IP', async ({ page }) => {
   await expectToast(page, `Floating IP ${updatedName} updated`)
 })
 
+test('clicking the name opens the edit side modal', async ({ page }) => {
+  await page.goto(floatingIpsPage)
+  await page.getByRole('link', { name: originalName }).click()
+  await expect(page).toHaveURL(`${floatingIpsPage}/${originalName}/edit`)
+  await expectVisible(page, expectedFormElements)
+})
+
 // Make sure that it still works even if the name doesn't change
 test('can update *just* the floating IP description', async ({ page }) => {
   // Go to the edit page for the original floating IP
