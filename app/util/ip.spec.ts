@@ -10,7 +10,7 @@ import { describe, expect, test } from 'vitest'
 
 import type { ExternalIp, IpVersion, UnicastIpPool } from '~/api'
 
-import { getEphemeralIpSlots, parseIp, parseIpNet } from './ip'
+import { getEphemeralIpSlots, toUrlCheckableIpv6, parseIp, parseIpNet } from './ip'
 
 const makePool = (ipVersion: IpVersion, name = `pool-${ipVersion}`): UnicastIpPool => ({
   id: `id-${name}`,
@@ -183,6 +183,22 @@ describe('getEphemeralIpSlots', () => {
 // and oxnet's Ipv4Net and Ipv6Net have the same validation behavior as our code.
 // https://github.com/oxidecomputer/test-ip-validation
 
+test.each([
+  ['2001:db8::1', '2001:db8::1'],
+  ['2001:db8:1:2::10.0.0.1', '2001:db8:1:2::0:0'],
+  ['1:2:3:4::10.0.0.1', '1:2:3:4::0:0'],
+  ['::ffff:255.255.255.255', '::ffff:0:0'],
+])('toUrlCheckableIpv6 converts %s to %s', (ip, expected) => {
+  expect(toUrlCheckableIpv6(ip)).toBe(expected)
+})
+
+test.each(['::ffff:1.2.3.04', '::251.240.044.17', '1::2:', '::1:', '1.2.3.4::', '1.2.3.4'])(
+  'toUrlCheckableIpv6 rejects %s',
+  (ip) => {
+    expect(toUrlCheckableIpv6(ip)).toBeNull()
+  }
+)
+
 const v4 = ['123.4.56.7', '1.2.3.4']
 
 test.each(v4)('parseIp catches valid IPV4 / invalid IPV6: %s', (s) => {
@@ -206,6 +222,18 @@ const v6 = [
   '::ffff:255.255.255.255',
   'fe08::7:8',
   'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+  // embedded IPv4 is allowed with :: in any position and in the full 6-group
+  // form, not just after ::ffff: (console#1939)
+  '2001:db8:3:4:5::192.0.2.33',
+  '1:2:3:4:5:6:192.0.2.33',
+  '::192.0.2.33',
+  '2001:db8::192.0.2.33',
+  '1:2:3:4::5:192.0.2.33',
+  'db8:db8:db8:db8:db8::192.0.2.33',
+  // WebKit's URL parser wrongly rejects embedded IPv4 where :: expands to
+  // exactly two groups; isIpv6 validates the quad itself so these still pass
+  '2001:db8:1:2::10.0.0.1',
+  '1:2:3:4::10.0.0.1',
 ]
 
 test.each(v6)('parseIp catches invalid IPV4 / valid IPV6: %s', (s) => {
@@ -238,10 +266,33 @@ const invalid = [
   '::1:2:3:4:5:6:7:8',
   '1:2:3:4:5:6:7:8::',
   '1:2:3:4:5:6:7:88888',
-  '2001:db8:3:4:5::192.0.2.33', // std::new::Ipv6Net allows this one
+  '1:2:3:4:5:6:7:192.0.2.33', // one group too many before the dotted quad
+  '::1.2.3.4.5',
+  '1:2:3:4:5:6:7:8:1.2.3.4',
   'fe08::7:8%',
   'fe08::7:8i',
   'fe08::7:8interface',
+  // zone IDs are valid in some contexts but std::net::Ipv6Addr rejects them
+  'fe80::1%eth0',
+  'fe80::1%0',
+  'fe80::%eth0',
+  '::1%lo0',
+  // We validate v6 by handing the address to the URL parser as a bracketed
+  // host, so a `]` plus a URL continuation could otherwise parse as port, path,
+  // query, or fragment and come back valid. Zod's z.ipv6() has this bug.
+  '::1]:80',
+  '::1]:80/foo',
+  '::1]#x',
+  '::1]?q=1',
+  '::1]:0/../x',
+  '::1]@evil.com',
+  '::1]',
+  // engine quirks handled explicitly in isIpv6: Chrome's URL parser accepts
+  // leading-zero octets in the embedded quad; WebKit's accepts a trailing colon
+  '::ffff:1.2.3.04',
+  '::251.240.044.17',
+  '1::2:',
+  '::1:',
 ]
 
 test.each(invalid)('parseIp catches invalid IP: %s', (s) => {
