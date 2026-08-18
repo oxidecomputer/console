@@ -14,6 +14,7 @@ import {
   api,
   q,
   queryClient,
+  supportBundleTransitioning,
   useApiMutation,
   usePrefetchedQuery,
   type SupportBundleInfo,
@@ -56,8 +57,7 @@ const bundleView = ({ bundleId }: PP.SupportBundle) => ({
     state: { data },
   }: {
     state: { data: SupportBundleInfo | undefined }
-  }) =>
-    data?.state === 'collecting' || data?.state === 'destroying' ? POLL_INTERVAL : false,
+  }) => (data && supportBundleTransitioning(data.state) ? POLL_INTERVAL : false),
 })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {

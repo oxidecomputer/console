@@ -15,6 +15,7 @@ import {
   getListQFn,
   q,
   queryClient,
+  supportBundleTransitioning,
   useApiMutation,
   type SupportBundleInfo,
 } from '@oxide/api'
@@ -92,9 +93,7 @@ const bundleList = getListQFn(
   { query: { sortBy: 'time_and_id_descending' } },
   {
     refetchInterval: ({ state: { data } }) =>
-      data?.items.some((b) => b.state === 'collecting' || b.state === 'destroying')
-        ? POLL_INTERVAL
-        : false,
+      data?.items.some((b) => supportBundleTransitioning(b.state)) ? POLL_INTERVAL : false,
   }
 )
 

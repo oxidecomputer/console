@@ -10,6 +10,8 @@ import cn from 'classnames'
 import {
   diskTransitioning,
   instanceTransitioning,
+  snapshotTransitioning,
+  supportBundleTransitioning,
   type DiskState,
   type DiskType,
   type InstanceState,
@@ -79,7 +81,7 @@ const SNAPSHOT_COLORS: Record<SnapshotState, BadgeColor> = {
 
 export const SnapshotStateBadge = (props: { state: SnapshotState; className?: string }) => (
   <Badge color={SNAPSHOT_COLORS[props.state]} className={cn(props.className, badgeClasses)}>
-    {props.state === 'creating' && (
+    {snapshotTransitioning(props.state) && (
       <Spinner size="sm" variant={SNAPSHOT_COLORS[props.state]} />
     )}
     {props.state}
@@ -101,7 +103,7 @@ export const SupportBundleStateBadge = (props: {
     color={SUPPORT_BUNDLE_COLORS[props.state]}
     className={cn(props.className, badgeClasses)}
   >
-    {(props.state === 'collecting' || props.state === 'destroying') && (
+    {supportBundleTransitioning(props.state) && (
       <Spinner size="sm" variant={SUPPORT_BUNDLE_COLORS[props.state]} />
     )}
     {props.state}

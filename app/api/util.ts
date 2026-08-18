@@ -22,6 +22,8 @@ import type {
   SiloIpPool,
   SiloUtilization,
   Sled,
+  SnapshotState,
+  SupportBundleState,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
@@ -181,14 +183,15 @@ export const instanceCan = R.mapValues(instanceActions, (states: InstanceState[]
   return test
 })
 
+/**
+ * States the instance is expected to leave on its own, so the UI should poll
+ * and show a spinner. Exhaustive match so new states have to be classified.
+ */
 export function instanceTransitioning(runState: InstanceState) {
-  return (
-    runState === 'creating' ||
-    runState === 'starting' ||
-    runState === 'rebooting' ||
-    runState === 'migrating' ||
-    runState === 'stopping'
-  )
+  return match(runState)
+    .with('creating', 'starting', 'rebooting', 'migrating', 'stopping', () => true)
+    .with('running', 'stopped', 'repairing', 'failed', 'destroyed', () => false)
+    .exhaustive()
 }
 
 /**
@@ -246,13 +249,42 @@ const canSnapshot = (d: SnapshotDisk) => {
 }
 canSnapshot.states = snapshotStates
 
+/** See {@link instanceTransitioning} */
 export function diskTransitioning(diskState: DiskState['state']) {
-  return (
-    diskState === 'attaching' ||
-    diskState === 'creating' ||
-    diskState === 'detaching' ||
-    diskState === 'finalizing'
-  )
+  return match(diskState)
+    .with('attaching', 'creating', 'detaching', 'finalizing', () => true)
+    .with(
+      'attached',
+      'detached',
+      'destroyed',
+      'faulted',
+      'maintenance',
+      'import_ready',
+      'importing_from_url',
+      'importing_from_bulk_writes',
+      () => false
+    )
+    .exhaustive()
+}
+
+/** See {@link instanceTransitioning} */
+export function snapshotTransitioning(state: SnapshotState) {
+  return match(state)
+    .with('creating', () => true)
+    .with('ready', 'faulted', 'destroyed', () => false)
+    .exhaustive()
+}
+
+/**
+ * See {@link instanceTransitioning}. 'active' and 'failed' are terminal, and
+ * 'destroying' resolves by the bundle record going away.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-model/src/support_bundle.rs#L53-L66
+ */
+export function supportBundleTransitioning(state: SupportBundleState) {
+  return match(state)
+    .with('collecting', 'destroying', () => true)
+    .with('active', 'failed', () => false)
+    .exhaustive()
 }
 
 export const diskCan = {
