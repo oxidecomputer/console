@@ -69,6 +69,12 @@ test.describe('System utilization', () => {
     await expect(sideModal).toBeVisible()
     await expect(sideModal.getByRole('heading', { name: 'maze-war' })).toBeVisible()
 
+    const docs = sideModal.getByRole('link', { name: 'Silos' })
+    await expect(docs).toHaveAttribute(
+      'href',
+      'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management'
+    )
+
     const cpus = sideModal.getByRole('textbox', { name: 'CPU' })
     await expect(cpus).toHaveValue('50')
     await cpus.fill('60')

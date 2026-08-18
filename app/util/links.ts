@@ -166,6 +166,10 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/operator/silo-management',
     linkText: 'Silos',
   },
+  siloQuotas: {
+    href: links.siloQuotasDocs,
+    linkText: 'Silos',
+  },
   systemUpdate: {
     href: 'https://docs.oxide.computer/guides/operator/system-update',
     linkText: 'System Update',

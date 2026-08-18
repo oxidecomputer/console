@@ -21,8 +21,9 @@ import { NumberField } from '~/components/form/fields/NumberField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ResourceLabel } from '~/ui/lib/SideModal'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { bytesToGiB, GiB } from '~/util/units'
 
 type Props = {
@@ -78,7 +79,10 @@ export function EditQuotasSideModalForm({ silo, quotas, onDismiss }: Props) {
       loading={updateQuotas.isPending}
       submitError={updateQuotas.error}
     >
-      <Message content={<LearnMore />} variant="info" />
+      <Message
+        content="If a quota is set below the amount currently in use, users will not be able to provision resources."
+        variant="info"
+      />
 
       <NumberField name="cpus" label="CPU" units="vCPUs" required control={form.control} />
       <NumberField
@@ -95,25 +99,7 @@ export function EditQuotasSideModalForm({ silo, quotas, onDismiss }: Props) {
         required
         control={form.control}
       />
+      <SideModalFormDocs docs={[docLinks.siloQuotas]} />
     </SideModalForm>
-  )
-}
-
-function LearnMore() {
-  return (
-    <>
-      If a quota is set below the amount currently in use, users will not be able to
-      provision resources. Learn more about quotas in the{' '}
-      <a
-        href={links.siloQuotasDocs}
-        // don't need color and hover color because message text is already color-info anyway
-        className="underline"
-        target="_blank"
-        rel="noreferrer"
-      >
-        Silos
-      </a>{' '}
-      guide.
-    </>
   )
 }
