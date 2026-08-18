@@ -27,34 +27,41 @@ const IPV4_REGEX =
 
 const IPV6_CHARS_REGEX = /^[0-9a-f:.]+$/i
 
-function isIpv6(ip: string): boolean {
-  if (!ip.includes(':') || !IPV6_CHARS_REGEX.test(ip)) return false
+/**
+ * Convert an IPv6 candidate to a form all browsers' URL parsers judge
+ * correctly, or return null if it's invalid in a way we can detect up front.
+ * The result is only structurally equivalent to the input (an embedded IPv4
+ * quad becomes placeholder groups) — use it for validity checking only, never
+ * as an address.
+ */
+export function toUrlCheckableIpv6(ip: string): string | null {
+  if (!ip.includes(':') || !IPV6_CHARS_REGEX.test(ip)) return null
 
-  // Browser URL parsers deviate from the URL spec (and from std::net) on two
-  // constructs, so handle both before the string reaches new URL():
-  //
-  // 1. WebKit accepts a trailing single colon (`1::2:`), which std::net rejects.
-  if (/[^:]:$/.test(ip)) return false
+  // WebKit accepts a trailing single colon (`1::2:`), which std::net rejects.
+  if (/[^:]:$/.test(ip)) return null
 
-  // 2. Embedded IPv4: Chrome accepts leading-zero octets (`::ffff:1.2.3.04`)
-  //    and WebKit rejects valid addresses where `::` expands to exactly two
-  //    groups (`2001:db8:1:2::10.0.0.1`). Validate the dotted quad ourselves
-  //    with the same strict rules std::net uses, then stand in two hex groups
-  //    for it so the URL parser only sees hex, where all engines agree.
-  let hexOnly = ip
+  // URL parsers disagree on embedded IPv4, so validate the dotted quad and
+  // replace it with two placeholder groups before handing the address to URL.
   const lastColon = ip.lastIndexOf(':')
   const quad = ip.slice(lastColon + 1)
   if (quad.includes('.')) {
-    if (!IPV4_REGEX.test(quad)) return false
-    hexOnly = ip.slice(0, lastColon + 1) + '0:0' // a quad occupies two groups
+    if (!IPV4_REGEX.test(quad)) return null
+    return ip.slice(0, lastColon + 1) + '0:0'
   } else if (ip.includes('.')) {
-    return false // dots are only valid in a trailing IPv4 quad
+    return null // dots are only valid in a trailing IPv4 quad
   }
+
+  return ip
+}
+
+function isIpv6(ip: string): boolean {
+  const normalizedIp = toUrlCheckableIpv6(ip)
+  if (normalizedIp === null) return false
 
   try {
     // the brackets force the parser to treat the host as an IPv6 literal —
     // without them, non-addresses like domain names would parse fine
-    new URL(`http://[${hexOnly}]`)
+    new URL(`http://[${normalizedIp}]`)
     return true
   } catch {
     return false

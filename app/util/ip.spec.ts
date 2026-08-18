@@ -10,7 +10,7 @@ import { describe, expect, test } from 'vitest'
 
 import type { ExternalIp, IpVersion, UnicastIpPool } from '~/api'
 
-import { getEphemeralIpSlots, parseIp, parseIpNet } from './ip'
+import { getEphemeralIpSlots, toUrlCheckableIpv6, parseIp, parseIpNet } from './ip'
 
 const makePool = (ipVersion: IpVersion, name = `pool-${ipVersion}`): UnicastIpPool => ({
   id: `id-${name}`,
@@ -182,6 +182,22 @@ describe('getEphemeralIpSlots', () => {
 // Small Rust project where we validate that the built-in Ipv4Addr and Ipv6Addr
 // and oxnet's Ipv4Net and Ipv6Net have the same validation behavior as our code.
 // https://github.com/oxidecomputer/test-ip-validation
+
+test.each([
+  ['2001:db8::1', '2001:db8::1'],
+  ['2001:db8:1:2::10.0.0.1', '2001:db8:1:2::0:0'],
+  ['1:2:3:4::10.0.0.1', '1:2:3:4::0:0'],
+  ['::ffff:255.255.255.255', '::ffff:0:0'],
+])('toUrlCheckableIpv6 converts %s to %s', (ip, expected) => {
+  expect(toUrlCheckableIpv6(ip)).toBe(expected)
+})
+
+test.each(['::ffff:1.2.3.04', '::251.240.044.17', '1::2:', '::1:', '1.2.3.4::', '1.2.3.4'])(
+  'toUrlCheckableIpv6 rejects %s',
+  (ip) => {
+    expect(toUrlCheckableIpv6(ip)).toBeNull()
+  }
+)
 
 const v4 = ['123.4.56.7', '1.2.3.4']
 
