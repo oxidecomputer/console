@@ -619,7 +619,9 @@ const stateFilterItems: { value: StateFilter; label: string }[] = [
 
 const deliveryColHelper = createColumnHelper<AlertDelivery>()
 const staticDeliveryCols = [
-  deliveryColHelper.accessor('id', Columns.id),
+  // shortId for these two to force truncation
+  deliveryColHelper.accessor('id', { ...Columns.shortId, header: 'Delivery ID' }),
+  deliveryColHelper.accessor('alertId', { ...Columns.shortId, header: 'Event ID' }),
   deliveryColHelper.accessor('alertClass', {
     header: 'Event class',
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
@@ -793,7 +795,8 @@ function DeliverySideModal({
             <PropertiesTable.Row label="Event class">
               <Badge color="neutral">{delivery.alertClass}</Badge>
             </PropertiesTable.Row>
-            <PropertiesTable.IdRow id={delivery.id} />
+            <PropertiesTable.IdRow id={delivery.id} label="Delivery ID" />
+            <PropertiesTable.IdRow id={delivery.alertId} label="Event ID" />
             <PropertiesTable.Row label="Started">
               <DateTime date={delivery.timeStarted} />
             </PropertiesTable.Row>

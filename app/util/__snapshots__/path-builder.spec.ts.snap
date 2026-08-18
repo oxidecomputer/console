@@ -40,36 +40,62 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/",
     },
   ],
-  "alertReceiver (/system/alerts/rc)": [
+  "alertReceiver (/system/alerting/receivers/rc)": [
     {
-      "label": "Alerts",
-      "path": "/system/alerts",
+      "label": "Alerting",
+      "path": "/system/alerting/alerts",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
     },
     {
       "label": "rc",
-      "path": "/system/alerts/rc",
+      "path": "/system/alerting/receivers/rc",
     },
   ],
-  "alertReceiverEdit (/system/alerts/rc/edit)": [
+  "alertReceiverEdit (/system/alerting/receivers/rc/edit)": [
     {
-      "label": "Alerts",
-      "path": "/system/alerts",
+      "label": "Alerting",
+      "path": "/system/alerting/alerts",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
     },
     {
       "label": "rc",
-      "path": "/system/alerts/rc",
+      "path": "/system/alerting/receivers/rc",
     },
   ],
-  "alertReceivers (/system/alerts)": [
+  "alertReceivers (/system/alerting/receivers)": [
     {
-      "label": "Alerts",
-      "path": "/system/alerts",
+      "label": "Alerting",
+      "path": "/system/alerting/alerts",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
     },
   ],
-  "alertReceiversNew (/system/alerts-new)": [
+  "alertReceiversNew (/system/alerting/receivers-new)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/alerts",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
+    },
+  ],
+  "alerts (/system/alerting/alerts)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/alerts",
+    },
     {
       "label": "Alerts",
-      "path": "/system/alerts",
+      "path": "/system/alerting/alerts",
     },
   ],
   "antiAffinityGroup (/projects/p/affinity/aag)": [

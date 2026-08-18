@@ -16,10 +16,33 @@ import {
   selectOption,
 } from './utils'
 
+test('Alerting nav and tabs', async ({ page }) => {
+  const sidebar = page.getByRole('navigation', { name: 'Sidebar navigation' })
+
+  await page.goto('/system/silos')
+  await sidebar.getByRole('link', { name: 'Alerting' }).click()
+
+  // the section root redirects to the first tab
+  await expect(page).toHaveURL('/system/alerting/alerts')
+  await expect(page).toHaveTitle('Alerts / Alerting / Oxide Console')
+
+  await page.getByRole('tab', { name: 'Receivers' }).click()
+  await expect(page).toHaveURL('/system/alerting/receivers')
+  // nav item stays highlighted on both tabs
+  await expect(sidebar.getByRole('link', { name: 'Alerting' })).toHaveAttribute(
+    'aria-current',
+    'page'
+  )
+})
+
 test('Alert receivers list', async ({ page }) => {
-  await page.goto('/system/alerts')
-  await expect(page).toHaveTitle('Alerts / Oxide Console')
-  await expect(page.getByRole('heading', { name: 'Webhooks' })).toBeVisible()
+  await page.goto('/system/alerting/receivers')
+  await expect(page).toHaveTitle('Receivers / Alerting / Oxide Console')
+  await expect(page.getByRole('heading', { name: 'Alerting' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: 'Receivers' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  )
 
   const table = page.getByRole('table')
   await expect(table.getByRole('row')).toHaveCount(4) // header + 3 receivers
@@ -34,10 +57,10 @@ test('Alert receivers list', async ({ page }) => {
 })
 
 test('Webhook create', async ({ page }) => {
-  await page.goto('/system/alerts')
+  await page.goto('/system/alerting/receivers')
 
   await page.getByRole('link', { name: 'New webhook' }).click()
-  await expect(page).toHaveURL('/system/alerts-new')
+  await expect(page).toHaveURL('/system/alerting/receivers-new')
 
   const modal = page.getByRole('dialog', { name: 'Create webhook' })
   await modal.getByRole('textbox', { name: 'Name' }).fill('deploy-hook')
@@ -81,9 +104,9 @@ test('Webhook create', async ({ page }) => {
 })
 
 test('Webhook detail: properties, event classes, secrets', async ({ page }) => {
-  await page.goto('/system/alerts')
+  await page.goto('/system/alerting/receivers')
   await page.getByRole('link', { name: 'webhook-1' }).click()
-  await expect(page).toHaveURL('/system/alerts/webhook-1')
+  await expect(page).toHaveURL('/system/alerting/receivers/webhook-1')
 
   await expect(page.getByRole('heading', { name: 'webhook-1' })).toBeVisible()
   await expect(page.getByText('https://fma.corp.oxide.computer')).toBeVisible()
@@ -144,7 +167,7 @@ test('Webhook detail: properties, event classes, secrets', async ({ page }) => {
 })
 
 test('Testing tab: probe result and signature format', async ({ page }) => {
-  await page.goto('/system/alerts/webhook-1')
+  await page.goto('/system/alerting/receivers/webhook-1')
   await page.getByRole('tab', { name: 'Testing' }).click()
 
   const panel = page.getByRole('tabpanel')
@@ -166,7 +189,7 @@ test('Testing tab: probe result and signature format', async ({ page }) => {
 })
 
 test('Testing tab: probe failure', async ({ page }) => {
-  await page.goto('/system/alerts')
+  await page.goto('/system/alerting/receivers')
 
   // the mock backend fails probes for endpoints containing 'unreachable'
   await clickRowAction(page, 'power-mon', 'Edit')
@@ -189,7 +212,7 @@ test('Testing tab: probe failure', async ({ page }) => {
 })
 
 test('Webhook edit', async ({ page }) => {
-  await page.goto('/system/alerts')
+  await page.goto('/system/alerting/receivers')
   await clickRowAction(page, 'general-sys-webhook', 'Edit')
 
   const modal = page.getByRole('dialog', { name: 'Edit webhook' })
@@ -204,7 +227,7 @@ test('Webhook edit', async ({ page }) => {
 
   await expectToast(page, 'Webhook general-webhook updated')
   // lands on the detail page for the new name
-  await expect(page).toHaveURL('/system/alerts/general-webhook')
+  await expect(page).toHaveURL('/system/alerting/receivers/general-webhook')
   await expect(page.getByText('https://hooks.example.dev')).toBeVisible()
 })
 
@@ -217,7 +240,7 @@ const refreshUntil = (page: Page, expectation: () => Promise<void>) =>
   }).toPass({ timeout: 30_000 })
 
 test('Pending delivery resolves to delivered', async ({ page }) => {
-  await page.goto('/system/alerts/webhook-1?tab=deliveries')
+  await page.goto('/system/alerting/receivers/webhook-1?tab=deliveries')
 
   const row = page.getByRole('row', { name: /a3d830ee/ })
   await expect(row.getByText('pending')).toBeVisible()
@@ -233,7 +256,7 @@ test('Pending delivery resolves to delivered', async ({ page }) => {
 })
 
 test('Pending delivery fails after exhausting retries', async ({ page }) => {
-  await page.goto('/system/alerts')
+  await page.goto('/system/alerting/receivers')
 
   // the mock backend fails delivery to endpoints containing 'unreachable'
   await clickRowAction(page, 'webhook-1', 'Edit')
@@ -255,22 +278,31 @@ test('Pending delivery fails after exhausting retries', async ({ page }) => {
 })
 
 test('Webhook deliveries', async ({ page }) => {
-  await page.goto('/system/alerts/webhook-1')
+  await page.goto('/system/alerting/receivers/webhook-1')
   await page.getByRole('tab', { name: 'Deliveries' }).click()
 
   const table = page.getByRole('table')
   await expect(table.getByRole('row')).toHaveCount(7) // header + 6
 
+  // IDs are middle-truncated, with the full value in the tooltip
   await expectRowVisible(table, {
+    'Delivery ID': '9bbdf…693ee',
+    'Event ID': '391a8…311f5',
     'Event class': 'probe',
     state: 'delivered',
     trigger: 'probe',
   })
   await expectRowVisible(table, {
+    'Delivery ID': '30ece…a685e',
+    'Event ID': 'beef3…8421a',
     'Event class': 'hardware.power_shelf.psu.insert',
     state: 'failed',
     trigger: 'alert',
   })
+  // the untruncated ID is still the row's accessible name, so it stays findable
+  await expect(
+    table.getByRole('row', { name: '30ece63e-5efd-4365-99a6-d4f09dfa685e' })
+  ).toBeVisible()
 
   // filter by state
   await selectOption(page, 'Filter by state', 'Failed')
@@ -281,6 +313,17 @@ test('Webhook deliveries', async ({ page }) => {
   // delivery detail side modal shows attempts
   await clickRowAction(page, '30ece63e-5efd-4365-99a6-d4f09dfa685e', 'View details')
   const sideModal = page.getByRole('dialog', { name: 'Webhook delivery' })
+
+  // the metadata table spells out all three IDs, which are easy to confuse.
+  // IdRow truncates, but keeps the full value as the accessible name
+  const props = sideModal.getByLabel('Properties table')
+  await expect(props).toContainText('Delivery ID')
+  await expect(props.getByLabel('30ece63e-5efd-4365-99a6-d4f09dfa685e')).toBeVisible()
+  await expect(props).toContainText('Event ID')
+  await expect(props.getByLabel('beef336d-99db-4b12-ac08-7ebcaab8421a')).toBeVisible()
+  await expect(props).toContainText('Webhook ID')
+  await expect(props.getByLabel('ae2d6e09-9f4d-4dd1-ac54-160d61c7ce42')).toBeVisible()
+
   const attempts = sideModal.getByRole('table')
   await expect(attempts.getByRole('row')).toHaveCount(4) // header + 3 attempts
   await expect(attempts.getByRole('cell', { name: 'HTTP error' })).toBeVisible()
@@ -336,7 +379,7 @@ test('Webhook deliveries', async ({ page }) => {
 })
 
 test('Webhook delete', async ({ page }) => {
-  await page.goto('/system/alerts')
+  await page.goto('/system/alerting/receivers')
 
   await clickRowAction(page, 'power-mon', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()

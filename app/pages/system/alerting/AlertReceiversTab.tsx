@@ -34,7 +34,6 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
@@ -80,9 +79,9 @@ export async function clientLoader() {
 
 // this handle is on a pathless layout route, so its pathname is /system. give
 // the crumb an explicit path so it links to the list instead
-export const handle = makeCrumb('Alerts', pb.alertReceivers())
+export const handle = makeCrumb('Receivers', pb.alertReceivers())
 
-export default function AlertReceiversPage() {
+export default function AlertReceiversTab() {
   const navigate = useNavigate()
 
   const { mutateAsync: deleteReceiver } = useApiMutation(api.alertReceiverDelete, {
@@ -149,11 +148,8 @@ export default function AlertReceiversPage() {
 
   return (
     <>
-      <PageHeader>
-        {/* webhooks are the only kind of alert receiver for now, so the page
-            says webhook everywhere. the section is still called Alerts */}
-        <PageTitle icon={<Webhooks24Icon />}>Webhooks</PageTitle>
-      </PageHeader>
+      {/* webhooks are the only kind of alert receiver for now, so the tab says
+          webhook everywhere while the tab itself is called Receivers */}
       <TableActions>
         <CreateLink to={pb.alertReceiversNew()}>New webhook</CreateLink>
       </TableActions>
