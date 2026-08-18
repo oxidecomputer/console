@@ -35,6 +35,11 @@ export const SkipLink = ({
   )
 }
 
+/**
+ * Target for the skip link. Also where `useRouteAnnouncer` puts focus after a
+ * client-side nav, so `tabIndex` is required. No focus ring: on a zero-height
+ * div it would draw a line across the page on every navigation.
+ */
 export const SkipLinkTarget = ({ id = 'content' }) => {
-  return <div id={id} className="h-0" />
+  return <div id={id} tabIndex={-1} className="h-0 outline-none" />
 }

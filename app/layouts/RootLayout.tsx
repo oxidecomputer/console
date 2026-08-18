@@ -10,6 +10,7 @@ import { Outlet, useNavigation } from 'react-router'
 
 import { ToastStack } from '~/components/ToastStack'
 import { useCrumbs } from '~/hooks/use-crumbs'
+import { useRouteAnnouncer } from '~/hooks/use-route-announcer'
 import { useApplyTheme } from '~/stores/theme'
 
 /**
@@ -29,6 +30,7 @@ const useTitle = () =>
  */
 export default function RootLayout() {
   useApplyTheme()
+  useRouteAnnouncer()
   const title = useTitle()
   useEffect(() => {
     document.title = title
