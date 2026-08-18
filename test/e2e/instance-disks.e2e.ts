@@ -31,6 +31,15 @@ test('Disk detail side modal', async ({ page }) => {
 test('Disabled actions', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
+  // the disabled reason is exposed to screen readers as an accessible
+  // description even with no hover or focus to pop the tooltip
+  await expect(
+    page.getByRole('button', { name: 'Attach existing disk' })
+  ).toHaveAccessibleDescription('Instance must be stopped to attach a disk')
+  await expect(
+    page.getByRole('button', { name: 'Create disk' })
+  ).toHaveAccessibleDescription('Instance must be stopped to create and attach a disk')
+
   const bootDiskRow = page.getByRole('row', { name: 'disk-1', exact: false })
   await expect(bootDiskRow).toBeVisible()
 
