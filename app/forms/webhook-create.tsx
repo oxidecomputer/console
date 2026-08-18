@@ -122,8 +122,8 @@ const globCode = 'text-mono-sm bg-info-secondary text-info rounded-sm px-1'
 
 const SubscriptionsMessage = (
   <>
-    Event subscriptions may include simple globs to subscribe to multiple categories of
-    events. E.g. <code className={globCode}>hardware.**</code> or{' '}
+    Alert subscriptions may include simple globs to subscribe to multiple  classes of
+    alerts. E.g. <code className={globCode}>hardware.**</code> or{' '}
     <code className={globCode}>**.fault</code>.{' '}
     <a
       href={links.webhooksGuide}
