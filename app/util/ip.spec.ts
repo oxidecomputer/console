@@ -257,6 +257,16 @@ const invalid = [
   'fe80::1%0',
   'fe80::%eth0',
   '::1%lo0',
+  // We validate v6 by handing the address to the URL parser as a bracketed
+  // host, so a `]` plus a URL continuation could otherwise parse as port, path,
+  // query, or fragment and come back valid. Zod's z.ipv6() has this bug.
+  '::1]:80',
+  '::1]:80/foo',
+  '::1]#x',
+  '::1]?q=1',
+  '::1]:0/../x',
+  '::1]@evil.com',
+  '::1]',
 ]
 
 test.each(invalid)('parseIp catches invalid IP: %s', (s) => {
