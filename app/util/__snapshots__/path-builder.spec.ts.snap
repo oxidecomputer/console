@@ -442,10 +442,6 @@ exports[`breadcrumbs 2`] = `
       "label": "pl",
       "path": "/system/networking/ip-pools/pl",
     },
-    {
-      "label": "Edit IP pool",
-      "path": "/system/networking/ip-pools/pl/edit",
-    },
   ],
   "ipPoolRangeAdd (/system/networking/ip-pools/pl/ranges-add)": [
     {
@@ -869,10 +865,6 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "sp",
       "path": "/system/networking/subnet-pools/sp",
-    },
-    {
-      "label": "Edit subnet pool",
-      "path": "/system/networking/subnet-pools/sp/edit",
     },
   ],
   "subnetPoolMemberAdd (/system/networking/subnet-pools/sp/members-add)": [
