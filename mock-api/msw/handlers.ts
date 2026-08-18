@@ -14,8 +14,8 @@ import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
   diskCan,
-  fleetRoles,
   FLEET_ID,
+  fleetRoles,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   INSTANCE_MIN_RAM_GiB,
@@ -2102,23 +2102,6 @@ export const handlers = makeHandlers({
   // the generated handler type only allows status code returns for binary
   // endpoints, but the dispatcher passes Response instances through untouched
   // @ts-expect-error
-  supportBundleDownload({ path, cookies }) {
-    requireFleetViewer(cookies)
-    const bundle = lookupById(db.supportBundles, path.bundleId)
-    if (bundle.state !== 'active') {
-      throw invalidRequest('Cannot download bundle in non-active state')
-    }
-    // smallest valid zip: an empty end-of-central-directory record
-    const emptyZip = new Uint8Array(22)
-    emptyZip.set([0x50, 0x4b, 0x05, 0x06])
-    return new HttpResponse(emptyZip, {
-      headers: {
-        'Content-Type': 'application/zip',
-        'Content-Disposition': `attachment; filename="support-bundle-${bundle.id}.zip"`,
-      },
-    })
-  },
-  // @ts-expect-error Response passthrough, see supportBundleDownload
   supportBundleHead({ path, cookies }) {
     requireFleetViewer(cookies)
     const bundle = lookupById(db.supportBundles, path.bundleId)
@@ -2132,7 +2115,7 @@ export const handlers = makeHandlers({
       },
     })
   },
-  // @ts-expect-error Response passthrough, see supportBundleDownload
+  // @ts-expect-error Response passthrough, see supportBundleHead
   supportBundleIndex({ path, cookies }) {
     requireFleetViewer(cookies)
     const bundle = lookupById(db.supportBundles, path.bundleId)
@@ -2854,6 +2837,10 @@ export const handlers = makeHandlers({
   siloUserView: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
+  // unreachable in the mock: the console downloads bundles with an <a download>
+  // navigation, which MSW's service worker can't intercept (see
+  // app/util/support-bundle.ts)
+  supportBundleDownload: NotImplemented,
   supportBundleDownloadFile: NotImplemented,
   supportBundleHeadFile: NotImplemented,
   switchView: NotImplemented,

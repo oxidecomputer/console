@@ -11,6 +11,10 @@ import { queryOptions } from '@tanstack/react-query'
  * The generated API client only handles JSON responses, so the binary bundle
  * download endpoint is hit directly with an anchor. The browser sends the
  * session cookie the same as any API request.
+ *
+ * Note this means downloads do not work against the mock API: the anchor
+ * click is a download navigation, which MSW's service worker does not
+ * intercept, so the request falls through to the dev server.
  */
 
 export const bundleDownloadUrl = (bundleId: string) =>
