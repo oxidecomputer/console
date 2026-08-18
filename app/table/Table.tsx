@@ -63,7 +63,11 @@ export const Table = <TData,>({
                 // select only this row
                 onClick: () => table.setRowSelection(() => ({ [row.id]: true })),
               }
-            : { className: rowClassName }
+            : {
+                className: rowClassName,
+                selected:
+                  multiSelect && row.getCanMultiSelect() ? row.getIsSelected() : undefined,
+              }
 
         // For multi-select, assume the first cell is the checkbox and make the
         // whole cell clickable

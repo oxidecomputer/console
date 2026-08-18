@@ -86,7 +86,7 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   <div className="mx-3 my-4 space-y-1">
     {heading && (
       <div className="text-mono-sm text-tertiary mb-2">
-        <Truncate text={heading} maxLength={24} />
+        <Truncate text={heading} />
       </div>
     )}
     <nav aria-label="Sidebar navigation">

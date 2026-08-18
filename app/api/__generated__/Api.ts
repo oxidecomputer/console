@@ -353,6 +353,34 @@ export type AggregateBgpMessageHistory = {
 }
 
 /**
+ * An alert.
+ *
+ * Alerts provide notifications about events that occurred in the system at a point in time. See the guide-level documentation on alerts for details.
+ */
+export type Alert = {
+  /** The alert's data payload.
+
+The schema for this object depends on the alert class and version. */
+  alert: Record<string, unknown>
+  /** The alert's class.
+
+See the guide-level documentation on alerts for details on alert classes. */
+  class: string
+  /** Unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** Timestamp when this resource was created */
+  timeCreated: Date
+  /** Timestamp when this resource was last modified */
+  timeModified: Date
+  /** The schema version of this alert's data payload.
+
+Alert schemas are versioned on a per-alert-class basis. The schema version for a particular alert class does not correspond to an Oxide API version. Clients should expect to encounter earlier schema versions when retrieving alerts recorded by an earlier version of the system software.
+
+See the guide-level documentation on alerts for details. */
+  version: number
+}
+
+/**
  * An alert class.
  */
 export type AlertClass = {
@@ -546,6 +574,16 @@ export type AlertReceiver = {
 export type AlertReceiverResultsPage = {
   /** list of items on this page of results */
   items: AlertReceiver[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * A single page of results
+ */
+export type AlertResultsPage = {
+  /** list of items on this page of results */
+  items: Alert[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
@@ -3015,6 +3053,15 @@ export type InternetGatewayResultsPage = {
 }
 
 /**
+ * Assignment of an IP pool to resources and services.
+ */
+export type IpPoolAssignment = /** Pool is available to be linked to customer silos. */
+| 'silos'
+
+/** Pool is reserved for Oxide-operated rack services (NTP, DNS, etc.). */
+| 'system_services'
+
+/**
  * Type of IP pool.
  */
 export type IpPoolType = /** Unicast IP pool for standard IP allocations. */
@@ -3026,9 +3073,11 @@ All ranges in a multicast pool must be either ASM or SSM (not mixed). */
 | 'multicast'
 
 /**
- * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo.
+ * A collection of IP ranges.
  */
 export type IpPool = {
+  /** What this pool is currently assigned to. */
+  assignment: IpPoolAssignment
   /** Human-readable free-form text about a resource */
   description: string
   /** Unique, immutable, system-controlled identifier for each resource */
@@ -3046,6 +3095,11 @@ export type IpPool = {
 }
 
 /**
+ * Body parameters for reassigning an IP pool.
+ */
+export type IpPoolAssignParam = { assignment: IpPoolAssignment }
+
+/**
  * Create-time parameters for an `IpPool`.
  *
  * For multicast pools, all ranges must be either Any-Source Multicast (ASM) or Source-Specific Multicast (SSM), but not both. Mixing ASM and SSM ranges in the same pool is not allowed.
@@ -3053,6 +3107,8 @@ export type IpPool = {
  * ASM: IPv4 addresses outside 232.0.0.0/8, IPv6 addresses with flag field != 3 SSM: IPv4 addresses in 232.0.0.0/8, IPv6 addresses with flag field = 3
  */
 export type IpPoolCreate = {
+  /** What this pool is assigned to (defaults to Silos). */
+  assignment?: IpPoolAssignment
   description: string
   /** The IP version of the pool.
 
@@ -4413,6 +4469,8 @@ export type Sled = {
   policy: SledPolicy
   /** The rack to which this Sled is currently attached */
   rackId: string
+  /** The physical slot in the rack where this sled was last observed to be located, or null if its location is not known at this time. */
+  slot?: number | null
   /** The current state of the sled. */
   state: SledState
   /** Timestamp when this resource was created */
@@ -5773,46 +5831,6 @@ export interface ProbeDeleteQueryParams {
   project: NameOrId
 }
 
-export interface SupportBundleListQueryParams {
-  limit?: number | null
-  pageToken?: string | null
-  sortBy?: TimeAndIdSortMode
-}
-
-export interface SupportBundleViewPathParams {
-  bundleId: string
-}
-
-export interface SupportBundleUpdatePathParams {
-  bundleId: string
-}
-
-export interface SupportBundleDeletePathParams {
-  bundleId: string
-}
-
-export interface SupportBundleDownloadPathParams {
-  bundleId: string
-}
-
-export interface SupportBundleHeadPathParams {
-  bundleId: string
-}
-
-export interface SupportBundleDownloadFilePathParams {
-  bundleId: string
-  file: string
-}
-
-export interface SupportBundleHeadFilePathParams {
-  bundleId: string
-  file: string
-}
-
-export interface SupportBundleIndexPathParams {
-  bundleId: string
-}
-
 export interface LoginSamlPathParams {
   providerName: Name
   siloName: Name
@@ -5939,6 +5957,19 @@ export interface AlertReceiverSubscriptionAddPathParams {
 export interface AlertReceiverSubscriptionRemovePathParams {
   receiver: NameOrId
   subscription: AlertSubscription
+}
+
+export interface AlertListQueryParams {
+  alertClass?: AlertSubscription
+  endTime?: Date | null
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: TimeAndIdSortMode
+  startTime?: Date | null
+}
+
+export interface AlertViewPathParams {
+  alertId: string
 }
 
 export interface AlertDeliveryResendPathParams {
@@ -6536,8 +6567,10 @@ export interface InternetGatewayDeleteQueryParams {
 }
 
 export interface IpPoolListQueryParams {
+  ipVersion?: IpVersion
   limit?: number | null
   pageToken?: string | null
+  poolType?: IpPoolType
   sortBy?: NameOrIdSortMode
 }
 
@@ -6927,8 +6960,11 @@ export interface SamlIdentityProviderViewQueryParams {
 }
 
 export interface SystemIpPoolListQueryParams {
+  assignment?: IpPoolAssignment
+  ipVersion?: IpVersion
   limit?: number | null
   pageToken?: string | null
+  poolType?: IpPoolType
   sortBy?: NameOrIdSortMode
 }
 
@@ -6941,6 +6977,10 @@ export interface SystemIpPoolUpdatePathParams {
 }
 
 export interface SystemIpPoolDeletePathParams {
+  pool: NameOrId
+}
+
+export interface SystemIpPoolAssignPathParams {
   pool: NameOrId
 }
 
@@ -6987,11 +7027,6 @@ export interface SystemIpPoolSiloUnlinkPathParams {
 
 export interface SystemIpPoolUtilizationViewPathParams {
   pool: NameOrId
-}
-
-export interface SystemIpPoolServiceRangeListQueryParams {
-  limit?: number | null
-  pageToken?: string | null
 }
 
 export interface SystemMetricPathParams {
@@ -7236,6 +7271,46 @@ export interface SystemSubnetPoolSiloUnlinkPathParams {
 
 export interface SystemSubnetPoolUtilizationViewPathParams {
   pool: NameOrId
+}
+
+export interface SupportBundleListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: TimeAndIdSortMode
+}
+
+export interface SupportBundleViewPathParams {
+  bundleId: string
+}
+
+export interface SupportBundleUpdatePathParams {
+  bundleId: string
+}
+
+export interface SupportBundleDeletePathParams {
+  bundleId: string
+}
+
+export interface SupportBundleDownloadPathParams {
+  bundleId: string
+}
+
+export interface SupportBundleHeadPathParams {
+  bundleId: string
+}
+
+export interface SupportBundleDownloadFilePathParams {
+  bundleId: string
+  file: string
+}
+
+export interface SupportBundleHeadFilePathParams {
+  bundleId: string
+  file: string
+}
+
+export interface SupportBundleIndexPathParams {
+  bundleId: string
 }
 
 export interface SystemTimeseriesSchemaListQueryParams {
@@ -7562,7 +7637,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026061000.0.0'
+  apiVersion = '2026081700.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -7679,139 +7754,6 @@ export class Api {
         path: `/experimental/v1/probes/${path.probe}`,
         method: 'DELETE',
         query,
-        ...params,
-      })
-    },
-    /**
-     * List all support bundles
-     */
-    supportBundleList: (
-      { query = {} }: { query?: SupportBundleListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<SupportBundleInfoResultsPage>({
-        path: `/experimental/v1/system/support-bundles`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create support bundle
-     */
-    supportBundleCreate: (
-      { body }: { body: SupportBundleCreate },
-      params: FetchParams = {}
-    ) => {
-      return this.request<SupportBundleInfo>({
-        path: `/experimental/v1/system/support-bundles`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * View support bundle
-     */
-    supportBundleView: (
-      { path }: { path: SupportBundleViewPathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<SupportBundleInfo>({
-        path: `/experimental/v1/system/support-bundles/${path.bundleId}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update support bundle
-     */
-    supportBundleUpdate: (
-      { path, body }: { path: SupportBundleUpdatePathParams; body: SupportBundleUpdate },
-      params: FetchParams = {}
-    ) => {
-      return this.request<SupportBundleInfo>({
-        path: `/experimental/v1/system/support-bundles/${path.bundleId}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete support bundle
-     */
-    supportBundleDelete: (
-      { path }: { path: SupportBundleDeletePathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.bundleId}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * Download support bundle contents
-     */
-    supportBundleDownload: (
-      { path }: { path: SupportBundleDownloadPathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.bundleId}/download`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Download support bundle metadata
-     */
-    supportBundleHead: (
-      { path }: { path: SupportBundleHeadPathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.bundleId}/download`,
-        method: 'HEAD',
-        ...params,
-      })
-    },
-    /**
-     * Download file from support bundle
-     */
-    supportBundleDownloadFile: (
-      { path }: { path: SupportBundleDownloadFilePathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.bundleId}/download/${path.file}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Download metadata of file in support bundle
-     */
-    supportBundleHeadFile: (
-      { path }: { path: SupportBundleHeadFilePathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.bundleId}/download/${path.file}`,
-        method: 'HEAD',
-        ...params,
-      })
-    },
-    /**
-     * Download support bundle index
-     */
-    supportBundleIndex: (
-      { path }: { path: SupportBundleIndexPathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.bundleId}/index`,
-        method: 'GET',
         ...params,
       })
     },
@@ -8106,6 +8048,30 @@ export class Api {
       return this.request<void>({
         path: `/v1/alert-receivers/${path.receiver}/subscriptions/${path.subscription}`,
         method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List alerts
+     */
+    alertList: (
+      { query = {} }: { query?: AlertListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AlertResultsPage>({
+        path: `/v1/alerts`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch alert
+     */
+    alertView: ({ path }: { path: AlertViewPathParams }, params: FetchParams = {}) => {
+      return this.request<Alert>({
+        path: `/v1/alerts/${path.alertId}`,
+        method: 'GET',
         ...params,
       })
     },
@@ -10609,6 +10575,20 @@ export class Api {
       })
     },
     /**
+     * Assign IP pool
+     */
+    systemIpPoolAssign: (
+      { path, body }: { path: SystemIpPoolAssignPathParams; body: IpPoolAssignParam },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPool>({
+        path: `/v1/system/ip-pools/${path.pool}/assignment`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
      * List ranges for IP pool
      */
     systemIpPoolRangeList: (
@@ -10724,58 +10704,6 @@ export class Api {
       return this.request<IpPoolUtilization>({
         path: `/v1/system/ip-pools/${path.pool}/utilization`,
         method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch Oxide service IP pool
-     */
-    systemIpPoolServiceView: (_: EmptyObj, params: FetchParams = {}) => {
-      return this.request<IpPool>({
-        path: `/v1/system/ip-pools-service`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List IP ranges for the Oxide service pool
-     */
-    systemIpPoolServiceRangeList: (
-      { query = {} }: { query?: SystemIpPoolServiceRangeListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<IpPoolRangeResultsPage>({
-        path: `/v1/system/ip-pools-service/ranges`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Add IP range to Oxide service pool
-     */
-    systemIpPoolServiceRangeAdd: (
-      { body }: { body: IpRange },
-      params: FetchParams = {}
-    ) => {
-      return this.request<IpPoolRange>({
-        path: `/v1/system/ip-pools-service/ranges/add`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Remove IP range from Oxide service pool
-     */
-    systemIpPoolServiceRangeRemove: (
-      { body }: { body: IpRange },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/system/ip-pools-service/ranges/remove`,
-        method: 'POST',
-        body,
         ...params,
       })
     },
@@ -11663,6 +11591,139 @@ export class Api {
     ) => {
       return this.request<SubnetPoolUtilization>({
         path: `/v1/system/subnet-pools/${path.pool}/utilization`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List all support bundles
+     */
+    supportBundleList: (
+      { query = {} }: { query?: SupportBundleListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SupportBundleInfoResultsPage>({
+        path: `/v1/system/support-bundles`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create support bundle
+     */
+    supportBundleCreate: (
+      { body }: { body: SupportBundleCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SupportBundleInfo>({
+        path: `/v1/system/support-bundles`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * View support bundle
+     */
+    supportBundleView: (
+      { path }: { path: SupportBundleViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SupportBundleInfo>({
+        path: `/v1/system/support-bundles/${path.bundleId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update support bundle
+     */
+    supportBundleUpdate: (
+      { path, body }: { path: SupportBundleUpdatePathParams; body: SupportBundleUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SupportBundleInfo>({
+        path: `/v1/system/support-bundles/${path.bundleId}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete support bundle
+     */
+    supportBundleDelete: (
+      { path }: { path: SupportBundleDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/support-bundles/${path.bundleId}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Download support bundle contents
+     */
+    supportBundleDownload: (
+      { path }: { path: SupportBundleDownloadPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/support-bundles/${path.bundleId}/download`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Download support bundle metadata
+     */
+    supportBundleHead: (
+      { path }: { path: SupportBundleHeadPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/support-bundles/${path.bundleId}/download`,
+        method: 'HEAD',
+        ...params,
+      })
+    },
+    /**
+     * Download file from support bundle
+     */
+    supportBundleDownloadFile: (
+      { path }: { path: SupportBundleDownloadFilePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/support-bundles/${path.bundleId}/download/${path.file}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Download metadata of file in support bundle
+     */
+    supportBundleHeadFile: (
+      { path }: { path: SupportBundleHeadFilePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/support-bundles/${path.bundleId}/download/${path.file}`,
+        method: 'HEAD',
+        ...params,
+      })
+    },
+    /**
+     * Download support bundle index
+     */
+    supportBundleIndex: (
+      { path }: { path: SupportBundleIndexPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/support-bundles/${path.bundleId}/index`,
         method: 'GET',
         ...params,
       })
