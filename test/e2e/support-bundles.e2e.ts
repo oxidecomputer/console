@@ -84,7 +84,7 @@ test('bundle detail modal shows metadata for active bundle', async ({ page }) =>
   )
 
   const modal = page.getByRole('dialog', { name: 'Support bundle' })
-  await expect(modal.getByText(/^ccdac005/)).toBeVisible()
+  await expect(modal.getByLabel('ccdac005-66a8-4921-9e8b-30531c359c31')).toBeVisible()
   await expect(modal.getByText('active')).toBeVisible()
 
   // file count comes from the index endpoint, size from a HEAD of download

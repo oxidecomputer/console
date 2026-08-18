@@ -23,6 +23,7 @@ import { Logs16Icon, Logs24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
+import { RefreshButton } from '~/components/RefreshButton'
 import { SupportBundleStateBadge } from '~/components/StateBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
@@ -38,10 +39,12 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate } from '~/ui/lib/Truncate'
+import { toLocaleTimeString } from '~/util/date'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
-import { downloadBundle, DOWNLOAD_DISABLED_REASON } from '~/util/support-bundle'
+import { DOWNLOAD_DISABLED_REASON, downloadBundle } from '~/util/support-bundle'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -156,11 +159,13 @@ export default function SupportBundlesPage() {
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
-  const { table } = useQueryTable({
+  const { table, query } = useQueryTable({
     query: bundleList,
     columns,
     emptyState: <EmptyState />,
   })
+
+  const { dataUpdatedAt } = query
 
   useQuickActions(
     () => [
@@ -184,7 +189,22 @@ export default function SupportBundlesPage() {
           links={[docLinks.supportBundles]}
         />
       </PageHeader>
-      <TableActions>
+      {/* Avoid changing justify-end on TableActions for this one case. We can
+       * fix this properly when we add refresh and filtering for all tables. */}
+      <TableActions className="justify-between!">
+        <div className="flex items-center gap-2">
+          <RefreshButton
+            onClick={() => queryClient.invalidateEndpoint('supportBundleList')}
+          />
+          <Tooltip
+            content="Auto-refresh is active while a bundle is being collected"
+            delay={150}
+          >
+            <span className="text-sans-sm text-secondary">
+              Updated {toLocaleTimeString(new Date(dataUpdatedAt))}
+            </span>
+          </Tooltip>
+        </div>
         <CreateLink to={pb.supportBundlesNew()}>New Support Bundle</CreateLink>
       </TableActions>
       {table}
