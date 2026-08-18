@@ -214,6 +214,10 @@ const v6 = [
   '2001:db8::192.0.2.33',
   '1:2:3:4::5:192.0.2.33',
   'db8:db8:db8:db8:db8::192.0.2.33',
+  // WebKit's URL parser wrongly rejects embedded IPv4 where :: expands to
+  // exactly two groups; isIpv6 validates the quad itself so these still pass
+  '2001:db8:1:2::10.0.0.1',
+  '1:2:3:4::10.0.0.1',
 ]
 
 test.each(v6)('parseIp catches invalid IPV4 / valid IPV6: %s', (s) => {
@@ -267,6 +271,12 @@ const invalid = [
   '::1]:0/../x',
   '::1]@evil.com',
   '::1]',
+  // engine quirks handled explicitly in isIpv6: Chrome's URL parser accepts
+  // leading-zero octets in the embedded quad; WebKit's accepts a trailing colon
+  '::ffff:1.2.3.04',
+  '::251.240.044.17',
+  '1::2:',
+  '::1:',
 ]
 
 test.each(invalid)('parseIp catches invalid IP: %s', (s) => {

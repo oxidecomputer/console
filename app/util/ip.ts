@@ -29,8 +29,32 @@ const IPV6_CHARS_REGEX = /^[0-9a-f:.]+$/i
 
 function isIpv6(ip: string): boolean {
   if (!ip.includes(':') || !IPV6_CHARS_REGEX.test(ip)) return false
+
+  // Browser URL parsers deviate from the URL spec (and from std::net) on two
+  // constructs, so handle both before the string reaches new URL():
+  //
+  // 1. WebKit accepts a trailing single colon (`1::2:`), which std::net rejects.
+  if (/[^:]:$/.test(ip)) return false
+
+  // 2. Embedded IPv4: Chrome accepts leading-zero octets (`::ffff:1.2.3.04`)
+  //    and WebKit rejects valid addresses where `::` expands to exactly two
+  //    groups (`2001:db8:1:2::10.0.0.1`). Validate the dotted quad ourselves
+  //    with the same strict rules std::net uses, then stand in two hex groups
+  //    for it so the URL parser only sees hex, where all engines agree.
+  let hexOnly = ip
+  const lastColon = ip.lastIndexOf(':')
+  const quad = ip.slice(lastColon + 1)
+  if (quad.includes('.')) {
+    if (!IPV4_REGEX.test(quad)) return false
+    hexOnly = ip.slice(0, lastColon + 1) + '0:0' // a quad occupies two groups
+  } else if (ip.includes('.')) {
+    return false // dots are only valid in a trailing IPv4 quad
+  }
+
   try {
-    new URL(`http://[${ip}]`)
+    // the brackets force the parser to treat the host as an IPv6 literal —
+    // without them, non-addresses like domain names would parse fine
+    new URL(`http://[${hexOnly}]`)
     return true
   } catch {
     return false
