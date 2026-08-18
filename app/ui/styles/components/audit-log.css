@@ -1,0 +1,59 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+.audit-log-table {
+  container-type: inline-size;
+}
+
+.audit-log-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  align-items: center;
+  gap: 2rem;
+}
+
+.audit-log-row > .col-time {
+  width: 7.75rem;
+}
+.audit-log-row > .col-status {
+  width: 3rem;
+}
+.audit-log-row > .col-operation {
+  width: 10rem;
+}
+.audit-log-row > .col-actor-id {
+  width: 8.125rem;
+}
+.audit-log-row > .col-auth-method {
+  width: 7.5rem;
+}
+.audit-log-row > .col-silo-id {
+  width: 8.125rem;
+}
+
+@container (width < 1025px) {
+  .audit-log-row > .col-silo-id {
+    display: none;
+  }
+}
+@container (width < 900px) {
+  .audit-log-row > .col-actor-id {
+    display: none;
+  }
+}
+@container (width < 700px) {
+  .audit-log-row > .col-duration {
+    display: none;
+  }
+}
+@container (width < 650px) {
+  .audit-log-row > .col-auth-method {
+    display: none;
+  }
+}
