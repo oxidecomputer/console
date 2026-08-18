@@ -9,7 +9,7 @@ import { announce } from '@react-aria/live-announcer'
 import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router'
 
-import { useCrumbs } from './use-crumbs'
+import { useCrumbs, useIsSideModalRoute } from './use-crumbs'
 
 /**
  * A real page load tells a screen reader where it landed: the new page gets
@@ -33,20 +33,18 @@ export function useRouteAnnouncer() {
     .reverse()
     .join(', ')
 
-  // `titleOnly` crumbs mark side modal forms, which have their own routes but
-  // open on top of a page rather than replacing it
-  const inSideModalForm = crumbs.some((c) => c.titleOnly)
+  const isSideModal = useIsSideModalRoute()
 
   // initialized with the current path so we don't announce the page we loaded
   // on — the browser already did that
   const lastAnnounced = useRef(pathname)
 
   useEffect(() => {
-    // A side modal form is open, so we're still on the page underneath and
-    // there's nothing to announce. The dialog announces its own title and
-    // manages its own focus, so stay out of its way. Leaving the ref alone also
-    // makes dismissing the form — a nav back to that same page — a no-op.
-    if (inSideModalForm) return
+    // A side modal is open, so we're still on the page underneath and there's
+    // nothing to announce. The dialog announces its own title and manages its
+    // own focus, so stay out of its way. Leaving the ref alone also makes
+    // dismissing it — a nav back to that same page — a no-op.
+    if (isSideModal) return
 
     if (pathname === lastAnnounced.current) return
     lastAnnounced.current = pathname
@@ -66,5 +64,5 @@ export function useRouteAnnouncer() {
     if (document.activeElement === document.body) {
       document.getElementById('content')?.focus({ preventScroll: true })
     }
-  }, [pathname, pageName, inSideModalForm])
+  }, [pathname, pageName, isSideModal])
 }

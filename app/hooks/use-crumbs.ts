@@ -69,3 +69,14 @@ export const matchesToCrumbs = (matches: UIMatch[]) =>
     })
 
 export const useCrumbs = () => matchesToCrumbs(useMatches())
+
+/**
+ * Whether the current route is a side modal (form or detail panel) opening on
+ * top of a page. Keys off the `titleOnly` crumb flag because it exists for the
+ * same reason: the page underneath doesn't change.
+ *
+ * Not the same as `useIsInSideModal`, which asks whether the calling component
+ * is rendered inside a `SideModal`. That one is false on the page underneath;
+ * this one is true.
+ */
+export const useIsSideModalRoute = () => useCrumbs().some((c) => c.titleOnly)
