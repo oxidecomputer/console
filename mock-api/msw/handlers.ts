@@ -30,7 +30,12 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
+import {
+  instanceCan,
+  MAX_BUNDLE_COMMENT_BYTES,
+  OXQL_GROUP_BY_ERROR,
+  utf8ByteLength,
+} from '~/api/util'
 import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
@@ -2073,10 +2078,8 @@ export const handlers = makeHandlers({
   supportBundleUpdate({ path, body, cookies }) {
     requireFleetAdmin(cookies)
     const bundle = lookupById(db.supportBundles, path.bundleId)
-    // https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/support_bundle.rs#L736-L742
-    // byte length, not string length, to match Nexus
-    if (body.user_comment && new TextEncoder().encode(body.user_comment).length > 4096) {
-      throw invalidRequest('User comment cannot exceed 4096 bytes')
+    if (body.user_comment && utf8ByteLength(body.user_comment) > MAX_BUNDLE_COMMENT_BYTES) {
+      throw invalidRequest(`User comment cannot exceed ${MAX_BUNDLE_COMMENT_BYTES} bytes`)
     }
     bundle.user_comment = body.user_comment
     return bundle
