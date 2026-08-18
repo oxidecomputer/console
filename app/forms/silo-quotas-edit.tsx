@@ -99,7 +99,7 @@ export function EditQuotasSideModalForm({ silo, quotas, onDismiss }: Props) {
         required
         control={form.control}
       />
-      <SideModalFormDocs docs={[docLinks.siloQuotas]} />
+      <SideModalFormDocs docs={[docLinks.resourceManagement]} />
     </SideModalForm>
   )
 }
