@@ -37,6 +37,8 @@ export default defineConfig({
   resolve: { tsconfigPaths: true },
   test: {
     attachmentsDir: 'test-results/vitest/attachments',
+    // Concurrent Playwright contexts make focus-sensitive Firefox interactions flaky.
+    fileParallelism: false,
     include: ['app/**/*.browser.spec.{ts,tsx}'],
     name: 'browser',
     setupFiles: ['test/browser/setup.ts'],
