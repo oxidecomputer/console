@@ -23,8 +23,8 @@ test('route announcer', async ({ page }) => {
   // nav by a link inside the content, which unmounts along with the page
   await page.getByRole('link', { name: 'mock-project' }).click()
   await expect(announcements(page)).toHaveText(['Instances, mock-project, Projects'])
-  // focus goes to the top of the new page, like a real page load
-  await expect(page.locator('#content')).toBeFocused()
+  // focus goes to the new page's heading, like (better than) a real page load
+  await expect(page.getByRole('heading', { name: 'Instances' })).toBeFocused()
 
   // nav by a sidebar link: the link survives the nav, but focus still moves to
   // the top of the new page
@@ -36,7 +36,7 @@ test('route announcer', async ({ page }) => {
     'Instances, mock-project, Projects',
     'Disks, mock-project, Projects',
   ])
-  await expect(page.locator('#content')).toBeFocused()
+  await expect(page.getByRole('heading', { name: 'Disks' })).toBeFocused()
 
   // a side modal form is its own route, but it opens on top of the page rather
   // than replacing it, so it doesn't announce or take focus from the dialog

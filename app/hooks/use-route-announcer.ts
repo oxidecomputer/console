@@ -60,11 +60,30 @@ export function useRouteAnnouncer() {
     // keeps focus on the tab after activating it, even when (as with VPC tabs)
     // the tab is a route.
     //
+    // Prefer the page's h1 over <main> itself. VoiceOver reads a focused
+    // heading's text, whereas focusing a big landmark container just gets
+    // "main" with no content. The h1 also remounts on every page change, while
+    // <main> persists across navs — refocusing an already-focused element is a
+    // no-op that fires no event, so the VO cursor would never move after the
+    // first nav. Focusing the destination page's heading is the standard
+    // recommendation for SPA route changes:
+    // https://www.deque.com/blog/single-page-apps-focus-management/
+    // https://www.gatsbyjs.com/blog/2019-07-11-user-testing-accessible-client-routing/
+    //
     // preventScroll because scroll position is useScrollRestoration's job:
     // without it, focusing the top of the page would clobber the restored
     // position on back/forward nav.
     if (document.activeElement?.getAttribute('role') !== 'tab') {
-      document.getElementById('content')?.focus({ preventScroll: true })
+      const main = document.getElementById('content')
+      const heading = main?.querySelector('h1')
+      if (heading) {
+        heading.tabIndex = -1 // headings aren't focusable by default
+        // Safari (unlike Chrome/FF) matches :focus-visible on programmatic
+        // focus even when the nav came from a click. The heading isn't
+        // interactive, so never show a ring.
+        heading.classList.add('outline-none')
+      }
+      ;(heading || main)?.focus({ preventScroll: true })
     }
   }, [pathname, pageName, isSideModal])
 }
