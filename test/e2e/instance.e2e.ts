@@ -78,7 +78,7 @@ test('can start a failed instance', async ({ page }) => {
   await clickRowActions(page, 'db1')
   await page.getByRole('menuitem', { name: 'Start' }).hover()
   await expect(
-    page.getByText('Only stopped or failed instances can be started')
+    page.getByRole('tooltip').getByText('Only stopped or failed instances can be started')
   ).toBeVisible()
   await page.keyboard.press('Escape') // get out of the menu
 

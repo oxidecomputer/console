@@ -53,13 +53,15 @@ test('Disabled actions', async ({ page }) => {
   await expect(unsetButton).toBeDisabled()
   await page.getByRole('menuitem', { name: 'Unset' }).hover()
   await expect(
-    page.getByText('Instance must be stopped before boot disk can be changed')
+    page
+      .getByRole('tooltip')
+      .getByText('Instance must be stopped before boot disk can be changed')
   ).toBeVisible()
 
   await expect(detachButton).toBeDisabled()
   await detachButton.hover()
   await expect(
-    page.getByText('Boot disk must be unset before it can be detached')
+    page.getByRole('tooltip').getByText('Boot disk must be unset before it can be detached')
   ).toBeVisible()
   await page.keyboard.press('Escape') // close menu
 
@@ -72,13 +74,17 @@ test('Disabled actions', async ({ page }) => {
   await expect(setButton).toBeDisabled()
   await setButton.hover()
   await expect(
-    page.getByText('Instance must be stopped before boot disk can be changed')
+    page
+      .getByRole('tooltip')
+      .getByText('Instance must be stopped before boot disk can be changed')
   ).toBeVisible()
 
   await expect(detachButton).toBeDisabled()
   await detachButton.hover()
   await expect(
-    page.getByText('Instance must be stopped before disk can be detached')
+    page
+      .getByRole('tooltip')
+      .getByText('Instance must be stopped before disk can be detached')
   ).toBeVisible()
   await page.keyboard.press('Escape') // close menu
 

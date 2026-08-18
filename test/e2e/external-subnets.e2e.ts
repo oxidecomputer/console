@@ -201,7 +201,7 @@ test('cannot delete an attached external subnet', async ({ page }) => {
   const deleteButton = page.getByRole('menuitem', { name: 'Delete' })
   await expect(deleteButton).toBeDisabled()
   await deleteButton.hover()
-  await expect(page.getByText('must be detached')).toBeVisible()
+  await expect(page.getByRole('tooltip').getByText('must be detached')).toBeVisible()
 })
 
 test('can detach and reattach an external subnet from the list page', async ({ page }) => {

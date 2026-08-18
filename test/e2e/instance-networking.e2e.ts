@@ -110,7 +110,9 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   const deleteButton = page.getByRole('menuitem', { name: 'Delete' })
   await expect(deleteButton).toBeDisabled()
   await deleteButton.hover()
-  await expect(page.getByText('The primary interface can’t')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('The primary interface can’t')
+  ).toBeVisible()
 
   // close the menu for nic-3, without the next line fails in FF and Safari (but not Chrome)
   await clickRowActions(page, 'nic-3')
