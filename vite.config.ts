@@ -156,8 +156,8 @@ export default defineConfig(({ mode }) => ({
         target: apiMode === 'remote' ? `https://${EXT_HOST}` : 'http://localhost:12220',
         changeOrigin: true,
       },
-      // Support Bundle downloads hit /experimental/v1 directly via an anchor.
-      // Revise this if we drop /experimental from the URL path in the future.
+      // probes are the only /experimental endpoints left (support bundles moved
+      // to /v1 in omicron#11097); the console doesn't call them yet
       '/experimental': {
         target: apiMode === 'remote' ? `https://${EXT_HOST}` : 'http://localhost:12220',
         changeOrigin: true,
