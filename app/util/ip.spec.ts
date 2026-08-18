@@ -206,6 +206,14 @@ const v6 = [
   '::ffff:255.255.255.255',
   'fe08::7:8',
   'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+  // embedded IPv4 is allowed with :: in any position and in the full 6-group
+  // form, not just after ::ffff: (console#1939)
+  '2001:db8:3:4:5::192.0.2.33',
+  '1:2:3:4:5:6:192.0.2.33',
+  '::192.0.2.33',
+  '2001:db8::192.0.2.33',
+  '1:2:3:4::5:192.0.2.33',
+  'db8:db8:db8:db8:db8::192.0.2.33',
 ]
 
 test.each(v6)('parseIp catches invalid IPV4 / valid IPV6: %s', (s) => {
@@ -238,10 +246,17 @@ const invalid = [
   '::1:2:3:4:5:6:7:8',
   '1:2:3:4:5:6:7:8::',
   '1:2:3:4:5:6:7:88888',
-  '2001:db8:3:4:5::192.0.2.33', // std::new::Ipv6Net allows this one
+  '1:2:3:4:5:6:7:192.0.2.33', // one group too many before the dotted quad
+  '::1.2.3.4.5',
+  '1:2:3:4:5:6:7:8:1.2.3.4',
   'fe08::7:8%',
   'fe08::7:8i',
   'fe08::7:8interface',
+  // zone IDs are valid in some contexts but std::net::Ipv6Addr rejects them
+  'fe80::1%eth0',
+  'fe80::1%0',
+  'fe80::%eth0',
+  '::1%lo0',
 ]
 
 test.each(invalid)('parseIp catches invalid IP: %s', (s) => {

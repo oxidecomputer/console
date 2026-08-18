@@ -18,18 +18,30 @@ export const orderIps = (ips: ExternalIp[]) => R.sortBy(ips, (a) => IP_ORDER[a.k
 // Borrowed from Valibot. I tried some from Zod and an O'Reilly regex cookbook
 // but they didn't match results with std::net on simple test cases
 // https://github.com/fabian-hiller/valibot/blob/2554aea5/library/src/regex.ts#L43-L54
-
 const IPV4_REGEX =
   /^(?:(?:[1-9]|1\d|2[0-4])?\d|25[0-5])(?:\.(?:(?:[1-9]|1\d|2[0-4])?\d|25[0-5])){3}$/u
 
-const IPV6_REGEX =
-  /^(?:(?:[\da-f]{1,4}:){7}[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,7}:|(?:[\da-f]{1,4}:){1,6}:[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,5}(?::[\da-f]{1,4}){1,2}|(?:[\da-f]{1,4}:){1,4}(?::[\da-f]{1,4}){1,3}|(?:[\da-f]{1,4}:){1,3}(?::[\da-f]{1,4}){1,4}|(?:[\da-f]{1,4}:){1,2}(?::[\da-f]{1,4}){1,5}|[\da-f]{1,4}:(?::[\da-f]{1,4}){1,6}|:(?:(?::[\da-f]{1,4}){1,7}|:)|fe80:(?::[\da-f]{0,4}){0,4}%[\da-z]+|::(?:f{4}(?::0{1,4})?:)?(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d)|(?:[\da-f]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d))$/iu
+// IPv6 is more complex; use the WHATWG URL parser rather than a regex to determine validity.
+// Restrict the charset first so the parser only ever sees a bare host: `]`, `/`,
+// `%`, and whitespace would otherwise let non-addresses through as port, path, or zone.
+
+const IPV6_CHARS_REGEX = /^[0-9a-f:.]+$/i
+
+function isIpv6(ip: string): boolean {
+  if (!ip.includes(':') || !IPV6_CHARS_REGEX.test(ip)) return false
+  try {
+    new URL(`http://[${ip}]`)
+    return true
+  } catch {
+    return false
+  }
+}
 
 type ParsedIp = { type: IpVersion; address: string } | { type: 'error'; message: string }
 
 export function parseIp(ip: string): ParsedIp {
   if (IPV4_REGEX.test(ip)) return { type: 'v4', address: ip }
-  if (IPV6_REGEX.test(ip)) return { type: 'v6', address: ip }
+  if (isIpv6(ip)) return { type: 'v6', address: ip }
   return { type: 'error', message: 'Not a valid IP address' }
 }
 
