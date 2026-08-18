@@ -19,8 +19,8 @@ import { useCrumbs, useIsSideModalRoute } from './use-crumbs'
  * route announcer for this; React Router leaves it to the app.
  *
  * So on every page change we do it ourselves: announce the new page in a live
- * region, and if the click left focus stranded on the body, move it to the top
- * of the content, which is where the skip link points too.
+ * region, and move focus to the top of the content, which is where the skip
+ * link points too.
  */
 export function useRouteAnnouncer() {
   const { pathname } = useLocation()
@@ -53,15 +53,17 @@ export function useRouteAnnouncer() {
     // result of the action that navigated us here
     announce(pageName || 'Oxide Console', 'polite')
 
-    // Only take focus when it has fallen to the body, which is what happens
-    // when whatever had it (usually the link that was clicked) is gone from the
-    // new page. If focus is still on something real — a sidebar or breadcrumb
-    // link, an input the new page focused itself — leave it alone.
+    // Move focus to the top of the new page, like a real page load would.
+    // Leaving it where it was is unreliable anyway: Safari doesn't focus links
+    // on click, so after a sidebar click, focus is on the link in Firefox but
+    // on the body in Safari. The exception is tabs — the ARIA tabs pattern
+    // keeps focus on the tab after activating it, even when (as with VPC tabs)
+    // the tab is a route.
     //
     // preventScroll because scroll position is useScrollRestoration's job:
     // without it, focusing the top of the page would clobber the restored
     // position on back/forward nav.
-    if (document.activeElement === document.body) {
+    if (document.activeElement?.getAttribute('role') !== 'tab') {
       document.getElementById('content')?.focus({ preventScroll: true })
     }
   }, [pathname, pageName, isSideModal])
