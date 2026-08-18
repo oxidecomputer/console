@@ -34,3 +34,32 @@ export const supportBundles: Json<SupportBundleInfo>[] = [
     time_created: new Date('2025-07-28T11:00:00Z').toISOString(),
   },
 ]
+
+/**
+ * Served by the index handler for any active bundle: zip entry names in the
+ * format the real endpoint returns — sorted, one per line, directories with
+ * trailing slashes. A tiny slice of a real bundle's layout. 8 files.
+ */
+export const supportBundleIndexText = [
+  'bundle_id.txt',
+  'ereports/',
+  'ereports/9130000019-BRM42220031/',
+  'ereports/9130000019-BRM42220031/3f7d938a-71b0-4707-b020-ba05526e84ee/',
+  'ereports/9130000019-BRM42220031/3f7d938a-71b0-4707-b020-ba05526e84ee/0x1.json',
+  'ereports/9130000019-BRM42220031/3f7d938a-71b0-4707-b020-ba05526e84ee/0x2.json',
+  'meta/',
+  'meta/reason_for_creation.txt',
+  'meta/report.json',
+  'rack/',
+  'rack/a5b3fd8a/',
+  'rack/a5b3fd8a/sled/',
+  'rack/a5b3fd8a/sled/0/',
+  'rack/a5b3fd8a/sled/0/zpool.json',
+  'reconfigurator_state.json',
+  'sp_task_dumps/',
+  'sp_task_dumps/switch_0/',
+  'sp_task_dumps/switch_0/dump-0.zip',
+].join('\n')
+
+// Fake `Content-Length` for the HEAD handler
+export const SUPPORT_BUNDLE_SIZE = 2_576_980_378

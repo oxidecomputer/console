@@ -151,8 +151,7 @@ export const pb = {
 
   supportBundles: () => '/system/support-bundles',
   supportBundlesNew: () => '/system/support-bundles-new',
-  supportBundleEdit: (params: PP.SupportBundle) =>
-    `${pb.supportBundles()}/${params.bundleId}/edit`,
+  supportBundle: (params: PP.SupportBundle) => `${pb.supportBundles()}/${params.bundleId}`,
 
   profile: () => '/settings/profile',
   sshKeys: () => '/settings/ssh-keys',

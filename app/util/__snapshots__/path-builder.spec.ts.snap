@@ -897,7 +897,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/networking/",
     },
   ],
-  "supportBundleEdit (/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31/edit)": [
+  "supportBundle (/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31)": [
     {
       "label": "Support Bundles",
       "path": "/system/support-bundles",
