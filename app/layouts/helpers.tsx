@@ -10,7 +10,6 @@ import { Outlet } from 'react-router'
 import { PageActionsTarget } from '~/components/PageActions'
 import { Pagination } from '~/components/Pagination'
 import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
-import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
 export const PageContainer = classed.div`min-h-full pt-[calc(var(--top-bar-height)+var(--preview-banner-height))]`
@@ -26,8 +25,10 @@ export function ContentPane() {
   return (
     <div className="light:bg-raise ml-(--sidebar-width) flex min-h-[calc(100vh-var(--top-bar-height)-var(--preview-banner-height))] flex-col">
       <div className="flex grow flex-col pb-8">
-        <SkipLinkTarget />
-        <main className="*:gutter">
+        {/* id/tabIndex make this the skip link target and where useRouteAnnouncer
+            puts focus after a nav. It has to be a real element in the a11y tree
+            (not an empty div) or the VoiceOver cursor won't follow the focus. */}
+        <main id="content" tabIndex={-1} className="*:gutter outline-none">
           <Outlet />
         </main>
       </div>
@@ -47,8 +48,7 @@ export function ContentPane() {
  */
 export const SerialConsoleContentPane = () => (
   <div className="ml-(--sidebar-width) flex h-[calc(100vh-var(--top-bar-height)-var(--preview-banner-height))] flex-col overflow-hidden">
-    <SkipLinkTarget />
-    <main className="*:gutter h-full">
+    <main id="content" tabIndex={-1} className="*:gutter h-full outline-none">
       <Outlet />
     </main>
   </div>
