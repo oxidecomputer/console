@@ -5,13 +5,24 @@
  *
  * Copyright Oxide Computer Company
  */
-import { describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 
 import { project } from '@oxide/api-mocks'
 
 import { api, q } from '..'
-import { overrideOnce } from '../../../test/unit/server'
+import { resetDb } from '../../../mock-api/msw/db'
+import { overrideOnce, server } from '../../../test/unit/server'
 import { processServerError } from '../errors'
+
+// These are the only unit tests that make requests, so the MSW server
+// lifecycle lives here rather than in the global setup file — resetDb clones
+// the whole mock db, which is too slow to run after every test suite-wide.
+beforeAll(() => server.listen())
+afterEach(() => {
+  resetDb()
+  server.resetHandlers()
+})
+afterAll(() => server.close())
 
 // useApiQuery and useApiMutation are almost entirely typed wrappers around React
 // Query's useQuery and useMutation, so they're exercised end-to-end by the
