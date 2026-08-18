@@ -14,10 +14,10 @@ import { queryOptions } from '@tanstack/react-query'
  */
 
 export const bundleDownloadUrl = (bundleId: string) =>
-  `/experimental/v1/system/support-bundles/${bundleId}/download`
+  `/v1/system/support-bundles/${bundleId}/download`
 
 const bundleIndexUrl = (bundleId: string) =>
-  `/experimental/v1/system/support-bundles/${bundleId}/index`
+  `/v1/system/support-bundles/${bundleId}/index`
 
 export const DOWNLOAD_DISABLED_REASON =
   'Only bundles that have completed collection can be downloaded'
