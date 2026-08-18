@@ -7,6 +7,7 @@
  */
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useSearchParams } from 'react-router'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
@@ -299,13 +300,30 @@ const groupHasPointWorthDropping = (g: ChartGroups | 'empty-timeseries'): boolea
 export default function OxqlPage() {
   const query = useApiMutation(api.systemTimeseriesQuery)
 
-  const form = useForm({ defaultValues })
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const form = useForm({
+    defaultValues: { query: searchParams.get('query') ?? defaultValues.query },
+  })
   const control = form.control
 
   const [dropFirstPoint, setDropFirstPoint] = useState(true)
 
   const onSubmit = (body: TimeseriesQuery) => {
-    query.mutate({ body })
+    query.mutate(
+      { body },
+      {
+        onSuccess: () => {
+          setSearchParams(
+            (params) => {
+              params.set('query', body.query)
+              return params
+            },
+            { replace: true, preventScrollReset: true, state: { skipLoadingBar: true } }
+          )
+        },
+      }
+    )
   }
 
   const chartGroups: (ChartGroups | 'empty-timeseries')[] | null = useMemo(

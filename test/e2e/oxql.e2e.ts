@@ -121,3 +121,17 @@ test('a query the backend rejects surfaces an error instead of a chart', async (
   await expect(page.getByText('Query failed')).toBeVisible()
   await expect(page.getByRole('figure')).toHaveCount(0)
 })
+
+test('pages reads the initial query from the URL', async ({ page }) => {
+  await page.goto(`/system/oxql?query=${encodeURIComponent(oxqlQueries.basicTctl)}`)
+  await expect(page.getByRole('textbox')).toHaveValue(oxqlQueries.basicTctl)
+})
+
+test('pages writes the query to the URL after a successful run', async ({ page }) => {
+  await page.goto('/system/oxql')
+  await runQuery(page, oxqlQueries.basicTctl)
+
+  await expect
+    .poll(() => new URL(page.url()).searchParams.get('query'))
+    .toBe(oxqlQueries.basicTctl)
+})
