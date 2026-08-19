@@ -122,7 +122,7 @@ test('results list is virtualized', async ({ page }) => {
 })
 
 test('picking an example populates the query and renders a chart', async ({ page }) => {
-  await page.getByRole('button', { name: 'Load an example' }).click()
+  await page.getByRole('button', { name: 'Try an example' }).click()
   await page.getByRole('menuitem', { name: 'Power shelf fan speeds' }).click()
   await expect(page.getByRole('textbox')).toHaveValue(/get hardware_component:fan_speed/)
 
