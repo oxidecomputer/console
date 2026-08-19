@@ -465,12 +465,6 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/networking/",
     },
   ],
-  "oxql (/system/oxql)": [
-    {
-      "label": "OxQL Explorer",
-      "path": "/system/oxql",
-    },
-  ],
   "profile (/settings/profile)": [
     {
       "label": "Settings",
@@ -893,6 +887,12 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Subnet Pools",
       "path": "/system/networking/",
+    },
+  ],
+  "systemOxql (/system/oxql)": [
+    {
+      "label": "OxQL Explorer",
+      "path": "/system/oxql",
     },
   ],
   "systemUpdate (/system/update)": [
