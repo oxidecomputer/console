@@ -16,6 +16,7 @@ import {
   api,
   diskCan,
   genName,
+  hasDefaultVpc,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   isUnicastPool,
@@ -34,6 +35,7 @@ import {
   type IpVersion,
   type NameOrId,
   type UnicastIpPool,
+  type Vpc,
 } from '@oxide/api'
 import {
   Images16Icon,
@@ -410,19 +412,16 @@ export default function CreateInstanceForm() {
     [siloPools]
   )
 
-  // Check if VPCs exist to determine default network interface type
   const { data: vpcs } = usePrefetchedQuery(
     q(api.vpcList, { query: { project, limit: ALL_ISH } })
   )
-  const hasVpcs = vpcs.items.length > 0
 
   // Determine default network interface type:
-  // - If VPCs exist: default to dual-stack (API default, works with both IPv4 and IPv6 subnets)
-  // - If no VPCs exist: default to 'none' (user must create VPC first or use custom NICs)
+  // - If a default VPC exists: default to dual-stack (API default, works with both IPv4 and IPv6 subnets)
+  // - Otherwise: default to 'none' (user must create a VPC first or use custom NICs)
   // Note: Decoupled from external IP pool configuration, as NIC IP stack and external IPs are separate concerns
-  const defaultNetworkInterfaceType: InstanceNetworkInterfaceAttachment['type'] = hasVpcs
-    ? 'default_dual_stack'
-    : 'none'
+  const defaultNetworkInterfaceType: InstanceNetworkInterfaceAttachment['type'] =
+    hasDefaultVpc(vpcs.items) ? 'default_dual_stack' : 'none'
 
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
@@ -841,7 +840,7 @@ export default function CreateInstanceForm() {
           control={control}
           isSubmitting={isSubmitting}
           unicastPools={unicastPools}
-          hasVpcs={hasVpcs}
+          vpcs={vpcs.items}
         />
         <FormDivider />
         <Form.Heading id="advanced">Advanced</Form.Heading>
@@ -878,12 +877,12 @@ const NetworkingSection = ({
   control,
   isSubmitting,
   unicastPools,
-  hasVpcs,
+  vpcs,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
   unicastPools: UnicastIpPool[]
-  hasVpcs: boolean
+  vpcs: Vpc[]
 }) => {
   const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })
   const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
@@ -953,21 +952,20 @@ const NetworkingSection = ({
     </>
   )
 
+  const vpcMessage =
+    vpcs.length === 0 ? (
+      <>
+        A VPC is required to add network interfaces.{' '}
+        <Link to={pb.vpcsNew({ project })}>Create a VPC</Link> to enable networking.
+      </>
+    ) : null
+
   return (
     <>
-      {!hasVpcs && (
-        <Message
-          className="mb-4"
-          variant="notice"
-          content={
-            <>
-              A VPC is required to add network interfaces.{' '}
-              <Link to={pb.vpcsNew({ project })}>Create a VPC</Link> to enable networking.
-            </>
-          }
-        />
+      {vpcMessage && (
+        <Message className="mb-4 max-w-lg" variant="notice" content={vpcMessage} />
       )}
-      <NetworkInterfaceField control={control} disabled={isSubmitting} hasVpcs={hasVpcs} />
+      <NetworkInterfaceField control={control} disabled={isSubmitting} vpcs={vpcs} />
 
       <div className="flex flex-1 flex-col gap-4">
         <h2 className="text-sans-md flex items-center">

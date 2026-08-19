@@ -1191,6 +1191,62 @@ test('network interface options disabled when no VPCs exist', async ({ page }) =
   await expect(noneRadio).toBeChecked()
 })
 
+// The default_* attachment types resolve a VPC named 'default', so they 404 if
+// that VPC has been deleted. other-project has a VPC, just not one named
+// 'default', so only custom interfaces work there.
+test('custom network interface works without a default VPC', async ({ page }) => {
+  await page.goto('/projects/other-project/instances-new')
+  const instanceName = 'custom-nic-without-default-vpc'
+
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  const customRadio = page.getByRole('radio', { name: 'Custom', exact: true })
+  const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
+
+  // default is out, but the project has a VPC, so custom interfaces still work
+  await expect(defaultRadio).toBeDisabled()
+  await expect(defaultRadio).not.toBeChecked()
+  await expect(customRadio).toBeEnabled()
+
+  const defaultRow = defaultRadio.locator('..').locator('..').locator('..')
+  const defaultTip = defaultRow.getByRole('button', { name: 'Tip' })
+  const tooltip = page.getByRole('tooltip')
+
+  await defaultTip.hover()
+  await expect(tooltip).toHaveText('Default networking requires a VPC named default')
+
+  await page.mouse.move(0, 0)
+  await expect(tooltip).toBeHidden()
+  await defaultTip.focus()
+  await expect(tooltip).toHaveText('Default networking requires a VPC named default')
+
+  await expect(noneRadio).toBeEnabled()
+  await expect(noneRadio).toBeChecked()
+
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  await customRadio.click()
+  await page.getByRole('button', { name: 'Add network interface' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Add network interface' })
+  await modal.getByRole('textbox', { name: 'Name' }).fill('custom-primary')
+  await expect(modal.getByLabel('VPC', { exact: true })).toContainText('mock-vpc-2')
+  await modal.getByRole('button', { name: 'VPC subnet' }).click()
+  await page.getByRole('option', { name: 'other-subnet', exact: true }).click()
+  await modal.getByRole('button', { name: 'Add network interface' }).click()
+
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await closeToast(page)
+  await expect(page).toHaveURL(`/projects/other-project/instances/${instanceName}/storage`)
+
+  await page.getByRole('tab', { name: 'Networking' }).click()
+  await expectRowVisible(page.getByRole('table', { name: 'Network interfaces' }), {
+    name: 'custom-primaryprimary',
+    vpc: 'mock-vpc-2',
+    subnet: 'other-subnet',
+  })
+})
+
 test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 
