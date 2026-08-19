@@ -7,7 +7,7 @@
  */
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
@@ -30,49 +30,43 @@ import { ChartContainer, ChartHeader, TimeSeriesChart } from '~/components/TimeS
 import { useElementSize } from '~/hooks/use-element-size'
 import { Button } from '~/ui/lib/Button'
 import { Divider } from '~/ui/lib/Divider'
+import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 
-const queries = {
-  basicTctl: `get hardware_component:amd_cpu_tctl
-  | filter timestamp > @now() - 1m`,
-  unalignedTables: `{
-  get hardware_component:temperature;
-  get hardware_component:sensor_error_count
-}
-  | filter timestamp > @now() - 1m`,
-  multiJoinedTable: `{
+const exampleItems: ListboxItem[] = [
   {
-    get sled_data_link:bytes_sent;
-    get sled_data_link:errors_sent
-  }
-    | align mean_within(20s)
-    | join;
+    label: 'Power shelf fan speeds',
+    value: `get hardware_component:fan_speed
+  | filter chassis_kind == 'power'
+  | filter timestamp > @now() - 1m`,
+  },
   {
-    get sled_data_link:bytes_received;
-    get sled_data_link:errors_received
-  }
-    | align mean_within(20s)
-    | join
-}
-  | filter kind == 'vnic'
+    label: 'AMD CPU TCTL measurements per slot',
+    value: `get hardware_component:amd_cpu_tctl
+  | align mean_within(20s)
+  | group_by [slot]
   | filter timestamp > @now() - 10m`,
-  bytesSentAndReceived: `{
+  },
+  {
+    label: 'Bytes sent & received per sled',
+    value: `{
   get sled_data_link:bytes_sent
-    | align mean_within(5s)
-    | group_by [sled_serial, link_name, kind];
+    | align mean_within(30s)
+    | group_by [kind, sled_id];
   get sled_data_link:bytes_received
-    | align mean_within(5s)
-    | group_by [sled_serial, link_name, kind]
+    | align mean_within(30s)
+    | group_by [kind, sled_id]
 }
+  | filter kind == 'physical'
   | filter timestamp > @now() - 10m
-  | filter kind == 'vnic'
-  | filter link_name == 'oxControlService20'`,
-}
+  | join`,
+  },
+]
 
 const defaultValues: TimeseriesQuery = {
-  query: queries.bytesSentAndReceived,
+  query: '',
 }
 
 export const handle = { crumb: 'OxQL Explorer' }
@@ -419,11 +413,13 @@ function LineChart({
 function ChartEntry({ display, trim }: { display: ChartDisplay; trim: Trim }) {
   return (
     <>
-      {display.showDivider && (
+      {display.showDivider ? (
         // Use padding for spacing so the virtualizer can measure the bounding box properly
         <div className="py-8">
           <Divider className="mx-16" />
         </div>
+      ) : (
+        <div className="pt-8" />
       )}
       {match(display)
         .with({ kind: 'empty' }, () => <p className="text-secondary">No results</p>)
@@ -434,15 +430,25 @@ function ChartEntry({ display, trim }: { display: ChartDisplay; trim: Trim }) {
   )
 }
 
+const getTextareaHeightForQuery = (q: string): number => Math.max(q.split('\n').length, 4)
+
 export default function OxqlPage() {
   const query = useApiMutation(api.systemTimeseriesQuery)
 
   const [searchParams, setSearchParams] = useSearchParams()
 
+  const defaultQuery = searchParams.get('query') ?? defaultValues.query
+
+  const [textareaRowCount, setTextareaRowCount] = useState(
+    getTextareaHeightForQuery(defaultQuery)
+  )
+
   const form = useForm({
-    defaultValues: { query: searchParams.get('query') ?? defaultValues.query },
+    defaultValues: { query: defaultQuery },
   })
   const control = form.control
+
+  const currentQuery = useWatch({ control, name: 'query' })
 
   const [dropFirstPoint, setDropFirstPoint] = useState(true)
 
@@ -505,28 +511,19 @@ export default function OxqlPage() {
             links={[docLinks.oxql, docLinks.oxqlSchemas]}
           />
         </PageHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(queries).map(([key, text]) => (
-              <Button
-                key={key}
-                size="sm"
-                variant="secondary"
-                onClick={() => form.setValue('query', text)}
-              >
-                {key.replace(/([A-Z])/g, ' $1')}
-              </Button>
-            ))}
-          </div>
-          <div className="mt-2">
-            <OxqlField
-              rows={defaultValues.query.split('\n').length || 4}
-              name="query"
-              required
-              control={control}
-            />
-          </div>
-          <Button className="mt-4" type="submit" disabled={query.status === 'pending'}>
+        <form className="max-w-lg space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+          <Listbox
+            label="Load an example"
+            placeholder="Select an example query"
+            selected={currentQuery || null}
+            items={exampleItems}
+            onChange={(text) => {
+              setTextareaRowCount(getTextareaHeightForQuery(text))
+              form.setValue('query', text)
+            }}
+          />
+          <OxqlField rows={textareaRowCount} name="query" required control={control} />
+          <Button type="submit" disabled={query.status === 'pending'}>
             Run query
           </Button>
         </form>
