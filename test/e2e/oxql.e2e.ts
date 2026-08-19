@@ -9,7 +9,6 @@
 import { expect, test, type Page, type Locator } from '@playwright/test'
 
 import { oxqlQueries } from './oxql-queries'
-import { selectOption } from './utils'
 
 const runQuery = async (page: Page, query?: string) => {
   if (query !== undefined) await page.getByRole('textbox').fill(query)
@@ -123,11 +122,8 @@ test('results list is virtualized', async ({ page }) => {
 })
 
 test('picking an example populates the query and renders a chart', async ({ page }) => {
-  await selectOption(
-    page,
-    page.getByRole('button', { name: 'Load an example' }),
-    'Power shelf fan speeds'
-  )
+  await page.getByRole('button', { name: 'Load an example' }).click()
+  await page.getByRole('menuitem', { name: 'Power shelf fan speeds' }).click()
   await expect(page.getByRole('textbox')).toHaveValue(/get hardware_component:fan_speed/)
 
   await runQuery(page)

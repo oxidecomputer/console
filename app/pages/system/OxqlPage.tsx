@@ -7,7 +7,7 @@
  */
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
@@ -30,12 +30,12 @@ import { ChartContainer, ChartHeader, TimeSeriesChart } from '~/components/TimeS
 import { useElementSize } from '~/hooks/use-element-size'
 import { Button } from '~/ui/lib/Button'
 import { Divider } from '~/ui/lib/Divider'
-import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 
-const exampleItems: ListboxItem[] = [
+const exampleItems: { label: string; value: string }[] = [
   {
     label: 'Power shelf fan speeds',
     value: `get hardware_component:fan_speed
@@ -448,8 +448,6 @@ export default function OxqlPage() {
   })
   const control = form.control
 
-  const currentQuery = useWatch({ control, name: 'query' })
-
   const [dropFirstPoint, setDropFirstPoint] = useState(true)
 
   const onSubmit = (body: TimeseriesQuery) => {
@@ -512,16 +510,29 @@ export default function OxqlPage() {
           />
         </PageHeader>
         <form className="max-w-lg space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-          <Listbox
-            label="Load an example"
-            placeholder="Select an example query"
-            selected={currentQuery || null}
-            items={exampleItems}
-            onChange={(text) => {
-              setTextareaRowCount(getTextareaHeightForQuery(text))
-              form.setValue('query', text)
-            }}
-          />
+          <div className="flex justify-end">
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger
+                render={
+                  <Button variant="secondary" size="sm">
+                    Try an example
+                  </Button>
+                }
+              />
+              <DropdownMenu.Content anchor="bottom end" gap={8}>
+                {exampleItems.map(({ label, value }) => (
+                  <DropdownMenu.Item
+                    key={label}
+                    label={label}
+                    onSelect={() => {
+                      setTextareaRowCount(getTextareaHeightForQuery(value))
+                      form.setValue('query', value)
+                    }}
+                  />
+                ))}
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          </div>
           <OxqlField rows={textareaRowCount} name="query" required control={control} />
           <Button type="submit" disabled={query.status === 'pending'}>
             Run query
