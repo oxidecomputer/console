@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo, useState } from 'react'
+import { useWindowVirtualizer } from '@tanstack/react-virtual'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
 import * as R from 'remeda'
@@ -26,6 +27,7 @@ import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/r
 import { DocsPopover } from '~/components/DocsPopover'
 import { OxqlField } from '~/components/form/fields/OxqlField'
 import { ChartContainer, ChartHeader, TimeSeriesChart } from '~/components/TimeSeriesChart'
+import { useElementSize } from '~/hooks/use-element-size'
 import { Button } from '~/ui/lib/Button'
 import { Divider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
@@ -160,13 +162,15 @@ type Chart<Data> = {
   data: Data
 }
 
-type LabeledNumberLine = Chart<{ label: string; values: (number | null)[] }[]>
+type Multiline = Chart<{ label: string; values: (number | null)[] }[]>
 
-type ChartGroups = { startTime: Date; endTime: Date } & (
-  | { kind: 'unaligned'; charts: Chart<Values>[] }
-  | { kind: 'aligned'; charts: LabeledNumberLine[] }
-  | { kind: 'joined'; charts: LabeledNumberLine[] }
-)
+type ChartGroup =
+  | 'empty-timeseries'
+  | ({ startTime: Date; endTime: Date } & (
+      | { kind: 'unaligned'; charts: Chart<Values>[] }
+      | { kind: 'aligned'; charts: Multiline[] }
+      | { kind: 'joined'; charts: Multiline[] }
+    ))
 
 const getFormattedFields = (t: Timeseries): string =>
   Object.entries(t.fields)
@@ -174,7 +178,7 @@ const getFormattedFields = (t: Timeseries): string =>
     .map(([fieldName, x]) => `${camelToSnake(fieldName)}: ${x.value}`)
     .join(' \u2022 ')
 
-const tableToGroups = (table: OxqlTable): ChartGroups | 'empty-timeseries' => {
+const tableToGroup = (table: OxqlTable): ChartGroup => {
   const { name, timeseries } = table
   if (timeseries.length === 0) return 'empty-timeseries'
   const kind:
@@ -253,8 +257,7 @@ const tableToGroups = (table: OxqlTable): ChartGroups | 'empty-timeseries' => {
   return {
     ...chart,
     // i figure any chart collection probably benefits from sharing their X-axis, even if they're
-    // rendered in sequence. when there's no data at all, min/max are undefined and the range is
-    // irrelevant (the charts render their empty state) — fall back to the epoch for valid Dates
+    // rendered in sequence
     startTime: new Date(min ?? 0),
     endTime: new Date(max ?? 0),
   }
@@ -276,9 +279,10 @@ const formatTick = (n: number): string => {
 // Drops (or keeps, without copying) the first sample of a series. We trim timestamps and values at
 // the same time to be confident they're in sync.
 type TimeAndData = { timestamps: number[]; data: (number | null)[][] }
+type Trim = (t: TimeAndData) => TimeAndData
 const firstPointDropper =
-  (drop: boolean) =>
-  ({ timestamps, data }: TimeAndData): TimeAndData =>
+  (drop: boolean): Trim =>
+  ({ timestamps, data }) =>
     drop
       ? { timestamps: timestamps.slice(1), data: data.map((d) => d.slice(1)) }
       : { timestamps, data }
@@ -286,7 +290,7 @@ const firstPointDropper =
 // The first aligned point of a cumulative counter is diffed against the counter's start_time,
 // collapsing all pre-window history into one giant bucket. It's not "erroneous" but it's usually
 // not useful, and you'd want to hide it to get a more useful y-axis for the rest of your data.
-const groupHasPointWorthDropping = (g: ChartGroups | 'empty-timeseries'): boolean =>
+const groupHasPointWorthDropping = (g: ChartGroup): boolean =>
   match(g)
     .with('empty-timeseries', () => false)
     // Aligned/joined tables may be derived from cumulatives, so we assume it's worth offering
@@ -296,6 +300,139 @@ const groupHasPointWorthDropping = (g: ChartGroups | 'empty-timeseries'): boolea
       charts.some((c) => c.data.metricType !== 'gauge')
     )
     .exhaustive()
+
+// A simplified representation of a single chart.
+type ChartDisplay = { key: string; showDivider: boolean } & (
+  | { kind: 'empty' }
+  | { kind: 'multiline'; startTime: Date; endTime: Date; chart: Multiline }
+  | { kind: 'line'; startTime: Date; endTime: Date; chart: Chart<Values> }
+)
+
+// Virtualization relies on a list of near-same-size items, so we flatten out all the groups
+const toDisplays = (groups: ChartGroup[]): ChartDisplay[] =>
+  groups.flatMap((g, t): ChartDisplay[] => {
+    if (g === 'empty-timeseries')
+      return [{ kind: 'empty', key: `t${t}`, showDivider: true }]
+    const { startTime, endTime } = g
+    return match(g)
+      .with({ kind: 'unaligned' }, ({ charts }) =>
+        charts.map(
+          (chart, i): ChartDisplay => ({
+            kind: 'line',
+            key: `t${t}.${i}`,
+            showDivider: i === 0,
+            startTime,
+            endTime,
+            chart,
+          })
+        )
+      )
+      .with({ kind: 'joined' }, { kind: 'aligned' }, ({ charts }) =>
+        charts.map(
+          (chart, i): ChartDisplay => ({
+            kind: 'multiline',
+            key: `t${t}.${i}`,
+            showDivider: i === 0,
+            startTime,
+            endTime,
+            chart,
+          })
+        )
+      )
+      .exhaustive()
+  })
+
+function MultilineChart({
+  display,
+  trim,
+}: {
+  display: Extract<ChartDisplay, { kind: 'multiline' }>
+  trim: Trim
+}) {
+  const { chart, startTime, endTime } = display
+  const trimmed = trim({
+    timestamps: chart.timestamps,
+    data: chart.data.map((d) => d.values),
+  })
+  const seriesLabels = chart.data.map((l) => l.label)
+  return (
+    <ChartContainer>
+      <ChartHeader title={chart.name} label="" description={chart.description} />
+      <TimeSeriesChart
+        timestamps={trimmed.timestamps}
+        data={trimmed.data}
+        seriesLabels={seriesLabels}
+        title={chart.name}
+        interpolation="linear"
+        startTime={startTime}
+        endTime={endTime}
+        unit={undefined}
+        loading={false}
+        yAxisTickFormatter={formatTick}
+      />
+    </ChartContainer>
+  )
+}
+
+function LineChart({
+  display,
+  trim,
+}: {
+  display: Extract<ChartDisplay, { kind: 'line' }>
+  trim: Trim
+}) {
+  const { chart, startTime, endTime } = display
+  const data = match(chart.data.values)
+    .with({ type: 'integer' }, ({ values }) => values)
+    .with({ type: 'double' }, ({ values }) => values)
+    .with({ type: 'boolean' }, ({ values }) =>
+      values.map((b) =>
+        match(b)
+          .with(true, () => 1)
+          .with(false, () => 0)
+          .with(null, () => null)
+          .exhaustive()
+      )
+    )
+    .with({ type: 'string' }, () => []) // these don't exist in practice
+    .with({ type: 'integer_distribution' }, { type: 'double_distribution' }, () => []) // heatmaps!
+    .exhaustive()
+  const trimmed = trim({ data: [data], timestamps: chart.timestamps })
+  return (
+    <ChartContainer>
+      <ChartHeader title={chart.name} label="" description={chart.description} />
+      <TimeSeriesChart
+        data={trimmed.data}
+        timestamps={trimmed.timestamps}
+        title={chart.name}
+        interpolation="linear"
+        startTime={startTime}
+        endTime={endTime}
+        unit={undefined}
+        loading={false}
+        yAxisTickFormatter={formatTick}
+      />
+    </ChartContainer>
+  )
+}
+
+function ChartEntry({ display, trim }: { display: ChartDisplay; trim: Trim }) {
+  return (
+    <>
+      {display.showDivider && (
+        // Use padding for spacing so the virtualizer can measure the bounding box properly
+        <div className="py-8">
+          <Divider className="mx-16" />
+        </div>
+      )}
+      {match(display)
+        .with({ kind: 'empty' }, () => <p className="text-secondary">No results</p>)
+        .with({ kind: 'multiline' }, (r) => <MultilineChart display={r} trim={trim} />)
+        .with({ kind: 'line' }, (r) => <LineChart display={r} trim={trim} />)
+        .exhaustive()}
+    </>
+  )
+}
 
 export default function OxqlPage() {
   const query = useApiMutation(api.systemTimeseriesQuery)
@@ -326,50 +463,92 @@ export default function OxqlPage() {
     )
   }
 
-  const chartGroups: (ChartGroups | 'empty-timeseries')[] | null = useMemo(
-    () => (query.data ? query.data.tables.map(tableToGroups) : null),
+  const chartGroups: ChartGroup[] | null = useMemo(
+    () => (query.data ? query.data.tables.map(tableToGroup) : null),
     [query.data]
   )
 
   const hasTrimmableCharts = chartGroups?.some(groupHasPointWorthDropping) ?? false
   const trim = firstPointDropper(dropFirstPoint && hasTrimmableCharts)
 
+  const charts = useMemo(() => (chartGroups ? toDisplays(chartGroups) : []), [chartGroups])
+
+  // Since the whole window is the scroll container, the virtualizer needs to
+  // know the offset from the top. By reacting to height changes in everything
+  // prior to the virtualized area, we can keep the list's offset height in sync.
+  const [preChartsSize, preChartsRef] = useElementSize()
+  const chartsRef = useRef<HTMLDivElement>(null)
+  const [scrollMargin, setScrollMargin] = useState(0)
+  useLayoutEffect(() => {
+    if (chartsRef.current) {
+      setScrollMargin(chartsRef.current.getBoundingClientRect().top + window.scrollY)
+    }
+  }, [preChartsSize?.height, charts.length])
+
+  const virtualizer = useWindowVirtualizer({
+    count: charts.length,
+    estimateSize: () => 500,
+    overscan: 4,
+    scrollMargin,
+    getItemKey: (i) => charts[i].key,
+  })
+
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Monitoring24Icon />}>OxQL Explorer</PageTitle>
-        <DocsPopover
-          heading="OxQL"
-          icon={<Monitoring16Icon />}
-          summary="The Oximeter Query Language is a domain-specific language for interrogating telemetry data from software and hardware components across the rack."
-          links={[docLinks.oxql, docLinks.oxqlSchemas]}
-        />
-      </PageHeader>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(queries).map(([key, text]) => (
-            <Button
-              key={key}
-              size="sm"
-              variant="secondary"
-              onClick={() => form.setValue('query', text)}
-            >
-              {key.replace(/([A-Z])/g, ' $1')}
-            </Button>
-          ))}
-        </div>
-        <div className="mt-2">
-          <OxqlField
-            rows={defaultValues.query.split('\n').length || 4}
-            name="query"
-            required
-            control={control}
+      <div ref={preChartsRef}>
+        <PageHeader>
+          <PageTitle icon={<Monitoring24Icon />}>OxQL Explorer</PageTitle>
+          <DocsPopover
+            heading="OxQL"
+            icon={<Monitoring16Icon />}
+            summary="The Oximeter Query Language is a domain-specific language for interrogating telemetry data from software and hardware components across the rack."
+            links={[docLinks.oxql, docLinks.oxqlSchemas]}
           />
-        </div>
-        <Button className="mt-4" type="submit" disabled={query.status === 'pending'}>
-          Run query
-        </Button>
-      </form>
+        </PageHeader>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(queries).map(([key, text]) => (
+              <Button
+                key={key}
+                size="sm"
+                variant="secondary"
+                onClick={() => form.setValue('query', text)}
+              >
+                {key.replace(/([A-Z])/g, ' $1')}
+              </Button>
+            ))}
+          </div>
+          <div className="mt-2">
+            <OxqlField
+              rows={defaultValues.query.split('\n').length || 4}
+              name="query"
+              required
+              control={control}
+            />
+          </div>
+          <Button className="mt-4" type="submit" disabled={query.status === 'pending'}>
+            Run query
+          </Button>
+        </form>
+        {match(query)
+          .with(
+            { status: 'success' },
+            () =>
+              hasTrimmableCharts && (
+                <div className="mt-8 mb-2">
+                  <label className="text-secondary flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={dropFirstPoint}
+                      onChange={(e) => setDropFirstPoint(e.target.checked)}
+                    />
+                    Drop first point
+                  </label>
+                </div>
+              )
+          )
+          .otherwise(() => '')}
+      </div>
 
       {match(query)
         .with({ status: 'idle' }, () => null)
@@ -394,109 +573,23 @@ export default function OxqlPage() {
           />
         ))
         .with({ status: 'success' }, () => (
-          <>
-            {hasTrimmableCharts && (
-              <div className="mt-8 mb-2">
-                <label className="text-secondary flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={dropFirstPoint}
-                    onChange={(e) => setDropFirstPoint(e.target.checked)}
-                  />
-                  Drop first point
-                </label>
+          <div
+            ref={chartsRef}
+            className="relative"
+            style={{ height: virtualizer.getTotalSize() }}
+          >
+            {virtualizer.getVirtualItems().map((item) => (
+              <div
+                key={item.key}
+                data-index={item.index}
+                ref={virtualizer.measureElement}
+                className="absolute top-0 left-0 w-full"
+                style={{ transform: `translateY(${item.start - scrollMargin}px)` }}
+              >
+                <ChartEntry display={charts[item.index]} trim={trim} />
               </div>
-            )}
-            {chartGroups &&
-              chartGroups.map((s, tableNumber) => (
-                <div key={tableNumber}>
-                  <Divider className="mx-16 my-8" />
-                  {match(s)
-                    .with('empty-timeseries', () => 'No results')
-                    .with(
-                      { kind: 'joined' },
-                      { kind: 'aligned' },
-                      ({ charts, startTime, endTime }) => (
-                        <div className="flex flex-col gap-4">
-                          {charts.map((chart, chartNumber) => {
-                            const trimmed = trim({
-                              timestamps: chart.timestamps,
-                              data: chart.data.map((d) => d.values),
-                            })
-                            const seriesLabels = chart.data.map((l) => l.label)
-                            return (
-                              <ChartContainer key={`${tableNumber}.${chartNumber}`}>
-                                <ChartHeader
-                                  title={chart.name}
-                                  label=""
-                                  description={chart.description}
-                                />
-                                <TimeSeriesChart
-                                  timestamps={trimmed.timestamps}
-                                  data={trimmed.data}
-                                  seriesLabels={seriesLabels}
-                                  title={chart.name}
-                                  interpolation="linear"
-                                  startTime={startTime}
-                                  endTime={endTime}
-                                  unit={undefined}
-                                  loading={false}
-                                  yAxisTickFormatter={formatTick}
-                                />
-                              </ChartContainer>
-                            )
-                          })}
-                        </div>
-                      )
-                    )
-                    .with({ kind: 'unaligned' }, ({ charts, startTime, endTime }) =>
-                      charts.map((chart, chartNumber) => {
-                        const data = match(chart.data.values)
-                          .with({ type: 'integer' }, ({ values }) => values)
-                          .with({ type: 'double' }, ({ values }) => values)
-                          .with({ type: 'boolean' }, ({ values }) =>
-                            values.map((b) =>
-                              match(b)
-                                .with(true, () => 1)
-                                .with(false, () => 0)
-                                .with(null, () => null)
-                                .exhaustive()
-                            )
-                          )
-                          .with({ type: 'string' }, () => []) // these don't exist in practice
-                          .with(
-                            { type: 'integer_distribution' },
-                            { type: 'double_distribution' },
-                            () => []
-                          ) // heatmaps!
-                          .exhaustive()
-                        const trimmed = trim({ data: [data], timestamps: chart.timestamps })
-                        return (
-                          <ChartContainer key={`${tableNumber}.${chartNumber}`}>
-                            <ChartHeader
-                              title={chart.name}
-                              label=""
-                              description={chart.description}
-                            />
-                            <TimeSeriesChart
-                              data={trimmed.data}
-                              timestamps={trimmed.timestamps}
-                              title={chart.name}
-                              interpolation="linear"
-                              startTime={startTime}
-                              endTime={endTime}
-                              unit={undefined}
-                              loading={false}
-                              yAxisTickFormatter={formatTick}
-                            />
-                          </ChartContainer>
-                        )
-                      })
-                    )
-                    .exhaustive()}
-                </div>
-              ))}
-          </>
+            ))}
+          </div>
         ))
         .exhaustive()}
     </>

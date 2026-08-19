@@ -102,6 +102,25 @@ test('"Drop first point" appears only for cumulative-derived charts', async ({ p
   await expect(page.getByRole('figure')).toHaveCount(3)
 })
 
+test('results list is virtualized', async ({ page }) => {
+  const getFirstRenderedIndex = () =>
+    page
+      .locator('[data-index]')
+      .first()
+      .evaluate((el) => Number(el.getAttribute('data-index')))
+
+  await runQuery(page, `{${Array(100).fill('get sled_data_link:bytes_sent').join(';')}}`)
+
+  const figures = page.getByRole('figure')
+  await expect(figures.first()).toBeVisible()
+  expect(await getFirstRenderedIndex()).toBe(0)
+  await expect.poll(() => figures.count()).toBeLessThan(20) // arbitrary, "not everything"
+
+  // double check we're actually virtualizing!
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+  await expect.poll(getFirstRenderedIndex).not.toBe(0)
+})
+
 test('empty query is blocked by client-side validation', async ({ page }) => {
   const textbox = page.getByRole('textbox')
   await textbox.fill('')
