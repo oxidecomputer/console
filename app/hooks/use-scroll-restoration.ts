@@ -35,33 +35,29 @@ function setScrollPosition(key: string, pos: number) {
 export function useScrollRestoration() {
   const key = `scroll-position-${useLocation().key}`
   const { state } = useNavigation()
-  // The page on screen at this location: a side modal route renders its parent
-  // page underneath, so it counts as that page. Navigating within the same
-  // page (opening or closing a side modal over it) shouldn't move the scroll.
+  // page path looks at the page under a side modal, which we use to distinguish
+  // modal open/close (which shouldn't reset scroll) from full page navs (which
+  // should)
   const page = usePagePath()
-  // last committed location, tracked at idle. We can't track this in the
-  // loading state because a navigation whose loader data is already cached
-  // can complete without ever rendering with state === 'loading'.
+  // last committed location, tracked at idle. We can't track it during
+  // 'loading' because a nav with cached loader data can complete without ever
+  // hitting state === 'loading'.
   const prev = useRef<{ key: string; page: string } | null>(null)
   useEffect(() => {
-    // opt out of the browser's native scroll restoration so it doesn't jump
-    // the still-visible old page to the new page's saved position on POP,
-    // before the new route's loader resolves. We restore manually below.
+    // opt out of native scroll restoration, it conflicts with ours
     window.history.scrollRestoration = 'manual'
     if (state === 'loading') {
-      // during a navigation, location still reflects the old route
+      // nav in flight: save current scroll under the outgoing location's key
       setScrollPosition(key, window.scrollY)
     } else if (state === 'idle' && prev.current?.key !== key) {
-      // both checks are needed: key changes on every nav, including same-page
-      // ones like opening a side modal, so key says we just landed on a new
-      // location (or this is the initial render) and page decides whether the
-      // nav stayed within the same page
+      // we've landed on a page
       if (prev.current?.page === page) {
-        // same page, new location (opened a side modal): leave the scroll alone
-        // and record it under the new location's key so back/forward to it
-        // restores correctly
+        // underlying page didn't change, which means the nav was opening or
+        // closing a side modal. leave scroll alone, record under the new key
+        // so it can be restored on forward/back
         setScrollPosition(key, window.scrollY)
       } else {
+        // landed on a new page: restore its saved scroll, or 0 if none saved
         window.scrollTo(0, getScrollPosition(key))
       }
     }

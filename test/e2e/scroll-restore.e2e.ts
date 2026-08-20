@@ -58,6 +58,14 @@ test('opening and closing side modal preserves scroll', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
   await expect(page.getByRole('heading', { name: 'Disks' })).toBeVisible()
 
+  // visit snapshots and come back so its data is cached: the later nav to it
+  // can then complete without rendering a loading state, which would otherwise
+  // save the scroll position and mask a failure to record it at modal close
+  await page.getByRole('link', { name: 'Snapshots' }).click()
+  await expect(page.getByRole('heading', { name: 'Snapshots' })).toBeVisible()
+  await page.getByRole('link', { name: 'Disks' }).click()
+  await expect(page.getByRole('heading', { name: 'Disks' })).toBeVisible()
+
   // click the last disk in the table. clicking auto-scrolls it into view, so
   // read the resulting scroll position as the baseline rather than setting one
   const lastDisk = page
@@ -76,6 +84,13 @@ test('opening and closing side modal preserves scroll', async ({ page }) => {
   // closing it doesn't either
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog')).toBeHidden()
+  await expectScrollTop(page, baseline)
+
+  // nav away and back: the scroll recorded at modal close is restored
+  await page.getByRole('link', { name: 'Snapshots' }).click()
+  await expectScrollTop(page, 0)
+  await page.goBack()
+  await expect(page).toHaveURL('/projects/mock-project/disks')
   await expectScrollTop(page, baseline)
 })
 
@@ -123,4 +138,9 @@ test('navigating from a side modal to a new page resets scroll', async ({ page }
 
   await expect(page.getByRole('heading', { name: 'scroll-test-vpc' })).toBeVisible()
   await expectScrollTop(page, 0)
+
+  // going back reopens the modal with the underlying page's scroll restored
+  await page.goBack()
+  await expect(page.getByRole('dialog', { name: 'Create VPC' })).toBeVisible()
+  await expectScrollTop(page, 100)
 })
