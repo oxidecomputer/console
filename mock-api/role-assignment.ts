@@ -88,6 +88,17 @@ export const roleAssignments: DbRoleAssignment[] = [
     role_name: 'admin',
   },
   {
+    // Jane also inherits the stronger silo.collaborator via real-estate-devs, so
+    // she has both a direct and a group-derived role (exercises the "+N" roles
+    // display on the Users tab). Kept below admin so she stays a non-silo-admin,
+    // which other tests rely on.
+    resource_type: 'silo',
+    resource_id: defaultSilo.id,
+    identity_id: user5.id, // Jane Austen
+    identity_type: 'silo_user',
+    role_name: 'viewer',
+  },
+  {
     resource_type: 'project',
     resource_id: project.id,
     identity_id: user3.id, // Jacob Klein

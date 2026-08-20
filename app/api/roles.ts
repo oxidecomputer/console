@@ -11,10 +11,19 @@
  * layer and not in app/ because we are experimenting with it to decide whether
  * it belongs in the API proper.
  */
+import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import * as R from 'remeda'
 
-import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
+import { ALL_ISH } from '~/util/consts'
+
+import type {
+  FleetRole,
+  Group,
+  IdentityType,
+  ProjectRole,
+  SiloRole,
+} from './__generated__/Api'
 import { api, q, usePrefetchedQuery } from './client'
 
 /**
@@ -77,6 +86,22 @@ export function updateRole<Role extends RoleKey>(
 }
 
 /**
+ * Map from identity ID to role name for quick lookup. If an actor has multiple
+ * assignments in the same policy (which the API allows) take the strongest one.
+ */
+export function rolesByIdFromPolicy<Role extends RoleKey>(
+  policy: Policy<Role>
+): Map<string, Role> {
+  const map = new Map<string, Role>()
+  for (const { identityId, roleName } of policy.roleAssignments) {
+    const existing = map.get(identityId)
+    // non-null: list is non-empty
+    map.set(identityId, getEffectiveRole(existing ? [existing, roleName] : [roleName])!)
+  }
+  return map
+}
+
+/**
  * Delete any role assignments for user or group ID. Returns a new updated
  * policy. Does not modify the passed-in policy.
  */
@@ -88,47 +113,6 @@ export function deleteRole<Role extends RoleKey>(
     (ra) => ra.identityId !== identityId
   )
   return { roleAssignments }
-}
-
-type UserAccessRow<Role extends RoleKey = RoleKey> = {
-  id: string
-  identityType: IdentityType
-  name: string
-  roleName: Role
-  roleSource: string
-}
-
-/**
- * Role assignments come from the API in (user, role) pairs without display
- * names and without info about which resource the role came from. This tags
- * each row with that info. It has to be a hook because it depends on the result
- * of an API request for the list of users. It's a bit awkward, but the logic is
- * identical between projects and orgs so it is worth sharing.
- */
-export function useUserRows<Role extends RoleKey = RoleKey>(
-  roleAssignments: RoleAssignment<Role>[],
-  roleSource: string
-): UserAccessRow<Role>[] {
-  // HACK: because the policy has no names, we are fetching ~all the users,
-  // putting them in a dictionary, and adding the names to the rows
-  const { data: users } = usePrefetchedQuery(q(api.userList, {}))
-  const { data: groups } = usePrefetchedQuery(q(api.groupList, {}))
-  return useMemo(() => {
-    const userItems = users?.items || []
-    const groupItems = groups?.items || []
-    const usersDict = Object.fromEntries(userItems.concat(groupItems).map((u) => [u.id, u]))
-    return roleAssignments.map((ra) => ({
-      id: ra.identityId,
-      identityType: ra.identityType,
-      // A user might not appear here if they are not in the current user's
-      // silo. This could happen in a fleet policy, which might have users from
-      // different silos. Hence the ID fallback. The code that displays this
-      // detects when we've fallen back and includes an explanatory tooltip.
-      name: usersDict[ra.identityId]?.displayName || ra.identityId,
-      roleName: ra.roleName,
-      roleSource,
-    }))
-  }, [roleAssignments, roleSource, users, groups])
 }
 
 type SortableUserRow = { identityType: IdentityType; name: string }
@@ -156,33 +140,102 @@ export type Actor = {
 export function useActorsNotInPolicy<Role extends RoleKey = RoleKey>(
   policy: Policy<Role>
 ): Actor[] {
-  const { data: users } = usePrefetchedQuery(q(api.userList, {}))
-  const { data: groups } = usePrefetchedQuery(q(api.groupList, {}))
+  const { data: users } = usePrefetchedQuery(q(api.userList, { query: { limit: ALL_ISH } }))
+  const { data: groups } = usePrefetchedQuery(
+    q(api.groupList, { query: { limit: ALL_ISH } })
+  )
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const actorsInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
-    const allGroups = groups.items.map((g) => ({
-      ...g,
-      identityType: 'silo_group' as IdentityType,
-    }))
-    const allUsers = users.items.map((u) => ({
-      ...u,
-      identityType: 'silo_user' as IdentityType,
-    }))
-    // groups go before users
-    return allGroups.concat(allUsers).filter((u) => !actorsInPolicy.has(u.id)) || []
+    // groups first, then users; each sorted alphabetically by display name
+    const allGroups = R.sortBy(
+      groups.items.map((g) => ({ ...g, identityType: 'silo_group' as IdentityType })),
+      (g) => g.displayName.toLowerCase()
+    )
+    const allUsers = R.sortBy(
+      users.items.map((u) => ({ ...u, identityType: 'silo_user' as IdentityType })),
+      (u) => u.displayName.toLowerCase()
+    )
+    return allGroups.concat(allUsers).filter((u) => !actorsInPolicy.has(u.id))
   }, [users, groups, policy])
 }
 
-export function userRoleFromPolicies(
-  user: { id: string },
-  groups: { id: string }[],
-  policies: Policy[]
-): RoleKey | null {
-  const myIds = new Set([user.id, ...groups.map((g) => g.id)])
-  const myRoles = policies
-    .flatMap((p) => p.roleAssignments) // concat all the role assignments together
-    .filter((ra) => myIds.has(ra.identityId))
-    .map((ra) => ra.roleName)
-  return getEffectiveRole(myRoles) || null
+export type AccessScope = 'silo' | 'project'
+
+export type ScopedRoleEntry = {
+  roleName: RoleKey
+  scope: AccessScope
+  source: { type: 'direct' } | { type: 'group'; group: { id: string; displayName: string } }
+}
+
+/**
+ * Enumerate all role assignments relevant to a user — one entry per direct
+ * assignment and one per group assignment — across the given policies. Each
+ * entry is tagged with the scope of the policy it came from. Since the API
+ * permits multiple assignments for the same identity in one policy, each entry
+ * collapses those to the strongest role (see `getEffectiveRole`).
+ * Callers are responsible for sorting and any display-layer merging.
+ */
+export function userScopedRoleEntries(
+  userId: string,
+  userGroups: { id: string; displayName: string }[],
+  siloPolicy: Policy,
+  projectPolicy?: Policy
+): ScopedRoleEntry[] {
+  const entries = policyRoleEntries('silo', siloPolicy, userId, userGroups)
+  if (projectPolicy) {
+    entries.push(...policyRoleEntries('project', projectPolicy, userId, userGroups))
+  }
+  return entries
+}
+
+function policyRoleEntries(
+  scope: AccessScope,
+  policy: Policy,
+  userId: string,
+  userGroups: { id: string; displayName: string }[]
+): ScopedRoleEntry[] {
+  const roleById = rolesByIdFromPolicy(policy)
+  const entries: ScopedRoleEntry[] = []
+  const direct = roleById.get(userId)
+  if (direct) {
+    entries.push({ roleName: direct, scope, source: { type: 'direct' } })
+  }
+  for (const group of userGroups) {
+    const via = roleById.get(group.id)
+    if (via) {
+      entries.push({ roleName: via, scope, source: { type: 'group', group } })
+    }
+  }
+  return entries
+}
+
+/** Sort role entries strongest first (see `roleOrder`), so the effective role leads. */
+export const sortRoleEntries = (entries: ScopedRoleEntry[]) =>
+  R.sortBy(entries, (e) => roleOrder[e.roleName])
+
+/**
+ * Builds a map from user ID to the list of groups that user belongs to,
+ * firing one query per group to fetch members. Shared between user tabs.
+ */
+export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> {
+  const groupMemberPages = useQueries({
+    queries: groups.map((g) => q(api.userList, { query: { group: g.id, limit: ALL_ISH } })),
+    // useQueries returns a new array each render; combine structurally shares
+    // the selected data so the Map only changes with groups or memberships
+    combine: (results) => results.map((result) => result.data),
+  })
+
+  return useMemo(() => {
+    const map = new Map<string, Group[]>()
+    groups.forEach((group, i) => {
+      const members = groupMemberPages[i]?.items ?? []
+      members.forEach((member) => {
+        const existing = map.get(member.id)
+        if (existing) existing.push(group)
+        else map.set(member.id, [group])
+      })
+    })
+    return map
+  }, [groups, groupMemberPages])
 }

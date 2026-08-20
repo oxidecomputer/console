@@ -14,6 +14,7 @@ import { Link } from 'react-router'
 import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 import { Wrap } from '../util/wrap'
+import { useIsInModal, useIsInSideModal } from './modal-context'
 import { Tooltip } from './Tooltip'
 
 // Re-export Root with modal={false} default to prevent scroll locking
@@ -62,6 +63,7 @@ type ContentProps = {
   anchor?: AnchorProp
   /** Spacing in px between trigger and menu */
   gap?: 8
+  /** Overrides the default, which is derived from modal context */
   zIndex?: ZIndex
   collisionPadding?: React.ComponentProps<typeof Menu.Positioner>['collisionPadding']
 }
@@ -71,14 +73,21 @@ export function Content({
   children,
   anchor = 'bottom end',
   gap,
-  zIndex = 'dropdown',
+  zIndex,
   collisionPadding,
 }: ContentProps) {
   const { side, align, sideOffset, alignOffset } = parseAnchor(anchor, gap)
+  const isInModal = useIsInModal()
+  const isInSideModal = useIsInSideModal()
+  const contextZIndex: ZIndex = isInModal
+    ? 'modal'
+    : isInSideModal
+      ? 'sideModal'
+      : 'dropdown'
   return (
     <Menu.Portal>
       <Menu.Positioner
-        className={zIndexClass[zIndex]}
+        className={zIndexClass[zIndex ?? contextZIndex]}
         side={side}
         align={align}
         sideOffset={sideOffset}
