@@ -343,3 +343,6 @@ export function synthesizeData(
 }
 
 export const OXQL_GROUP_BY_ERROR = 'Input tables to a `group_by` must be aligned'
+
+// https://github.com/oxidecomputer/omicron/blob/b260af8/nexus/db-fixed-data/src/silo_user.rs#L22
+export const USER_TEST_PRIVILEGED_ID = '001de000-05e4-4000-8000-000000004007'

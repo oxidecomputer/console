@@ -15,6 +15,7 @@ import {
   api,
   byGroupThenName,
   deleteRole,
+  displayUserName,
   q,
   queryClient,
   roleOrder,
@@ -23,6 +24,7 @@ import {
   useUserRows,
   type IdentityType,
   type RoleKey,
+  type UserName,
 } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -85,7 +87,7 @@ export const handle = { crumb: 'Project Access' }
 type UserRow = {
   id: string
   identityType: IdentityType
-  name: string
+  name: UserName
   projectRole: RoleKey | undefined
   roleBadges: { roleSource: string; roleName: RoleKey }[]
 }
@@ -140,7 +142,10 @@ export default function ProjectAccessPage() {
 
   const columns = useMemo(
     () => [
-      colHelper.accessor('name', { header: 'Name' }),
+      colHelper.accessor('name', {
+        header: 'Name',
+        cell: (info) => displayUserName(info.getValue()),
+      }),
       colHelper.accessor('identityType', {
         header: 'Type',
         cell: (info) => identityTypeLabel[info.getValue()],
@@ -189,7 +194,7 @@ export default function ProjectAccessPage() {
             // role of X. However we would have to look at their groups too.
             label: (
               <span>
-                the <HL>{row.projectRole}</HL> role for <HL>{row.name}</HL>
+                the <HL>{row.projectRole}</HL> role for <HL>{displayUserName(row.name)}</HL>
               </span>
             ),
             resourceKind: 'role assignment',
@@ -243,7 +248,7 @@ export default function ProjectAccessPage() {
         <ProjectAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={projectPolicy}
-          name={editingUserRow.name}
+          name={displayUserName(editingUserRow.name)}
           identityId={editingUserRow.id}
           identityType={editingUserRow.identityType}
           defaultValues={{ roleName: editingUserRow.projectRole }}

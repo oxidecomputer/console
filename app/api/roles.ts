@@ -13,9 +13,11 @@
  */
 import { useMemo } from 'react'
 import * as R from 'remeda'
+import { match } from 'ts-pattern'
 
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 import { api, q, usePrefetchedQuery } from './client'
+import { USER_TEST_PRIVILEGED_ID } from './util'
 
 /**
  * Union of all the specific roles, which used to all be the same until we added
@@ -90,10 +92,40 @@ export function deleteRole<Role extends RoleKey>(
   return { roleAssignments }
 }
 
+export type UserName =
+  | { kind: 'real'; name: string }
+  | { kind: 'stranger'; id: string }
+  | { kind: 'built-in' }
+
+export const displayUserName = (name: UserName): string =>
+  match(name)
+    .with({ kind: 'real' }, ({ name }) => name)
+    .with({ kind: 'stranger' }, ({ id }) => id)
+    .with({ kind: 'built-in' }, () => 'Built-in user')
+    .exhaustive()
+
+const getUserName = (
+  dict: Record<string, { displayName: string }>,
+  id: string
+): UserName => {
+  if (id in dict) {
+    return { kind: 'real', name: dict[id].displayName }
+  } else if (id === USER_TEST_PRIVILEGED_ID) {
+    // The built-in user has no name, but a known id. Eventually it should be
+    // removed; see omicron#2305.
+    return { kind: 'built-in' }
+  } else {
+    // A user's name might not appear here if they are not in the current
+    // user's silo. This could happen in a fleet policy, which might have users
+    // from different silos.
+    return { kind: 'stranger', id }
+  }
+}
+
 type UserAccessRow<Role extends RoleKey = RoleKey> = {
   id: string
   identityType: IdentityType
-  name: string
+  name: UserName
   roleName: Role
   roleSource: string
 }
@@ -120,18 +152,14 @@ export function useUserRows<Role extends RoleKey = RoleKey>(
     return roleAssignments.map((ra) => ({
       id: ra.identityId,
       identityType: ra.identityType,
-      // A user might not appear here if they are not in the current user's
-      // silo. This could happen in a fleet policy, which might have users from
-      // different silos. Hence the ID fallback. The code that displays this
-      // detects when we've fallen back and includes an explanatory tooltip.
-      name: usersDict[ra.identityId]?.displayName || ra.identityId,
+      name: getUserName(usersDict, ra.identityId),
       roleName: ra.roleName,
       roleSource,
     }))
   }, [roleAssignments, roleSource, users, groups])
 }
 
-type SortableUserRow = { identityType: IdentityType; name: string }
+type SortableUserRow = { identityType: IdentityType; name: UserName }
 
 /**
  * Comparator for array sort. Group groups and users, then sort by name within
@@ -140,7 +168,7 @@ type SortableUserRow = { identityType: IdentityType; name: string }
 export function byGroupThenName(a: SortableUserRow, b: SortableUserRow) {
   const aGroup = Number(a.identityType === 'silo_group')
   const bGroup = Number(b.identityType === 'silo_group')
-  return bGroup - aGroup || a.name.localeCompare(b.name)
+  return bGroup - aGroup || displayUserName(a.name).localeCompare(displayUserName(b.name))
 }
 
 export type Actor = {
