@@ -15,7 +15,7 @@ const announcements = (page: Page) =>
 
 test('route announcer', async ({ page }) => {
   await page.goto('/projects')
-  await page.getByRole('heading', { name: 'Projects' }).waitFor()
+  await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible()
 
   // nothing on first load — the browser already announced the page
   await expect(announcements(page)).toHaveCount(0)

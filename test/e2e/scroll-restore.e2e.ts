@@ -16,7 +16,7 @@ test('scroll restore', async ({ page }) => {
   // nav to disks and scroll it
   await page.goto('/projects/mock-project/disks')
   // wait for content to render so the page is tall enough to scroll
-  await page.getByRole('heading', { name: 'Disks' }).waitFor()
+  await expect(page.getByRole('heading', { name: 'Disks' })).toBeVisible()
   await expectScrollTop(page, 0)
   await scrollTo(page, 143)
 
@@ -56,7 +56,7 @@ test('opening and closing side modal preserves scroll', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 500 })
 
   await page.goto('/projects/mock-project/disks')
-  await page.getByRole('heading', { name: 'Disks' }).waitFor()
+  await expect(page.getByRole('heading', { name: 'Disks' })).toBeVisible()
 
   // click the last disk in the table. clicking auto-scrolls it into view, so
   // read the resulting scroll position as the baseline rather than setting one
@@ -85,7 +85,7 @@ test('opening firewall rule modal preserves scroll', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 300 })
 
   await page.goto('/projects/mock-project/vpcs/default/firewall-rules')
-  await page.getByRole('tab', { name: 'Firewall Rules' }).waitFor()
+  await expect(page.getByRole('tab', { name: 'Firewall Rules' })).toBeVisible()
   await scrollTo(page, 100)
   await expectScrollTop(page, 100)
 
@@ -109,7 +109,7 @@ test('navigating from a side modal to a new page resets scroll', async ({ page }
   await page.setViewportSize({ width: 1280, height: 300 })
 
   await page.goto('/projects/mock-project/vpcs')
-  await page.getByRole('heading', { name: 'VPCs' }).waitFor()
+  await expect(page.getByRole('heading', { name: 'VPCs' })).toBeVisible()
   await scrollTo(page, 100)
   await expectScrollTop(page, 100)
 
