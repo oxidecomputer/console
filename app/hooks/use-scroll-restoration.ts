@@ -46,15 +46,22 @@ export function useScrollRestoration() {
   useEffect(() => {
     // opt out of native scroll restoration, it conflicts with ours
     window.history.scrollRestoration = 'manual'
+
+    // idle + new key = we just landed somewhere (or this is the initial render)
+    const landed = state === 'idle' && prev.current?.key !== key
+
+    // underlying page didn't change, which either means the nav was opening
+    // or closing a side modal, a query param tab change, or clicking the
+    // breadcrumb for the page you're already on
+    const samePage = prev.current?.page === page
+
     if (state === 'loading') {
       // nav in flight: save current scroll under the outgoing location's key
       setScrollPosition(key, window.scrollY)
-    } else if (state === 'idle' && prev.current?.key !== key) {
-      // we've landed on a page
-      if (prev.current?.page === page) {
-        // underlying page didn't change, which means the nav was opening or
-        // closing a side modal. leave scroll alone, record under the new key
-        // so it can be restored on forward/back
+    } else if (landed) {
+      if (samePage) {
+        // leave scroll alone, record under the new key so it can be restored
+        // on forward/back
         setScrollPosition(key, window.scrollY)
       } else {
         // landed on a new page: restore its saved scroll, or 0 if none saved
