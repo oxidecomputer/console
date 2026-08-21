@@ -36,6 +36,7 @@ import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { defaultSilo, toIdp } from '../silo'
+import { timeseriesSchemas } from '../timeseries-schema'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
 import {
@@ -2095,6 +2096,10 @@ export const handlers = makeHandlers({
     await delay(1000)
     return handleOxqlMetrics(body)
   },
+  systemTimeseriesSchemaList({ cookies }) {
+    requireFleetViewer(cookies)
+    return { items: timeseriesSchemas }
+  },
   siloMetric: handleMetrics,
   systemUpdateRepositoryList: ({ cookies }) => {
     requireFleetViewer(cookies)
@@ -2742,7 +2747,6 @@ export const handlers = makeHandlers({
   systemNetworkingSettingsUpdate: NotImplemented,
   systemNetworkingSettingsView: NotImplemented,
   systemQuotasList: NotImplemented,
-  systemTimeseriesSchemaList: NotImplemented,
   systemUpdateRecoveryFinish: NotImplemented,
   systemUpdateRepositoryView: NotImplemented,
   systemUpdateTrustRootCreate: NotImplemented,

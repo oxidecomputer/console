@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useController, useForm } from 'react-hook-form'
@@ -14,6 +15,7 @@ import { match } from 'ts-pattern'
 
 import {
   api,
+  q,
   useApiMutation,
   camelToSnake,
   type Timeseries,
@@ -43,6 +45,7 @@ import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TextInputError } from '~/ui/lib/TextInput'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pluralize } from '~/util/str'
 
@@ -321,24 +324,28 @@ const toDisplays = (groups: ChartGroup[]): ChartDisplay[] =>
     const { startTime, endTime } = g
     return match(g)
       .with({ kind: 'unaligned' }, ({ charts }) =>
-        charts.map((chart, i): ChartDisplay => ({
-          kind: 'line',
-          key: `t${t}.${i}`,
-          showDivider: i === 0,
-          startTime,
-          endTime,
-          chart,
-        }))
+        charts.map(
+          (chart, i): ChartDisplay => ({
+            kind: 'line',
+            key: `t${t}.${i}`,
+            showDivider: i === 0,
+            startTime,
+            endTime,
+            chart,
+          })
+        )
       )
       .with({ kind: 'joined' }, { kind: 'aligned' }, ({ charts }) =>
-        charts.map((chart, i): ChartDisplay => ({
-          kind: 'multiline',
-          key: `t${t}.${i}`,
-          showDivider: i === 0,
-          startTime,
-          endTime,
-          chart,
-        }))
+        charts.map(
+          (chart, i): ChartDisplay => ({
+            kind: 'multiline',
+            key: `t${t}.${i}`,
+            showDivider: i === 0,
+            startTime,
+            endTime,
+            chart,
+          })
+        )
       )
       .exhaustive()
   })
@@ -467,33 +474,11 @@ const tablesToCsv = (tables: OxqlTable[]): string => {
   return rows.map((row) => row.map(csvCell).join(',')).join('\n')
 }
 
-function ResultsSummary({ tables }: { tables: OxqlTable[] }) {
-  const timeseries = tables.flatMap((t) => t.timeseries)
-  const nPoints = R.sumBy(timeseries, (t) => t.points.timestamps.length)
-  return (
-    <div className="text-mono-xs text-quaternary px-2">
-      <span className="text-tertiary">{timeseries.length} timeseries</span> /{' '}
-      <span className="text-tertiary">
-        {nPoints.toLocaleString()} {pluralize('point', nPoints)}
-      </span>
-    </div>
-  )
-}
-
 const copyText = (text: string, toastMessage: string) => {
   window.navigator.clipboard.writeText(text).then(() => addToast(toastMessage))
 }
 
-// wrap in single quotes, escaping any embedded ones, so the multiline query
-// survives pasting into a shell
-const shellQuote = (s: string) => `'${s.replaceAll("'", "'\\''")}'`
-
-// The CLI equivalent of this page's query endpoint. See "API and CLI access":
-// https://docs.oxide.computer/guides/metrics/oxql-tutorial#_api_and_cli_access
-const toCliCommand = (query: string) =>
-  `oxide experimental system timeseries query --query ${shellQuote(query)}`
-
-function ResultsMenu({ data, query }: { data?: OxqlQueryResult; query?: string }) {
+function ResultsMenu({ data }: { data?: OxqlQueryResult }) {
   // the menu is always visible so the header doesn't jump around, but the
   // actions only make sense once a query has succeeded
   const noResults = data === undefined ? 'Run a query first' : undefined
@@ -511,12 +496,20 @@ function ResultsMenu({ data, query }: { data?: OxqlQueryResult; query?: string }
         onSelect={() => data && copyText(tablesToCsv(data.tables), 'Results copied as CSV')}
         label="Copy as CSV"
       />
-      <Dropdown.Item
-        disabled={noResults}
-        onSelect={() => query && copyText(toCliCommand(query), 'CLI command copied')}
-        label="Copy CLI command"
-      />
     </MoreActionsMenu>
+  )
+}
+
+function ResultsSummary({ tables }: { tables: OxqlTable[] }) {
+  const timeseries = tables.flatMap((t) => t.timeseries)
+  const nPoints = R.sumBy(timeseries, (t) => t.points.timestamps.length)
+  return (
+    <div className="text-mono-xs text-quaternary px-2">
+      <span className="text-tertiary">{timeseries.length} timeseries</span> /{' '}
+      <span className="text-tertiary">
+        {nPoints.toLocaleString()} {pluralize('point', nPoints)}
+      </span>
+    </div>
   )
 }
 
@@ -530,6 +523,10 @@ const ResultsSection = ({ children }: { children: ReactNode }) => (
 
 export default function OxqlPage() {
   const query = useApiMutation(api.systemTimeseriesQuery)
+
+  // powers editor autocomplete. no loading state needed: completions are a
+  // progressive enhancement and simply appear once this resolves
+  const schemas = useQuery(q(api.systemTimeseriesSchemaList, { query: { limit: ALL_ISH } }))
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -619,7 +616,7 @@ export default function OxqlPage() {
                 <Button type="submit" size="sm" loading={query.status === 'pending'}>
                   Run query
                 </Button>
-                <ResultsMenu data={query.data} query={query.variables?.body.query} />
+                <ResultsMenu data={query.data} />
               </div>
             </CardBlock.Header>
             <CardBlock.Body>
@@ -630,6 +627,7 @@ export default function OxqlPage() {
                   value={field.value}
                   onChange={field.onChange}
                   onSubmit={() => form.handleSubmit(onSubmit)()}
+                  schemas={schemas.data?.items}
                 />
                 {fieldState.error?.message && (
                   <TextInputError>{fieldState.error.message}</TextInputError>
@@ -642,7 +640,10 @@ export default function OxqlPage() {
                     key={label}
                     type="button"
                     className="text-mono-xs border-default text-secondary hover:bg-hover rounded border px-2 py-1"
-                    onClick={() => form.setValue('query', value, { shouldValidate: true })}
+                    onClick={() => {
+                      form.setValue('query', value, { shouldValidate: true })
+                      form.handleSubmit(onSubmit)()
+                    }}
                   >
                     {label}
                   </button>

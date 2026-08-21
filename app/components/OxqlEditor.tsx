@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
+import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { bracketMatching } from '@codemirror/language'
 import { Compartment, RangeSetBuilder } from '@codemirror/state'
 import {
@@ -13,6 +13,7 @@ import {
   EditorView,
   highlightActiveLine,
   keymap,
+  placeholder,
   ViewPlugin,
   type DecorationSet,
   type ViewUpdate,
@@ -25,6 +26,10 @@ import {
   type ThemeRegistrationAny,
 } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
+
+import type { TimeseriesSchema } from '@oxide/api'
+
+import { oxqlAutocomplete } from '~/components/oxql-autocomplete'
 
 // OxQL grammar copied from the design system so we can highlight queries
 // without pulling in its full asciidoc bundle. One addition over the source:
@@ -146,7 +151,9 @@ const cmTheme = EditorView.theme({
     // fixed height of ~6 lines; longer queries scroll inside the editor
     height: '7.5rem',
   },
-  '.cm-scroller': { overflow: 'auto' },
+  // CM's base theme hardcodes font-family: monospace here; inherit the
+  // wrapper's font (text-mono-code) instead
+  '.cm-scroller': { overflow: 'auto', fontFamily: 'inherit' },
   // the wrapper carries the focus ring (focus-within), so hide CM's own outline
   '&.cm-focused': { outline: 'none' },
   '.cm-content': {
@@ -163,6 +170,36 @@ const cmTheme = EditorView.theme({
   },
   '.cm-matchingBracket': { color: 'var(--syntax-fg)' },
   '.cm-nonmatchingBracket': { color: 'var(--content-destructive)' },
+  // completion popup. fontFamily inherits mono from the wrapper because the
+  // tooltip renders inside the editor element
+  '.cm-tooltip': {
+    backgroundColor: 'var(--surface-raise)',
+    border: '1px solid var(--stroke-secondary)',
+    borderRadius: '0.125rem',
+    overflow: 'hidden',
+    fontFamily: 'inherit',
+  },
+  // the autocomplete base theme hardcodes font-family: monospace on the list
+  '.cm-tooltip.cm-tooltip-autocomplete > ul': { fontFamily: 'inherit' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li': { padding: '2px 8px' },
+  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
+    backgroundColor: 'var(--surface-hover)',
+    color: 'inherit',
+  },
+  '.cm-completionMatchedText': {
+    textDecoration: 'none',
+    color: 'var(--content-accent-secondary)',
+  },
+  '.cm-completionDetail': {
+    color: 'var(--content-quaternary)',
+    fontStyle: 'normal',
+    marginLeft: '1rem',
+  },
+  '.cm-tooltip.cm-completionInfo': { padding: '4px 8px', maxWidth: '22rem' },
+  // match the placeholder color of the regular text inputs
+  '.cm-placeholder': { color: 'var(--content-tertiary)' },
+  // placeholder region of an accepted snippet, e.g. mean_within(period)
+  '.cm-snippetField': { backgroundColor: 'var(--surface-secondary)' },
 })
 
 const contentAttrs = (ariaLabel: string, error: boolean) =>
@@ -177,6 +214,8 @@ type OxqlEditorProps = {
   /** Called on cmd+enter / ctrl+enter */
   onSubmit: () => void
   error?: boolean
+  /** Timeseries schemas backing name and field completions. May load after mount. */
+  schemas?: TimeseriesSchema[]
   'aria-label': string
 }
 
@@ -186,6 +225,7 @@ export function OxqlEditor({
   onChange,
   onSubmit,
   error = false,
+  schemas,
   'aria-label': ariaLabel,
 }: OxqlEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -194,8 +234,10 @@ export function OxqlEditor({
 
   // let the mount-once extensions see the latest props without reconfiguring
   const callbacks = useRef({ onChange, onSubmit })
+  const schemasRef = useRef(schemas)
   useEffect(() => {
     callbacks.current = { onChange, onSubmit }
+    schemasRef.current = schemas
   })
 
   useEffect(() => {
@@ -215,10 +257,15 @@ export function OxqlEditor({
           },
           ...defaultKeymap,
           ...historyKeymap,
+          // tab indents instead of moving focus. the standard escape hatch
+          // still works: Ctrl-m (from defaultKeymap) toggles tab focus mode
+          indentWithTab,
         ]),
         EditorView.lineWrapping,
+        placeholder('get sled_data_link:bytes_sent | filter timestamp > @now() - 5m'),
         highlightActiveLine(),
         bracketMatching(),
+        oxqlAutocomplete(() => schemasRef.current ?? []),
         shikiPlugin,
         cmTheme,
         attrsCompartment.current.of(contentAttrs(ariaLabel, error)),

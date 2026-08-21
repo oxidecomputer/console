@@ -122,13 +122,52 @@ test('results list is virtualized', async ({ page }) => {
   await expect.poll(getFirstRenderedIndex).not.toBe(0)
 })
 
-test('picking an example populates the query and renders a chart', async ({ page }) => {
+test('picking an example populates the query and runs it', async ({ page }) => {
   await page.getByRole('button', { name: 'Power shelf fan speeds' }).click()
   // the editor is a contenteditable, so assert on text rather than value
   await expect(page.getByRole('textbox')).toContainText('get hardware_component:fan_speed')
 
-  await runQuery(page)
+  // the query runs automatically, no need to click "Run query"
+  const loading = page.getByLabel('Chart loading')
+  await expect(loading).toBeVisible()
+  await expect(loading).toBeHidden()
   await expect(page.getByRole('figure').first()).toBeVisible()
+})
+
+test('editor autocompletes timeseries names, fields, and operations', async ({ page }) => {
+  const textbox = page.getByRole('textbox')
+  await textbox.click()
+  await page.keyboard.type('get hardware')
+
+  // ctrl-space explicitly re-requests completions in case the schema list
+  // hadn't loaded when typing started
+  const options = page.getByRole('listbox').getByRole('option')
+  await expect(async () => {
+    await page.keyboard.press('Control+Space')
+    await expect(options.first()).toBeVisible({ timeout: 1000 })
+  }).toPass()
+
+  // accept with the keyboard rather than clicking: the info tooltip can
+  // overlap the option and intercept pointer events
+  await expect(options.getByText('hardware_component:fan_speed')).toBeVisible()
+  await page.keyboard.type('_component:fan') // narrow until fan_speed is the top match
+  await page.keyboard.press('Enter')
+  await expect(textbox).toContainText('get hardware_component:fan_speed')
+
+  // table ops complete at the start of a clause. type the word out instead of
+  // accepting: a second Enter-accept can race the popup closing and insert a
+  // newline, breaking the clause for the next step
+  await page.keyboard.type(' | fil')
+  await expect(options.getByText('filter', { exact: true })).toBeVisible()
+  await page.keyboard.type('ter')
+
+  // fields of the get-ed timeseries complete inside the filter
+  await page.keyboard.type(' chass')
+  await expect(options.getByText('chassis_kind')).toBeVisible()
+  await page.keyboard.press('Enter')
+  await expect(textbox).toContainText(
+    'get hardware_component:fan_speed | filter chassis_kind'
+  )
 })
 
 test('results can be copied as JSON or CSV', async ({ page }) => {
@@ -144,16 +183,12 @@ test('results can be copied as JSON or CSV', async ({ page }) => {
   await page.getByRole('button', { name: 'Results actions' }).click()
   await page.getByRole('menuitem', { name: 'Copy as CSV' }).click()
   await expectToast(page, 'Results copied as CSV')
-
-  await page.getByRole('button', { name: 'Results actions' }).click()
-  await page.getByRole('menuitem', { name: 'Copy CLI command' }).click()
-  await expectToast(page, 'CLI command copied')
 })
 
 test('copy actions are disabled before a query has run', async ({ page }) => {
   await page.getByRole('button', { name: 'Results actions' }).click()
   await expect(page.getByRole('menuitem', { name: 'Copy as JSON' })).toBeDisabled()
-  await expect(page.getByRole('menuitem', { name: 'Copy CLI command' })).toBeDisabled()
+  await expect(page.getByRole('menuitem', { name: 'Copy as CSV' })).toBeDisabled()
 })
 
 test('empty query is blocked by client-side validation', async ({ page }) => {
