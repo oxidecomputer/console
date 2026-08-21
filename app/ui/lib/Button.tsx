@@ -125,7 +125,7 @@ export const Button = ({
         )}
         <span
           className={cn(
-            'flex items-center transition-[opacity,translate] duration-300 ease-(--button-loading-easing) motion-reduce:transition-none',
+            'button-content flex items-center',
             loading ? 'translate-y-[25px] opacity-0' : 'translate-y-0 opacity-100',
             innerClassName
           )}

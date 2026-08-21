@@ -8,7 +8,10 @@
 
 .ox-button {
   @apply relative;
-  /* Approximates Motion's { type: 'spring', duration: 0.3, bounce: 0 }. */
+  /*
+   * Shared by the spinner keyframes and the .button-content transition below.
+   * Approximates Motion's { type: 'spring', duration: 0.3, bounce: 0 }.
+   */
   --button-loading-easing: cubic-bezier(0.35, 0.98, 0.35, 1);
 
   &:after {
@@ -75,6 +78,9 @@
   @apply motion-safe:translate-y-px;
 }
 
+/* Animating transform is deliberate: the spinner's centering utilities set the
+ * separate translate property, which composes with transform instead of being
+ * overridden by it. */
 @keyframes button-spinner-in {
   from {
     opacity: 0;
@@ -87,7 +93,15 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .button-spinner-in {
+  .ox-button .button-spinner-in {
     animation: button-spinner-in 0.3s var(--button-loading-easing);
+  }
+
+  /* Button label; swaps out as the spinner drops in. Loading state is toggled
+   * with utility classes in Button.tsx. */
+  .ox-button .button-content {
+    transition:
+      opacity 0.3s var(--button-loading-easing),
+      translate 0.3s var(--button-loading-easing);
   }
 }
