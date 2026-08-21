@@ -350,7 +350,7 @@ const Row = memo(function Row({
 
 export default function SiloAuditLogsPage() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
-  const [dismissedError, setDismissedError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // pass refetch interval to this to keep the date up to date
   const { preset, startTime, endTime, dateTimeRangePicker, onRangeChange } =
@@ -380,7 +380,6 @@ export default function SiloAuditLogsPage() {
     isLoading,
     isPending,
     isFetching,
-    error,
   } = useInfiniteQuery({
     queryKey: ['auditLogList', { query: queryParams }],
     queryFn: ({ pageParam }) =>
@@ -388,6 +387,11 @@ export default function SiloAuditLogsPage() {
         .auditLogList({ query: { ...queryParams, pageToken: pageParam } })
         .then((result) => {
           if (result.type === 'success') return result.data
+          setErrorMessage(
+            result.type === 'error'
+              ? result.data.message
+              : 'An error occurred while loading the audit log'
+          )
           throw result
         }),
     initialPageParam: undefined as string | undefined,
@@ -397,7 +401,7 @@ export default function SiloAuditLogsPage() {
 
   // resetting the error if the query params change
   useEffect(() => {
-    setDismissedError(false)
+    setErrorMessage(null)
   }, [startTime, endTime, preset])
 
   const allItems = useMemo(() => {
@@ -531,6 +535,9 @@ export default function SiloAuditLogsPage() {
           />
         ))}
       </div>
+      {errorMessage !== null && (
+        <ErrorState error={errorMessage} onDismiss={() => setErrorMessage(null)} />
+      )}
       <div className="border-secondary flex justify-center px-[var(--content-gutter)] py-4">
         {!hasNextPage && !isFetching && !isPending && allItems.length > 0 ? (
           <div className="text-mono-sm text-quaternary">
@@ -539,7 +546,10 @@ export default function SiloAuditLogsPage() {
         ) : (
           <Button
             variant="ghost"
-            onClick={() => fetchNextPage()}
+            onClick={() => {
+              setErrorMessage(null)
+              fetchNextPage()
+            }}
             disabled={isFetchingNextPage}
             type="button"
             loading={isFetchingNextPage}
@@ -553,9 +563,6 @@ export default function SiloAuditLogsPage() {
 
   const selectedItem = expandedItem ? allItems[parseInt(expandedItem, 10)] : null
 
-  const errorMessage = error?.message ?? 'An error occurred while loading the audit log'
-  const showError = error && !dismissedError
-
   // measure the list's distance from the top of the document so the window
   // virtualizer can position items correctly. re-measure when the error banner
   // or loading state toggles, since those shift the list's position
@@ -564,7 +571,7 @@ export default function SiloAuditLogsPage() {
       const rect = parentRef.current.getBoundingClientRect()
       setScrollMargin(rect.top + window.scrollY)
     }
-  }, [showError, isLoading])
+  }, [isLoading])
 
   return (
     <>
@@ -611,7 +618,6 @@ export default function SiloAuditLogsPage() {
 
                 return (
                   <ExpandedItem
-                    hasError={!!showError}
                     item={selectedItem}
                     userId={userId}
                     siloId={siloId}
@@ -623,9 +629,6 @@ export default function SiloAuditLogsPage() {
                 )
               })()}
           </div>
-          {showError && (
-            <ErrorState error={errorMessage} onDismiss={() => setDismissedError(true)} />
-          )}
           {!isLoading ? logTable : <LoadingState />}
         </div>
       </div>
@@ -641,7 +644,6 @@ const ExpandedItem = ({
   totalCount,
   onNavigate,
   onClose,
-  hasError,
 }: {
   item: AuditLogEntry
   userId?: string
@@ -650,7 +652,6 @@ const ExpandedItem = ({
   totalCount: number
   onNavigate: (index: number) => void
   onClose: () => void
-  hasError: boolean
 }) => {
   // recomputing these on every parent re-render (e.g. on scroll) would be
   // wasted work — and would also defeat HighlightJSON's memo by passing a new
@@ -659,14 +660,7 @@ const ExpandedItem = ({
   const json = useMemo(() => JSON.stringify(snakeJson, null, 2), [snakeJson])
 
   return (
-    <div
-      className={cn(
-        'absolute right-0 top-0 flex w-120 flex-col pt-px gap-6 overflow-y-auto z-10 border-l bg-default border-secondary',
-        hasError
-          ? 'mt-10 h-[calc(100dvh-var(--top-bar-height)-40px)]'
-          : 'h-[calc(100dvh-var(--top-bar-height))]'
-      )}
-    >
+    <div className="bg-default border-secondary absolute top-0 right-0 z-10 flex h-[calc(100dvh-var(--top-bar-height))] w-120 flex-col gap-6 overflow-y-auto border-l pt-px">
       <div className="bg-raise border-secondary flex h-10 items-center justify-between border-b px-2">
         <div className="flex items-center">
           <button

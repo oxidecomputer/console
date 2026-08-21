@@ -2292,6 +2292,8 @@ export const handlers = makeHandlers({
   auditLogList: ({ query }) => {
     let filteredLogs = db.auditLog
 
+    if (query.pageToken === 'list-logs-500') throw internalError('list logs failed')
+
     if (query.startTime) {
       filteredLogs = filteredLogs.filter(
         (log) => new Date(log.time_completed) >= query.startTime!
