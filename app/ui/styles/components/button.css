@@ -8,6 +8,8 @@
 
 .ox-button {
   @apply relative;
+  /* Approximates Motion's { type: 'spring', duration: 0.3, bounce: 0 }. */
+  --button-loading-easing: cubic-bezier(0.35, 0.98, 0.35, 1);
 
   &:after {
     content: '';
@@ -71,4 +73,21 @@
 
 .active-clicked:active:not(.visually-disabled) {
   @apply motion-safe:translate-y-px;
+}
+
+@keyframes button-spinner-in {
+  from {
+    opacity: 0;
+    transform: translateY(-25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .button-spinner-in {
+    animation: button-spinner-in 0.3s var(--button-loading-easing);
+  }
 }
