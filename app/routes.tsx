@@ -454,6 +454,8 @@ export const routes = createRoutesFromElements(
                   />
                   <Route
                     element={null}
+                    // path makes crumb link straight to the tab instead of
+                    // bouncing through the redirect at the VPC root
                     handle={makeCrumb('Firewall Rules', (p) =>
                       pb.vpcFirewallRules(getVpcSelector(p))
                     )}
