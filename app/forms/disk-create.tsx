@@ -191,7 +191,7 @@ export function CreateDiskSideModalForm({
           createDisk.mutate({ query: { project }, body })
         }
       }}
-      loading={createDisk.isPending}
+      loading={createDisk.isPending || createDisk.isSuccess}
       submitError={createDisk.error}
     >
       <NameField
