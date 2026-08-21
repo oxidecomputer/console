@@ -169,7 +169,7 @@ type TimeSeriesChartProps = {
 }
 
 // this top margin is also in the chart, probably want a way of unifying the sizing between the two
-const SkeletonMetric = ({
+export const SkeletonMetric = ({
   children,
   shimmer = false,
   className,

@@ -9,6 +9,7 @@
 import { expect, test, type Page, type Locator } from '@playwright/test'
 
 import { oxqlQueries } from './oxql-queries'
+import { expectToast } from './utils'
 
 const runQuery = async (page: Page, query?: string) => {
   if (query !== undefined) await page.getByRole('textbox').fill(query)
@@ -21,8 +22,8 @@ const runQuery = async (page: Page, query?: string) => {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/system/oxql')
-  await expect(page.getByRole('heading', { name: 'OxQL Explorer' })).toBeVisible()
+  await page.goto('/system/metrics-explorer')
+  await expect(page.getByRole('heading', { name: 'Metrics Explorer' })).toBeVisible()
 })
 
 test('unaligned multi-table query renders a chart per series', async ({ page }) => {
@@ -122,12 +123,37 @@ test('results list is virtualized', async ({ page }) => {
 })
 
 test('picking an example populates the query and renders a chart', async ({ page }) => {
-  await page.getByRole('button', { name: 'Try an example' }).click()
-  await page.getByRole('menuitem', { name: 'Power shelf fan speeds' }).click()
-  await expect(page.getByRole('textbox')).toHaveValue(/get hardware_component:fan_speed/)
+  await page.getByRole('button', { name: 'Power shelf fan speeds' }).click()
+  // the editor is a contenteditable, so assert on text rather than value
+  await expect(page.getByRole('textbox')).toContainText('get hardware_component:fan_speed')
 
   await runQuery(page)
   await expect(page.getByRole('figure').first()).toBeVisible()
+})
+
+test('results can be copied as JSON or CSV', async ({ page }) => {
+  await runQuery(page, oxqlQueries.basicTctl)
+
+  // result summary is visible in the query card header
+  await expect(page.getByText('1 timeseries', { exact: true })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Results actions' }).click()
+  await page.getByRole('menuitem', { name: 'Copy as JSON' }).click()
+  await expectToast(page, 'Results copied as JSON')
+
+  await page.getByRole('button', { name: 'Results actions' }).click()
+  await page.getByRole('menuitem', { name: 'Copy as CSV' }).click()
+  await expectToast(page, 'Results copied as CSV')
+
+  await page.getByRole('button', { name: 'Results actions' }).click()
+  await page.getByRole('menuitem', { name: 'Copy CLI command' }).click()
+  await expectToast(page, 'CLI command copied')
+})
+
+test('copy actions are disabled before a query has run', async ({ page }) => {
+  await page.getByRole('button', { name: 'Results actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Copy as JSON' })).toBeDisabled()
+  await expect(page.getByRole('menuitem', { name: 'Copy CLI command' })).toBeDisabled()
 })
 
 test('empty query is blocked by client-side validation', async ({ page }) => {
@@ -151,12 +177,17 @@ test('a query the backend rejects surfaces an error instead of a chart', async (
 })
 
 test('pages reads the initial query from the URL', async ({ page }) => {
-  await page.goto(`/system/oxql?query=${encodeURIComponent(oxqlQueries.basicTctl)}`)
-  await expect(page.getByRole('textbox')).toHaveValue(oxqlQueries.basicTctl)
+  await page.goto(
+    `/system/metrics-explorer?query=${encodeURIComponent(oxqlQueries.basicTctl)}`
+  )
+  const textbox = page.getByRole('textbox')
+  // the editor is a contenteditable, so assert line by line rather than on value
+  await expect(textbox).toContainText('get hardware_component:amd_cpu_tctl')
+  await expect(textbox).toContainText('| filter timestamp > @now() - 1m')
 })
 
 test('pages writes the query to the URL after a successful run', async ({ page }) => {
-  await page.goto('/system/oxql')
+  await page.goto('/system/metrics-explorer')
   await runQuery(page, oxqlQueries.basicTctl)
 
   await expect

@@ -6,8 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useController, useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
@@ -18,6 +18,7 @@ import {
   camelToSnake,
   type Timeseries,
   type Points,
+  type OxqlQueryResult,
   type OxqlTable,
   type TimeseriesQuery,
   type Values,
@@ -25,15 +26,25 @@ import {
 import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { OxqlField } from '~/components/form/fields/OxqlField'
-import { ChartContainer, ChartHeader, TimeSeriesChart } from '~/components/TimeSeriesChart'
+import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import { OxqlEditor } from '~/components/OxqlEditor'
+import {
+  ChartContainer,
+  ChartHeader,
+  SkeletonMetric,
+  TimeSeriesChart,
+} from '~/components/TimeSeriesChart'
 import { useElementSize } from '~/hooks/use-element-size'
+import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
+import { CardBlock } from '~/ui/lib/CardBlock'
 import { Divider } from '~/ui/lib/Divider'
-import * as DropdownMenu from '~/ui/lib/DropdownMenu'
+import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TextInputError } from '~/ui/lib/TextInput'
 import { docLinks } from '~/util/links'
+import { pluralize } from '~/util/str'
 
 const exampleItems: { label: string; value: string }[] = [
   {
@@ -69,7 +80,7 @@ const defaultValues: TimeseriesQuery = {
   query: '',
 }
 
-export const handle = { crumb: 'OxQL Explorer' }
+export const handle = { crumb: 'Metrics Explorer' }
 
 const narrowToNumbers = (vs: Values): (number | null)[] =>
   match(vs.values)
@@ -310,28 +321,24 @@ const toDisplays = (groups: ChartGroup[]): ChartDisplay[] =>
     const { startTime, endTime } = g
     return match(g)
       .with({ kind: 'unaligned' }, ({ charts }) =>
-        charts.map(
-          (chart, i): ChartDisplay => ({
-            kind: 'line',
-            key: `t${t}.${i}`,
-            showDivider: i === 0,
-            startTime,
-            endTime,
-            chart,
-          })
-        )
+        charts.map((chart, i): ChartDisplay => ({
+          kind: 'line',
+          key: `t${t}.${i}`,
+          showDivider: i === 0,
+          startTime,
+          endTime,
+          chart,
+        }))
       )
       .with({ kind: 'joined' }, { kind: 'aligned' }, ({ charts }) =>
-        charts.map(
-          (chart, i): ChartDisplay => ({
-            kind: 'multiline',
-            key: `t${t}.${i}`,
-            showDivider: i === 0,
-            startTime,
-            endTime,
-            chart,
-          })
-        )
+        charts.map((chart, i): ChartDisplay => ({
+          kind: 'multiline',
+          key: `t${t}.${i}`,
+          showDivider: i === 0,
+          startTime,
+          endTime,
+          chart,
+        }))
       )
       .exhaustive()
   })
@@ -413,14 +420,6 @@ function LineChart({
 function ChartEntry({ display, trim }: { display: ChartDisplay; trim: Trim }) {
   return (
     <>
-      {display.showDivider ? (
-        // Use padding for spacing so the virtualizer can measure the bounding box properly
-        <div className="py-8">
-          <Divider className="mx-16" />
-        </div>
-      ) : (
-        <div className="pt-8" />
-      )}
       {match(display)
         .with({ kind: 'empty' }, () => <p className="text-secondary">No results</p>)
         .with({ kind: 'multiline' }, (r) => <MultilineChart display={r} trim={trim} />)
@@ -430,7 +429,104 @@ function ChartEntry({ display, trim }: { display: ChartDisplay; trim: Trim }) {
   )
 }
 
-const getTextareaHeightForQuery = (q: string): number => Math.max(q.split('\n').length, 4)
+// covers the header strings plus every member of ValueArray['values']
+type CsvValue = string | number | boolean | object | null | undefined
+
+const csvCell = (v: CsvValue): string => {
+  const s =
+    v === null || v === undefined
+      ? ''
+      : typeof v === 'object'
+        ? JSON.stringify(v)
+        : String(v)
+  return /[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s
+}
+
+const tablesToCsv = (tables: OxqlTable[]): string => {
+  const rows: CsvValue[][] = [['table', 'fields', 'metric', 'timestamp', 'value']]
+  for (const table of tables) {
+    // like the chart labels, joined tables get their per-line metric names
+    // from the comma-joined table name
+    const metricNames = table.name.split(',').map((s) => s.trim())
+    for (const series of table.timeseries) {
+      const fields = getFormattedFields(series)
+      series.points.values.forEach((v, i) => {
+        const metric = metricNames[i] ?? table.name
+        series.points.timestamps.forEach((ts, j) => {
+          rows.push([
+            table.name,
+            fields,
+            metric,
+            new Date(ts).toISOString(),
+            v.values.values[j],
+          ])
+        })
+      })
+    }
+  }
+  return rows.map((row) => row.map(csvCell).join(',')).join('\n')
+}
+
+function ResultsSummary({ tables }: { tables: OxqlTable[] }) {
+  const timeseries = tables.flatMap((t) => t.timeseries)
+  const nPoints = R.sumBy(timeseries, (t) => t.points.timestamps.length)
+  return (
+    <div className="text-mono-xs text-quaternary px-2">
+      <span className="text-tertiary">{timeseries.length} timeseries</span> /{' '}
+      <span className="text-tertiary">
+        {nPoints.toLocaleString()} {pluralize('point', nPoints)}
+      </span>
+    </div>
+  )
+}
+
+const copyText = (text: string, toastMessage: string) => {
+  window.navigator.clipboard.writeText(text).then(() => addToast(toastMessage))
+}
+
+// wrap in single quotes, escaping any embedded ones, so the multiline query
+// survives pasting into a shell
+const shellQuote = (s: string) => `'${s.replaceAll("'", "'\\''")}'`
+
+// The CLI equivalent of this page's query endpoint. See "API and CLI access":
+// https://docs.oxide.computer/guides/metrics/oxql-tutorial#_api_and_cli_access
+const toCliCommand = (query: string) =>
+  `oxide experimental system timeseries query --query ${shellQuote(query)}`
+
+function ResultsMenu({ data, query }: { data?: OxqlQueryResult; query?: string }) {
+  // the menu is always visible so the header doesn't jump around, but the
+  // actions only make sense once a query has succeeded
+  const noResults = data === undefined ? 'Run a query first' : undefined
+  return (
+    <MoreActionsMenu label="Results actions">
+      <Dropdown.Item
+        disabled={noResults}
+        onSelect={() =>
+          data && copyText(JSON.stringify(data, null, 2), 'Results copied as JSON')
+        }
+        label="Copy as JSON"
+      />
+      <Dropdown.Item
+        disabled={noResults}
+        onSelect={() => data && copyText(tablesToCsv(data.tables), 'Results copied as CSV')}
+        label="Copy as CSV"
+      />
+      <Dropdown.Item
+        disabled={noResults}
+        onSelect={() => query && copyText(toCliCommand(query), 'CLI command copied')}
+        label="Copy CLI command"
+      />
+    </MoreActionsMenu>
+  )
+}
+
+// Rendered in every query state so the layout doesn't shift when results arrive
+const ResultsSection = ({ children }: { children: ReactNode }) => (
+  <>
+    <Divider className="my-8" />
+    {children}
+  </>
+)
 
 export default function OxqlPage() {
   const query = useApiMutation(api.systemTimeseriesQuery)
@@ -439,14 +535,16 @@ export default function OxqlPage() {
 
   const defaultQuery = searchParams.get('query') ?? defaultValues.query
 
-  const [textareaRowCount, setTextareaRowCount] = useState(
-    getTextareaHeightForQuery(defaultQuery)
-  )
-
   const form = useForm({
     defaultValues: { query: defaultQuery },
   })
-  const control = form.control
+  const { field, fieldState } = useController({
+    name: 'query',
+    control: form.control,
+    rules: {
+      validate: (value) => (value.trim() ? undefined : 'Enter a query'),
+    },
+  })
 
   const [dropFirstPoint, setDropFirstPoint] = useState(true)
 
@@ -501,7 +599,7 @@ export default function OxqlPage() {
     <>
       <div ref={preChartsRef}>
         <PageHeader>
-          <PageTitle icon={<Monitoring24Icon />}>OxQL Explorer</PageTitle>
+          <PageTitle icon={<Monitoring24Icon />}>Metrics Explorer</PageTitle>
           <DocsPopover
             heading="OxQL"
             icon={<Monitoring16Icon />}
@@ -509,95 +607,116 @@ export default function OxqlPage() {
             links={[docLinks.oxql, docLinks.oxqlSchemas]}
           />
         </PageHeader>
-        <form className="max-w-lg space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="flex justify-end">
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger
-                render={
-                  <Button variant="secondary" size="sm">
-                    Try an example
-                  </Button>
-                }
-              />
-              <DropdownMenu.Content anchor="bottom end" gap={8}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <CardBlock>
+            <CardBlock.Header title="Query">
+              <div className="flex items-center gap-2">
+                {query.status === 'success' && (
+                  <>
+                    <ResultsSummary tables={query.data.tables} />
+                  </>
+                )}
+                <Button type="submit" size="sm" loading={query.status === 'pending'}>
+                  Run query
+                </Button>
+                <ResultsMenu data={query.data} query={query.variables?.body.query} />
+              </div>
+            </CardBlock.Header>
+            <CardBlock.Body>
+              <div>
+                <OxqlEditor
+                  aria-label="OxQL query"
+                  error={!!fieldState.error}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onSubmit={() => form.handleSubmit(onSubmit)()}
+                />
+                {fieldState.error?.message && (
+                  <TextInputError>{fieldState.error.message}</TextInputError>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-mono-sm text-tertiary mr-1">Examples</span>
                 {exampleItems.map(({ label, value }) => (
-                  <DropdownMenu.Item
+                  <button
                     key={label}
-                    label={label}
-                    onSelect={() => {
-                      setTextareaRowCount(getTextareaHeightForQuery(value))
-                      form.setValue('query', value)
-                    }}
-                  />
+                    type="button"
+                    className="text-mono-xs border-default text-secondary hover:bg-hover rounded border px-2 py-1"
+                    onClick={() => form.setValue('query', value, { shouldValidate: true })}
+                  >
+                    {label}
+                  </button>
                 ))}
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-          </div>
-          <OxqlField rows={textareaRowCount} name="query" required control={control} />
-          <Button type="submit" disabled={query.status === 'pending'}>
-            Run query
-          </Button>
+              </div>
+            </CardBlock.Body>
+          </CardBlock>
         </form>
-        {match(query)
-          .with(
-            { status: 'success' },
-            () =>
-              hasTrimmableCharts && (
-                <div className="mt-8 mb-2">
-                  <label className="text-secondary flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={dropFirstPoint}
-                      onChange={(e) => setDropFirstPoint(e.target.checked)}
-                    />
-                    Drop first point
-                  </label>
-                </div>
-              )
-          )
-          .otherwise(() => '')}
       </div>
 
       {match(query)
-        .with({ status: 'idle' }, () => null)
+        .with({ status: 'idle' }, () => (
+          <ResultsSection>
+            <ChartContainer>
+              {/* the loading skeleton, minus the shimmer and bouncing indicator */}
+              <SkeletonMetric>{null}</SkeletonMetric>
+            </ChartContainer>
+          </ResultsSection>
+        ))
         .with({ status: 'pending' }, () => (
-          <ChartContainer className="mt-8">
-            <TimeSeriesChart
-              loading
-              title=""
-              data={undefined}
-              timestamps={undefined}
-              startTime={new Date(0)}
-              endTime={new Date(0)}
-            />
-          </ChartContainer>
+          <ResultsSection>
+            <ChartContainer>
+              <TimeSeriesChart
+                loading
+                title=""
+                data={undefined}
+                timestamps={undefined}
+                startTime={new Date(0)}
+                endTime={new Date(0)}
+              />
+            </ChartContainer>
+          </ResultsSection>
         ))
         .with({ status: 'error' }, (q) => (
-          <Message
-            className="mt-8"
-            variant="error"
-            title="Query failed"
-            content={<span className="font-mono">{q.error.message}</span>}
-          />
+          <ResultsSection>
+            <Message
+              variant="error"
+              title="Query failed"
+              content={<span className="font-mono">{q.error.message}</span>}
+            />
+          </ResultsSection>
         ))
         .with({ status: 'success' }, () => (
-          <div
-            ref={chartsRef}
-            className="relative"
-            style={{ height: virtualizer.getTotalSize() }}
-          >
-            {virtualizer.getVirtualItems().map((item) => (
-              <div
-                key={item.key}
-                data-index={item.index}
-                ref={virtualizer.measureElement}
-                className="absolute top-0 left-0 w-full"
-                style={{ transform: `translateY(${item.start - scrollMargin}px)` }}
-              >
-                <ChartEntry display={charts[item.index]} trim={trim} />
+          <ResultsSection>
+            {hasTrimmableCharts && (
+              <div className="mb-2">
+                <label className="text-secondary flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={dropFirstPoint}
+                    onChange={(e) => setDropFirstPoint(e.target.checked)}
+                  />
+                  Drop first point
+                </label>
               </div>
-            ))}
-          </div>
+            )}
+            <div
+              ref={chartsRef}
+              className="relative"
+              style={{ height: virtualizer.getTotalSize() }}
+            >
+              {virtualizer.getVirtualItems().map((item) => (
+                <div
+                  key={item.key}
+                  data-index={item.index}
+                  ref={virtualizer.measureElement}
+                  className="absolute top-0 left-0 w-full"
+                  style={{ transform: `translateY(${item.start - scrollMargin}px)` }}
+                >
+                  <ChartEntry display={charts[item.index]} trim={trim} />
+                </div>
+              ))}
+            </div>
+          </ResultsSection>
         ))
         .exhaustive()}
     </>
