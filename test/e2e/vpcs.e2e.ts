@@ -74,6 +74,61 @@ test('can edit VPC', async ({ page }) => {
   })
 })
 
+test('IPv6 prefix is validated on VPC create', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs')
+  await page.getByRole('link', { name: 'New VPC' }).click()
+
+  const dialog = page.getByRole('dialog', { name: 'Create VPC' })
+  await expect(dialog).toBeVisible()
+
+  await dialog.getByRole('textbox', { name: 'Name', exact: true }).fill('vpc-v6')
+  await dialog.getByRole('textbox', { name: 'DNS name' }).fill('vpc-v6')
+
+  const prefixField = dialog.getByRole('textbox', { name: 'IPv6 prefix' })
+  const submitButton = dialog.getByRole('button', { name: 'Create VPC' })
+
+  await prefixField.fill('not a prefix 🎉')
+  await submitButton.click()
+  await expect(
+    dialog.getByText('Must contain an IP address and a width, separated by a /')
+  ).toBeVisible()
+
+  // field revalidates on change after the first submit attempt
+  await prefixField.fill('10.0.0.0/8')
+  await expect(dialog.getByText('Must be an IPv6 prefix')).toBeVisible()
+
+  await prefixField.fill('2001:db8::/48')
+  await expect(dialog.getByText('Must be a unique local address (fc00::/7)')).toBeVisible()
+
+  await prefixField.fill('fd00::/64')
+  await expect(dialog.getByText('Width must be 48')).toBeVisible()
+
+  // empty is fine — the field is optional
+  await prefixField.clear()
+  await expect(dialog.getByText('Width must be 48')).toBeHidden()
+
+  await prefixField.fill('  fd2d:4569:88b2::/48  ')
+  await submitButton.click()
+
+  await expect(dialog).toBeHidden()
+  await expect(page.getByRole('heading', { name: 'vpc-v6' })).toBeVisible()
+  await expect(page.getByText('fd2d:4569:88b2::/48')).toBeVisible()
+})
+
+test('whitespace-only IPv6 prefix is omitted on VPC create', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs')
+  await page.getByRole('link', { name: 'New VPC' }).click()
+
+  const dialog = page.getByRole('dialog', { name: 'Create VPC' })
+  await dialog.getByRole('textbox', { name: 'Name', exact: true }).fill('vpc-generated-v6')
+  await dialog.getByRole('textbox', { name: 'DNS name' }).fill('vpc-generated-v6')
+  await dialog.getByRole('textbox', { name: 'IPv6 prefix' }).fill('   ')
+  await dialog.getByRole('button', { name: 'Create VPC' }).click()
+
+  await expect(dialog).toBeHidden()
+  await expect(page.getByRole('heading', { name: 'vpc-generated-v6' })).toBeVisible()
+})
+
 test('can create and delete subnet', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/default')
   await page.getByRole('tab', { name: 'VPC Subnets' }).click()
