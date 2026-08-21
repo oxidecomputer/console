@@ -140,7 +140,7 @@ function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
           path: { silo },
         })
       }
-      loading={updateQuotas.isPending}
+      loading={updateQuotas.isPending || updateQuotas.isSuccess}
       submitError={updateQuotas.error}
     >
       <Message content={<LearnMore />} variant="info" />

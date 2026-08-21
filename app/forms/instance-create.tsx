@@ -606,7 +606,7 @@ export default function CreateInstanceForm() {
             },
           })
         }}
-        loading={createInstance.isPending}
+        loading={createInstance.isPending || createInstance.isSuccess}
         submitError={createInstance.error}
       >
         <NameField name="name" control={control} disabled={isSubmitting} />
@@ -854,7 +854,9 @@ export default function CreateInstanceForm() {
           disabled={isSubmitting}
         />
         <Form.Actions>
-          <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
+          <Form.Submit loading={createInstance.isPending || createInstance.isSuccess}>
+            Create instance
+          </Form.Submit>
           <Form.Cancel onClick={() => navigate(pb.instances({ project }))} />
         </Form.Actions>
       </FullPageForm>

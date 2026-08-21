@@ -291,7 +291,7 @@ const AttachExternalSubnetModal = ({
       }}
       submitLabel="Attach"
       submitError={externalSubnetAttach.error}
-      loading={externalSubnetAttach.isPending}
+      loading={externalSubnetAttach.isPending || externalSubnetAttach.isSuccess}
       onDismiss={onDismiss}
     >
       <Message
