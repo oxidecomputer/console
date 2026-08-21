@@ -113,7 +113,7 @@ export default function CreateSiloSideModalForm() {
           },
         })
       }}
-      loading={createSilo.isPending}
+      loading={createSilo.isPending || createSilo.isSuccess}
       submitError={createSilo.error}
     >
       <Message variant="info" content={<HelpMessage />} />

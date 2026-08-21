@@ -307,7 +307,7 @@ const AttachFloatingIpModal = ({
       }}
       submitLabel="Attach"
       submitError={floatingIpAttach.error}
-      loading={floatingIpAttach.isPending}
+      loading={floatingIpAttach.isPending || floatingIpAttach.isSuccess}
       onDismiss={onDismiss}
     >
       <Message

@@ -77,7 +77,7 @@ export default function EditAntiAffintyGroupForm() {
           body: values,
         })
       }}
-      loading={editAntiAffinityGroup.isPending}
+      loading={editAntiAffinityGroup.isPending || editAntiAffinityGroup.isSuccess}
       submitError={editAntiAffinityGroup.error}
       submitLabel="Edit group"
     >
