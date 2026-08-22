@@ -5,22 +5,84 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { OxqlQueryResult } from '~/api'
+import type { Timeseries, Points, OxqlQueryResult } from '~/api'
 import type { OxqlMetricName, OxqlVcpuState } from '~/components/oxql-metrics/util'
 
-import { instances } from './instance'
 import type { Json } from './json-type'
+import { Rando } from './msw/rando'
 
 const oneHourAgo = new Date()
 oneHourAgo.setHours(oneHourAgo.getHours() - 1)
 const now = new Date()
-const timestamps: string[] = []
+export const fixedTimestamps: string[] = []
 // Generate timestamps for the last hour
 for (let i = oneHourAgo.getTime(); i < now.getTime(); i += 60000) {
-  timestamps.push(new Date(i).toISOString())
+  fixedTimestamps.push(new Date(i).toISOString())
 }
 
 type ValueType = Record<OxqlMetricName, number[]>
+
+export const getJitteredTimestamps = (seed: number): string[] => {
+  const rando = new Rando(seed)
+  if (fixedTimestamps.length < 2)
+    throw new Error("can't make jittered timestamps without at least two timestamps")
+  const basicInterval = Date.parse(fixedTimestamps[1]) - Date.parse(fixedTimestamps[0])
+  if (Number.isNaN(basicInterval)) throw new Error("can't make a jittered timestamp array")
+  const jitterInterval = basicInterval / 10
+  return fixedTimestamps.map((t) =>
+    new Date(Date.parse(t) + Math.floor(jitterInterval * rando.next())).toISOString()
+  )
+}
+
+export const getMockValues = (
+  name: OxqlMetricName,
+  offset: number,
+  state?: OxqlVcpuState
+): number[] => {
+  const hardcoded = state ? mockOxqlVcpuStateValues[state] : mockOxqlValues[name]
+  if (hardcoded) return hardcoded
+
+  // eslint-disable-next-line @typescript-eslint/no-misused-spread
+  const seed = [...name].reduce((sum, c) => sum + c.charCodeAt(0), 0)
+  const rando = new Rando(seed + offset)
+  return fixedTimestamps.map(() => 1000 + rando.next() * 500)
+}
+
+export const pointsFrom = (
+  timestamps: string[],
+  valueArrays: number[][]
+): Json<Points> => ({
+  timestamps: timestamps,
+  values: valueArrays.map((v) => ({
+    values: {
+      type: 'double',
+      values: v,
+    },
+    metric_type: 'gauge',
+  })),
+})
+
+export const timeseriesFrom = (id: string, points: Json<Points>): Json<Timeseries> => ({
+  fields: {
+    instanceId: {
+      type: 'uuid',
+      value: id,
+    },
+  },
+  points,
+})
+
+type TableArgs = {
+  name: string
+  timeseries: Json<Timeseries>[]
+}
+
+export const resultFrom = (tables: TableArgs[]): Json<OxqlQueryResult> =>
+  // structuredClone lets us mutate data in the calling code without messing up
+  // the source data
+  structuredClone({
+    tables,
+  })
 
 const mockOxqlValues: ValueType = {
   'instance_network_interface:bytes_received': [
@@ -273,44 +335,4 @@ const mockOxqlVcpuStateValues: Record<OxqlVcpuState, number[]> = {
     1979186.303121, 1949295.053382, 1952644.818068, 2656981.192183, 4945187.707641,
     5131885.651897, 5188225.092888, 4388460.254213, 4075678.463765, 3943427.938256,
   ],
-}
-
-export const getMockOxqlInstanceData = (
-  name: OxqlMetricName,
-  state?: OxqlVcpuState
-): Json<OxqlQueryResult> => {
-  const values = state ? mockOxqlVcpuStateValues[state] : mockOxqlValues[name]
-  // structuredClone lets us mutate data in the calling code without messing up
-  // the source data
-  return structuredClone({
-    tables: [
-      {
-        name: name,
-        timeseries: [
-          // This is a fake metric ID
-          {
-            fields: {
-              instanceId: {
-                type: 'uuid',
-                value: instances[0].id, // project: mock-project; instance: db1
-              },
-            },
-            points: {
-              start_times: [],
-              timestamps: timestamps,
-              values: [
-                {
-                  values: {
-                    type: 'double',
-                    values: values,
-                  },
-                  metric_type: 'gauge',
-                },
-              ],
-            },
-          },
-        ],
-      },
-    ],
-  })
 }
