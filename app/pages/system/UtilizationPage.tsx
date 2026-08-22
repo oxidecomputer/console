@@ -16,6 +16,7 @@ import {
   queryClient,
   totalUtilization,
   usePrefetchedQuery,
+  type SiloUtilization,
 } from '@oxide/api'
 import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
@@ -25,6 +26,7 @@ import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePi
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { SystemMetric } from '~/components/SystemMetric'
+import { EditQuotasSideModalForm } from '~/forms/silo-quotas-edit'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { RowActions } from '~/table/columns/action-col'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -171,84 +173,105 @@ const MetricsTab = () => {
 function UsageTab() {
   const { data: siloUtilizations } = usePrefetchedQuery(siloUtilList.optionsFn())
 
+  // silo whose quotas are being edited, if any
+  const [editingSilo, setEditingSilo] = useState<SiloUtilization | null>(null)
+
   return (
-    <Table className="w-full">
-      <Table.Header>
-        <Table.HeaderRow>
-          <Table.HeadCell data-test-ignore></Table.HeadCell>
-          {/* data-test-ignore makes the row asserts work in the e2e tests */}
-          <Table.HeadCell colSpan={3} data-test-ignore>
-            Provisioned / Quota
-          </Table.HeadCell>
-          <Table.HeadCell colSpan={3} data-test-ignore>
-            Available
-          </Table.HeadCell>
-          <Table.HeadCell data-test-ignore></Table.HeadCell>
-        </Table.HeaderRow>
-        <Table.HeaderRow>
-          <Table.HeadCell>Silo</Table.HeadCell>
-          <Table.HeadCell>CPU</Table.HeadCell>
-          <Table.HeadCell>Memory</Table.HeadCell>
-          <Table.HeadCell>Storage</Table.HeadCell>
-          <Table.HeadCell>CPU</Table.HeadCell>
-          <Table.HeadCell>Memory</Table.HeadCell>
-          <Table.HeadCell>Storage</Table.HeadCell>
-          <Table.HeadCell data-test-ignore></Table.HeadCell>
-        </Table.HeaderRow>
-      </Table.Header>
-      <Table.Body>
-        {siloUtilizations.items.map((silo) => (
-          <Table.Row key={silo.siloName}>
-            <Table.Cell width="16%" height="large">
-              <LinkCell to={pb.silo({ silo: silo.siloName })}>{silo.siloName}</LinkCell>
-            </Table.Cell>
-            <Table.Cell width="14%" height="large">
-              <UsageCell
-                provisioned={silo.provisioned.cpus}
-                allocated={silo.allocated.cpus}
-              />
-            </Table.Cell>
-            <Table.Cell width="14%" height="large">
-              <UsageCell
-                provisioned={bytesToGiB(silo.provisioned.memory)}
-                allocated={bytesToGiB(silo.allocated.memory)}
-                unit="GiB"
-              />
-            </Table.Cell>
-            <Table.Cell width="14%" height="large">
-              <UsageCell
-                provisioned={bytesToTiB(silo.provisioned.storage)}
-                allocated={bytesToTiB(silo.allocated.storage)}
-                unit="TiB"
-              />
-            </Table.Cell>
-            <Table.Cell width="14%" className="relative" height="large">
-              <AvailableCell
-                provisioned={silo.provisioned.cpus}
-                allocated={silo.allocated.cpus}
-              />
-            </Table.Cell>
-            <Table.Cell width="14%" className="relative" height="large">
-              <AvailableCell
-                provisioned={bytesToGiB(silo.provisioned.memory)}
-                allocated={bytesToGiB(silo.allocated.memory)}
-                unit="GiB"
-              />
-            </Table.Cell>
-            <Table.Cell width="14%" className="relative" height="large">
-              <AvailableCell
-                provisioned={bytesToTiB(silo.provisioned.storage)}
-                allocated={bytesToTiB(silo.allocated.storage)}
-                unit="TiB"
-              />
-            </Table.Cell>
-            <Table.Cell className="action-col w-10 *:p-0" height="large">
-              <RowActions id={silo.siloId} copyIdLabel="Copy silo ID" />
-            </Table.Cell>
-          </Table.Row>
-        ))}
-      </Table.Body>
-    </Table>
+    <>
+      <Table className="w-full">
+        <Table.Header>
+          <Table.HeaderRow>
+            <Table.HeadCell data-test-ignore></Table.HeadCell>
+            {/* data-test-ignore makes the row asserts work in the e2e tests */}
+            <Table.HeadCell colSpan={3} data-test-ignore>
+              Provisioned / Quota
+            </Table.HeadCell>
+            <Table.HeadCell colSpan={3} data-test-ignore>
+              Available
+            </Table.HeadCell>
+            <Table.HeadCell data-test-ignore></Table.HeadCell>
+          </Table.HeaderRow>
+          <Table.HeaderRow>
+            <Table.HeadCell>Silo</Table.HeadCell>
+            <Table.HeadCell>CPU</Table.HeadCell>
+            <Table.HeadCell>Memory</Table.HeadCell>
+            <Table.HeadCell>Storage</Table.HeadCell>
+            <Table.HeadCell>CPU</Table.HeadCell>
+            <Table.HeadCell>Memory</Table.HeadCell>
+            <Table.HeadCell>Storage</Table.HeadCell>
+            <Table.HeadCell data-test-ignore></Table.HeadCell>
+          </Table.HeaderRow>
+        </Table.Header>
+        <Table.Body>
+          {siloUtilizations.items.map((silo) => (
+            <Table.Row key={silo.siloName}>
+              <Table.Cell width="16%" height="large">
+                <LinkCell to={pb.silo({ silo: silo.siloName })}>{silo.siloName}</LinkCell>
+              </Table.Cell>
+              <Table.Cell width="14%" height="large">
+                <UsageCell
+                  provisioned={silo.provisioned.cpus}
+                  allocated={silo.allocated.cpus}
+                />
+              </Table.Cell>
+              <Table.Cell width="14%" height="large">
+                <UsageCell
+                  provisioned={bytesToGiB(silo.provisioned.memory)}
+                  allocated={bytesToGiB(silo.allocated.memory)}
+                  unit="GiB"
+                />
+              </Table.Cell>
+              <Table.Cell width="14%" height="large">
+                <UsageCell
+                  provisioned={bytesToTiB(silo.provisioned.storage)}
+                  allocated={bytesToTiB(silo.allocated.storage)}
+                  unit="TiB"
+                />
+              </Table.Cell>
+              <Table.Cell width="14%" className="relative" height="large">
+                <AvailableCell
+                  provisioned={silo.provisioned.cpus}
+                  allocated={silo.allocated.cpus}
+                />
+              </Table.Cell>
+              <Table.Cell width="14%" className="relative" height="large">
+                <AvailableCell
+                  provisioned={bytesToGiB(silo.provisioned.memory)}
+                  allocated={bytesToGiB(silo.allocated.memory)}
+                  unit="GiB"
+                />
+              </Table.Cell>
+              <Table.Cell width="14%" className="relative" height="large">
+                <AvailableCell
+                  provisioned={bytesToTiB(silo.provisioned.storage)}
+                  allocated={bytesToTiB(silo.allocated.storage)}
+                  unit="TiB"
+                />
+              </Table.Cell>
+              <Table.Cell className="action-col w-10 *:p-0" height="large">
+                <RowActions
+                  id={silo.siloId}
+                  copyIdLabel="Copy silo ID"
+                  actions={[
+                    {
+                      label: 'Edit quotas',
+                      onActivate: () => setEditingSilo(silo),
+                    },
+                  ]}
+                />
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table>
+      {editingSilo && (
+        <EditQuotasSideModalForm
+          silo={editingSilo.siloName}
+          quotas={editingSilo.allocated}
+          onDismiss={() => setEditingSilo(null)}
+        />
+      )}
+    </>
   )
 }
 
