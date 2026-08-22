@@ -266,6 +266,40 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
         <Route
+          path="alerting"
+          lazy={() => import('./pages/system/alerting/AlertingPage').then(convert)}
+        >
+          <Route index element={<Navigate to="alerts" replace />} />
+          <Route
+            path="alerts"
+            lazy={() => import('./pages/system/alerting/AlertsTab').then(convert)}
+          />
+          <Route
+            lazy={() => import('./pages/system/alerting/AlertReceiversTab').then(convert)}
+          >
+            <Route path="receivers" element={null} />
+            <Route
+              path="receivers-new"
+              lazy={() => import('./forms/webhook-create').then(convert)}
+            />
+          </Route>
+        </Route>
+        {/* /system/alerting redirects to the alerts tab, so point the crumb
+            straight at the tab to avoid a flash */}
+        <Route path="alerting" handle={{ crumb: 'Alerting', path: pb.alerts() }}>
+          <Route path="receivers" handle={{ crumb: 'Receivers' }}>
+            <Route
+              path=":receiver"
+              lazy={() => import('./pages/system/alerting/AlertReceiverPage').then(convert)}
+            >
+              <Route
+                path="edit"
+                lazy={() => import('./forms/webhook-edit').then(convert)}
+              />
+            </Route>
+          </Route>
+        </Route>
+        <Route
           path="update"
           lazy={() => import('./pages/system/UpdatePage').then(convert)}
         />
