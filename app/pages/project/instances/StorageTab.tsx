@@ -25,7 +25,7 @@ import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
 import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
-import { AttachDiskModalForm } from '~/forms/disk-attach'
+import { AttachDiskModal } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
@@ -320,13 +320,21 @@ export default function StorageTab() {
     ]
   )
 
-  const attachDisk = useApiMutation(api.instanceDiskAttach, {
+  // attach step of the create-then-attach flow only; the attach modal owns its
+  // own mutation. The create modal closes on create success, so this runs in
+  // the background and failures must surface as a toast.
+  const attachCreatedDisk = useApiMutation(api.instanceDiskAttach, {
     onSuccess(disk) {
       queryClient.invalidateEndpoint('instanceDiskList')
-      setShowDiskCreate(false)
-      setShowDiskAttach(false)
       // prettier-ignore
       addToast(<>Disk <HL>{disk.name}</HL> attached</>)
+    },
+    onError(err, variables) {
+      addToast({
+        title: `Failed to attach disk ${variables.body.disk}`,
+        content: err.message,
+        variant: 'error',
+      })
     },
   })
 
@@ -434,24 +442,11 @@ export default function StorageTab() {
           onSuccess={({ name }) => {
             // TODO: this should probably be done with `mutateAsync` and
             // awaited, but it's a pain, so punt for now
-            attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
+            attachCreatedDisk.mutate({ ...instancePathQuery, body: { disk: name } })
           }}
         />
       )}
-      {showDiskAttach && (
-        <AttachDiskModalForm
-          onDismiss={() => {
-            setShowDiskAttach(false)
-            // clear API errors on the mutation
-            attachDisk.reset()
-          }}
-          onSubmit={({ name }) => {
-            attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
-          }}
-          loading={attachDisk.isPending}
-          submitError={attachDisk.error}
-        />
-      )}
+      {showDiskAttach && <AttachDiskModal onDismiss={() => setShowDiskAttach(false)} />}
       {selectedDisk && (
         <DiskDetailSideModal
           disk={selectedDisk}
