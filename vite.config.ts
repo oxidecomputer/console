@@ -156,6 +156,12 @@ export default defineConfig(({ mode }) => ({
         target: apiMode === 'remote' ? `https://${EXT_HOST}` : 'http://localhost:12220',
         changeOrigin: true,
       },
+      // probes are the only /experimental endpoints left (support bundles moved
+      // to /v1 in omicron#11097); the console doesn't call them yet
+      '/experimental': {
+        target: apiMode === 'remote' ? `https://${EXT_HOST}` : 'http://localhost:12220',
+        changeOrigin: true,
+      },
     },
   },
   resolve: { tsconfigPaths: true },

@@ -154,6 +154,10 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/operator/ip-pool-management#_using_subnet_pools',
     linkText: 'Subnet Pools',
   },
+  supportBundles: {
+    href: 'https://docs.oxide.computer/guides/troubleshooting#_support_bundles',
+    linkText: 'Support Bundles',
+  },
   systemMetrics: {
     href: 'https://docs.oxide.computer/guides/operator/system-metrics',
     linkText: 'Metrics',
