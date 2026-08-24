@@ -91,7 +91,7 @@ export const docLinks = {
     linkText: 'Instance Actions',
   },
   oxql: {
-    href: 'https://docs.oxide.computer/guides/metrics/oxql-tutorial#_oxql_quickstart',
+    href: 'https://docs.oxide.computer/guides/metrics/oxql-tutorial#_oxql_quick_start',
     linkText: 'OxQL',
   },
   oxqlSchemas: {
