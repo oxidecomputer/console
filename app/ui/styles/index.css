@@ -52,6 +52,9 @@
 /* layer(components) on this one results in visual changes, holding off for now */
 @import './components/table.css';
 
+/* deliberately unlayered: must beat CodeMirror's injected unlayered styles */
+@import './components/oxql-editor.css';
+
 @import '@xterm/xterm/css/xterm.css' layer(components);
 @source '../../../node_modules/@oxide/design-system/dist';
 @custom-variant light (&:where([data-theme=light], [data-theme=light] *));

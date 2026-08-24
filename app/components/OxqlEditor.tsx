@@ -7,8 +7,13 @@
  */
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { bracketMatching } from '@codemirror/language'
-import { setDiagnostics, type Diagnostic } from '@codemirror/lint'
-import { Compartment, RangeSetBuilder, type Text } from '@codemirror/state'
+import {
+  Compartment,
+  RangeSetBuilder,
+  StateEffect,
+  StateField,
+  type Text,
+} from '@codemirror/state'
 import {
   Decoration,
   EditorView,
@@ -21,77 +26,17 @@ import {
 } from '@codemirror/view'
 import cn from 'classnames'
 import { useEffect, useRef } from 'react'
-import {
-  createHighlighterCoreSync,
-  type LanguageRegistration,
-  type ThemeRegistrationAny,
-} from 'shiki/core'
+import { createHighlighterCoreSync } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 
 import type { TimeseriesSchema } from '@oxide/api'
+import { oxideTheme, oxqlGrammar } from '@oxide/design-system/syntax'
 
 import { oxqlAutocomplete } from '~/components/oxql-autocomplete'
 import type { OxqlDiagnostic } from '~/components/oxql-error'
 
-// OxQL grammar copied from the design system so we can highlight queries
-// without pulling in its full asciidoc bundle. One addition over the source:
-// single-quoted strings, which OxQL supports and our examples use.
-// https://github.com/oxidecomputer/design-system/blob/main/components/src/asciidoc/langs/oxql.tmLanguage.json
-const oxqlGrammar = {
-  name: 'oxql',
-  scopeName: 'source.oxql',
-  repository: {},
-  patterns: [
-    { name: 'keyword.control.oxql', match: '\\b(get|join|align|filter|group_by)\\b' },
-    {
-      name: 'string.quoted.double.oxql',
-      begin: '"',
-      end: '"',
-      patterns: [{ name: 'constant.character.escape.oxql', match: '\\\\.' }],
-    },
-    {
-      name: 'string.quoted.single.oxql',
-      begin: "'",
-      end: "'",
-      patterns: [{ name: 'constant.character.escape.oxql', match: '\\\\.' }],
-    },
-    { name: 'constant.numeric.oxql', match: '\\b\\d+[smhdw]\\b' },
-    {
-      name: 'constant.numeric.datetime.oxql',
-      match: '@\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}',
-    },
-    { name: 'constant.numeric.function.oxql', match: '@now\\(\\)' },
-    { name: 'constant.numeric.oxql', match: '\\b\\d+\\b' },
-    { name: 'comment.block.oxql', begin: '/\\*', end: '\\*/' },
-    { name: 'comment.line.double-slash.oxql', match: '//.*$' },
-    { name: 'keyword.operator.oxql', match: '\\|' },
-  ],
-} satisfies LanguageRegistration
-
-// Subset of the design system's Oxide syntax theme covering the scopes the
-// OxQL grammar emits. The --syntax-* vars come from the design system
-// stylesheets already imported in app/ui/styles/index.css, so this follows
-// the current theme automatically.
-// https://github.com/oxidecomputer/design-system/blob/main/components/src/asciidoc/oxide-syntax.json
-const oxideTheme = {
-  name: 'oxide',
-  colors: {
-    'editor.background': 'transparent',
-    'editor.foreground': 'var(--syntax-fg)',
-  },
-  tokenColors: [
-    { scope: ['comment'], settings: { foreground: 'var(--syntax-comment)' } },
-    { scope: ['string'], settings: { foreground: 'var(--syntax-string)' } },
-    {
-      scope: ['constant.character.escape'],
-      settings: { foreground: 'var(--syntax-escape)' },
-    },
-    { scope: ['constant.numeric'], settings: { foreground: 'var(--syntax-number)' } },
-    { scope: ['keyword'], settings: { foreground: 'var(--syntax-keyword)' } },
-    { scope: ['keyword.operator'], settings: { foreground: 'var(--syntax-operator)' } },
-  ],
-} satisfies ThemeRegistrationAny
-
+// the --syntax-* vars in the theme come from the design system stylesheets
+// already imported in app/ui/styles/index.css, so colors follow the theme
 const highlighter = createHighlighterCoreSync({
   langs: [oxqlGrammar],
   themes: [oxideTheme],
@@ -109,7 +54,7 @@ const buildDecorations = (view: EditorView): DecorationSet => {
   let pos = 0
   for (const line of highlighter.codeToTokensBase(code, {
     lang: 'oxql',
-    theme: 'oxide',
+    theme: oxideTheme.name,
   })) {
     for (const token of line) {
       const end = pos + token.content.length
@@ -141,88 +86,10 @@ const shikiPlugin = ViewPlugin.fromClass(
   { decorations: (v) => v.decorations }
 )
 
-// Ported from the editor theme in mitos (app/components/code-editor.tsx),
-// with its hardcoded dark-palette hexes swapped for the equivalent design
-// system vars so light mode works too. Text selection is native, so the
-// console's global ::selection style applies without any theming here. The
-// font comes from the wrapper (text-mono-code), hence the `inherit`s.
-const cmTheme = EditorView.theme({
-  '&': {
-    backgroundColor: 'var(--syntax-bg)',
-    color: 'var(--syntax-fg)',
-    // fixed height of ~6 lines; longer queries scroll inside the editor
-    height: '7.5rem',
-  },
-  // CM's base theme hardcodes font-family: monospace here; inherit the
-  // wrapper's font (text-mono-code) instead
-  '.cm-scroller': { overflow: 'auto', fontFamily: 'inherit' },
-  // the wrapper carries the focus ring (focus-within), so hide CM's own outline
-  '&.cm-focused': { outline: 'none' },
-  '.cm-content': {
-    fontFamily: 'inherit',
-    padding: '10px 0',
-    caretColor: 'var(--syntax-fg)',
-  },
-  '.cm-line': { padding: '0 12px' },
-  '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--syntax-fg)' },
-  '.cm-activeLine': { backgroundColor: 'var(--surface-secondary)' },
-  '.cm-matchingBracket, .cm-nonmatchingBracket': {
-    backgroundColor: 'var(--surface-hover)',
-    outline: 'none',
-  },
-  '.cm-matchingBracket': { color: 'var(--syntax-fg)' },
-  '.cm-nonmatchingBracket': { color: 'var(--content-destructive)' },
-  // completion popup. fontFamily inherits mono from the wrapper because the
-  // tooltip renders inside the editor element
-  '.cm-tooltip': {
-    backgroundColor: 'var(--surface-raise)',
-    border: '1px solid var(--stroke-secondary)',
-    borderRadius: '0.125rem',
-    overflow: 'hidden',
-    fontFamily: 'inherit',
-  },
-  // the autocomplete base theme hardcodes font-family: monospace on the list
-  '.cm-tooltip.cm-tooltip-autocomplete > ul': { fontFamily: 'inherit' },
-  '.cm-tooltip.cm-tooltip-autocomplete > ul > li': { padding: '2px 8px' },
-  '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
-    backgroundColor: 'var(--surface-hover)',
-    color: 'inherit',
-  },
-  '.cm-completionMatchedText': {
-    textDecoration: 'none',
-    color: 'var(--content-accent-secondary)',
-  },
-  '.cm-completionDetail': {
-    color: 'var(--content-quaternary)',
-    fontStyle: 'normal',
-    marginLeft: '1rem',
-  },
-  '.cm-tooltip.cm-completionInfo': { padding: '4px 8px', maxWidth: '22rem' },
-  // the lint extension draws its underline as a data: URI background image,
-  // which our Content-Security-Policy blocks. Use a plain CSS wavy underline
-  '.cm-lintRange-error': {
-    backgroundImage: 'none',
-    textDecoration: 'underline wavy var(--content-destructive)',
-    textDecorationSkipInk: 'none',
-    textUnderlineOffset: '3px',
-  },
-  // hover tooltip for the diagnostic; the border color default is a hardcoded red
-  '.cm-tooltip .cm-diagnostic-error': {
-    borderLeftColor: 'var(--content-destructive)',
-  },
-  // match the placeholder color of the regular text inputs
-  '.cm-placeholder': { color: 'var(--content-tertiary)' },
-  // placeholder region of an accepted snippet, e.g. mean_within(period)
-  '.cm-snippetField': { backgroundColor: 'var(--surface-secondary)' },
-})
-
-// Convert a 1-based line:column server error position into a CodeMirror
-// diagnostic covering the offending token. Positions are clamped so a stale
-// or out-of-range position can't crash the editor.
-const toCmDiagnostic = (
-  doc: Text,
-  { line, column, message }: OxqlDiagnostic
-): Diagnostic => {
+// Convert a 1-based line:column server error position into an editor range
+// covering the offending token. Positions are clamped so a stale or
+// out-of-range position can't crash the editor.
+const toErrorRange = (doc: Text, { line, column }: OxqlDiagnostic) => {
   const lineInfo = doc.line(Math.max(1, Math.min(line, doc.lines)))
   let from = Math.min(lineInfo.from + column - 1, lineInfo.to)
   // underline through the end of the token under the caret, or one char minimum
@@ -230,8 +97,33 @@ const toCmDiagnostic = (
   const to = Math.min(from + (token?.[0].length || 1), lineInfo.to)
   // at end of line there's nothing after the caret, so underline the char before
   if (from === to) from = Math.max(lineInfo.from, to - 1)
-  return { from, to, severity: 'error', message }
+  // mark decorations may not be empty, so an empty line gets no underline
+  return from < to ? { from, to } : null
 }
+
+const errorMark = Decoration.mark({ class: 'oxql-error-underline' })
+
+const setErrorRange = StateEffect.define<{ from: number; to: number } | null>()
+
+// Underline the position a server-side parse error points at. The error
+// message itself is shown below the editor, so no lint tooltip is needed.
+// A StateField (rather than a plain decoration facet) so the range remaps
+// when the user edits elsewhere in the doc.
+const errorRangeField = StateField.define<DecorationSet>({
+  create: () => Decoration.none,
+  update(deco, tr) {
+    let mapped = deco.map(tr.changes)
+    for (const effect of tr.effects) {
+      if (effect.is(setErrorRange)) {
+        mapped = effect.value
+          ? Decoration.set([errorMark.range(effect.value.from, effect.value.to)])
+          : Decoration.none
+      }
+    }
+    return mapped
+  },
+  provide: (f) => EditorView.decorations.from(f),
+})
 
 const contentAttrs = (ariaLabel: string, error: boolean) =>
   EditorView.contentAttributes.of({
@@ -301,7 +193,7 @@ export function OxqlEditor({
         bracketMatching(),
         oxqlAutocomplete(() => schemasRef.current ?? []),
         shikiPlugin,
-        cmTheme,
+        errorRangeField,
         attrsCompartment.current.of(contentAttrs(ariaLabel, error)),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) callbacks.current.onChange(update.state.doc.toString())
@@ -328,21 +220,19 @@ export function OxqlEditor({
     })
   }, [ariaLabel, error])
 
-  // underline the position a server-side parse error points at. setDiagnostics
-  // pulls in the lint state on demand, so no linter extension is needed above
   useEffect(() => {
     const view = viewRef.current
     if (!view) return
-    const diags = diagnostic ? [toCmDiagnostic(view.state.doc, diagnostic)] : []
-    view.dispatch(setDiagnostics(view.state, diags))
+    const range = diagnostic ? toErrorRange(view.state.doc, diagnostic) : null
+    view.dispatch({ effects: setErrorRange.of(range) })
   }, [diagnostic])
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        // mitos sizes its editor text at 12px, which is text-mono-code here
-        'text-mono-code overflow-hidden rounded-md border focus-within:outline-2 focus-within:outline-solid',
+        // oxql-editor scopes the CodeMirror styles in oxql-editor.css
+        'oxql-editor text-mono-code overflow-hidden rounded-md border focus-within:outline-2 focus-within:outline-solid',
         error
           ? 'border-error-secondary hover:border-error focus-within:outline-error-secondary'
           : 'border-default hover:border-raise focus-within:outline-accent-secondary'

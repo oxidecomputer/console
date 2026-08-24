@@ -226,12 +226,10 @@ test('parse errors underline the offending spot in the editor', async ({ page })
 
   await expect(page.getByRole('alert')).toBeVisible()
 
-  // CM lint underlines have no semantic representation, so target the class
-  const underlined = page.locator('.cm-lintRange-error')
+  // the error underline has no semantic representation, so target the class
+  const underlined = page.locator('.oxql-error-underline')
   await expect(underlined).toHaveText('oops')
-  // guard against the underline existing but not rendering: the lint default
-  // is a data: URI background image, which our CSP blocks, so we draw a CSS
-  // underline instead
+  // guard against the mark existing but the CSS not applying
   await expect(underlined).toHaveCSS('text-decoration-line', 'underline')
 
   // editing the query invalidates the position, clearing the underline

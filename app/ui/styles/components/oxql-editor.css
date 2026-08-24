@@ -1,0 +1,115 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+/*
+ * Styles for the CodeMirror editor in OxqlEditor.tsx. CodeMirror injects its
+ * base theme as unlayered <style> tags at mount time. The doubled .cm-editor
+ * keeps every rule here above that.
+ */
+
+.oxql-editor .cm-editor.cm-editor {
+  background-color: var(--syntax-bg);
+  color: var(--syntax-fg);
+  height: 7.5rem;
+
+  &.cm-focused {
+    outline: none;
+  }
+
+  .cm-scroller {
+    overflow: auto;
+    font-family: inherit;
+  }
+
+  .cm-content {
+    font-family: inherit;
+    padding: 10px 0;
+    caret-color: var(--syntax-fg);
+  }
+
+  .cm-line {
+    padding: 0 12px;
+  }
+
+  .cm-cursor,
+  .cm-dropCursor {
+    border-left-color: var(--syntax-fg);
+  }
+
+  .cm-activeLine {
+    background-color: var(--surface-secondary);
+  }
+
+  .cm-matchingBracket,
+  .cm-nonmatchingBracket {
+    background-color: var(--surface-hover);
+    outline: none;
+  }
+
+  .cm-matchingBracket {
+    color: var(--syntax-fg);
+  }
+
+  .cm-nonmatchingBracket {
+    color: var(--content-destructive);
+  }
+
+  .cm-tooltip {
+    background-color: var(--surface-raise);
+    border: 1px solid var(--stroke-secondary);
+    border-radius: 0.125rem;
+    overflow: hidden;
+    font-family: inherit;
+  }
+
+  .cm-tooltip.cm-tooltip-autocomplete > ul {
+    font-family: inherit;
+  }
+
+  .cm-tooltip.cm-tooltip-autocomplete > ul > li {
+    padding: 2px 8px;
+  }
+
+  .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
+    background-color: var(--surface-hover);
+    color: inherit;
+  }
+
+  .cm-completionMatchedText {
+    text-decoration: none;
+    color: var(--content-accent-secondary);
+  }
+
+  .cm-completionDetail {
+    color: var(--content-quaternary);
+    font-style: normal;
+    margin-left: 1rem;
+  }
+
+  .cm-tooltip.cm-completionInfo {
+    padding: 4px 8px;
+    max-width: 22rem;
+  }
+
+  /* wavy underline under the token a server-side parse error points at */
+  .oxql-error-underline {
+    text-decoration: underline wavy var(--content-destructive);
+    text-decoration-skip-ink: none;
+    text-underline-offset: 3px;
+  }
+
+  /* match the placeholder color of the regular text inputs */
+  .cm-placeholder {
+    color: var(--content-tertiary);
+  }
+
+  /* placeholder region of an accepted snippet, e.g. mean_within(period) */
+  .cm-snippetField {
+    background-color: var(--surface-secondary);
+  }
+}
