@@ -106,8 +106,8 @@ const narrowToNumbers = (vs: Values): (number | null)[] =>
       )
     )
     .with({ type: 'string' }, () => []) // these don't exist in practice
-    .with({ type: 'integer_distribution' }, () => []) // by only calling this on aligned/joined tables, we know this is unreachable
-    .with({ type: 'double_distribution' }, () => []) // these don't exist in practice, and are also unreachable per above
+    .with({ type: 'integer_distribution' }, () => []) // heatmaps!
+    .with({ type: 'double_distribution' }, () => []) // these don't exist in practice
     .exhaustive()
 
 const leftPad = <T,>(items: T[], length: number): (T | null)[] =>
@@ -375,15 +375,25 @@ const groupHasPointWorthDropping = (g: ChartGroup): boolean =>
     )
     .exhaustive()
 
-// A simplified representation of a single chart.
+// A render-ready representation of a single chart. Keep the data arrays memoized: uplot-react
+// deep-compares the whole dataset whenever their identity changes (see TimeSeriesChart.spec.tsx)
 type ChartDisplay = { key: string; showDivider: boolean } & (
   | { kind: 'empty' }
-  | { kind: 'multiline'; startTime: Date; endTime: Date; chart: Multiline }
-  | { kind: 'line'; startTime: Date; endTime: Date; chart: Chart<Values> }
+  | {
+      kind: 'chart'
+      startTime: Date
+      endTime: Date
+      name: string
+      description?: ReactNode
+      timestamps: number[]
+      data: (number | null)[][]
+      /** only set for multi-series charts, where it enables the legend */
+      seriesLabels?: string[]
+    }
 )
 
 // Virtualization relies on a list of near-same-size items, so we flatten out all the groups
-const toDisplays = (groups: ChartGroup[]): ChartDisplay[] =>
+const toDisplays = (groups: ChartGroup[], trim: Trim): ChartDisplay[] =>
   groups.flatMap((g, t): ChartDisplay[] => {
     if (g === 'empty-timeseries')
       return [{ kind: 'empty', key: `t${t}`, showDivider: true }]
@@ -392,54 +402,53 @@ const toDisplays = (groups: ChartGroup[]): ChartDisplay[] =>
       .with({ kind: 'unaligned' }, ({ charts }) =>
         charts.map(
           (chart, i): ChartDisplay => ({
-            kind: 'line',
+            kind: 'chart',
             key: `t${t}.${i}`,
             showDivider: i === 0,
             startTime,
             endTime,
-            chart,
+            name: chart.name,
+            description: chart.description,
+            ...trim({
+              timestamps: chart.timestamps,
+              data: [narrowToNumbers(chart.data)],
+            }),
           })
         )
       )
       .with({ kind: 'joined' }, { kind: 'aligned' }, ({ charts }) =>
         charts.map(
           (chart, i): ChartDisplay => ({
-            kind: 'multiline',
+            kind: 'chart',
             key: `t${t}.${i}`,
             showDivider: i === 0,
             startTime,
             endTime,
-            chart,
+            name: chart.name,
+            description: chart.description,
+            seriesLabels: chart.data.map((l) => l.label),
+            ...trim({
+              timestamps: chart.timestamps,
+              data: chart.data.map((d) => d.values),
+            }),
           })
         )
       )
       .exhaustive()
   })
 
-function MultilineChart({
-  display,
-  trim,
-}: {
-  display: Extract<ChartDisplay, { kind: 'multiline' }>
-  trim: Trim
-}) {
-  const { chart, startTime, endTime } = display
-  const trimmed = trim({
-    timestamps: chart.timestamps,
-    data: chart.data.map((d) => d.values),
-  })
-  const seriesLabels = chart.data.map((l) => l.label)
+function ChartCard({ display }: { display: Extract<ChartDisplay, { kind: 'chart' }> }) {
   return (
     <ChartContainer>
-      <ChartHeader title={chart.name} label="" description={chart.description} />
+      <ChartHeader title={display.name} label="" description={display.description} />
       <TimeSeriesChart
-        timestamps={trimmed.timestamps}
-        data={trimmed.data}
-        seriesLabels={seriesLabels}
-        title={chart.name}
+        timestamps={display.timestamps}
+        data={display.data}
+        seriesLabels={display.seriesLabels}
+        title={display.name}
         interpolation="linear"
-        startTime={startTime}
-        endTime={endTime}
+        startTime={display.startTime}
+        endTime={display.endTime}
         unit={undefined}
         loading={false}
         yAxisTickFormatter={formatTick}
@@ -448,49 +457,7 @@ function MultilineChart({
   )
 }
 
-function LineChart({
-  display,
-  trim,
-}: {
-  display: Extract<ChartDisplay, { kind: 'line' }>
-  trim: Trim
-}) {
-  const { chart, startTime, endTime } = display
-  const data = match(chart.data.values)
-    .with({ type: 'integer' }, ({ values }) => values)
-    .with({ type: 'double' }, ({ values }) => values)
-    .with({ type: 'boolean' }, ({ values }) =>
-      values.map((b) =>
-        match(b)
-          .with(true, () => 1)
-          .with(false, () => 0)
-          .with(null, () => null)
-          .exhaustive()
-      )
-    )
-    .with({ type: 'string' }, () => []) // these don't exist in practice
-    .with({ type: 'integer_distribution' }, { type: 'double_distribution' }, () => []) // heatmaps!
-    .exhaustive()
-  const trimmed = trim({ data: [data], timestamps: chart.timestamps })
-  return (
-    <ChartContainer>
-      <ChartHeader title={chart.name} label="" description={chart.description} />
-      <TimeSeriesChart
-        data={trimmed.data}
-        timestamps={trimmed.timestamps}
-        title={chart.name}
-        interpolation="linear"
-        startTime={startTime}
-        endTime={endTime}
-        unit={undefined}
-        loading={false}
-        yAxisTickFormatter={formatTick}
-      />
-    </ChartContainer>
-  )
-}
-
-function ChartEntry({ display, trim }: { display: ChartDisplay; trim: Trim }) {
+function ChartEntry({ display }: { display: ChartDisplay }) {
   return (
     <>
       {match(display)
@@ -514,8 +481,7 @@ function ChartEntry({ display, trim }: { display: ChartDisplay; trim: Trim }) {
             </SkeletonMetric>
           </ChartContainer>
         ))
-        .with({ kind: 'multiline' }, (r) => <MultilineChart display={r} trim={trim} />)
-        .with({ kind: 'line' }, (r) => <LineChart display={r} trim={trim} />)
+        .with({ kind: 'chart' }, (r) => <ChartCard display={r} />)
         .exhaustive()}
     </>
   )
@@ -696,9 +662,14 @@ export default function OxqlPage() {
   )
 
   const hasTrimmableCharts = chartGroups?.some(groupHasPointWorthDropping) ?? false
-  const trim = firstPointDropper(dropFirstPoint && hasTrimmableCharts)
 
-  const charts = useMemo(() => (chartGroups ? toDisplays(chartGroups) : []), [chartGroups])
+  const charts = useMemo(
+    () =>
+      chartGroups
+        ? toDisplays(chartGroups, firstPointDropper(dropFirstPoint && hasTrimmableCharts))
+        : [],
+    [chartGroups, dropFirstPoint, hasTrimmableCharts]
+  )
 
   // Since the whole window is the scroll container, the virtualizer needs to
   // know the offset from the top. By reacting to height changes in everything
@@ -835,7 +806,7 @@ export default function OxqlPage() {
                   className="absolute top-0 left-0 w-full pb-4"
                   style={{ transform: `translateY(${item.start - scrollMargin}px)` }}
                 >
-                  <ChartEntry display={charts[item.index]} trim={trim} />
+                  <ChartEntry display={charts[item.index]} />
                 </div>
               ))}
             </div>
