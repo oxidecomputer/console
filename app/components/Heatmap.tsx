@@ -29,53 +29,38 @@ const CHART_HEIGHT = 300
 // without screwing up the grid too much
 const CELL_OVERFLOW = 0
 
-type OklchColor = { l: number; c: number; h: number }
-
-const parseOklch = (s: string): OklchColor | null => {
-  const m = s.match(/oklch\(([^)]+)\)/)
-  if (!m) return null
-  const [l, c, h] = m[1].split(/[\s/]+/).map(Number)
-  return { l, c, h }
-}
-
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-
 type ColorRamp = {
-  stops: OklchColor[]
+  stops: string[]
 }
 
-// Interpolates the color from between the two closest stops, for 0 <= t <= 1.
+// Interpolates the color between the two closest stops, for 0 <= t <= 1.
 const rampColor = ({ stops }: ColorRamp, t: number): string => {
   const clamped = R.clamp(t, { min: 0, max: 1 })
   const lastIndex = stops.length - 1
   const progress = clamped * lastIndex
   const start = R.clamp(Math.floor(progress), { max: lastIndex - 1 })
-  const lerpT = progress - start
+  const lerp = progress - start
   const from = stops[start]
   const to = stops[start + 1]
-
-  return `oklch(${lerp(from.l, to.l, lerpT)} ${lerp(from.c, to.c, lerpT)} ${lerp(from.h, to.h, lerpT)})`
+  return `color-mix(in oklch, ${from} ${(1 - lerp) * 100}%, ${to})`
 }
 
 const getColorRamp = (): ColorRamp => {
   const style = getComputedStyle(document.body)
-  const v = (name: string) => style.getPropertyValue(name)
+  const v = (name: string) => style.getPropertyValue(name).trim()
   const stops = [
     // TODO: looks nice in dark and decent in light. maybe we want a different
     // palette but it's a fine start
-    parseOklch(v('--surface-raise')),
-    parseOklch(v('--surface-accent-secondary')),
-    parseOklch(v('--content-accent')),
-  ].filter((x) => x !== null)
+    v('--surface-raise'),
+    v('--surface-accent-secondary'),
+    v('--content-accent'),
+  ].filter((x) => x !== '')
   return {
     stops:
       stops.length >= 2
         ? stops
         : // for the unlikely case the theme colors don't parse into oklch
-          [
-            { l: 0.195, c: 0.009, h: 260 },
-            { l: 0.77, c: 0.1919, h: 163.7 },
-          ],
+          ['oklch(0.195, 0.009, 260)', 'oklch(0.77, 0.1919, 163.7)'],
   }
 }
 
@@ -367,9 +352,7 @@ function HeatmapLegend({
   maxSampleCount: number
   axisText: string
 }) {
-  const backgroundImage = `linear-gradient(to right, ${ramp.stops
-    .map((r) => `oklch(${r.l} ${r.c} ${r.h})`)
-    .join(', ')})`
+  const backgroundImage = `linear-gradient(in oklch to right, ${ramp.stops.join(', ')})`
   return (
     <div className="mt-3 flex items-center gap-2 pl-5">
       <span className="text-mono-xs" style={{ color: axisText }}>
