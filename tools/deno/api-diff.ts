@@ -7,9 +7,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { exists } from 'https://deno.land/std@0.208.0/fs/mod.ts'
-import { $ } from 'https://deno.land/x/dax@0.39.1/mod.ts'
 import { Command, ValidationError } from 'jsr:@cliffy/command@1.0.0'
+import { $ } from 'jsr:@david/dax@0.41.0'
+import { exists } from 'jsr:@std/fs@1.0'
 
 // fzf picker keeps UX quick without requiring people to wire up shell helpers
 async function pickPr(): Promise<number> {

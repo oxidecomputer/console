@@ -7,11 +7,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as path from 'https://deno.land/std@0.159.0/path/mod.ts'
-import $ from 'https://deno.land/x/dax@0.39.2/mod.ts'
 import { Command } from 'jsr:@cliffy/command@1.0.0'
 import { Confirm, Input } from 'jsr:@cliffy/prompt@1.0.0'
+import $ from 'jsr:@david/dax@0.41.0'
 import { existsSync } from 'jsr:@std/fs@1.0'
+import * as path from 'jsr:@std/path@1.1.6'
 
 const OMICRON_DIR = path.resolve('../omicron')
 const GH_MISSING = 'GitHub CLI not found. Please install it and try again.'
