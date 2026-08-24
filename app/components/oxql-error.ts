@@ -18,7 +18,23 @@ export type OxqlDiagnostic = {
  * assumes a monospace terminal, and the editor underline already points at
  * the position.
  */
-export const stripCaretLine = (message: string) => message.replace(/\n *\^ *(?=\n)/, '')
+export const stripCaretLine = (message: string) => message.replace(/\n *\^ *(?=\n|$)/, '')
+
+/**
+ * Split pattern for the code-ish parts of an error message: the query excerpt
+ * between fmt_parse_error's `..` markers, peg's double-quoted expected tokens,
+ * and the backtick- or double-quoted names in semantic errors. Used with
+ * `String.split`, so the capture group puts code segments at odd indices.
+ *
+ * Quoted filter expressions can contain unescaped nested quotes (omicron
+ * interpolates the raw expression, e.g. `The filter expression "kind ==
+ * "power"" is not valid`), so that known frame gets a greedy context-anchored
+ * alternative, and elsewhere a quote only closes a segment when followed by a
+ * delimiter rather than a word char or another quote.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/oximeter/db/src/oxql/plan/filter.rs
+ */
+export const codeSegment =
+  /(\.\. [\s\S]*? \.\.|(?<=The filter expression )"[^\n]*"(?= is not valid)|(?<![\w"])"[^\n]*?"(?![\w"])|`[^`\n]*`)/
 
 /**
  * Pull the position and expectation out of an OxQL parse error so it can be

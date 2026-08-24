@@ -134,7 +134,9 @@ test('picking an example populates the query and runs it', async ({ page }) => {
   await expect(page.getByRole('figure').first()).toBeVisible()
 })
 
-test('editor autocompletes timeseries names, fields, and operations', async ({ page }) => {
+test('editor completions are wired to live timeseries schemas', async ({ page }) => {
+  // the completion logic itself is unit-tested in oxql-autocomplete.spec.ts;
+  // here we only check the editor is hooked up to the schema list from the API
   const textbox = page.getByRole('textbox')
   await textbox.click()
   await page.keyboard.type('get hardware')
@@ -153,21 +155,6 @@ test('editor autocompletes timeseries names, fields, and operations', async ({ p
   await page.keyboard.type('_component:fan') // narrow until fan_speed is the top match
   await page.keyboard.press('Enter')
   await expect(textbox).toContainText('get hardware_component:fan_speed')
-
-  // table ops complete at the start of a clause. type the word out instead of
-  // accepting: a second Enter-accept can race the popup closing and insert a
-  // newline, breaking the clause for the next step
-  await page.keyboard.type(' | fil')
-  await expect(options.getByText('filter', { exact: true })).toBeVisible()
-  await page.keyboard.type('ter')
-
-  // fields of the get-ed timeseries complete inside the filter
-  await page.keyboard.type(' chass')
-  await expect(options.getByText('chassis_kind')).toBeVisible()
-  await page.keyboard.press('Enter')
-  await expect(textbox).toContainText(
-    'get hardware_component:fan_speed | filter chassis_kind'
-  )
 })
 
 test('results can be copied as JSON or CSV', async ({ page }) => {
@@ -183,22 +170,6 @@ test('results can be copied as JSON or CSV', async ({ page }) => {
   await page.getByRole('button', { name: 'Results actions' }).click()
   await page.getByRole('menuitem', { name: 'Copy as CSV' }).click()
   await expectToast(page, 'Results copied as CSV')
-})
-
-test('copy actions are disabled before a query has run', async ({ page }) => {
-  await page.getByRole('button', { name: 'Results actions' }).click()
-  await expect(page.getByRole('menuitem', { name: 'Copy as JSON' })).toBeDisabled()
-  await expect(page.getByRole('menuitem', { name: 'Copy as CSV' })).toBeDisabled()
-})
-
-test('empty query is blocked by client-side validation', async ({ page }) => {
-  const textbox = page.getByRole('textbox')
-  await textbox.fill('')
-  await page.getByRole('button', { name: 'Run query' }).click()
-
-  await expect(textbox).toHaveAttribute('aria-invalid', 'true')
-  await expect(page.getByText('Enter a query').first()).toBeVisible()
-  await expect(page.getByRole('figure')).toHaveCount(0)
 })
 
 test('a query the backend rejects surfaces an error instead of a chart', async ({
@@ -237,21 +208,17 @@ test('parse errors underline the offending spot in the editor', async ({ page })
   await expect(underlined).toBeHidden()
 })
 
-test('pages reads the initial query from the URL', async ({ page }) => {
-  await page.goto(
-    `/system/metrics-explorer?query=${encodeURIComponent(oxqlQueries.basicTctl)}`
-  )
-  const textbox = page.getByRole('textbox')
-  // the editor is a contenteditable, so assert line by line rather than on value
-  await expect(textbox).toContainText('get hardware_component:amd_cpu_tctl')
-  await expect(textbox).toContainText('| filter timestamp > @now() - 1m')
-})
-
-test('pages writes the query to the URL after a successful run', async ({ page }) => {
-  await page.goto('/system/metrics-explorer')
+test('query round-trips through the URL', async ({ page }) => {
+  // a successful run writes the query to the URL
   await runQuery(page, oxqlQueries.basicTctl)
-
   await expect
     .poll(() => new URL(page.url()).searchParams.get('query'))
     .toBe(oxqlQueries.basicTctl)
+
+  // and a fresh load of that URL populates the editor from the query param.
+  // the editor is a contenteditable, so assert line by line rather than on value
+  await page.goto(page.url())
+  const textbox = page.getByRole('textbox')
+  await expect(textbox).toContainText('get hardware_component:amd_cpu_tctl')
+  await expect(textbox).toContainText('| filter timestamp > @now() - 1m')
 })

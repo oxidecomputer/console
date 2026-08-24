@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
-import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useController, useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
 import * as R from 'remeda'
@@ -26,10 +26,11 @@ import {
   type Values,
 } from '@oxide/api'
 import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { parseOxqlQueryError, stripCaretLine } from '~/components/oxql-error'
+import { codeSegment, parseOxqlQueryError, stripCaretLine } from '~/components/oxql-error'
 import { OxqlEditor } from '~/components/OxqlEditor'
 import {
   ChartContainer,
@@ -44,10 +45,13 @@ import { CardBlock } from '~/ui/lib/CardBlock'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { Divider } from '~/ui/lib/Divider'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { ErrorInlineCode } from '~/ui/lib/InlineCode'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TextInputError } from '~/ui/lib/TextInput'
+import { Tooltip } from '~/ui/lib/Tooltip'
+import { Truncate, truncate } from '~/ui/lib/Truncate'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pluralize } from '~/util/str'
@@ -168,7 +172,7 @@ const getAlignedTimestamps = (
 
 type Chart<Data> = {
   name: string
-  description?: string
+  description?: ReactNode
   timestamps: number[]
   data: Data
 }
@@ -185,9 +189,68 @@ type ChartGroup =
 
 const getFormattedFields = (t: Timeseries): string =>
   Object.entries(t.fields)
-    // hello my evil friend.
     .map(([fieldName, x]) => `${camelToSnake(fieldName)}: ${x.value}`)
-    .join(' \u2022 ')
+    .join(' / ')
+
+const FIELDS_SHOWN = 5
+// long enough for names/serials; a UUID (36 chars) gets middle-truncated
+const FIELD_VALUE_MAX_LEN = 24
+
+const FieldBadge = ({ fieldName, value }: { fieldName: string; value: string }) => {
+  const truncated = value.length > FIELD_VALUE_MAX_LEN
+  const badge = (
+    <Badge color="neutral">
+      <span className="opacity-60">{camelToSnake(fieldName)}</span>
+      <span className="ml-1">
+        {truncated ? truncate(value, FIELD_VALUE_MAX_LEN, 'middle') : value}
+      </span>
+    </Badge>
+  )
+  if (!truncated) return badge
+  return (
+    <Tooltip content={value} placement="top">
+      {/* Badge doesn't take a ref, so the tooltip needs a host element target */}
+      <span className="inline-flex">{badge}</span>
+    </Tooltip>
+  )
+}
+
+// JSX version of getFormattedFields for chart descriptions: each field is a
+// badge, capped at FIELDS_SHOWN with a +N tooltip listing the rest
+const FieldsList = ({ timeseries }: { timeseries: Timeseries }) => {
+  const fields = Object.entries(timeseries.fields)
+  const overflow = fields.slice(FIELDS_SHOWN)
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-1">
+      {fields.slice(0, FIELDS_SHOWN).map(([fieldName, x]) => (
+        <FieldBadge key={fieldName} fieldName={fieldName} value={String(x.value)} />
+      ))}
+      {overflow.length > 0 && (
+        <Tooltip
+          placement="bottom"
+          content={
+            <div className="-mx-2 grid grid-cols-[auto_minmax(0,1fr)] gap-y-1 *:first:border-0 *:first:pt-0 *:nth-[2]:border-0 *:nth-[2]:pt-0">
+              {overflow.map(([fieldName, x]) => (
+                <Fragment key={fieldName}>
+                  <span className="text-mono-sm text-tertiary border-default flex items-center border-t pt-1 pr-6 pl-2">
+                    {camelToSnake(fieldName)}
+                  </span>
+                  <Truncate
+                    text={String(x.value)}
+                    position="middle"
+                    className="border-default border-t pt-1 pr-4"
+                  />
+                </Fragment>
+              ))}
+            </div>
+          }
+        >
+          <div className="text-mono-sm target-4">+{overflow.length}</div>
+        </Tooltip>
+      )}
+    </div>
+  )
+}
 
 const tableToGroup = (table: OxqlTable): ChartGroup => {
   const { name, timeseries } = table
@@ -222,7 +285,7 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
         // no further
         charts: timeseries.map((series) => ({
           name,
-          description: getFormattedFields(series),
+          description: <FieldsList timeseries={series} />,
           timestamps: toPosix(series.points.timestamps),
           data: series.points.values.map((v, i) => ({
             label:
@@ -255,7 +318,7 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
         .filter((s) => s.points.values.length > 0)
         .map((series) => ({
           name,
-          description: getFormattedFields(series),
+          description: <FieldsList timeseries={series} />,
           timestamps: toPosix(series.points.timestamps),
           data: series.points.values[0],
         })),
@@ -431,7 +494,26 @@ function ChartEntry({ display, trim }: { display: ChartDisplay; trim: Trim }) {
   return (
     <>
       {match(display)
-        .with({ kind: 'empty' }, () => <p className="text-secondary">No results</p>)
+        .with({ kind: 'empty' }, () => (
+          <ChartContainer>
+            <SkeletonMetric>
+              {/* gradient uses the surface-default token so it works in both themes */}
+              <div
+                className="absolute bottom-0 z-0 h-full w-full"
+                style={{
+                  background:
+                    'linear-gradient(90deg, transparent 0%, var(--surface-default) 33%, var(--surface-default) 66%, transparent 100%)',
+                }}
+              />
+              <div className="z-10">
+                <EmptyMessage
+                  title="No results"
+                  body="Query returned no data. Try adjusting the query or expanding the time range"
+                />
+              </div>
+            </SkeletonMetric>
+          </ChartContainer>
+        ))
         .with({ kind: 'multiline' }, (r) => <MultilineChart display={r} trim={trim} />)
         .with({ kind: 'line' }, (r) => <LineChart display={r} trim={trim} />)
         .exhaustive()}
@@ -520,18 +602,17 @@ function ResultsSummary({ tables }: { tables: OxqlTable[] }) {
 // use for API errors elsewhere (e.g., side modal forms). role=alert announces
 // the failure to screen readers on arrival; mono + pre-wrap preserve the parse
 // errors' caret alignment.
-// The code-ish parts of an error message get inline code styling: the query
-// excerpt between fmt_parse_error's `..` markers (which stay outside the chip,
-// reading as ellipses), peg's double-quoted expected tokens, and the
-// backtick-quoted names in semantic errors. Split with a capture group, so
-// odd indices are the code segments.
-const codeSegment = /(\.\. [\s\S]*? \.\.|"[^"\n]*"|`[^`\n]*`)/
+// The code-ish parts of an error message get inline code styling via
+// codeSegment (see oxql-error.ts). The `..` excerpt markers stay outside the
+// chip, reading as ellipses.
 const ErrorMessage = ({ message }: { message: string }) => (
   <span className="whitespace-pre-wrap">
     {message.split(codeSegment).map((part, i) => {
       if (i % 2 === 0) return part
       // the chip delimits the code, so drop the markers/quotes around it
       const code = part.startsWith('.. ') ? part.slice(3, -3) : part.slice(1, -1)
+      // an empty chip is just visual noise; show the raw text instead
+      if (!code) return part
       return (
         <span key={i}>
           {part.startsWith('.. ') && '.. '}
