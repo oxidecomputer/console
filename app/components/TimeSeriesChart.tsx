@@ -44,7 +44,7 @@ type TimeSeriesChartProps = {
 }
 
 // this top margin is also in the chart, probably want a way of unifying the sizing between the two
-const SkeletonMetric = ({
+export const SkeletonMetric = ({
   children,
   shimmer = false,
   className,
@@ -364,7 +364,7 @@ const MetricsError = () => (
   />
 )
 
-const MetricsEmpty = () => (
+export const MetricsEmpty = () => (
   <MetricsMessage
     // mt-3 is a shameful hack to get it vertically centered in the chart
     title={<div className="mt-3">No data</div>}

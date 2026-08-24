@@ -29,7 +29,13 @@ import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/r
 import { DocsPopover } from '~/components/DocsPopover'
 import { OxqlField } from '~/components/form/fields/OxqlField'
 import { Heatmap } from '~/components/Heatmap'
-import { ChartContainer, ChartHeader, TimeSeriesChart } from '~/components/TimeSeriesChart'
+import {
+  ChartContainer,
+  ChartHeader,
+  SkeletonMetric,
+  MetricsEmpty,
+  TimeSeriesChart,
+} from '~/components/TimeSeriesChart'
 import { useElementSize } from '~/hooks/use-element-size'
 import { Button } from '~/ui/lib/Button'
 import { Divider } from '~/ui/lib/Divider'
@@ -525,7 +531,11 @@ function ChartEntry({ display, trim }: { display: ChartDisplay; trim: boolean })
         <div className="pt-8" />
       )}
       {match(display)
-        .with({ kind: 'empty' }, () => <p className="text-secondary">No results</p>)
+        .with({ kind: 'empty' }, () => (
+          <SkeletonMetric>
+            <MetricsEmpty />
+          </SkeletonMetric>
+        ))
         .with({ kind: 'multiline' }, (r) => <MultilineChart display={r} trim={trim} />)
         .with({ kind: 'line' }, (r) => <LineChart display={r} trim={trim} />)
         .with({ kind: 'heatmap' }, (r) => <HeatmapChart display={r} trim={trim} />)
