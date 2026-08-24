@@ -11,6 +11,8 @@ import { Command, ValidationError } from 'jsr:@cliffy/command@1.0.0'
 import { $ } from 'jsr:@david/dax@0.41.0'
 import { exists } from 'jsr:@std/fs@1.0'
 
+import { pickPr, resolveLocalCommit } from './common.ts'
+
 const REPO = 'oxidecomputer/console'
 const CACHE_ROOT = '/tmp/bundle-size-diff'
 const SMALL_CHANGE_KB = 0.05
@@ -24,19 +26,6 @@ type Pr = {
 type DiffTarget = {
   baseCommit: string
   headCommit: string
-}
-
-async function pickPr(): Promise<string> {
-  const selection = await $`gh pr list --repo ${REPO} --limit 100
-      --json number,title,updatedAt,author
-      --template '{{range .}}{{tablerow .number .title .author.name (timeago .updatedAt)}}{{end}}'`
-    .pipe($`fzf --height 25% --reverse`)
-    .text()
-  const prNumber = selection.match(/^\d+/)?.[0]
-  if (!prNumber) {
-    throw new Error('Expected the selected row to start with a PR number')
-  }
-  return prNumber
 }
 
 async function getPr(number: number): Promise<Pr> {
@@ -84,50 +73,13 @@ async function fetchMissingCommits(repoRoot: string, pr: Pr): Promise<void> {
   }
 }
 
-async function resolveLocalRef(repoRoot: string, ref: string): Promise<string> {
-  const isJj =
-    $.commandExistsSync('jj') &&
-    (await $`jj root`.cwd(repoRoot).noThrow().stdout('null').stderr('null')).code === 0
-
-  try {
-    if (isJj) {
-      const template = 'commit_id ++ "\\n"'
-      const commits = (
-        await $`jj log --revisions ${ref} --no-graph --template ${template}`
-          .cwd(repoRoot)
-          .stderr('null')
-          .text()
-      )
-        .trim()
-        .split('\n')
-        .filter(Boolean)
-      if (commits.length !== 1) {
-        throw new Error(`Revision '${ref}' resolved to ${commits.length} commits`)
-      }
-      return commits[0]
-    }
-
-    const rev = `${ref}^{commit}`
-    return (
-      await $`git rev-parse --verify ${rev}`.cwd(repoRoot).stderr('null').text()
-    ).trim()
-  } catch (e) {
-    if (e instanceof Error && e.message.startsWith('Revision')) throw e
-    throw new Error(`Could not resolve revision '${ref}'`)
-  }
-}
-
 async function resolveTarget(
   repoRoot: string,
   ref1?: string,
   ref2?: string
 ): Promise<DiffTarget> {
   if (ref1 === undefined) {
-    if (!$.commandExistsSync('gh')) throw new Error('Need gh (GitHub CLI)')
-    if (!$.commandExistsSync('fzf')) {
-      throw new Error('Need fzf to pick a PR, or pass a PR number')
-    }
-    ref1 = await pickPr()
+    ref1 = String(await pickPr(REPO))
   }
 
   if (ref2 === undefined) {
@@ -145,8 +97,8 @@ async function resolveTarget(
 
   // jj may snapshot the working copy while resolving a revision, so avoid
   // running two jj processes against it concurrently.
-  const baseCommit = await resolveLocalRef(repoRoot, ref1)
-  const headCommit = await resolveLocalRef(repoRoot, ref2)
+  const baseCommit = await resolveLocalCommit(repoRoot, ref1)
+  const headCommit = await resolveLocalCommit(repoRoot, ref2)
   return { baseCommit, headCommit }
 }
 
