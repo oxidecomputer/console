@@ -52,7 +52,6 @@ const getColorRamp = (): ColorRamp => {
     // TODO: looks nice in dark and decent in light. maybe we want a different
     // palette but it's a fine start
     v('--surface-raise'),
-    v('--surface-accent-secondary'),
     v('--content-accent'),
   ].filter((x) => x !== '')
   return {
