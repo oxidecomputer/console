@@ -35,8 +35,8 @@ export async function resolveLocalCommit(
   ref: string,
   isJj?: boolean
 ): Promise<string> {
-  isJj ??= await isJjRepository(repoRoot)
-  if (isJj) {
+  const useJj = isJj ?? (await isJjRepository(repoRoot))
+  if (useJj) {
     try {
       const template = 'commit_id ++ "\\n"'
       const commits = (

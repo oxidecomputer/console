@@ -78,26 +78,24 @@ async function resolveTarget(
   ref1?: string,
   ref2?: string
 ): Promise<DiffTarget> {
-  if (ref1 === undefined) {
-    ref1 = String(await pickPr(REPO))
-  }
+  const firstRef = ref1 ?? String(await pickPr(REPO))
 
   if (ref2 === undefined) {
-    if (!/^\d+$/.test(ref1)) {
+    if (!/^\d+$/.test(firstRef)) {
       throw new ValidationError(
         'A single argument must be a console PR number; pass two arguments to compare revisions'
       )
     }
     if (!$.commandExistsSync('gh')) throw new Error('Need gh (GitHub CLI)')
 
-    const pr = await getPr(Number(ref1))
+    const pr = await getPr(Number(firstRef))
     await fetchMissingCommits(repoRoot, pr)
     return { baseCommit: pr.baseRefOid, headCommit: pr.headRefOid }
   }
 
   // jj may snapshot the working copy while resolving a revision, so avoid
   // running two jj processes against it concurrently.
-  const baseCommit = await resolveLocalCommit(repoRoot, ref1)
+  const baseCommit = await resolveLocalCommit(repoRoot, firstRef)
   const headCommit = await resolveLocalCommit(repoRoot, ref2)
   return { baseCommit, headCommit }
 }
