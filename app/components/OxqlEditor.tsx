@@ -7,7 +7,8 @@
  */
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { bracketMatching } from '@codemirror/language'
-import { Compartment, RangeSetBuilder } from '@codemirror/state'
+import { setDiagnostics, type Diagnostic } from '@codemirror/lint'
+import { Compartment, RangeSetBuilder, type Text } from '@codemirror/state'
 import {
   Decoration,
   EditorView,
@@ -30,6 +31,7 @@ import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import type { TimeseriesSchema } from '@oxide/api'
 
 import { oxqlAutocomplete } from '~/components/oxql-autocomplete'
+import type { OxqlDiagnostic } from '~/components/oxql-error'
 
 // OxQL grammar copied from the design system so we can highlight queries
 // without pulling in its full asciidoc bundle. One addition over the source:
@@ -196,11 +198,40 @@ const cmTheme = EditorView.theme({
     marginLeft: '1rem',
   },
   '.cm-tooltip.cm-completionInfo': { padding: '4px 8px', maxWidth: '22rem' },
+  // the lint extension draws its underline as a data: URI background image,
+  // which our Content-Security-Policy blocks. Use a plain CSS wavy underline
+  '.cm-lintRange-error': {
+    backgroundImage: 'none',
+    textDecoration: 'underline wavy var(--content-destructive)',
+    textDecorationSkipInk: 'none',
+    textUnderlineOffset: '3px',
+  },
+  // hover tooltip for the diagnostic; the border color default is a hardcoded red
+  '.cm-tooltip .cm-diagnostic-error': {
+    borderLeftColor: 'var(--content-destructive)',
+  },
   // match the placeholder color of the regular text inputs
   '.cm-placeholder': { color: 'var(--content-tertiary)' },
   // placeholder region of an accepted snippet, e.g. mean_within(period)
   '.cm-snippetField': { backgroundColor: 'var(--surface-secondary)' },
 })
+
+// Convert a 1-based line:column server error position into a CodeMirror
+// diagnostic covering the offending token. Positions are clamped so a stale
+// or out-of-range position can't crash the editor.
+const toCmDiagnostic = (
+  doc: Text,
+  { line, column, message }: OxqlDiagnostic
+): Diagnostic => {
+  const lineInfo = doc.line(Math.max(1, Math.min(line, doc.lines)))
+  let from = Math.min(lineInfo.from + column - 1, lineInfo.to)
+  // underline through the end of the token under the caret, or one char minimum
+  const token = /^[@\w:]+/.exec(doc.sliceString(from, lineInfo.to))
+  const to = Math.min(from + (token?.[0].length || 1), lineInfo.to)
+  // at end of line there's nothing after the caret, so underline the char before
+  if (from === to) from = Math.max(lineInfo.from, to - 1)
+  return { from, to, severity: 'error', message }
+}
 
 const contentAttrs = (ariaLabel: string, error: boolean) =>
   EditorView.contentAttributes.of({
@@ -214,6 +245,8 @@ type OxqlEditorProps = {
   /** Called on cmd+enter / ctrl+enter */
   onSubmit: () => void
   error?: boolean
+  /** Server-reported parse error position, underlined in the editor */
+  diagnostic?: OxqlDiagnostic
   /** Timeseries schemas backing name and field completions. May load after mount. */
   schemas?: TimeseriesSchema[]
   'aria-label': string
@@ -225,6 +258,7 @@ export function OxqlEditor({
   onChange,
   onSubmit,
   error = false,
+  diagnostic,
   schemas,
   'aria-label': ariaLabel,
 }: OxqlEditorProps) {
@@ -293,6 +327,15 @@ export function OxqlEditor({
       effects: attrsCompartment.current.reconfigure(contentAttrs(ariaLabel, error)),
     })
   }, [ariaLabel, error])
+
+  // underline the position a server-side parse error points at. setDiagnostics
+  // pulls in the lint state on demand, so no linter extension is needed above
+  useEffect(() => {
+    const view = viewRef.current
+    if (!view) return
+    const diags = diagnostic ? [toCmDiagnostic(view.state.doc, diagnostic)] : []
+    view.dispatch(setDiagnostics(view.state, diags))
+  }, [diagnostic])
 
   return (
     <div

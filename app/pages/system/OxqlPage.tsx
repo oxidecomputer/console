@@ -29,6 +29,7 @@ import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/r
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import { parseOxqlQueryError, stripCaretLine } from '~/components/oxql-error'
 import { OxqlEditor } from '~/components/OxqlEditor'
 import {
   ChartContainer,
@@ -40,8 +41,10 @@ import { useElementSize } from '~/hooks/use-element-size'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
+import { Checkbox } from '~/ui/lib/Checkbox'
 import { Divider } from '~/ui/lib/Divider'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
+import { ErrorInlineCode } from '~/ui/lib/InlineCode'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TextInputError } from '~/ui/lib/TextInput'
@@ -513,6 +516,43 @@ function ResultsSummary({ tables }: { tables: OxqlTable[] }) {
   )
 }
 
+// Server-side query errors render below the editor in the same Message box we
+// use for API errors elsewhere (e.g., side modal forms). role=alert announces
+// the failure to screen readers on arrival; mono + pre-wrap preserve the parse
+// errors' caret alignment.
+// The code-ish parts of an error message get inline code styling: the query
+// excerpt between fmt_parse_error's `..` markers (which stay outside the chip,
+// reading as ellipses), peg's double-quoted expected tokens, and the
+// backtick-quoted names in semantic errors. Split with a capture group, so
+// odd indices are the code segments.
+const codeSegment = /(\.\. [\s\S]*? \.\.|"[^"\n]*"|`[^`\n]*`)/
+const ErrorMessage = ({ message }: { message: string }) => (
+  <span className="whitespace-pre-wrap">
+    {message.split(codeSegment).map((part, i) => {
+      if (i % 2 === 0) return part
+      // the chip delimits the code, so drop the markers/quotes around it
+      const code = part.startsWith('.. ') ? part.slice(3, -3) : part.slice(1, -1)
+      return (
+        <span key={i}>
+          {part.startsWith('.. ') && '.. '}
+          <ErrorInlineCode>{code}</ErrorInlineCode>
+          {part.startsWith('.. ') && ' ..'}
+        </span>
+      )
+    })}
+  </span>
+)
+
+const QueryError = ({ message }: { message: string }) => (
+  <div role="alert" className="mt-2">
+    <Message
+      variant="error"
+      title="Query failed"
+      content={<ErrorMessage message={stripCaretLine(message)} />}
+    />
+  </div>
+)
+
 // Rendered in every query state so the layout doesn't shift when results arrive
 const ResultsSection = ({ children }: { children: ReactNode }) => (
   <>
@@ -561,6 +601,13 @@ export default function OxqlPage() {
       }
     )
   }
+
+  // Parse errors carry a line:column position we can point at in the editor.
+  // Only show the diagnostic while the editor still holds the exact query that
+  // failed; as soon as the user edits, the position no longer applies.
+  const oxqlError = query.error ? parseOxqlQueryError(query.error.message) : null
+  const diagnostic =
+    oxqlError && field.value === query.variables?.body.query ? oxqlError : undefined
 
   const chartGroups: ChartGroup[] | null = useMemo(
     () => (query.data ? query.data.tables.map(tableToGroup) : null),
@@ -623,15 +670,18 @@ export default function OxqlPage() {
               <div>
                 <OxqlEditor
                   aria-label="OxQL query"
-                  error={!!fieldState.error}
+                  error={!!fieldState.error || query.status === 'error'}
+                  diagnostic={diagnostic}
                   value={field.value}
                   onChange={field.onChange}
                   onSubmit={() => form.handleSubmit(onSubmit)()}
                   schemas={schemas.data?.items}
                 />
-                {fieldState.error?.message && (
+                {fieldState.error?.message ? (
                   <TextInputError>{fieldState.error.message}</TextInputError>
-                )}
+                ) : query.error ? (
+                  <QueryError message={query.error.message} />
+                ) : null}
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-mono-sm text-tertiary mr-1">Examples</span>
@@ -655,7 +705,9 @@ export default function OxqlPage() {
       </div>
 
       {match(query)
-        .with({ status: 'idle' }, () => (
+        // on error the message renders below the editor, so the results
+        // section just shows the same empty chart as the idle state
+        .with({ status: 'idle' }, { status: 'error' }, () => (
           <ResultsSection>
             <ChartContainer>
               {/* the loading skeleton, minus the shimmer and bouncing indicator */}
@@ -677,27 +729,16 @@ export default function OxqlPage() {
             </ChartContainer>
           </ResultsSection>
         ))
-        .with({ status: 'error' }, (q) => (
-          <ResultsSection>
-            <Message
-              variant="error"
-              title="Query failed"
-              content={<span className="font-mono">{q.error.message}</span>}
-            />
-          </ResultsSection>
-        ))
         .with({ status: 'success' }, () => (
           <ResultsSection>
             {hasTrimmableCharts && (
               <div className="mb-2">
-                <label className="text-secondary flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={dropFirstPoint}
-                    onChange={(e) => setDropFirstPoint(e.target.checked)}
-                  />
+                <Checkbox
+                  checked={dropFirstPoint}
+                  onChange={(e) => setDropFirstPoint(e.target.checked)}
+                >
                   Drop first point
-                </label>
+                </Checkbox>
               </div>
             )}
             <div
@@ -710,7 +751,7 @@ export default function OxqlPage() {
                   key={item.key}
                   data-index={item.index}
                   ref={virtualizer.measureElement}
-                  className="absolute top-0 left-0 w-full"
+                  className="absolute top-0 left-0 w-full pb-4"
                   style={{ transform: `translateY(${item.start - scrollMargin}px)` }}
                 >
                   <ChartEntry display={charts[item.index]} trim={trim} />

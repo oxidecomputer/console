@@ -596,7 +596,8 @@ const getVibe = (query: string): OxqlVibe => {
   const [firstTable, ...moreTables] = [...query.matchAll(/get ([a-z_]+:[a-z_]+)/g)].map(
     (m) => m[1] as OxqlMetricName
   )
-  if (!firstTable) throw new Error(`no "get <table>" found in query: ${query}`)
+  // a query with no `get` can't parse, and the caret goes at the very start
+  if (!firstTable) throw fmtOxqlParseError(query, 0, 'one of "get", "{"')
 
   const alignment = query.match(/\bjoin\b/)
     ? 'joined'
@@ -675,7 +676,43 @@ function getMultipleTables(vibe: OxqlVibe) {
     .exhaustive()
 }
 
+/**
+ * Faithful port of omicron's `fmt_parse_error` so the mock's OxQL parse errors
+ * look exactly like real ones: an `Error at <line>:<column>` header with a
+ * context excerpt, a caret line pointing at the failure, and an `Expected:`
+ * line (whose peg Display repeats the position). Thrown as a string so the
+ * handler wrapper turns it into a 400 like Nexus's `invalid_request`.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/oximeter/db/src/oxql/mod.rs
+ */
+export function fmtOxqlParseError(source: string, offset: number, expected: string) {
+  const before = source.slice(0, offset)
+  const line = before.split('\n').length
+  const column = offset - before.lastIndexOf('\n')
+  let out = `Error at ${line}:${column}`
+  const context = 24
+  const start = Math.max(0, offset - context)
+  const end = Math.min(source.length, offset + context)
+  const prefixLen = out.length + 2
+  out += `: .. ${source.slice(start, end)} ..\n`
+  const leftPad = offset - start + 3 + prefixLen
+  const rightPad = end - offset + 3 + prefixLen
+  out += `${' '.repeat(leftPad)}^${' '.repeat(rightPad)}\n`
+  out += `Expected: error at ${line}:${column}: expected ${expected}\n`
+  return out
+}
+
 export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryResult> {
+  // Sentinel for exercising the console's parse error handling: `oops`
+  // anywhere in a query fails with a realistic parse error pointing at it
+  const oops = query.indexOf('oops')
+  if (oops !== -1) {
+    throw fmtOxqlParseError(
+      query,
+      oops,
+      'one of "align", "filter", "first", "get", "group_by", "join", "last"'
+    )
+  }
+
   const vibe = getVibe(query)
 
   if (vibe.moreTables.length > 0) return getMultipleTables(vibe)

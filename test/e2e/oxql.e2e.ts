@@ -18,7 +18,7 @@ const runQuery = async (page: Page, query?: string) => {
   const loading = page.getByLabel('Chart loading')
   await expect(loading).toBeVisible()
   await expect(loading).toBeHidden()
-  await expect(page.getByText('Query failed')).toBeHidden()
+  await expect(page.getByRole('alert')).toBeHidden()
 }
 
 test.beforeEach(async ({ page }) => {
@@ -204,11 +204,39 @@ test('empty query is blocked by client-side validation', async ({ page }) => {
 test('a query the backend rejects surfaces an error instead of a chart', async ({
   page,
 }) => {
-  await page.getByRole('textbox').fill('junk junk junk!')
+  const textbox = page.getByRole('textbox')
+  await textbox.fill('junk junk junk!')
   await page.getByRole('button', { name: 'Run query' }).click()
 
-  await expect(page.getByText('Query failed')).toBeVisible()
+  // the server's parse error is shown below the editor, minus the caret
+  // line, which assumes a monospace terminal
+  const error = page.getByRole('alert')
+  await expect(error).toContainText('Error at 1:1')
+  await expect(error).toContainText('Expected: error at 1:1')
+  await expect(error).not.toContainText('^')
+  // and the editor border turns red
+  await expect(textbox).toHaveAttribute('aria-invalid', 'true')
   await expect(page.getByRole('figure')).toHaveCount(0)
+})
+
+test('parse errors underline the offending spot in the editor', async ({ page }) => {
+  const textbox = page.getByRole('textbox')
+  await textbox.fill('get sled_data_link:bytes_sent | oops')
+  await page.getByRole('button', { name: 'Run query' }).click()
+
+  await expect(page.getByRole('alert')).toBeVisible()
+
+  // CM lint underlines have no semantic representation, so target the class
+  const underlined = page.locator('.cm-lintRange-error')
+  await expect(underlined).toHaveText('oops')
+  // guard against the underline existing but not rendering: the lint default
+  // is a data: URI background image, which our CSP blocks, so we draw a CSS
+  // underline instead
+  await expect(underlined).toHaveCSS('text-decoration-line', 'underline')
+
+  // editing the query invalidates the position, clearing the underline
+  await textbox.pressSequentially('x')
+  await expect(underlined).toBeHidden()
 })
 
 test('pages reads the initial query from the URL', async ({ page }) => {

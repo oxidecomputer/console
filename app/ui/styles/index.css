@@ -105,6 +105,19 @@
   margin-right: var(--content-gutter);
 }
 
+/* Inline code chip that takes its tint from the surrounding text color, so it
+   works on any background (e.g., inside an error message) */
+@utility inline-code {
+  font-size: 0.825em;
+  letter-spacing: 0;
+  vertical-align: 1px;
+  margin: 0 1px;
+  padding: 0 0.125rem;
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+  border-radius: var(--radius-md);
+}
+
 @utility link-with-underline {
   @apply text-raise;
   text-decoration: underline;
