@@ -18,6 +18,33 @@
         # as long as the major.minor version matches, we'll have compatible browsers.
         npmPlaywrightVersion =
             (lib.importJSON ./package-lock.json).packages."node_modules/@playwright/test".version;
+
+        node = pkgs.nodejs_22;
+
+        # nodejs_x doesn't always bundle the npm/npx you want. but npm and npx
+        # are just scripts bundled with node, so they're easy to shadow
+        npm = pkgs.stdenvNoCC.mkDerivation rec {
+          pname = "npm";
+          version = "12.0.2";
+          src = pkgs.fetchurl {
+            url = "https://registry.npmjs.org/npm/-/npm-${version}.tgz";
+            hash = "sha256-XbuGxx0HoZV/LpBzQJLdali9zZ68LY1ByhxuaiHTZOE=";
+          };
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          dontBuild = true;
+          installPhase = ''
+            mkdir -p $out/lib/node_modules/npm
+            cp -r . $out/lib/node_modules/npm
+            for cli in npm npx; do
+              entry=$out/lib/node_modules/npm/bin/$cli-cli.js
+              if [ ! -f "$entry" ]; then
+                echo "npm/x issue: expected entry point $entry wasn't found. The npm tarball layout may have changed." >&2
+                exit 1
+              fi
+              makeWrapper ${node}/bin/node $out/bin/$cli --add-flags "$entry"
+            done
+          '';
+        };
       in
       {
         devShells.default =
@@ -30,7 +57,9 @@
           '';
           pkgs.mkShell {
             packages = [
-              pkgs.nodejs_22
+              # npm needs to come first to shadow the npm/npx commands
+              npm
+              node
             ];
             env = {
               PLAYWRIGHT_BROWSERS_PATH = "${playwrightDriver.browsers}";
@@ -38,7 +67,7 @@
               # PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true";
             };
             shellHook = ''
-              echo "Node $(node --version)"
+              echo "Node $(node --version), npm $(npm --version)"
             '';
           };
       }
