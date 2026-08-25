@@ -36,8 +36,8 @@ type ColorRamp = {
 // [CSS variable, fallback] pairs. Fallbacks cover the unlikely case the theme
 // variables are missing.
 const RAMP_STOPS = [
-  ['--theme-neutral-300', 'oklch(0.195 0.009 260)'],
-  ['--theme-accent-800', 'oklch(0.77 0.1919 163.7)'],
+  ['--surface-accent', 'oklch(0.24 0.0722 183.7)'],
+  ['--content-accent', 'oklch(0.77 0.1919 163.7)'],
 ] as const
 
 // Interpolates the color between the two closest stops, for 0 <= t <= 1.
