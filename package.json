@@ -43,7 +43,7 @@
     "@codemirror/view": "^6.43.9",
     "@floating-ui/react": "^0.26.23",
     "@headlessui/react": "^2.2.9",
-    "@oxide/design-system": "^6.5.4-canary.fb43c60",
+    "@oxide/design-system": "^6.6.0",
     "@peculiar/x509": "^1.12.3",
     "@react-aria/live-announcer": "^3.3.4",
     "@tailwindcss/container-queries": "^0.1.1",
