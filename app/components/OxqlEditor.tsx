@@ -16,6 +16,7 @@ import {
 } from '@codemirror/state'
 import {
   Decoration,
+  drawSelection,
   EditorView,
   highlightActiveLine,
   keymap,
@@ -189,6 +190,10 @@ export function OxqlEditor({
         ]),
         EditorView.lineWrapping,
         placeholder('get sled_data_link:bytes_sent | filter timestamp > @now() - 5m'),
+        // draw the cursor and selection ourselves. Firefox puts the native
+        // caret in the wrong spot when the doc is empty and the line contains
+        // only the placeholder widget
+        drawSelection(),
         highlightActiveLine(),
         bracketMatching(),
         oxqlAutocomplete(() => schemasRef.current ?? []),

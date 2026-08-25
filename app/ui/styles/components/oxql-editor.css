@@ -29,7 +29,6 @@
   .cm-content {
     font-family: inherit;
     padding: 10px 0;
-    caret-color: var(--syntax-fg);
   }
 
   .cm-line {
@@ -39,9 +38,18 @@
     @apply text-mono-sm;
   }
 
+  /* drawSelection() hides the native caret and selection and draws its own */
   .cm-cursor,
   .cm-dropCursor {
     border-left-color: var(--syntax-fg);
+  }
+
+  /*
+   * Matches the global ::selection color in index.css. CodeMirror's own
+   * focused-selection rule is unusually specific, hence the repeated class.
+   */
+  .cm-scroller .cm-selectionLayer .cm-selectionBackground.cm-selectionBackground {
+    @apply bg-accent-inverse/30;
   }
 
   .cm-activeLine {

@@ -222,3 +222,16 @@ test('query round-trips through the URL', async ({ page }) => {
   await expect(textbox).toContainText('get hardware_component:amd_cpu_tctl')
   await expect(textbox).toContainText('| filter timestamp > @now() - 1m')
 })
+
+test('cursor sits at the start of the line when the query is empty', async ({ page }) => {
+  // CodeMirror draws its own cursor because Firefox puts the native caret in
+  // the wrong spot when the line contains nothing but the placeholder widget.
+  // The cursor has no semantic representation, so target the class.
+  await page.getByRole('textbox').click()
+  const cursor = await page.locator('.cm-cursor').boundingBox()
+  const placeholder = await page.locator('.cm-placeholder').boundingBox()
+
+  // the cursor sits where the placeholder text starts, give or take its own width
+  expect(Math.abs(cursor!.x - placeholder!.x)).toBeLessThan(2)
+  expect(cursor!.y).toEqual(placeholder!.y)
+})
