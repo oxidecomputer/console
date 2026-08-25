@@ -22,8 +22,11 @@ import type { TimeseriesSchema } from '@oxide/api'
 // The OxQL language surface below comes from RFD 463
 // https://rfd.shared.oxide.computer/rfd/463
 
-const tableOps: Completion[] = [
-  { label: 'get', info: 'Retrieve a table by its timeseries name' },
+// every query/subquery starts with `get`, and `get` cannot appear again after
+// a pipe, so it is offered separately from the other table operations
+const getOp: Completion = { label: 'get', info: 'Retrieve a table by its timeseries name' }
+
+const pipeOps: Completion[] = [
   { label: 'filter', info: 'Filter timeseries by field values or timestamps' },
   { label: 'align', info: "Temporally align a table's samples" },
   {
@@ -47,21 +50,86 @@ const reducers: Completion[] = [
   { label: 'sum', info: 'Sum the values in each group' },
 ]
 
+const atNow: Completion = {
+  label: '@now()',
+  info: 'The current time, e.g. timestamp > @now() - 1m',
+}
+
+// completable literals for the right-hand side of a filter comparison
+const literals: Completion[] = [atNow, { label: 'true' }, { label: 'false' }]
+
 // identifiers that are valid in filter expressions alongside field names
 const filterExtras: Completion[] = [
   { label: 'timestamp', info: 'The timestamp of each sample' },
   { label: 'start_time', info: 'The start time of each cumulative sample' },
-  { label: '@now()', info: 'The current time, e.g. timestamp > @now() - 1m' },
+  { label: 'datum', info: 'The value of each sample' },
 ]
+
+/**
+ * Walk the document up to `pos`, skipping string literals, to find (1) whether
+ * the cursor is inside an unterminated string, (2) where the current clause
+ * starts (last `|`/`{`/`;`/`}` outside strings, with `||` ignored), and
+ * (3) where the innermost query branch containing the cursor starts: a `{`
+ * opens a subquery, `;` starts a sibling branch, and `}` returns to the
+ * enclosing query's scope.
+ */
+const scanQuery = (doc: string, pos: number) => {
+  let quote: string | null = null
+  let escaped = false
+  let clauseStart = 0
+  let scopeStart = 0
+  const enclosingScopes: number[] = []
+  for (let i = 0; i < pos; i++) {
+    const c = doc[i]
+    if (escaped) {
+      escaped = false
+      continue
+    }
+    if (quote) {
+      if (c === '\\') escaped = true
+      else if (c === quote) quote = null
+      continue
+    }
+    switch (c) {
+      case "'":
+      case '"':
+        quote = c
+        break
+      case '|':
+        // logical || is not a clause boundary
+        if (doc[i + 1] === '|') i++
+        else clauseStart = i + 1
+        break
+      case '{':
+        enclosingScopes.push(scopeStart)
+        scopeStart = i + 1
+        clauseStart = i + 1
+        break
+      case ';':
+        scopeStart = i + 1
+        clauseStart = i + 1
+        break
+      case '}':
+        scopeStart = enclosingScopes.pop() ?? 0
+        clauseStart = i + 1
+        break
+    }
+  }
+  return { inString: quote !== null, clauseStart, scopeStart }
+}
 
 const fieldCompletions = (
   context: CompletionContext,
+  scopeStart: number,
   schemas: TimeseriesSchema[]
 ): Completion[] => {
-  // offer the fields of every timeseries the query `get`s, deduped by name
-  // since subquery filters can apply across tables
-  const doc = context.state.doc.toString()
-  const named = new Set(Array.from(doc.matchAll(/\bget\s+([\w:]+)/g), (m) => m[1]))
+  // offer the fields of every timeseries the innermost query branch `get`s,
+  // deduped by name since subquery filters can apply across tables. Blank out
+  // string literals so quoted text can't contribute a phantom `get`
+  const scope = context.state
+    .sliceDoc(scopeStart, context.pos)
+    .replace(/'[^']*'|"[^"]*"/g, '')
+  const named = new Set(Array.from(scope.matchAll(/\bget\s+([\w:]+)/g), (m) => m[1]))
   const seen = new Set<string>()
   const options: Completion[] = []
   for (const schema of schemas) {
@@ -95,16 +163,13 @@ export const oxqlCompletionSource =
     const word = context.matchBefore(/[@\w:]*/)
     if (!word) return null
 
-    const before = context.state
-      .sliceDoc(0, context.pos)
-      // blank out logical operators (preserving length) so `filter a == 1 || b`
-      // reads as one filter clause when we split on pipes below
-      .replaceAll('||', '  ')
-    // clauses are delimited by pipes and, in subqueries, braces and semicolons
-    const clauseStart =
-      Math.max(before.lastIndexOf('|'), before.lastIndexOf('{'), before.lastIndexOf(';')) +
-      1
-    const clause = before.slice(clauseStart)
+    const doc = context.state.doc.toString()
+    const { inString, clauseStart, scopeStart } = scanQuery(doc, context.pos)
+
+    // no completions inside a string literal
+    if (inString) return null
+
+    const clause = doc.slice(clauseStart, context.pos)
 
     const result = (options: Completion[]): CompletionResult | null =>
       options.length > 0 ? { from: word.from, options, validFor: /^[@\w:]*$/ } : null
@@ -118,17 +183,36 @@ export const oxqlCompletionSource =
 
     // inside group_by's bracket list → fields; after the list and a comma → reducers
     if (/^\s*group_by\s*\[[^\]]*$/.test(clause)) {
-      return result(fieldCompletions(context, getSchemas()))
+      return result(fieldCompletions(context, scopeStart, getSchemas()))
     }
     if (/^\s*group_by\s*\[[^\]]*\]\s*,\s*\w*$/.test(clause)) return result(reducers)
 
-    // anywhere in a filter expression, offer fields and time identifiers
     if (/^\s*filter\b/.test(clause)) {
-      return result([...fieldCompletions(context, getSchemas()), ...filterExtras])
+      // comparisons are strictly `ident op literal`, so each cursor position
+      // allows exactly one kind of completion. Right after a comparison
+      // operator, only literals are legal
+      if (/(?:==|!=|>=|<=|<|>|~=)\s*[@\w:]*$/.test(clause)) return result(literals)
+      // identifiers are legal only at the start of a boolean operand: after
+      // `filter` itself, a logical operator, an open paren, or negation
+      if (/(?:\bfilter|&&|\|\||\^|\(|!)\s*[@\w:]*$/.test(clause)) {
+        return result([
+          ...fieldCompletions(context, scopeStart, getSchemas()),
+          ...filterExtras,
+        ])
+      }
+      // any other position (after a complete literal or identifier, closing
+      // paren, etc.) expects an operator, which we don't complete
+      return null
     }
 
-    // otherwise, if we're at the start of a clause, offer table operations
-    if (/^\s*\w*$/.test(clause)) return result(tableOps)
+    // otherwise, at the start of a clause, offer `get` if this is the first
+    // clause of a query branch and the other table operations after a pipe.
+    // Known quirk: right after `}` only a pipe is legal, but we offer ops
+    // anyway — distinguishing that case means tracking boundary kind in the
+    // scanner, more state than this heuristic approach warrants
+    if (/^\s*\w*$/.test(clause)) {
+      return result(clauseStart === scopeStart ? [getOp] : pipeOps)
+    }
 
     return null
   }
