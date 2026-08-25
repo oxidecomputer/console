@@ -1,0 +1,40 @@
+name: Set up Node and npm
+description: >
+  Install Node, pin npm to the version we like, and cache the npm download
+  directory. setup-node@v6 caching uses the bundled-with-node version of npm,
+  which may not (and does not at time of writing) match our required version.
+  This action is meant to use our preferred npm version and otherwise behave
+  the same as setup-node@v6.
+
+inputs:
+  node-version:
+    description: Node version to install
+    default: '22'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+        # setup-node@v6 caching uses the bundled-with-node version of npm, which
+        # may not match our required version.
+        #
+        # See https://github.com/actions/setup-node/issues/1553
+        package-manager-cache: false
+    - name: Use npm 12
+      shell: bash
+      run: npm install --global npm@12
+
+      # Caching workaround from https://github.com/actions/setup-node/issues/1553
+    - name: Specify npm cache directory
+      id: npm-cache
+      shell: bash
+      run: echo "dir=$(npm config get cache)" >> "$GITHUB_OUTPUT"
+    - name: Use npm cache
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.npm-cache.outputs.dir }}
+        key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
