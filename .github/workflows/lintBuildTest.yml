@@ -19,6 +19,8 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+      - name: Use npm 12
+        run: npm install --global npm@12
       - name: Cache node_modules
         uses: actions/cache@v5
         id: cache-node-modules
@@ -38,6 +40,8 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+      - name: Use npm 12
+        run: npm install --global npm@12
       - name: Get node_modules from cache
         uses: actions/cache@v5
         id: cache-node-modules
@@ -75,6 +79,8 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+      - name: Use npm 12
+        run: npm install --global npm@12
       - name: Get node_modules from cache
         uses: actions/cache@v5
         with:

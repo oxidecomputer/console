@@ -14,6 +14,8 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+      - name: Use npm 12
+        run: npm install --global npm@12
       - name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v3'
         with:
