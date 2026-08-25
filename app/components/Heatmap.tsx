@@ -33,6 +33,13 @@ type ColorRamp = {
   stops: string[]
 }
 
+// [CSS variable, fallback] pairs. Fallbacks cover the unlikely case the theme
+// variables are missing.
+const RAMP_STOPS = [
+  ['--theme-neutral-300', 'oklch(0.195 0.009 260)'],
+  ['--theme-accent-800', 'oklch(0.77 0.1919 163.7)'],
+] as const
+
 // Interpolates the color between the two closest stops, for 0 <= t <= 1.
 const rampColor = ({ stops }: ColorRamp, t: number): string => {
   const clamped = R.clamp(t, { min: 0, max: 1 })
@@ -45,21 +52,14 @@ const rampColor = ({ stops }: ColorRamp, t: number): string => {
   return `color-mix(in oklch, ${from} ${(1 - lerp) * 100}%, ${to})`
 }
 
-const getColorRamp = (): ColorRamp => {
-  const style = getComputedStyle(document.body)
-  const v = (name: string) => style.getPropertyValue(name).trim()
-  const stops = [
-    // TODO: looks nice in dark and decent in light. maybe we want a different
-    // palette but it's a fine start
-    v('--surface-raise'),
-    v('--content-accent'),
-  ].filter((x) => x !== '')
+// grabbing style from the chart root instead of document body
+// that way it can be themed e.g. `yellow-theme`
+const getColorRamp = (el: Element): ColorRamp => {
+  const style = getComputedStyle(el)
   return {
-    stops:
-      stops.length >= 2
-        ? stops
-        : // for the unlikely case the theme colors don't parse into oklch
-          ['oklch(0.195, 0.009, 260)', 'oklch(0.77, 0.1919, 163.7)'],
+    stops: RAMP_STOPS.map(
+      ([name, fallback]) => style.getPropertyValue(name).trim() || fallback
+    ),
   }
 }
 
@@ -104,7 +104,6 @@ export function Heatmap({
   unit,
 }: HeatmapProps) {
   const theme = useChartTheme()
-  const colorRamp = useMemo(getColorRamp, [theme])
   const [hover, setHover] = useState<Hover | null>(null)
 
   // All distributions in a timeseries share the same bucket definition, so we
@@ -130,6 +129,7 @@ export function Heatmap({
   const drawCells = useMemo(
     () => (u: uPlot) => {
       if (binCount === 0 || colCount === 0) return
+      const colorRamp = getColorRamp(u.root)
       const ctx = u.ctx
       ctx.save()
       ctx.beginPath()
@@ -157,7 +157,7 @@ export function Heatmap({
       })
       ctx.restore()
     },
-    [distributions, leftEdges, rightEdges, colCount, binCount, maxSampleCount, colorRamp]
+    [distributions, leftEdges, rightEdges, colCount, binCount, maxSampleCount]
   )
 
   const tooltipPlugin = useMemo<uPlot.Plugin>(
@@ -302,13 +302,7 @@ export function Heatmap({
       chartOptions={chartOptions}
       data={data}
       uRef={uRef}
-      legend={
-        <HeatmapLegend
-          ramp={colorRamp}
-          maxSampleCount={maxSampleCount}
-          axisText={theme.axisText}
-        />
-      }
+      legend={<HeatmapLegend maxSampleCount={maxSampleCount} axisText={theme.axisText} />}
     >
       {hover && (
         <>
@@ -343,21 +337,25 @@ export function Heatmap({
 }
 
 function HeatmapLegend({
-  ramp,
   maxSampleCount,
   axisText,
 }: {
-  ramp: ColorRamp
   maxSampleCount: number
   axisText: string
 }) {
-  const backgroundImage = `linear-gradient(in oklch to right, ${ramp.stops.join(', ')})`
   return (
     <div className="mt-3 flex items-center gap-2 pl-5">
       <span className="text-mono-xs" style={{ color: axisText }}>
         0
       </span>
-      <div className="h-3 w-32 rounded-sm" style={{ backgroundImage }}></div>
+      <div
+        className="h-3 w-32 rounded-sm"
+        style={{
+          backgroundImage: `linear-gradient(in oklch to right, ${RAMP_STOPS.map(
+            ([name, fallback]) => `var(${name}, ${fallback})`
+          ).join(', ')})`,
+        }}
+      ></div>
       <span className="text-mono-xs" style={{ color: axisText }}>
         {maxSampleCount.toLocaleString()}
       </span>
