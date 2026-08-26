@@ -41,7 +41,7 @@ The web console has no special privileges as an API consumer. Logging in sets a 
 - [oxide.ts](https://github.com/oxidecomputer/oxide.ts) generates an API client from [Nexus's OpenAPI spec](https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json)
 - Testing
   - [Mock Service Worker](https://mswjs.io/) for mock API server
-  - [Vitest](https://vitest.dev/) for unit tests
+  - [Vitest](https://vitest.dev/) for unit tests, with [Browser Mode](https://vitest.dev/guide/browser/) for component tests
   - [Playwright](https://playwright.dev/) for E2E browser tests
 
 ## Directory structure

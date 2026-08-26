@@ -51,7 +51,7 @@ it('mock-api is only referenced in test files', () => {
   expect(grepFiles('api-mocks')).toMatchInlineSnapshot(`
     [
       "AGENTS.md",
-      "app/api/__tests__/client.spec.ts",
+      "app/api/__tests__/client.browser.spec.ts",
       "mock-api/msw/db.ts",
       "test/e2e/fleet-access.e2e.ts",
       "test/e2e/instance-create.e2e.ts",
@@ -67,13 +67,12 @@ it('mock-api is only referenced in test files', () => {
     [
       "AGENTS.md",
       "README.md",
-      "app/api/__tests__/client.spec.ts",
+      "app/api/__tests__/client.browser.spec.ts",
       "app/main.tsx",
       "app/msw-mock-api.ts",
       "docs/mock-api-differences.md",
       "package.json",
       "test/e2e/utils.ts",
-      "test/unit/server.ts",
       "tools/start_mock_api.ts",
       "tsconfig.json",
     ]

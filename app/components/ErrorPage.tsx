@@ -10,8 +10,7 @@ import { Link } from 'react-router'
 
 import { Error12Icon, PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
-import { api, useApiMutation } from '~/api/client'
-import { navToLogin } from '~/api/nav-to-login'
+import { api, navToLogin, useApiMutation } from '~/api/client'
 import { Button } from '~/ui/lib/Button'
 
 const GradientBackground = () => (

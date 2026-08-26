@@ -29,7 +29,7 @@
 - Cover role-gated flows by logging in with `getPageAsUser`; exercise negative paths (e.g., forbidden actions) alongside happy paths as shown in `test/e2e/system-update.e2e.ts`.
 - Consider `expectVisible` and `expectNotVisible` deprecated: prefer `expect().toBeVisible()` and `toBeHidden()` in new code.
 - When UI needs new mock behavior, extend the MSW handlers/db minimally so E2E tests stay deterministic; prefer storing full API responses so subsequent calls see the updated state (`mock-api/msw/db.ts`, `mock-api/msw/handlers.ts`).
-- Co-locate Vitest specs next to the code they cover; use Testing Library utilities (`render`, `renderHook`, `fireEvent`, fake timers) to assert observable output rather than implementation details (`app/ui/lib/FileInput.spec.tsx`, `app/hooks/use-pagination.spec.ts`).
+- Co-locate Vitest specs next to the code they cover. Plain `.spec.ts` files run in node with no DOM, so keep them to pure logic. Anything that renders a component or touches a browser API goes in a `.browser.spec.tsx` file, which runs in real browsers via Vitest Browser Mode — use `vitest-browser-react`'s async `render`/`renderHook` (`app/ui/lib/FileInput.browser.spec.tsx`, `app/hooks/use-pagination.browser.spec.ts`).
 - Treat Vitest browser specs as small e2e tests: query by accessible role, label, or visible text and use retrying browser matchers. Avoid selectors coupled to CSS classes or internal DOM structure; inspect layout or computed styles only when the behavior has no semantic representation.
 - For sweeping styling changes, coordinate with the visual regression harness and follow `test/visual/README.md` for the workflow.
 - Fix root causes of flaky timing rather than adding `sleep()` workarounds in tests.
