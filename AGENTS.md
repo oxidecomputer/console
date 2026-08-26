@@ -33,6 +33,7 @@
 - Treat Vitest browser specs as small e2e tests: query by accessible role, label, or visible text and use retrying browser matchers. Avoid selectors coupled to CSS classes or internal DOM structure; inspect layout or computed styles only when the behavior has no semantic representation.
 - For sweeping styling changes, coordinate with the visual regression harness and follow `test/visual/README.md` for the workflow.
 - Fix root causes of flaky timing rather than adding `sleep()` workarounds in tests.
+- When an intermittent browser or E2E failure does not reproduce under normal repetition, retry under controlled CPU contention before concluding it is CI-only. Keep the load bounded so the browser and test runner can still make progress, enable failure-only traces when available, and use a shell trap to clean up every churn process.
 - Local Playwright runs write a compact plain-text report to `.e2e-logs/` (gitignored, one timestamped `.log` per run, last 10 kept) via the custom reporter at `test/e2e/compact-reporter.ts`. Top line is `status: ... total=N passed=N ...`; each failure is a `── UNEXPECTED|FLAKY file:line title` block followed by the error (ANSI stripped). Latest run: `ls .e2e-logs | tail -1` — Read it directly, no parsing needed.
 
 # Data fetching pattern
