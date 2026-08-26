@@ -52,6 +52,7 @@ import {
   timeseriesFrom,
   resultFrom,
   getMockValues,
+  getHistoPoints,
 } from '../oxql-metrics'
 import { db, lookupById } from './db'
 import { Rando } from './rando'
@@ -675,8 +676,23 @@ function getMultipleTables(vibe: OxqlVibe) {
     .exhaustive()
 }
 
+const histogramTables = new Set([
+  'virtual_disk:io_latency',
+  'virtual_disk:io_size',
+  'http_service:request_latency_histogram',
+  'oximeter_collector:database_queue_depth',
+])
+
 export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryResult> {
   const vibe = getVibe(query)
+
+  if (histogramTables.has(vibe.firstTable))
+    return resultFrom([
+      {
+        name: vibe.firstTable,
+        timeseries: [timeseriesFrom(instances[0].id, getHistoPoints())],
+      },
+    ])
 
   if (vibe.moreTables.length > 0) return getMultipleTables(vibe)
 
