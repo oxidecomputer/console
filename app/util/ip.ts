@@ -137,6 +137,32 @@ export function validateIpNet(ipNet: string): string | undefined {
   if (result.type === 'error') return result.message
 }
 
+// The API requires a VPC IPv6 prefix to be a unique local address (fc00::/7)
+// with a width of exactly 48. Anything else is rejected on create.
+// https://github.com/oxidecomputer/omicron/blob/6db4c7e/common/src/api/external/mod.rs#L1287-L1288
+// https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-model/src/vpc.rs#L86-L98
+export const VPC_IPV6_PREFIX_WIDTH = 48
+
+/** First hextet of a valid IPv6 address, e.g. 0xfd00 for `fd00::1` or `fd00::` */
+function firstHextet(address: string): number {
+  // a leading `::` means the first hextet is zero
+  if (address.startsWith(':')) return 0
+  return parseInt(address.split(':', 1)[0], 16)
+}
+
+export function validateVpcIpv6Prefix(value: string): string | undefined {
+  const result = parseIpNet(value)
+  if (result.type === 'error') return result.message
+  if (result.type !== 'v6') return 'Must be an IPv6 prefix'
+  // Rust's `Ipv6Addr::is_unique_local` checks fc00::/7
+  if ((firstHextet(result.address) & 0xfe00) !== 0xfc00) {
+    return 'Must be a unique local address (fc00::/7)'
+  }
+  if (result.width !== VPC_IPV6_PREFIX_WIDTH) {
+    return `Width must be ${VPC_IPV6_PREFIX_WIDTH}`
+  }
+}
+
 /**
  * Get compatible IP versions from an instance's NICs. External IPs route
  * through the primary interface, so only its IP stack matters.
