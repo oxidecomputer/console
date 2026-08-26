@@ -83,7 +83,7 @@ export type EditRoleModalProps<Role extends RoleKey = RoleKey> = AddRoleModalPro
   name?: string
   identityId: string
   identityType: IdentityType
-  defaultValues: { roleName: Role }
+  defaultValues: { roleName?: Role }
 }
 
 const AccessDocs = () => (
