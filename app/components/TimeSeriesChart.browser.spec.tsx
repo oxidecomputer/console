@@ -5,37 +5,48 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect, type ComponentProps } from 'react'
-import UplotReactComponent from 'uplot-react'
-import { describe, expect, test, vi } from 'vitest'
+import type uPlot from 'uplot'
+import { describe, expect, test, vi, type MockInstance } from 'vitest'
 import { render } from 'vitest-browser-react'
 
 import { TimeSeriesChart } from './TimeSeriesChart'
 
-const redraw = vi.fn()
+const defaultData = [
+  { timestamp: 0, value: 10 },
+  { timestamp: 1000, value: 20 },
+]
 
-const dataPropsPassed: unknown[] = []
+const props = (yAxisTickFormatter: (v: number) => string, data = defaultData) => ({
+  data,
+  title: 'CPU',
+  startTime: new Date(0),
+  endTime: new Date(3_600_000),
+  yAxisTickFormatter,
+  loading: false,
+})
 
-// mock a fixed container size so the chart mounts immediately and
-// deterministically instead of waiting on real layout measurement
-vi.mock('~/hooks/use-element-size', () => ({
-  useElementSize: () => [{ width: 600, height: 300 }, () => {}],
-}))
-
-// a factory mock doesn't survive Vite's CJS optimization of uplot-react in
-// browser mode (React receives the module object instead of the component),
-// so spy on the real module and swap the implementation
-vi.mock('uplot-react', { spy: true })
-
-const MockUplotReact = (props: ComponentProps<typeof UplotReactComponent>) => {
-  dataPropsPassed.push(props.data)
-  useEffect(() => {
-    props.onCreate?.({ redraw } as never)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-  return null
+type Spies = {
+  redraw: MockInstance<uPlot['redraw']>
+  setData: MockInstance<uPlot['setData']>
 }
-vi.mocked(UplotReactComponent).mockImplementation(MockUplotReact)
+
+/**
+ * Render the chart and wait for the uPlot instance to be created. The chart
+ * mounts a beat after render: it waits for a real container size measurement
+ * to arrive through ResizeObserver.
+ */
+async function renderChart(formatter: (v: number) => string) {
+  let spies: Spies | undefined
+  const onCreate = (u: uPlot) => {
+    spies = { redraw: vi.spyOn(u, 'redraw'), setData: vi.spyOn(u, 'setData') }
+  }
+  const { rerender } = await render(
+    <TimeSeriesChart {...props(formatter)} onCreate={onCreate} />
+  )
+  await vi.waitFor(() => expect(spies).toBeDefined())
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return { rerender, onCreate, ...spies! } // waitFor above guarantees spies is set
+}
 
 describe('safe redrawing', () => {
   /*
@@ -48,16 +59,7 @@ describe('safe redrawing', () => {
    * AFTER the issue, hiding it, but these tests are fine either way, because they simply prohibit
    * "wrong" calls to redraw.
    */
-  const props = (formatter: (v: number) => string) => ({
-    data: [{ timestamp: 0, value: 10 }],
-    title: 'CPU',
-    startTime: new Date(0),
-    endTime: new Date(3_600_000),
-    yAxisTickFormatter: formatter,
-    loading: false,
-  })
-
-  const expectAllRedrawsSafe = () => {
+  const expectAllRedrawsSafe = (redraw: Spies['redraw']) => {
     for (const [rebuildPaths, recalcAxes] of redraw.mock.calls) {
       expect(rebuildPaths).toBe(false) // the important part
       expect(recalcAxes).toBe(true)
@@ -65,36 +67,34 @@ describe('safe redrawing', () => {
   }
 
   test('mounting never triggers an unsafe redraw', async () => {
-    await render(<TimeSeriesChart {...props((v) => `${v}%`)} />)
-    expectAllRedrawsSafe()
+    const { redraw } = await renderChart((v) => `${v}%`)
+    expectAllRedrawsSafe(redraw)
   })
 
   test('a new formatter triggers a safe redraw', async () => {
-    const { rerender } = await render(<TimeSeriesChart {...props((v) => `${v}%`)} />)
+    const { rerender, onCreate, redraw } = await renderChart((v) => `${v}%`)
     redraw.mockClear()
-    await rerender(<TimeSeriesChart {...props((v) => `${v} pct`)} />)
+    await rerender(<TimeSeriesChart {...props((v) => `${v} pct`)} onCreate={onCreate} />)
     expect(redraw).toHaveBeenCalled()
-    expectAllRedrawsSafe()
+    expectAllRedrawsSafe(redraw)
   })
+})
 
-  // uplot-react will do a deep comparison if the data reference changes to avoid rebuilding the
-  // chart, but it would be even better to skip that comparison by maintaining a reference
-  test('an unchanged data prop sends a stable reference down to uplot-react', async () => {
-    const data = [
-      { timestamp: 0, value: 10 },
-      { timestamp: 1000, value: 20 },
-    ]
+test('rerenders only call setData when the data actually changes', async () => {
+  const { rerender, onCreate, setData } = await renderChart((v) => `${v}%`)
+  setData.mockClear()
 
-    dataPropsPassed.length = 0
-    const { rerender } = await render(
-      <TimeSeriesChart {...props((v) => `${v}%`)} data={data} />
-    )
-    await rerender(<TimeSeriesChart {...props((v) => `${v} pct`)} data={data} />)
+  // same data reference, new formatter: nothing for uPlot to update
+  await rerender(<TimeSeriesChart {...props((v) => `${v} pct`)} onCreate={onCreate} />)
+  // new reference with equal contents: uplot-react's deep compare skips the update
+  await rerender(
+    <TimeSeriesChart {...props((v) => `${v}%`, [...defaultData])} onCreate={onCreate} />
+  )
+  expect(setData).not.toHaveBeenCalled()
 
-    expect(dataPropsPassed.length).toBeGreaterThan(1) // it re-rendered
-    expect(new Set(dataPropsPassed).size).toBe(1) // but every render passed the identical reference
-
-    await rerender(<TimeSeriesChart {...props((v) => `${v}%`)} data={[...data]} />)
-    expect(new Set(dataPropsPassed).size).toBe(2) // unless the reference changes
-  })
+  const newData = [...defaultData, { timestamp: 2000, value: 30 }]
+  await rerender(
+    <TimeSeriesChart {...props((v) => `${v}%`, newData)} onCreate={onCreate} />
+  )
+  expect(setData).toHaveBeenCalledTimes(1)
 })

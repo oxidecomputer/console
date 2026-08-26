@@ -153,6 +153,13 @@ type TimeSeriesChartProps = {
   yAxisTickFormatter?: (val: number) => string
   hasError?: boolean
   loading: boolean
+  /**
+   * Test-only: exposes the underlying uPlot instance so specs can spy on its
+   * methods. uPlot assigns methods per-instance (no prototype), and module
+   * mocks are unreliable in Vitest browser mode, so this is the only reliable
+   * observation point.
+   */
+  onCreate?: (u: uPlot) => void
 }
 
 // this top margin is also in the chart, probably want a way of unifying the sizing between the two
@@ -202,6 +209,7 @@ export function TimeSeriesChart({
   yAxisTickFormatter = defaultYAxisTickFormatter,
   hasError = false,
   loading,
+  onCreate,
 }: TimeSeriesChartProps) {
   const theme = useChartTheme()
   const fontPx = remToPx(AXIS_FONT_REM_XS)
@@ -419,7 +427,10 @@ export function TimeSeriesChart({
             className="absolute top-0 left-0"
             options={options}
             data={aligned}
-            onCreate={(u) => (uRef.current = u)}
+            onCreate={(u) => {
+              uRef.current = u
+              onCreate?.(u)
+            }}
           />
         )}
         {tooltip && hovered && hovered.value !== null && (
