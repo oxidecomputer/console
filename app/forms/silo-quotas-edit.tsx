@@ -31,10 +31,18 @@ type Props = {
   silo: string
   /** Current quotas, i.e., the `allocated` counts from silo utilization */
   quotas: VirtualResourceCounts
+  /** Currently provisioned amounts, shown under each input for context */
+  provisioned: VirtualResourceCounts
   onDismiss: () => void
 }
 
-export function EditQuotasSideModalForm({ silo, quotas, onDismiss }: Props) {
+const ProvisionedHint = ({ value, unit }: { value: number; unit: string }) => (
+  <div className="text-sans-sm text-secondary mt-1">
+    Currently provisioned: {value} {unit}
+  </div>
+)
+
+export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }: Props) {
   // required because we need to rule out undefined because NumberField hates that
   const defaultValues: SetNonNullable<Required<SiloQuotasUpdate>> = {
     cpus: quotas.cpus,
@@ -84,21 +92,36 @@ export function EditQuotasSideModalForm({ silo, quotas, onDismiss }: Props) {
         variant="info"
       />
 
-      <NumberField name="cpus" label="CPU" units="vCPUs" required control={form.control} />
-      <NumberField
-        name="memory"
-        label="Memory"
-        units="GiB"
-        required
-        control={form.control}
-      />
-      <NumberField
-        name="storage"
-        label="Storage"
-        units="GiB"
-        required
-        control={form.control}
-      />
+      <div>
+        <NumberField
+          name="cpus"
+          label="CPU"
+          units="vCPUs"
+          required
+          control={form.control}
+        />
+        <ProvisionedHint value={provisioned.cpus} unit="vCPUs" />
+      </div>
+      <div>
+        <NumberField
+          name="memory"
+          label="Memory"
+          units="GiB"
+          required
+          control={form.control}
+        />
+        <ProvisionedHint value={bytesToGiB(provisioned.memory)} unit="GiB" />
+      </div>
+      <div>
+        <NumberField
+          name="storage"
+          label="Storage"
+          units="GiB"
+          required
+          control={form.control}
+        />
+        <ProvisionedHint value={bytesToGiB(provisioned.storage)} unit="GiB" />
+      </div>
       <SideModalFormDocs docs={[docLinks.resourceManagement]} />
     </SideModalForm>
   )

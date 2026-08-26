@@ -268,6 +268,7 @@ function UsageTab() {
         <EditQuotasSideModalForm
           silo={editingSilo.siloName}
           quotas={editingSilo.allocated}
+          provisioned={editingSilo.provisioned}
           onDismiss={() => setEditingSilo(null)}
         />
       )}

@@ -84,6 +84,7 @@ export default function SiloQuotasTab() {
         <EditQuotasSideModalForm
           silo={silo}
           quotas={quotas}
+          provisioned={provisioned}
           onDismiss={() => setEditing(false)}
         />
       )}
