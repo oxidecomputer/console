@@ -60,9 +60,8 @@ export default function CreateFloatingIpSideModalForm() {
   const navigate = useNavigate()
 
   const createFloatingIp = useApiMutation(api.floatingIpCreate, {
+    invalidateEndpoints: ['floatingIpList', 'systemIpPoolUtilizationView'],
     onSuccess(floatingIp) {
-      queryClient.invalidateEndpoint('floatingIpList')
-      queryClient.invalidateEndpoint('systemIpPoolUtilizationView')
       // prettier-ignore
       addToast(<>Floating IP <HL>{floatingIp.name}</HL> created</>)
       navigate(pb.floatingIps(projectSelector))

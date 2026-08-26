@@ -5,13 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
+import { QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { http, HttpResponse } from 'msw'
 import { setupWorker } from 'msw/browser'
+import type { ReactNode } from 'react'
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { render } from 'vitest-browser-react'
 
 import { project } from '@oxide/api-mocks'
 
-import { api, q } from '..'
+import { api, type Project, q, queryClient, type ResultsPage, useApiMutation } from '..'
 import { resetDb } from '../../../mock-api/msw/db'
 import { handlers } from '../../../mock-api/msw/handlers'
 import { processServerError } from '../errors'
@@ -31,6 +34,7 @@ beforeAll(() => worker.start({ quiet: true, onUnhandledRequest: 'error' }))
 afterEach(() => {
   resetDb()
   worker.resetHandlers()
+  queryClient.clear()
 })
 afterAll(() => worker.stop())
 
@@ -54,13 +58,35 @@ function overrideOnce(
   )
 }
 
-// useApiQuery and useApiMutation are almost entirely typed wrappers around React
-// Query's useQuery and useMutation, so they're exercised end-to-end by the
-// Playwright suite (every error toast goes through this path). The logic worth
-// unit-testing directly is response parsing in the generated client
-// (`handleResponse`) and the error transformation in `processServerError` (the
-// latter is covered exhaustively in errors.spec.ts). These tests call the API
-// methods directly — no React, no renderHook — since they return an ApiResult.
+// The API hooks are mostly typed wrappers around React Query and are exercised
+// end-to-end by the Playwright suite. Most tests here therefore call API methods
+// directly; the mutation invalidation test renders a component because the
+// mutation's loading state is the behavior under test.
+
+const QueryClientWrapper = ({ children }: { children: ReactNode }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+)
+
+function MutationInvalidationTest({ onSuccess }: { onSuccess: () => void }) {
+  const projects = useQuery(q(api.projectList, {}))
+  const createProject = useApiMutation(api.projectCreate, {
+    invalidateEndpoints: ['projectList'],
+    onSuccess,
+  })
+  const count = projects.data?.items.length ?? 0
+
+  return (
+    <button
+      type="button"
+      disabled={createProject.isPending}
+      onClick={() =>
+        createProject.mutate({ body: { name: 'new-project', description: '' } })
+      }
+    >
+      {createProject.isPending ? 'Creating' : 'Create'} project ({count} projects)
+    </button>
+  )
+}
 
 describe('API response parsing', () => {
   it('returns success data for a normal response', async () => {
@@ -125,4 +151,42 @@ it('apiq queryKey', () => {
   const params = { path: { silo: 'abc' } }
   const queryOptions = q(api.siloView, params)
   expect(queryOptions.queryKey).toEqual(['siloView', params])
+})
+
+it('stays pending until invalidated queries have refreshed', async () => {
+  // capture the cached list length at onSuccess call time so we can assert
+  // onSuccess ran after the invalidated query refetched
+  let countAtSuccess: number | undefined
+  const onSuccess = () => {
+    const projects = queryClient.getQueryData<ResultsPage<Project>>(['projectList', {}])
+    countAtSuccess = projects?.items.length
+  }
+  const screen = await render(<MutationInvalidationTest onSuccess={onSuccess} />, {
+    wrapper: QueryClientWrapper,
+  })
+  const createButton = screen.getByRole('button')
+  await expect.element(createButton).toHaveAccessibleName('Create project (3 projects)')
+
+  // false positive: https://github.com/oxc-project/oxc/issues/20280
+  // oxlint-disable-next-line @typescript-eslint/no-invalid-void-type
+  const { promise: refetch, resolve: releaseRefetch } = Promise.withResolvers<void>()
+  worker.use(
+    http.get(
+      'http://testhost/v1/projects',
+      async () => {
+        await refetch
+        return HttpResponse.json({ items: [project, project, project, project] })
+      },
+      { once: true }
+    )
+  )
+
+  await createButton.click()
+  await expect.element(createButton).toBeDisabled()
+  await expect.element(createButton).toHaveAccessibleName('Creating project (3 projects)')
+
+  releaseRefetch()
+  await expect.element(createButton).toBeEnabled()
+  await expect.element(createButton).toHaveAccessibleName('Create project (4 projects)')
+  expect(countAtSuccess).toEqual(4)
 })

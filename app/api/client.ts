@@ -377,18 +377,45 @@ export const qErrorsAllowed = <Params, Data>(
 // object. You can only initalize the meta at the site of the useMutation call,
 // which doesn't work for the image upload use case because the timeout signal
 // needs to be initialized separately for each call.
+type ApiMutationOptions<Params, Data> = Omit<
+  UseMutationOptions<Data, ApiError, Params & { __signal?: AbortSignal }>,
+  'mutationFn' | 'onSettled'
+> & {
+  /**
+   * Invalidate and refetch these endpoints on success. Refetches are awaited
+   * before `onSuccess` runs and before the mutation settles, so `isPending`
+   * (spinners, disabled buttons, open confirm modals) lasts until the UI is
+   * consistent with the mutation — active queries on these endpoints become
+   * part of the mutation's perceived duration.
+   *
+   * On every render, useMutation overwrites the options on any mutation
+   * that is still running, and it doesn't look up onSuccess (which does the
+   * invalidating) until the request resolves. So a mutation invalidates the
+   * list from the most recent render, not the one from when `mutate` was
+   * called. Adding items across renders is harmless (extra invalidations at
+   * worst), but don't remove items and assume they'll still be queued up for
+   * invalidation.
+   */
+  invalidateEndpoints?: readonly (keyof typeof api)[]
+}
+
 export const useApiMutation = <Params, Data>(
   f: (p: Params, fp: FetchParams) => Promise<ApiResult<Data>>,
-  options?: Omit<
-    // __signal bit makes it so you can pass a signal to mutate and mutateAsync.
-    // the underscores make it virtually impossible for this to conflict with an
-    // actual API field
-    UseMutationOptions<Data, ApiError, Params & { __signal?: AbortSignal }>,
-    'mutationFn' | 'onSettled'
-  >
-) =>
-  useMutation({
+  options?: ApiMutationOptions<Params, Data>
+) => {
+  const { invalidateEndpoints, onSuccess, ...mutationOptions } = options ?? {}
+  const onSuccessWithInvalidation = invalidateEndpoints?.length
+    ? async (...args: Parameters<NonNullable<typeof onSuccess>>) => {
+        await Promise.all(invalidateEndpoints.map((e) => queryClient.invalidateEndpoint(e)))
+        await onSuccess?.(...args)
+      }
+    : onSuccess
+
+  return useMutation({
     mutationFn: ({ __signal, ...params }) =>
+      // __signal bit makes it so you can pass a signal to mutate and mutateAsync.
+      // the underscores make it virtually impossible for this to conflict with an
+      // actual API field.
       // Pretty safe cast: signal is an optional addition at the call site, not
       // part of the original Params type. Removing it via destructuring gives
       // us back Params, but TS can't prove Omit<Params & {signal?}, 'signal'>
@@ -400,5 +427,7 @@ export const useApiMutation = <Params, Data>(
           throw result.data
         }),
     // no catch, let unexpected errors bubble up
-    ...options,
+    ...mutationOptions,
+    onSuccess: onSuccessWithInvalidation,
   })
+}
