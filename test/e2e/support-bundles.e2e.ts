@@ -227,6 +227,26 @@ test('delete active bundle transitions to destroying', async ({ page }) => {
   })
 })
 
+test('detail modal closes when bundle is deleted mid-view', async ({ page }) => {
+  await page.goto('/system/support-bundles')
+
+  // start deleting the active bundle, then open its detail modal while it
+  // sits in 'destroying'
+  await clickRowAction(page, 'Investigating slow', 'Delete')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, /Deleting support bundle/)
+
+  await page.getByRole('link', { name: 'ccdac0…359c31' }).click()
+  const modal = page.getByRole('dialog', { name: 'Support bundle' })
+  await expect(modal.getByText('destroying')).toBeVisible()
+
+  // mock API deletes the record 3s after the delete call; the modal's next
+  // poll (10s) gets a 404, which closes the modal and toasts
+  await expect(modal).toBeHidden({ timeout: 20_000 })
+  await expectToast(page, 'Support bundle no longer exists')
+  await expect(page).toHaveURL('/system/support-bundles')
+})
+
 test('delete collecting bundle warns about cancellation', async ({ page }) => {
   await page.goto('/system/support-bundles')
 

@@ -61,7 +61,10 @@ export const bundleSizeQuery = (bundleId: string) =>
     queryFn: async ({ signal }) => {
       const res = await fetch(bundleDownloadUrl(bundleId), { method: 'HEAD', signal })
       if (!res.ok) throw new Error(`Error fetching bundle size (${res.status})`)
-      return Number(res.headers.get('content-length'))
+      // handle missing/malformed headers, rather than showing `0 B`
+      const size = Number(res.headers.get('content-length'))
+      if (!size) throw new Error('Bundle size missing from response')
+      return size
     },
     staleTime: Infinity,
   })
