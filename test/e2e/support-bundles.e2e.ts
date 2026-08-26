@@ -227,7 +227,7 @@ test('delete active bundle transitions to destroying', async ({ page }) => {
   })
 })
 
-test('detail modal closes when bundle is deleted mid-view', async ({ page }) => {
+test('bundle deleted mid-view 404s', async ({ page }) => {
   await page.goto('/system/support-bundles')
 
   // start deleting the active bundle, then open its detail modal while it
@@ -241,10 +241,9 @@ test('detail modal closes when bundle is deleted mid-view', async ({ page }) => 
   await expect(modal.getByText('destroying')).toBeVisible()
 
   // mock API deletes the record 3s after the delete call; the modal's next
-  // poll (10s) gets a 404, which closes the modal and toasts
-  await expect(modal).toBeHidden({ timeout: 20_000 })
-  await expectToast(page, 'Support bundle no longer exists')
-  await expect(page).toHaveURL('/system/support-bundles')
+  // poll (10s) gets a 404, which throws to the error boundary, same as
+  // instance detail when an instance is deleted mid-poll
+  await expect(page.getByText('Page not found')).toBeVisible({ timeout: 20_000 })
 })
 
 test('delete collecting bundle warns about cancellation', async ({ page }) => {

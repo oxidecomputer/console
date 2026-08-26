@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
-import { useEffect, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
@@ -51,8 +51,6 @@ const POLL_INTERVAL = 10 * SEC
 
 const bundleView = ({ bundleId }: PP.SupportBundle) => ({
   ...q(api.supportBundleView, { path: { bundleId } }),
-  // a mid-poll 404 means the bundle was deleted; handled in the component
-  throwOnError: false,
   // keep transitional states moving while the modal is open, matching the
   // list's polling, so a collecting bundle flips to active in place
   refetchInterval: ({
@@ -85,19 +83,7 @@ function AsyncValue<T>({
 export default function SupportBundleDetail() {
   const navigate = useNavigate()
   const { bundleId } = useSupportBundleSelector()
-  const { data: bundle, error } = usePrefetchedQuery(bundleView({ bundleId }))
-
-  // a destroying bundle's record is deleted outright when storage reclamation
-  // finishes, so a 404 mid-poll means the bundle is gone for good: close the
-  // modal rather than keep showing (and polling) stale data. other errors are
-  // left alone — polling continues and can recover from a transient failure
-  useEffect(() => {
-    if (error?.statusCode === 404) {
-      queryClient.invalidateEndpoint('supportBundleList')
-      addToast('Support bundle no longer exists')
-      navigate(pb.supportBundles())
-    }
-  }, [error, navigate])
+  const { data: bundle } = usePrefetchedQuery(bundleView({ bundleId }))
 
   // the index and bundle zip only exist once collection has completed
   const isActive = bundle.state === 'active'
