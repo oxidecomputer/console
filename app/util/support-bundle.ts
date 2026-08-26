@@ -7,10 +7,14 @@
  */
 import { queryOptions } from '@tanstack/react-query'
 
+import { api } from '@oxide/api'
+
 /*
- * The generated API client only handles JSON responses, so the binary bundle
- * download endpoint is hit directly with an anchor. The browser sends the
- * session cookie the same as any API request.
+ * The generated API client only handles JSON responses, so the zip download
+ * is a plain anchor navigation and the plain-text index is a raw fetch. The
+ * browser sends the session cookie the same as any API request. These URLs
+ * restate paths from the generated client; the spec next to this file guards
+ * against them drifting when the API is regenerated.
  *
  * Note this means downloads do not work against the mock API: the anchor
  * click is a download navigation, which MSW's service worker does not
@@ -20,7 +24,8 @@ import { queryOptions } from '@tanstack/react-query'
 export const bundleDownloadUrl = (bundleId: string) =>
   `/v1/system/support-bundles/${bundleId}/download`
 
-const bundleIndexUrl = (bundleId: string) => `/v1/system/support-bundles/${bundleId}/index`
+export const bundleIndexUrl = (bundleId: string) =>
+  `/v1/system/support-bundles/${bundleId}/index`
 
 export const DOWNLOAD_DISABLED_REASON =
   'Only bundles that have completed collection can be downloaded'
@@ -54,15 +59,20 @@ export const bundleIndexQuery = (bundleId: string) =>
     staleTime: Infinity,
   })
 
-/** Total bundle size from `Content-Length` on a HEAD of the download endpoint */
+/**
+ * Total bundle size from `Content-Length` on a HEAD of the download endpoint.
+ * A HEAD response has no body, so the JSON-only generated client handles it.
+ */
 export const bundleSizeQuery = (bundleId: string) =>
   queryOptions({
     queryKey: ['supportBundleSize', bundleId],
-    queryFn: async ({ signal }) => {
-      const res = await fetch(bundleDownloadUrl(bundleId), { method: 'HEAD', signal })
-      if (!res.ok) throw new Error(`Error fetching bundle size (${res.status})`)
+    queryFn: async () => {
+      const result = await api.supportBundleHead({ path: { bundleId } })
+      if (result.type !== 'success') {
+        throw new Error(`Error fetching bundle size (${result.response.status})`)
+      }
       // handle missing/malformed headers, rather than showing `0 B`
-      const size = Number(res.headers.get('content-length'))
+      const size = Number(result.response.headers.get('content-length'))
       if (!size) throw new Error('Bundle size missing from response')
       return size
     },
