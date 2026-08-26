@@ -162,8 +162,8 @@ export default defineConfig(({ mode }) => ({
   preview: { headers },
   test: {
     name: 'unit',
-    environment: 'jsdom',
-    setupFiles: ['test/unit/setup.ts'],
+    // no DOM environment: anything needing a real DOM is a browser mode test
+    environment: 'node',
     includeSource: ['app/**/*.ts'],
     exclude: [...configDefaults.exclude, '**/*.browser.spec.{ts,tsx}'],
   },

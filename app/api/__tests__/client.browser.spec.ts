@@ -5,24 +5,54 @@
  *
  * Copyright Oxide Computer Company
  */
+import { http, HttpResponse } from 'msw'
+import { setupWorker } from 'msw/browser'
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 
 import { project } from '@oxide/api-mocks'
 
 import { api, q } from '..'
 import { resetDb } from '../../../mock-api/msw/db'
-import { overrideOnce, server } from '../../../test/unit/server'
+import { handlers } from '../../../mock-api/msw/handlers'
 import { processServerError } from '../errors'
 
-// These are the only unit tests that make requests, so the MSW server
+const worker = setupWorker(
+  ...handlers.map((handler) => {
+    // Browser Mode runs with NODE_ENV=test, so the API client uses a full URL.
+    handler.info.path = 'http://testhost' + handler.info.path
+    return handler
+  })
+)
+
+// These are the only browser tests that make requests, so the MSW worker
 // lifecycle lives here rather than in the global setup file — resetDb clones
 // the whole mock db, which is too slow to run after every test suite-wide.
-beforeAll(() => server.listen())
+beforeAll(() => worker.start({ quiet: true, onUnhandledRequest: 'error' }))
 afterEach(() => {
   resetDb()
-  server.resetHandlers()
+  worker.resetHandlers()
 })
-afterAll(() => server.close())
+afterAll(() => worker.stop())
+
+// Override request handlers in order to test special cases
+function overrideOnce(
+  method: keyof typeof http,
+  path: string,
+  status: number,
+  body: string | Record<string, unknown>
+) {
+  worker.use(
+    http[method](
+      path,
+      () =>
+        // https://mswjs.io/docs/api/response/once
+        typeof body === 'string'
+          ? new HttpResponse(body, { status })
+          : HttpResponse.json(body, { status }),
+      { once: true }
+    )
+  )
+}
 
 // useApiQuery and useApiMutation are almost entirely typed wrappers around React
 // Query's useQuery and useMutation, so they're exercised end-to-end by the

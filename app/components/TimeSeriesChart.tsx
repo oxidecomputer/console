@@ -45,9 +45,10 @@ const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss 
 const remToPx = (rem: number) =>
   rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 // We measure axis label widths on a detached canvas instead of uPlot's to avoid overwriting its
-// own font setting.
-const measureCtx = document.createElement('canvas').getContext('2d')
+// own font setting. Created lazily so importing this module doesn't require a DOM.
+let measureCtx: CanvasRenderingContext2D | null = null
 const measureTextWidth = (text: string, font: string) => {
+  measureCtx ??= document.createElement('canvas').getContext('2d')
   // getContext('2d') is only null if '2d' is unsupported, which, hey, you're not getting a graph
   if (!measureCtx) return 0
   measureCtx.font = font
