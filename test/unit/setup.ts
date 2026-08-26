@@ -12,10 +12,7 @@
  */
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll, vi } from 'vitest'
-
-import { resetDb } from '../../mock-api/msw/db'
-import { server } from './server'
+import { afterEach, vi } from 'vitest'
 
 // xterm calls this when it's imported, so defining it here suppresses
 // an error that the method is not implemented
@@ -43,10 +40,4 @@ globalThis.ResizeObserver = class {
   disconnect() {}
 }
 
-beforeAll(() => server.listen())
-afterEach(() => {
-  resetDb()
-  cleanup()
-  server.resetHandlers()
-})
-afterAll(() => server.close())
+afterEach(() => cleanup())

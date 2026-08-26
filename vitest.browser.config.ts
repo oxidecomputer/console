@@ -30,14 +30,16 @@ const pressComboboxKey: BrowserCommand<[label: string, key: string]> = async (
 
 export default defineConfig({
   optimizeDeps: {
-    entries: ['app/**/*.browser.spec.{ts,tsx}'],
+    entries: ['app/**/*.browser.spec.{ts,tsx}', 'app/util/ip.spec.ts'],
     include: ['react-router'],
   },
   plugins: [tailwindcss(), react()],
   resolve: { tsconfigPaths: true },
   test: {
     attachmentsDir: 'test-results/vitest/attachments',
-    include: ['app/**/*.browser.spec.{ts,tsx}'],
+    // Concurrent Playwright contexts make focus-sensitive Firefox interactions flaky.
+    fileParallelism: false,
+    include: ['app/**/*.browser.spec.{ts,tsx}', 'app/util/ip.spec.ts'],
     name: 'browser',
     setupFiles: ['test/browser/setup.ts'],
     browser: {

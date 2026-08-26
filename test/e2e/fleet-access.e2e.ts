@@ -168,7 +168,9 @@ test('Cross-silo user shows UUID with tooltip', async ({ page }) => {
   await expect(userCell).toBeVisible()
   await userCell.getByRole('button', { name: 'Tip' }).hover()
   await expect(
-    page.getByText("Can't resolve name because user is not in your silo")
+    page
+      .getByRole('tooltip')
+      .getByText("Can't resolve name because user is not in your silo")
   ).toBeVisible()
 
   // dismiss the first tooltip before checking the group's
@@ -179,7 +181,9 @@ test('Cross-silo user shows UUID with tooltip', async ({ page }) => {
   await expect(groupCell).toBeVisible()
   await groupCell.getByRole('button', { name: 'Tip' }).hover()
   await expect(
-    page.getByText("Can't resolve name because group is not in your silo")
+    page
+      .getByRole('tooltip')
+      .getByText("Can't resolve name because group is not in your silo")
   ).toBeVisible()
 })
 

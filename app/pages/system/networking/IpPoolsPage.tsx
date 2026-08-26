@@ -18,6 +18,7 @@ import { Badge } from '@oxide/design-system/ui'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -87,7 +88,7 @@ export async function clientLoader() {
   return null
 }
 
-export const handle = { crumb: 'IP Pools' }
+export const handle = makeCrumb('IP Pools', pb.ipPools())
 
 export default function IpPoolsPage() {
   const navigate = useNavigate()
