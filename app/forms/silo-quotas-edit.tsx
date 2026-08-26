@@ -88,7 +88,7 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
       submitError={updateQuotas.error}
     >
       <Message
-        content="If a quota is set below the amount currently in use, users will not be able to provision resources."
+        content="If a quota is set below the amount currently provisioned, users will not be able to provision new resources."
         variant="info"
       />
 
