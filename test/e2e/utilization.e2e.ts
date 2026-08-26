@@ -72,7 +72,7 @@ test.describe('System utilization', () => {
     // provisioned amounts show under each input
     await expect(sideModal.getByText('Provisioned: 30 vCPUs')).toBeVisible()
     await expect(sideModal.getByText('Provisioned: 234 GiB')).toBeVisible()
-    await expect(sideModal.getByText('Provisioned: 4403.2 GiB')).toBeVisible()
+    await expect(sideModal.getByText('Provisioned: 4,403.2 GiB')).toBeVisible()
 
     await expect(
       sideModal.getByRole('link', { name: 'Resource Management' })

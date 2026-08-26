@@ -20,6 +20,7 @@ import { Cloud16Icon } from '@oxide/design-system/icons/react'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { addToast } from '~/stores/toast'
+import { BigNum } from '~/ui/lib/BigNum'
 import { Message } from '~/ui/lib/Message'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ResourceLabel } from '~/ui/lib/SideModal'
@@ -38,7 +39,7 @@ type Props = {
 
 const ProvisionedHint = ({ value, unit }: { value: number; unit: string }) => (
   <div className="text-sans-sm text-secondary mt-1">
-    Provisioned: {value} {unit}
+    Provisioned: <BigNum num={value} /> {unit}
   </div>
 )
 
