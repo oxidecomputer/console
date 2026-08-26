@@ -70,9 +70,9 @@ test.describe('System utilization', () => {
     await expect(sideModal.getByRole('heading', { name: 'maze-war' })).toBeVisible()
 
     // provisioned amounts show under each input
-    await expect(sideModal.getByText('Currently provisioned: 30 vCPUs')).toBeVisible()
-    await expect(sideModal.getByText('Currently provisioned: 234 GiB')).toBeVisible()
-    await expect(sideModal.getByText('Currently provisioned: 4403.2 GiB')).toBeVisible()
+    await expect(sideModal.getByText('Provisioned: 30 vCPUs')).toBeVisible()
+    await expect(sideModal.getByText('Provisioned: 234 GiB')).toBeVisible()
+    await expect(sideModal.getByText('Provisioned: 4403.2 GiB')).toBeVisible()
 
     await expect(
       sideModal.getByRole('link', { name: 'Resource Management' })

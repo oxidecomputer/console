@@ -38,7 +38,7 @@ type Props = {
 
 const ProvisionedHint = ({ value, unit }: { value: number; unit: string }) => (
   <div className="text-sans-sm text-secondary mt-1">
-    Currently provisioned: {value} {unit}
+    Provisioned: {value} {unit}
   </div>
 )
 
