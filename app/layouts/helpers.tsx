@@ -28,7 +28,7 @@ export function ContentPane() {
         {/* id/tabIndex make this the skip link target and where useRouteAnnouncer
             puts focus after a nav. It has to be a real element in the a11y tree
             (not an empty div) or the VoiceOver cursor won't follow the focus. */}
-        <main id="content" tabIndex={-1} className="*:gutter h-full outline-none">
+        <main id="content" tabIndex={-1} className="*:gutter outline-none">
           <Outlet />
         </main>
       </div>
