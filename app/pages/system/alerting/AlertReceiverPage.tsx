@@ -795,7 +795,7 @@ function DeliverySideModal({
       <SideModal.Body>
         <SideModal.Section>
           <PropertiesTable>
-            <PropertiesTable.Row label="Event class">
+            <PropertiesTable.Row label="Alert class">
               <Badge color="neutral">{delivery.alertClass}</Badge>
             </PropertiesTable.Row>
             <PropertiesTable.IdRow id={delivery.id} label="Delivery ID" />
