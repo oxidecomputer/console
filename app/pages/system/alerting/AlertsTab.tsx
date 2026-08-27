@@ -19,7 +19,7 @@ export default function AlertsTab() {
       <EmptyMessage
         icon={<Monitoring24Icon />}
         title="No alerts"
-        body="Alerts fired by the system will appear here"
+        body="Alerts published by the system will appear here"
       />
     </TableEmptyBox>
   )
