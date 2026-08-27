@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { getLocalTimeZone, now } from '@internationalized/date'
-import { useInfiniteQuery, useIsFetching } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import cn from 'classnames'
 import { differenceInMilliseconds } from 'date-fns'
@@ -36,7 +36,6 @@ import { Badge } from '@oxide/design-system/ui'
 import { snakeify } from '~/api/__generated__/util'
 import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
-import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Button } from '~/ui/lib/Button'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
@@ -353,17 +352,9 @@ export default function SiloAuditLogsPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // pass refetch interval to this to keep the date up to date
-  const { preset, startTime, endTime, dateTimeRangePicker, onRangeChange } =
-    useDateTimeRangePicker({
-      initialPreset: 'lastHour',
-      maxValue: now(getLocalTimeZone()),
-    })
-
-  const { intervalPicker } = useIntervalPicker({
-    enabled: preset !== 'custom',
-    isLoading: useIsFetching({ queryKey: ['auditLogList'] }) > 0,
-    // sliding the range forward is sufficient to trigger a refetch
-    fn: () => onRangeChange(preset),
+  const { preset, startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
+    initialPreset: 'lastHour',
+    maxValue: now(getLocalTimeZone()),
   })
 
   const queryParams: AuditLogListQueryParams = {
@@ -586,9 +577,8 @@ export default function SiloAuditLogsPage() {
           />
         </PageHeader>
 
-        <div className="border-secondary mt-8 flex flex-wrap justify-between gap-3 border-b px-[var(--content-gutter)] pb-4">
-          {intervalPicker}
-          <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
+        <div className="border-secondary mt-8 flex flex-wrap justify-end border-b px-[var(--content-gutter)] pb-4">
+          {dateTimeRangePicker}
         </div>
       </div>
 
