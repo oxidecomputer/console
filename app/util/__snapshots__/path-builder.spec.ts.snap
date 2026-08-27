@@ -889,10 +889,10 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/networking/subnet-pools",
     },
   ],
-  "systemOxql (/system/oxql)": [
+  "systemOxql (/system/metrics-explorer)": [
     {
-      "label": "OxQL Explorer",
-      "path": "/system/oxql",
+      "label": "Metrics Explorer",
+      "path": "/system/metrics-explorer",
     },
   ],
   "systemUpdate (/system/update)": [

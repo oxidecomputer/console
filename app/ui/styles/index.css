@@ -52,6 +52,9 @@
 /* layer(components) on this one results in visual changes, holding off for now */
 @import './components/table.css';
 
+/* deliberately unlayered: must beat CodeMirror's injected unlayered styles */
+@import './components/oxql-editor.css';
+
 @import '@xterm/xterm/css/xterm.css' layer(components);
 @source '../../../node_modules/@oxide/design-system/dist';
 @custom-variant light (&:where([data-theme=light], [data-theme=light] *));
@@ -103,6 +106,19 @@
   width: calc(100% - var(--content-gutter) * 2);
   margin-left: var(--content-gutter);
   margin-right: var(--content-gutter);
+}
+
+/* Inline code chip that takes its tint from the surrounding text color, so it
+   works on any background (e.g., inside an error message) */
+@utility inline-code {
+  font-size: 0.825em;
+  letter-spacing: 0;
+  vertical-align: 1px;
+  margin: 0 1px;
+  padding: 0 0.125rem;
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+  border-radius: var(--radius-md);
 }
 
 @utility link-with-underline {

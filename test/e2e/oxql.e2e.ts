@@ -9,6 +9,7 @@
 import { expect, test, type Page, type Locator } from '@playwright/test'
 
 import { oxqlQueries } from './oxql-queries'
+import { expectToast } from './utils'
 
 const runQuery = async (page: Page, query?: string) => {
   if (query !== undefined) await page.getByRole('textbox').fill(query)
@@ -17,12 +18,12 @@ const runQuery = async (page: Page, query?: string) => {
   const loading = page.getByLabel('Chart loading')
   await expect(loading).toBeVisible()
   await expect(loading).toBeHidden()
-  await expect(page.getByText('Query failed')).toBeHidden()
+  await expect(page.getByRole('alert')).toBeHidden()
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/system/oxql')
-  await expect(page.getByRole('heading', { name: 'OxQL Explorer' })).toBeVisible()
+  await page.goto('/system/metrics-explorer')
+  await expect(page.getByRole('heading', { name: 'Metrics Explorer' })).toBeVisible()
 })
 
 test('unaligned multi-table query renders a chart per series', async ({ page }) => {
@@ -121,45 +122,116 @@ test('results list is virtualized', async ({ page }) => {
   await expect.poll(getFirstRenderedIndex).not.toBe(0)
 })
 
-test('picking an example populates the query and renders a chart', async ({ page }) => {
-  await page.getByRole('button', { name: 'Try an example' }).click()
-  await page.getByRole('menuitem', { name: 'Power shelf fan speeds' }).click()
-  await expect(page.getByRole('textbox')).toHaveValue(/get hardware_component:fan_speed/)
+test('picking an example populates the query and runs it', async ({ page }) => {
+  await page.getByRole('button', { name: 'Power shelf fan speeds' }).click()
+  // the editor is a contenteditable, so assert on text rather than value
+  await expect(page.getByRole('textbox')).toContainText('get hardware_component:fan_speed')
 
-  await runQuery(page)
+  // the query runs automatically, no need to click "Run query"
+  const loading = page.getByLabel('Chart loading')
+  await expect(loading).toBeVisible()
+  await expect(loading).toBeHidden()
   await expect(page.getByRole('figure').first()).toBeVisible()
 })
 
-test('empty query is blocked by client-side validation', async ({ page }) => {
+test('editor completions are wired to live timeseries schemas', async ({ page }) => {
+  // the completion logic itself is unit-tested in oxql-autocomplete.spec.ts;
+  // here we only check the editor is hooked up to the schema list from the API
   const textbox = page.getByRole('textbox')
-  await textbox.fill('')
-  await page.getByRole('button', { name: 'Run query' }).click()
+  await textbox.click()
+  await page.keyboard.type('get hardware')
 
-  await expect(textbox).toHaveAttribute('aria-invalid', 'true')
-  await expect(page.getByText('Enter a query').first()).toBeVisible()
-  await expect(page.getByRole('figure')).toHaveCount(0)
+  // ctrl-space explicitly re-requests completions in case the schema list
+  // hadn't loaded when typing started
+  const options = page.getByRole('listbox').getByRole('option')
+  await expect(async () => {
+    await page.keyboard.press('Control+Space')
+    await expect(options.first()).toBeVisible({ timeout: 1000 })
+  }).toPass()
+
+  // accept with the keyboard rather than clicking: the info tooltip can
+  // overlap the option and intercept pointer events
+  await expect(options.getByText('hardware_component:fan_speed')).toBeVisible()
+  await page.keyboard.type('_component:fan') // narrow until fan_speed is the top match
+  await page.keyboard.press('Enter')
+  await expect(textbox).toContainText('get hardware_component:fan_speed')
+})
+
+test('results can be copied as JSON or CSV', async ({ page }) => {
+  await runQuery(page, oxqlQueries.basicTctl)
+
+  // result summary is visible in the query card header
+  await expect(page.getByText('1 timeseries', { exact: true })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Results actions' }).click()
+  await page.getByRole('menuitem', { name: 'Copy as JSON' }).click()
+  await expectToast(page, 'Results copied as JSON')
+
+  await page.getByRole('button', { name: 'Results actions' }).click()
+  await page.getByRole('menuitem', { name: 'Copy as CSV' }).click()
+  await expectToast(page, 'Results copied as CSV')
 })
 
 test('a query the backend rejects surfaces an error instead of a chart', async ({
   page,
 }) => {
-  await page.getByRole('textbox').fill('junk junk junk!')
+  const textbox = page.getByRole('textbox')
+  await textbox.fill('junk junk junk!')
   await page.getByRole('button', { name: 'Run query' }).click()
 
-  await expect(page.getByText('Query failed')).toBeVisible()
+  // the server's parse error is shown below the editor, minus the caret
+  // line, which assumes a monospace terminal
+  const error = page.getByRole('alert')
+  await expect(error).toContainText('Error at 1:1')
+  await expect(error).toContainText('Expected: error at 1:1')
+  await expect(error).not.toContainText('^')
+  // and the editor border turns red
+  await expect(textbox).toHaveAttribute('aria-invalid', 'true')
   await expect(page.getByRole('figure')).toHaveCount(0)
 })
 
-test('pages reads the initial query from the URL', async ({ page }) => {
-  await page.goto(`/system/oxql?query=${encodeURIComponent(oxqlQueries.basicTctl)}`)
-  await expect(page.getByRole('textbox')).toHaveValue(oxqlQueries.basicTctl)
+test('parse errors underline the offending spot in the editor', async ({ page }) => {
+  const textbox = page.getByRole('textbox')
+  await textbox.fill('get sled_data_link:bytes_sent | oops')
+  await page.getByRole('button', { name: 'Run query' }).click()
+
+  await expect(page.getByRole('alert')).toBeVisible()
+
+  // the error underline has no semantic representation, so target the class
+  const underlined = page.locator('.oxql-error-underline')
+  await expect(underlined).toHaveText('oops')
+  // guard against the mark existing but the CSS not applying
+  await expect(underlined).toHaveCSS('text-decoration-line', 'underline')
+
+  // editing the query invalidates the position, clearing the underline
+  await textbox.pressSequentially('x')
+  await expect(underlined).toBeHidden()
 })
 
-test('pages writes the query to the URL after a successful run', async ({ page }) => {
-  await page.goto('/system/oxql')
+test('query round-trips through the URL', async ({ page }) => {
+  // a successful run writes the query to the URL
   await runQuery(page, oxqlQueries.basicTctl)
-
   await expect
     .poll(() => new URL(page.url()).searchParams.get('query'))
     .toBe(oxqlQueries.basicTctl)
+
+  // and a fresh load of that URL populates the editor from the query param.
+  // the editor is a contenteditable, so assert line by line rather than on value
+  await page.goto(page.url())
+  const textbox = page.getByRole('textbox')
+  await expect(textbox).toContainText('get hardware_component:amd_cpu_tctl')
+  await expect(textbox).toContainText('| filter timestamp > @now() - 1m')
+})
+
+test('cursor sits at the start of the line when the query is empty', async ({ page }) => {
+  // CodeMirror draws its own cursor because Firefox puts the native caret in
+  // the wrong spot when the line contains nothing but the placeholder widget.
+  // The cursor has no semantic representation, so target the class.
+  await page.getByRole('textbox').click()
+  const cursor = await page.locator('.cm-cursor').boundingBox()
+  const placeholder = await page.locator('.cm-placeholder').boundingBox()
+
+  // the cursor sits where the placeholder text starts, give or take its own width
+  expect(Math.abs(cursor!.x - placeholder!.x)).toBeLessThan(2)
+  expect(cursor!.y).toEqual(placeholder!.y)
 })
