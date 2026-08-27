@@ -15,6 +15,7 @@ export const links = {
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
   firewallRulesDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
+  globbingDocs: 'https://docs.oxide.computer/guides/alerts/overview#_globbing',
   preparingImagesDocs:
     'https://docs.oxide.computer/guides/creating-and-sharing-images#_preparing_images_for_import',
   identityProvidersDocs: 'https://docs.oxide.computer/guides/operator/identity-providers',
@@ -28,8 +29,7 @@ export const links = {
     'https://docs.oxide.computer/guides/configuring-guest-networking#_example_4_software_routing_tunnels',
   troubleshootingAccess:
     'https://docs.oxide.computer/guides/operator/faq#_how_do_i_fix_the_something_went_wrong_error',
-  // TODO: this guide does not exist yet; make sure it does before release
-  webhooksGuide: 'https://docs.oxide.computer/guides/operator/webhooks',
+  webhooksGuide: 'https://docs.oxide.computer/guides/alerts/webhooks',
   webhooksApiDocs: 'https://docs.oxide.computer/api/webhook_receiver_create',
 }
 

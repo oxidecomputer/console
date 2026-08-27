@@ -98,6 +98,13 @@ test('Webhook create', async ({ page }) => {
   await expect(
     main.getByText('Must be an event class or a glob pattern like hardware.**')
   ).toBeVisible()
+
+  // the probe class is synthetic and the API rejects subscribing to it
+  await subsInput.fill('probe')
+  await subsInput.press('Enter')
+  await expect(
+    main.getByText('The probe class is only used for liveness probes')
+  ).toBeVisible()
   await subsInput.fill('hardware.**')
   await subsInput.press('Enter')
   await expect(
@@ -130,14 +137,14 @@ test('Webhook create subscriptions field', async ({ page }) => {
   // focusing opens the catalog showing all classes
   await subsInput.click()
   await expect(listbox.getByText('All classes')).toBeVisible()
-  await expect(listbox.getByRole('option')).toHaveCount(15)
+  await expect(listbox.getByRole('option')).toHaveCount(14)
 
   // a glob query filters the catalog and labels matched rows with the pattern
   await subsInput.fill('hardware.*.fault')
   await expect(listbox.getByText('Matching “hardware.*.fault”')).toBeVisible()
   // 3 classes match; psu.fault is one segment too deep, shown as a near miss
   // labeled with the broader pattern that would cover it
-  await expect(listbox.getByText('Showing 4 of 15')).toBeVisible()
+  await expect(listbox.getByText('Showing 4 of 14')).toBeVisible()
   const pendingRow = option('hardware.disk.fault')
   await expect(pendingRow.getByText('hardware.*.fault', { exact: true })).toBeVisible()
   const nearMissRow = option('hardware.power_shelf.psu.fault')
@@ -160,7 +167,7 @@ test('Webhook create subscriptions field', async ({ page }) => {
 
   // plain-text filter + ticking rows commits exact classes without resetting the query
   await subsInput.fill('update')
-  await expect(listbox.getByText('Showing 3 of 15')).toBeVisible()
+  await expect(listbox.getByText('Showing 3 of 14')).toBeVisible()
   await option('system.update.start').click()
   await option('system.update.complete').click()
   await expect(chipRemove('system.update.start')).toBeVisible()
@@ -180,7 +187,7 @@ test('Webhook create subscriptions field', async ({ page }) => {
 
   // an incomplete glob shows the full catalog, not a bogus empty state
   await subsInput.fill('*.')
-  await expect(listbox.getByRole('option')).toHaveCount(15)
+  await expect(listbox.getByRole('option')).toHaveCount(14)
   await subsInput.fill('')
 
   // backspace on an empty query arms the last chip, a second one removes it
@@ -197,14 +204,14 @@ test('Webhook create subscriptions field', async ({ page }) => {
   await expect(chipRemove('hardware.*.fault')).toBeVisible()
 
   // arrow keys move the armed selection, so a specific chip can be deleted
-  await subsInput.fill('probe')
+  await subsInput.fill('system.update.fail')
   await subsInput.press('Enter')
-  await expect(chipRemove('probe')).toBeVisible()
-  await subsInput.press('ArrowLeft') // arm probe
+  await expect(chipRemove('system.update.fail')).toBeVisible()
+  await subsInput.press('ArrowLeft') // arm system.update.fail
   await subsInput.press('ArrowLeft') // arm hardware.*.fault
   await subsInput.press('Backspace')
   await expect(chipRemove('hardware.*.fault')).toBeHidden()
-  await expect(chipRemove('probe')).toBeVisible()
+  await expect(chipRemove('system.update.fail')).toBeVisible()
 
   // uncommitted text is discarded on blur so it doesn't read as added
   await subsInput.fill('leftover')
@@ -213,7 +220,7 @@ test('Webhook create subscriptions field', async ({ page }) => {
 
   // subscribed classes sort to the top when the panel opens
   await subsInput.click()
-  await expect(listbox.getByRole('option').first()).toContainText('probe')
+  await expect(listbox.getByRole('option').first()).toContainText('system.update.fail')
 })
 
 test('Webhook detail: properties, event classes, secrets', async ({ page }) => {
@@ -232,16 +239,18 @@ test('Webhook detail: properties, event classes, secrets', async ({ page }) => {
   // add a subscription
   await page.getByRole('button', { name: 'Add event class' }).click()
   const addModal = page.getByRole('dialog', { name: 'Add event class' })
-  await addModal.getByRole('combobox', { name: 'Subscription' }).fill('probe')
-  await page.getByRole('option', { name: 'probe' }).click()
+  await addModal
+    .getByRole('combobox', { name: 'Subscription' })
+    .fill('hardware.sensor.overtemp')
+  await page.getByRole('option', { name: 'hardware.sensor.overtemp' }).click()
   await addModal.getByRole('button', { name: 'Add' }).click()
-  await expectToast(page, 'Subscribed to probe')
+  await expectToast(page, 'Subscribed to hardware.sensor.overtemp')
   await expect(eventClasses.getByRole('row')).toHaveCount(4)
 
   // remove it again
-  await clickRowAction(page, 'probe', 'Remove')
+  await clickRowAction(page, 'hardware.sensor.overtemp', 'Remove')
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectToast(page, 'Subscription probe removed')
+  await expectToast(page, 'Subscription hardware.sensor.overtemp removed')
   await expect(eventClasses.getByRole('row')).toHaveCount(3)
 
   // secrets card

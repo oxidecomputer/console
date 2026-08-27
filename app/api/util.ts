@@ -48,6 +48,18 @@ export const ALERT_SUBSCRIPTION_REGEX =
 export const isGlobPattern = (subscription: string) => subscription.includes('*')
 
 /**
+ * The `probe` class is synthetic: it exists for webhook liveness probes only.
+ * The API lists it in `alertClassList` but rejects exact subscriptions to it
+ * with a 400, so keep it out of anything the user can pick. Globs are exempt
+ * because the API returns from its glob branch before reaching this check.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-model/src/alert_subscription.rs#L91-L98
+ */
+export const PROBE_ALERT_CLASS = 'probe'
+
+/** Alert classes a receiver can actually subscribe to */
+export const isSubscribableClass = (c: { name: string }) => c.name !== PROBE_ALERT_CLASS
+
+/**
  * Convert an alert subscription to a regex matching the class names it covers:
  * a `*` segment matches exactly one segment, `**` matches one or more.
  * https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/db-model/src/alert_subscription.rs

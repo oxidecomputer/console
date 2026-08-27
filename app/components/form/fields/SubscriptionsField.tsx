@@ -15,7 +15,13 @@ import { match, P } from 'ts-pattern'
 import { api, q } from '@oxide/api'
 import { Close8Icon } from '@oxide/design-system/icons/react'
 
-import { ALERT_SUBSCRIPTION_REGEX, isGlobPattern, subscriptionRegex } from '~/api/util'
+import {
+  ALERT_SUBSCRIPTION_REGEX,
+  isGlobPattern,
+  isSubscribableClass,
+  PROBE_ALERT_CLASS,
+  subscriptionRegex,
+} from '~/api/util'
 import type { WebhookCreateFormValues } from '~/forms/webhook-create'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -27,10 +33,14 @@ import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
 
 // segments may only contain [a-zA-Z0-9_], unlike resource names
-export const validateSubscription = (value: string) =>
-  ALERT_SUBSCRIPTION_REGEX.test(value)
-    ? undefined
-    : 'Must be an event class or a glob pattern like hardware.** (letters, numbers, and underscores only)'
+export const validateSubscription = (value: string) => {
+  if (!ALERT_SUBSCRIPTION_REGEX.test(value))
+    return 'Must be an event class or a glob pattern like hardware.** (letters, numbers, and underscores only)'
+  // the API rejects this one with a 400, so catch it before submit
+  if (value === PROBE_ALERT_CLASS)
+    return 'The probe class is only used for liveness probes and cannot be subscribed to'
+  return undefined
+}
 
 function SubscriptionChip({
   value,
@@ -146,7 +156,7 @@ export function SubscriptionsField({
   const [commitError, setCommitError] = useState<string>()
 
   const { data } = useQuery(q(api.alertClassList, { query: { limit: ALL_ISH } }))
-  const classes = data?.items ?? []
+  const classes = (data?.items ?? []).filter(isSubscribableClass)
 
   const committed = field.value
   const matchers = toMatchers(committed)

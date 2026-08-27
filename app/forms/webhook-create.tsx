@@ -132,8 +132,17 @@ const SubscriptionsMessage = (
       className="mt-1 inline-block"
     >
       Read the Webhooks guide
-    </a>{' '}
-    and the{' '}
+    </a>
+    , the{' '}
+    <a
+      href={links.globbingDocs}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-1 inline-block"
+    >
+      globbing overview
+    </a>
+    , and the{' '}
     <a href={links.webhooksApiDocs} target="_blank" rel="noreferrer">
       API docs
     </a>{' '}

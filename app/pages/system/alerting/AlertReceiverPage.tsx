@@ -35,6 +35,7 @@ import {
 } from '@oxide/design-system/icons/react'
 import { Badge, Button, type BadgeColor } from '@oxide/design-system/ui'
 
+import { isSubscribableClass } from '~/api/util'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { validateSubscription } from '~/components/form/fields/SubscriptionsField'
 import { TextField } from '~/components/form/fields/TextField'
@@ -434,6 +435,7 @@ function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
 
   const classes = useQuery(q(api.alertClassList, {}))
   const classItems = (classes.data?.items || [])
+    .filter(isSubscribableClass)
     .filter((c) => !receiver.subscriptions.includes(c.name))
     .map(toClassComboboxItem)
 

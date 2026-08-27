@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query'
 import { api, q } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
-import { ALERT_SUBSCRIPTION_REGEX } from '~/api/util'
+import { ALERT_SUBSCRIPTION_REGEX, isSubscribableClass } from '~/api/util'
 
 /**
  * For a glob subscription pattern, show which alert classes it currently
@@ -29,7 +29,10 @@ export function SubscriptionMatchPreview({ pattern }: { pattern: string }) {
 
   if (!enabled || !data) return null
 
-  if (data.items.length === 0) {
+  // the probe class can't be subscribed to, so don't count it as a match
+  const classes = data.items.filter(isSubscribableClass)
+
+  if (classes.length === 0) {
     return (
       <p className="text-sans-sm text-secondary">
         No current event classes match this pattern. It may match classes added in the
@@ -40,9 +43,9 @@ export function SubscriptionMatchPreview({ pattern }: { pattern: string }) {
 
   return (
     <p className="text-sans-sm text-secondary">
-      Matches {data.items.length} event {data.items.length === 1 ? 'class' : 'classes'}:{' '}
+      Matches {classes.length} event {classes.length === 1 ? 'class' : 'classes'}:{' '}
       <span className="inline-flex flex-wrap gap-1 align-bottom">
-        {data.items.map((c) => (
+        {classes.map((c) => (
           <Badge key={c.name} color="neutral">
             {c.name}
           </Badge>

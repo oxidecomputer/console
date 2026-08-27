@@ -18,9 +18,8 @@ import {
 
 describe('subscriptionRegex', () => {
   it('matches exact class names', () => {
-    expect(subscriptionRegex('probe').test('probe')).toBe(true)
-    expect(subscriptionRegex('probe').test('probes')).toBe(false)
     expect(subscriptionRegex('instance.create').test('instance.create')).toBe(true)
+    expect(subscriptionRegex('instance.create').test('instance.created')).toBe(false)
   })
 
   it('* matches exactly one segment', () => {
