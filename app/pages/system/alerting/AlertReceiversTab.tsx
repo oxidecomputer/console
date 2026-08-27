@@ -88,7 +88,7 @@ export default function AlertReceiversTab() {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('alertReceiverList')
       // prettier-ignore
-      addToast(<>Webhook <HL>{variables.path.receiver}</HL> deleted</>)
+      addToast(<>Webhook receiver <HL>{variables.path.receiver}</HL> deleted</>)
     },
   })
 
