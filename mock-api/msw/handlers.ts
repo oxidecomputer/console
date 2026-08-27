@@ -2801,6 +2801,16 @@ export const handlers = makeHandlers({
       (d) => d.alert_id === path.alertId && d.receiver_id === receiver.id
     )
     if (!delivery) throw notFoundErr(`alert ${path.alertId}`)
+    // the real API rejects resends of alerts the receiver is no longer subscribed to
+    // https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/src/app/alert.rs#L439-L449
+    const subscribed = receiver.subscriptions.some((s) =>
+      subscriptionRegex(s).test(delivery.alert_class)
+    )
+    if (!subscribed) {
+      throw invalidRequest(
+        `cannot resend alert: receiver is not subscribed to the '${delivery.alert_class}' alert class`
+      )
+    }
     const now = new Date().toISOString()
     const newDelivery: Json<Api.AlertDelivery> = {
       id: uuid(),

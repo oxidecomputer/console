@@ -517,6 +517,29 @@ test('Webhook deliveries', async ({ page }) => {
   await expect(table.getByRole('row')).toHaveCount(9)
 })
 
+test('Resend fails for an unsubscribed event class', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/webhook-1')
+
+  // unsubscribe from the class of an existing failed delivery
+  await clickRowAction(page, 'hardware.power_shelf.psu.insert', 'Remove')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, 'Subscription hardware.power_shelf.psu.insert removed')
+
+  // resending a delivery of that class is rejected, matching the real API
+  await page.getByRole('tab', { name: 'Deliveries' }).click()
+  await clickRowAction(page, '30ece63e-5efd-4365-99a6-d4f09dfa685e', 'Resend')
+  await page
+    .getByRole('dialog', { name: 'Confirm resend' })
+    .getByRole('button', { name: 'Confirm' })
+    .click()
+  await expectToast(
+    page,
+    "Could not resend eventCannot resend alert: receiver is not subscribed to the 'hardware.power_shelf.psu.insert' alert class"
+  )
+  // the rejected resend must not have created a new delivery
+  await expect(page.getByRole('table').getByRole('row')).toHaveCount(7) // header + 6
+})
+
 test('Webhook delete', async ({ page }) => {
   await page.goto('/system/alerting/receivers')
 

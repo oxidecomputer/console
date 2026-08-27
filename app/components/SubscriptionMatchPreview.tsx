@@ -11,6 +11,7 @@ import { api, q } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
 import { ALERT_SUBSCRIPTION_REGEX, isSubscribableClass } from '~/api/util'
+import { ALL_ISH } from '~/util/consts'
 
 /**
  * For a glob subscription pattern, show which alert classes it currently
@@ -24,7 +25,7 @@ export function SubscriptionMatchPreview({ pattern }: { pattern: string }) {
   const valid = ALERT_SUBSCRIPTION_REGEX.test(pattern)
   const enabled = valid && isGlob
   const { data } = useQuery(
-    q(api.alertClassList, { query: { filter: pattern } }, { enabled })
+    q(api.alertClassList, { query: { filter: pattern, limit: ALL_ISH } }, { enabled })
   )
 
   if (!enabled || !data) return null

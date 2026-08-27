@@ -126,7 +126,8 @@ export const alertReceivers = [receiverGeneral, receiverPowerMon, receiverWebhoo
 
 const minutesAgo = (n: number) => subMinutes(new Date(), n).toISOString()
 
-// newest first, the order the list endpoint returns
+// newest first, matching the time_and_id_descending sort the console requests.
+// the mock paginated() helper ignores sortBy and preserves array order
 export const alertDeliveries: Json<AlertDelivery>[] = [
   {
     id: '9bbdf44f-7dac-4cd0-b4c2-3e622c9693ee',

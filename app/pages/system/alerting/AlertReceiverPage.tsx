@@ -71,6 +71,7 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -90,7 +91,8 @@ const stateFilterParams = (filter: StateFilter) =>
 const deliveryList = (receiver: string, filter: StateFilter = 'all') =>
   getListQFn(api.alertDeliveryList, {
     path: { receiver },
-    query: stateFilterParams(filter),
+    // sort newest first: the API's default is time_and_id_ascending
+    query: { ...stateFilterParams(filter), sortBy: 'time_and_id_descending' },
   })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -434,7 +436,7 @@ function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
   const { control } = form
   const subscription = useWatch({ control, name: 'subscription' })
 
-  const classes = useQuery(q(api.alertClassList, {}))
+  const classes = useQuery(q(api.alertClassList, { query: { limit: ALL_ISH } }))
   const classItems = (classes.data?.items || [])
     .filter(isSubscribableClass)
     .filter((c) => !receiver.subscriptions.includes(c.name))
@@ -711,6 +713,13 @@ function DeliveriesTab() {
     emptyState,
   })
 
+  // polling refreshes the list under the open side modal, so show the latest
+  // version of the selected delivery. Fall back to the snapshot from click
+  // time if it's no longer on the current page (paged or filtered out)
+  const liveDelivery =
+    selectedDelivery &&
+    (query.data?.items.find((d) => d.id === selectedDelivery.id) ?? selectedDelivery)
+
   // deliveries are dispatched asynchronously, so pending ones resolve on their
   // own while the page is open
   const { intervalPicker } = useIntervalPicker({
@@ -733,9 +742,9 @@ function DeliveriesTab() {
         />
       </div>
       {table}
-      {selectedDelivery && (
+      {liveDelivery && (
         <DeliverySideModal
-          delivery={selectedDelivery}
+          delivery={liveDelivery}
           onDismiss={() => setSelectedDelivery(null)}
         />
       )}
