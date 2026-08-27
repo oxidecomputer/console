@@ -393,7 +393,7 @@ function EventClassesCard() {
         title="Alert subscriptions"
         description="The alert classes the webhook receiver is subscribed to"
         <Button size="sm" onClick={() => setShowAddModal(true)}>
-          Add event class
+          Add subscription
         </Button>
       </CardBlock.Header>
       <CardBlock.Body>
