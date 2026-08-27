@@ -398,13 +398,13 @@ function EventClassesCard() {
       </CardBlock.Header>
       <CardBlock.Body>
         {rows.length ? (
-          <Table table={table} aria-label="Event classes" />
+          <Table table={table} aria-label="Alert classes" />
         ) : (
           <TableEmptyBox>
             <EmptyMessage
               icon={<Webhooks24Icon />}
               title="No subscriptions"
-              body="Subscribe to an event class to receive events"
+              body="Subscribe to an alert class to receive alerts"
             />
           </TableEmptyBox>
         )}
