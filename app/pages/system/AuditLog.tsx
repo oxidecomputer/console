@@ -319,7 +319,7 @@ const Row = memo(function Row({
         </div>
         <div className="col-actor-id text-secondary">
           {userId ? (
-            <Truncate maxLength={12} text={userId} position="middle" hasCopyButton />
+            <Truncate className="max-w-md" text={userId} position="middle" hasCopyButton />
           ) : (
             <EmptyCell />
           )}
@@ -333,7 +333,7 @@ const Row = memo(function Row({
         </div>
         <div className="col-silo-id text-secondary">
           {siloId ? (
-            <Truncate maxLength={12} text={siloId} position="middle" hasCopyButton />
+            <Truncate className="max-w-md" text={siloId} position="middle" hasCopyButton />
           ) : (
             <EmptyCell />
           )}
@@ -702,7 +702,7 @@ const ExpandedItem = ({
 
           <PropertiesTable.Row label="Actor ID">
             {userId ? (
-              <Truncate maxLength={24} text={userId} position="middle" hasCopyButton />
+              <Truncate text={userId} position="middle" hasCopyButton />
             ) : (
               <EmptyCell />
             )}
@@ -718,7 +718,7 @@ const ExpandedItem = ({
 
           <PropertiesTable.Row label="Silo ID">
             {siloId ? (
-              <Truncate maxLength={24} text={siloId} position="middle" hasCopyButton />
+              <Truncate text={siloId} position="middle" hasCopyButton />
             ) : (
               <EmptyCell />
             )}
