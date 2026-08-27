@@ -7,32 +7,17 @@
  */
 
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { type LoaderFunctionArgs } from 'react-router'
-import type { SetNonNullable } from 'type-fest'
 
-import {
-  api,
-  q,
-  queryClient,
-  useApiMutation,
-  usePrefetchedQuery,
-  type SiloQuotasUpdate,
-} from '~/api'
-import { NumberField } from '~/components/form/fields/NumberField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { api, q, queryClient, usePrefetchedQuery } from '~/api'
+import { EditQuotasSideModalForm } from '~/forms/silo-quotas-edit'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
-import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
-import { Message } from '~/ui/lib/Message'
 import { Table } from '~/ui/lib/Table'
-import { classed } from '~/util/classed'
-import { links } from '~/util/links'
+import { ValueUnit } from '~/ui/lib/ValueUnit'
 import type * as PP from '~/util/path-params'
-import { bytesToGiB, GiB } from '~/util/units'
-
-const Unit = classed.span`ml-1 text-secondary`
+import { bytesToGiB } from '~/util/units'
 
 const siloUtil = ({ silo }: PP.Silo) => q(api.siloUtilizationView, { path: { silo } })
 
@@ -64,28 +49,28 @@ export default function SiloQuotasTab() {
           <Table.Row>
             <Table.Cell>CPU</Table.Cell>
             <Table.Cell>
-              {provisioned.cpus} <Unit>vCPUs</Unit>
+              <ValueUnit value={provisioned.cpus} unit="vCPUs" />
             </Table.Cell>
             <Table.Cell>
-              {quotas.cpus} <Unit>vCPUs</Unit>
+              <ValueUnit value={quotas.cpus} unit="vCPUs" />
             </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Memory</Table.Cell>
             <Table.Cell>
-              {bytesToGiB(provisioned.memory)} <Unit>GiB</Unit>
+              <ValueUnit value={bytesToGiB(provisioned.memory)} unit="GiB" />
             </Table.Cell>
             <Table.Cell>
-              {bytesToGiB(quotas.memory)} <Unit>GiB</Unit>
+              <ValueUnit value={bytesToGiB(quotas.memory)} unit="GiB" />
             </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Storage</Table.Cell>
             <Table.Cell>
-              {bytesToGiB(provisioned.storage)} <Unit>GiB</Unit>
+              <ValueUnit value={bytesToGiB(provisioned.storage)} unit="GiB" />
             </Table.Cell>
             <Table.Cell>
-              {bytesToGiB(quotas.storage)} <Unit>GiB</Unit>
+              <ValueUnit value={bytesToGiB(quotas.storage)} unit="GiB" />
             </Table.Cell>
           </Table.Row>
         </Table.Body>
@@ -95,92 +80,16 @@ export default function SiloQuotasTab() {
           Edit quotas
         </Button>
       </div>
-      {editing && <EditQuotasForm onDismiss={() => setEditing(false)} />}
+      {editing && (
+        <EditQuotasSideModalForm
+          silo={silo}
+          quotas={quotas}
+          provisioned={provisioned}
+          onDismiss={() => setEditing(false)}
+        />
+      )}
     </>
   )
 }
 
 export const handle = makeCrumb('Quotas')
-
-function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
-  const { silo } = useSiloSelector()
-  const { data: utilization } = usePrefetchedQuery(siloUtil({ silo }))
-  const quotas = utilization.allocated
-
-  // required because we need to rule out undefined because NumberField hates that
-  const defaultValues: SetNonNullable<Required<SiloQuotasUpdate>> = {
-    cpus: quotas.cpus,
-    memory: bytesToGiB(quotas.memory),
-    storage: bytesToGiB(quotas.storage),
-  }
-
-  const form = useForm({ defaultValues })
-
-  const updateQuotas = useApiMutation(api.siloQuotasUpdate, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('siloUtilizationView')
-      addToast({ content: 'Quotas updated' })
-      onDismiss()
-    },
-  })
-
-  return (
-    <SideModalForm
-      form={form}
-      formType="edit"
-      resourceName="Quotas"
-      title="Edit quotas"
-      onDismiss={onDismiss}
-      onSubmit={({ cpus, memory, storage }) =>
-        updateQuotas.mutate({
-          body: {
-            cpus,
-            memory: memory * GiB,
-            // TODO: we use GiB on instance create but TiB on utilization. HM
-            storage: storage * GiB,
-          },
-          path: { silo },
-        })
-      }
-      loading={updateQuotas.isPending}
-      submitError={updateQuotas.error}
-    >
-      <Message content={<LearnMore />} variant="info" />
-
-      <NumberField name="cpus" label="CPU" units="vCPUs" required control={form.control} />
-      <NumberField
-        name="memory"
-        label="Memory"
-        units="GiB"
-        required
-        control={form.control}
-      />
-      <NumberField
-        name="storage"
-        label="Storage"
-        units="GiB"
-        required
-        control={form.control}
-      />
-    </SideModalForm>
-  )
-}
-
-function LearnMore() {
-  return (
-    <>
-      If a quota is set below the amount currently in use, users will not be able to
-      provision resources. Learn more about quotas in the{' '}
-      <a
-        href={links.siloQuotasDocs}
-        // don't need color and hover color because message text is already color-info anyway
-        className="underline"
-        target="_blank"
-        rel="noreferrer"
-      >
-        Silos
-      </a>{' '}
-      guide.
-    </>
-  )
-}

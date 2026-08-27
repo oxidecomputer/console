@@ -128,6 +128,13 @@ test('can create an external subnet with explicit CIDR', async ({ page }) => {
   })
 })
 
+test('clicking the name opens the edit side modal', async ({ page }) => {
+  await page.goto(externalSubnetsPage)
+  await page.getByRole('link', { name: 'web-subnet' }).click()
+  await expect(page).toHaveURL(`${externalSubnetsPage}/web-subnet/edit`)
+  await expect(page.getByRole('heading', { name: /Edit external subnet/ })).toBeVisible()
+})
+
 test('can update an external subnet', async ({ page }) => {
   await page.goto(externalSubnetsPage)
   await clickRowAction(page, 'web-subnet', 'Edit')
@@ -194,7 +201,7 @@ test('cannot delete an attached external subnet', async ({ page }) => {
   const deleteButton = page.getByRole('menuitem', { name: 'Delete' })
   await expect(deleteButton).toBeDisabled()
   await deleteButton.hover()
-  await expect(page.getByText('must be detached')).toBeVisible()
+  await expect(page.getByRole('tooltip').getByText('must be detached')).toBeVisible()
 })
 
 test('can detach and reattach an external subnet from the list page', async ({ page }) => {

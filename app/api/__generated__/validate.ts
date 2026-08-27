@@ -346,6 +346,23 @@ export const AggregateBgpMessageHistory = z.preprocess(
 )
 
 /**
+ * An alert.
+ *
+ * Alerts provide notifications about events that occurred in the system at a point in time. See the guide-level documentation on alerts for details.
+ */
+export const Alert = z.preprocess(
+  processResponseBody,
+  z.object({
+    alert: z.record(z.string(), z.unknown()),
+    class: z.string(),
+    id: z.uuid(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+    version: z.number().min(0).max(4294967295),
+  })
+)
+
+/**
  * An alert class.
  */
 export const AlertClass = z.preprocess(
@@ -510,6 +527,14 @@ export const AlertReceiver = z.preprocess(
 export const AlertReceiverResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: AlertReceiver.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * A single page of results
+ */
+export const AlertResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: Alert.array(), nextPage: z.string().nullable().optional() })
 )
 
 export const AlertSubscriptionCreate = z.preprocess(
@@ -855,6 +880,21 @@ export const BgpConfigCreate = z.preprocess(
 export const BgpConfigResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: BgpConfig.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * Parameters for updating a BGP configuration
+ *
+ * If a value is not specified, it will remain unchanged.
+ */
+export const BgpConfigUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    bgpAnnounceSetId: NameOrId.nullable().optional(),
+    description: z.string().nullable().optional(),
+    maxPaths: MaxPathConfig.nullable().optional(),
+    name: Name.nullable().optional(),
+  })
 )
 
 /**
@@ -2766,6 +2806,14 @@ export const InternetGatewayResultsPage = z.preprocess(
 )
 
 /**
+ * Assignment of an IP pool to resources and services.
+ */
+export const IpPoolAssignment = z.preprocess(
+  processResponseBody,
+  z.enum(['silos', 'system_services'])
+)
+
+/**
  * Type of IP pool.
  */
 export const IpPoolType = z.preprocess(
@@ -2774,11 +2822,12 @@ export const IpPoolType = z.preprocess(
 )
 
 /**
- * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo.
+ * A collection of IP ranges.
  */
 export const IpPool = z.preprocess(
   processResponseBody,
   z.object({
+    assignment: IpPoolAssignment,
     description: z.string(),
     id: z.uuid(),
     ipVersion: IpVersion,
@@ -2787,6 +2836,14 @@ export const IpPool = z.preprocess(
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
+)
+
+/**
+ * Body parameters for reassigning an IP pool.
+ */
+export const IpPoolAssignParam = z.preprocess(
+  processResponseBody,
+  z.object({ assignment: IpPoolAssignment })
 )
 
 /**
@@ -2799,6 +2856,7 @@ export const IpPool = z.preprocess(
 export const IpPoolCreate = z.preprocess(
   processResponseBody,
   z.object({
+    assignment: IpPoolAssignment.default('silos'),
     description: z.string(),
     ipVersion: IpVersion.default('v4'),
     name: Name,
@@ -4018,6 +4076,7 @@ export const Sled = z.preprocess(
     id: z.uuid(),
     policy: SledPolicy,
     rackId: z.uuid(),
+    slot: z.number().min(0).max(65535).nullable().optional(),
     state: SledState,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -5321,108 +5380,6 @@ export const ProbeDeleteParams = z.preprocess(
   })
 )
 
-export const SupportBundleListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
-      pageToken: z.string().nullable().optional(),
-      sortBy: TimeAndIdSortMode.optional(),
-    }),
-  })
-)
-
-export const SupportBundleCreateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleUpdateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleDeleteParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleDownloadParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleHeadParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleDownloadFileParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-      file: z.string(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleHeadFileParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-      file: z.string(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SupportBundleIndexParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      bundleId: z.uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
 export const LoginSamlParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -5636,6 +5593,31 @@ export const AlertReceiverSubscriptionRemoveParams = z.preprocess(
     path: z.object({
       receiver: NameOrId,
       subscription: AlertSubscription,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const AlertListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      alertClass: AlertSubscription.optional(),
+      endTime: z.coerce.date().nullable().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: TimeAndIdSortMode.optional(),
+      startTime: z.coerce.date().nullable().optional(),
+    }),
+  })
+)
+
+export const AlertViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      alertId: z.uuid(),
     }),
     query: z.object({}),
   })
@@ -6614,8 +6596,10 @@ export const IpPoolListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
+      ipVersion: IpVersion.optional(),
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
+      poolType: IpPoolType.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -7403,8 +7387,11 @@ export const SystemIpPoolListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
+      assignment: IpPoolAssignment.optional(),
+      ipVersion: IpVersion.optional(),
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
+      poolType: IpPoolType.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -7439,6 +7426,16 @@ export const SystemIpPoolUpdateParams = z.preprocess(
 )
 
 export const SystemIpPoolDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SystemIpPoolAssignParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7533,41 +7530,6 @@ export const SystemIpPoolUtilizationViewParams = z.preprocess(
     path: z.object({
       pool: NameOrId,
     }),
-    query: z.object({}),
-  })
-)
-
-export const SystemIpPoolServiceViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SystemIpPoolServiceRangeListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
-      pageToken: z.string().nullable().optional(),
-    }),
-  })
-)
-
-export const SystemIpPoolServiceRangeAddParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SystemIpPoolServiceRangeRemoveParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
     query: z.object({}),
   })
 )
@@ -7691,6 +7653,16 @@ export const NetworkingBgpConfigListParams = z.preprocess(
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const NetworkingBgpConfigUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      nameOrId: NameOrId,
     }),
   })
 )
@@ -8209,6 +8181,108 @@ export const SystemSubnetPoolUtilizationViewParams = z.preprocess(
   z.object({
     path: z.object({
       pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: TimeAndIdSortMode.optional(),
+    }),
+  })
+)
+
+export const SupportBundleCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDownloadParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleHeadParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDownloadFileParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+      file: z.string(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleHeadFileParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
+      file: z.string(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleIndexParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.uuid(),
     }),
     query: z.object({}),
   })

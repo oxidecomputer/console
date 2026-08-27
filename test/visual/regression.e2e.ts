@@ -54,9 +54,9 @@ const pages = [
   // Silo
   { name: 'projects list', url: '/projects', heading: 'Projects' },
   {
-    name: 'silo image edit',
-    url: '/images/arch-2022-06-01/edit',
-    heading: 'Silo image',
+    name: 'silo image detail',
+    url: '/images/arch-2022-06-01',
+    heading: 'Image details',
     exact: true,
   },
   { name: 'silo access', url: '/access', heading: 'Silo Access' },
@@ -89,19 +89,19 @@ const pages = [
   { name: 'vpcs list', url: `${p}/vpcs`, heading: 'VPCs' },
   {
     name: 'vpc firewall rules',
-    url: `${p}/vpcs/mock-vpc/firewall-rules`,
-    heading: 'mock-vpc',
+    url: `${p}/vpcs/default/firewall-rules`,
+    heading: 'default',
   },
-  { name: 'vpc subnets', url: `${p}/vpcs/mock-vpc/subnets`, heading: 'mock-vpc' },
-  { name: 'vpc routers', url: `${p}/vpcs/mock-vpc/routers`, heading: 'mock-vpc' },
+  { name: 'vpc subnets', url: `${p}/vpcs/default/subnets`, heading: 'default' },
+  { name: 'vpc routers', url: `${p}/vpcs/default/routers`, heading: 'default' },
   {
     name: 'vpc internet gateways',
-    url: `${p}/vpcs/mock-vpc/internet-gateways`,
-    heading: 'mock-vpc',
+    url: `${p}/vpcs/default/internet-gateways`,
+    heading: 'default',
   },
   {
     name: 'vpc router detail',
-    url: `${p}/vpcs/mock-vpc/routers/mock-custom-router`,
+    url: `${p}/vpcs/default/routers/mock-custom-router`,
     heading: 'mock-custom-router',
   },
 
@@ -238,7 +238,7 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
   test('silo utilization', async ({ page }) => {
     await page.goto('/utilization', { waitUntil: 'networkidle' })
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-    await expect(page.locator('.recharts-curve').first()).toBeVisible()
+    await expect(page.locator('figure').first()).toBeVisible()
     await expect(page).toHaveScreenshot('silo-utilization.png', {
       fullPage: true,
       mask: [page.getByTestId('refetch-interval-refresh')],
@@ -249,7 +249,7 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
   test('system utilization metrics tab', async ({ page }) => {
     await page.goto('/system/utilization?tab=metrics', { waitUntil: 'networkidle' })
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-    await expect(page.locator('.recharts-curve').first()).toBeVisible()
+    await expect(page.locator('figure').first()).toBeVisible()
     await expect(page).toHaveScreenshot('system-utilization-metrics-tab.png', {
       fullPage: true,
       mask: [page.getByTestId('refetch-interval-refresh')],

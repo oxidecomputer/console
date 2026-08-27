@@ -18,7 +18,6 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-import { formatBytes } from '~/util/units'
 
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './SledBadges'
 
@@ -38,8 +37,6 @@ export default function SledPage() {
   const { sledId } = useSledParams()
   const { data: sled } = usePrefetchedQuery(sledView({ sledId }))
 
-  const ram = formatBytes(sled.usablePhysicalRam)
-
   return (
     <>
       <PageHeader>
@@ -47,9 +44,7 @@ export default function SledPage() {
       </PageHeader>
 
       <PropertiesTable columns={2} className="-mt-8 mb-8">
-        <PropertiesTable.Row label="sled id">
-          <span className="text-default">{sled.id}</span>
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow label="sled id" id={sled.id} />
         <PropertiesTable.Row label="policy kind">
           <SledKindBadge policy={sled.policy} />
         </PropertiesTable.Row>
@@ -71,13 +66,11 @@ export default function SledPage() {
         <PropertiesTable.Row label="usable hardware threads">
           <span className="text-default">{sled.usableHardwareThreads}</span>
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="rack id">
-          <span className="text-default">{sled.rackId}</span>
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="usable physical ram">
-          <span className="text-default pr-0.5">{ram.value}</span>
-          <span className="text-tertiary">{ram.unit}</span>
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow label="rack id" id={sled.rackId} />
+        <PropertiesTable.SizeRow
+          label="usable physical ram"
+          bytes={sled.usablePhysicalRam}
+        />
       </PropertiesTable>
 
       <RouteTabs fullWidth>

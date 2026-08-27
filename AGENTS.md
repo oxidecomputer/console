@@ -4,7 +4,7 @@
 - Favor well-supported libraries, avoid premature abstractions, and use routes to capture state.
 - Before starting a feature, skim an existing page or form with similar behavior and mirror the conventions—this codebase is intentionally conventional. Look for similar pages in `app/pages` and forms in `app/forms` to use as templates.
 - `@oxide/api` is at `app/api` and `@oxide/api-mocks` is at `mock-api/index.ts`.
-- The language server often has out of date errors. tsgo is extremely fast, so confirm errors that come from the language server by running `npm run tsc`
+- The language server often has out of date errors. TypeScript 7 is extremely fast, so confirm errors that come from the language server by running `npm run tsc`
 - Use Node.js 22+, then install deps and start the mock-backed dev server (skip if `npm run dev` is already running in another terminal):
 
   ```sh
@@ -29,18 +29,20 @@
 - Cover role-gated flows by logging in with `getPageAsUser`; exercise negative paths (e.g., forbidden actions) alongside happy paths as shown in `test/e2e/system-update.e2e.ts`.
 - Consider `expectVisible` and `expectNotVisible` deprecated: prefer `expect().toBeVisible()` and `toBeHidden()` in new code.
 - When UI needs new mock behavior, extend the MSW handlers/db minimally so E2E tests stay deterministic; prefer storing full API responses so subsequent calls see the updated state (`mock-api/msw/db.ts`, `mock-api/msw/handlers.ts`).
-- Co-locate Vitest specs next to the code they cover; use Testing Library utilities (`render`, `renderHook`, `fireEvent`, fake timers) to assert observable output rather than implementation details (`app/ui/lib/FileInput.spec.tsx`, `app/hooks/use-pagination.spec.ts`).
+- Co-locate Vitest specs next to the code they cover. Plain `.spec.ts` files run in node with no DOM, so keep them to pure logic. Anything that renders a component or touches a browser API goes in a `.browser.spec.tsx` file, which runs in real browsers via Vitest Browser Mode — use `vitest-browser-react`'s async `render`/`renderHook` (`app/ui/lib/FileInput.browser.spec.tsx`, `app/hooks/use-pagination.browser.spec.ts`).
+- Treat Vitest browser specs as small e2e tests: query by accessible role, label, or visible text and use retrying browser matchers. Avoid selectors coupled to CSS classes or internal DOM structure; inspect layout or computed styles only when the behavior has no semantic representation.
 - For sweeping styling changes, coordinate with the visual regression harness and follow `test/visual/README.md` for the workflow.
 - Fix root causes of flaky timing rather than adding `sleep()` workarounds in tests.
+- When an intermittent browser or E2E failure does not reproduce under normal repetition, retry under controlled CPU contention before concluding it is CI-only. Keep the load bounded so the browser and test runner can still make progress, enable failure-only traces when available, and use a shell trap to clean up every churn process.
 - Local Playwright runs write a compact plain-text report to `.e2e-logs/` (gitignored, one timestamped `.log` per run, last 10 kept) via the custom reporter at `test/e2e/compact-reporter.ts`. Top line is `status: ... total=N passed=N ...`; each failure is a `── UNEXPECTED|FLAKY file:line title` block followed by the error (ANSI stripped). Latest run: `ls .e2e-logs | tail -1` — Read it directly, no parsing needed.
 
 # Data fetching pattern
 
-- Data from `usePrefetchedQuery` is guaranteed to be defined (the loader ensures it and the hook throws if it's not present). Do not add `if (!data) return` guards on these values.
+- `usePrefetchedQuery` requires that the loader fetched and awaited the same query — the hook throws if the data isn't in the cache. Because of that guarantee, do not add `if (!data) return` guards on its results. If the loader's fetch is conditional or not awaited, the guarantee doesn't hold: use `useQuery` with a loading fallback instead.
 - Define queries with `q(api.endpoint, params)` for single items or `getListQFn(api.listEndpoint, params)` for lists. Prefetch in `clientLoader` and read with `usePrefetchedQuery`; for on-demand fetches (modals, secondary data), use `useQuery` directly.
 - Use `ALL_ISH` from `app/util/consts.ts` when UI needs "all" items. Use `queryClient.invalidateEndpoint` to invalidate queries.
 - For paginated tables, compose `getListQFn` with `useQueryTable`; the helper wraps `limit`/`pageToken` handling and keeps placeholder data stable (`app/api/hooks.ts:123-188`, `app/pages/ProjectsPage.tsx:40-132`).
-- When a loader needs dependent data, fetch the primary list with `queryClient.fetchQuery`, prefetch its per-item queries, and only await a bounded batch so render isn't blocked (see `app/pages/project/affinity/AffinityPage.tsx`).
+- When a loader needs per-item data for a list, await the list with `queryClient.fetchQuery`, then kick off `prefetchQuery` for each item without awaiting, so render isn't blocked. Read the per-item queries with `useQuery` and a skeleton fallback — they may not have resolved by first render (see `app/pages/project/affinity/AffinityPage.tsx`).
 - When modals need async data, fetch with `queryClient.ensureQueryData` before opening the modal so cached data is reused and there's no content pop-in.
 - Use `qErrorsAllowed` in loaders for endpoints where some users may lack permission, so the page degrades gracefully instead of the loader throwing (see `SiloScimTab.tsx`).
 

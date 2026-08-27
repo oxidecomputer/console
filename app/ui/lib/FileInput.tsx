@@ -63,7 +63,7 @@ export function FileInput({
   }
 
   return (
-    <label className={cn(className, 'group relative block')}>
+    <label className={cn(className, 'group relative block contain-[inline-size]')}>
       <input
         ref={mergeRefs([inputRef, ref])}
         type="file"
@@ -95,11 +95,13 @@ export function FileInput({
         >
           <Document16Icon className="h-4 w-4" />
         </div>
-        <div className="text-sans-md flex h-8 items-center">
+        <div className="text-sans-md flex h-8 max-w-full items-center">
           {file && !dragOver ? (
-            <div className="text-raise flex items-center">
-              <Truncate text={file.name} maxLength={32} position="middle" />
-              <span className="text-tertiary ml-1">({formatBytes(file.size).label})</span>
+            <div className="text-raise flex min-w-0 items-center">
+              <Truncate text={file.name} position="middle" />
+              <span className="text-tertiary ml-1 whitespace-nowrap">
+                ({formatBytes(file.size).label})
+              </span>
               <button
                 type="button"
                 onClick={handleResetInput}

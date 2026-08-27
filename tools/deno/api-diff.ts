@@ -7,22 +7,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { exists } from 'https://deno.land/std@0.208.0/fs/mod.ts'
-import { $ } from 'https://deno.land/x/dax@0.39.1/mod.ts'
 import { Command, ValidationError } from 'jsr:@cliffy/command@1.0.0'
+import { $ } from 'jsr:@david/dax@0.41.0'
+import { exists } from 'jsr:@std/fs@1.0'
 
-// fzf picker keeps UX quick without requiring people to wire up shell helpers
-async function pickPr(): Promise<number> {
-  const prNum = await $`gh pr list -R oxidecomputer/omicron --limit 100
-        --json number,title,updatedAt,author
-        --template '{{range .}}{{tablerow .number .title .author.name (timeago .updatedAt)}}{{end}}'`
-    .pipe($`fzf --height 25% --reverse`)
-    .pipe($`cut -f1 -d ' '`)
-    .text()
-  if (!/^\d+$/.test(prNum))
-    throw new Error(`Error picking PR. Expected number, got '${prNum}'`)
-  return parseInt(prNum, 10)
-}
+import { isJjRepository, pickPr, resolveLocalCommit } from './common.ts'
 
 // because the schema files change, in order to specify a schema you need both a
 // commit and a filename
@@ -40,7 +29,7 @@ const SPEC_RAW_URL = (ref: string, path: string) =>
   `https://raw.githubusercontent.com/oxidecomputer/omicron/${ref}/${path}`
 
 async function resolveCommit(ref?: string | number): Promise<string> {
-  if (ref === undefined) return resolveCommit(await pickPr())
+  if (ref === undefined) return resolveCommit(await pickPr('oxidecomputer/omicron'))
   if (typeof ref === 'number') {
     console.error(`Resolving PR #${ref} to commit...`)
     const query = `{
@@ -133,31 +122,12 @@ const remoteSource: Source = {
 /** Read schemas from the git repo in the current directory (run from an omicron checkout) */
 async function createLocalSource(): Promise<Source> {
   if (!$.commandExistsSync('git')) throw new Error('--local requires git')
+  const repoRoot = Deno.cwd()
   // jj's working copy is always a commit, so in a jj repo @ is the natural
   // default and reflects in-progress (even uncommitted) work. Plain git uses HEAD.
-  const isJj =
-    $.commandExistsSync('jj') &&
-    (await $`jj root`.noThrow().stdout('null').stderr('null')).code === 0
+  const isJj = await isJjRepository(repoRoot)
 
   const gitShow = (target: string) => $`git show ${target}`.text()
-
-  const resolveOne = async (ref: string): Promise<string> => {
-    try {
-      if (isJj) {
-        const out = (
-          await $`jj log -r ${ref} --no-graph -T commit_id`.stderr('null').text()
-        ).trim()
-        if (out.includes('\n')) throw new Error(`Revset '${ref}' matches multiple commits`)
-        return out
-      }
-      // pass the peel as a single arg so ^{commit} isn't brace-expanded
-      const rev = `${ref}^{commit}`
-      return (await $`git rev-parse --verify ${rev}`.stderr('null').text()).trim()
-    } catch (e) {
-      if (e instanceof Error && e.message.startsWith('Revset')) throw e
-      throw new Error(`Could not resolve '${ref}' in local ${isJj ? 'jj' : 'git'} repo`)
-    }
-  }
 
   return {
     resolveCommit: async (ref) => {
@@ -168,9 +138,9 @@ async function createLocalSource(): Promise<Source> {
       if (ref === undefined) {
         const def = isJj ? '@' : 'HEAD'
         console.error(`No ref given, defaulting to ${def} (comparing against its parent)`)
-        return resolveOne(def)
+        return resolveLocalCommit(repoRoot, def, isJj)
       }
-      return resolveOne(ref)
+      return resolveLocalCommit(repoRoot, ref, isJj)
     },
     listSchemaNames: async (commit) => {
       const out = (
@@ -336,13 +306,27 @@ async function ensureSchema(
   return schemaPath
 }
 
+const OXFMT_CONFIG = '/tmp/api-diff/oxfmt.json'
+
+/**
+ * ensureClient runs for base and head in parallel, so install its npx deps
+ * once up front — concurrent npx installs of the same package race the npm
+ * cache and each prompt for confirmation. --yes skips the install prompt.
+ */
+async function ensureClientTools() {
+  await $`npx --yes --package @oxide/openapi-gen-ts@latest --package oxfmt true`
+  await $`mkdir -p /tmp/api-diff`
+  // an explicit (empty) config silences oxfmt's "No config found" warning
+  await Deno.writeTextFile(OXFMT_CONFIG, '{}\n')
+}
+
 async function ensureClient(schemaPath: string, force: boolean) {
   const dir = schemaPath.replace(/\/spec\.json$/, '')
   const clientPath = `${dir}/Api.ts`
   if (force || !(await exists(clientPath))) {
     console.error(`Generating client...`)
-    await $`npx @oxide/openapi-gen-ts@latest ${schemaPath} ${dir}`
-    await $`npx oxfmt ${dir}`
+    await $`npx --yes @oxide/openapi-gen-ts@latest ${schemaPath} ${dir}`
+    await $`npx --yes oxfmt -c ${OXFMT_CONFIG} ${dir}`
   }
   return clientPath
 }
@@ -427,6 +411,7 @@ Dependencies:
       if (options.format === 'schema') {
         await runDiff(baseSchema, headSchema, target.baseSchema, target.headSchema)
       } else {
+        await ensureClientTools()
         const [baseClient, headClient] = await Promise.all([
           ensureClient(baseSchema, force),
           ensureClient(headSchema, force),

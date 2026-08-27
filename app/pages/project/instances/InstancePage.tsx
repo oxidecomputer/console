@@ -52,10 +52,11 @@ import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
+import { Size, ValueUnit } from '~/ui/lib/ValueUnit'
 import { instanceMetricsBase, pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 import { pluralize } from '~/util/str'
-import { formatBytes, GiB } from '~/util/units'
+import { GiB } from '~/util/units'
 
 import { useMakeInstanceActions } from './actions'
 
@@ -167,8 +168,6 @@ export default function InstancePage() {
     enabled: !!primaryVpcId,
   })
 
-  const memory = formatBytes(instance.memory)
-
   return (
     <>
       <PageHeader>
@@ -216,12 +215,10 @@ export default function InstancePage() {
       </PageHeader>
       <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.Row label="cpu">
-          <span className="text-default">{instance.ncpus}</span>
-          <span className="text-tertiary ml-1">{pluralize(' vCPU', instance.ncpus)}</span>
+          <ValueUnit value={instance.ncpus} unit={pluralize('vCPU', instance.ncpus)} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="ram">
-          <span className="text-default">{memory.value}</span>
-          <span className="text-tertiary ml-1"> {memory.unit}</span>
+          <Size bytes={instance.memory} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="state">
           <div className="flex items-center gap-2">

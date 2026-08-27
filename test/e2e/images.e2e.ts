@@ -37,6 +37,32 @@ test('shows OS and Version columns', async ({ page }) => {
   })
 })
 
+test('image detail modal opens at the image URL, not /edit', async ({ page }) => {
+  // silo image
+  await page.goto('/images')
+  await page.getByRole('link', { name: 'ubuntu-22-04' }).click()
+  await expect(page).toHaveURL('/images/ubuntu-22-04')
+  const siloModal = page.getByRole('dialog', { name: 'Image details' })
+  await expect(siloModal).toBeVisible()
+  await expect(siloModal.getByRole('heading', { name: 'ubuntu-22-04' })).toBeVisible()
+
+  // project image
+  await page.goto('/projects/mock-project/images')
+  await page.getByRole('link', { name: 'image-1' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/images/image-1')
+  await expect(page.getByRole('dialog', { name: 'Image details' })).toBeVisible()
+})
+
+test('old image /edit URL redirects to the detail URL', async ({ page }) => {
+  await page.goto('/images/arch-2022-06-01/edit')
+  await expect(page).toHaveURL('/images/arch-2022-06-01')
+  await expect(page.getByRole('dialog', { name: 'Image details' })).toBeVisible()
+
+  await page.goto('/projects/mock-project/images/image-1/edit')
+  await expect(page).toHaveURL('/projects/mock-project/images/image-1')
+  await expect(page.getByRole('dialog', { name: 'Image details' })).toBeVisible()
+})
+
 test('can promote an image from silo', async ({ page }) => {
   await page.goto('/images')
   await page.click('role=button[name="Promote image"]')
@@ -162,19 +188,32 @@ test('can delete an image from a project', async ({ page }) => {
 test('can delete an image from a silo', async ({ page }) => {
   await page.goto('/images')
 
-  const cell = page.getByRole('cell', { name: 'ubuntu-20-04' })
+  // ubuntu-22-04 is the silo image referenced by mock-project/disks/disk-2, so
+  // we use it here to also verify the disk's Source cell flips to "Deleted"
+  // after the source image is removed.
+  const cell = page.getByRole('cell', { name: 'ubuntu-22-04' })
   await expect(cell).toBeVisible()
 
-  await clickRowAction(page, 'ubuntu-20-04', 'Delete')
+  await clickRowAction(page, 'ubuntu-22-04', 'Delete')
   const spinner = page.getByRole('dialog').getByLabel('Spinner')
   await expect(spinner).toBeHidden()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
-  await expectToast(page, 'Image ubuntu-20-04 deleted')
+  await expectToast(page, 'Image ubuntu-22-04 deleted')
   await expect(cell).toBeHidden()
   await expect(spinner).toBeHidden()
+
+  // Navigate client-side (preserves MSW db) to disk-2's row and verify the
+  // Source column now shows "Image deleted" instead of the image name.
+  await page.getByRole('link', { name: 'Projects', exact: true }).click()
+  await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
+  await page.getByRole('link', { name: 'Disks' }).click()
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'disk-2',
+    Source: 'Image deleted',
+  })
 })
 
 // this is to some extent a test of our mock server implementation, but I want

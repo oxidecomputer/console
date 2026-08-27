@@ -81,7 +81,7 @@ test('path builder', () => {
         "project": "/projects/p/instances",
         "projectAccess": "/projects/p/access",
         "projectEdit": "/projects/p/edit",
-        "projectImageEdit": "/projects/p/images/im/edit",
+        "projectImage": "/projects/p/images/im",
         "projectImages": "/projects/p/images",
         "projectImagesNew": "/projects/p/images-new",
         "projects": "/projects",
@@ -93,7 +93,7 @@ test('path builder', () => {
         "siloFleetRoles": "/system/silos/s/fleet-roles",
         "siloIdps": "/system/silos/s/idps",
         "siloIdpsNew": "/system/silos/s/idps-new",
-        "siloImageEdit": "/images/im/edit",
+        "siloImage": "/images/im",
         "siloImages": "/images",
         "siloIpPools": "/system/silos/s/ip-pools",
         "siloQuotas": "/system/silos/s/quotas",
@@ -186,4 +186,30 @@ test('breadcrumbs', async () => {
   `)
 
   expect(Object.fromEntries(pairs)).toMatchSnapshot()
+})
+
+// Some pages don't have self-referential breadcrumbs (like /instances-new). But
+// these pages also aren't _targeted_ by breadcrumbs! Any page that's targeted
+// by a breadcrumb should be able to point to itself.
+test('every page reachable by breadcrumb should have a self-referential breadcrumb', async () => {
+  // as far as react router is concerned, /blah and /blah/ are equivalent
+  const dropFinalSlash = (p: string) => p.replace(/\/$/, '')
+
+  const allCrumbs = await Promise.all(
+    Object.values(pb).map(async (fn) => {
+      const pathname = fn(params)
+      const matches = await getMatches(pathname)
+      return matchesToCrumbs(matches).filter(({ titleOnly }) => !titleOnly)
+    })
+  )
+  const allPaths = new Set(allCrumbs.flat().map(({ path }) => path))
+
+  for (const path of allPaths) {
+    const crumbs = matchesToCrumbs(await getMatches(path)).filter(
+      ({ titleOnly }) => !titleOnly
+    )
+    const last = R.last(crumbs)
+    if (last === undefined) expect.fail(`Found no breadcrumbs for ${path}`)
+    expect(dropFinalSlash(path)).toEqual(dropFinalSlash(last.path))
+  }
 })

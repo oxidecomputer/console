@@ -11,6 +11,8 @@ import path from 'path'
 
 import { expect, it } from 'vitest'
 
+import viteConfigFn from '../../../vite.config'
+
 it('Generated API client version matches API version specified for deployment', () => {
   const generatedVersion = fs
     .readFileSync(path.resolve(__dirname, '../__generated__/OMICRON_VERSION'), 'utf8')
@@ -40,6 +42,20 @@ it('API_VERSION file matches apiVersion in generated client', () => {
   expect(match?.[1]).toEqual(apiVersionFile)
 })
 
+// tsc is the only thing preventing use of JS APIs missing from our supported
+// browsers: Vite's build neither polyfills nor warns about calls to unsupported
+// APIs, it only transpiles syntax. So we want to make sure vite and tsc have
+// the same target.
+it('vite build target matches tsconfig target', () => {
+  const tsconfig = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, '../../../tsconfig.json'), 'utf8')
+  )
+  const viteConfig = viteConfigFn({ mode: 'production', command: 'build' })
+  // guard against an undefined === undefined pass if both are removed
+  expect(tsconfig.compilerOptions.target).toMatch(/^es\d{4}$/)
+  expect(viteConfig.build?.target).toEqual(tsconfig.compilerOptions.target)
+})
+
 const grepFiles = (s: string) =>
   execSync(`git grep -l "${s}"`)
     .toString()
@@ -51,7 +67,7 @@ it('mock-api is only referenced in test files', () => {
   expect(grepFiles('api-mocks')).toMatchInlineSnapshot(`
     [
       "AGENTS.md",
-      "app/api/__tests__/client.spec.ts",
+      "app/api/__tests__/client.browser.spec.ts",
       "mock-api/msw/db.ts",
       "test/e2e/fleet-access.e2e.ts",
       "test/e2e/instance-create.e2e.ts",
@@ -67,13 +83,12 @@ it('mock-api is only referenced in test files', () => {
     [
       "AGENTS.md",
       "README.md",
+      "app/api/__tests__/client.browser.spec.ts",
       "app/main.tsx",
       "app/msw-mock-api.ts",
       "docs/mock-api-differences.md",
       "package.json",
       "test/e2e/utils.ts",
-      "test/unit/server.ts",
-      "test/unit/setup.ts",
       "tools/start_mock_api.ts",
       "tsconfig.json",
     ]

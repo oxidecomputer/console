@@ -6,24 +6,73 @@
  * Copyright Oxide Computer Company
  */
 
+import * as R from 'remeda'
+
 import type { ExternalIp, InstanceNetworkInterface, IpVersion, UnicastIpPool } from '~/api'
 import { setDiff, setIntersection } from '~/util/array'
+
+/** Order IPs: floating first, then ephemeral, then SNAT */
+const IP_ORDER = { floating: 0, ephemeral: 1, snat: 2 } as const
+export const orderIps = (ips: ExternalIp[]) => R.sortBy(ips, (a) => IP_ORDER[a.kind])
 
 // Borrowed from Valibot. I tried some from Zod and an O'Reilly regex cookbook
 // but they didn't match results with std::net on simple test cases
 // https://github.com/fabian-hiller/valibot/blob/2554aea5/library/src/regex.ts#L43-L54
-
 const IPV4_REGEX =
   /^(?:(?:[1-9]|1\d|2[0-4])?\d|25[0-5])(?:\.(?:(?:[1-9]|1\d|2[0-4])?\d|25[0-5])){3}$/u
 
-const IPV6_REGEX =
-  /^(?:(?:[\da-f]{1,4}:){7}[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,7}:|(?:[\da-f]{1,4}:){1,6}:[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,5}(?::[\da-f]{1,4}){1,2}|(?:[\da-f]{1,4}:){1,4}(?::[\da-f]{1,4}){1,3}|(?:[\da-f]{1,4}:){1,3}(?::[\da-f]{1,4}){1,4}|(?:[\da-f]{1,4}:){1,2}(?::[\da-f]{1,4}){1,5}|[\da-f]{1,4}:(?::[\da-f]{1,4}){1,6}|:(?:(?::[\da-f]{1,4}){1,7}|:)|fe80:(?::[\da-f]{0,4}){0,4}%[\da-z]+|::(?:f{4}(?::0{1,4})?:)?(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d)|(?:[\da-f]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d))$/iu
+// IPv6 is more complex; use the WHATWG URL parser rather than a regex to determine validity.
+// Restrict the charset first so the parser only ever sees a bare host: `]`, `/`,
+// `%`, and whitespace would otherwise let non-addresses through as port, path, or zone.
+
+const IPV6_CHARS_REGEX = /^[0-9a-f:.]+$/i
+
+/**
+ * Convert an IPv6 candidate to a form all browsers' URL parsers judge
+ * correctly, or return null if it's invalid in a way we can detect up front.
+ * The result is only structurally equivalent to the input (an embedded IPv4
+ * quad becomes placeholder groups) — use it for validity checking only, never
+ * as an address.
+ */
+export function toUrlCheckableIpv6(ip: string): string | null {
+  if (!ip.includes(':') || !IPV6_CHARS_REGEX.test(ip)) return null
+
+  // WebKit accepts a trailing single colon (`1::2:`), which std::net rejects.
+  if (/[^:]:$/.test(ip)) return null
+
+  // URL parsers disagree on embedded IPv4, so validate the dotted quad and
+  // replace it with two placeholder groups before handing the address to URL.
+  const lastColon = ip.lastIndexOf(':')
+  const quad = ip.slice(lastColon + 1)
+  if (quad.includes('.')) {
+    if (!IPV4_REGEX.test(quad)) return null
+    return ip.slice(0, lastColon + 1) + '0:0'
+  } else if (ip.includes('.')) {
+    return null // dots are only valid in a trailing IPv4 quad
+  }
+
+  return ip
+}
+
+function isIpv6(ip: string): boolean {
+  const normalizedIp = toUrlCheckableIpv6(ip)
+  if (normalizedIp === null) return false
+
+  try {
+    // the brackets force the parser to treat the host as an IPv6 literal —
+    // without them, non-addresses like domain names would parse fine
+    new URL(`http://[${normalizedIp}]`)
+    return true
+  } catch {
+    return false
+  }
+}
 
 type ParsedIp = { type: IpVersion; address: string } | { type: 'error'; message: string }
 
 export function parseIp(ip: string): ParsedIp {
   if (IPV4_REGEX.test(ip)) return { type: 'v4', address: ip }
-  if (IPV6_REGEX.test(ip)) return { type: 'v6', address: ip }
+  if (isIpv6(ip)) return { type: 'v6', address: ip }
   return { type: 'error', message: 'Not a valid IP address' }
 }
 
@@ -86,6 +135,32 @@ export function parseIpNet(ipNet: string): ParsedIpNet {
 export function validateIpNet(ipNet: string): string | undefined {
   const result = parseIpNet(ipNet)
   if (result.type === 'error') return result.message
+}
+
+// The API requires a VPC IPv6 prefix to be a unique local address (fc00::/7)
+// with a width of exactly 48. Anything else is rejected on create.
+// https://github.com/oxidecomputer/omicron/blob/6db4c7e/common/src/api/external/mod.rs#L1287-L1288
+// https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-model/src/vpc.rs#L86-L98
+export const VPC_IPV6_PREFIX_WIDTH = 48
+
+/** First hextet of a valid IPv6 address, e.g. 0xfd00 for `fd00::1` or `fd00::` */
+function firstHextet(address: string): number {
+  // a leading `::` means the first hextet is zero
+  if (address.startsWith(':')) return 0
+  return parseInt(address.split(':', 1)[0], 16)
+}
+
+export function validateVpcIpv6Prefix(value: string): string | undefined {
+  const result = parseIpNet(value)
+  if (result.type === 'error') return result.message
+  if (result.type !== 'v6') return 'Must be an IPv6 prefix'
+  // Rust's `Ipv6Addr::is_unique_local` checks fc00::/7
+  if ((firstHextet(result.address) & 0xfe00) !== 0xfc00) {
+    return 'Must be a unique local address (fc00::/7)'
+  }
+  if (result.width !== VPC_IPV6_PREFIX_WIDTH) {
+    return `Width must be ${VPC_IPV6_PREFIX_WIDTH}`
+  }
 }
 
 /**

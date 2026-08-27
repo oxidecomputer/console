@@ -29,8 +29,7 @@ export const pb = {
   projectAccess: (params: PP.Project) => `${projectBase(params)}/access`,
   projectImages: (params: PP.Project) => `${projectBase(params)}/images`,
   projectImagesNew: (params: PP.Project) => `${projectBase(params)}/images-new`,
-  projectImageEdit: (params: PP.Image) =>
-    `${pb.projectImages(params)}/${params.image}/edit`,
+  projectImage: (params: PP.Image) => `${pb.projectImages(params)}/${params.image}`,
 
   instances: (params: PP.Project) => `${projectBase(params)}/instances`,
   instancesNew: (params: PP.Project) => `${projectBase(params)}/instances-new`,
@@ -113,7 +112,7 @@ export const pb = {
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
   siloImages: () => '/images',
-  siloImageEdit: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}/edit`,
+  siloImage: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}`,
 
   fleetAccess: () => '/system/access',
   systemUtilization: () => '/system/utilization',
