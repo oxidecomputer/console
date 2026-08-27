@@ -62,38 +62,50 @@ test('Webhook create', async ({ page }) => {
   await page.getByRole('link', { name: 'New webhook' }).click()
   await expect(page).toHaveURL('/system/alerting/receivers-new')
 
-  const modal = page.getByRole('dialog', { name: 'Create webhook' })
-  await modal.getByRole('textbox', { name: 'Name' }).fill('deploy-hook')
-  await modal.getByRole('textbox', { name: 'Description' }).fill('CI deploys')
-  await modal.getByRole('textbox', { name: 'Secret' }).fill('super-secret')
+  await expect(page.getByRole('heading', { name: 'Create webhook receiver' })).toBeVisible()
+
+  // scope text assertions to main to avoid matching the aria-live announcer,
+  // which repeats validation error messages at the body level
+  const main = page.getByRole('main')
+
+  await page.getByRole('textbox', { name: 'Name' }).fill('deploy-hook')
+  await page.getByRole('textbox', { name: 'Description' }).fill('CI deploys')
 
   // endpoint must be a valid URL
-  await modal.getByRole('textbox', { name: 'Endpoint URL' }).fill('not-a-url')
-  await page.getByRole('button', { name: 'Create webhook' }).click()
+  await page.getByRole('textbox', { name: 'Endpoint URL' }).fill('not-a-url')
+  await page.getByRole('button', { name: 'Create webhook receiver' }).click()
   await expect(
-    modal.getByText('Must be a valid URL, including the scheme (e.g., https://)')
+    main.getByText('Must be a valid URL, including the scheme (e.g., https://)')
   ).toBeVisible()
-  await modal.getByRole('textbox', { name: 'Endpoint URL' }).fill('https://ci.example.com')
+  // at least one secret is required
+  await expect(main.getByText('At least one secret is required')).toBeVisible()
+  await page.getByRole('textbox', { name: 'Endpoint URL' }).fill('https://ci.example.com')
 
-  // add a subscription: bad glob is rejected, good glob lands in the mini table
-  const combobox = modal.getByRole('combobox', { name: 'Event classes' })
-  await combobox.fill('hardware..bad')
-  await modal.getByRole('button', { name: 'Add event class' }).click()
+  // add a secret; it lands in the mini table
+  await page.getByRole('textbox', { name: 'Secret' }).fill('super-secret')
+  await page.getByRole('button', { name: 'Add secret' }).click()
   await expect(
-    modal.getByText('Must be an event class or a glob pattern like hardware.**')
+    page
+      .getByRole('table', { name: 'Secrets' })
+      .getByRole('cell', { name: 'super-secret', exact: true })
   ).toBeVisible()
-  await combobox.fill('hardware.**')
-  // glob preview shows which classes the pattern currently matches
-  await expect(modal.getByText('Matches 2 event classes')).toBeVisible()
-  await modal.getByRole('button', { name: 'Add event class' }).click()
-  await expect(
-    modal.getByRole('table', { name: 'Event classes' }).getByRole('cell', {
-      name: 'hardware.**',
-      exact: true,
-    })
-  ).toBeVisible()
+  await expect(main.getByText('At least one secret is required')).toBeHidden()
 
-  await page.getByRole('button', { name: 'Create webhook' }).click()
+  // add a subscription: a bad glob is rejected on Enter, a good one becomes a chip
+  const subsInput = page.getByRole('combobox', { name: 'Event subscriptions' })
+  await subsInput.fill('hardware..bad')
+  await subsInput.press('Enter')
+  await expect(
+    main.getByText('Must be an event class or a glob pattern like hardware.**')
+  ).toBeVisible()
+  await subsInput.fill('hardware.**')
+  await subsInput.press('Enter')
+  await expect(
+    page.getByRole('button', { name: 'remove subscription hardware.**' })
+  ).toBeVisible()
+  await expect(subsInput).toHaveValue('')
+
+  await page.getByRole('button', { name: 'Create webhook receiver' }).click()
   await expectToast(page, 'Webhook deploy-hook created')
 
   await expectRowVisible(page.getByRole('table'), {
@@ -101,6 +113,107 @@ test('Webhook create', async ({ page }) => {
     Events: 'hardware.**',
     description: 'CI deploys',
   })
+})
+
+test('Webhook create subscriptions field', async ({ page }) => {
+  await page.goto('/system/alerting/receivers-new')
+
+  const subsInput = page.getByRole('combobox', { name: 'Event subscriptions' })
+  const listbox = page.getByRole('listbox')
+  const chipRemove = (sub: string) =>
+    page.getByRole('button', { name: `remove subscription ${sub}` })
+
+  // accessible-name matching is brittle here because the highlighted name is
+  // split across elements, so filter rows by rendered text instead
+  const option = (name: string) => listbox.getByRole('option').filter({ hasText: name })
+
+  // focusing opens the catalog showing all classes
+  await subsInput.click()
+  await expect(listbox.getByText('All classes')).toBeVisible()
+  await expect(listbox.getByRole('option')).toHaveCount(15)
+
+  // a glob query filters the catalog and labels matched rows with the pattern
+  await subsInput.fill('hardware.*.fault')
+  await expect(listbox.getByText('Matching “hardware.*.fault”')).toBeVisible()
+  // 3 classes match; psu.fault is one segment too deep, shown as a near miss
+  // labeled with the broader pattern that would cover it
+  await expect(listbox.getByText('Showing 4 of 15')).toBeVisible()
+  const pendingRow = option('hardware.disk.fault')
+  await expect(pendingRow.getByText('hardware.*.fault', { exact: true })).toBeVisible()
+  const nearMissRow = option('hardware.power_shelf.psu.fault')
+  await expect(nearMissRow.getByText('hardware.**.fault', { exact: true })).toBeVisible()
+
+  // Enter commits the glob as a chip and clears the query
+  await subsInput.press('Enter')
+  await expect(chipRemove('hardware.*.fault')).toBeVisible()
+  await expect(subsInput).toHaveValue('')
+
+  // rows matched by the committed glob are locked and can't be double-added
+  await subsInput.fill('fault')
+  const coveredRow = option('hardware.disk.fault')
+  await expect(coveredRow.getByText('via hardware.*.fault')).toBeVisible()
+  await expect(coveredRow).toHaveAttribute('aria-disabled', 'true')
+  // force because playwright refuses to click aria-disabled elements; we want
+  // to verify the click is a no-op anyway
+  await coveredRow.click({ force: true })
+  await expect(chipRemove('hardware.disk.fault')).toBeHidden()
+
+  // plain-text filter + ticking rows commits exact classes without resetting the query
+  await subsInput.fill('update')
+  await expect(listbox.getByText('Showing 3 of 15')).toBeVisible()
+  await option('system.update.start').click()
+  await option('system.update.complete').click()
+  await expect(chipRemove('system.update.start')).toBeVisible()
+  await expect(chipRemove('system.update.complete')).toBeVisible()
+  await expect(subsInput).toHaveValue('update')
+  await expect(listbox).toBeVisible()
+
+  // clicking a picked row unpicks it
+  await option('system.update.start').click()
+  await expect(chipRemove('system.update.start')).toBeHidden()
+
+  // zero matches shows an explicit empty state with a clear action
+  await subsInput.fill('zzz')
+  await expect(listbox.getByText('No classes match')).toBeVisible()
+  await listbox.getByRole('button', { name: 'Clear' }).click()
+  await expect(listbox.getByText('All classes')).toBeVisible()
+
+  // an incomplete glob shows the full catalog, not a bogus empty state
+  await subsInput.fill('*.')
+  await expect(listbox.getByRole('option')).toHaveCount(15)
+  await subsInput.fill('')
+
+  // backspace on an empty query arms the last chip, a second one removes it
+  await subsInput.press('Backspace')
+  await expect(chipRemove('system.update.complete')).toBeVisible()
+  await subsInput.press('Backspace')
+  await expect(chipRemove('system.update.complete')).toBeHidden()
+
+  // typing disarms, so the chip survives
+  await subsInput.press('Backspace')
+  await subsInput.pressSequentially('x')
+  await subsInput.press('Backspace')
+  await subsInput.press('Backspace')
+  await expect(chipRemove('hardware.*.fault')).toBeVisible()
+
+  // arrow keys move the armed selection, so a specific chip can be deleted
+  await subsInput.fill('probe')
+  await subsInput.press('Enter')
+  await expect(chipRemove('probe')).toBeVisible()
+  await subsInput.press('ArrowLeft') // arm probe
+  await subsInput.press('ArrowLeft') // arm hardware.*.fault
+  await subsInput.press('Backspace')
+  await expect(chipRemove('hardware.*.fault')).toBeHidden()
+  await expect(chipRemove('probe')).toBeVisible()
+
+  // uncommitted text is discarded on blur so it doesn't read as added
+  await subsInput.fill('leftover')
+  await page.getByRole('textbox', { name: 'Name' }).click()
+  await expect(subsInput).toHaveValue('')
+
+  // subscribed classes sort to the top when the panel opens
+  await subsInput.click()
+  await expect(listbox.getByRole('option').first()).toContainText('probe')
 })
 
 test('Webhook detail: properties, event classes, secrets', async ({ page }) => {
@@ -284,17 +397,18 @@ test('Webhook deliveries', async ({ page }) => {
   const table = page.getByRole('table')
   await expect(table.getByRole('row')).toHaveCount(7) // header + 6
 
-  // IDs are middle-truncated, with the full value in the tooltip
+  // Truncate renders the full ID (invisible, for stable layout) alongside the
+  // ellipsized copy, so cell text contains both. Match on the full value.
   await expectRowVisible(table, {
-    'Delivery ID': '9bbdf…693ee',
-    'Event ID': '391a8…311f5',
+    'Delivery ID': expect.stringContaining('9bbdf44f-7dac-4cd0-b4c2-3e622c9693ee'),
+    'Event ID': expect.stringContaining('391a8e04-a160-4132-a989-6104113311f5'),
     'Event class': 'probe',
     state: 'delivered',
     trigger: 'probe',
   })
   await expectRowVisible(table, {
-    'Delivery ID': '30ece…a685e',
-    'Event ID': 'beef3…8421a',
+    'Delivery ID': expect.stringContaining('30ece63e-5efd-4365-99a6-d4f09dfa685e'),
+    'Event ID': expect.stringContaining('beef336d-99db-4b12-ac08-7ebcaab8421a'),
     'Event class': 'hardware.power_shelf.psu.insert',
     state: 'failed',
     trigger: 'alert',
@@ -347,8 +461,11 @@ test('Webhook deliveries', async ({ page }) => {
   // pending delivery
   await clickRowAction(page, '30ece63e-5efd-4365-99a6-d4f09dfa685e', 'Resend')
   const confirmModal = page.getByRole('dialog', { name: 'Confirm resend' })
-  // the alert ID, truncated in the modal
-  await expect(confirmModal.getByText(/beef336d/)).toBeVisible()
+  // the alert ID is truncated for display, but keeps the full value as its
+  // accessible name
+  await expect(
+    confirmModal.getByLabel('beef336d-99db-4b12-ac08-7ebcaab8421a')
+  ).toBeVisible()
   await confirmModal.getByRole('button', { name: 'Confirm' }).click()
   await expectToast(page, 'Delivery resend started')
   await expect(table.getByRole('row')).toHaveCount(8)

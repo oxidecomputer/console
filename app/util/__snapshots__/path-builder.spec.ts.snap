@@ -87,6 +87,10 @@ exports[`breadcrumbs 2`] = `
       "label": "Receivers",
       "path": "/system/alerting/receivers",
     },
+    {
+      "label": "New webhook receiver",
+      "path": "/system/alerting/receivers-new",
+    },
   ],
   "alerts (/system/alerting/alerts)": [
     {
