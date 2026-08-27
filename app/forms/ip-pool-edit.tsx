@@ -16,7 +16,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
-import { makeCrumb } from '~/hooks/use-crumbs'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
@@ -34,7 +34,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = makeCrumb('Edit IP pool')
+export const handle = titleCrumb('Edit IP pool')
 
 export default function EditIpPoolSideModalForm() {
   const navigate = useNavigate()

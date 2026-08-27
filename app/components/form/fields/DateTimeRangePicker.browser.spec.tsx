@@ -42,16 +42,21 @@ function DateTimeRangePickerHarness({
   )
 }
 
-test('chooses a preset with the pointer', async () => {
+test.each([
+  ['Last hour', 'lastHour'],
+  ['Last 3 hours', 'last3Hours'],
+  ['Last week', 'lastWeek'],
+  ['Last 30 days', 'last30Days'],
+])('chooses preset %s with the pointer', async (option, preset) => {
   const screen = await render(<DateTimeRangePickerHarness />)
 
   await screen.getByRole('button', { name: 'Choose a time range preset' }).click()
-  await screen.getByRole('option', { name: 'Last week' }).click()
+  await screen.getByRole('option', { name: option }).click()
 
-  await expect.element(screen.getByText('Preset: lastWeek')).toBeVisible()
+  await expect.element(screen.getByText(`Preset: ${preset}`)).toBeVisible()
   await expect
     .element(screen.getByRole('button', { name: 'Choose a time range preset' }))
-    .toHaveTextContent('Last week')
+    .toHaveTextContent(option)
 })
 
 test('chooses a preset with the keyboard', async () => {

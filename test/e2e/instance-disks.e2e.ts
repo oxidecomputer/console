@@ -31,6 +31,15 @@ test('Disk detail side modal', async ({ page }) => {
 test('Disabled actions', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
+  // the disabled reason is exposed to screen readers as an accessible
+  // description even with no hover or focus to pop the tooltip
+  await expect(
+    page.getByRole('button', { name: 'Attach existing disk' })
+  ).toHaveAccessibleDescription('Instance must be stopped to attach a disk')
+  await expect(
+    page.getByRole('button', { name: 'Create disk' })
+  ).toHaveAccessibleDescription('Instance must be stopped to create and attach a disk')
+
   const bootDiskRow = page.getByRole('row', { name: 'disk-1', exact: false })
   await expect(bootDiskRow).toBeVisible()
 
@@ -44,13 +53,15 @@ test('Disabled actions', async ({ page }) => {
   await expect(unsetButton).toBeDisabled()
   await page.getByRole('menuitem', { name: 'Unset' }).hover()
   await expect(
-    page.getByText('Instance must be stopped before boot disk can be changed')
+    page
+      .getByRole('tooltip')
+      .getByText('Instance must be stopped before boot disk can be changed')
   ).toBeVisible()
 
   await expect(detachButton).toBeDisabled()
   await detachButton.hover()
   await expect(
-    page.getByText('Boot disk must be unset before it can be detached')
+    page.getByRole('tooltip').getByText('Boot disk must be unset before it can be detached')
   ).toBeVisible()
   await page.keyboard.press('Escape') // close menu
 
@@ -63,13 +74,17 @@ test('Disabled actions', async ({ page }) => {
   await expect(setButton).toBeDisabled()
   await setButton.hover()
   await expect(
-    page.getByText('Instance must be stopped before boot disk can be changed')
+    page
+      .getByRole('tooltip')
+      .getByText('Instance must be stopped before boot disk can be changed')
   ).toBeVisible()
 
   await expect(detachButton).toBeDisabled()
   await detachButton.hover()
   await expect(
-    page.getByText('Instance must be stopped before disk can be detached')
+    page
+      .getByRole('tooltip')
+      .getByText('Instance must be stopped before disk can be detached')
   ).toBeVisible()
   await page.keyboard.press('Escape') // close menu
 
