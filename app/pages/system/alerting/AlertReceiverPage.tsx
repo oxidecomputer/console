@@ -799,7 +799,7 @@ function DeliverySideModal({
               <Badge color="neutral">{delivery.alertClass}</Badge>
             </PropertiesTable.Row>
             <PropertiesTable.IdRow id={delivery.id} label="Delivery ID" />
-            <PropertiesTable.IdRow id={delivery.alertId} label="Event ID" />
+            <PropertiesTable.IdRow id={delivery.alertId} label="Alert ID" />
             <PropertiesTable.Row label="Started">
               <DateTime date={delivery.timeStarted} />
             </PropertiesTable.Row>
