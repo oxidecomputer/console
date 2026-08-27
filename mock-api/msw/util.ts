@@ -52,6 +52,7 @@ import {
   timeseriesFrom,
   resultFrom,
   getMockValues,
+  getHistoPoints,
 } from '../oxql-metrics'
 import { db, lookupById } from './db'
 import { Rando } from './rando'
@@ -114,6 +115,9 @@ export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date })
 
 export const forbiddenErr = () =>
   json({ error_code: 'Forbidden', request_id: 'fake-id' }, { status: 403 })
+
+export const unauthorizedErr = () =>
+  json({ error_code: 'Unauthorized', request_id: 'fake-id' }, { status: 401 })
 
 export const unavailableErr = () =>
   json({ error_code: 'ServiceUnavailable', request_id: 'fake-id' }, { status: 503 })
@@ -701,6 +705,13 @@ export function fmtOxqlParseError(source: string, offset: number, expected: stri
   return out
 }
 
+const histogramTables = new Set([
+  'virtual_disk:io_latency',
+  'virtual_disk:io_size',
+  'http_service:request_latency_histogram',
+  'oximeter_collector:database_queue_depth',
+])
+
 export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryResult> {
   // Sentinel for exercising the console's parse error handling: `oops`
   // anywhere in a query fails with a realistic parse error pointing at it
@@ -714,6 +725,14 @@ export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryRes
   }
 
   const vibe = getVibe(query)
+
+  if (histogramTables.has(vibe.firstTable))
+    return resultFrom([
+      {
+        name: vibe.firstTable,
+        timeseries: [timeseriesFrom(instances[0].id, getHistoPoints())],
+      },
+    ])
 
   if (vibe.moreTables.length > 0) return getMultipleTables(vibe)
 

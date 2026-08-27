@@ -96,6 +96,12 @@ const devHeaders = {
 // see https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   build: {
+    // Must match `target` in tsconfig.json: tsc only checks against lib types
+    // and nothing polyfills missing APIs, so the browser floor and the type
+    // ceiling have to move together. Vite maps this to the oldest browsers
+    // with full ES2024 support. We pin it because the default
+    // (baseline-widely-available) drifts across Vite versions.
+    target: 'es2024',
     outDir: resolve(__dirname, 'dist'),
     emptyOutDir: true,
     sourcemap: true,
@@ -162,8 +168,8 @@ export default defineConfig(({ mode }) => ({
   preview: { headers },
   test: {
     name: 'unit',
-    environment: 'jsdom',
-    setupFiles: ['test/unit/setup.ts'],
+    // no DOM environment: anything needing a real DOM is a browser mode test
+    environment: 'node',
     includeSource: ['app/**/*.ts'],
     exclude: [...configDefaults.exclude, '**/*.browser.spec.{ts,tsx}'],
   },

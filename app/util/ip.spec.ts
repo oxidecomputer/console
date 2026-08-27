@@ -10,7 +10,13 @@ import { describe, expect, test } from 'vitest'
 
 import type { ExternalIp, IpVersion, UnicastIpPool } from '~/api'
 
-import { getEphemeralIpSlots, toUrlCheckableIpv6, parseIp, parseIpNet } from './ip'
+import {
+  getEphemeralIpSlots,
+  toUrlCheckableIpv6,
+  parseIp,
+  parseIpNet,
+  validateVpcIpv6Prefix,
+} from './ip'
 
 const makePool = (ipVersion: IpVersion, name = `pool-${ipVersion}`): UnicastIpPool => ({
   id: `id-${name}`,
@@ -335,4 +341,35 @@ test.each([
   ['fd::/129', ipv6Width],
 ])('parseIpNet message: %s', (input, message) => {
   expect(parseIpNet(input)).toEqual({ type: 'error', message })
+})
+
+describe('validateVpcIpv6Prefix', () => {
+  test.each([
+    'fd00::/48',
+    'fd2d:4569:88b2::/48',
+    'fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/48',
+    'fd00::1/48', // host bits are fine, matching oxnet
+    'fc00::/48', // std's is_unique_local covers fc00::/7
+  ])('valid: %s', (s) => {
+    expect(validateVpcIpv6Prefix(s)).toBeUndefined()
+  })
+
+  const notV6 = 'Must be an IPv6 prefix'
+  const notUla = 'Must be a unique local address (fc00::/7)'
+  const badPrefixWidth = 'Width must be 48'
+
+  test.each([
+    ['nonsense', nonsense],
+    ['fd00::', nonsense],
+    ['10.0.0.0/8', notV6],
+    ['::/48', notUla],
+    ['fbff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/48', notUla],
+    ['2001:db8::/48', notUla],
+    ['fe00::/48', notUla],
+    ['fd00::/64', badPrefixWidth],
+    ['fd00::/40', badPrefixWidth],
+    ['fd00::/129', ipv6Width],
+  ])('invalid: %s', (input, message) => {
+    expect(validateVpcIpv6Prefix(input)).toEqual(message)
+  })
 })

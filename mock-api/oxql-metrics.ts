@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import * as R from 'remeda'
+
 import type { Timeseries, Points, OxqlQueryResult } from '~/api'
 import type { OxqlMetricName, OxqlVcpuState } from '~/components/oxql-metrics/util'
 
@@ -335,4 +337,51 @@ const mockOxqlVcpuStateValues: Record<OxqlVcpuState, number[]> = {
     1979186.303121, 1949295.053382, 1952644.818068, 2656981.192183, 4945187.707641,
     5131885.651897, 5188225.092888, 4388460.254213, 4075678.463765, 3943427.938256,
   ],
+}
+
+const histogramBins = Array.from({ length: 30 }, (_, i) => i * 250_000)
+
+export const getHistoPoints = (): Json<Points> => {
+  const rando = new Rando(0)
+  const binCount = histogramBins.length
+
+  const timeline = getJitteredTimestamps(0)
+  const startTimes = timeline.slice(0, -1)
+  const timestamps = timeline.slice(1)
+
+  const distributions = timestamps.map(() => {
+    const center = (binCount / 4) * 1.5
+    const spread = 2.5
+    const counts = histogramBins.map((_, binIndex) => {
+      const MAX_VALUE = 400
+      const count = MAX_VALUE * Math.exp(-((binIndex - center) ** 2) / (2 * spread ** 2))
+      const randomSubtraction = rando.next() * 30
+      const randomDivision = 1 + rando.next() * 0.1
+      const nearFinal = Math.round(Math.max(0, count / randomDivision - randomSubtraction))
+      return nearFinal < MAX_VALUE / 10 && rando.next() > 0.75 ? 0 : nearFinal
+    })
+
+    return {
+      bins: histogramBins,
+      counts,
+      min: 0,
+      max: histogramBins[binCount - 1],
+      sum_of_samples: R.sum(counts),
+      squared_mean: 0,
+      p50: histogramBins[Math.round(center)] ?? 0,
+      p90: histogramBins[Math.min(binCount - 1, Math.round(center + spread))] ?? 0,
+      p99: histogramBins[Math.min(binCount - 1, Math.round(center + 2 * spread))] ?? 0,
+    }
+  })
+
+  return {
+    start_times: startTimes,
+    timestamps,
+    values: [
+      {
+        values: { type: 'integer_distribution', values: distributions },
+        metric_type: 'delta',
+      },
+    ],
+  }
 }

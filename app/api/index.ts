@@ -20,4 +20,4 @@ export { camelToSnake } from './__generated__/util'
 export type { ApiTypes }
 
 export type { ApiError } from './errors'
-export { navToLogin } from './nav-to-login'
+export { navToLogin } from './client'
