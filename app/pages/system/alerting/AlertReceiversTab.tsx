@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Outlet, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -154,7 +154,6 @@ export default function AlertReceiversTab() {
         <CreateLink to={pb.alertReceiversNew()}>New webhook</CreateLink>
       </TableActions>
       {table}
-      <Outlet />
     </>
   )
 }

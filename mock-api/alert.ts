@@ -120,7 +120,9 @@ export const receiverGeneral: Json<AlertReceiver> = {
   ...getTimestamps(),
 }
 
-export const alertReceivers = [receiverWebhook1, receiverPowerMon, receiverGeneral]
+// alphabetical by name to match the API's default name_ascending sort. the mock
+// paginated() helper preserves array order, so the seed order is the sort order
+export const alertReceivers = [receiverGeneral, receiverPowerMon, receiverWebhook1]
 
 const minutesAgo = (n: number) => subMinutes(new Date(), n).toISOString()
 

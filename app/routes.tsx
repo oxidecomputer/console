@@ -278,10 +278,6 @@ export const routes = createRoutesFromElements(
             lazy={() => import('./pages/system/alerting/AlertReceiversTab').then(convert)}
           >
             <Route path="receivers" element={null} />
-            <Route
-              path="receivers-new"
-              lazy={() => import('./forms/webhook-create').then(convert)}
-            />
           </Route>
         </Route>
         {/* /system/alerting redirects to the alerts tab, so point the crumb
@@ -297,6 +293,14 @@ export const routes = createRoutesFromElements(
                 lazy={() => import('./forms/webhook-edit').then(convert)}
               />
             </Route>
+          </Route>
+          {/* the create form is a whole page, not a modal over the list, so it
+              sits outside the tabs layout. crumb links back to the list */}
+          <Route element={null} handle={makeCrumb('Receivers', pb.alertReceivers())}>
+            <Route
+              path="receivers-new"
+              lazy={() => import('./forms/webhook-create').then(convert)}
+            />
           </Route>
         </Route>
         <Route
