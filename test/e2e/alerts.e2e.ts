@@ -155,6 +155,14 @@ test('Webhook create subscriptions field', async ({ page }) => {
   await expect(chipRemove('hardware.*.fault')).toBeVisible()
   await expect(subsInput).toHaveValue('')
 
+  // space commits a glob too, since a subscription can't contain one. Remove
+  // the chip again so it doesn't cover the rows picked further down.
+  await subsInput.fill('system.**')
+  await subsInput.press(' ')
+  await expect(chipRemove('system.**')).toBeVisible()
+  await expect(subsInput).toHaveValue('')
+  await chipRemove('system.**').click()
+
   // rows matched by the committed glob are locked and can't be double-added
   await subsInput.fill('fault')
   const coveredRow = option('hardware.disk.fault')
@@ -168,6 +176,11 @@ test('Webhook create subscriptions field', async ({ page }) => {
   // plain-text filter + ticking rows commits exact classes without resetting the query
   await subsInput.fill('update')
   await expect(listbox.getByText('Showing 3 of 14')).toBeVisible()
+  // space is a no-op on a non-glob query: no stray space in the filter, and no
+  // chip made from a half-typed class name
+  await subsInput.press(' ')
+  await expect(subsInput).toHaveValue('update')
+  await expect(chipRemove('update')).toBeHidden()
   await option('system.update.start').click()
   await option('system.update.complete').click()
   await expect(chipRemove('system.update.start')).toBeVisible()

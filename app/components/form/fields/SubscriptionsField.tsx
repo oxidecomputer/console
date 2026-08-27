@@ -280,6 +280,18 @@ export function SubscriptionsField({
       } else if (queryTrimmed) {
         commitQuery()
       }
+    } else if (e.key === KEYS.space) {
+      // a subscription can never contain a space, so the key is free to act as
+      // a commit shortcut: typing `hardware.**` and hitting space makes the
+      // chip without having to discover Enter. Only globs commit — an exact
+      // class is meant to be ticked in the list, and quietly turning a
+      // half-typed name into a chip would be worse than doing nothing.
+      e.preventDefault()
+      if (open && activeIdx !== null && rows[activeIdx]) {
+        toggleRow(rows[activeIdx].name)
+      } else if (isGlobPattern(queryTrimmed)) {
+        commitQuery()
+      }
     } else if (e.key === KEYS.backspace || e.key === KEYS.delete) {
       if (armedIdx !== null) {
         e.preventDefault()
