@@ -15,7 +15,7 @@
       "@oxide/api-mocks": ["./mock-api/index.ts"]
     },
     "skipLibCheck": true,
-    "target": "es2023",
+    "target": "es2024",
     "types": ["node", "vite/client", "vitest/importMeta"]
   },
   "exclude": ["tools/deno"]

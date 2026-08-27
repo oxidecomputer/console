@@ -69,6 +69,7 @@ import {
   requireFleetViewer,
   requireRole,
   resolveIpStack,
+  unauthorizedErr,
   unavailableErr,
   updateDesc,
   userHasRole,
@@ -120,6 +121,8 @@ export const handlers = makeHandlers({
       throw unavailableErr()
     } else if (path.project.endsWith('error-403')) {
       throw forbiddenErr()
+    } else if (path.project.endsWith('error-401')) {
+      throw unauthorizedErr()
     }
 
     return R.omit(lookup.project({ ...path }), ['silo_id'])

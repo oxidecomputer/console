@@ -85,9 +85,6 @@
     "@mswjs/http-middleware": "^0.10.3",
     "@oxide/openapi-gen-ts": "~0.14.0",
     "@playwright/test": "^1.61.0",
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
     "@types/lodash.throttle": "^4.1.9",
     "@types/md5": "^2.3.5",
     "@types/mousetrap": "^1.6.15",
@@ -99,12 +96,10 @@
     "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/browser-playwright": "^4.1.11",
-    "autoprefixer": "^10.4.20",
     "eslint-plugin-playwright": "^2.10.4",
     "eslint-plugin-react-hook-form": "^0.3.1",
     "husky": "^9.1.7",
     "ip-num": "^1.5.1",
-    "jsdom": "^29.1.1",
     "msw": "^2.7.5",
     "oxfmt": "^0.55.0",
     "oxlint": "^1.70.0",
@@ -118,9 +113,6 @@
     "vitest": "^4.1.11",
     "vitest-browser-react": "^2.2.0"
   },
-  "browserslist": [
-    "defaults"
-  ],
   "msw": {
     "workerDirectory": [
       ""

@@ -44,9 +44,11 @@ export const remToPx = (rem: number) =>
   rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 
 // We measure axis label widths on a detached canvas instead of uPlot's to avoid
-// overwriting its own font setting.
-const measureCtx = document.createElement('canvas').getContext('2d')
+// overwriting its own font setting. Created lazily so importing this module
+// doesn't require a DOM.
+let measureCtx: CanvasRenderingContext2D | null = null
 export const measureTextWidth = (text: string, font: string) => {
+  measureCtx ??= document.createElement('canvas').getContext('2d')
   // getContext('2d') is only null if '2d' is unsupported, which, hey, you're not getting a graph
   if (!measureCtx) return 0
   measureCtx.font = font

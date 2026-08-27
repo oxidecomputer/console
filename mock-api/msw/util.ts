@@ -116,6 +116,9 @@ export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date })
 export const forbiddenErr = () =>
   json({ error_code: 'Forbidden', request_id: 'fake-id' }, { status: 403 })
 
+export const unauthorizedErr = () =>
+  json({ error_code: 'Unauthorized', request_id: 'fake-id' }, { status: 401 })
+
 export const unavailableErr = () =>
   json({ error_code: 'ServiceUnavailable', request_id: 'fake-id' }, { status: 503 })
 

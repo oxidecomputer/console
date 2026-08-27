@@ -41,6 +41,13 @@ type TimeSeriesChartProps = {
   hasError?: boolean
   loading: boolean
   seriesLabels?: readonly string[]
+  /**
+   * Test-only: exposes the underlying uPlot instance so specs can spy on its
+   * methods. uPlot assigns methods per-instance (no prototype), and module
+   * mocks are unreliable in Vitest browser mode, so this is the only reliable
+   * observation point.
+   */
+  onCreate?: (u: uPlot) => void
 }
 
 // this top margin is also in the chart, probably want a way of unifying the sizing between the two
@@ -107,6 +114,7 @@ export function TimeSeriesChart({
   hasError = false,
   loading,
   seriesLabels,
+  onCreate,
 }: TimeSeriesChartProps) {
   const theme = useChartTheme()
 
@@ -283,6 +291,7 @@ export function TimeSeriesChart({
       chartOptions={chartOptions}
       data={aligned}
       uRef={uRef}
+      onCreate={onCreate}
       legend={
         seriesLabels && (
           <ChartLegend

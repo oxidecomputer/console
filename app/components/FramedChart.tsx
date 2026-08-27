@@ -24,6 +24,7 @@ type Props = {
   chartOptions: UPlotOptions
   data: uPlot.AlignedData
   uRef: RefObject<uPlot | null>
+  onCreate?: (u: uPlot) => void
   children?: ReactNode
   legend?: ReactNode
 }
@@ -34,6 +35,7 @@ export function FramedChart({
   chartOptions,
   data,
   uRef,
+  onCreate,
   children,
   legend,
 }: Props) {
@@ -67,7 +69,10 @@ export function FramedChart({
             className="absolute top-0 left-0"
             options={options}
             data={data}
-            onCreate={(u) => (uRef.current = u)}
+            onCreate={(u) => {
+              uRef.current = u
+              onCreate?.(u)
+            }}
           />
         )}
         {children}
