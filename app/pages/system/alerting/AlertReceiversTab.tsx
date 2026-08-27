@@ -55,9 +55,9 @@ const staticColumns = [
     cell: makeLinkCell((receiver) => pb.alertReceiver({ receiver })),
   }),
   colHelper.accessor('subscriptions', {
-    header: 'Events',
+    header: 'Alerts',
     cell: (info) => (
-      <ListPlusCell tooltipTitle="Other events">
+      <ListPlusCell tooltipTitle="Other alerts">
         {info.getValue().map((sub) => (
           <Badge key={sub} color="neutral">
             {sub}
