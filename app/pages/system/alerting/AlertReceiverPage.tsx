@@ -327,12 +327,12 @@ function SignatureFormatCard() {
   )
 }
 
-// Event classes
+// Alert classes
 
 const subscriptionColHelper = createColumnHelper<{ subscription: string }>()
 const subscriptionCols = [
   subscriptionColHelper.accessor('subscription', {
-    header: 'Event class',
+    header: 'Alert class',
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
   }),
 ]
