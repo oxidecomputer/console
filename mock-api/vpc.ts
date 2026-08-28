@@ -211,6 +211,17 @@ export const vpcSubnet2: Json<VpcSubnet> = {
   custom_router_id: customRouter.id,
 }
 
+export const subnetOtherProject: Json<VpcSubnet> = {
+  id: 'd4f387db-e012-4424-9226-d8a10070e0f3',
+  name: 'other-subnet',
+  description: 'a subnet in other-project',
+  time_created,
+  time_modified,
+  vpc_id: vpc2.id,
+  ipv4_block: '10.1.2.0/24',
+  ipv6_block: 'fd9b:870a:4245:1::/64',
+}
+
 // Subnets for test silos
 export const subnetKosman: Json<VpcSubnet> = {
   id: 'a1b2c3d4-e5f6-4890-9234-567890abcdef',
@@ -248,6 +259,7 @@ export const subnetAdorno: Json<VpcSubnet> = {
 export const vpcSubnets: Json<VpcSubnet[]> = [
   vpcSubnet,
   vpcSubnet2,
+  subnetOtherProject,
   subnetKosman,
   subnetAnscombe,
   subnetAdorno,
