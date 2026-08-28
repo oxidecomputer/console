@@ -301,6 +301,36 @@ test('Webhook receiver detail: properties, subscriptions, secrets', async ({ pag
   await page.getByRole('button', { name: 'Cancel' }).click()
 })
 
+test('Add subscription modal previews the classes a glob matches', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/webhook-1')
+
+  await page.getByRole('button', { name: 'Add subscription' }).click()
+  const modal = page.getByRole('dialog', { name: 'Add subscription' })
+  const input = modal.getByRole('combobox', { name: 'Subscription' })
+  const preview = modal.getByText(/Matches \d+ alert class/)
+
+  // an exact class only ever matches itself, so there is nothing to preview
+  await input.fill('hardware.sled.fault')
+  await expect(preview).toBeHidden()
+
+  await input.fill('hardware.**')
+  await expect(preview).toHaveText(/^Matches 11 alert classes:/)
+  await expect(preview).toContainText('hardware.sensor.overtemp')
+  await expect(preview).not.toContainText('system.update.start')
+
+  // ** matches every class except the synthetic probe class, which can't be
+  // subscribed to
+  await input.fill('**')
+  await expect(preview).toHaveText(/^Matches 14 alert classes:/)
+  await expect(preview).not.toContainText('probe')
+
+  // a well-formed glob matching nothing says so rather than rendering an
+  // empty list
+  await input.fill('zzz.**')
+  await expect(preview).toBeHidden()
+  await expect(modal.getByText('No current alert classes match this pattern')).toBeVisible()
+})
+
 test('Testing tab: probe result and signature format', async ({ page }) => {
   await page.goto('/system/alerting/receivers/webhook-1')
   await page.getByRole('tab', { name: 'Testing' }).click()

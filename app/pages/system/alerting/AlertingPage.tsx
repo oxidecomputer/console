@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/react'
+import { Webhooks16Icon, Webhooks24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
@@ -21,10 +21,10 @@ export default function AlertingPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Monitoring24Icon />}>Alerting</PageTitle>
+        <PageTitle icon={<Webhooks24Icon />}>Alerting</PageTitle>
         <DocsPopover
           heading="alerting"
-          icon={<Monitoring16Icon />}
+          icon={<Webhooks16Icon />}
           summary="Alerts notify you when events occur in the system. Webhook receivers deliver them to endpoints you configure."
           links={[docLinks.alerts, docLinks.webhookReceivers]}
         />

@@ -10,28 +10,33 @@ import { useQuery } from '@tanstack/react-query'
 import { api, q } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
-import { ALERT_SUBSCRIPTION_REGEX, isSubscribableClass } from '~/api/util'
+import {
+  ALERT_SUBSCRIPTION_REGEX,
+  isGlobPattern,
+  isSubscribableClass,
+  subscriptionRegex,
+} from '~/api/util'
 import { ALL_ISH } from '~/util/consts'
 
 /**
  * For a glob subscription pattern, show which alert classes it currently
- * matches, using the API's own matching logic (`alertClassList` accepts a
- * subscription as a filter). Renders nothing for exact (non-glob) patterns.
+ * matches. Renders nothing for exact (non-glob) patterns.
  * Note the match set is point-in-time: globs are re-evaluated by the control
  * plane as alert classes are added.
  */
 export function SubscriptionMatchPreview({ pattern }: { pattern: string }) {
-  const isGlob = pattern.includes('*')
-  const valid = ALERT_SUBSCRIPTION_REGEX.test(pattern)
-  const enabled = valid && isGlob
-  const { data } = useQuery(
-    q(api.alertClassList, { query: { filter: pattern, limit: ALL_ISH } }, { enabled })
-  )
+  // Same query as the class picker this sits under, so it's a cache hit rather
+  // than a fetch. Matching locally with `subscriptionRegex`, mirroring the
+  // control plane's glob compiler.
+  const { data } = useQuery(q(api.alertClassList, { query: { limit: ALL_ISH } }))
 
-  if (!enabled || !data) return null
+  // validate before subscriptionRegex, which assumes a well-formed subscription
+  const isValidGlob = isGlobPattern(pattern) && ALERT_SUBSCRIPTION_REGEX.test(pattern)
+  if (!isValidGlob || !data) return null
 
+  const re = subscriptionRegex(pattern)
   // the probe class can't be subscribed to, so don't count it as a match
-  const classes = data.items.filter(isSubscribableClass)
+  const classes = data.items.filter(isSubscribableClass).filter((c) => re.test(c.name))
 
   if (classes.length === 0) {
     return (
