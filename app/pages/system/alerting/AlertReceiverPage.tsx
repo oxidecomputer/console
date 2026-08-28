@@ -52,8 +52,9 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
+import { HintLink } from '~/ui/lib/TextInput'
 import { ALL_ISH } from '~/util/consts'
-import { docLinks } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -405,7 +406,12 @@ function AddSecretModal({ onDismiss }: { onDismiss: () => void }) {
       <TextField
         name="secret"
         label="Secret"
-        description="Shared secret used to sign payloads. The value is not visible after adding."
+        description={
+          <>
+            Shared secret used to sign payloads. The value is not visible after adding.{' '}
+            <HintLink href={links.webhookSecretsDocs}>Learn more about secrets</HintLink>
+          </>
+        }
         placeholder="Enter secret"
         control={form.control}
         required

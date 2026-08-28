@@ -24,6 +24,7 @@ import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { HintLink } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -88,7 +89,12 @@ function SecretsField({ control }: { control: Control<WebhookCreateFormValues> }
           control={subform.control}
           name="secret"
           label="Secret"
-          description="Shared secret used to sign payloads"
+          description={
+            <>
+              Shared secret used to sign payloads.{' '}
+              <HintLink href={links.webhookSecretsDocs}>Learn more about secrets</HintLink>
+            </>
+          }
           required
           onKeyDown={(e) => {
             if (e.key === KEYS.enter) {

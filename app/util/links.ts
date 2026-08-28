@@ -30,6 +30,7 @@ export const links = {
   troubleshootingAccess:
     'https://docs.oxide.computer/guides/operator/faq#_how_do_i_fix_the_something_went_wrong_error',
   webhooksGuide: 'https://docs.oxide.computer/guides/alerts/webhooks',
+  webhookSecretsDocs: 'https://docs.oxide.computer/guides/alerts/webhooks#_secrets',
   webhooksApiDocs: 'https://docs.oxide.computer/api/webhook_receiver_create',
 }
 
