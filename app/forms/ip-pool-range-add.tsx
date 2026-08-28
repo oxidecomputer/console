@@ -71,7 +71,7 @@ export default function IpPoolAddRange() {
       title="Add IP range"
       onDismiss={onDismiss}
       onSubmit={(body) => addRange.mutate({ path: { pool }, body })}
-      loading={addRange.isPending}
+      loading={addRange.isPending || addRange.isSuccess}
       submitError={addRange.error}
     >
       <Message
