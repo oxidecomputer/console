@@ -13,10 +13,10 @@ import {
   Cloud16Icon,
   IpGlobal16Icon,
   Metrics16Icon,
+  Notifications16Icon,
   Servers16Icon,
   SoftwareUpdate16Icon,
   Subnet16Icon,
-  Webhooks16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { trigger404 } from '~/components/ErrorBoundary'
@@ -105,7 +105,7 @@ export default function SystemLayout() {
             <Subnet16Icon /> Subnet Pools
           </NavLinkItem>
           <NavLinkItem to={pb.alerts()} activePrefix={alertingBase()}>
-            <Webhooks16Icon /> Alerting
+            <Notifications16Icon /> Alerting
           </NavLinkItem>
           <NavLinkItem to={pb.systemUpdate()}>
             <SoftwareUpdate16Icon /> System Update

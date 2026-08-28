@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { Webhooks16Icon, Webhooks24Icon } from '@oxide/design-system/icons/react'
+import { Notifications16Icon, Prohibited24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
@@ -21,10 +21,12 @@ export default function AlertingPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Webhooks24Icon />}>Alerting</PageTitle>
+        {/* PLACEHOLDER — do not ship with Prohibited24Icon. Ben is
+        going to add a notifications-24 icon to the design system. */}
+        <PageTitle icon={<Prohibited24Icon />}>Alerting</PageTitle>
         <DocsPopover
           heading="alerting"
-          icon={<Webhooks16Icon />}
+          icon={<Notifications16Icon />}
           summary="Alerts notify you when events occur in the system. Webhook receivers deliver them to endpoints you configure."
           links={[docLinks.alerts, docLinks.webhookReceivers]}
         />
