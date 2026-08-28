@@ -1009,8 +1009,10 @@ export type RouterPeerType =
       type: 'unnumbered'
     }
   | {
-      /** IP address for numbered BGP peers. */
-      ip: string
+      /** Optional local IP address to bind when establishing outbound TCP connections to this peer. If `None`, the OS selects the source address. */
+      srcAddr?: string | null
+      /** Target IP address for numbered BGP peers. */
+      targetAddr: string
       type: 'numbered'
     }
 
@@ -7637,7 +7639,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026081700.0.0'
+  apiVersion = '2026081901.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
