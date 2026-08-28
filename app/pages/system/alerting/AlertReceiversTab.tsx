@@ -148,8 +148,8 @@ export default function AlertReceiversTab() {
 
   return (
     <>
-      {/* webhooks are the only kind of alert receiver for now, so the tab says
-          webhook everywhere while the tab itself is called Receivers */}
+      {/* webhook receivers are the only kind of alert receiver for now, so the
+          button names that kind while the tab itself stays generic */}
       <TableActions>
         <CreateLink to={pb.alertReceiversNew()}>New webhook receiver</CreateLink>
       </TableActions>

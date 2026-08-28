@@ -39,7 +39,7 @@ export const INSTANCE_MAX_CPU = 254
 export const INSTANCE_MIN_RAM_GiB = 1
 export const INSTANCE_MAX_RAM_GiB = 1536
 
-// Valid alert subscription: an event class or a glob pattern matching multiple
+// Valid alert subscription: an alert class or a glob pattern matching multiple
 // classes. https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/types/versions/src/initial/alert.rs#L22-L23
 export const ALERT_SUBSCRIPTION_REGEX =
   /^([a-zA-Z0-9_]+|\*|\*\*)(\.([a-zA-Z0-9_]+|\*|\*\*))*$/
@@ -48,7 +48,8 @@ export const ALERT_SUBSCRIPTION_REGEX =
 export const isGlobPattern = (subscription: string) => subscription.includes('*')
 
 /**
- * The `probe` class is synthetic: it exists for webhook liveness probes only.
+ * The `probe` class is synthetic: it exists for webhook receiver liveness
+ * probes only.
  * The API lists it in `alertClassList` but rejects exact subscriptions to it
  * with a 400, so keep it out of anything the user can pick. Globs are exempt
  * because the API returns from its glob branch before reaching this check.

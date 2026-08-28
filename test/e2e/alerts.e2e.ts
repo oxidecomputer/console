@@ -56,7 +56,7 @@ test('Alert receivers list', async ({ page }) => {
   await expectRowVisible(table, { name: 'general-sys-webhook', Alerts: '—' })
 })
 
-test('Webhook create', async ({ page }) => {
+test('Webhook receiver create', async ({ page }) => {
   await page.goto('/system/alerting/receivers')
 
   await page.getByRole('link', { name: 'New webhook receiver' }).click()
@@ -122,7 +122,7 @@ test('Webhook create', async ({ page }) => {
   })
 })
 
-test('Webhook create subscriptions field', async ({ page }) => {
+test('Webhook receiver create: subscriptions field', async ({ page }) => {
   await page.goto('/system/alerting/receivers-new')
 
   const subsInput = page.getByRole('combobox', { name: 'Alert subscriptions' })
@@ -245,7 +245,7 @@ test('Webhook receiver detail: properties, subscriptions, secrets', async ({ pag
   await expect(page.getByText('https://fma.corp.oxide.computer')).toBeVisible()
   await expect(page.getByText('Main web deployments')).toBeVisible()
 
-  // event classes card
+  // subscriptions card
   const subscriptions = page.getByRole('table', { name: 'Alert classes' })
   await expect(subscriptions.getByRole('row')).toHaveCount(3) // header + 2
 
@@ -346,7 +346,7 @@ test('Testing tab: probe failure', async ({ page }) => {
   await expect(panel.getByText('Unreachable')).toBeVisible()
 })
 
-test('Webhook edit', async ({ page }) => {
+test('Webhook receiver edit', async ({ page }) => {
   await page.goto('/system/alerting/receivers')
   await clickRowAction(page, 'general-sys-webhook', 'Edit')
 
@@ -412,7 +412,7 @@ test('Pending delivery fails after exhausting retries', async ({ page }) => {
   )
 })
 
-test('Webhook deliveries', async ({ page }) => {
+test('Webhook receiver deliveries', async ({ page }) => {
   await page.goto('/system/alerting/receivers/webhook-1')
   await page.getByRole('tab', { name: 'Deliveries' }).click()
 
@@ -546,7 +546,7 @@ test('Resend fails for an unsubscribed alert class', async ({ page }) => {
   await expect(page.getByRole('table').getByRole('row')).toHaveCount(7) // header + 6
 })
 
-test('Webhook delete', async ({ page }) => {
+test('Webhook receiver delete', async ({ page }) => {
   await page.goto('/system/alerting/receivers')
 
   await clickRowAction(page, 'power-mon', 'Delete')

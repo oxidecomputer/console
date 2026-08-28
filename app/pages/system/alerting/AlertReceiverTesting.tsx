@@ -32,20 +32,20 @@ import { attemptResultBadge } from './AlertReceiverDeliveries'
 export function TestingTab() {
   return (
     <>
-      <WebhookTesterCard />
+      <ReceiverTesterCard />
       <SignatureFormatCard />
     </>
   )
 }
 
-function WebhookTesterCard() {
+function ReceiverTesterCard() {
   const [showProbeModal, setShowProbeModal] = useState(false)
   const [result, setResult] = useState<AlertProbeResult | null>(null)
 
   return (
     <CardBlock>
       <CardBlock.Header
-        title="Webhook tester"
+        title="Receiver tester"
         description="Send test alerts to your endpoint"
       >
         <Button size="sm" onClick={() => setShowProbeModal(true)}>
