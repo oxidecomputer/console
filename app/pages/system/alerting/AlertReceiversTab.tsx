@@ -41,9 +41,9 @@ import { pb } from '~/util/path-builder'
 const EmptyState = () => (
   <EmptyMessage
     icon={<Webhooks24Icon />}
-    title="No webhooks"
-    body="Create a webhook to see it here"
-    buttonText="New webhook"
+    title="No webhook receivers"
+    body="Create a webhook receiver to see it here"
+    buttonText="New webhook receiver"
     buttonTo={pb.alertReceiversNew()}
   />
 )
@@ -111,7 +111,7 @@ export default function AlertReceiversTab() {
         onActivate: confirmDelete({
           doDelete: () => deleteReceiver({ path: { receiver: receiver.name } }),
           label: receiver.name,
-          resourceKind: 'webhook',
+          resourceKind: 'webhook receiver',
           extraContent: 'Its delivery history will also be deleted.',
         }),
       },
@@ -133,14 +133,14 @@ export default function AlertReceiversTab() {
   useQuickActions(
     () => [
       {
-        value: 'New webhook',
+        value: 'New webhook receiver',
         navGroup: 'Actions',
         action: pb.alertReceiversNew(),
       },
       ...(allReceivers?.items || []).map((r) => ({
         value: r.name,
         action: pb.alertReceiver({ receiver: r.name }),
-        navGroup: 'Go to webhook',
+        navGroup: 'Go to webhook receiver',
       })),
     ],
     [allReceivers]
@@ -151,7 +151,7 @@ export default function AlertReceiversTab() {
       {/* webhooks are the only kind of alert receiver for now, so the tab says
           webhook everywhere while the tab itself is called Receivers */}
       <TableActions>
-        <CreateLink to={pb.alertReceiversNew()}>New webhook</CreateLink>
+        <CreateLink to={pb.alertReceiversNew()}>New webhook receiver</CreateLink>
       </TableActions>
       {table}
     </>

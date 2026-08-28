@@ -159,7 +159,7 @@ export default function CreateWebhookForm() {
     onSuccess(receiver) {
       queryClient.invalidateEndpoint('alertReceiverList')
       // prettier-ignore
-      addToast(<>Webhook <HL>{receiver.name}</HL> created</>)
+      addToast(<>Webhook receiver <HL>{receiver.name}</HL> created</>)
       navigate(pb.alertReceivers())
     },
   })

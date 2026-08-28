@@ -35,7 +35,7 @@ import { ALL_ISH } from '~/util/consts'
 // segments may only contain [a-zA-Z0-9_], unlike resource names
 export const validateSubscription = (value: string) => {
   if (!ALERT_SUBSCRIPTION_REGEX.test(value))
-    return 'Must be an event class or a glob pattern like hardware.** (letters, numbers, and underscores only)'
+    return 'Must be an alert class or a glob pattern like hardware.** (letters, numbers, and underscores only)'
   // the API rejects this one with a 400, so catch it before submit
   if (value === PROBE_ALERT_CLASS)
     return 'The probe class is only used for liveness probes and cannot be subscribed to'
@@ -60,7 +60,7 @@ function SubscriptionChip({
       content={
         matchCount === undefined
           ? undefined
-          : `Matches ${matchCount} event ${matchCount === 1 ? 'class' : 'classes'}`
+          : `Matches ${matchCount} alert ${matchCount === 1 ? 'class' : 'classes'}`
       }
     >
       <span
@@ -335,7 +335,7 @@ export function SubscriptionsField({
     <div className="max-w-lg">
       <div className="mb-2">
         <FieldLabel id={`${id}-label`} htmlFor={`${id}-input`} optional>
-          Event subscriptions
+          Alert subscriptions
         </FieldLabel>
       </div>
       <div

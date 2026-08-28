@@ -32,7 +32,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = titleCrumb('Edit webhook')
+export const handle = titleCrumb('Edit webhook receiver')
 
 export default function EditWebhookSideModalForm() {
   const navigate = useNavigate()
@@ -55,7 +55,7 @@ export default function EditWebhookSideModalForm() {
       const newName = variables.body.name || receiver.name
       navigate(pb.alertReceiver({ receiver: newName }))
       // prettier-ignore
-      addToast(<>Webhook <HL>{newName}</HL> updated</>)
+      addToast(<>Webhook receiver <HL>{newName}</HL> updated</>)
 
       // Only invalidate if we're staying on the same page. If the name _has_
       // changed, invalidating alertReceiverView causes an error page to flash
@@ -73,7 +73,7 @@ export default function EditWebhookSideModalForm() {
     <SideModalForm
       form={form}
       formType="edit"
-      resourceName="webhook"
+      resourceName="webhook receiver"
       onDismiss={() => navigate(pb.alertReceiver(receiverSelector))}
       onSubmit={({ name, description, endpoint }) => {
         editWebhook.mutate({

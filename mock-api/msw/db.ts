@@ -630,6 +630,7 @@ const initDb = {
   affinityGroups: [...mock.affinityGroups],
   alertDeliveries: [...mock.alertDeliveries],
   alertReceivers: [...mock.alertReceivers],
+  alerts: [...mock.alerts],
   affinityGroupMemberLists: [...mock.affinityGroupMemberLists],
   antiAffinityGroups: [...mock.antiAffinityGroups],
   antiAffinityGroupMemberLists: [...mock.antiAffinityGroupMemberLists],

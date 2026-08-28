@@ -36,7 +36,7 @@ export function SubscriptionMatchPreview({ pattern }: { pattern: string }) {
   if (classes.length === 0) {
     return (
       <p className="text-sans-sm text-secondary">
-        No current event classes match this pattern. It may match classes added in the
+        No current alert classes match this pattern. It may match classes added in the
         future.
       </p>
     )
@@ -44,7 +44,7 @@ export function SubscriptionMatchPreview({ pattern }: { pattern: string }) {
 
   return (
     <p className="text-sans-sm text-secondary">
-      Matches {classes.length} event {classes.length === 1 ? 'class' : 'classes'}:{' '}
+      Matches {classes.length} alert {classes.length === 1 ? 'class' : 'classes'}:{' '}
       <span className="inline-flex flex-wrap gap-1 align-bottom">
         {classes.map((c) => (
           <Badge key={c.name} color="neutral">

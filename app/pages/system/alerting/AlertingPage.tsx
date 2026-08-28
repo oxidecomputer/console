@@ -6,11 +6,13 @@
  * Copyright Oxide Computer Company
  */
 
-import { Monitoring24Icon } from '@oxide/design-system/icons/react'
+import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 export const handle = makeCrumb('Alerting', pb.alerts())
@@ -20,6 +22,12 @@ export default function AlertingPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Monitoring24Icon />}>Alerting</PageTitle>
+        <DocsPopover
+          heading="alerting"
+          icon={<Monitoring16Icon />}
+          summary="Alerts notify you when events occur in the system. Webhook receivers deliver them to endpoints you configure."
+          links={[docLinks.alerts, docLinks.webhookReceivers]}
+        />
       </PageHeader>
 
       <RouteTabs fullWidth>

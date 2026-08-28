@@ -43,6 +43,10 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/deploying-workloads#_affinity_and_anti_affinity',
     linkText: 'Anti-Affinity Groups',
   },
+  alerts: {
+    href: 'https://docs.oxide.computer/guides/alerts/overview',
+    linkText: 'Alerts Overview',
+  },
   deviceTokens: {
     href: 'https://docs.oxide.computer/guides/working-with-api-and-sdk#_device_token_setup',
     linkText: 'Access Tokens',
@@ -186,5 +190,13 @@ export const docLinks = {
   vpcs: {
     href: 'https://docs.oxide.computer/guides/configuring-guest-networking',
     linkText: 'Networking',
+  },
+  webhookReceivers: {
+    href: links.webhooksGuide,
+    linkText: 'Webhook Receivers',
+  },
+  webhookSecretRotation: {
+    href: 'https://docs.oxide.computer/guides/alerts/reliable-receivers#_zero_downtime_webhook_secret_rotation',
+    linkText: 'Secret Rotation',
   },
 }

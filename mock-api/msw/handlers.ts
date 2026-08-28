@@ -35,7 +35,7 @@ import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
-import { alertClasses } from '../alert'
+import { alertClasses, PROBE_ALERT_ID } from '../alert'
 import { defaultSilo, toIdp } from '../silo'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
@@ -2693,6 +2693,10 @@ export const handlers = makeHandlers({
     // can't use paginated() because alert classes have no ID
     return { items: alertClasses.filter((c) => !filter || filter.test(c.name)) }
   },
+  alertView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookupById(db.alerts, path.alertId)
+  },
   alertReceiverList({ query, cookies }) {
     requireFleetViewer(cookies)
     return paginated(query, db.alertReceivers)
@@ -2732,7 +2736,8 @@ export const handlers = makeHandlers({
     const success = !receiver.kind.endpoint.includes('unreachable')
     const probe: Json<Api.AlertDelivery> = {
       id: uuid(),
-      alert_id: uuid(),
+      // all probes reference the singleton probe alert, mirroring omicron
+      alert_id: PROBE_ALERT_ID,
       alert_class: 'probe',
       receiver_id: receiver.id,
       state: success ? 'delivered' : 'failed',
@@ -2894,7 +2899,6 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
   alertList: NotImplemented,
-  alertView: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
   auditLogList: NotImplemented,
   certificateCreate: NotImplemented,

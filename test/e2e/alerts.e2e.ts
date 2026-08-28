@@ -49,17 +49,17 @@ test('Alert receivers list', async ({ page }) => {
 
   await expectRowVisible(table, {
     name: 'webhook-1',
-    Events: 'hardware.power_shelf.psu.insert+1',
+    Alerts: 'hardware.power_shelf.psu.insert+1',
     description: 'Main web deployments',
   })
-  await expectRowVisible(table, { name: 'power-mon', Events: 'hardware.**' })
-  await expectRowVisible(table, { name: 'general-sys-webhook', Events: '—' })
+  await expectRowVisible(table, { name: 'power-mon', Alerts: 'hardware.**' })
+  await expectRowVisible(table, { name: 'general-sys-webhook', Alerts: '—' })
 })
 
 test('Webhook create', async ({ page }) => {
   await page.goto('/system/alerting/receivers')
 
-  await page.getByRole('link', { name: 'New webhook' }).click()
+  await page.getByRole('link', { name: 'New webhook receiver' }).click()
   await expect(page).toHaveURL('/system/alerting/receivers-new')
 
   await expect(page.getByRole('heading', { name: 'Create webhook receiver' })).toBeVisible()
@@ -92,11 +92,11 @@ test('Webhook create', async ({ page }) => {
   await expect(main.getByText('At least one secret is required')).toBeHidden()
 
   // add a subscription: a bad glob is rejected on Enter, a good one becomes a chip
-  const subsInput = page.getByRole('combobox', { name: 'Event subscriptions' })
+  const subsInput = page.getByRole('combobox', { name: 'Alert subscriptions' })
   await subsInput.fill('hardware..bad')
   await subsInput.press('Enter')
   await expect(
-    main.getByText('Must be an event class or a glob pattern like hardware.**')
+    main.getByText('Must be an alert class or a glob pattern like hardware.**')
   ).toBeVisible()
 
   // the probe class is synthetic and the API rejects subscribing to it
@@ -113,11 +113,11 @@ test('Webhook create', async ({ page }) => {
   await expect(subsInput).toHaveValue('')
 
   await page.getByRole('button', { name: 'Create webhook receiver' }).click()
-  await expectToast(page, 'Webhook deploy-hook created')
+  await expectToast(page, 'Webhook receiver deploy-hook created')
 
   await expectRowVisible(page.getByRole('table'), {
     name: 'deploy-hook',
-    Events: 'hardware.**',
+    Alerts: 'hardware.**',
     description: 'CI deploys',
   })
 })
@@ -125,7 +125,7 @@ test('Webhook create', async ({ page }) => {
 test('Webhook create subscriptions field', async ({ page }) => {
   await page.goto('/system/alerting/receivers-new')
 
-  const subsInput = page.getByRole('combobox', { name: 'Event subscriptions' })
+  const subsInput = page.getByRole('combobox', { name: 'Alert subscriptions' })
   const listbox = page.getByRole('listbox')
   const chipRemove = (sub: string) =>
     page.getByRole('button', { name: `remove subscription ${sub}` })
@@ -236,7 +236,7 @@ test('Webhook create subscriptions field', async ({ page }) => {
   await expect(listbox.getByRole('option').first()).toContainText('system.update.fail')
 })
 
-test('Webhook detail: properties, event classes, secrets', async ({ page }) => {
+test('Webhook receiver detail: properties, subscriptions, secrets', async ({ page }) => {
   await page.goto('/system/alerting/receivers')
   await page.getByRole('link', { name: 'webhook-1' }).click()
   await expect(page).toHaveURL('/system/alerting/receivers/webhook-1')
@@ -246,25 +246,25 @@ test('Webhook detail: properties, event classes, secrets', async ({ page }) => {
   await expect(page.getByText('Main web deployments')).toBeVisible()
 
   // event classes card
-  const eventClasses = page.getByRole('table', { name: 'Event classes' })
-  await expect(eventClasses.getByRole('row')).toHaveCount(3) // header + 2
+  const subscriptions = page.getByRole('table', { name: 'Alert classes' })
+  await expect(subscriptions.getByRole('row')).toHaveCount(3) // header + 2
 
   // add a subscription
-  await page.getByRole('button', { name: 'Add event class' }).click()
-  const addModal = page.getByRole('dialog', { name: 'Add event class' })
+  await page.getByRole('button', { name: 'Add subscription' }).click()
+  const addModal = page.getByRole('dialog', { name: 'Add subscription' })
   await addModal
     .getByRole('combobox', { name: 'Subscription' })
     .fill('hardware.sensor.overtemp')
   await page.getByRole('option', { name: 'hardware.sensor.overtemp' }).click()
   await addModal.getByRole('button', { name: 'Add' }).click()
   await expectToast(page, 'Subscribed to hardware.sensor.overtemp')
-  await expect(eventClasses.getByRole('row')).toHaveCount(4)
+  await expect(subscriptions.getByRole('row')).toHaveCount(4)
 
   // remove it again
   await clickRowAction(page, 'hardware.sensor.overtemp', 'Remove')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectToast(page, 'Subscription hardware.sensor.overtemp removed')
-  await expect(eventClasses.getByRole('row')).toHaveCount(3)
+  await expect(subscriptions.getByRole('row')).toHaveCount(3)
 
   // secrets card
   const secrets = page.getByRole('table', { name: 'Secrets' })
@@ -329,11 +329,11 @@ test('Testing tab: probe failure', async ({ page }) => {
   // the mock backend fails probes for endpoints containing 'unreachable'
   await clickRowAction(page, 'power-mon', 'Edit')
   await page
-    .getByRole('dialog', { name: 'Edit webhook' })
+    .getByRole('dialog', { name: 'Edit webhook receiver' })
     .getByRole('textbox', { name: 'Endpoint URL' })
     .fill('https://unreachable.example.com')
-  await page.getByRole('button', { name: 'Update webhook' }).click()
-  await expectToast(page, 'Webhook power-mon updated')
+  await page.getByRole('button', { name: 'Update webhook receiver' }).click()
+  await expectToast(page, 'Webhook receiver power-mon updated')
 
   await page.getByRole('tab', { name: 'Testing' }).click()
   const panel = page.getByRole('tabpanel')
@@ -350,7 +350,7 @@ test('Webhook edit', async ({ page }) => {
   await page.goto('/system/alerting/receivers')
   await clickRowAction(page, 'general-sys-webhook', 'Edit')
 
-  const modal = page.getByRole('dialog', { name: 'Edit webhook' })
+  const modal = page.getByRole('dialog', { name: 'Edit webhook receiver' })
   await expect(modal.getByRole('textbox', { name: 'Endpoint URL' })).toHaveValue(
     'https://api.example.dev/hooks/oxide'
   )
@@ -358,9 +358,9 @@ test('Webhook edit', async ({ page }) => {
   await modal
     .getByRole('textbox', { name: 'Endpoint URL' })
     .fill('https://hooks.example.dev')
-  await page.getByRole('button', { name: 'Update webhook' }).click()
+  await page.getByRole('button', { name: 'Update webhook receiver' }).click()
 
-  await expectToast(page, 'Webhook general-webhook updated')
+  await expectToast(page, 'Webhook receiver general-webhook updated')
   // lands on the detail page for the new name
   await expect(page).toHaveURL('/system/alerting/receivers/general-webhook')
   await expect(page.getByText('https://hooks.example.dev')).toBeVisible()
@@ -396,11 +396,11 @@ test('Pending delivery fails after exhausting retries', async ({ page }) => {
   // the mock backend fails delivery to endpoints containing 'unreachable'
   await clickRowAction(page, 'webhook-1', 'Edit')
   await page
-    .getByRole('dialog', { name: 'Edit webhook' })
+    .getByRole('dialog', { name: 'Edit webhook receiver' })
     .getByRole('textbox', { name: 'Endpoint URL' })
     .fill('https://unreachable.example.com')
-  await page.getByRole('button', { name: 'Update webhook' }).click()
-  await expectToast(page, 'Webhook webhook-1 updated')
+  await page.getByRole('button', { name: 'Update webhook receiver' }).click()
+  await expectToast(page, 'Webhook receiver webhook-1 updated')
 
   await page.getByRole('tab', { name: 'Deliveries' }).click()
   const row = page.getByRole('row', { name: /a3d830ee/ })
@@ -423,15 +423,16 @@ test('Webhook deliveries', async ({ page }) => {
   // ellipsized copy, so cell text contains both. Match on the full value.
   await expectRowVisible(table, {
     'Delivery ID': expect.stringContaining('9bbdf44f-7dac-4cd0-b4c2-3e622c9693ee'),
-    'Event ID': expect.stringContaining('391a8e04-a160-4132-a989-6104113311f5'),
-    'Event class': 'probe',
+    // the singleton probe alert ID, shared by all probe deliveries
+    'Alert ID': expect.stringContaining('001de000-7768-4000-8000-000000000001'),
+    'Alert class': 'probe',
     state: 'delivered',
     trigger: 'probe',
   })
   await expectRowVisible(table, {
     'Delivery ID': expect.stringContaining('30ece63e-5efd-4365-99a6-d4f09dfa685e'),
-    'Event ID': expect.stringContaining('beef336d-99db-4b12-ac08-7ebcaab8421a'),
-    'Event class': 'hardware.power_shelf.psu.insert',
+    'Alert ID': expect.stringContaining('beef336d-99db-4b12-ac08-7ebcaab8421a'),
+    'Alert class': 'hardware.power_shelf.psu.insert',
     state: 'failed',
     trigger: 'alert',
   })
@@ -455,23 +456,28 @@ test('Webhook deliveries', async ({ page }) => {
   const props = sideModal.getByLabel('Properties table')
   await expect(props).toContainText('Delivery ID')
   await expect(props.getByLabel('30ece63e-5efd-4365-99a6-d4f09dfa685e')).toBeVisible()
-  await expect(props).toContainText('Event ID')
+  await expect(props).toContainText('Alert ID')
   await expect(props.getByLabel('beef336d-99db-4b12-ac08-7ebcaab8421a')).toBeVisible()
-  await expect(props).toContainText('Webhook ID')
+  await expect(props).toContainText('Receiver ID')
   await expect(props.getByLabel('ae2d6e09-9f4d-4dd1-ac54-160d61c7ce42')).toBeVisible()
 
   const attempts = sideModal.getByRole('table')
   await expect(attempts.getByRole('row')).toHaveCount(4) // header + 3 attempts
   await expect(attempts.getByRole('cell', { name: 'HTTP error' })).toBeVisible()
 
-  // request tab reconstructs the payload and headers from the delivery
+  // request tab reconstructs the payload and headers from the delivery and
+  // the alert fetched by ID
   await sideModal.getByRole('tab', { name: 'Request' }).click()
   await expect(attempts).toBeHidden()
   const request = sideModal.getByRole('tabpanel')
   await expect(
     request.getByText('"id": "30ece63e-5efd-4365-99a6-d4f09dfa685e"')
   ).toBeVisible()
-  await expect(request.getByText('"data": <alert data>')).toBeVisible()
+  // alert version and data payload come from the alert record
+  await expect(request.getByText('"alert_version": 0')).toBeVisible()
+  await expect(request.getByText('"manufacturer": "Murata"')).toBeVisible()
+  // the signature can't be reconstructed, so it stays a placeholder
+  await expect(request.getByText('a=sha256&id=<secret ID>&s=<signature>')).toBeVisible()
   await expect(request.getByText('x-oxide-alert-class')).toBeVisible()
   await expect(
     request.getByText('hardware.power_shelf.psu.insert', { exact: true })
@@ -492,7 +498,7 @@ test('Webhook deliveries', async ({ page }) => {
   await expectToast(page, 'Delivery resend started')
   await expect(table.getByRole('row')).toHaveCount(8)
   await expectRowVisible(table, {
-    'Event class': 'hardware.power_shelf.psu.insert',
+    'Alert class': 'hardware.power_shelf.psu.insert',
     state: 'pending',
     trigger: 'resend',
   })
@@ -517,7 +523,7 @@ test('Webhook deliveries', async ({ page }) => {
   await expect(table.getByRole('row')).toHaveCount(9)
 })
 
-test('Resend fails for an unsubscribed event class', async ({ page }) => {
+test('Resend fails for an unsubscribed alert class', async ({ page }) => {
   await page.goto('/system/alerting/receivers/webhook-1')
 
   // unsubscribe from the class of an existing failed delivery
@@ -534,7 +540,7 @@ test('Resend fails for an unsubscribed event class', async ({ page }) => {
     .click()
   await expectToast(
     page,
-    "Could not resend eventCannot resend alert: receiver is not subscribed to the 'hardware.power_shelf.psu.insert' alert class"
+    "Could not resend alertCannot resend alert: receiver is not subscribed to the 'hardware.power_shelf.psu.insert' alert class"
   )
   // the rejected resend must not have created a new delivery
   await expect(page.getByRole('table').getByRole('row')).toHaveCount(7) // header + 6
@@ -545,7 +551,7 @@ test('Webhook delete', async ({ page }) => {
 
   await clickRowAction(page, 'power-mon', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectToast(page, 'Webhook power-mon deleted')
+  await expectToast(page, 'Webhook receiver power-mon deleted')
 
   await expect(page.getByRole('cell', { name: 'power-mon' })).toBeHidden()
   await expect(page.getByRole('table').getByRole('row')).toHaveCount(3) // header + 2

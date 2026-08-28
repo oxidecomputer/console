@@ -8,9 +8,10 @@
 
 import { subMinutes } from 'date-fns'
 
-import type { AlertClass, AlertDelivery, AlertReceiver } from '@oxide/api'
+import type { Alert, AlertClass, AlertDelivery, AlertReceiver } from '@oxide/api'
 
 import type { Json } from './json-type'
+import { rack } from './rack'
 import { getTimestamps } from './util'
 
 // Descriptions come from AlertClass in Omicron. Test-only classes are excluded
@@ -126,12 +127,68 @@ export const alertReceivers = [receiverGeneral, receiverPowerMon, receiverWebhoo
 
 const minutesAgo = (n: number) => subMinutes(new Date(), n).toISOString()
 
+// Alerts backing the seeded deliveries, so alertView can resolve their IDs.
+// All current alert classes are at payload version 0.
+
+// Probe deliveries all reference a well-known singleton alert rather than
+// creating a row per probe.
+// https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/db-model/src/alert.rs#L63-L66
+export const PROBE_ALERT_ID = '001de000-7768-4000-8000-000000000001'
+
+// v0 payload for the PSU insert/remove classes. Schema:
+// https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/types/output/alert_schemas/hardware.power_shelf.psu.insert/v0.json
+const psuAlert = (
+  id: string,
+  action: 'insert' | 'remove',
+  slot: number,
+  minutes: number
+): Json<Alert> => ({
+  id,
+  class: `hardware.power_shelf.psu.${action}`,
+  version: 0,
+  alert: {
+    rack_id: rack.id,
+    power_shelf: {
+      shelf: 0,
+      baseboard: { part: '913-0000019', revision: 6, serial: 'BRM42220081' },
+    },
+    psu: {
+      slot,
+      identity: {
+        manufacturer: 'Murata',
+        part: 'MWOCP68-3600-D-RM',
+        serial: 'M5426000101',
+        firmware_revision: '1.9',
+      },
+    },
+    time: minutesAgo(minutes),
+  },
+  time_created: minutesAgo(minutes),
+  time_modified: minutesAgo(minutes),
+})
+
+export const alerts: Json<Alert>[] = [
+  {
+    id: PROBE_ALERT_ID,
+    class: 'probe',
+    version: 0,
+    alert: {},
+    time_created: minutesAgo(24 * 60),
+    time_modified: minutesAgo(24 * 60),
+  },
+  psuAlert('26cb0726-bb32-4a6f-b0a5-b207f75f3cec', 'insert', 0, 10),
+  psuAlert('0d38abba-266b-4220-9975-ae9fe26093e2', 'insert', 3, 30),
+  psuAlert('8c8a74ba-58b7-4a06-8c79-39ccad5624fb', 'remove', 1, 180),
+  psuAlert('beef336d-99db-4b12-ac08-7ebcaab8421a', 'insert', 1, 125),
+  psuAlert('5a2009af-26a0-4217-b18f-bd4e25e691b9', 'insert', 2, 240),
+]
+
 // newest first, matching the time_and_id_descending sort the console requests.
 // the mock paginated() helper ignores sortBy and preserves array order
 export const alertDeliveries: Json<AlertDelivery>[] = [
   {
     id: '9bbdf44f-7dac-4cd0-b4c2-3e622c9693ee',
-    alert_id: '391a8e04-a160-4132-a989-6104113311f5',
+    alert_id: PROBE_ALERT_ID,
     alert_class: 'probe',
     receiver_id: receiverWebhook1.id,
     state: 'delivered',
