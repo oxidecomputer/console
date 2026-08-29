@@ -15,7 +15,7 @@ jobs:
     runs-on: macos-15-xlarge
     steps:
       - uses: actions/checkout@v6
-      - uses: oxidecomputer/actions/setup-node@004e5b42c74f890ccf98e848277e63ae27553f37
+      - uses: oxidecomputer/actions/setup-node@0f10e5eb0416cb29a99322222a62b268c81d0be9
       - name: Cache node_modules
         uses: actions/cache@v5
         id: cache-node-modules
@@ -31,7 +31,7 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v6
-      - uses: oxidecomputer/actions/setup-node@004e5b42c74f890ccf98e848277e63ae27553f37
+      - uses: oxidecomputer/actions/setup-node@0f10e5eb0416cb29a99322222a62b268c81d0be9
       - name: Get node_modules from cache
         uses: actions/cache@v5
         id: cache-node-modules
@@ -65,7 +65,7 @@ jobs:
             vitest: webkit
     steps:
       - uses: actions/checkout@v6
-      - uses: oxidecomputer/actions/setup-node@004e5b42c74f890ccf98e848277e63ae27553f37
+      - uses: oxidecomputer/actions/setup-node@0f10e5eb0416cb29a99322222a62b268c81d0be9
       - name: Get node_modules from cache
         uses: actions/cache@v5
         with:
