@@ -19,7 +19,7 @@
         npmPlaywrightVersion =
             (lib.importJSON ./package-lock.json).packages."node_modules/@playwright/test".version;
 
-        node = pkgs.nodejs_22;
+        node = pkgs.nodejs_24;
 
         # nodejs_x doesn't always bundle the npm/npx you want. but npm and npx
         # are just scripts bundled with node, so they're easy to shadow
