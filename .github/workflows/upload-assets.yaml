@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-node
+      - uses: oxidecomputer/actions/setup-node@main
       - name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v3'
         with:

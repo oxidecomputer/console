@@ -15,7 +15,7 @@ jobs:
     runs-on: macos-15-xlarge
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-node
+      - uses: oxidecomputer/actions/setup-node@main
       - name: Cache node_modules
         uses: actions/cache@v5
         id: cache-node-modules
@@ -31,7 +31,7 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-node
+      - uses: oxidecomputer/actions/setup-node@main
       - name: Get node_modules from cache
         uses: actions/cache@v5
         id: cache-node-modules
@@ -65,7 +65,7 @@ jobs:
             vitest: webkit
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-node
+      - uses: oxidecomputer/actions/setup-node@main
       - name: Get node_modules from cache
         uses: actions/cache@v5
         with:
