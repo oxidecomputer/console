@@ -86,6 +86,12 @@ test('Webhook receiver create', async ({ page }) => {
   ).toBeVisible()
   // at least one secret is required
   await expect(main.getByText('At least one secret is required')).toBeVisible()
+  // and no longer than the database column holding it
+  await page
+    .getByRole('textbox', { name: 'Endpoint URL' })
+    .fill(`https://ci.example.com/${'a'.repeat(512)}`)
+  await page.getByRole('button', { name: 'Create webhook receiver' }).click()
+  await expect(main.getByText('Must be at most 512 characters')).toBeVisible()
   await page.getByRole('textbox', { name: 'Endpoint URL' }).fill('https://ci.example.com')
 
   // add a secret; it lands in the mini table
@@ -304,7 +310,7 @@ test('Webhook receiver detail: properties, subscriptions, secrets', async ({ pag
   const remainingRow = secrets.getByRole('row').nth(1)
   await remainingRow.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Delete' }).click()
-  await expect(page.getByText('This is the only secret on this receiver')).toBeVisible()
+  await expect(page.getByText('Deleting the only secret stops deliveries')).toBeVisible()
   await page.getByRole('button', { name: 'Cancel' }).click()
 })
 

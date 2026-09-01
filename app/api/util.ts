@@ -40,6 +40,11 @@ export const INSTANCE_MAX_CPU = 254
 export const INSTANCE_MIN_RAM_GiB = 1
 export const INSTANCE_MAX_RAM_GiB = 1536
 
+// Webhook endpoint URL column width. The API does no length validation, so a
+// longer URL fails with a database error rather than a 400.
+// https://github.com/oxidecomputer/omicron/blob/6db4c7e/schema/crdb/dbinit.sql#L7192
+export const WEBHOOK_ENDPOINT_MAX_LENGTH = 512
+
 // Valid alert subscription: an alert class or a glob pattern matching multiple
 // classes. https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/types/versions/src/initial/alert.rs#L22-L23
 export const ALERT_SUBSCRIPTION_REGEX =

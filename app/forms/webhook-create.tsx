@@ -8,7 +8,7 @@
 import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { api, queryClient, useApiMutation } from '@oxide/api'
+import { api, queryClient, useApiMutation, WEBHOOK_ENDPOINT_MAX_LENGTH } from '@oxide/api'
 import { Webhooks24Icon } from '@oxide/design-system/icons/react'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -38,6 +38,9 @@ export const validateEndpoint = (value: string) => {
   }
   if (url.protocol !== 'https:' && url.protocol !== 'http:') {
     return 'Must be an HTTP or HTTPS URL'
+  }
+  if (value.length > WEBHOOK_ENDPOINT_MAX_LENGTH) {
+    return `Must be at most ${WEBHOOK_ENDPOINT_MAX_LENGTH} characters`
   }
 }
 

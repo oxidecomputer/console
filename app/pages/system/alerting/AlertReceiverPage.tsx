@@ -330,7 +330,7 @@ function SecretsCard() {
           label: secret.id,
           resourceKind: 'secret',
           extraContent: isOnlySecret
-            ? 'This is the only secret on this receiver. Payloads sent without a secret are unsigned and cannot be verified.'
+            ? 'Deleting the only secret stops deliveries until a new one is added.'
             : undefined,
         }),
       },
