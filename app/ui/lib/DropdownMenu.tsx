@@ -72,7 +72,8 @@ export function Content({
   anchor = 'bottom end',
   gap,
   zIndex = 'dropdown',
-  collisionPadding,
+  // keep menus off the viewport edge, mainly for small screens
+  collisionPadding = 12,
 }: ContentProps) {
   const { side, align, sideOffset, alignOffset } = parseAnchor(anchor, gap)
   return (
