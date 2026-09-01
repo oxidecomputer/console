@@ -268,7 +268,7 @@ const DemoteImageModal = ({
     },
   })
 
-  const projects = useQuery(q(api.projectList, {}))
+  const projects = useQuery(q(api.projectList, { query: { limit: ALL_ISH } }))
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
 
   return (
