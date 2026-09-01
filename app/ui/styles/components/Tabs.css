@@ -11,6 +11,16 @@
   @apply mb-8 flex bg-transparent;
 }
 
+/* let long tab lists scroll horizontally on small screens instead of
+   overflowing the page */
+@media (max-width: 999px) {
+  .ox-tabs-list {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+}
+
 .ox-tabs-list:after {
   @apply border-secondary block w-full border-b;
   content: '';
