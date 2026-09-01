@@ -15,6 +15,7 @@ import {
   MenuOpen12Icon,
   Monitor12Icon,
   Moon12Icon,
+  More12Icon,
   Organization16Icon,
   Profile16Icon,
   SelectArrows6Icon,
@@ -66,11 +67,7 @@ function MobileNavToggle() {
       aria-expanded={isOpen}
       className="hover:bg-hover 1000:hidden -ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-md"
     >
-      {/* the menu glyphs only ship at 12px, so scale up for legibility.
-          the half-pixel lift splits the difference between engines: WebKit
-          seats the adjacent breadcrumb text ~1px higher in its line box
-          than Blink, so a nudge that's exact on one is off on the other */}
-      <Icon className="text-secondary h-4 w-4 -translate-y-[0.5px]" />
+      <Icon className="text-secondary" />
     </button>
   )
 }
@@ -130,7 +127,10 @@ function Breadcrumbs() {
   return (
     <nav
       ref={navRef}
-      className="text-sans-md relative flex min-w-0 flex-1 items-center gap-0.5 overflow-clip"
+      // x-only clip: it exists to keep the measurement copies and long crumbs from
+      // causing page overflow, and y must stay visible so the overflow trigger's
+      // expanded hit target (before:-inset-4) isn't clipped to the 18px nav height
+      className="text-sans-md relative flex min-w-0 flex-1 items-center gap-0.5 overflow-x-clip"
       aria-label="Breadcrumbs"
     >
       {hasHiddenCrumbs && (
@@ -138,11 +138,9 @@ function Breadcrumbs() {
           <DropdownMenu.Root>
             <DropdownMenu.Trigger
               aria-label="Show full breadcrumb path"
-              className="text-secondary hover:bg-hover flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-lg leading-none"
+              className="text-secondary hover:text-default relative flex shrink-0 items-center before:absolute before:-inset-4 before:content-['']"
             >
-              <span aria-hidden className="-translate-y-0.5">
-                …
-              </span>
+              <More12Icon className="translate-y-0.5 rotate-90" />
             </DropdownMenu.Trigger>
             <DropdownMenu.Content
               anchor="bottom start"
@@ -193,7 +191,7 @@ function Breadcrumbs() {
         aria-hidden
         className="invisible absolute top-0 left-0 flex w-max items-center gap-0.5 whitespace-nowrap"
       >
-        <span data-breadcrumb-ellipsis className="block h-8 w-8 shrink-0" />
+        <span data-breadcrumb-ellipsis className="block h-3 w-3 shrink-0" />
         <Slash className="breadcrumb-measure-slash shrink-0" />
         {crumbs.map(({ label, path }) => (
           <span data-breadcrumb-crumb key={`${label}|${path}`}>
