@@ -40,6 +40,7 @@ import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { ALL_ISH } from '~/util/consts'
 import { toLocaleDateString } from '~/util/date'
 import { docLinks } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
@@ -109,8 +110,8 @@ export function CreateDiskSideModalForm({
 
   const form = useForm({ defaultValues })
   const { project } = useProjectSelector()
-  const projectImages = useQuery(q(api.imageList, { query: { project } }))
-  const siloImages = useQuery(q(api.imageList, {}))
+  const projectImages = useQuery(q(api.imageList, { query: { project, limit: ALL_ISH } }))
+  const siloImages = useQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
 
   // put project images first because if there are any, there probably aren't
   // very many and they're probably relevant
@@ -120,7 +121,9 @@ export function CreateDiskSideModalForm({
   )
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
-  const snapshotsQuery = useQuery(q(api.snapshotList, { query: { project } }))
+  const snapshotsQuery = useQuery(
+    q(api.snapshotList, { query: { project, limit: ALL_ISH } })
+  )
   const snapshots = snapshotsQuery.data?.items || []
 
   // validate disk source size
@@ -404,7 +407,9 @@ const DiskNameFromId = ({ disk }: { disk: string }) => {
 
 const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) => {
   const { project } = useProjectSelector()
-  const snapshotsQuery = useQuery(q(api.snapshotList, { query: { project } }))
+  const snapshotsQuery = useQuery(
+    q(api.snapshotList, { query: { project, limit: ALL_ISH } })
+  )
 
   const snapshots = snapshotsQuery.data?.items || []
   const diskSizeField = useController({ control, name: 'size' }).field
