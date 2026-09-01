@@ -12,6 +12,7 @@ import { match } from 'ts-pattern'
 import { bytesToGiB } from '~/util/units'
 
 import type {
+  AlertDelivery,
   Disk,
   DiskState,
   DiskType,
@@ -71,6 +72,30 @@ export function subscriptionRegex(subscription: string) {
     .map((seg) => (seg === '**' ? '.+' : seg === '*' ? '[^.]+' : seg))
     .join('\\.')
   return new RegExp(`^${pattern}$`)
+}
+
+/**
+ * IDs of the alerts a probe with `resend=true` would requeue: the receiver has
+ * a delivery for the alert and no non-probe delivery of that alert has left the
+ * failed state. Note this is per alert, not per delivery — delivery records are
+ * immutable history, so a failed one stays failed forever and a resend inserts
+ * a new record. The API has no endpoint for this, so we derive it from the
+ * delivery list to preview the count before the user commits to a resend.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-queries/src/db/datastore/webhook_delivery.rs#L205-L240
+ *
+ * The mock backend applies the same rule in its own `resendableAlerts`, which
+ * works on snake_case records, so the two have to be changed together.
+ */
+export function resendableAlertIds(
+  deliveries: Pick<AlertDelivery, 'alertId' | 'alertClass' | 'state' | 'trigger'>[]
+): Set<string> {
+  const relevant = deliveries.filter((d) => d.alertClass !== PROBE_ALERT_CLASS)
+  const settled = new Set(
+    relevant
+      .filter((d) => d.trigger !== 'probe' && d.state !== 'failed')
+      .map((d) => d.alertId)
+  )
+  return new Set(relevant.filter((d) => !settled.has(d.alertId)).map((d) => d.alertId))
 }
 
 export const MIN_DISK_SIZE_GiB = 1

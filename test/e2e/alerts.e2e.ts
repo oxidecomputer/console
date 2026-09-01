@@ -449,7 +449,7 @@ test('Webhook receiver deliveries', async ({ page }) => {
   await page.getByRole('tab', { name: 'Deliveries' }).click()
 
   const table = page.getByRole('table')
-  await expect(table.getByRole('row')).toHaveCount(7) // header + 6
+  await expect(table.getByRole('row')).toHaveCount(8) // header + 7
 
   // Truncate renders the full ID (invisible, for stable layout) alongside the
   // ellipsized copy, so cell text contains both. Match on the full value.
@@ -475,9 +475,9 @@ test('Webhook receiver deliveries', async ({ page }) => {
 
   // filter by state
   await selectOption(page, 'Filter by state', 'Failed')
-  await expect(table.getByRole('row')).toHaveCount(3) // header + 2 failed
+  await expect(table.getByRole('row')).toHaveCount(4) // header + 3 failed
   await selectOption(page, 'Filter by state', 'All states')
-  await expect(table.getByRole('row')).toHaveCount(7)
+  await expect(table.getByRole('row')).toHaveCount(8)
 
   // delivery detail side modal shows attempts
   await clickRowAction(page, '30ece63e-5efd-4365-99a6-d4f09dfa685e', 'View details')
@@ -528,7 +528,7 @@ test('Webhook receiver deliveries', async ({ page }) => {
   ).toBeVisible()
   await confirmModal.getByRole('button', { name: 'Confirm' }).click()
   await expectToast(page, 'Delivery resend started')
-  await expect(table.getByRole('row')).toHaveCount(8)
+  await expect(table.getByRole('row')).toHaveCount(9)
   await expectRowVisible(table, {
     'Alert class': 'hardware.power_shelf.psu.insert',
     state: 'pending',
@@ -540,19 +540,123 @@ test('Webhook receiver deliveries', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: 'Resend' })).toBeDisabled()
   await page.keyboard.press('Escape')
 
-  // send a liveness probe from the testing tab
+  // send a liveness probe from the testing tab, resending failed deliveries
   await page.getByRole('tab', { name: 'Testing' }).click()
   await page.getByRole('button', { name: 'Send liveness probe' }).click()
   const probeModal = page.getByRole('dialog', { name: 'Send liveness probe' })
+  // the preview already accounts for the manual resend above, so it says one,
+  // not one per failed record
+  await expect(
+    probeModal.getByText('1 alert has never reached this endpoint')
+  ).toBeVisible()
+  await probeModal
+    .getByRole('checkbox', { name: 'Resend failed deliveries if the probe succeeds' })
+    .check()
   await probeModal.getByRole('button', { name: 'Send probe' }).click()
   const panel = page.getByRole('tabpanel')
   await expect(panel.getByText('Succeeded')).toBeVisible()
-  // the modal has no resend option, so nothing gets resent
-  await expect(panel.getByText('resent')).toBeHidden()
+  // resends are counted per alert, not per failed delivery record. of the three
+  // failed records, 8c8a74ba already has a successful resend and beef336d was
+  // just resent by hand, so only 81dd4626 is left
+  await expect(panel.getByText('1 delivery requeued')).toBeVisible()
 
-  await page.getByRole('tab', { name: 'Deliveries' }).click()
-  // 8 rows + the probe. no resends: the probe modal doesn't offer them
-  await expect(table.getByRole('row')).toHaveCount(9)
+  // the result links to the deliveries tab, where the resends resolve
+  await panel.getByRole('link', { name: 'View deliveries' }).click()
+  // 9 rows + the probe + the one resend
+  await expect(table.getByRole('row')).toHaveCount(11)
+})
+
+// The bug that got this checkbox removed the first time: the mock resent every
+// delivery record in the failed state, so already-resent alerts were requeued on
+// every probe and the count never dropped.
+test('Probe resends drain the backlog', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/webhook-1?tab=testing')
+
+  const panel = page.getByRole('tabpanel')
+  // the modal previews how many alerts a resend would requeue, so the user can
+  // see the number before committing to the checkbox
+  const openProbeModal = async (expectedNote: string) => {
+    await panel.getByRole('button', { name: 'Send liveness probe' }).click()
+    const modal = page.getByRole('dialog', { name: 'Send liveness probe' })
+    await expect(modal.getByText(expectedNote)).toBeVisible()
+    return modal
+  }
+  const sendProbe = async (resend: boolean, expectedNote: string) => {
+    const modal = await openProbeModal(expectedNote)
+    if (resend) {
+      await modal
+        .getByRole('checkbox', { name: 'Resend failed deliveries if the probe succeeds' })
+        .check()
+    }
+    await modal.getByRole('button', { name: 'Send probe' }).click()
+    await expect(panel.getByText('Succeeded')).toBeVisible()
+  }
+
+  // beef336d and 81dd4626 have only ever failed. 8c8a74ba also has a failed
+  // record, but it already has a successful resend, so it does not count
+  const twoWaiting = '2 alerts have never reached this endpoint'
+
+  // leaving the box unchecked resends nothing, even though 2 are waiting
+  await sendProbe(false, twoWaiting)
+  await expect(panel.getByText('requeued')).toBeHidden()
+  await expect(panel.getByText('No failed deliveries to resend')).toBeHidden()
+
+  // the preview matches what the probe actually reports
+  await sendProbe(true, twoWaiting)
+  await expect(panel.getByText('2 deliveries requeued')).toBeVisible()
+
+  // let the two resends land
+  await panel.getByRole('link', { name: 'View deliveries' }).click()
+  await selectOption(page, 'Filter by state', 'Pending')
+  const table = page.getByRole('table')
+  // the two resends plus the seeded pending delivery
+  await expect(table.getByRole('row')).toHaveCount(4) // header + 3
+  await refreshUntil(page, () =>
+    expect(page.getByText('No pending deliveries found')).toBeVisible({ timeout: 1000 })
+  )
+
+  // now that every alert has been delivered there is nothing to resend, so the
+  // checkbox is disabled rather than offering a no-op
+  await page.getByRole('tab', { name: 'Testing' }).click()
+  const modal = await openProbeModal('Every alert has reached this endpoint')
+  const resendBox = modal.getByRole('checkbox', {
+    name: 'Resend failed deliveries if the probe succeeds',
+  })
+  await expect(resendBox).toBeDisabled()
+  await expect(resendBox).not.toBeChecked()
+
+  // the probe still works, it just doesn't ask for resends
+  await modal.getByRole('button', { name: 'Send probe' }).click()
+  await expect(panel.getByText('Succeeded')).toBeVisible()
+  await expect(panel.getByText('requeued')).toBeHidden()
+  await expect(panel.getByText('No failed deliveries to resend')).toBeHidden()
+})
+
+test('Probe failure reports no resends', async ({ page }) => {
+  await page.goto('/system/alerting/receivers')
+
+  // the mock backend fails probes for endpoints containing 'unreachable'
+  await clickRowAction(page, 'webhook-1', 'Edit')
+  await page
+    .getByRole('dialog', { name: 'Edit webhook receiver' })
+    .getByRole('textbox', { name: 'Endpoint URL' })
+    .fill('https://unreachable.example.com')
+  await page.getByRole('button', { name: 'Update webhook receiver' }).click()
+  await expectToast(page, 'Webhook receiver webhook-1 updated')
+
+  await page.getByRole('tab', { name: 'Testing' }).click()
+  const panel = page.getByRole('tabpanel')
+  await panel.getByRole('button', { name: 'Send liveness probe' }).click()
+  const modal = page.getByRole('dialog', { name: 'Send liveness probe' })
+  await modal
+    .getByRole('checkbox', { name: 'Resend failed deliveries if the probe succeeds' })
+    .check()
+  await modal.getByRole('button', { name: 'Send probe' }).click()
+
+  // resends only happen on success, so the API returns null and we show no row
+  await expect(panel.getByText('Unreachable')).toBeVisible()
+  await expect(panel.getByText('requeued')).toBeHidden()
+  await expect(panel.getByText('No failed deliveries to resend')).toBeHidden()
 })
 
 test('Resend fails for an unsubscribed alert class', async ({ page }) => {
@@ -575,7 +679,7 @@ test('Resend fails for an unsubscribed alert class', async ({ page }) => {
     "Could not resend alertCannot resend alert: receiver is not subscribed to the 'hardware.power_shelf.psu.insert' alert class"
   )
   // the rejected resend must not have created a new delivery
-  await expect(page.getByRole('table').getByRole('row')).toHaveCount(7) // header + 6
+  await expect(page.getByRole('table').getByRole('row')).toHaveCount(8) // header + 7
 })
 
 test('Webhook receiver delete', async ({ page }) => {

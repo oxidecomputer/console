@@ -137,6 +137,36 @@ function retryPendingDeliveries(receiver: Json<Api.AlertReceiver>) {
   }
 }
 
+/**
+ * Alerts eligible for resend to this receiver: it has a delivery for the alert
+ * and no non-probe delivery of that alert has left the failed state. Note this
+ * is per alert, not per delivery: delivery records are immutable history, so a
+ * failed one stays failed and a resend inserts a new record. A resend record
+ * starts out pending, which takes the alert out of this set right away, and if
+ * it succeeds the alert never comes back. That is what drains the backlog.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-queries/src/db/datastore/webhook_delivery.rs#L205-L240
+ *
+ * Returns one delivery per alert so callers can read the alert class off it.
+ * The console previews this count with `resendableAlertIds` (app/api/util.ts),
+ * which applies the same rule to camelCase records.
+ *
+ * Omicron's NOT EXISTS subquery filters on alert_id, state, and triggered_by
+ * but not rx_id, so upstream a success on one receiver makes the alert
+ * non-resendable for every receiver. We scope per receiver, which is what the
+ * API docs describe.
+ */
+function resendableAlerts(receiver: Json<Api.AlertReceiver>) {
+  const forRx = db.alertDeliveries.filter(
+    (d) => d.receiver_id === receiver.id && d.alert_class !== 'probe'
+  )
+  const settled = new Set(
+    forRx
+      .filter((d) => d.trigger !== 'probe' && d.state !== 'failed')
+      .map((d) => d.alert_id)
+  )
+  return R.uniqueBy(forRx, (d) => d.alert_id).filter((d) => !settled.has(d.alert_id))
+}
+
 export const handlers = makeHandlers({
   logout: () => 204,
   ping: () => ({ status: 'ok' }),
@@ -2787,13 +2817,12 @@ export const handlers = makeHandlers({
     }
     db.alertDeliveries.unshift(probe)
 
-    // a successful probe with resend=true re-queues all failed deliveries
+    // a successful probe with resend=true re-queues every alert that has not
+    // yet been delivered successfully to this receiver
     let resendsStarted = null
     if (query.resend && success) {
-      const failed = db.alertDeliveries.filter(
-        (d) => d.receiver_id === receiver.id && d.state === 'failed'
-      )
-      for (const d of failed) {
+      const alerts = resendableAlerts(receiver)
+      for (const d of alerts) {
         db.alertDeliveries.unshift({
           id: uuid(),
           alert_id: d.alert_id,
@@ -2805,7 +2834,7 @@ export const handlers = makeHandlers({
           attempts: { webhook: [] },
         })
       }
-      resendsStarted = failed.length
+      resendsStarted = alerts.length
     }
     return { probe, resends_started: resendsStarted }
   },

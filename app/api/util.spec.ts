@@ -12,6 +12,7 @@ import {
   genName,
   instanceCan,
   parsePortRange,
+  resendableAlertIds,
   subscriptionRegex,
   synthesizeData,
 } from './util'
@@ -241,4 +242,77 @@ test('diskCan', () => {
   // @ts-expect-error typechecker rejects actions that don't exist
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   diskCan.abc
+})
+
+describe('resendableAlertIds', () => {
+  // the rule only reads these four fields, so build them directly
+  type Delivery = Parameters<typeof resendableAlertIds>[0][number]
+
+  const d = (
+    alertId: string,
+    state: Delivery['state'],
+    trigger: Delivery['trigger'],
+    alertClass = 'hardware.sled.fault'
+  ): Delivery => ({ alertId, state, trigger, alertClass })
+
+  const ids = (deliveries: Delivery[]) => [...resendableAlertIds(deliveries)].sort()
+
+  it('is empty when there are no deliveries', () => {
+    expect(ids([])).toEqual([])
+  })
+
+  it('includes an alert whose only delivery failed', () => {
+    expect(ids([d('a', 'failed', 'alert')])).toEqual(['a'])
+  })
+
+  it('excludes delivered and pending alerts', () => {
+    expect(ids([d('a', 'delivered', 'alert'), d('b', 'pending', 'alert')])).toEqual([])
+  })
+
+  // the bug this rule replaced: it counted failed delivery records, so an
+  // alert that had already been resent successfully was requeued forever
+  it('excludes an alert that has a failed record but also a successful resend', () => {
+    const deliveries = [d('a', 'failed', 'alert'), d('a', 'delivered', 'resend')]
+    expect(ids(deliveries)).toEqual([])
+  })
+
+  // a resend in flight takes the alert out of the set, so a second probe does
+  // not double-queue it
+  it('excludes an alert with a resend still pending', () => {
+    const deliveries = [d('a', 'failed', 'alert'), d('a', 'pending', 'resend')]
+    expect(ids(deliveries)).toEqual([])
+  })
+
+  it('counts an alert once no matter how many times it failed', () => {
+    const deliveries = [d('a', 'failed', 'alert'), d('a', 'failed', 'resend')]
+    expect(ids(deliveries)).toEqual(['a'])
+  })
+
+  it('ignores probe deliveries entirely', () => {
+    const deliveries = [
+      d('probe-alert', 'delivered', 'probe', 'probe'),
+      d('probe-alert', 'failed', 'probe', 'probe'),
+      d('a', 'failed', 'alert'),
+    ]
+    expect(ids(deliveries)).toEqual(['a'])
+  })
+
+  // a successful probe of an alert does not mean the alert itself landed, so it
+  // must not settle the alert. matches omicron's triggered_by != probe filter
+  it('does not let a probe-triggered success settle a real alert', () => {
+    const deliveries = [d('a', 'failed', 'alert'), d('a', 'delivered', 'probe')]
+    expect(ids(deliveries)).toEqual(['a'])
+  })
+
+  it('handles several alerts at once', () => {
+    const deliveries = [
+      d('w', 'failed', 'alert'),
+      d('x', 'delivered', 'alert'),
+      d('y', 'failed', 'alert'),
+      d('y', 'failed', 'resend'),
+      d('z', 'failed', 'alert'),
+      d('z', 'pending', 'resend'),
+    ]
+    expect(ids(deliveries)).toEqual(['w', 'y'])
+  })
 })

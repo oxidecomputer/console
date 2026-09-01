@@ -180,6 +180,7 @@ export const alerts: Json<Alert>[] = [
   psuAlert('26cb0726-bb32-4a6f-b0a5-b207f75f3cec', 'insert', 0, 10, false),
   psuAlert('0d38abba-266b-4220-9975-ae9fe26093e2', 'insert', 3, 30, false),
   psuAlert('8c8a74ba-58b7-4a06-8c79-39ccad5624fb', 'remove', 1, 180, false),
+  psuAlert('81dd4626-d7ef-435e-8f4d-f3f2a1217e59', 'remove', 4, 200, false),
   psuAlert('beef336d-99db-4b12-ac08-7ebcaab8421a', 'insert', 1, 125, true),
   psuAlert('5a2009af-26a0-4217-b18f-bd4e25e691b9', 'insert', 2, 240, false),
 ]
@@ -290,6 +291,38 @@ export const alertDeliveries: Json<AlertDelivery>[] = [
           result: 'failed_http_error',
           response: { status: 500, duration_ms: 152 },
           time_sent: minutesAgo(180),
+        },
+      ],
+    },
+  },
+  {
+    // like beef336d, this alert only ever failed, so both are resendable
+    id: '05085aec-e348-48c3-9624-e54c103a19c4',
+    alert_id: '81dd4626-d7ef-435e-8f4d-f3f2a1217e59',
+    alert_class: 'hardware.power_shelf.psu.remove',
+    receiver_id: receiverWebhook1.id,
+    state: 'failed',
+    trigger: 'alert',
+    time_started: minutesAgo(200),
+    attempts: {
+      webhook: [
+        {
+          attempt: 1,
+          result: 'failed_timeout',
+          response: null,
+          time_sent: minutesAgo(200),
+        },
+        {
+          attempt: 2,
+          result: 'failed_http_error',
+          response: { status: 502, duration_ms: 184 },
+          time_sent: minutesAgo(195),
+        },
+        {
+          attempt: 3,
+          result: 'failed_http_error',
+          response: { status: 502, duration_ms: 176 },
+          time_sent: minutesAgo(190),
         },
       ],
     },

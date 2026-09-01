@@ -6,22 +6,35 @@
  * Copyright Oxide Computer Company
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Link } from 'react-router'
+import { match } from 'ts-pattern'
 
-import { api, queryClient, useApiMutation, type AlertProbeResult } from '@oxide/api'
+import {
+  api,
+  q,
+  queryClient,
+  resendableAlertIds,
+  useApiMutation,
+  type AlertProbeResult,
+} from '@oxide/api'
 import { Error12Icon, Success12Icon } from '@oxide/design-system/icons/react'
 import { Button } from '@oxide/design-system/ui'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { ModalForm } from '~/components/form/ModalForm'
 import { useAlertReceiverSelector } from '~/hooks/use-params'
-import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { InlineCode } from '~/ui/lib/InlineCode'
-import { Modal } from '~/ui/lib/Modal'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableEmptyBox } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
+import { pluralize } from '~/util/str'
 
 import { attemptResultBadge } from './AlertReceiverDeliveries'
 
@@ -38,9 +51,38 @@ export function TestingTab() {
   )
 }
 
+/**
+ * How many alerts a resend would requeue. The API has no endpoint for this, so
+ * we derive it from the delivery list, which means the answer is only as
+ * complete as one page. `truncated` says we hit the cap and the real number is
+ * higher, so the copy can hedge rather than quietly undercount.
+ */
+type ResendPreview =
+  | { state: 'unknown' }
+  | { state: 'known'; count: number; truncated: boolean }
+
 function ReceiverTesterCard() {
+  const { receiver } = useAlertReceiverSelector()
   const [showProbeModal, setShowProbeModal] = useState(false)
   const [result, setResult] = useState<AlertProbeResult | null>(null)
+
+  // throwOnError off because this only feeds a preview count: if it fails the
+  // modal falls back to describing the behavior without a number
+  const { data } = useQuery(
+    q(
+      api.alertDeliveryList,
+      { path: { receiver }, query: { limit: ALL_ISH } },
+      { throwOnError: false }
+    )
+  )
+
+  const preview: ResendPreview = data
+    ? {
+        state: 'known',
+        count: resendableAlertIds(data.items).size,
+        truncated: !!data.nextPage,
+      }
+    : { state: 'unknown' }
 
   return (
     <CardBlock>
@@ -68,7 +110,11 @@ function ReceiverTesterCard() {
         )}
       </CardBlock.Body>
       {showProbeModal && (
-        <ProbeModal onDismiss={() => setShowProbeModal(false)} onSuccess={setResult} />
+        <ProbeModal
+          preview={preview}
+          onDismiss={() => setShowProbeModal(false)}
+          onSuccess={setResult}
+        />
       )}
     </CardBlock>
   )
@@ -81,6 +127,7 @@ function ProbeResult({ result }: { result: AlertProbeResult }) {
 
   const status = attempt.response?.status
   const durationMs = attempt.response?.durationMs
+  const resends = result.resendsStarted
 
   return (
     <PropertiesTable>
@@ -107,18 +154,54 @@ function ProbeResult({ result }: { result: AlertProbeResult }) {
       <PropertiesTable.Row label="Sent">
         <DateTime date={attempt.timeSent} />
       </PropertiesTable.Row>
+      {/* null unless resends were requested and the probe succeeded */}
+      {resends != null && (
+        <PropertiesTable.Row label="Resends">
+          {resends === 0 ? (
+            'No failed deliveries to resend'
+          ) : (
+            <span className="flex items-center gap-2">
+              {resends} {resends === 1 ? 'delivery' : 'deliveries'} requeued
+              <Link to="?tab=deliveries" className="link-with-underline text-sans-md">
+                View deliveries
+              </Link>
+            </span>
+          )}
+        </PropertiesTable.Row>
+      )}
     </PropertiesTable>
   )
 }
 
+const resendNote = (preview: ResendPreview) =>
+  match(preview)
+    .with(
+      { state: 'unknown' },
+      () => 'Alerts that never reached the endpoint are queued for another attempt.'
+    )
+    .with(
+      { state: 'known', count: 0 },
+      () => 'Every alert has reached this endpoint, so nothing would be resent.'
+    )
+    .with({ state: 'known' }, ({ count, truncated }) => {
+      const alerts = `${count} ${pluralize('alert', count)}`
+      const subject = truncated ? `At least ${alerts}` : alerts
+      const verb = !truncated && count === 1 ? 'has' : 'have'
+      return `${subject} ${verb} never reached this endpoint.`
+    })
+    .exhaustive()
+
 function ProbeModal({
+  preview,
   onDismiss,
   onSuccess,
 }: {
+  preview: ResendPreview
   onDismiss: () => void
   onSuccess: (result: AlertProbeResult) => void
 }) {
   const receiverSelector = useAlertReceiverSelector()
+  const form = useForm({ defaultValues: { resend: false } })
 
   const sendProbe = useApiMutation(api.alertReceiverProbe, {
     onSuccess(result) {
@@ -126,28 +209,40 @@ function ProbeModal({
       onSuccess(result)
       onDismiss()
     },
-    onError(err) {
-      addToast({ title: 'Could not send probe', content: err.message, variant: 'error' })
-    },
   })
 
   return (
-    <Modal isOpen onDismiss={onDismiss} title="Send liveness probe">
-      <Modal.Body>
-        <Modal.Section>
-          <p>
-            Sends a synthetic <InlineCode>probe</InlineCode> alert to the endpoint to check
-            that it is reachable.
-          </p>
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        onDismiss={onDismiss}
-        onAction={() => sendProbe.mutate({ path: receiverSelector })}
-        actionLoading={sendProbe.isPending}
-        actionText="Send probe"
-      />
-    </Modal>
+    <ModalForm
+      form={form}
+      onDismiss={onDismiss}
+      title="Send liveness probe"
+      submitLabel="Send probe"
+      submitError={sendProbe.error}
+      loading={sendProbe.isPending}
+      onSubmit={({ resend }) =>
+        sendProbe.mutate({ path: receiverSelector, query: { resend } })
+      }
+    >
+      <div className="space-y-4">
+        <p>
+          Sends a synthetic <InlineCode>probe</InlineCode> alert to the endpoint to check
+          that it is reachable.
+        </p>
+        {/* only disable on a known zero: while the count is unknown we can't
+            rule out that there is something to resend. the note below the label
+            says why it's off, so no tooltip is needed */}
+        <CheckboxField
+          name="resend"
+          control={form.control}
+          disabled={preview.state === 'known' && preview.count === 0}
+        >
+          Resend failed deliveries if the probe succeeds
+          <span className="text-sans-sm text-tertiary mt-1 block">
+            {resendNote(preview)}
+          </span>
+        </CheckboxField>
+      </div>
+    </ModalForm>
   )
 }
 
