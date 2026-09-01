@@ -158,6 +158,8 @@ export const Item = ({ className, onSelect, label, disabled, ref }: ItemProps) =
 
 export const Submenu = Menu.SubmenuRoot
 export const SubmenuTrigger = Menu.SubmenuTrigger
+export const Group = Menu.Group
+export const GroupLabel = Menu.GroupLabel
 export const RadioGroup = Menu.RadioGroup
 export const RadioItem = Menu.RadioItem
 export const Separator = Menu.Separator

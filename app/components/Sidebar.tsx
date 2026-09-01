@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router'
 
 import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
@@ -13,6 +14,7 @@ import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { openQuickActions } from '~/hooks/use-quick-actions'
 import { sidebarWrapperClass } from '~/layouts/helpers'
+import { closeMobileNav, useMobileNavStore } from '~/stores/mobile-nav'
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
 
@@ -62,18 +64,37 @@ const JumpToButton = () => {
 }
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
+  const mobileNavOpen = useMobileNavStore((state) => state.isOpen)
+  const { pathname } = useLocation()
+
+  // close the mobile nav overlay on any navigation, including ones triggered
+  // outside the sidebar (breadcrumbs, quick actions)
+  useEffect(() => closeMobileNav(), [pathname])
+
   return (
-    <div
-      className={cn(
-        sidebarWrapperClass,
-        'text-sans-md text-raise flex flex-col overflow-y-auto overscroll-none'
+    <>
+      {/* scrim behind the mobile nav overlay. covers everything below the top
+          bar so the toggle button in the top bar stays clickable */}
+      {mobileNavOpen && (
+        <div
+          aria-hidden
+          onClick={closeMobileNav}
+          className="bg-scrim 1000:hidden fixed inset-0 top-[calc(var(--top-bar-height)+var(--preview-banner-height))] z-(--z-side-modal-overlay)"
+        />
       )}
-    >
-      <div className="mx-3 mt-4">
-        <JumpToButton />
+      <div
+        className={cn(
+          sidebarWrapperClass,
+          'text-sans-md text-raise flex flex-col overflow-y-auto overscroll-none',
+          !mobileNavOpen && 'max-1000:-translate-x-full'
+        )}
+      >
+        <div className="mx-3 mt-4">
+          <JumpToButton />
+        </div>
+        {children}
       </div>
-      {children}
-    </div>
+    </>
   )
 }
 

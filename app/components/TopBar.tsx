@@ -10,6 +10,8 @@ import { Link } from 'react-router'
 
 import { api, navToLogin, useApiMutation } from '@oxide/api'
 import {
+  MenuClose12Icon,
+  MenuOpen12Icon,
   Monitor12Icon,
   Moon12Icon,
   Organization16Icon,
@@ -22,7 +24,8 @@ import {
 
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/hooks/use-current-user'
-import { topBarWrapperClass } from '~/layouts/helpers'
+import { topBarHomeCellClass, topBarWrapperClass } from '~/layouts/helpers'
+import { toggleMobileNav, useMobileNavStore } from '~/stores/mobile-nav'
 import { useThemeStore, type Theme } from '~/stores/theme'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
@@ -35,19 +38,40 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   const { me } = useCurrentUser()
   return (
     <div className={topBarWrapperClass}>
-      <div className="border-secondary flex items-center border-r px-2">
+      <div className={cn(topBarHomeCellClass, 'px-2')}>
         <HomeButton level={systemOrSilo} />
       </div>
-      <div className="flex items-center justify-between gap-4 px-3">
-        <div className="flex flex-1 gap-2.5">
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          <MobileNavToggle />
           <Breadcrumbs />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {me.fleetViewer && <SiloSystemPicker level={systemOrSilo} />}
           <UserMenu />
         </div>
       </div>
     </div>
+  )
+}
+
+function MobileNavToggle() {
+  const isOpen = useMobileNavStore((state) => state.isOpen)
+  const Icon = isOpen ? MenuClose12Icon : MenuOpen12Icon
+  return (
+    <button
+      type="button"
+      onClick={toggleMobileNav}
+      aria-label="Toggle sidebar"
+      aria-expanded={isOpen}
+      className="hover:bg-hover 1000:hidden -ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-md"
+    >
+      {/* the menu glyphs only ship at 12px, so scale up for legibility.
+          the half-pixel lift splits the difference between engines: WebKit
+          seats the adjacent breadcrumb text ~1px higher in its line box
+          than Blink, so a nudge that's exact on one is off on the other */}
+      <Icon className="text-secondary h-4 w-4 -translate-y-[0.5px]" />
+    </button>
   )
 }
 
@@ -138,15 +162,23 @@ function UserMenu() {
           )}
         >
           <Profile16Icon className="text-tertiary" />
-          <span className="text-sans-md text-default normal-case">
+          <span className="text-sans-md text-default max-1000:hidden normal-case">
             {me.displayName || 'User'}
           </span>
         </div>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content gap={8} zIndex="topBar">
-        <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
-        <ThemeSubmenu />
-        <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
+        <DropdownMenu.Group>
+          <DropdownMenu.GroupLabel className="border-secondary 1000:hidden border-b px-3 py-2">
+            <div className="text-mono-xs text-tertiary">User</div>
+            <div className="text-sans-md text-default mt-0.5">
+              {me.displayName || 'User'}
+            </div>
+          </DropdownMenu.GroupLabel>
+          <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
+          <ThemeSubmenu />
+          <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
+        </DropdownMenu.Group>
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   )
