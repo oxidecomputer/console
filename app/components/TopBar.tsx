@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { Fragment, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 
 import { api, navToLogin, useApiMutation } from '@oxide/api'
@@ -31,7 +32,6 @@ import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Identicon } from '~/ui/lib/Identicon'
 import { Slash } from '~/ui/lib/Slash'
-import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
@@ -122,28 +122,160 @@ function HomeButton({ level }: { level: 'system' | 'silo' }) {
 
 function Breadcrumbs() {
   const crumbs = useCrumbs().filter((c) => !c.titleOnly)
+  const lastCrumb = crumbs.length - 1
+  const { firstVisibleCrumb, measurementRef, navRef } = useBreadcrumbOverflow(crumbs)
+  const hasHiddenCrumbs = firstVisibleCrumb > 0
+  const visibleCrumbs = crumbs.slice(firstVisibleCrumb)
+
   return (
     <nav
-      className="text-sans-md flex items-center gap-0.5 overflow-clip"
+      ref={navRef}
+      className="text-sans-md relative flex min-w-0 flex-1 items-center gap-0.5 overflow-clip"
       aria-label="Breadcrumbs"
     >
-      {intersperse(
-        crumbs.map(({ label, path }, i) => (
-          <Link
-            to={path}
-            className={cn(
-              'text-sans-md whitespace-nowrap',
-              i === crumbs.length - 1 ? 'text-raise' : 'text-secondary hover:text-default'
-            )}
-            key={`${label}|${path}`}
-          >
-            {label}
-          </Link>
-        )),
-        <Slash />
+      {hasHiddenCrumbs && (
+        <>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger
+              aria-label="Show full breadcrumb path"
+              className="text-secondary hover:bg-hover flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-lg leading-none"
+            >
+              <span aria-hidden className="-translate-y-0.5">
+                …
+              </span>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content
+              anchor="bottom start"
+              className="max-w-[calc(100vw-2rem)]"
+              gap={8}
+              zIndex="topBar"
+            >
+              {crumbs.map(({ label, path }, i) => (
+                <DropdownMenu.LinkItem
+                  key={`${label}|${path}`}
+                  to={path}
+                  className={cn(
+                    'wrap-break-word whitespace-normal',
+                    i === lastCrumb && 'is-selected'
+                  )}
+                >
+                  {label}
+                </DropdownMenu.LinkItem>
+              ))}
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+          <Slash className="shrink-0" />
+        </>
       )}
+      {visibleCrumbs.map(({ label, path }, visibleIndex) => {
+        const crumbIndex = firstVisibleCrumb + visibleIndex
+        return (
+          <Fragment key={`${label}|${path}`}>
+            {visibleIndex > 0 && <Slash className="shrink-0" />}
+            <Link
+              to={path}
+              aria-current={crumbIndex === lastCrumb ? 'page' : undefined}
+              className={cn(
+                'text-sans-md whitespace-nowrap',
+                crumbIndex === lastCrumb
+                  ? 'text-raise min-w-0 overflow-hidden text-ellipsis'
+                  : 'text-secondary hover:text-default shrink-0'
+              )}
+            >
+              {label}
+            </Link>
+          </Fragment>
+        )
+      })}
+      {/* Keep natural-width copies available after their interactive counterparts collapse. */}
+      <div
+        ref={measurementRef}
+        aria-hidden
+        className="invisible absolute top-0 left-0 flex w-max items-center gap-0.5 whitespace-nowrap"
+      >
+        <span data-breadcrumb-ellipsis className="block h-8 w-8 shrink-0" />
+        <Slash className="breadcrumb-measure-slash shrink-0" />
+        {crumbs.map(({ label, path }) => (
+          <span data-breadcrumb-crumb key={`${label}|${path}`}>
+            {label}
+          </span>
+        ))}
+      </div>
     </nav>
   )
+}
+
+type Breadcrumb = ReturnType<typeof useCrumbs>[number]
+
+function useBreadcrumbOverflow(crumbs: Breadcrumb[]) {
+  const navRef = useRef<HTMLElement>(null)
+  const measurementRef = useRef<HTMLDivElement>(null)
+  const [firstVisibleCrumb, setFirstVisibleCrumb] = useState(() =>
+    Math.max(0, crumbs.length - 1)
+  )
+  const crumbLabels = crumbs.map(({ label }) => label).join('\0')
+
+  useLayoutEffect(() => {
+    const nav = navRef.current
+    const measurement = measurementRef.current
+    if (!nav || !measurement || crumbs.length === 0) return
+
+    const update = () => {
+      const crumbElements = Array.from(
+        measurement.querySelectorAll<HTMLElement>('[data-breadcrumb-crumb]')
+      )
+      const ellipsis = measurement.querySelector<HTMLElement>('[data-breadcrumb-ellipsis]')
+      const slash = measurement.querySelector<HTMLElement>('.breadcrumb-measure-slash')
+      if (crumbElements.length !== crumbs.length || !ellipsis || !slash) return
+
+      const style = getComputedStyle(measurement)
+      const gap = Number.parseFloat(style.columnGap) || 0
+      const slashStyle = getComputedStyle(slash)
+      const slashWidth =
+        slash.getBoundingClientRect().width +
+        (Number.parseFloat(slashStyle.marginLeft) || 0) +
+        (Number.parseFloat(slashStyle.marginRight) || 0)
+      const ellipsisWidth = ellipsis.getBoundingClientRect().width
+      const crumbWidths = crumbElements.map(
+        (element) => element.getBoundingClientRect().width
+      )
+      const lastCrumbIndex = crumbs.length - 1
+
+      // Prefer the longest complete suffix that fits. The current crumb remains when no
+      // suffix fits and its CSS ellipsis becomes the final fallback.
+      let nextFirstVisible = lastCrumbIndex
+      for (let candidate = 0; candidate <= lastCrumbIndex; candidate++) {
+        const visibleCount = crumbs.length - candidate
+        const visibleCrumbWidth = crumbWidths
+          .slice(candidate)
+          .reduce((total, width) => total + width, 0)
+        const separatorWidth = (visibleCount - 1) * (slashWidth + gap * 2)
+        const collapsedPrefixWidth =
+          candidate > 0 ? ellipsisWidth + slashWidth + gap * 2 : 0
+
+        if (visibleCrumbWidth + separatorWidth + collapsedPrefixWidth <= nav.clientWidth) {
+          nextFirstVisible = candidate
+          break
+        }
+      }
+
+      setFirstVisibleCrumb((current) =>
+        current === nextFirstVisible ? current : nextFirstVisible
+      )
+    }
+
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(nav)
+    observer.observe(measurement)
+    return () => observer.disconnect()
+  }, [crumbLabels, crumbs.length])
+
+  return {
+    firstVisibleCrumb: Math.min(firstVisibleCrumb, Math.max(0, crumbs.length - 1)),
+    measurementRef,
+    navRef,
+  }
 }
 
 function UserMenu() {
