@@ -9,7 +9,9 @@ import {
   useController,
   type Control,
   type FieldPath,
+  type FieldPathValue,
   type FieldValues,
+  type Validate,
 } from 'react-hook-form'
 
 import { FieldLabel } from '~/ui/lib/FieldLabel'
@@ -30,6 +32,7 @@ export function FileField<
   accept,
   description,
   disabled,
+  validate,
 }: {
   id: string
   name: TName
@@ -40,11 +43,12 @@ export function FileField<
   accept?: string
   description?: string | React.ReactNode
   disabled?: boolean
+  validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
 }) {
   const {
     field: { value: _, ...rest },
     fieldState: { error },
-  } = useController({ name, control, rules: { required } })
+  } = useController({ name, control, rules: { required, validate } })
   return (
     <div className="max-w-lg">
       <div className="mb-2">

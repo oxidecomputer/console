@@ -24,6 +24,7 @@ import { Subnet16Icon, Subnet24Icon } from '@oxide/design-system/icons/react'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -86,7 +87,7 @@ export async function clientLoader() {
   return null
 }
 
-export const handle = { crumb: 'Subnet Pools' }
+export const handle = makeCrumb('Subnet Pools', pb.subnetPools())
 
 export default function SubnetPoolsPage() {
   const navigate = useNavigate()
@@ -116,6 +117,7 @@ export default function SubnetPoolsPage() {
         onActivate: confirmDelete({
           doDelete: () => deletePool({ path: { pool: pool.name } }),
           label: pool.name,
+          resourceKind: 'subnet pool',
         }),
       },
     ],

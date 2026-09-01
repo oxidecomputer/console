@@ -102,7 +102,8 @@ export default function SiloUtilizationPage() {
           <Listbox
             selected={filterId}
             className="w-52"
-            aria-labelledby="filter-id-label"
+            label="Filter by project"
+            hideLabel
             name="filter-id"
             items={projectItems}
             onChange={setFilterId}

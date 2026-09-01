@@ -64,7 +64,7 @@ export const useMakeInstanceActions = (
                   // prettier-ignore
                   onSuccess: () => addToast(<>Starting instance <HL>{instance.name}</HL></>),
                 }),
-              modalTitle: 'Confirm start instance',
+              modalTitle: 'Start instance',
               modalContent: (
                 <p>
                   Are you sure you want to start <HL>{instance.name}</HL>?
@@ -88,7 +88,7 @@ export const useMakeInstanceActions = (
                     // prettier-ignore
                     addToast(<>Stopping instance <HL>{instance.name}</HL></>),
                 }),
-              modalTitle: 'Confirm stop instance',
+              modalTitle: 'Stop instance',
               modalContent: (
                 <div className="space-y-2">
                   <p>
@@ -128,7 +128,7 @@ export const useMakeInstanceActions = (
                     // prettier-ignore
                     addToast(<>Rebooting instance <HL>{instance.name}</HL></>),
                 }),
-              modalTitle: 'Confirm reboot instance',
+              modalTitle: 'Reboot instance',
               modalContent: (
                 <p>
                   Are you sure you want to reboot <HL>{instance.name}</HL>?

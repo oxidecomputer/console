@@ -38,11 +38,19 @@ export function CalendarGrid({ state, ...props }: CalendarGridProps) {
         <tbody>
           {[...Array.from({ length: weeksInMonth }).keys()].map((weekIndex) => (
             <tr key={weekIndex}>
-              {state
-                .getDatesInWeek(weekIndex)
-                .map((date, i) =>
-                  date ? <CalendarCell key={i} state={state} date={date} /> : <td key={i} />
-                )}
+              {state.getDatesInWeek(weekIndex).map((date, i) =>
+                date ? (
+                  <CalendarCell key={i} state={state} date={date} />
+                ) : (
+                  // Placeholder cell for days outside the month — intentionally empty.
+                  // oxlint hardcodes td/th as interactive controls, so it demands a label
+                  // (https://github.com/oxc-project/oxc/blob/aa79b5b/crates/oxc_linter/src/utils/react.rs#L204-L205),
+                  // but this cell should stay silent to ATs — adding text/aria-label would
+                  // announce noise.
+                  // eslint-disable-next-line jsx-a11y/control-has-associated-label
+                  <td key={i} />
+                )
+              )}
             </tr>
           ))}
         </tbody>

@@ -11,14 +11,12 @@ import { resolve } from 'path'
 
 import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import { configDefaults } from 'vitest/config'
 import { z } from 'zod/v4'
 
 import vercelConfig from './vercel.json'
-
-const KiB = 1024
 
 const ApiMode = z.enum(['msw', 'remote', 'nexus'])
 
@@ -98,20 +96,16 @@ const devHeaders = {
 // see https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   build: {
+    // Must match `target` in tsconfig.json: tsc only checks against lib types
+    // and nothing polyfills missing APIs, so the browser floor and the type
+    // ceiling have to move together. Vite maps this to the oldest browsers
+    // with full ES2024 support. We pin it because the default
+    // (baseline-widely-available) drifts across Vite versions.
+    target: 'es2024',
     outDir: resolve(__dirname, 'dist'),
     emptyOutDir: true,
     sourcemap: true,
     // minify: false, // uncomment for debugging
-    rollupOptions: {
-      // default entrypoint for vite is '<root>/index.html', so we don't have to set it
-      output: {
-        // React Router automatically splits any route module into its own file,
-        // but some end up being like 300 bytes. It feels silly to have several
-        // hundred of those, so we set a minimum size to end up with fewer.
-        // https://rollupjs.org/configuration-options/#output-experimentalminchunksize
-        experimentalMinChunkSize: 30 * KiB,
-      },
-    },
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
     assetsInlineLimit: 0,
   },
@@ -126,7 +120,6 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     tailwindcss(),
-    tsconfigPaths(),
     {
       name: 'inject-html-tags',
       transformIndexHtml: () => (process.env.VERCEL ? previewTags : []),
@@ -171,10 +164,13 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
+  resolve: { tsconfigPaths: true },
   preview: { headers },
   test: {
-    environment: 'jsdom',
-    setupFiles: ['test/unit/setup.ts'],
+    name: 'unit',
+    // no DOM environment: anything needing a real DOM is a browser mode test
+    environment: 'node',
     includeSource: ['app/**/*.ts'],
+    exclude: [...configDefaults.exclude, '**/*.browser.spec.{ts,tsx}'],
   },
 }))

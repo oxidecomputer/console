@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { type LoaderFunctionArgs } from 'react-router'
+import { Link, type LoaderFunctionArgs } from 'react-router'
 import { match } from 'ts-pattern'
 
 import {
@@ -32,7 +32,6 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
-import { orderIps } from '~/components/ExternalIps'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
@@ -45,6 +44,7 @@ import {
   useInstanceSelector,
   useProjectSelector,
 } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -52,6 +52,7 @@ import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { SubnetNameFromId } from '~/table/cells/SubnetNameCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
@@ -62,41 +63,37 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
+import { Truncate } from '~/ui/lib/Truncate'
 import { ALL_ISH } from '~/util/consts'
 import {
   getCompatibleVersionsFromNics,
   getEphemeralIpSlots,
   ipHasVersion,
+  orderIps,
   parseIp,
 } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
 
+/**
+ * Resolve a VPC ID to its name. Nexus refuses to delete a VPC while live subnets
+ * exist, and refuses to delete a subnet while a live NIC references it, so a NIC's
+ * vpcId always points at a live VPC and the error branch should be unreachable. It
+ * falls back to the ID rather than taking down the page if that turns out to be
+ * wrong — the ID is true whatever the cause, where "Deleted" would also be wrong for
+ * a transient 5xx. Matches `SubnetNameFromId`, which hedges the same way one hop down.
+ * https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/db-queries/src/db/datastore/vpc.rs#L560-L592
+ */
 const VpcNameFromId = ({ value }: { value: string }) => {
   const { project } = useProjectSelector()
   const { data: vpc, isError } = useQuery(
     q(api.vpcView, { path: { vpc: value } }, { throwOnError: false })
   )
 
-  // If we can't find it, it must have been deleted. This is probably not
-  // possible because you can't delete a VPC that has child resources, but let's
-  // be safe
-  if (isError) return <Badge color="neutral">Deleted</Badge>
+  if (isError) return <Truncate text={value} position="middle" className="max-w-48" />
   if (!vpc) return <SkeletonCell />
   return <LinkCell to={pb.vpc({ project, vpc: vpc.name })}>{vpc.name}</LinkCell>
-}
-
-const SubnetNameFromId = ({ value }: { value: string }) => {
-  const { data: subnet, isError } = useQuery(
-    q(api.vpcSubnetView, { path: { subnet: value } }, { throwOnError: false })
-  )
-
-  // same deal as VPC: probably not possible but let's be safe
-  if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!subnet) return <SkeletonCell /> // loading
-
-  return <span className="text-default">{subnet.name}</span>
 }
 
 const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
@@ -127,12 +124,25 @@ const staticSubnetCols = [
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
-    queryClient.fetchQuery(
-      q(api.instanceNetworkInterfaceList, {
-        // we want this to cover all NICs; TODO: determine actual limit?
-        query: { project, instance, limit: ALL_ISH },
-      })
-    ),
+    // Prefetch the by-ID subnet views the NIC table's subnet cells look up, so
+    // SubnetNameFromId hits a warm cache. subnetIds come from the NIC list, so
+    // chain off it; NICs usually share a subnet, so dedupe (≤8 NICs, typically 1).
+    // VPC cells are handled by seeding vpcView from the vpcList fetch below.
+    queryClient
+      .fetchQuery(
+        q(api.instanceNetworkInterfaceList, {
+          // we want this to cover all NICs; TODO: determine actual limit?
+          query: { project, instance, limit: ALL_ISH },
+        })
+      )
+      .then((nics) => {
+        const subnetIds = [...new Set(nics.items.map((n) => n.subnetId))]
+        return Promise.all(
+          subnetIds.map((subnet) =>
+            queryClient.prefetchQuery(q(api.vpcSubnetView, { path: { subnet } }))
+          )
+        )
+      }),
     queryClient.fetchQuery(q(api.floatingIpList, { query: { project, limit: ALL_ISH } })),
     queryClient.fetchQuery(
       q(api.externalSubnetList, { query: { project, limit: ALL_ISH } })
@@ -169,6 +179,15 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
             }
           )
           queryClient.setQueryData(queryKey, { type: 'success', data: pool })
+        }
+      }),
+    // Fetch VPCs for the Add NIC form, and seed vpcView-by-id so the NIC
+    // table's VPC cells (VpcNameFromId) render without a skeleton.
+    queryClient
+      .fetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } }))
+      .then((vpcs) => {
+        for (const vpc of vpcs.items) {
+          queryClient.setQueryData(q(api.vpcView, { path: { vpc: vpc.id } }).queryKey, vpc)
         }
       }),
   ])
@@ -219,7 +238,7 @@ const staticCols = [
   }),
   colHelper.accessor('subnetId', {
     header: 'subnet',
-    cell: (info) => <SubnetNameFromId value={info.getValue()} />,
+    cell: (info) => <SubnetNameFromId subnetId={info.getValue()} />,
   }),
   colHelper.display({
     id: 'transitIps',
@@ -347,6 +366,16 @@ export default function NetworkingTab() {
     })
   ).data.items
 
+  // Firewall rules and other external networking state live on the VPC of the
+  // primary NIC. The parent InstancePage loader prefetches this VPC, but
+  // primaryNic may be undefined, so we can't use usePrefetchedQuery.
+  const primaryVpcId = nics.find((nic) => nic.primary)?.vpcId
+  const { data: primaryVpc } = useQuery({
+    // primaryVpcId is defined when enabled, so the assertion is safe
+    ...q(api.vpcView, { path: { vpc: primaryVpcId! } }),
+    enabled: !!primaryVpcId,
+  })
+
   const { data: siloPools } = usePrefetchedQuery(
     q(api.ipPoolList, { query: { limit: ALL_ISH } })
   )
@@ -445,6 +474,7 @@ export default function NetworkingTab() {
                 query: instanceSelector,
               }),
             label: nic.name,
+            resourceKind: 'network interface',
           }),
           disabled: deleteDisabledReason(),
         },
@@ -511,7 +541,7 @@ export default function NetworkingTab() {
                 path: { externalSubnet: subnet.name },
                 query: { project },
               }),
-            modalTitle: 'Detach External Subnet',
+            modalTitle: 'Detach external subnet',
             modalContent: (
               <p>
                 Are you sure you want to detach external subnet <HL>{subnet.name}</HL> from{' '}
@@ -586,7 +616,7 @@ export default function NetworkingTab() {
             confirmAction({
               actionType: 'danger',
               doAction: doDetach,
-              modalTitle: `Confirm detach ${externalIp.kind} IP`,
+              modalTitle: `Detach ${externalIp.kind} IP`,
               modalContent: (
                 <p>
                   Are you sure you want to detach {label} from <HL>{instanceName}</HL>? The
@@ -629,6 +659,38 @@ export default function NetworkingTab() {
 
   const subnetDisabledReason =
     availableSubnets.length === 0 ? 'No available external subnets' : null
+
+  useQuickActions(
+    () =>
+      [
+        !ephemeralDisabledReason && {
+          value: 'Attach ephemeral IP',
+          navGroup: 'Actions',
+          action: () => setAttachEphemeralModalOpen(true),
+        },
+        !floatingDisabledReason && {
+          value: 'Attach floating IP',
+          navGroup: 'Actions',
+          action: () => setAttachFloatingModalOpen(true),
+        },
+        instanceCan.updateNic({ runState: instance.runState }) && {
+          value: 'Add network interface',
+          navGroup: 'Actions',
+          action: () => setCreateModalOpen(true),
+        },
+        !subnetDisabledReason && {
+          value: 'Attach external subnet',
+          navGroup: 'Actions',
+          action: () => setAttachSubnetModalOpen(true),
+        },
+      ].filter((x) => !!x),
+    [
+      ephemeralDisabledReason,
+      floatingDisabledReason,
+      instance.runState,
+      subnetDisabledReason,
+    ]
+  )
 
   return (
     <div className="space-y-5">
@@ -726,8 +788,14 @@ export default function NetworkingTab() {
 
         {createModalOpen && (
           <CreateNetworkInterfaceForm
-            onDismiss={() => setCreateModalOpen(false)}
+            onDismiss={() => {
+              setCreateModalOpen(false)
+              createNic.reset() // clear stale error state
+            }}
             onSubmit={(body) => createNic.mutate({ query: instanceSelector, body })}
+            // not || isSuccess: the modal unmounts synchronously in onSuccess,
+            // and a sticky isSuccess would strand a spinner on next open
+            loading={createNic.isPending}
             submitError={createNic.error}
           />
         )}
@@ -738,7 +806,7 @@ export default function NetworkingTab() {
       </CardBlock>
 
       <CardBlock>
-        <CardBlock.Header title="External Subnets" titleId="attached-subnets-label">
+        <CardBlock.Header title="External subnets" titleId="attached-subnets-label">
           <Button
             size="sm"
             onClick={() => setAttachSubnetModalOpen(true)}
@@ -775,6 +843,25 @@ export default function NetworkingTab() {
             onDismiss={() => setAttachSubnetModalOpen(false)}
           />
         )}
+      </CardBlock>
+      <CardBlock>
+        <CardBlock.Header title="Firewall rules" titleId="firewall-rules-label" />
+        <CardBlock.Body>
+          {primaryVpc ? (
+            <>
+              Manage firewall rules affecting this instance in VPC{' '}
+              <Link
+                className="link-with-underline"
+                to={pb.vpcFirewallRules({ project, vpc: primaryVpc.name })}
+              >
+                {primaryVpc.name}
+              </Link>
+              .
+            </>
+          ) : (
+            'Firewall rules are managed on the VPC associated with the primary network interface.'
+          )}
+        </CardBlock.Body>
       </CardBlock>
     </div>
   )
@@ -816,7 +903,7 @@ const AttachExternalSubnetModal = ({
       }}
       submitLabel="Attach"
       submitError={externalSubnetAttach.error}
-      loading={externalSubnetAttach.isPending}
+      loading={externalSubnetAttach.isPending || externalSubnetAttach.isSuccess}
       onDismiss={onDismiss}
     >
       <ListboxField

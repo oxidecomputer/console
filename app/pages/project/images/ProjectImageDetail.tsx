@@ -5,11 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { LoaderFunctionArgs } from 'react-router'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 
-import { EditImageSideModalForm } from '~/forms/image-edit'
+import { ImageDetailSideModal } from '~/components/ImageDetailSideModal'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectImageSelector, useProjectImageSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
@@ -24,12 +24,13 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = titleCrumb('Edit Image')
+export const handle = titleCrumb('Image')
 
-export default function ProjectImageEdit() {
+export default function ProjectImageDetail() {
   const selector = useProjectImageSelector()
+  const navigate = useNavigate()
   const { data } = usePrefetchedQuery(imageView(selector))
 
   const dismissLink = pb.projectImages({ project: selector.project })
-  return <EditImageSideModalForm image={data} dismissLink={dismissLink} type="Project" />
+  return <ImageDetailSideModal image={data} onDismiss={() => navigate(dismissLink)} />
 }

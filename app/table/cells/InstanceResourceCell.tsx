@@ -5,22 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
-import { filesize } from 'filesize'
-
 import type { Instance } from '@oxide/api'
+
+import { Size, ValueUnit } from '~/ui/lib/ValueUnit'
 
 type Props = { value: Pick<Instance, 'ncpus' | 'memory'> }
 
-export const InstanceResourceCell = ({ value }: Props) => {
-  const memory = filesize(value.memory, { output: 'object', base: 2 })
-  return (
-    <div className="space-y-0.5">
-      <div>
-        {value.ncpus} <span className="text-tertiary">vCPU</span>
-      </div>
-      <div>
-        {memory.value} <span className="text-tertiary">{memory.unit}</span>
-      </div>
+export const InstanceResourceCell = ({ value }: Props) => (
+  <div className="space-y-0.5">
+    <div>
+      <ValueUnit value={value.ncpus} unit="vCPU" />
     </div>
-  )
-}
+    <div>
+      <Size bytes={value.memory} />
+    </div>
+  </div>
+)

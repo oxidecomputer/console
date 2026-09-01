@@ -82,7 +82,7 @@ export const Toast = ({
             className="text-mono-sm text-accent-secondary hover:text-accent mt-3 block"
             to={cta.link}
           >
-            <Truncate text={cta.text} maxLength={36} />
+            <Truncate text={cta.text} />
           </Link>
         )}
       </div>

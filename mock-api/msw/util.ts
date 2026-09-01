@@ -9,6 +9,7 @@ import { differenceInSeconds, subHours } from 'date-fns'
 // Works without the .js for dev server and prod build in MSW mode, but
 // playwright wants the .js. No idea why, let's just add the .js.
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
+import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
 import {
@@ -16,6 +17,7 @@ import {
   MAX_DISK_SIZE_GiB,
   MIN_DISK_SIZE_GiB,
   totalCapacity,
+  type BlockSize,
   type DiskBackend,
   type DiskCreate,
   type IpRange,
@@ -37,6 +39,7 @@ import { parseIp } from '~/util/ip'
 import { GiB, TiB } from '~/util/units'
 
 import type { DbRoleAssignmentResourceType } from '..'
+import { SENTINEL_FLAT_INSTANCE_ID, SENTINEL_SLOPE_INSTANCE_ID } from '../instance'
 import { genI64Data } from '../metrics'
 import { getMockOxqlInstanceData } from '../oxql-metrics'
 import { db, lookupById } from './db'
@@ -101,6 +104,9 @@ export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date })
 export const forbiddenErr = () =>
   json({ error_code: 'Forbidden', request_id: 'fake-id' }, { status: 403 })
 
+export const unauthorizedErr = () =>
+  json({ error_code: 'Unauthorized', request_id: 'fake-id' }, { status: 401 })
+
 export const unavailableErr = () =>
   json({ error_code: 'ServiceUnavailable', request_id: 'fake-id' }, { status: 503 })
 
@@ -113,8 +119,22 @@ export const NotImplemented = () => {
 export const invalidRequest = (message: string) =>
   json({ error_code: 'InvalidRequest', message }, { status: 400 })
 
-export const internalError = (message: string) =>
-  json({ error_code: 'InternalError', message }, { status: 500 })
+// Omicron maps a UniqueViolation through ErrorHandler::Conflict to a 400
+// ObjectAlreadyExists.
+// https://github.com/oxidecomputer/omicron/blob/13937a1/nexus/db-errors/src/transaction_error.rs#L266-L270
+export const alreadyExistsErr = (message: string) =>
+  json({ error_code: 'ObjectAlreadyExists', message }, { status: 400 })
+
+// 500s in Omicron come from  Error::InternalError, which turns into dropshot's
+// `for_internal_error`, which sets error_code "Internal" and a external message
+// of "Internal Server Error". It also has an `internal_message` that gets
+// logged but isn't sent to clients. We imitate that here.
+// https://github.com/oxidecomputer/omicron/blob/985304a/common/src/api/external/error.rs#L474-L476
+// https://github.com/oxidecomputer/dropshot/blob/9b431d1/dropshot/src/error.rs#L229-L241
+export const internalError = (internalMessage?: string) => {
+  if (internalMessage) console.error(internalMessage)
+  return json({ error_code: 'Internal', message: 'Internal Server Error' }, { status: 500 })
+}
 
 export const errIfExists = <T extends Record<string, unknown>>(
   collection: T[],
@@ -132,13 +152,7 @@ export const errIfExists = <T extends Record<string, unknown>>(
         : 'id' in match && match.id
           ? match.id
           : '<resource>'
-    throw json(
-      {
-        error_code: 'ObjectAlreadyExists',
-        message: `already exists: ${resourceLabel} "${name.toString()}"`,
-      },
-      { status: 400 }
-    )
+    throw alreadyExistsErr(`already exists: ${resourceLabel} "${name.toString()}"`)
   }
 }
 
@@ -147,9 +161,9 @@ export const errIfExists = <T extends Record<string, unknown>>(
  * https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/sagas/disk_create.rs#L292-L304
  * https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/disk.rs#L159-L174
  */
-export function getBlockSize(backend: Json<DiskBackend>): number {
+export function getBlockSize(backend: Json<DiskBackend>): BlockSize {
   return match(backend)
-    .with({ type: 'local' }, () => 4096) // All local disks use 4k block size (AdvancedFormat)
+    .with({ type: 'local' }, () => 4096 as const) // All local disks use 4k block size (AdvancedFormat)
     .with({ type: 'distributed' }, ({ disk_source: source }) =>
       match(source)
         .with({ type: 'blank' }, (s) => s.block_size)
@@ -326,6 +340,30 @@ export function handleMetrics({ path: { metricName }, query }: MetricParams) {
 }
 
 export const MSW_USER_COOKIE = 'msw-user'
+export const MSW_FLAGS_COOKIE = 'msw-flags'
+
+/**
+ * Test-only fleet-state overrides, serialized into the `msw-flags` cookie as a
+ * comma-separated list of the enabled keys. Some server-computed signals (e.g.
+ * update status's `contact_support`) have no operator UI to flip, so there's no
+ * user-controlled request input to drive them through the real UI. Rather than
+ * reach for `page.route`, a test enables a flag and the relevant handler ORs it
+ * in. Inert in normal use (cookie unset), and reproducible in the dev server
+ * via `document.cookie = 'msw-flags=contactSupport'`.
+ *
+ * This array is the single source of truth for valid flag names; both the e2e
+ * helper that sets the cookie and `mockFlags` that reads it derive their types
+ * from it, so a typo in a handler or test is a type error.
+ */
+export const MOCK_FLAGS = [
+  'contactSupport', // db.updateStatus.contact_support = true
+] as const
+export type MockFlag = (typeof MOCK_FLAGS)[number]
+
+export function mockFlags(cookies: Record<string, string>): Record<MockFlag, boolean> {
+  const present = (cookies[MSW_FLAGS_COOKIE] ?? '').split(',')
+  return R.fromKeys(MOCK_FLAGS, (flag) => present.includes(flag))
+}
 
 /**
  * Look up user by display name in cookie. If cookie is empty, return the first
@@ -547,10 +585,35 @@ const getCpuStateFromQuery = (query: string): OxqlVcpuState | undefined => {
   return match ? (match[1] as OxqlVcpuState) : undefined
 }
 
+// Pull the instance UUID out of the `instance_id == "..."` filter (also matches
+// the `attached_instance_id` used by disk metrics).
+const getInstanceIdFromQuery = (query: string): string | undefined =>
+  query.match(/(?:attached_)?instance_id\s*==\s*"([^"]+)"/)?.[1]
+
+// getUtilizationChartProps renders raw values on screen as value * 100 / (5s *
+// 1e9 * 1 series); invertUtilization goes the other way — from a target percent
+// to the raw value that produces it.
+const invertUtilization = (percent: number): number => (percent * 5 * 1e9) / 100
+const SENTINEL_CONSTANT_RAW_VALUE = invertUtilization(12345) // 12,345%
+const sentinelSlopeRawValue = (i: number) => invertUtilization((i + 1) * 1000) // (i + 1) * 1000%
+
 export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryResult> {
   const metricName = getMetricNameFromQuery(query) as OxqlNetworkMetricName
   const stateValue = getCpuStateFromQuery(query)
-  return getMockOxqlInstanceData(metricName, stateValue)
+  const data = getMockOxqlInstanceData(metricName, stateValue)
+
+  // Sentinel instances: replace the series with synthetic data — flat (constant)
+  // or a slope that increases with time — so tests can assert on plotted values.
+  const instanceId = getInstanceIdFromQuery(query)
+  const points = data.tables[0].timeseries[0].points
+  const series = points.values[0].values.values
+  if (instanceId === SENTINEL_FLAT_INSTANCE_ID) {
+    points.values[0].values.values = series.map(() => SENTINEL_CONSTANT_RAW_VALUE)
+  } else if (instanceId === SENTINEL_SLOPE_INSTANCE_ID) {
+    points.values[0].values.values = series.map((_, i) => sentinelSlopeRawValue(i))
+  }
+
+  return data
 }
 
 export function randomHex(length: number) {

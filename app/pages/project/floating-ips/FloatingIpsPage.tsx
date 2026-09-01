@@ -34,7 +34,8 @@ import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
-import { IpPoolCell } from '~/table/cells/IpPoolCell'
+import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -78,19 +79,25 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
       .fetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
-          const { queryKey } = q(api.ipPoolView, {
-            path: { pool: pool.id },
-          })
-          queryClient.setQueryData(queryKey, pool)
+          // IpPoolCell uses the errors-allowed query shape, so seed that exact
+          // cache entry instead of the normal ipPoolView query.
+          const { queryKey } = ipPoolErrorsAllowedQuery(pool.id)
+          queryClient.setQueryData(queryKey, { type: 'success', data: pool })
         }
       }),
   ])
   return null
 }
 
+/** Reads project from the route so the name column can stay static */
+const NameCell = ({ name }: { name: string }) => {
+  const { project } = useProjectSelector()
+  return <LinkCell to={pb.floatingIpEdit({ project, floatingIp: name })}>{name}</LinkCell>
+}
+
 const colHelper = createColumnHelper<FloatingIp>()
 const staticCols = [
-  colHelper.accessor('name', {}),
+  colHelper.accessor('name', { cell: (info) => <NameCell name={info.getValue()} /> }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('ip', {
     header: 'IP address',
@@ -153,7 +160,7 @@ export default function FloatingIpsPage() {
                     path: { floatingIp: floatingIp.name },
                     query: { project },
                   }),
-                modalTitle: 'Detach Floating IP',
+                modalTitle: 'Detach floating IP',
                 // instanceName! non-null because we only see this if there is an instance
                 modalContent: (
                   <p>
@@ -196,6 +203,7 @@ export default function FloatingIpsPage() {
                 query: { project },
               }),
             label: floatingIp.name,
+            resourceKind: 'floating IP',
           }),
         },
       ]
@@ -299,7 +307,7 @@ const AttachFloatingIpModal = ({
       }}
       submitLabel="Attach"
       submitError={floatingIpAttach.error}
-      loading={floatingIpAttach.isPending}
+      loading={floatingIpAttach.isPending || floatingIpAttach.isSuccess}
       onDismiss={onDismiss}
     >
       <Message

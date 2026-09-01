@@ -17,6 +17,52 @@ import {
   expectVisible,
 } from './utils'
 
+// Self-signed cert whose SANs cover other-silo.sys.placeholder; notAfter
+// is 2036, so neither the mismatch nor expiry notice should fire.
+const validCertPem = `-----BEGIN CERTIFICATE-----
+MIIDCTCCAfGgAwIBAgIJANXWazDy6XofMA0GCSqGSIb3DQEBCwUAMCUxIzAhBgNV
+BAMMGm90aGVyLXNpbG8uc3lzLnBsYWNlaG9sZGVyMB4XDTI2MDUyMTExMTQyNVoX
+DTM2MDUxODExMTQyNVowJTEjMCEGA1UEAwwab3RoZXItc2lsby5zeXMucGxhY2Vo
+b2xkZXIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDI3sD73Xxa3gUN
+2cdgTYtOrmLubg19yBqs24m11PbTR8mUnPcgMLGS4EUsJax3IjYHoDTWa8BnKMO+
+ECYL3FlwUlabvnendefrDSgS8RFjFNdNBULVfDkyNvRVClfl9z2/T7T+OrDqnO55
+jfXGh5hVi2hUw2oZY5IMtGiinALisl9N4hE2GCeJ+xJs9XZbCjyuGW1V6TK8domR
+SQ/a92KnM7zmHb3ed+sqJ5w9DOReb0JFw7E50h0DttswoZvpeqVWIjnv1n9+Q3Ef
+izyWukmWMLnWbL0sZ4IzPbgoxa0nhW/cpmH2WOVfq6PiiAJ5lz5aVKtRdXyBllNm
+KxMJFaRjAgMBAAGjPDA6MDgGA1UdEQQxMC+CGm90aGVyLXNpbG8uc3lzLnBsYWNl
+aG9sZGVyghEqLnN5cy5wbGFjZWhvbGRlcjANBgkqhkiG9w0BAQsFAAOCAQEAnv7Q
+9Ye1CN0rzfS48rrKdKinsotnI9qLTCa8Yds+aGUy4Zc1+L0JOoaf++JxIruEAIEB
+QTw/K5BTTYrMtH+Z1j8oBNobz7nmqViQc1TZzbAbpLEoIDhORcR4Bfd1nFhoys44
+NuLQj2nBT4+esIq1Stnne6yWaMRGS7b4ST2fiw3YECPxZjSwDW81uis+RdvIsrRt
+5oN46xZ08uBYvjGv09FDS2eFlMxxg7v92qWvlUWDjqXgMYPTdT1lC9jT5afV3auE
+v79HkG0vgIb5q/KyEnpHs3NnJxBaxLH7+i8aEXD7235RNjROzRHTvGaTBkJQVk9X
+cx0yc+u9JD4kNu9aOA==
+-----END CERTIFICATE-----`
+
+// Self-signed cert with CN=test.example.com and SANs that won't match
+// other-silo.sys.*; notAfter is 2025-11-27, i.e. already expired.
+const expiredCertPem = `-----BEGIN CERTIFICATE-----
+MIIDbjCCAlagAwIBAgIUVF36cv2UevtKOGWP3GNV1h+TpScwDQYJKoZIhvcNAQEL
+BQAwGzEZMBcGA1UEAwwQdGVzdC5leGFtcGxlLmNvbTAeFw0yNDExMjcxNDE4MTha
+Fw0yNTExMjcxNDE4MThaMBsxGTAXBgNVBAMMEHRlc3QuZXhhbXBsZS5jb20wggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC0cBavU9cnrTY7CaOsHdfzr7e4
+mT7eRCGJa1jmuGeADGIs1IcMr/7jgiKS/1P69SehfqpFWXKAYn5OH+ickZfs55AB
+uyfh+KogmTkX6I40CnP9GohfgAaDVr119a2kdJNvinsCjNGfulMBYiw+sJBp4l/c
+zQRYMXaMk1ARKBgUuVZHZXnkWQKjp/GAQjVsUjl/dnBVeUuS4/0OVTLL8U6mGzdy
+f5s03bpBLOOJ9Owg1We5urYA6glCvvMh1VhBPsCnHFj6aYLnnWpJkVuJEKA+znEU
+U2n6T0bQorzVnn5ROtAn3ao4sGIVMbMeIaEvUt3zyVk+gtUvqSTPChFde6/LAgMB
+AAGjgakwgaYwHQYDVR0OBBYEFFzp73YRPxxu4bTQvmJy5rqHNXh7MB8GA1UdIwQY
+MBaAFFzp73YRPxxu4bTQvmJy5rqHNXh7MA8GA1UdEwEB/wQFMAMBAf8wUwYDVR0R
+BEwwSoIQdGVzdC5leGFtcGxlLmNvbYISKi50ZXN0LmV4YW1wbGUuY29tghEqLmRl
+di5leGFtcGxlLmNvbYIJbG9jYWxob3N0hwR/AAABMA0GCSqGSIb3DQEBCwUAA4IB
+AQCstbMiTwHuSlwuUslV9SxewdxTtKAjNgUnCn1Jv7hs44wNTBqvMzDq2HB26wRR
+Onbt6gReOj9GdSRmJPNcgouaAGJWCXuaZPs34LgRJir6Z0FVcK7/O3SqfTOg3tJg
+gzg4xmtzXc7Im4VgvaLS5iXCOvUaKf/rXeYDa3r37EF+vyzcETt5bXwtU8BBFvVT
+JfPDla5lYv0h9Z+XsYEAqtbChdy+fVuHnF+EygZCT9KVFBPWQrsaF1Qc/CvP/+LM
+CrdLoB+2pkWbX075tv8LIbL2dW5Gzyw+lU6lzPL9Vikm3QXGRklKHA4SVuZ3F9tr
+wPRLWb4aPmo1COkgvg3Moqdw
+-----END CERTIFICATE-----`
+
 test('Create silo', async ({ page }) => {
   await page.goto('/system/silos')
 
@@ -98,10 +144,19 @@ test('Create silo', async ({ page }) => {
   await expectVisible(page, [certRequired, keyRequired, nameRequired])
 
   await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+  // garbage content should surface the soft "couldn't parse" notice
+  await expect(certDialog.getByText("Couldn't parse certificate")).toBeVisible()
   await chooseFile(page.getByLabel('Key'), 'small')
   const certName = certDialog.getByRole('textbox', { name: 'Name' })
-  await certName.fill('test-cert')
 
+  // check name format validation
+  await certName.fill('Bad Name')
+  await certSubmit.click()
+  await expect(
+    certDialog.getByText('Can only contain lower-case letters, numbers, and dashes')
+  ).toBeVisible()
+
+  await certName.fill('test-cert')
   await certSubmit.click()
 
   // Check cert appears in the mini-table
@@ -118,7 +173,30 @@ test('Create silo', async ({ page }) => {
 
   // Change the name so it's unique
   await certName.fill('test-cert-2')
-  await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+
+  // First upload a valid, non-expired cert that covers other-silo.sys.* —
+  // no soft-validation notice should be visible
+  const certInput = page.getByLabel('Cert', { exact: true })
+  await certInput.setInputFiles({
+    name: 'cert.pem',
+    mimeType: 'application/x-pem-file',
+    buffer: Buffer.from(validCertPem),
+  })
+  await expect(certDialog.getByText("Couldn't parse certificate")).toBeHidden()
+  await expect(certDialog.getByText('Certificate expired')).toBeHidden()
+  await expect(certDialog.getByText('Certificate domain mismatch')).toBeHidden()
+
+  // Now swap to a real (expired) PEM whose SANs don't match
+  // other-silo.sys.* — exercises the mismatch + expiry notices end to end
+  await certInput.setInputFiles({
+    name: 'cert.pem',
+    mimeType: 'application/x-pem-file',
+    buffer: Buffer.from(expiredCertPem),
+  })
+  await expect(certDialog.getByText('Certificate expired')).toBeVisible()
+  await expect(certDialog.getByText('Certificate domain mismatch')).toBeVisible()
+  await expect(certDialog.getByText('other-silo.sys.placeholder')).toBeVisible()
+  await expect(certDialog.getByText("Couldn't parse certificate")).toBeHidden()
   await chooseFile(page.getByLabel('Key'), 'small')
   await certSubmit.click()
   await expect(page.getByRole('cell', { name: 'test-cert-2', exact: true })).toBeVisible()
@@ -234,6 +312,19 @@ test('Identity providers', async ({ page }) => {
   await acsUrlCheckbox.click()
   await expect(acsUrlField).toHaveValue(acsUrl)
 
+  // fill the rest of the form so we can check the values round-trip
+  await dialog.getByLabel('Description').fill('test provider description')
+  await dialog.getByLabel('Technical contact email').fill('admin@test-provider.example.com')
+  await dialog.getByLabel('Service provider client ID').fill('test-sp-client-id')
+  await dialog
+    .getByLabel('Single Logout (SLO) URL')
+    .fill('https://test-provider.example.com/slo')
+  await dialog.getByLabel('Entity ID').fill('https://test-provider.example.com/entity')
+  await dialog.getByLabel('Group attribute name').fill('test-groups')
+  await dialog
+    .getByLabel('Metadata source URL')
+    .fill('https://test-provider.example.com/metadata')
+
   await page.getByRole('button', { name: 'Create provider' }).click()
 
   await closeToast(page)
@@ -243,7 +334,7 @@ test('Identity providers', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), {
     name: 'test-provider',
     Type: 'saml',
-    description: '—',
+    description: 'test provider description',
   })
 
   await page.getByRole('link', { name: 'test-provider' }).click()
@@ -251,6 +342,20 @@ test('Identity providers', async ({ page }) => {
   await expect(nameField).toBeDisabled()
   await expect(acsUrlField).toHaveValue(acsUrl)
   await expect(acsUrlField).toBeDisabled()
+  await expect(dialog.getByLabel('Description')).toHaveValue('test provider description')
+  await expect(dialog.getByLabel('Technical contact email')).toHaveValue(
+    'admin@test-provider.example.com'
+  )
+  await expect(dialog.getByLabel('Service provider client ID')).toHaveValue(
+    'test-sp-client-id'
+  )
+  await expect(dialog.getByLabel('Single Logout (SLO) URL')).toHaveValue(
+    'https://test-provider.example.com/slo'
+  )
+  await expect(dialog.getByLabel('Entity ID')).toHaveValue(
+    'https://test-provider.example.com/entity'
+  )
+  await expect(dialog.getByLabel('Group attribute name')).toHaveValue('test-groups')
 })
 
 test('Silo IP pools', async ({ page }) => {
@@ -269,7 +374,7 @@ test('Silo IP pools', async ({ page }) => {
     name: 'ip-pool-6-multicast-v6default',
     Version: 'v6',
   })
-  await expect(table.getByRole('row')).toHaveCount(5) // header + 4
+  await expect(table.getByRole('row')).toHaveCount(6) // header + 4 + sentinel `attach-fail`
 
   // clicking on pool goes to pool detail
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
@@ -280,7 +385,7 @@ test('Silo IP pools', async ({ page }) => {
   await clickRowAction(page, 'ip-pool-1', 'Unlink')
   await expect(
     page
-      .getByRole('dialog', { name: 'Confirm unlink pool' })
+      .getByRole('dialog', { name: 'Unlink pool' })
       .getByText('Are you sure you want to unlink ip-pool-1?')
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -292,7 +397,7 @@ test('Silo IP pools', async ({ page }) => {
   await clickRowAction(page, 'ip-pool-2', 'Clear default')
   await expect(
     page
-      .getByRole('dialog', { name: 'Confirm clear default' })
+      .getByRole('dialog', { name: 'Clear default' })
       .getByText('Are you sure you want ip-pool-2 to stop being the default')
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -315,7 +420,7 @@ test('Silo IP pools link pool', async ({ page }) => {
     name: 'ip-pool-6-multicast-v6default',
     Version: 'v6',
   })
-  await expect(table.getByRole('row')).toHaveCount(5) // header + 4
+  await expect(table.getByRole('row')).toHaveCount(6) // header + 4 + sentinel `attach-fail`
 
   const modal = page.getByRole('dialog', { name: 'Link pool' })
   await expect(modal).toBeHidden()
@@ -336,14 +441,82 @@ test('Silo IP pools link pool', async ({ page }) => {
   await page.getByPlaceholder('Select a pool').fill('x')
   await expect(page.getByText('No items match')).toBeVisible()
 
-  // select silo in combobox and click link
+  // system service pools cannot be linked to silos
+  await page.getByPlaceholder('Select a pool').fill('service-pool-v4')
+  await expect(page.getByText('No items match')).toBeVisible()
+
+  // before a pool is selected, the default checkbox label is generic
+  await expect(
+    page.getByRole('checkbox', { name: 'Make default pool for silo' })
+  ).toBeVisible()
+
+  // select pool in combobox
   await page.getByPlaceholder('Select a pool').fill('ip-pool')
   await page.getByRole('option', { name: 'ip-pool-3' }).click()
+
+  // checkbox label now reflects the selected pool's version and type
+  const defaultCheckbox = page.getByRole('checkbox', {
+    name: 'Make default IPv4 unicast pool for silo',
+  })
+
+  // maze-war already has a v4 unicast default (ip-pool-1), so the label names the
+  // pool that making ip-pool-3 default would demote (and reassures it stays linked)
+  await expect(page.getByText('Replaces ip-pool-1, which stays linked')).toBeVisible()
+
+  // checking the box and linking does it in one go: the console links ip-pool-3,
+  // then promotes it, which demotes ip-pool-1 to non-default
+  await defaultCheckbox.check()
   await modal.getByRole('button', { name: 'Link' }).click()
 
-  // modal closes and we see the thing in the table
+  // modal closes; ip-pool-3 is now the v4 unicast default and ip-pool-1 is demoted
+  // but still linked
   await expect(modal).toBeHidden()
-  await expectRowVisible(table, { name: 'ip-pool-3', Version: 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-3default', Version: 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-1', Version: 'v4' })
+})
+
+test('Silo subnet pools link pool', async ({ page }) => {
+  await page.goto('/system/silos/maze-war/subnet-pools')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: 'default-v4-subnet-pooldefault', Version: 'v4' })
+
+  const modal = page.getByRole('dialog', { name: 'Link pool' })
+  await expect(modal).toBeHidden()
+
+  await page.getByRole('button', { name: 'Link pool' }).click()
+  await expect(modal).toBeVisible()
+
+  // before a pool is selected, the default checkbox label is generic
+  await expect(
+    page.getByRole('checkbox', { name: 'Make default subnet pool for silo' })
+  ).toBeVisible()
+
+  // select pool in combobox
+  await page.getByPlaceholder('Select a pool').fill('myriad')
+  await page.getByRole('option', { name: 'myriad-v4-subnet-pool' }).click()
+
+  // checkbox label now reflects the selected pool's version
+  const defaultCheckbox = page.getByRole('checkbox', {
+    name: 'Make default IPv4 subnet pool for silo',
+  })
+
+  // maze-war already has a v4 default subnet pool (default-v4-subnet-pool), so the
+  // label names the pool that making myriad default would demote
+  await expect(
+    page.getByText('Replaces default-v4-subnet-pool, which stays linked')
+  ).toBeVisible()
+
+  // checking the box and linking does it in one go: link myriad, then promote,
+  // which demotes default-v4-subnet-pool
+  await defaultCheckbox.check()
+  await modal.getByRole('button', { name: 'Link' }).click()
+
+  // modal closes; myriad is now the v4 default and the old default is demoted but
+  // still linked
+  await expect(modal).toBeHidden()
+  await expectRowVisible(table, { name: 'myriad-v4-subnet-pooldefault', Version: 'v4' })
+  await expectRowVisible(table, { name: 'default-v4-subnet-pool', Version: 'v4' })
 })
 
 // just a convenient form to test this with because it's tall

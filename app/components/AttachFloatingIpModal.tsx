@@ -20,6 +20,7 @@ import {
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
+import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { Message } from '~/ui/lib/Message'
 import { Slash } from '~/ui/lib/Slash'
 
@@ -50,21 +51,16 @@ function IpPoolName({ ipPoolId }: { ipPoolId: string }) {
 
 function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
   return (
-    <div className="text-secondary selected:text-accent-secondary">
-      <div>{fip.name}</div>
-      <div className="flex gap-0.5">
-        <div>{fip.ip}</div>
-        <IpPoolName ipPoolId={fip.ipPoolId} />
-        {fip.description && (
-          <>
-            <Slash />
-            <div className="grow overflow-hidden text-left text-ellipsis whitespace-pre">
-              {fip.description}
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+    <ItemLabel name={fip.name}>
+      {fip.ip}
+      <IpPoolName ipPoolId={fip.ipPoolId} />
+      {fip.description && (
+        <>
+          <Slash />
+          {fip.description}
+        </>
+      )}
+    </ItemLabel>
   )
 }
 
@@ -85,9 +81,6 @@ export const AttachFloatingIpModal = ({
       addToast(<>IP <HL>{floatingIp.name}</HL> attached</>)
       onDismiss()
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
   })
   const form = useForm({ defaultValues: { floatingIp: '' } })
   const floatingIp = form.watch('floatingIp')
@@ -98,7 +91,7 @@ export const AttachFloatingIpModal = ({
       onDismiss={onDismiss}
       submitLabel="Attach floating IP"
       submitError={floatingIpAttach.error}
-      loading={floatingIpAttach.isPending}
+      loading={floatingIpAttach.isPending || floatingIpAttach.isSuccess}
       title="Attach floating IP"
       onSubmit={() =>
         floatingIpAttach.mutate({
@@ -106,7 +99,7 @@ export const AttachFloatingIpModal = ({
           body: { kind: 'instance', parent: instance.id },
         })
       }
-      submitDisabled={!floatingIp}
+      submitDisabled={!floatingIp ? 'Select a floating IP' : undefined}
     >
       <Message
         variant="info"

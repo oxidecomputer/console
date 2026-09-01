@@ -7,23 +7,21 @@
  */
 import { test } from '@playwright/test'
 
-import { expect, expectRowVisible, stopInstance } from './utils'
+import { expect, expectRowVisible } from './utils'
 
 test('can create a NIC with a specified IP address', async ({ page }) => {
-  // go to an instance's Network Interfaces page
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  await stopInstance(page)
+  // use a stopped instance so we can edit NICs
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()
 
   // fill out the form
   await page.getByLabel('Name').fill('nic-1')
-  await page.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  // VPC is preselected because the project has exactly one
+  await expect(page.getByLabel('VPC', { exact: true })).toContainText('default')
   await page.getByRole('dialog').getByRole('button', { name: 'VPC subnet' }).click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Select IPv4 only
   await page.getByRole('radio', { name: 'IPv4', exact: true }).click()
@@ -40,10 +38,7 @@ test('can create a NIC with a specified IP address', async ({ page }) => {
 })
 
 test('can create a NIC with a blank IP address', async ({ page }) => {
-  // go to an instance's Network Interfaces page
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  await stopInstance(page)
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()
@@ -51,9 +46,9 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
   // fill out the form
   await page.getByLabel('Name').fill('nic-2')
   await page.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'VPC subnet' }).click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Dual-stack is selected by default, so both fields should be visible
   // make sure the IPv4 address field has a non-conforming bit of text in it
@@ -83,17 +78,15 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
 })
 
 test('can create a NIC with IPv6 only', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  await stopInstance(page)
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   await page.getByRole('button', { name: 'Add network interface' }).click()
 
   await page.getByLabel('Name').fill('nic-3')
   await page.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'VPC subnet' }).click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Select IPv6 only
   await page.getByRole('radio', { name: 'IPv6', exact: true }).click()
@@ -108,17 +101,15 @@ test('can create a NIC with IPv6 only', async ({ page }) => {
 })
 
 test('can create a NIC with dual-stack and explicit IPs', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  await stopInstance(page)
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   await page.getByRole('button', { name: 'Add network interface' }).click()
 
   await page.getByLabel('Name').fill('nic-4')
   await page.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'VPC subnet' }).click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Dual-stack is selected by default
   await page.getByLabel('IPv4 address').fill('10.0.0.5')

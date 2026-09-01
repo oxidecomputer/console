@@ -9,7 +9,7 @@ import { expect, test, type Browser, type Locator, type Page } from '@playwright
 
 import { MiB } from '~/util/units'
 
-import { MSW_USER_COOKIE } from '../../mock-api/msw/util'
+import { MSW_FLAGS_COOKIE, MSW_USER_COOKIE, type MockFlag } from '../../mock-api/msw/util'
 
 export * from '@playwright/test'
 
@@ -83,6 +83,32 @@ export async function fillNumberInput(
     .toBe(expectedValue)
 }
 
+/**
+ * Fill a combobox and click a dropdown option. Scrolls the combobox toward the
+ * center of the viewport first so the Floating UI anchored dropdown has room to
+ * render on-screen. Without this, Safari/WebKit can place the dropdown outside
+ * the viewport when the combobox is near the bottom of a tall form, causing
+ * Playwright's click to fail.
+ */
+export async function fillAndSelectComboboxOption(
+  input: Locator,
+  page: Page,
+  text: string,
+  optionName: string
+) {
+  await input.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+  await input.fill(text)
+  await page.getByRole('option', { name: optionName }).click()
+}
+
+export async function expectComboboxOptions(page: Page, options: string[]) {
+  const selector = page.getByRole('option')
+  await expect(selector).toHaveCount(options.length)
+  for (const option of options) {
+    await expect(page.getByRole('option', { name: option })).toBeVisible()
+  }
+}
+
 // Technically this has type AsymmetricMatcher, which is not exported by
 // Playwright and is (surprisingly) just Record<string, any>. Rather than use
 // that, I think it's smarter to do the following in case they ever make the
@@ -99,13 +125,16 @@ export async function expectRowVisible(
   table: Locator,
   expectedRow: Record<string, string | StringMatcher>
 ) {
-  // wait for header and rows to avoid flake town
-  const headerLoc = table.locator('thead >> role=columnheader')
-  // unlike most things, waitFor has no timeout by default
-  await headerLoc.first().waitFor({ timeout: 10_000 }) // nth=0 bc error if there's more than 1
+  // locate by role rather than thead/tbody because MiniTable is divs with
+  // table roles. header rows are the ones containing column headers
+  const columnheader = table.page().getByRole('columnheader')
+  const headerRowLoc = table.getByRole('row').filter({ has: columnheader })
+  const bodyRowLoc = table.getByRole('row').filter({ hasNot: columnheader })
 
-  const rowLoc = table.locator('tbody >> role=row')
-  await rowLoc.first().waitFor({ timeout: 10_000 })
+  // wait for header and rows to avoid flake town
+  // unlike most things, waitFor has no timeout by default
+  await headerRowLoc.first().waitFor({ timeout: 10_000 }) // nth=0 bc error if there's more than 1
+  await bodyRowLoc.first().waitFor({ timeout: 10_000 })
 
   async function getRows() {
     // need to pull header keys every time because the whole page can change
@@ -113,14 +142,13 @@ export async function expectRowVisible(
 
     // filter out data-test-ignore is specifically for making the header cells
     // match up with the contents on the double-header utilization table
-    const headerKeys = await table
-      .locator('thead')
-      .getByRole('row')
+    const headerKeys = await headerRowLoc
       .last()
-      .locator('th:not([data-test-ignore])')
+      .getByRole('columnheader')
+      .and(table.page().locator(':not([data-test-ignore])'))
       .allTextContents()
 
-    const rows = await map(table.locator('tbody >> role=row'), async (row) => {
+    const rows = await map(bodyRowLoc, async (row) => {
       // accessible name would be better than cell text but it's not in yet
       // https://github.com/microsoft/playwright/issues/13517
       const textContents = await row.locator('role=cell').allTextContents()
@@ -221,11 +249,22 @@ export async function selectOption(
   }
 }
 
-export async function getPageAsUser(browser: Browser, user: string): Promise<Page> {
+function cookie(name: string, value: string) {
+  return { name, value, domain: 'localhost', path: '/' }
+}
+
+export async function getPageAsUser(
+  browser: Browser,
+  user: string,
+  // fleet-level overrides; see mockFlags in mock-api/msw/util.ts
+  flags: MockFlag[] = []
+): Promise<Page> {
   const browserContext = await browser.newContext()
-  await browserContext.addCookies([
-    { name: MSW_USER_COOKIE, value: user, domain: 'localhost', path: '/' },
-  ])
+  const cookies = [cookie(MSW_USER_COOKIE, user)]
+  if (flags.length) {
+    cookies.push(cookie(MSW_FLAGS_COOKIE, flags.join(',')))
+  }
+  await browserContext.addCookies(cookies)
   return await browserContext.newPage()
 }
 

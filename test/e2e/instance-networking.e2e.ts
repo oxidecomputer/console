@@ -22,11 +22,30 @@ const selectASiloImage = async (page: Page, name: string) => {
   await page.getByRole('option', { name }).click()
 }
 
+test('Instance networking tab — firewall rules card', async ({ page }) => {
+  // db1 has a primary NIC in default, so the card names that VPC
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await expect(
+    page.getByText('Manage firewall rules affecting this instance in VPC default')
+  ).toBeVisible()
+
+  // you-fail has no NICs, so there's no primary VPC and we show the fallback copy
+  await page.goto('/projects/mock-project/instances/you-fail/networking')
+  await expect(
+    page.getByText(
+      'Firewall rules are managed on the VPC associated with the primary network interface.'
+    )
+  ).toBeVisible()
+  await expect(
+    page.getByText('Manage firewall rules affecting this instance in VPC')
+  ).toBeHidden()
+})
+
 test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
   // links to VPC and external IPs appear in table
-  await expect(page.getByRole('link', { name: 'mock-vpc' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'default' })).toBeVisible()
   await expect(page.getByRole('link', { name: '123.4.56.0' })).toBeVisible()
 
   // Instance networking tab
@@ -37,9 +56,9 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await expectRowVisible(nicTable, { name: 'my-nicprimary' })
 
   // check VPC link in table points to the right page
-  await expect(nicTable.getByRole('link', { name: 'mock-vpc' })).toHaveAttribute(
+  await expect(nicTable.getByRole('link', { name: 'default' })).toHaveAttribute(
     'href',
-    '/projects/mock-project/vpcs/mock-vpc/firewall-rules'
+    '/projects/mock-project/vpcs/default/firewall-rules'
   )
 
   const addNicButton = page.getByRole('button', { name: 'Add network interface' })
@@ -64,9 +83,9 @@ test('Instance networking tab — NIC table', async ({ page }) => {
 
   await page.getByRole('textbox', { name: 'Name' }).fill('nic-2')
   await page.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await page.getByRole('dialog').getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
   await page
     .getByRole('dialog')
     .getByRole('button', { name: 'Add network interface' })
@@ -91,7 +110,9 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   const deleteButton = page.getByRole('menuitem', { name: 'Delete' })
   await expect(deleteButton).toBeDisabled()
   await deleteButton.hover()
-  await expect(page.getByText('The primary interface can’t')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('The primary interface can’t')
+  ).toBeVisible()
 
   // close the menu for nic-3, without the next line fails in FF and Safari (but not Chrome)
   await clickRowActions(page, 'nic-3')
@@ -100,7 +121,13 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await clickRowAction(page, 'my-nic', 'Delete')
   await expect(page.getByText('Are you sure you want to delete my-nic?')).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(page.getByRole('cell', { name: 'my-nic' })).toBeHidden()
+  // Wait for the NIC list refetch to land before opening nic-3's menu.
+  // Otherwise `multipleNics` is still true, Delete renders disabled (wrapped
+  // in a tooltip), and the unwrap when the refetch lands detaches the
+  // menuitem and closes the menu on Safari/FF. Row count (vs. checking my-nic
+  // is gone) because any absence check passes transiently while the confirm
+  // modal closes and the page is inert.
+  await expect(nicTable.getByRole('row')).toHaveCount(2) // header + nic-3
 
   // Now the primary NIC is deletable
   await clickRowAction(page, 'nic-3', 'Delete')
@@ -148,7 +175,7 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   // an explicit ipVersion selector), then reattach it.
   await clickRowAction(page, 'fd00::1', 'Detach')
   const confirmDetachDialog = page.getByRole('dialog', {
-    name: 'Confirm detach ephemeral IP',
+    name: 'Detach ephemeral IP',
   })
   await expect(confirmDetachDialog).toBeVisible()
   await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
@@ -204,6 +231,26 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
     Version: 'v4',
     'IP pool': 'ip-pool-1',
   })
+})
+
+test('Attach ephemeral IP — error renders in modal, not toast', async ({ page }) => {
+  // Selecting the sentinel `attach-fail` pool causes the mock handler to 500.
+  // See ipPoolEphemeralAttachFail.
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await page.getByRole('button', { name: 'Attach ephemeral IP' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+  await expect(modal).toBeVisible()
+
+  await page.getByLabel('Pool').click()
+  await page.getByRole('option', { name: 'attach-fail' }).click()
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+
+  const errorText = 'Cannot attach ephemeral IP'
+  await expect(modal.getByText(errorText)).toBeVisible()
+  await expect(page.getByTestId('Toasts')).not.toContainText(errorText)
+  // Modal stays open so the user can retry or dismiss
+  await expect(modal).toBeVisible()
 })
 
 test('Instance networking tab — floating IPs', async ({ page }) => {
@@ -290,10 +337,8 @@ test('Instance networking tab — SNAT IPs', async ({ page }) => {
 })
 
 test('Edit network interface - Transit IPs', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  // Stop the instance to enable editing
-  await stopInstance(page)
+  // use a stopped instance so editing is enabled
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   await clickRowAction(page, 'my-nic', 'Edit')
 

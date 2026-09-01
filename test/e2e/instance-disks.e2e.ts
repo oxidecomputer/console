@@ -31,6 +31,15 @@ test('Disk detail side modal', async ({ page }) => {
 test('Disabled actions', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
+  // the disabled reason is exposed to screen readers as an accessible
+  // description even with no hover or focus to pop the tooltip
+  await expect(
+    page.getByRole('button', { name: 'Attach existing disk' })
+  ).toHaveAccessibleDescription('Instance must be stopped to attach a disk')
+  await expect(
+    page.getByRole('button', { name: 'Create disk' })
+  ).toHaveAccessibleDescription('Instance must be stopped to create and attach a disk')
+
   const bootDiskRow = page.getByRole('row', { name: 'disk-1', exact: false })
   await expect(bootDiskRow).toBeVisible()
 
@@ -44,13 +53,15 @@ test('Disabled actions', async ({ page }) => {
   await expect(unsetButton).toBeDisabled()
   await page.getByRole('menuitem', { name: 'Unset' }).hover()
   await expect(
-    page.getByText('Instance must be stopped before boot disk can be changed')
+    page
+      .getByRole('tooltip')
+      .getByText('Instance must be stopped before boot disk can be changed')
   ).toBeVisible()
 
   await expect(detachButton).toBeDisabled()
   await detachButton.hover()
   await expect(
-    page.getByText('Boot disk must be unset before it can be detached')
+    page.getByRole('tooltip').getByText('Boot disk must be unset before it can be detached')
   ).toBeVisible()
   await page.keyboard.press('Escape') // close menu
 
@@ -63,13 +74,17 @@ test('Disabled actions', async ({ page }) => {
   await expect(setButton).toBeDisabled()
   await setButton.hover()
   await expect(
-    page.getByText('Instance must be stopped before boot disk can be changed')
+    page
+      .getByRole('tooltip')
+      .getByText('Instance must be stopped before boot disk can be changed')
   ).toBeVisible()
 
   await expect(detachButton).toBeDisabled()
   await detachButton.hover()
   await expect(
-    page.getByText('Instance must be stopped before disk can be detached')
+    page
+      .getByRole('tooltip')
+      .getByText('Instance must be stopped before disk can be detached')
   ).toBeVisible()
   await page.keyboard.press('Escape') // close menu
 
@@ -86,10 +101,7 @@ test('Disabled actions', async ({ page }) => {
 })
 
 test('Attach disk', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1')
-
-  // Have to stop instance to edit disks
-  await stopInstance(page)
+  await page.goto('/projects/mock-project/instances/db-stopped')
 
   // Attach existing disk form
   await page.click('role=button[name="Attach existing disk"]')
@@ -100,8 +112,8 @@ test('Attach disk', async ({ page }) => {
   await expectVisible(page, ['role=dialog >> text="Disk name is required"'])
 
   await page.getByRole('combobox', { name: 'Disk name' }).click()
-  // disk-1 is already attached, so should not be visible in the list
-  await expectNotVisible(page, ['role=option[name="disk-1"]'])
+  // disk-stopped-boot is already attached, so should not be visible in the list
+  await expectNotVisible(page, ['role=option[name="disk-stopped-boot"]'])
   await expectVisible(page, ['role=option[name="disk-3"]', 'role=option[name="disk-4"]'])
   await page.click('role=option[name="disk-3"]')
 
@@ -110,13 +122,10 @@ test('Attach disk', async ({ page }) => {
 })
 
 test('Create disk', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1')
+  await page.goto('/projects/mock-project/instances/db-stopped')
 
   const row = page.getByRole('cell', { name: 'created-disk' })
   await expect(row).toBeHidden()
-
-  // Have to stop instance to edit disks
-  await stopInstance(page)
 
   // New disk form
   const createForm = page.getByRole('dialog', { name: 'Create disk' })
@@ -138,17 +147,14 @@ test('Create disk', async ({ page }) => {
 })
 
 test('Detach disk', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1')
+  await page.goto('/projects/mock-project/instances/db-stopped')
 
-  // Have to stop instance to edit disks
-  await stopInstance(page)
-
-  const successMsg = page.getByText('Disk disk-2 detached').first()
-  const row = page.getByRole('row', { name: 'disk-2' })
+  const successMsg = page.getByText('Disk disk-stopped-data detached').first()
+  const row = page.getByRole('row', { name: 'disk-stopped-data' })
   await expect(row).toBeVisible()
   await expect(successMsg).toBeHidden()
 
-  await clickRowAction(page, 'disk-2', 'Detach')
+  await clickRowAction(page, 'disk-stopped-data', 'Detach')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(successMsg).toBeVisible()
   await expect(row).toBeHidden() // disk row goes away
@@ -176,9 +182,7 @@ test('Snapshot disk', async ({ page }) => {
 })
 
 test('Attach disk error clears when modal closes', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1')
-
-  await stopInstance(page)
+  await page.goto('/projects/mock-project/instances/db-stopped')
 
   // Attach disks until we hit the limit
   const disksToAttach = [
@@ -244,62 +248,59 @@ test('Attach disk error clears when modal closes', async ({ page }) => {
 })
 
 test('Change boot disk', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1')
+  await page.goto('/projects/mock-project/instances/db-stopped')
 
-  // assert disk-1 is boot disk, disk-2 also there
   const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
   const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   const confirm = page.getByRole('button', { name: 'Confirm' })
   const noBootDisk = page.getByText('No boot disk set')
   const noOtherDisks = page.getByText('No other disks')
 
-  const disk1 = { Disk: 'disk-1', size: '2 GiB' }
-  const disk2 = { Disk: 'disk-2', size: '4 GiB' }
+  const bootDisk = { Disk: 'disk-stopped-boot', size: '2 GiB' }
+  const dataDisk = { Disk: 'disk-stopped-data', size: '4 GiB' }
 
-  await expectRowVisible(bootDiskTable, disk1)
-  await expectRowVisible(otherDisksTable, disk2)
+  await expectRowVisible(bootDiskTable, bootDisk)
+  await expectRowVisible(otherDisksTable, dataDisk)
 
-  await stopInstance(page)
-
-  // Set disk-2 as boot disk
-  await clickRowAction(page, 'disk-2', 'Set as boot disk')
+  // Set disk-stopped-data as boot disk
+  await clickRowAction(page, 'disk-stopped-data', 'Set as boot disk')
   await confirm.click()
 
-  await expectRowVisible(bootDiskTable, disk2)
-  await expectRowVisible(otherDisksTable, disk1)
+  await expectRowVisible(bootDiskTable, dataDisk)
+  await expectRowVisible(otherDisksTable, bootDisk)
 
   // Unset boot disk
   await expect(noBootDisk).toBeHidden()
 
-  await clickRowAction(page, 'disk-2', 'Unset as boot disk')
+  await clickRowAction(page, 'disk-stopped-data', 'Unset as boot disk')
   await confirm.click()
 
   await expect(noBootDisk).toBeVisible()
-  await expectRowVisible(otherDisksTable, disk1)
-  await expectRowVisible(otherDisksTable, disk2)
+  await expectRowVisible(otherDisksTable, bootDisk)
+  await expectRowVisible(otherDisksTable, dataDisk)
 
   await expect(page.getByText('Setting a boot disk is recommended')).toBeVisible()
 
   // detach disk so there's only one
-  await clickRowAction(page, 'disk-2', 'Detach')
+  await clickRowAction(page, 'disk-stopped-data', 'Detach')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expect(page.getByText('Instance will boot from disk-1')).toBeVisible()
+  await expect(page.getByText('Instance will boot from disk-stopped-boot')).toBeVisible()
 
-  // set disk-1 back as boot disk
-  await clickRowAction(page, 'disk-1', 'Set as boot disk')
+  // set disk-stopped-boot back as boot disk
+  await clickRowAction(page, 'disk-stopped-boot', 'Set as boot disk')
   await confirm.click()
 
   await expect(noBootDisk).toBeHidden()
   await expect(noOtherDisks).toBeVisible()
 
-  // Remove disk-1 altogether, no disks left
-  await clickRowAction(page, 'disk-1', 'Unset as boot disk')
+  // Remove disk-stopped-boot altogether, no disks left
+  await clickRowAction(page, 'disk-stopped-boot', 'Unset as boot disk')
   await confirm.click()
 
-  await expectRowVisible(otherDisksTable, disk1)
+  await expectRowVisible(otherDisksTable, bootDisk)
 
-  await clickRowAction(page, 'disk-1', 'Detach')
+  await clickRowAction(page, 'disk-stopped-boot', 'Detach')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(noBootDisk).toBeVisible()

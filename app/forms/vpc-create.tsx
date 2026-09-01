@@ -7,6 +7,7 @@
  */
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
+import type { SetNonNullable } from 'type-fest'
 
 import { api, q, queryClient, useApiMutation, type VpcCreate } from '@oxide/api'
 
@@ -19,13 +20,15 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { validateVpcIpv6Prefix } from '~/util/ip'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: VpcCreate = {
+const defaultValues: SetNonNullable<Required<VpcCreate>> = {
   name: '',
   description: '',
   dnsName: '',
+  ipv6Prefix: '',
 }
 
 export const handle = titleCrumb('New VPC')
@@ -56,15 +59,30 @@ export default function CreateVpcSideModalForm() {
       form={form}
       formType="create"
       resourceName="VPC"
-      onSubmit={(values) => createVpc.mutate({ query: projectSelector, body: values })}
+      onSubmit={({ ipv6Prefix, ...rest }) =>
+        createVpc.mutate({
+          query: projectSelector,
+          body: { ...rest, ipv6Prefix: ipv6Prefix.trim() || undefined },
+        })
+      }
       onDismiss={() => navigate(pb.vpcs(projectSelector))}
-      loading={createVpc.isPending}
+      loading={createVpc.isPending || createVpc.isSuccess}
       submitError={createVpc.error}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <NameField name="dnsName" label="DNS name" control={form.control} />
-      <TextField name="ipv6Prefix" label="IPV6 prefix" control={form.control} />
+      <TextField
+        name="ipv6Prefix"
+        label="IPv6 prefix"
+        control={form.control}
+        validate={(value) => {
+          const prefix = value.trim()
+          // field is optional — API generates a prefix if none is given
+          if (!prefix) return
+          return validateVpcIpv6Prefix(prefix)
+        }}
+      />
       <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )

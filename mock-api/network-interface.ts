@@ -7,7 +7,7 @@
  */
 import type { InstanceNetworkInterface } from '@oxide/api'
 
-import { instance } from './instance'
+import { instance, stoppedInstance } from './instance'
 import type { Json } from './json-type'
 import { vpc, vpcSubnet } from './vpc'
 
@@ -28,6 +28,26 @@ export const networkInterface: Json<InstanceNetworkInterface> = {
         ip: '::1',
         transit_ips: ['::/64'],
       },
+    },
+  },
+  mac: '',
+  subnet_id: vpcSubnet.id,
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+  vpc_id: vpc.id,
+}
+
+export const stoppedInstanceNic: Json<InstanceNetworkInterface> = {
+  id: '0864924b-17b0-4467-9dd1-f2461bb84b9a',
+  name: 'my-nic',
+  description: 'a network interface',
+  primary: true,
+  instance_id: stoppedInstance.id,
+  ip_stack: {
+    type: 'dual_stack',
+    value: {
+      v4: { ip: '172.30.0.11', transit_ips: ['172.30.0.0/22'] },
+      v6: { ip: '::2', transit_ips: ['::/64'] },
     },
   },
   mac: '',

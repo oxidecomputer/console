@@ -54,18 +54,20 @@ test('Set target release', async ({ page }) => {
   const disabledItem = page.getByRole('menuitem', { name: 'Set as target release' })
   await expect(disabledItem).toBeDisabled()
   await disabledItem.hover()
-  await expect(page.getByText('Already set as target')).toBeVisible()
+  await expect(page.getByRole('tooltip').getByText('Already set as target')).toBeVisible()
   await page.keyboard.press('Escape')
 
   // Upgrade to 18.0.0
   await page.getByRole('button', { name: '18.0.0 actions' }).click()
   await page.getByRole('menuitem', { name: 'Set as target release' }).click()
 
-  const modal = page.getByRole('dialog', { name: 'Confirm set target release' })
+  const modal = page.getByRole('dialog', { name: 'Set target release' })
   await expect(modal).toBeVisible()
   await expect(
     modal.getByText('Are you sure you want to set 18.0.0 as the target release?')
   ).toBeVisible()
+  // no support-required warning when contact_support is false
+  await expect(modal.getByText('strongly discouraged')).toBeHidden()
 
   await page.getByRole('button', { name: 'Confirm' }).click()
 
@@ -85,7 +87,9 @@ test('Set target release', async ({ page }) => {
   const setTargetItem = page.getByRole('menuitem', { name: 'Set as target release' })
   await expect(setTargetItem).toBeDisabled()
   await setTargetItem.hover()
-  await expect(page.getByText('Cannot set older release as target')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('Cannot set older release as target')
+  ).toBeVisible()
 })
 
 test('Cannot downgrade to older release', async ({ page }) => {
@@ -102,7 +106,9 @@ test('Cannot downgrade to older release', async ({ page }) => {
   const setTargetItem = page.getByRole('menuitem', { name: 'Set as target release' })
   await expect(setTargetItem).toBeDisabled()
   await setTargetItem.hover()
-  await expect(page.getByText('Cannot set older release as target')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('Cannot set older release as target')
+  ).toBeVisible()
 
   // Verify the target release has NOT changed - still 17.0.0
   await expect(page.getByLabel('Properties table')).toContainText('17.0.0')
@@ -110,6 +116,30 @@ test('Cannot downgrade to older release', async ({ page }) => {
 
   const release16 = page.getByRole('listitem').filter({ hasText: '16.0.0' })
   await expect(release16.getByText('Target')).toBeHidden()
+})
+
+test('Support required warning in set target confirmation', async ({ browser }) => {
+  // The contact-support flag makes systemUpdateStatus report support is needed
+  // (see mockFlags). Hannah Arendt is a fleet admin, so she can also open the
+  // set-target confirmation.
+  const page = await getPageAsUser(browser, 'Hannah Arendt', ['contactSupport'])
+  await page.goto('/system/update')
+
+  // the support-required banner is shown on the page
+  await expect(page.getByText('Support required')).toBeVisible()
+
+  // opening the set-target confirmation surfaces the strong warning
+  await page.getByRole('button', { name: '18.0.0 actions' }).click()
+  await page.getByRole('menuitem', { name: 'Set as target release' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Set target release' })
+  await expect(modal).toBeVisible()
+  await expect(modal.getByText(/require Oxide support to resolve/)).toBeVisible()
+  await expect(modal.getByText('strongly discouraged')).toBeVisible()
+
+  // dismiss without setting the target
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await expect(modal).toBeHidden()
 })
 
 test('Fleet viewer cannot set target release', async ({ browser }) => {

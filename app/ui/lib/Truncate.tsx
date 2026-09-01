@@ -6,6 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
+import cn from 'classnames'
+import { useLayoutEffect, useRef, useState } from 'react'
+
 import { CopyToClipboard } from './CopyToClipboard'
 import { Tooltip } from './Tooltip'
 
@@ -13,39 +16,170 @@ type TruncatePosition = 'middle' | 'end'
 
 interface TruncateProps {
   text: string
-  maxLength: number
   position?: TruncatePosition
   hasCopyButton?: boolean
   tooltipDelay?: number
+  /**
+   * Extra classes for the wrapper, most commonly a `max-w-*` cap on how wide
+   * the text can grow. Constrained containers (side modals, toasts) don't need
+   * one, but in auto-layout tables the column sizes itself to the text, so
+   * table cells need a cap for truncation to ever kick in.
+   */
+  className?: string
 }
 
 export const Truncate = ({
   text,
-  maxLength,
   position = 'end',
   hasCopyButton,
   tooltipDelay = 300,
+  className,
 }: TruncateProps) => {
-  if (text.length <= maxLength) {
-    return <div>{text}</div>
-  }
+  const ref = useRef<HTMLDivElement>(null)
+  // for middle truncation, the ellipsized string; null means the full text fits
+  const [middleText, setMiddleText] = useState<string | null>(null)
+  const [truncated, setTruncated] = useState(false)
 
-  // Only use the tooltip if the text is longer than maxLength
+  // Middle truncation has to be computed up front in order to render at all,
+  // and recomputed whenever the container resizes
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (position !== 'middle' || !el) return
+
+    const update = () => {
+      const fitted = truncateToFit(text, el)
+      setMiddleText(fitted === text ? null : fitted)
+      setTruncated(fitted !== text)
+    }
+
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [text, position])
+
+  // For end truncation, CSS does the actual truncating and the only decision
+  // JS makes is whether to show the tooltip — which only matters at hover
+  // time. Checking lazily here avoids a per-instance ResizeObserver and can't
+  // go stale the way an observer-updated value can between resize and hover.
+  const checkEndTruncation =
+    position === 'end'
+      ? () => {
+          const el = ref.current
+          if (el) setTruncated(el.scrollWidth > el.clientWidth)
+        }
+      : undefined
+
+  const inner =
+    position === 'end' ? (
+      <div ref={ref} aria-label={text} className="truncate">
+        {text}
+      </div>
+    ) : (
+      <div
+        ref={ref}
+        aria-label={text}
+        className="relative overflow-hidden whitespace-nowrap"
+      >
+        {/* invisible copy of the full text keeps the layout width stable, so
+            swapping in the shorter ellipsized text can't shrink the container
+            and trigger another round of truncation */}
+        <span aria-hidden className={cn(middleText && 'invisible')}>
+          {text}
+        </span>
+        {middleText && (
+          <span aria-hidden className="absolute inset-0">
+            {middleText}
+          </span>
+        )}
+      </div>
+    )
+
   return (
     // overflow-hidden required to make inner truncate work
-    <div className="flex items-center gap-0.5 overflow-hidden">
-      <Tooltip content={text} delay={tooltipDelay}>
-        <div aria-label={text} className="truncate">
-          {truncate(text, maxLength, position)}
-        </div>
+    <div
+      className={cn('flex items-center gap-0.5 overflow-hidden', className)}
+      onPointerEnter={checkEndTruncation}
+      onFocus={checkEndTruncation}
+    >
+      {/* Tooltip stays mounted with content gated on `truncated` so its hover
+          tracking is already running when the lazy check flips it on. With no
+          content it renders just the child. */}
+      <Tooltip content={truncated ? text : undefined} delay={tooltipDelay}>
+        {inner}
       </Tooltip>
-      <div className="flex items-center p-0.5">
-        {hasCopyButton && <CopyToClipboard text={text} />}
-      </div>
+      {hasCopyButton && (
+        <div className="flex items-center p-0.5">
+          <CopyToClipboard text={text} />
+        </div>
+      )}
     </div>
   )
 }
 
+let canvasCtx: CanvasRenderingContext2D | null = null
+const graphemeSegmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+
+/** null in environments without canvas support, like jsdom */
+function getCanvasCtx(): CanvasRenderingContext2D | null {
+  if (!canvasCtx) canvasCtx = document.createElement('canvas').getContext('2d')
+  return canvasCtx
+}
+
+/**
+ * Middle-truncate `text` to fit the rendered width of `el`, measuring
+ * candidate strings with canvas `measureText`, which accounts for font
+ * shaping, kerning, and letter-spacing.
+ */
+function truncateToFit(text: string, el: HTMLElement): string {
+  const ctx = getCanvasCtx()
+  // if we can't measure (jsdom) or the element isn't laid out yet, leave it alone
+  if (!ctx || el.clientWidth === 0) return text
+
+  const style = getComputedStyle(el)
+  // build the font shorthand from parts; `style.font` is empty in Firefox
+  ctx.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+  ctx.letterSpacing = style.letterSpacing === 'normal' ? '0px' : style.letterSpacing
+
+  const width = el.clientWidth
+  if (el.scrollWidth <= width) return text
+
+  return middleTruncateToFit(text, width, (candidate) => ctx.measureText(candidate).width)
+}
+
+/** Middle-truncate known-overflowing text using rendered-width measurements. */
+export function middleTruncateToFit(
+  text: string,
+  width: number,
+  measure: (text: string) => number
+) {
+  const graphemes = Array.from(graphemeSegmenter.segment(text), ({ segment }) => segment)
+  const fits = (keep: number) => measure(middleEllipsis(graphemes, keep)) <= width
+
+  // binary search for the largest number of kept graphemes that fits
+  let lo = 0
+  let hi = graphemes.length - 1
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2)
+    if (fits(mid)) {
+      lo = mid
+    } else {
+      hi = mid - 1
+    }
+  }
+  return middleEllipsis(graphemes, lo)
+}
+
+function middleEllipsis(graphemes: string[], keep: number) {
+  return (
+    graphemes.slice(0, Math.ceil(keep / 2)).join('') +
+    '…' +
+    graphemes.slice(graphemes.length - Math.floor(keep / 2)).join('')
+  )
+}
+
+/** Truncate `text` to `maxLength` characters. For truncation that adapts to
+ * the rendered width instead, use the `Truncate` component. */
 export function truncate(
   text: string,
   maxLength: number,

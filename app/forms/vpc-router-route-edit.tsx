@@ -10,7 +10,9 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
+import { Badge } from '@oxide/design-system/ui'
 
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import {
@@ -22,6 +24,7 @@ import {
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterRouteSelector, useVpcRouterRouteSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
@@ -95,10 +98,15 @@ export default function EditRouterRouteSideModalForm() {
           },
         })
       }
-      loading={updateRouterRoute.isPending}
+      loading={updateRouterRoute.isPending || updateRouterRoute.isSuccess}
       submitError={updateRouterRoute.error}
       submitDisabled={disabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >
+      <FormMetadata resource={route}>
+        <PropertiesTable.Row label="Kind">
+          <Badge color="neutral">{route.kind.replace('_', ' ')}</Badge>
+        </PropertiesTable.Row>
+      </FormMetadata>
       <RouteFormFields form={form} disabled={disabled} />
       <RouteFormDocs />
     </SideModalForm>

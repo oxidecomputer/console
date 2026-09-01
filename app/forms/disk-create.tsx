@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useQuery } from '@tanstack/react-query'
-import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 import { match } from 'ts-pattern'
@@ -35,6 +34,7 @@ import { HL } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
@@ -43,7 +43,7 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { toLocaleDateString } from '~/util/date'
 import { docLinks } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
-import { bytesToGiB, GiB } from '~/util/units'
+import { bytesToGiB, formatBytes, GiB } from '~/util/units'
 
 /**
  * Same as DiskSource but with image and snapshot ID optional, reflecting The
@@ -191,7 +191,7 @@ export function CreateDiskSideModalForm({
           createDisk.mutate({ query: { project }, body })
         }
       }}
-      loading={createDisk.isPending}
+      loading={createDisk.isPending || createDisk.isSuccess}
       submitError={createDisk.error}
     >
       <NameField
@@ -416,19 +416,16 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) 
       label="Source snapshot"
       placeholder="Select a snapshot"
       items={snapshots.map((i) => {
-        const formattedSize = filesize(i.size, { base: 2, output: 'object' })
+        const formattedSize = formatBytes(i.size)
         return {
           value: i.id,
           selectedLabel: i.name,
           label: (
-            <>
-              <div>{i.name}</div>
-              <div className="text-secondary selected:text-accent-secondary">
-                Created on {toLocaleDateString(i.timeCreated)}
-                <DiskNameFromId disk={i.diskId} /> <Slash /> {formattedSize.value}{' '}
-                {formattedSize.unit}
-              </div>
-            </>
+            <ItemLabel name={i.name}>
+              Created on {toLocaleDateString(i.timeCreated)}
+              <DiskNameFromId disk={i.diskId} /> <Slash /> {formattedSize.value}{' '}
+              {formattedSize.unit}
+            </ItemLabel>
           ),
         }
       })}

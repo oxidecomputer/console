@@ -84,6 +84,7 @@ export default function SilosPage() {
         onActivate: confirmDelete({
           doDelete: () => deleteSilo({ path: { silo: silo.name } }),
           label: silo.name,
+          resourceKind: 'silo',
         }),
       },
     ],

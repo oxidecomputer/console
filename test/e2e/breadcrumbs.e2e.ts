@@ -9,10 +9,10 @@
 import { expect, test, type Page } from '@playwright/test'
 
 async function getCrumbs(page: Page) {
-  const links = await page
-    .getByRole('navigation', { name: 'Breadcrumbs' })
-    .getByRole('link')
-    .all()
+  // CSS locator instead of getByRole so we can still read breadcrumbs while a
+  // dialog is open — base-ui sets aria-hidden on outside content, which hides
+  // the nav from the accessibility tree.
+  const links = await page.locator('nav[aria-label="Breadcrumbs"] a').all()
   return Promise.all(
     links.map(async (link) => [await link.textContent(), await link.getAttribute('href')])
   )

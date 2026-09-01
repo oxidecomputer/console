@@ -6,11 +6,19 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { OXQL_GROUP_BY_ERROR } from '~/api'
 
 import { expectConsoleMessage, expectNoConsoleMessage, getPageAsUser } from './utils'
+
+// Freeze the clock so the default "Last hour" range and the calendar's visible
+// month don't depend on when the tests run. Without this, runs near midnight
+// UTC flake: the range straddles the day boundary, and on a month boundary the
+// calendar opens on the previous month, so the "Today" cell isn't rendered.
+test.beforeEach(async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-06-15T12:00:00.000Z'))
+})
 
 test('Click through instance metrics', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/metrics/cpu')
@@ -29,6 +37,81 @@ test('Click through instance metrics', async ({ page }) => {
   await page.getByRole('tab', { name: 'Network', exact: true }).click()
   await expect(page).toHaveURL('/projects/mock-project/instances/db1/metrics/network')
   await expect(page.getByRole('heading', { name: 'Bytes Sent' })).toBeVisible()
+  await expect(page.getByText('Something went wrong')).toBeHidden()
+})
+
+async function readChartValueAt(page: Page, chart: Locator, fracX: number) {
+  const box = await chart.boundingBox()
+  if (!box) throw new Error('chart has no bounding box')
+  const x = box.x + box.width * fracX
+  await page.mouse.move(x, box.y)
+  await page.mouse.move(x, box.y + box.height * 0.25)
+  const tooltip = page.getByRole('tooltip')
+  await expect(tooltip).toBeVisible()
+  // within the tooltip, the value line is the only text that's just a number + unit
+  const value = tooltip.getByText(/^[\d,]+%$/)
+  return Number((await value.textContent())!.replace(/\D/g, ''))
+}
+
+test('chart tooltip reads back the plotted value', async ({ page }) => {
+  // sentinel-metrics-flat returns a flat series (see handleOxqlMetrics), so a
+  // hover anywhere in the plot reads back the same value.
+  await page.goto('/projects/mock-project/instances/sentinel-metrics-flat/metrics/cpu')
+
+  const heading = page.getByRole('heading', { name: 'CPU Utilization: Running' })
+  await expect(heading).toBeVisible()
+  // wait for data so the chart, not the loading skeleton, is rendered
+  await expect(page.getByLabel('Chart loading')).toBeHidden()
+
+  const chart = page.getByRole('figure', { name: 'CPU Utilization: Running' })
+  expect(await readChartValueAt(page, chart, 0.5)).toBe(12345)
+})
+
+test('chart x-axis maps earlier times to the left', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/sentinel-metrics-slope/metrics/cpu')
+
+  const heading = page.getByRole('heading', { name: 'CPU Utilization: Running' })
+  await expect(heading).toBeVisible()
+  await expect(page.getByLabel('Chart loading')).toBeHidden()
+
+  const chart = page.getByRole('figure', { name: 'CPU Utilization: Running' })
+  const leftValue = await readChartValueAt(page, chart, 0.25)
+  const rightValue = await readChartValueAt(page, chart, 0.7)
+
+  // sentinel-metrics-slope returns a series that increases with time (see
+  // handleOxqlMetrics), so a hover on the left of the plot reads a smaller value
+  // than one on the right.
+  expect(leftValue).toBeLessThan(rightValue)
+})
+
+test('Date range picker: choosing a custom range', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/metrics/cpu')
+  await expect(
+    page.getByRole('heading', { name: 'CPU Utilization: Running' })
+  ).toBeVisible()
+
+  const preset = page.getByRole('button', { name: 'Choose a time range preset' })
+  const calendarButton = page.getByRole('button', { name: 'Calendar' })
+  await expect(preset).toContainText('Last hour')
+
+  await calendarButton.click()
+  await expect(page.getByRole('dialog', { name: 'Calendar' })).toBeVisible()
+
+  // anchor the selection on today, extend it three days earlier, and commit.
+  // keyboard navigation keeps this independent of the date the test runs on.
+  await page.getByRole('button', { name: /Today/ }).click()
+  await page.keyboard.press('ArrowLeft')
+  await page.keyboard.press('ArrowLeft')
+  await page.keyboard.press('ArrowLeft')
+  await page.keyboard.press('Enter')
+  await page.keyboard.press('Escape')
+
+  // picking dates flips the preset to Custom and widens the displayed range to
+  // span multiple days, i.e. two dates rather than the single date a same-day
+  // preset like "Last hour" shows
+  await expect(preset).toContainText('Custom')
+  await expect(calendarButton).toContainText(/\d+\/\d+\/\d+,.+\d+\/\d+\/\d+,/)
+  // the chart refetches for the new range without erroring
   await expect(page.getByText('Something went wrong')).toBeHidden()
 })
 

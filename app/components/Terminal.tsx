@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { DirectionDownIcon, DirectionUpIcon } from '@oxide/design-system/icons/react'
 
+import { subscribeToTheme } from '~/stores/theme'
 import { classed } from '~/util/classed'
 
 import { AttachAddon } from './AttachAddon'
@@ -38,6 +39,7 @@ function getTheme(): ITerminalOptions['theme'] {
     brightCyan: style.getPropertyValue('--content-accent'),
     magenta: style.getPropertyValue('--content-accent-alt-secondary'),
     brightMagenta: style.getPropertyValue('--content-accent-alt'),
+    selectionBackground: style.getPropertyValue('--surface-accent'),
     cursor: style.getPropertyValue('--content-default'),
     cursorAccent: style.getPropertyValue('--surface-default'),
   }
@@ -56,7 +58,10 @@ function getOptions(): ITerminalOptions {
     screenReaderMode: true,
     fontFamily: '"GT America Mono", monospace',
     fontSize: 13,
-    lineHeight: 1.2,
+    lineHeight: 1,
+    fontWeightBold: 400,
+    drawBoldTextInBrightColors: true,
+    letterSpacing: 0,
     windowOptions: {
       fullscreenWin: true,
       refreshWin: true,
@@ -106,16 +111,12 @@ export function Terminal({ ws }: TerminalProps) {
     // Update terminal colors when the theme changes. getComputedStyle in
     // getTheme() forces a synchronous style recalc, so the CSS custom
     // properties already reflect the new theme by the time we read them.
-    const observer = new MutationObserver(() => {
+    const unsubscribe = subscribeToTheme(() => {
       newTerm.options.theme = getTheme()
-    })
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
     })
 
     return () => {
-      observer.disconnect()
+      unsubscribe()
       newTerm.dispose()
       window.removeEventListener('resize', resize)
     }

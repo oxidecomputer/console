@@ -42,7 +42,6 @@ describe('processServerError', () => {
       },
     }
     expect(processServerError('fakeThingView', parseError)).toEqual({
-      code: undefined,
       message: 'Hi, you have an error',
       statusCode: 400,
       errorCode: undefined,
@@ -60,6 +59,7 @@ describe('processServerError', () => {
     expect(processServerError('fakeThingView', clientError)).toEqual({
       message: 'Error reading API response',
       statusCode: 200,
+      requestId: undefined,
     })
   })
 

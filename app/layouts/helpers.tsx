@@ -10,22 +10,25 @@ import { Outlet } from 'react-router'
 import { PageActionsTarget } from '~/components/PageActions'
 import { Pagination } from '~/components/Pagination'
 import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
-import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
-export const PageContainer = classed.div`min-h-full pt-(--top-bar-height)`
+export const PageContainer = classed.div`min-h-full pt-[calc(var(--top-bar-height)+var(--preview-banner-height))]`
+
+// shared with PageSkeleton so the skeleton doesn't drift from the real layout
+export const topBarWrapperClass =
+  'bg-default border-secondary fixed top-(--preview-banner-height) right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b'
+export const sidebarWrapperClass =
+  'border-secondary fixed top-[calc(var(--top-bar-height)+var(--preview-banner-height))] bottom-0 left-0 w-(--sidebar-width) border-r'
 
 export function ContentPane() {
   useScrollRestoration()
   return (
-    <div
-      className="light:bg-raise 1000:ml-(--sidebar-width) flex min-h-[calc(100vh-var(--top-bar-height))] flex-col"
-      id="scroll-container"
-      data-testid="scroll-container"
-    >
+    <div className="light:bg-raise 1000:ml-(--sidebar-width) flex min-h-[calc(100vh-var(--top-bar-height)-var(--preview-banner-height))] flex-col">
       <div className="flex grow flex-col pb-8">
-        <SkipLinkTarget />
-        <main className="*:gutter">
+        {/* id/tabIndex make this the skip link target and where useRouteAnnouncer
+            puts focus after a nav. It has to be a real element in the a11y tree
+            (not an empty div) or the VoiceOver cursor won't follow the focus. */}
+        <main id="content" tabIndex={-1} className="*:gutter outline-none">
           <Outlet />
         </main>
       </div>
@@ -44,9 +47,8 @@ export function ContentPane() {
  * `<div>` because we don't need it.
  */
 export const SerialConsoleContentPane = () => (
-  <div className="1000:ml-(--sidebar-width) flex h-[calc(100vh-var(--top-bar-height))] flex-col overflow-hidden">
-    <SkipLinkTarget />
-    <main className="*:gutter h-full">
+  <div className="1000:ml-(--sidebar-width) flex h-[calc(100vh-var(--top-bar-height)-var(--preview-banner-height))] flex-col overflow-hidden">
+    <main id="content" tabIndex={-1} className="*:gutter h-full outline-none">
       <Outlet />
     </main>
   </div>

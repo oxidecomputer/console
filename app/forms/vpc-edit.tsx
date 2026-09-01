@@ -12,6 +12,7 @@ import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
@@ -72,9 +73,10 @@ export default function EditVpcSideModalForm() {
           body: { name, description, dnsName },
         })
       }}
-      loading={editVpc.isPending}
+      loading={editVpc.isPending || editVpc.isSuccess}
       submitError={editVpc.error}
     >
+      <FormMetadata resource={vpc} />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <NameField name="dnsName" label="DNS name" required={false} control={form.control} />

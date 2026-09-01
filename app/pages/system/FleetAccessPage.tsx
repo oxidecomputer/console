@@ -33,6 +33,7 @@ import {
   FleetAccessEditUserSideModal,
 } from '~/forms/fleet-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
@@ -227,6 +228,7 @@ export default function FleetAccessPage() {
                     the <HL>{row.fleetRole}</HL> role for <HL>{row.name}</HL>
                   </span>
                 ),
+                resourceKind: 'role assignment',
                 extraContent:
                   row.id === me.id ? 'This will remove your own fleet access.' : undefined,
               }),
@@ -236,6 +238,17 @@ export default function FleetAccessPage() {
       ),
     ],
     [fleetPolicy, updatePolicy, me, navigate]
+  )
+
+  useQuickActions(
+    () => [
+      {
+        value: 'Add user or group',
+        navGroup: 'Actions',
+        action: () => setAddModalOpen(true),
+      },
+    ],
+    []
   )
 
   const tableInstance = useReactTable({

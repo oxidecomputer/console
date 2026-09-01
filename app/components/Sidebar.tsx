@@ -22,6 +22,7 @@ import {
 import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { closeSidebar, useMenuState } from '~/hooks/use-menu-state'
 import { openQuickActions } from '~/hooks/use-quick-actions'
+import { sidebarWrapperClass } from '~/layouts/helpers'
 import { Button } from '~/ui/lib/Button'
 import { Divider } from '~/ui/lib/Divider'
 import { Truncate } from '~/ui/lib/Truncate'
@@ -129,7 +130,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
               key="drawer"
               className={cn(
                 sidebarContent,
-                'bg-default border-secondary fixed top-(--top-bar-height) bottom-0 left-0 z-(--z-popover) w-(--sidebar-width) overflow-y-auto border-r'
+                'bg-default border-secondary fixed top-[calc(var(--top-bar-height)+var(--preview-banner-height))] bottom-0 left-0 z-(--z-popover) w-(--sidebar-width) overflow-y-auto border-r'
               )}
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
@@ -153,7 +154,8 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
     <div
       className={cn(
         sidebarContent,
-        'border-secondary fixed top-(--top-bar-height) bottom-0 left-0 w-(--sidebar-width) overflow-y-auto border-r max-1000:hidden'
+        sidebarWrapperClass,
+        'max-1000:hidden overflow-y-auto overscroll-none'
       )}
     >
       <div className="mx-3 mt-4">
@@ -173,7 +175,7 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   <div className="mx-3 my-4 space-y-1">
     {heading && (
       <div className="text-mono-sm text-tertiary mb-2">
-        <Truncate text={heading} maxLength={24} />
+        <Truncate text={heading} />
       </div>
     )}
     <nav aria-label="Sidebar navigation">

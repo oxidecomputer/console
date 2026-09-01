@@ -20,6 +20,7 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -67,6 +68,7 @@ export default function ImagesPage() {
       // prettier-ignore
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>)
       queryClient.invalidateEndpoint('imageList')
+      queryClient.invalidateEndpoint('imageView')
     },
   })
 
@@ -85,6 +87,7 @@ export default function ImagesPage() {
               query: { project },
             }),
           label: image.name,
+          resourceKind: 'image',
         }),
       },
     ],
@@ -94,9 +97,16 @@ export default function ImagesPage() {
   const columns = useMemo(() => {
     return [
       colHelper.accessor('name', {
-        cell: makeLinkCell((image) => pb.projectImageEdit({ project, image })),
+        cell: makeLinkCell((image) => pb.projectImage({ project, image })),
       }),
       colHelper.accessor('description', Columns.description),
+      colHelper.accessor('os', {
+        header: 'OS',
+        cell: (info) => info.getValue() || <EmptyCell />,
+      }),
+      colHelper.accessor('version', {
+        cell: (info) => info.getValue() || <EmptyCell />,
+      }),
       colHelper.accessor('size', Columns.size),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
@@ -122,7 +132,7 @@ export default function ImagesPage() {
       },
       ...(allImages?.items || []).map((i) => ({
         value: i.name,
-        action: pb.projectImageEdit({ project, image: i.name }),
+        action: pb.projectImage({ project, image: i.name }),
         navGroup: 'Go to project image',
       })),
     ],
@@ -174,6 +184,9 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
         },
       })
       queryClient.invalidateEndpoint('imageList')
+      // promotion flips projectId; refetch the per-id view so cached entries
+      // reflect the new visibility
+      queryClient.invalidateEndpoint('imageView')
       onDismiss()
     },
     onError: (err) => {

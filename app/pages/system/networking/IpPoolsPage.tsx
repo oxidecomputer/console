@@ -18,6 +18,7 @@ import { Badge } from '@oxide/design-system/ui'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -76,14 +77,18 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-const ipPoolList = getListQFn(api.systemIpPoolList, {})
+// Filter out system services pools. Eventually we probably want to show both
+// types of pool, with a column indicating the assignment, but for now keep the
+// page working like it did before the service and silo pool lists were unified.
+// There is currently no way to manage service pools in the console.
+const ipPoolList = getListQFn(api.systemIpPoolList, { query: { assignment: 'silos' } })
 
 export async function clientLoader() {
   await queryClient.prefetchQuery(ipPoolList.optionsFn())
   return null
 }
 
-export const handle = { crumb: 'IP Pools' }
+export const handle = makeCrumb('IP Pools', pb.ipPools())
 
 export default function IpPoolsPage() {
   const navigate = useNavigate()
@@ -113,6 +118,7 @@ export default function IpPoolsPage() {
         onActivate: confirmDelete({
           doDelete: () => deletePool({ path: { pool: pool.name } }),
           label: pool.name,
+          resourceKind: 'IP pool',
         }),
       },
     ],
@@ -129,7 +135,7 @@ export default function IpPoolsPage() {
   })
 
   const { data: allPools } = useQuery(
-    q(api.systemIpPoolList, { query: { limit: ALL_ISH } })
+    q(api.systemIpPoolList, { query: { assignment: 'silos', limit: ALL_ISH } })
   )
 
   useQuickActions(

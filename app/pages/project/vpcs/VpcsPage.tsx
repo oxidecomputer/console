@@ -104,6 +104,7 @@ export default function VpcsPage() {
         onActivate: confirmDelete({
           doDelete: () => deleteVpc({ path: { vpc: vpc.name }, query: { project } }),
           label: vpc.name,
+          resourceKind: 'VPC',
         }),
       },
     ],

@@ -13,7 +13,9 @@ import { api, getListQFn, q, queryClient, useApiMutation, type VpcRouter } from 
 
 import { HL } from '~/components/HL'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -35,7 +37,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = { crumb: 'Routers' }
+export const handle = makeCrumb('Routers', (p) => pb.vpcRouters(getVpcSelector(p)))
 
 export default function VpcRoutersTab() {
   const vpcSelector = useVpcSelector()
@@ -95,6 +97,7 @@ export default function VpcRoutersTab() {
             }),
           extraContent: 'This will also delete any routes belonging to this router.',
           label: router.name,
+          resourceKind: 'VPC router',
         }),
         disabled: router.kind === 'system' && routeFormMessage.noDeletingSystemRouters,
       },
@@ -103,11 +106,27 @@ export default function VpcRoutersTab() {
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
-  const { table } = useQueryTable({
+  const { table, query } = useQueryTable({
     query: vpcRouterList({ project, vpc }),
     columns,
     emptyState,
   })
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New router',
+        navGroup: 'Actions',
+        action: pb.vpcRoutersNew({ project, vpc }),
+      },
+      ...(query.data?.items || []).map((r) => ({
+        value: r.name,
+        navGroup: 'Edit router',
+        action: pb.vpcRouterEdit({ project, vpc, router: r.name }),
+      })),
+    ],
+    [project, vpc, query.data]
+  )
 
   return (
     <>

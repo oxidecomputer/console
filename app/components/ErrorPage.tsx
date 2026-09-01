@@ -10,8 +10,7 @@ import { Link } from 'react-router'
 
 import { Error12Icon, PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
-import { api, useApiMutation } from '~/api/client'
-import { navToLogin } from '~/api/nav-to-login'
+import { api, navToLogin, useApiMutation } from '~/api/client'
 import { Button } from '~/ui/lib/Button'
 
 const GradientBackground = () => (
@@ -29,7 +28,7 @@ type Props = { children: ReactNode; message?: string }
 
 export function ErrorPage({ children }: Props) {
   return (
-    <div className="flex w-full justify-center">
+    <div className="flex w-full justify-center pt-(--preview-banner-height)">
       <GradientBackground />
       <div className="relative flex w-full justify-between">
         <Link

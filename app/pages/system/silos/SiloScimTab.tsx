@@ -26,6 +26,7 @@ import {
 } from '~/api'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -60,7 +61,9 @@ const colHelper = createColumnHelper<ScimClientBearerToken>()
 const staticColumns = [
   colHelper.accessor('id', {
     header: 'ID',
-    cell: (info) => <Truncate text={info.getValue()} position="middle" maxLength={18} />,
+    cell: (info) => (
+      <Truncate text={info.getValue()} position="middle" className="max-w-48" />
+    ),
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
   colHelper.accessor('timeExpires', {
@@ -102,6 +105,20 @@ export default function SiloScimTab() {
   )
 
   const [modalState, setModalState] = useState<ModalState>(false)
+
+  useQuickActions(
+    () =>
+      tokensResult.type === 'success'
+        ? [
+            {
+              value: 'Create token',
+              navGroup: 'Actions',
+              action: () => setModalState({ kind: 'create' }),
+            },
+          ]
+        : [],
+    [tokensResult.type]
+  )
 
   return (
     <>

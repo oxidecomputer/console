@@ -127,7 +127,7 @@ export function DateTimeRangePicker({
   items,
 }: DateTimeRangePickerProps) {
   return (
-    <form className="max-1000:w-full flex">
+    <div className="max-1000:w-full flex">
       <Listbox
         className="max-1000:flex-grow z-10 w-40 [&_button]:rounded-r-none! [&_button]:border-r-0!"
         name="preset"
@@ -156,6 +156,6 @@ export function DateTimeRangePicker({
           className="[&_.rounded-l]:rounded-l-none!"
         />
       </div>
-    </form>
+    </div>
   )
 }

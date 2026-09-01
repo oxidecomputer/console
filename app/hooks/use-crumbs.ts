@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMatches, type Params, type UIMatch } from 'react-router'
+import { useLocation, useMatches, type Params, type UIMatch } from 'react-router'
 
 import { invariant } from '~/util/invariant'
 
@@ -69,3 +69,26 @@ export const matchesToCrumbs = (matches: UIMatch[]) =>
     })
 
 export const useCrumbs = () => matchesToCrumbs(useMatches())
+
+/**
+ * Whether the current route is a side modal (form or detail panel) opening on
+ * top of a page. Keys off the `titleOnly` crumb flag because it exists for the
+ * same reason: the page underneath doesn't change.
+ *
+ * Not the same as `useIsInSideModal`, which asks whether the calling component
+ * is rendered inside a `SideModal`. That one is false on the page underneath;
+ * this one is true.
+ */
+export const useIsSideModalRoute = () => useCrumbs().some((c) => c.titleOnly)
+
+/**
+ * Path of the page the current location displays, i.e., where its nav
+ * breadcrumbs point. For a side modal route this is the parent page it renders
+ * on top of — side modals are marked `titleOnly` precisely because the page
+ * underneath doesn't change. Falls back to the pathname for crumbless routes.
+ */
+export function usePagePath() {
+  const { pathname } = useLocation()
+  const pageCrumb = useCrumbs().findLast((c) => !c.titleOnly)
+  return pageCrumb?.path ?? pathname
+}

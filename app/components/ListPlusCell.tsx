@@ -11,6 +11,33 @@ import React from 'react'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Tooltip } from '~/ui/lib/Tooltip'
 
+type ListPlusOverflowProps = {
+  tooltipTitle: string
+  /** The overflow items, shown in the tooltip. Renders nothing when empty. */
+  children: React.ReactNode
+}
+
+/**
+ * A `+N` count whose tooltip lists the overflow `children` on hover. Rendered on
+ * its own so a cell can pair it with a richer (e.g. copyable) leading item that
+ * lives outside the overflow group. Renders nothing when there are no children.
+ */
+export const ListPlusOverflow = ({ tooltipTitle, children }: ListPlusOverflowProps) => {
+  const rest = React.Children.toArray(children)
+  if (rest.length === 0) return null
+  const content = (
+    <div>
+      <div className="text-sans-semi-md text-raise mb-2">{tooltipTitle}</div>
+      <div className="flex flex-col items-start gap-2">{...rest}</div>
+    </div>
+  )
+  return (
+    <Tooltip content={content} placement="bottom">
+      <div className="text-mono-sm">+{rest.length}</div>
+    </Tooltip>
+  )
+}
+
 type ListPlusCellProps = {
   tooltipTitle: string
   children: React.ReactNode
@@ -22,7 +49,7 @@ type ListPlusCellProps = {
  * Gives a count with a tooltip that expands to show details when the user hovers over it.
  * The ReactNode children are split into two groups: the first `numInCell` are shown in the cell,
  * and the rest are shown in the tooltip. If the number of children is less than or equal to
- * `numInCell`, no tooltip (or `+N` target) is shown.
+ * `numInCell`, no tooltip or `+N` is shown.
  */
 export const ListPlusCell = ({
   tooltipTitle,
@@ -35,20 +62,10 @@ export const ListPlusCell = ({
   }
   const inCell = array.slice(0, numInCell)
   const rest = array.slice(numInCell)
-  const content = (
-    <div>
-      <div className="text-sans-semi-md text-raise mb-2">{tooltipTitle}</div>
-      <div className="flex flex-col items-start gap-2">{...rest}</div>
-    </div>
-  )
   return (
     <div className="flex items-baseline gap-2">
       {inCell}
-      {rest.length > 0 && (
-        <Tooltip content={content} placement="bottom">
-          <div className="text-mono-sm">+{rest.length}</div>
-        </Tooltip>
-      )}
+      <ListPlusOverflow tooltipTitle={tooltipTitle}>{rest}</ListPlusOverflow>
     </div>
   )
 }

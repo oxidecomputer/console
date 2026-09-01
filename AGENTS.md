@@ -4,7 +4,8 @@
 - Favor well-supported libraries, avoid premature abstractions, and use routes to capture state.
 - Before starting a feature, skim an existing page or form with similar behavior and mirror the conventions—this codebase is intentionally conventional. Look for similar pages in `app/pages` and forms in `app/forms` to use as templates.
 - `@oxide/api` is at `app/api` and `@oxide/api-mocks` is at `mock-api/index.ts`.
-- The language server often has out of date errors. tsgo is extremely fast, so confirm errors that come from the language server by running `npm run tsc`
+- The language server often has out of date errors. TypeScript 7 is extremely fast, so confirm errors that come from the language server by running `npm run tsc`
+- This repo uses oxfmt and oxlint, not prettier or eslint
 - Use Node.js 22+, then install deps and start the mock-backed dev server (skip if `npm run dev` is already running in another terminal):
 
   ```sh
@@ -29,23 +30,27 @@
 - Cover role-gated flows by logging in with `getPageAsUser`; exercise negative paths (e.g., forbidden actions) alongside happy paths as shown in `test/e2e/system-update.e2e.ts`.
 - Consider `expectVisible` and `expectNotVisible` deprecated: prefer `expect().toBeVisible()` and `toBeHidden()` in new code.
 - When UI needs new mock behavior, extend the MSW handlers/db minimally so E2E tests stay deterministic; prefer storing full API responses so subsequent calls see the updated state (`mock-api/msw/db.ts`, `mock-api/msw/handlers.ts`).
-- Co-locate Vitest specs next to the code they cover; use Testing Library utilities (`render`, `renderHook`, `fireEvent`, fake timers) to assert observable output rather than implementation details (`app/ui/lib/FileInput.spec.tsx`, `app/hooks/use-pagination.spec.ts`).
+- Co-locate Vitest specs next to the code they cover. Plain `.spec.ts` files run in node with no DOM, so keep them to pure logic. Anything that renders a component or touches a browser API goes in a `.browser.spec.tsx` file, which runs in real browsers via Vitest Browser Mode — use `vitest-browser-react`'s async `render`/`renderHook` (`app/ui/lib/FileInput.browser.spec.tsx`, `app/hooks/use-pagination.browser.spec.ts`).
+- Treat Vitest browser specs as small e2e tests: query by accessible role, label, or visible text and use retrying browser matchers. Avoid selectors coupled to CSS classes or internal DOM structure; inspect layout or computed styles only when the behavior has no semantic representation.
 - For sweeping styling changes, coordinate with the visual regression harness and follow `test/visual/README.md` for the workflow.
 - Fix root causes of flaky timing rather than adding `sleep()` workarounds in tests.
+- When an intermittent browser or E2E failure does not reproduce under normal repetition, retry under controlled CPU contention before concluding it is CI-only. Keep the load bounded so the browser and test runner can still make progress, enable failure-only traces when available, and use a shell trap to clean up every churn process.
+- Local Playwright runs write a compact plain-text report to `.e2e-logs/` (gitignored, one timestamped `.log` per run, last 10 kept) via the custom reporter at `test/e2e/compact-reporter.ts`. Top line is `status: ... total=N passed=N ...`; each failure is a `── UNEXPECTED|FLAKY file:line title` block followed by the error (ANSI stripped). Latest run: `ls .e2e-logs | tail -1` — Read it directly, no parsing needed.
 
 # Data fetching pattern
 
-- Data from `usePrefetchedQuery` is guaranteed to be defined (the loader ensures it and the hook throws if it's not present). Do not add `if (!data) return` guards on these values.
+- `usePrefetchedQuery` requires that the loader fetched and awaited the same query — the hook throws if the data isn't in the cache. Because of that guarantee, do not add `if (!data) return` guards on its results. If the loader's fetch is conditional or not awaited, the guarantee doesn't hold: use `useQuery` with a loading fallback instead.
 - Define queries with `q(api.endpoint, params)` for single items or `getListQFn(api.listEndpoint, params)` for lists. Prefetch in `clientLoader` and read with `usePrefetchedQuery`; for on-demand fetches (modals, secondary data), use `useQuery` directly.
 - Use `ALL_ISH` from `app/util/consts.ts` when UI needs "all" items. Use `queryClient.invalidateEndpoint` to invalidate queries.
 - For paginated tables, compose `getListQFn` with `useQueryTable`; the helper wraps `limit`/`pageToken` handling and keeps placeholder data stable (`app/api/hooks.ts:123-188`, `app/pages/ProjectsPage.tsx:40-132`).
-- When a loader needs dependent data, fetch the primary list with `queryClient.fetchQuery`, prefetch its per-item queries, and only await a bounded batch so render isn't blocked (see `app/pages/project/affinity/AffinityPage.tsx`).
+- When a loader needs per-item data for a list, await the list with `queryClient.fetchQuery`, then kick off `prefetchQuery` for each item without awaiting, so render isn't blocked. Read the per-item queries with `useQuery` and a skeleton fallback — they may not have resolved by first render (see `app/pages/project/affinity/AffinityPage.tsx`).
 - When modals need async data, fetch with `queryClient.ensureQueryData` before opening the modal so cached data is reused and there's no content pop-in.
 - Use `qErrorsAllowed` in loaders for endpoints where some users may lack permission, so the page degrades gracefully instead of the loader throwing (see `SiloScimTab.tsx`).
 
 # Mutations & UI flow
 
 - Wrap writes in `useApiMutation`, use `confirmAction` to guard destructive intent, and surface results with `addToast`.
+- When a form's `onSuccess` always navigates away, pass `loading={mutation.isPending || mutation.isSuccess}` to the form shell. `isPending` alone flips false before the navigation unmounts the modal, so the button's spinner animates back out right before close. Skip `isSuccess` if the form can stay open and be reused after success, or if the mutation lives in a component that survives the modal (e.g., a tab page with `{open && <Modal/>}`) — there success closes the modal synchronously so `isPending` alone is glitch-free, and a sticky `isSuccess` would strand a spinner on next open.
 - Mutation error display depends on context. In forms, errors display inline via `submitError={mutation.error}` — do not add `onError` with a toast to the `useApiMutation` call. In `confirmAction`/`confirmDelete` flows, the confirm modal catches the error and shows a toast using `errorTitle` — do not also add `onError` on the mutation, or the user will see two toasts. For standalone actions (fire-and-forget `mutate` calls not wrapped in a confirm modal or form), use `onError` on the mutation to show an error toast.
 - Keep page scaffolding consistent: `PageHeader`, `PageTitle`, `DocsPopover`, `RefreshButton`, `PropertiesTable`, and `CardBlock` provide the expected layout for new system pages.
 - When a page should be discoverable from the command palette, extend `useQuickActions` with the new entry so it appears in the quick actions menu (see `app/pages/ProjectsPage.tsx:100-115`).
@@ -66,6 +71,7 @@
 - Store API response objects in the mock tables when possible so state persists across calls.
 - Enforce role checks with `requireFleetViewer`/`requireFleetCollab`/`requireFleetAdmin`, and return realistic errors (e.g. downgrade guard in `systemUpdateStatus`).
 - All UUIDs in `mock-api/` must be valid RFC 4122 (a safety test enforces this). Use `uuidgen` to generate them—do not hand-write UUIDs.
+- To test error paths in e2e tests, do **not** use `page.route` to intercept API calls. Instead, add a sentinel (a well-known name, id, or fixture value) to the mock handler that makes it return the desired error, and drive the test through the real UI. Branch on an input the user controls (e.g., `if (body.name === '<sentinel>') throw 500`) or, if no such input is available, add a sentinel fixture that is otherwise inert. Keeping the mock backend authoritative means the failure path is reproducible in the dev server too, not only from tests.
 - MSW starts fresh with a new db on every page load, so in E2E tests, use client-side navigation (click links/breadcrumbs) after mutations instead of `page.goto` to preserve db state within a test.
 
 # Routing
@@ -100,7 +106,7 @@
 
 # Layout & accessibility
 
-- Build pages inside the shared `PageContainer`/`ContentPane` so you inherit the skip link, sticky footer, pagination target, and scroll restoration tied to `#scroll-container` (`app/layouts/helpers.tsx`, `app/hooks/use-scroll-restoration.ts`).
+- Build pages inside the shared `PageContainer`/`ContentPane` so you inherit the skip link, sticky footer, pagination target, and scroll restoration (`app/layouts/helpers.tsx`, `app/hooks/use-scroll-restoration.ts`).
 - Surface page-level buttons and pagination via the `PageActions` and `Pagination` tunnels from `tunnel-rat`; anything rendered through `.In` lands in `.Target` automatically.
 - For global loading states, reuse `PageSkeleton`—it keeps the MSW banner and grid layout stable, and `skipPaths` lets you opt-out for routes with custom layouts (`app/components/PageSkeleton.tsx`).
 - Enforce accessibility at the type level: use `AriaLabel` type from `app/ui/util/aria.ts` which requires exactly one of `aria-label` or `aria-labelledby` on custom interactive components.

@@ -89,6 +89,7 @@ export default function ProjectsPage() {
         onActivate: confirmDelete({
           doDelete: () => deleteProject({ path: { project: project.name } }),
           label: project.name,
+          resourceKind: 'project',
         }),
       },
     ],

@@ -50,6 +50,23 @@ test('can create a floating IP', async ({ page }) => {
   })
 })
 
+test('can view IP pool details from floating IP table', async ({ page }) => {
+  await page.goto(floatingIpsPage)
+
+  // cola-float is in ip-pool-1; click the pool cell to open the detail modal
+  const row = page.getByRole('row', { name: /cola-float/ })
+  await row.getByRole('button', { name: 'ip-pool-1' }).click()
+
+  const dialog = page.getByRole('dialog', { name: 'IP pool details' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByText('public IPs')).toBeVisible()
+  await expect(dialog.getByText('v4')).toBeVisible()
+  await expect(dialog.getByText('unicast')).toBeVisible()
+
+  await dialog.locator('footer').getByRole('button', { name: 'Close' }).click()
+  await expect(dialog).toBeHidden()
+})
+
 test('can detach and attach a floating IP', async ({ page }) => {
   // check floating IP is visible on instance detail
   await page.goto('/projects/mock-project/instances/db1')

@@ -21,9 +21,9 @@ const systemRouterId = 'b5af837b-b986-4a0a-b775-516d76c84ec3'
 
 export const vpc: Json<Vpc> = {
   id: '87774ff3-c6c1-475b-b920-ba2954f390fe',
-  name: 'mock-vpc',
+  name: 'default',
   description: 'a fake vpc',
-  dns_name: 'mock-vpc',
+  dns_name: 'default',
   project_id: project.id,
   system_router_id: systemRouterId,
   ipv6_prefix: 'fdf6:1818:b6e1::/48',
@@ -46,9 +46,9 @@ export const vpc2: Json<Vpc> = {
 // VPCs for test silos (IP pool configuration testing)
 export const vpcKosman: Json<Vpc> = {
   id: 'd1e2f3a4-b5c6-4890-abcd-ef1234567890',
-  name: 'kosman-vpc',
+  name: 'default',
   description: 'VPC in myriad silo',
-  dns_name: 'kosman-vpc',
+  dns_name: 'default',
   project_id: projectKosman.id,
   system_router_id: systemRouterId,
   ipv6_prefix: 'fdf6:1818:b6e3::/48',
@@ -58,9 +58,9 @@ export const vpcKosman: Json<Vpc> = {
 
 export const vpcAnscombe: Json<Vpc> = {
   id: 'e2f3a4b5-c6d7-4901-bcde-f12345678901',
-  name: 'anscombe-vpc',
+  name: 'default',
   description: 'VPC in thrax silo',
-  dns_name: 'anscombe-vpc',
+  dns_name: 'default',
   project_id: projectAnscombe.id,
   system_router_id: systemRouterId,
   ipv6_prefix: 'fdf6:1818:b6e4::/48',
@@ -70,9 +70,9 @@ export const vpcAnscombe: Json<Vpc> = {
 
 export const vpcAdorno: Json<Vpc> = {
   id: 'f3a4b5c6-d7e8-4012-8def-123456789012',
-  name: 'adorno-vpc',
+  name: 'default',
   description: 'VPC in pelerines silo',
-  dns_name: 'adorno-vpc',
+  dns_name: 'default',
   project_id: projectAdorno.id,
   system_router_id: systemRouterId,
   ipv6_prefix: 'fdf6:1818:b6e5::/48',
@@ -192,7 +192,7 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
 export const vpcSubnet: Json<VpcSubnet> = {
   // this is supposed to be flattened into the top level. will fix in API
   id: 'd12bf934-d2bf-40e9-8596-bb42a7793749',
-  name: 'mock-subnet',
+  name: 'default',
   description: 'a fake subnet',
   time_created: new Date(2021, 0, 1).toISOString(),
   time_modified: new Date(2021, 0, 2).toISOString(),
@@ -211,10 +211,21 @@ export const vpcSubnet2: Json<VpcSubnet> = {
   custom_router_id: customRouter.id,
 }
 
+export const subnetOtherProject: Json<VpcSubnet> = {
+  id: 'd4f387db-e012-4424-9226-d8a10070e0f3',
+  name: 'other-subnet',
+  description: 'a subnet in other-project',
+  time_created,
+  time_modified,
+  vpc_id: vpc2.id,
+  ipv4_block: '10.1.2.0/24',
+  ipv6_block: 'fd9b:870a:4245:1::/64',
+}
+
 // Subnets for test silos
 export const subnetKosman: Json<VpcSubnet> = {
   id: 'a1b2c3d4-e5f6-4890-9234-567890abcdef',
-  name: 'kosman-subnet',
+  name: 'default',
   description: 'subnet in myriad silo',
   time_created,
   time_modified,
@@ -225,7 +236,7 @@ export const subnetKosman: Json<VpcSubnet> = {
 
 export const subnetAnscombe: Json<VpcSubnet> = {
   id: 'b2c3d4e5-f6a7-4901-a345-67890abcdef1',
-  name: 'anscombe-subnet',
+  name: 'default',
   description: 'subnet in thrax silo',
   time_created,
   time_modified,
@@ -236,7 +247,7 @@ export const subnetAnscombe: Json<VpcSubnet> = {
 
 export const subnetAdorno: Json<VpcSubnet> = {
   id: 'c3d4e5f6-a7b8-4012-b456-7890abcdef12',
-  name: 'adorno-subnet',
+  name: 'default',
   description: 'subnet in pelerines silo',
   time_created,
   time_modified,
@@ -248,6 +259,7 @@ export const subnetAdorno: Json<VpcSubnet> = {
 export const vpcSubnets: Json<VpcSubnet[]> = [
   vpcSubnet,
   vpcSubnet2,
+  subnetOtherProject,
   subnetKosman,
   subnetAnscombe,
   subnetAdorno,
@@ -321,7 +333,11 @@ export const firewallRules: Json<VpcFirewallRule[]> = [
     description: 'we just want to test with lots of filters',
     filters: {
       ports: ['3389', '45-89'],
-      protocols: [{ type: 'tcp' }, { type: 'icmp', value: { icmp_type: 5, code: '1-3' } }],
+      protocols: [
+        { type: 'tcp' },
+        { type: 'icmp', value: { icmp_type: 5, code: '1-3' } },
+        { type: 'icmp6', value: { icmp_type: 128 } },
+      ],
       hosts: [
         { type: 'instance', value: 'hello-friend' },
         { type: 'subnet', value: 'my-subnet' },

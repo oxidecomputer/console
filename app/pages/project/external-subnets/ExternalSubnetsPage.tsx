@@ -34,6 +34,7 @@ import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { SubnetPoolCell } from '~/table/cells/SubnetPoolCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -75,9 +76,19 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
+/** Reads project from the route so the name column can stay static */
+const NameCell = ({ name }: { name: string }) => {
+  const { project } = useProjectSelector()
+  return (
+    <LinkCell to={pb.externalSubnetEdit({ project, externalSubnet: name })}>
+      {name}
+    </LinkCell>
+  )
+}
+
 const colHelper = createColumnHelper<ExternalSubnet>()
 const staticCols = [
-  colHelper.accessor('name', {}),
+  colHelper.accessor('name', { cell: (info) => <NameCell name={info.getValue()} /> }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('subnet', {
     header: 'Subnet',
@@ -139,7 +150,7 @@ export default function ExternalSubnetsPage() {
                     path: { externalSubnet: subnet.name },
                     query: { project },
                   }),
-                modalTitle: 'Detach External Subnet',
+                modalTitle: 'Detach external subnet',
                 modalContent: (
                   <p>
                     Are you sure you want to detach external subnet <HL>{subnet.name}</HL>
@@ -181,6 +192,7 @@ export default function ExternalSubnetsPage() {
                 query: { project },
               }),
             label: subnet.name,
+            resourceKind: 'external subnet',
           }),
         },
       ]
@@ -279,7 +291,7 @@ const AttachExternalSubnetModal = ({
       }}
       submitLabel="Attach"
       submitError={externalSubnetAttach.error}
-      loading={externalSubnetAttach.isPending}
+      loading={externalSubnetAttach.isPending || externalSubnetAttach.isSuccess}
       onDismiss={onDismiss}
     >
       <Message

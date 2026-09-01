@@ -46,6 +46,10 @@
   @apply bg-hover;
 }
 
+.ox-tabs-list .ox-tab[data-active]:hover > * {
+  @apply bg-accent-hover;
+}
+
 /* Active states */
 .ox-tab[data-active] {
   @apply text-accent border-accent light:border-green-800 light:text-raise;

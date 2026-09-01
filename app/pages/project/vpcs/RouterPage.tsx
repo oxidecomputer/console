@@ -31,8 +31,10 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
@@ -72,6 +74,8 @@ const routeTypes = {
   vpc: 'VPC',
 }
 
+const routerRoutesColHelper = createColumnHelper<RouterRoute>()
+
 // All will have a type and a value except `Drop`, which only has a type
 const RouterRouteTypeValueBadge = ({
   type,
@@ -86,6 +90,31 @@ const RouterRouteTypeValueBadge = ({
     <Badge>{routeTypes[type]}</Badge>
   )
 }
+
+/** Reads route params so the name column can stay static */
+const NameCell = ({ route }: { route: string }) => {
+  const selector = useVpcRouterSelector()
+  return <LinkCell to={pb.vpcRouterRouteEdit({ ...selector, route })}>{route}</LinkCell>
+}
+
+const routerRoutesStaticCols = [
+  routerRoutesColHelper.accessor('name', {
+    header: 'Name',
+    cell: (info) => <NameCell route={info.getValue()} />,
+  }),
+  routerRoutesColHelper.accessor('kind', {
+    header: 'Kind',
+    cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
+  }),
+  routerRoutesColHelper.accessor('destination', {
+    header: 'Destination',
+    cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+  }),
+  routerRoutesColHelper.accessor('target', {
+    header: 'Target',
+    cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+  }),
+]
 
 export default function RouterPage() {
   const { project, vpc, router } = useVpcRouterSelector()
@@ -104,29 +133,11 @@ export default function RouterPage() {
       icon={<Networking24Icon />}
       title="No routes"
       body="Add a route to see it here"
-      buttonText="Add route"
+      buttonText="New route"
       buttonTo={pb.vpcRouterRoutesNew({ project, vpc, router })}
     />
   )
   const navigate = useNavigate()
-
-  const routerRoutesColHelper = createColumnHelper<RouterRoute>()
-
-  const routerRoutesStaticCols = [
-    routerRoutesColHelper.accessor('name', { header: 'Name' }),
-    routerRoutesColHelper.accessor('kind', {
-      header: 'Kind',
-      cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
-    }),
-    routerRoutesColHelper.accessor('destination', {
-      header: 'Destination',
-      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
-    }),
-    routerRoutesColHelper.accessor('target', {
-      header: 'Target',
-      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
-    }),
-  ]
 
   const makeRangeActions = useCallback(
     (routerRoute: RouterRoute): MenuAction[] => [
@@ -151,8 +162,8 @@ export default function RouterPage() {
         onActivate: () =>
           confirmAction({
             doAction: () => deleteRouterRoute({ path: { route: routerRoute.id } }),
-            errorTitle: 'Could not remove route',
-            modalTitle: 'Confirm remove route',
+            errorTitle: 'Could not delete route',
+            modalTitle: 'Delete route',
             modalContent: (
               <p>
                 Are you sure you want to delete route <HL>{routerRoute.name}</HL>?
@@ -175,6 +186,20 @@ export default function RouterPage() {
   // user-provided routes cannot be added to a system router
   // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L201-L205
   const canCreateNewRoute = routerData.kind === 'custom'
+
+  useQuickActions(
+    () =>
+      canCreateNewRoute
+        ? [
+            {
+              value: 'New route',
+              navGroup: 'Actions',
+              action: pb.vpcRouterRoutesNew({ project, vpc, router }),
+            },
+          ]
+        : [],
+    [canCreateNewRoute, project, vpc, router]
+  )
 
   return (
     <>

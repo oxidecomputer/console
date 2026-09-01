@@ -11,13 +11,14 @@ import {
   Navigate,
   redirect,
   Route,
+  useLocation,
   type LoaderFunctionArgs,
 } from 'react-router'
 
 import { NotFound } from './components/ErrorPage'
 import { PageSkeleton } from './components/PageSkeleton.tsx'
 import { makeCrumb, type Crumb } from './hooks/use-crumbs'
-import { getInstanceSelector, getVpcSelector } from './hooks/use-params'
+import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
 import { pb } from './util/path-builder'
 
 // hack because RR doesn't export the redirect type
@@ -51,6 +52,12 @@ const redirectWithLoader = (to: string) => (mod: RouteModule) => ({
   loader: mod.clientLoader,
   Component: () => <Navigate to={to} replace />,
 })
+
+/** Redirect a renamed `.../edit` detail route to its parent by dropping the trailing segment. */
+function DropEditRedirect() {
+  const { pathname } = useLocation()
+  return <Navigate to={pathname.replace(/\/edit$/, '')} replace />
+}
 
 export const routes = createRoutesFromElements(
   <Route
@@ -188,7 +195,7 @@ export const routes = createRoutesFromElements(
             lazy={() => import('./pages/system/inventory/DisksTab').then(convert)}
           />
         </Route>
-        <Route path="inventory" handle={{ crumb: 'Inventory' }}>
+        <Route path="inventory" handle={makeCrumb('Inventory', pb.sledInventory())}>
           <Route path="sleds" handle={{ crumb: 'Sleds' }}>
             {/* a crumb for the sled ID looks ridiculous, unfortunately */}
             <Route
@@ -276,9 +283,11 @@ export const routes = createRoutesFromElements(
           lazy={() => import('./pages/SiloImagesPage.tsx').then(convert)}
         >
           <Route
-            path=":image/edit"
-            lazy={() => import('./pages/SiloImageEdit.tsx').then(convert)}
+            path=":image"
+            lazy={() => import('./pages/SiloImageDetail.tsx').then(convert)}
           />
+          {/* redirect the old edit URL to the renamed detail route */}
+          <Route path=":image/edit" element={<DropEditRedirect />} />
         </Route>
         <Route
           path="utilization"
@@ -321,7 +330,13 @@ export const routes = createRoutesFromElements(
           lazy={() => import('./layouts/SerialConsoleLayout').then(convert)}
         >
           <Route path="instances" handle={{ crumb: 'Instances' }}>
-            <Route path=":instance" handle={makeCrumb((p) => p.instance!)}>
+            <Route
+              path=":instance"
+              handle={makeCrumb(
+                (p) => p.instance!,
+                (p) => pb.instance(getInstanceSelector(p))
+              )}
+            >
               <Route
                 path="serial-console"
                 lazy={() =>
@@ -437,7 +452,14 @@ export const routes = createRoutesFromElements(
                     element={null}
                     handle={{ crumb: 'Firewall Rules' }}
                   />
-                  <Route element={null} handle={{ crumb: 'Firewall Rules' }}>
+                  <Route
+                    element={null}
+                    // path makes crumb link straight to the tab instead of
+                    // bouncing through the redirect at the VPC root
+                    handle={makeCrumb('Firewall Rules', (p) =>
+                      pb.vpcFirewallRules(getVpcSelector(p))
+                    )}
+                  >
                     <Route
                       path="firewall-rules-new/:rule?"
                       lazy={() => import('./forms/firewall-rules-create').then(convert)}
@@ -490,7 +512,13 @@ export const routes = createRoutesFromElements(
             </Route>
           </Route>
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
-            <Route path=":vpc" handle={makeCrumb((p) => p.vpc!)}>
+            <Route
+              path=":vpc"
+              handle={makeCrumb(
+                (p) => p.vpc!,
+                (p) => pb.vpc(getVpcSelector(p))
+              )}
+            >
               <Route path="routers" handle={{ crumb: 'Routers' }}>
                 <Route
                   path=":router"
@@ -572,9 +600,11 @@ export const routes = createRoutesFromElements(
               lazy={() => import('./forms/image-upload').then(convert)}
             />
             <Route
-              path="images/:image/edit"
-              lazy={() => import('./pages/project/images/ProjectImageEdit').then(convert)}
+              path="images/:image"
+              lazy={() => import('./pages/project/images/ProjectImageDetail').then(convert)}
             />
+            {/* redirect the old edit URL to the renamed detail route */}
+            <Route path="images/:image/edit" element={<DropEditRedirect />} />
           </Route>
           <Route
             path="access"
@@ -582,7 +612,7 @@ export const routes = createRoutesFromElements(
           />
           <Route
             lazy={() => import('./pages/project/affinity/AffinityPage').then(convert)}
-            handle={{ crumb: 'Affinity Groups' }}
+            handle={makeCrumb('Affinity Groups', (p) => pb.affinity(getProjectSelector(p)))}
           >
             <Route
               path="affinity-new"

@@ -11,10 +11,10 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
-import { api, getListQFn, q, queryClient, type InternetGateway } from '~/api'
+import { api, getListQFn, queryClient, type InternetGateway } from '~/api'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { IpPoolCell } from '~/table/cells/IpPoolCell'
+import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
 import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -83,10 +83,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     ),
     queryClient.fetchQuery(projectIpPoolList.optionsFn()).then((pools) => {
       for (const pool of pools.items) {
-        const { queryKey } = q(api.ipPoolView, {
-          path: { pool: pool.id },
-        })
-        queryClient.setQueryData(queryKey, pool)
+        // IpPoolCell uses the errors-allowed query shape, so seed that exact
+        // cache entry instead of the normal ipPoolView query.
+        const { queryKey } = ipPoolErrorsAllowedQuery(pool.id)
+        queryClient.setQueryData(queryKey, { type: 'success', data: pool })
       }
     }),
   ] satisfies Promise<unknown>[])

@@ -6,13 +6,11 @@
  * Copyright Oxide Computer Company
  */
 import { Dialog as BaseDialog } from '@base-ui/react/dialog'
-import cn from 'classnames'
 import * as m from 'motion/react-m'
-import { useRef, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
 
-import { useIsOverflow } from '~/hooks/use-is-overflow'
 import { Message } from '~/ui/lib/Message'
 import { classed } from '~/util/classed'
 
@@ -59,7 +57,6 @@ export function SideModal({
         onOpenChange={(open) => {
           if (!open) onDismiss()
         }}
-        modal={false}
       >
         <BaseDialog.Portal>
           <DialogOverlay />
@@ -119,27 +116,14 @@ export function SideModal({
 
 export const ResourceLabel = classed.h3`mt-2 flex items-center gap-1.5 text-sans-md text-accent`
 
-// separate component because otherwise eslint thinks it's not a component and
-// gets mad about the use of hooks
-function SideModalBody({ children }: { children?: ReactNode }) {
-  const overflowRef = useRef<HTMLDivElement>(null)
-  const { scrollStart } = useIsOverflow(overflowRef, 'vertical')
-
-  return (
-    <div
-      ref={overflowRef}
-      className={cn(
-        'body relative h-full overflow-y-auto pt-8 pb-12',
-        !scrollStart && 'border-t-secondary border-t'
-      )}
-      data-testid="sidemodal-scroll-container"
-    >
-      {children}
-    </div>
-  )
-}
-
-SideModal.Body = SideModalBody
+SideModal.Body = ({ children }: { children?: ReactNode }) => (
+  <div
+    className="body border-t-secondary relative h-full overflow-y-auto overscroll-none border-t pt-8 pb-12"
+    data-testid="sidemodal-scroll-container"
+  >
+    {children}
+  </div>
+)
 
 SideModal.Heading = classed.div`text-sans-semi-xl text-raise`
 
