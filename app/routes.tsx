@@ -269,20 +269,20 @@ export const routes = createRoutesFromElements(
           path="alerting"
           lazy={() => import('./pages/system/alerting/AlertingPage').then(convert)}
         >
-          <Route index element={<Navigate to="alerts" replace />} />
-          <Route
-            path="alerts"
-            lazy={() => import('./pages/system/alerting/AlertsTab').then(convert)}
-          />
+          <Route index element={<Navigate to="receivers" replace />} />
           <Route
             lazy={() => import('./pages/system/alerting/AlertReceiversTab').then(convert)}
           >
             <Route path="receivers" element={null} />
           </Route>
+          <Route
+            path="alerts"
+            lazy={() => import('./pages/system/alerting/AlertsTab').then(convert)}
+          />
         </Route>
-        {/* /system/alerting redirects to the alerts tab, so point the crumb
+        {/* /system/alerting redirects to the receivers tab, so point the crumb
             straight at the tab to avoid a flash */}
-        <Route path="alerting" handle={{ crumb: 'Alerting', path: pb.alerts() }}>
+        <Route path="alerting" handle={{ crumb: 'Alerting', path: pb.alertReceivers() }}>
           <Route path="receivers" handle={{ crumb: 'Receivers' }}>
             <Route
               path=":receiver"

@@ -43,7 +43,7 @@ exports[`breadcrumbs 2`] = `
   "alertReceiver (/system/alerting/receivers/rc)": [
     {
       "label": "Alerting",
-      "path": "/system/alerting/alerts",
+      "path": "/system/alerting/receivers",
     },
     {
       "label": "Receivers",
@@ -57,7 +57,7 @@ exports[`breadcrumbs 2`] = `
   "alertReceiverEdit (/system/alerting/receivers/rc/edit)": [
     {
       "label": "Alerting",
-      "path": "/system/alerting/alerts",
+      "path": "/system/alerting/receivers",
     },
     {
       "label": "Receivers",
@@ -71,7 +71,7 @@ exports[`breadcrumbs 2`] = `
   "alertReceivers (/system/alerting/receivers)": [
     {
       "label": "Alerting",
-      "path": "/system/alerting/alerts",
+      "path": "/system/alerting/receivers",
     },
     {
       "label": "Receivers",
@@ -81,7 +81,7 @@ exports[`breadcrumbs 2`] = `
   "alertReceiversNew (/system/alerting/receivers-new)": [
     {
       "label": "Alerting",
-      "path": "/system/alerting/alerts",
+      "path": "/system/alerting/receivers",
     },
     {
       "label": "Receivers",
@@ -95,7 +95,7 @@ exports[`breadcrumbs 2`] = `
   "alerts (/system/alerting/alerts)": [
     {
       "label": "Alerting",
-      "path": "/system/alerting/alerts",
+      "path": "/system/alerting/receivers",
     },
     {
       "label": "Alerts",

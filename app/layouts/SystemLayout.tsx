@@ -56,8 +56,8 @@ export default function SystemLayout() {
       { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
       { value: 'Subnet Pools', path: pb.subnetPools() },
-      { value: 'Alerting', path: pb.alerts() },
-      { value: 'Alert Receivers', path: pb.alertReceivers() },
+      { value: 'Alerting', path: pb.alertReceivers() },
+      { value: 'Alerts', path: pb.alerts() },
       { value: 'System Update', path: pb.systemUpdate() },
       { value: 'Fleet Access', path: pb.fleetAccess() },
     ]
@@ -104,7 +104,7 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.subnetPools()}>
             <Subnet16Icon /> Subnet Pools
           </NavLinkItem>
-          <NavLinkItem to={pb.alerts()} activePrefix={alertingBase()}>
+          <NavLinkItem to={pb.alertReceivers()} activePrefix={alertingBase()}>
             <Notifications16Icon /> Alerting
           </NavLinkItem>
           <NavLinkItem to={pb.systemUpdate()}>

@@ -15,7 +15,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-export const handle = makeCrumb('Alerting', pb.alerts())
+export const handle = makeCrumb('Alerting', pb.alertReceivers())
 
 export default function AlertingPage() {
   return (
@@ -33,8 +33,8 @@ export default function AlertingPage() {
       </PageHeader>
 
       <RouteTabs fullWidth>
-        <Tab to={pb.alerts()}>Alerts</Tab>
         <Tab to={pb.alertReceivers()}>Receivers</Tab>
+        <Tab to={pb.alerts()}>Alerts</Tab>
       </RouteTabs>
     </>
   )

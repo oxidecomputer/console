@@ -25,11 +25,16 @@ test('Alerting nav and tabs', async ({ page }) => {
   await sidebar.getByRole('link', { name: 'Alerting' }).click()
 
   // the section root redirects to the first tab
+  await expect(page).toHaveURL('/system/alerting/receivers')
+  await expect(page).toHaveTitle('Receivers / Alerting / Oxide Console')
+  await expect(page.getByRole('tab', { name: 'Receivers' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  )
+
+  await page.getByRole('tab', { name: 'Alerts' }).click()
   await expect(page).toHaveURL('/system/alerting/alerts')
   await expect(page).toHaveTitle('Alerts / Alerting / Oxide Console')
-
-  await page.getByRole('tab', { name: 'Receivers' }).click()
-  await expect(page).toHaveURL('/system/alerting/receivers')
   // nav item stays highlighted on both tabs
   await expect(sidebar.getByRole('link', { name: 'Alerting' })).toHaveAttribute(
     'aria-current',
@@ -694,8 +699,7 @@ test('Webhook receiver delete', async ({ page }) => {
 })
 
 test('Alert list basics', async ({ page }) => {
-  // omitting the trailing /alerts because this should be the default view
-  await page.goto('/system/alerting')
+  await page.goto('/system/alerting/alerts')
 
   await expect(page).toHaveTitle('Alerts / Alerting / Oxide Console')
   await expect(page.getByRole('heading', { name: 'Alerting' })).toBeVisible()
