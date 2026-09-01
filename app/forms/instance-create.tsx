@@ -236,10 +236,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
     // fetch both project and silo images
-    queryClient.prefetchQuery(q(api.imageList, { query: { project } })),
-    queryClient.prefetchQuery(q(api.imageList, {})),
+    queryClient.prefetchQuery(q(api.imageList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(q(api.imageList, { query: { limit: ALL_ISH } })),
     queryClient.prefetchQuery(q(api.diskList, { query: { project, limit: ALL_ISH } })),
-    queryClient.prefetchQuery(q(api.currentUserSshKeyList, {})),
+    queryClient.prefetchQuery(q(api.currentUserSshKeyList, { query: { limit: ALL_ISH } })),
     queryClient.prefetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } })),
     queryClient.prefetchQuery(
       q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
@@ -378,9 +378,11 @@ export default function CreateInstanceForm() {
     },
   })
 
-  const siloImages = usePrefetchedQuery(q(api.imageList, {})).data.items
-  const projectImages = usePrefetchedQuery(q(api.imageList, { query: { project } })).data
-    .items
+  const siloImages = usePrefetchedQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
+    .data.items
+  const projectImages = usePrefetchedQuery(
+    q(api.imageList, { query: { project, limit: ALL_ISH } })
+  ).data.items
   const allImages = [...siloImages, ...projectImages]
 
   const defaultImage = allImages[0]
@@ -390,7 +392,9 @@ export default function CreateInstanceForm() {
   ).data.items
   const disks = useMemo(() => toComboboxItems(allDisks.filter(diskCan.attach)), [allDisks])
 
-  const { data: sshKeys } = usePrefetchedQuery(q(api.currentUserSshKeyList, {}))
+  const { data: sshKeys } = usePrefetchedQuery(
+    q(api.currentUserSshKeyList, { query: { limit: ALL_ISH } })
+  )
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
   // ipPoolList fetches the pools linked to the current silo
