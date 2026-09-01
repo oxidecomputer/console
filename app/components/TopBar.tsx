@@ -43,7 +43,7 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
         <HomeButton level={systemOrSilo} />
       </div>
       <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-3">
-        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           <MobileNavToggle />
           <Breadcrumbs />
         </div>
@@ -60,15 +60,19 @@ function MobileNavToggle() {
   const isOpen = useMobileNavStore((state) => state.isOpen)
   const Icon = isOpen ? MenuClose12Icon : MenuOpen12Icon
   return (
-    <button
-      type="button"
-      onClick={toggleMobileNav}
-      aria-label="Toggle sidebar"
-      aria-expanded={isOpen}
-      className="hover:bg-hover 1000:hidden -ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-md"
-    >
-      <Icon className="text-secondary" />
-    </button>
+    // full-height cell with a right border so the toggle reads as its own
+    // region, mirroring the desktop home button cell
+    <div className="border-secondary 1000:hidden -ml-3 flex h-(--top-bar-height) shrink-0 items-center border-r px-1.5">
+      <button
+        type="button"
+        onClick={toggleMobileNav}
+        aria-label="Toggle sidebar"
+        aria-expanded={isOpen}
+        className="hover:bg-hover flex h-10 w-10 items-center justify-center rounded-md"
+      >
+        <Icon className="text-secondary" />
+      </button>
+    </div>
   )
 }
 
