@@ -462,7 +462,8 @@ export default function SiloAuditLogsPage() {
       ?.focus({ preventScroll: true })
   }, [])
 
-  // arrow keys move selection (and focus) between rows; escape closes the
+  // arrow keys (and j/k when the pane is open) move selection (and focus)
+  // between rows; escape closes the
   // modal. with the modal closed, arrows still move focus when a row is
   // focused, without opening the modal. adjacent rows are within the
   // virtualizer's overscan, so they're already in the DOM when we look them up.
@@ -490,7 +491,15 @@ export default function SiloAuditLogsPage() {
         return
       }
 
-      const delta = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0
+      // j/k only with the pane open: with it closed they'd move focus with no
+      // visible selection, and bare letters on a page feel like they might be typing
+      const paneOpen = expandedItem !== null
+      const delta = match(e.key)
+        .with('ArrowDown', () => 1)
+        .with('ArrowUp', () => -1)
+        .with('j', () => (paneOpen ? 1 : 0))
+        .with('k', () => (paneOpen ? -1 : 0))
+        .otherwise(() => 0)
       if (delta === 0) return
       e.preventDefault()
       const next = currentIdx + delta
