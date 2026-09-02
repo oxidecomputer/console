@@ -717,27 +717,47 @@ test('Alert list basics', async ({ page }) => {
   const table = page.getByRole('table')
   await expect(table.getByRole('row')).toHaveCount(alerts.length + 1)
 
-  await expectRowVisible(table, { class: 'hardware.power_shelf.psu.remove' })
-  await expectRowVisible(table, { class: 'hardware.power_shelf.psu.insert' })
-  await expectRowVisible(table, { class: 'hardware.power_shelf.psu.remove' })
+  // newest first, with the ID and a one-line preview of the payload
+  await expectRowVisible(table, {
+    'Alert ID': expect.stringContaining('26cb0726'),
+    Class: 'hardware.power_shelf.psu.insert',
+    Payload: expect.stringContaining('rack_id'),
+  })
+  await expectRowVisible(table, {
+    'Alert ID': expect.stringContaining('8c8a74ba'),
+    Class: 'hardware.power_shelf.psu.remove',
+  })
+  // the probe alert has an empty payload
+  await expectRowVisible(table, { Class: 'probe', Payload: '—' })
+
+  // alert classes must stay lowercase so they can be copied into a subscription
+  await expect(table.getByText('hardware.power_shelf.psu.insert').first()).toHaveCSS(
+    'text-transform',
+    'none'
+  )
 })
 
 test('Alert list detail view', async ({ page }) => {
   await page.goto('/system/alerting/alerts')
 
-  await page.getByRole('button', { name: 'Row actions' }).first().click()
-  const viewDetails = page.getByRole('menuitem', { name: 'View alert details' })
-  await expect(viewDetails).toBeVisible()
-  await viewDetails.click()
+  const rows = page.getByRole('table').getByRole('row')
 
-  const alertBody = page.locator('pre')
+  // the whole row opens the details
+  await rows.filter({ hasText: '26cb0726' }).click()
+  const modal = page.getByRole('dialog', { name: 'Alert details' })
+  await expect(modal).toBeVisible()
+  const alertBody = modal.locator('pre')
+  await expect(alertBody).toContainText('"Murata"')
+  await expect(alertBody).toContainText('slot: 0')
+  await modal.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+  await expect(modal).toBeHidden()
 
-  await expect(alertBody).toBeVisible()
-
-  // the payload's `time` is generated relative to now in each process, so let's
-  // not bother checking it
-  const stripTime = ({ time: _, ...rest }: Record<string, unknown>) => rest
-  const rendered = JSON.parse((await alertBody.textContent()) as string)
-  // we just expect the body to look like SOME alert so we aren't brittle to sorting
-  expect(alerts.map(({ alert }) => stripTime(alert))).toContainEqual(stripTime(rendered))
+  // keyboard users have a hidden button per row
+  await rows
+    .filter({ hasText: '0d38abba' })
+    .getByRole('button', { name: 'View alert details' })
+    .focus()
+  await page.keyboard.press('Enter')
+  await expect(modal).toBeVisible()
+  await expect(modal.locator('pre')).toContainText('slot: 3')
 })

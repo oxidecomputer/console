@@ -20,8 +20,8 @@ import {
   type AlertReceiver,
 } from '@oxide/api'
 import { Webhooks24Icon } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
 
+import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { makeCrumb } from '~/hooks/use-crumbs'
@@ -59,9 +59,7 @@ const staticColumns = [
     cell: (info) => (
       <ListPlusCell tooltipTitle="Other subscriptions">
         {info.getValue().map((sub) => (
-          <Badge key={sub} color="neutral">
-            {sub}
-          </Badge>
+          <AlertClassBadge key={sub}>{sub}</AlertClassBadge>
         ))}
       </ListPlusCell>
     ),

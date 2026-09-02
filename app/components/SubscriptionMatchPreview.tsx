@@ -8,7 +8,6 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { api, q } from '@oxide/api'
-import { Badge } from '@oxide/design-system/ui'
 
 import {
   ALERT_SUBSCRIPTION_REGEX,
@@ -16,6 +15,7 @@ import {
   isSubscribableClass,
   subscriptionRegex,
 } from '~/api/util'
+import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { ALL_ISH } from '~/util/consts'
 
 /**
@@ -52,9 +52,7 @@ export function SubscriptionMatchPreview({ pattern }: { pattern: string }) {
       Matches {classes.length} alert {classes.length === 1 ? 'class' : 'classes'}:{' '}
       <span className="inline-flex flex-wrap gap-1 align-bottom">
         {classes.map((c) => (
-          <Badge key={c.name} color="neutral">
-            {c.name}
-          </Badge>
+          <AlertClassBadge key={c.name}>{c.name}</AlertClassBadge>
         ))}
       </span>
     </p>

@@ -22,9 +22,10 @@ import {
   type WebhookSecret,
 } from '@oxide/api'
 import { Webhooks24Icon } from '@oxide/design-system/icons/react'
-import { Badge, Button } from '@oxide/design-system/ui'
+import { Button } from '@oxide/design-system/ui'
 
 import { isSubscribableClass } from '~/api/util'
+import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { validateSubscription } from '~/components/form/fields/SubscriptionsField'
 import { TextField } from '~/components/form/fields/TextField'
@@ -145,7 +146,7 @@ const subscriptionColHelper = createColumnHelper<{ subscription: string }>()
 const subscriptionCols = [
   subscriptionColHelper.accessor('subscription', {
     header: 'Alert class',
-    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+    cell: (info) => <AlertClassBadge>{info.getValue()}</AlertClassBadge>,
   }),
 ]
 

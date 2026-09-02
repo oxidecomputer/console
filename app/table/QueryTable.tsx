@@ -55,14 +55,15 @@ function useScrollReset(triggerDep: string | undefined) {
   }
 }
 
-// require ID only so we can use it in getRowId
-export function useQueryTable<TItem>({
-  query,
-  rowHeight = 'small',
-  emptyState,
-  columns,
-  getId,
-}: QueryTableProps<TItem>) {
+/**
+ * The data half of `useQueryTable`: fetch the current page of a paginated
+ * query and render the pagination controls for it. For lists that need this
+ * plumbing but render something other than a `Table`.
+ */
+export function usePaginatedList<TItem>(
+  query: PaginatedQuery<ResultsPage<TItem>>,
+  getId: (item: TItem) => string
+) {
   // hash the first-page key, not the current one, so paging through the same
   // query doesn't read as a query change
   const queryId = hashKey(query.optionsFn().queryKey)
@@ -72,51 +73,73 @@ export function useQueryTable<TItem>({
   // only ensure prefetched if we're on the first page
   if (currentPage === undefined) ensurePrefetched(queryResult, queryOptions.queryKey)
   const { data, isPlaceholderData } = queryResult
-  const tableData = useMemo(() => data?.items || [], [data])
+  const items = useMemo(() => data?.items || [], [data])
 
+  // trigger by first item ID and not, e.g., currentPage because currentPage
+  // changes as soon as you click Next, while the item ID doesn't change until
+  // the page actually changes.
+  const first = items.at(0)
+  const requestScrollReset = useScrollReset(first ? getId(first) : undefined)
+
+  const isEmpty = items.length === 0 && !hasPrev
+
+  const pagination = (
+    <Pagination
+      pageSize={query.pageSize}
+      hasNext={items.length === query.pageSize}
+      hasPrev={hasPrev}
+      nextPage={data?.nextPage}
+      onNext={(p) => {
+        requestScrollReset()
+        goToNextPage(p)
+      }}
+      onPrev={() => {
+        requestScrollReset()
+        goToPrevPage()
+      }}
+      // I can't believe how well this works, but it exactly matches when
+      // we want to show the spinner. Cached page changes don't need it.
+      loading={isPlaceholderData}
+    />
+  )
+
+  return { items, isEmpty, pagination, query: queryResult }
+}
+
+// require ID only so we can use it in getRowId
+export function useQueryTable<TItem>({
+  query,
+  rowHeight = 'small',
+  emptyState,
+  columns,
+  getId,
+}: QueryTableProps<TItem>) {
   const getRowId = getId
     ? getId
     : // @ts-expect-error we know from the types that getId is only defined when there is no ID
       (row: TItem) => row.id as string
 
-  // trigger by first item ID and not, e.g., currentPage because currentPage
-  // changes as soon as you click Next, while the item ID doesn't change until
-  // the page actually changes.
-  const first = tableData.at(0)
-  const requestScrollReset = useScrollReset(first ? getRowId(first) : undefined)
+  const {
+    items,
+    isEmpty,
+    pagination,
+    query: queryResult,
+  } = usePaginatedList(query, getRowId)
 
   const table = useReactTable({
     columns,
-    data: tableData,
+    data: items,
     getRowId,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
   })
-
-  const isEmpty = tableData.length === 0 && !hasPrev
 
   const tableElement = isEmpty ? (
     <TableEmptyBox>{emptyState || <EmptyMessage title="No results" />}</TableEmptyBox>
   ) : (
     <>
       <Table table={table} rowHeight={rowHeight} />
-      <Pagination
-        pageSize={query.pageSize}
-        hasNext={tableData.length === query.pageSize}
-        hasPrev={hasPrev}
-        nextPage={data?.nextPage}
-        onNext={(p) => {
-          requestScrollReset()
-          goToNextPage(p)
-        }}
-        onPrev={() => {
-          requestScrollReset()
-          goToPrevPage()
-        }}
-        // I can't believe how well this works, but it exactly matches when
-        // we want to show the spinner. Cached page changes don't need it.
-        loading={isPlaceholderData}
-      />
+      {pagination}
     </>
   )
 

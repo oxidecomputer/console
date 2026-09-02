@@ -25,6 +25,7 @@ import {
 import { Webhooks16Icon, Webhooks24Icon } from '@oxide/design-system/icons/react'
 import { Badge, Button, type BadgeColor } from '@oxide/design-system/ui'
 
+import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { useAlertReceiverSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
@@ -83,7 +84,7 @@ const staticDeliveryCols = [
   deliveryColHelper.accessor('alertId', { ...Columns.shortId, header: 'Alert ID' }),
   deliveryColHelper.accessor('alertClass', {
     header: 'Alert class',
-    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+    cell: (info) => <AlertClassBadge>{info.getValue()}</AlertClassBadge>,
   }),
   deliveryColHelper.accessor('state', {
     cell: (info) => <DeliveryStateBadge state={info.getValue()} />,
@@ -132,7 +133,7 @@ export function DeliveriesTab() {
                 </p>
                 <PropertiesTable>
                   <PropertiesTable.Row label="Alert class">
-                    <Badge color="neutral">{delivery.alertClass}</Badge>
+                    <AlertClassBadge>{delivery.alertClass}</AlertClassBadge>
                   </PropertiesTable.Row>
                   <PropertiesTable.IdRow id={delivery.alertId} label="Alert ID" />
                   <PropertiesTable.Row label="Started">
@@ -266,7 +267,7 @@ function DeliverySideModal({
         <SideModal.Section>
           <PropertiesTable>
             <PropertiesTable.Row label="Alert class">
-              <Badge color="neutral">{delivery.alertClass}</Badge>
+              <AlertClassBadge>{delivery.alertClass}</AlertClassBadge>
             </PropertiesTable.Row>
             <PropertiesTable.IdRow id={delivery.id} label="Delivery ID" />
             <PropertiesTable.IdRow id={delivery.alertId} label="Alert ID" />
