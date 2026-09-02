@@ -56,11 +56,11 @@ test('Alert receivers list', async ({ page }) => {
 
   await expectRowVisible(table, {
     name: 'webhook-1',
-    Alerts: 'hardware.power_shelf.psu.insert+1',
+    Subscriptions: 'hardware.power_shelf.psu.insert+1',
     description: 'Main web deployments',
   })
-  await expectRowVisible(table, { name: 'power-mon', Alerts: 'hardware.**' })
-  await expectRowVisible(table, { name: 'general-sys-webhook', Alerts: '—' })
+  await expectRowVisible(table, { name: 'power-mon', Subscriptions: 'hardware.**' })
+  await expectRowVisible(table, { name: 'general-sys-webhook', Subscriptions: '—' })
 })
 
 test('Webhook receiver create', async ({ page }) => {
@@ -130,7 +130,7 @@ test('Webhook receiver create', async ({ page }) => {
 
   await expectRowVisible(page.getByRole('table'), {
     name: 'deploy-hook',
-    Alerts: 'hardware.**',
+    Subscriptions: 'hardware.**',
     description: 'CI deploys',
   })
 })
