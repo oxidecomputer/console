@@ -1942,6 +1942,13 @@ export const handlers = makeHandlers({
     requireFleetViewer(cookies)
     return lookup.silo(path)
   },
+  siloUserView({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const silo = lookup.silo({ silo: query.silo })
+    const user = db.users.find((u) => u.id === path.userId && u.silo_id === silo.id)
+    if (!user) throw notFoundErr(`user '${path.userId}'`)
+    return user
+  },
   siloDelete({ path, cookies }) {
     requireFleetViewer(cookies)
     const silo = lookup.silo(path)
@@ -2753,7 +2760,6 @@ export const handlers = makeHandlers({
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
-  siloUserView: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
   supportBundleCreate: NotImplemented,

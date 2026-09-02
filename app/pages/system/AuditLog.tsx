@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { getLocalTimeZone, now } from '@internationalized/date'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import cn from 'classnames'
 import { differenceInMilliseconds } from 'date-fns'
@@ -19,10 +19,16 @@ import {
   useRef,
   useState,
 } from 'react'
+import { Link } from 'react-router'
 import { match, P } from 'ts-pattern'
 import { type JsonValue } from 'type-fest'
 
-import { api, type AuditLogEntry, type AuditLogListQueryParams } from '@oxide/api'
+import {
+  api,
+  qErrorsAllowed,
+  type AuditLogEntry,
+  type AuditLogListQueryParams,
+} from '@oxide/api'
 import {
   Close12Icon,
   Error12Icon,
@@ -46,6 +52,7 @@ import { Truncate } from '~/ui/lib/Truncate'
 import { classed } from '~/util/classed'
 import { toLocaleDateString, toSyslogDateString, toSyslogTimeString } from '~/util/date'
 import { docLinks } from '~/util/links'
+import { pb } from '~/util/path-builder'
 import { Rando } from '~/util/rando'
 
 export const handle = { crumb: 'Audit Log' }
@@ -223,6 +230,87 @@ const LoadingState = () => {
       />
     </div>
   )
+}
+
+// names rarely change, and the pane switches items quickly under j/k, so don't
+// refetch a silo or user we already looked up moments ago
+const NAME_STALE_TIME = 10 * 60 * 1000
+
+// 404 is the normal failure here: audit log entries outlive the users and
+// silos they refer to
+const notFoundExpected = (what: string) => ({
+  explanation: `${what} may have been deleted since the entry was logged.`,
+  statusCode: 404,
+})
+
+type NameLookup =
+  | { type: 'pending' }
+  | { type: 'success'; name: string; to?: string }
+  | { type: 'error'; statusCode: number | undefined }
+
+const ResolvedName = ({ lookup }: { lookup: NameLookup }) =>
+  match(lookup)
+    .with({ type: 'pending' }, () => (
+      <div className="bg-tertiary h-4 w-32 animate-pulse rounded" />
+    ))
+    .with({ type: 'success', to: P.string }, ({ name, to }) => (
+      <Link className="link-with-underline" to={to}>
+        {name}
+      </Link>
+    ))
+    .with({ type: 'success' }, ({ name }) => <>{name}</>)
+    .with({ type: 'error', statusCode: 404 }, () => (
+      <span className="text-tertiary">Not found</span>
+    ))
+    .with({ type: 'error' }, () => <span className="text-tertiary">Unavailable</span>)
+    .exhaustive()
+
+const SiloName = ({ siloId }: { siloId: string }) => {
+  const { data } = useQuery(
+    qErrorsAllowed(
+      api.siloView,
+      { path: { silo: siloId } },
+      { errorsExpected: notFoundExpected('silo'), staleTime: NAME_STALE_TIME }
+    )
+  )
+  const lookup: NameLookup = !data
+    ? { type: 'pending' }
+    : data.type === 'success'
+      ? { type: 'success', name: data.data.name, to: pb.silo({ silo: data.data.name }) }
+      : { type: 'error', statusCode: data.data.statusCode }
+  return <ResolvedName lookup={lookup} />
+}
+
+const SiloUserName = ({ userId, siloId }: { userId: string; siloId: string }) => {
+  const { data } = useQuery(
+    qErrorsAllowed(
+      api.siloUserView,
+      { path: { userId }, query: { silo: siloId } },
+      { errorsExpected: notFoundExpected('user'), staleTime: NAME_STALE_TIME }
+    )
+  )
+  const lookup: NameLookup = !data
+    ? { type: 'pending' }
+    : data.type === 'success'
+      ? { type: 'success', name: data.data.displayName }
+      : { type: 'error', statusCode: data.data.statusCode }
+  return <ResolvedName lookup={lookup} />
+}
+
+const BuiltinUserName = ({ userId }: { userId: string }) => {
+  const { data } = useQuery(
+    qErrorsAllowed(
+      api.userBuiltinView,
+      { path: { user: userId } },
+      { errorsExpected: notFoundExpected('built-in user'), staleTime: NAME_STALE_TIME }
+    )
+  )
+  const lookup: NameLookup = !data
+    ? { type: 'pending' }
+    : data.type === 'success'
+      ? { type: 'success', name: data.data.name }
+      : { type: 'error', statusCode: data.data.statusCode }
+  return <ResolvedName lookup={lookup} />
 }
 
 function StatusCodeCell({ code }: { code: number }) {
@@ -667,6 +755,7 @@ const ExpandedItem = ({
             type="button"
             onClick={() => currentIndex > 0 && onNavigate(currentIndex - 1)}
             disabled={currentIndex === 0}
+            aria-label="Previous entry"
             className="hover:bg-hover disabled:hover:bg-raise flex h-6 w-6 flex-shrink-0 rotate-90 items-center justify-center rounded disabled:cursor-default disabled:opacity-50"
           >
             {/* support arrow keys and keep centered autoscroll to element */}
@@ -676,6 +765,7 @@ const ExpandedItem = ({
             type="button"
             onClick={() => currentIndex < totalCount - 1 && onNavigate(currentIndex + 1)}
             disabled={currentIndex === totalCount - 1}
+            aria-label="Next entry"
             className="hover:bg-hover disabled:hover:bg-raise flex h-6 w-6 flex-shrink-0 rotate-90 items-center justify-center rounded disabled:cursor-default disabled:opacity-50"
           >
             <NextArrow12Icon />
@@ -693,6 +783,7 @@ const ExpandedItem = ({
         <button
           type="button"
           onClick={onClose}
+          aria-label="Close"
           className="hover:bg-hover flex h-6 w-6 flex-shrink-0 items-center justify-center rounded"
         >
           <Close12Icon />
@@ -710,6 +801,19 @@ const ExpandedItem = ({
             </div>
           </PropertiesTable.Row>
 
+          <PropertiesTable.Row label="Actor">
+            {match(item.actor)
+              .with({ kind: 'silo_user' }, (actor) => (
+                <SiloUserName userId={actor.siloUserId} siloId={actor.siloId} />
+              ))
+              .with({ kind: 'user_builtin' }, (actor) => (
+                <BuiltinUserName userId={actor.userBuiltinId} />
+              ))
+              .with({ kind: 'scim' }, () => <Badge color="neutral">SCIM client</Badge>)
+              .with({ kind: 'unauthenticated' }, () => <EmptyCell />)
+              .exhaustive()}
+          </PropertiesTable.Row>
+
           <PropertiesTable.Row label="Actor ID">
             {userId ? (
               <Truncate text={userId} position="middle" hasCopyButton />
@@ -724,6 +828,10 @@ const ExpandedItem = ({
             ) : (
               <EmptyCell />
             )}
+          </PropertiesTable.Row>
+
+          <PropertiesTable.Row label="Silo">
+            {siloId ? <SiloName siloId={siloId} /> : <EmptyCell />}
           </PropertiesTable.Row>
 
           <PropertiesTable.Row label="Silo ID">

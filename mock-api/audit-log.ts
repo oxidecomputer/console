@@ -13,19 +13,19 @@ import type { AuditLogEntry } from '@oxide/api'
 import { Rando } from '~/util/rando'
 
 import type { Json } from './json-type'
-import { defaultSilo } from './silo'
+import { defaultSilo, myriadSilo } from './silo'
+import { user1, user2 } from './user'
 
+// two real users (resolve to names in the detail pane) and two that don't exist
+// (deleted users are a normal case in an audit log)
 const mockUserIds = [
-  'a47ac10b-58cc-4372-a567-0e02b2c3d479',
-  '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
+  user1.id,
+  user2.id,
   'c73bcdcc-2669-4bf6-81d3-e4ae73fb11fd',
   '550e8400-e29b-41d4-a716-446655440000',
 ]
 
-const mockSiloIds = [
-  'f47ac10b-58cc-4372-a567-0e02b2c3d479',
-  '7ba7b810-9dad-11d1-80b4-00c04fd430c8',
-]
+const mockSiloIds = [myriadSilo.id, '7ba7b810-9dad-11d1-80b4-00c04fd430c8']
 
 const mockOperations = [
   'instance_create',
