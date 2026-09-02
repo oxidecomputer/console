@@ -545,7 +545,7 @@ export default function SiloAuditLogsPage() {
             type="button"
             loading={isFetchingNextPage}
           >
-            Load More
+            {errorMessage !== null ? 'Retry' : 'Load More'}
           </Button>
         )}
       </div>
