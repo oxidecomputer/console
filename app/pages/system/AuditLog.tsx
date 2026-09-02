@@ -572,7 +572,7 @@ export default function SiloAuditLogsPage() {
           <DocsPopover
             heading="audit log"
             icon={<Logs16Icon />}
-            summary="The audit log provides a record of system activities, including user actions, API calls, and system events."
+            summary="The audit log records every API request that can modify the system. Read-only requests are not logged."
             links={[docLinks.auditLog]}
           />
         </PageHeader>
