@@ -89,8 +89,12 @@ export const docLinks = {
     linkText: 'Instance Actions',
   },
   oxql: {
-    href: 'https://docs.oxide.computer/guides/operator/system-metrics#_oxql_quickstart',
+    href: 'https://docs.oxide.computer/guides/metrics/oxql-tutorial#_oxql_quickstart',
     linkText: 'OxQL',
+  },
+  oxqlSchemas: {
+    href: 'https://docs.oxide.computer/guides/metrics/timeseries-schemas',
+    linkText: 'Timeseries schemas',
   },
   keyConceptsProjects: {
     href: 'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',

@@ -11,12 +11,15 @@ import { render } from 'vitest-browser-react'
 
 import { TimeSeriesChart } from './TimeSeriesChart'
 
-const defaultData = [
-  { timestamp: 0, value: 10 },
-  { timestamp: 1000, value: 20 },
-]
+const defaultTimestamps = [0, 1000]
+const defaultData = [[10, 20]]
 
-const props = (yAxisTickFormatter: (v: number) => string, data = defaultData) => ({
+const props = (
+  yAxisTickFormatter: (v: number) => string,
+  data = defaultData,
+  timestamps = defaultTimestamps
+) => ({
+  timestamps,
   data,
   title: 'CPU',
   startTime: new Date(0),
@@ -92,9 +95,30 @@ test('rerenders only call setData when the data actually changes', async () => {
   )
   expect(setData).not.toHaveBeenCalled()
 
-  const newData = [...defaultData, { timestamp: 2000, value: 30 }]
+  const newData = [[10, 20, 30]]
+  const newTimestamps = [0, 1000, 2000]
   await rerender(
-    <TimeSeriesChart {...props((v) => `${v}%`, newData)} onCreate={onCreate} />
+    <TimeSeriesChart
+      {...props((v) => `${v}%`, newData, newTimestamps)}
+      onCreate={onCreate}
+    />
   )
   expect(setData).toHaveBeenCalledTimes(1)
+})
+
+test('keeps aligned data memoized while its source references are unchanged', async () => {
+  const timestamps = [0, 1000]
+  const mapTimestamps = vi.spyOn(timestamps, 'map')
+  const data = [[10, 20]]
+
+  const { rerender } = await render(
+    <TimeSeriesChart {...props((v) => `${v}%`, data, timestamps)} />
+  )
+  expect(mapTimestamps).toHaveBeenCalledTimes(1)
+
+  await rerender(<TimeSeriesChart {...props((v) => `${v} pct`, data, timestamps)} />)
+  expect(mapTimestamps).toHaveBeenCalledTimes(1)
+
+  await rerender(<TimeSeriesChart {...props((v) => `${v}%`, [...data], timestamps)} />)
+  expect(mapTimestamps).toHaveBeenCalledTimes(2)
 })

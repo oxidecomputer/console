@@ -114,6 +114,7 @@ test('path builder', () => {
         "subnetPoolMemberAdd": "/system/networking/subnet-pools/sp/members-add",
         "subnetPools": "/system/networking/subnet-pools",
         "subnetPoolsNew": "/system/networking/subnet-pools-new",
+        "systemOxql": "/system/oxql",
         "systemUpdate": "/system/update",
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v/firewall-rules",

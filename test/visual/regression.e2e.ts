@@ -14,6 +14,7 @@
  * CSS frameworks, or making broad styling changes.
  */
 
+import { oxqlQueries } from '../e2e/oxql-queries'
 import { expect, test } from '../e2e/utils'
 
 // set a fixed time to avoid diffs due to irrelevant time differences
@@ -257,4 +258,14 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
       maskColor: '#0b0e14',
     })
   })
+
+  for (const [name, query] of Object.entries(oxqlQueries)) {
+    test(`oxql ${name}`, async ({ page }) => {
+      await page.goto('/system/oxql', { waitUntil: 'networkidle' })
+      await page.getByRole('textbox').fill(query)
+      await page.getByRole('button', { name: 'Run query' }).click()
+      await expect(page.locator('figure').first()).toBeVisible()
+      await expect(page).toHaveScreenshot(`oxql-${name}.png`, fullPage)
+    })
+  }
 })

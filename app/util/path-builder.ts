@@ -115,6 +115,7 @@ export const pb = {
   siloImage: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}`,
 
   fleetAccess: () => '/system/access',
+  systemOxql: () => '/system/oxql',
   systemUtilization: () => '/system/utilization',
 
   ipPools: () => '/system/networking/ip-pools',
