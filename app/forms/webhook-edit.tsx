@@ -81,7 +81,7 @@ export default function EditWebhookSideModalForm() {
           body: { name, description, endpoint },
         })
       }}
-      loading={editWebhook.isPending}
+      loading={editWebhook.isPending || editWebhook.isSuccess}
       submitError={editWebhook.error}
     >
       <NameField name="name" control={form.control} />

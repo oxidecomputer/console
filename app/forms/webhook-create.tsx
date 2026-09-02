@@ -188,7 +188,7 @@ export default function CreateWebhookForm() {
             body: { name, description, endpoint, secrets, subscriptions },
           })
         }}
-        loading={createWebhook.isPending}
+        loading={createWebhook.isPending || createWebhook.isSuccess}
         submitError={createWebhook.error}
       >
         <NameField name="name" control={form.control} />
@@ -211,7 +211,7 @@ export default function CreateWebhookForm() {
         <Form.Heading id="secrets">Secrets</Form.Heading>
         <SecretsField control={form.control} />
         <Form.Actions>
-          <Form.Submit loading={createWebhook.isPending}>
+          <Form.Submit loading={createWebhook.isPending || createWebhook.isSuccess}>
             Create webhook receiver
           </Form.Submit>
           <Form.Cancel onClick={() => navigate(pb.alertReceivers())} />

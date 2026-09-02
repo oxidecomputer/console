@@ -2413,7 +2413,8 @@ export const handlers = makeHandlers({
     )
     return paginated(query, affinityGroups)
   },
-  alertList: ({ query }) => {
+  alertList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
     const { startTime, endTime, alertClass } = query
     let final = db.alerts
 
@@ -2421,13 +2422,8 @@ export const handlers = makeHandlers({
       final = final.filter((alert) => new Date(alert.time_created) >= startTime)
     if (endTime) final = final.filter((alert) => new Date(alert.time_created) <= endTime)
     if (alertClass) {
-      const matcher = new RegExp(
-        alertClass
-          .replace(/\./g, '\\.')
-          .replace(/\*\*/g, '[a-z_.]+')
-          .replace(/\*/g, '[a-z_]+')
-      )
-      final = final.filter((alert) => alert.class.match(matcher))
+      const matcher = subscriptionRegex(alertClass)
+      final = final.filter((alert) => matcher.test(alert.class))
     }
 
     final = match(query.sortBy)
