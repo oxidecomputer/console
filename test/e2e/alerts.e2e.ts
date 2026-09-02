@@ -720,15 +720,15 @@ test('Alert list basics', async ({ page }) => {
   // newest first, with the ID and a one-line preview of the payload
   await expectRowVisible(table, {
     'Alert ID': expect.stringContaining('26cb0726'),
-    Class: 'hardware.power_shelf.psu.insert',
+    'Alert class': 'hardware.power_shelf.psu.insert',
     Payload: expect.stringContaining('rack_id'),
   })
   await expectRowVisible(table, {
     'Alert ID': expect.stringContaining('8c8a74ba'),
-    Class: 'hardware.power_shelf.psu.remove',
+    'Alert class': 'hardware.power_shelf.psu.remove',
   })
   // the probe alert has an empty payload
-  await expectRowVisible(table, { Class: 'probe', Payload: '—' })
+  await expectRowVisible(table, { 'Alert class': 'probe', Payload: '—' })
 
   // alert classes must stay lowercase so they can be copied into a subscription
   await expect(table.getByText('hardware.power_shelf.psu.insert').first()).toHaveCSS(

@@ -114,7 +114,7 @@ function AlertDetail({ alert, onDismiss }: { alert: Alert; onDismiss: () => void
       <SideModal.Body>
         <SideModal.Section>
           <PropertiesTable>
-            <PropertiesTable.Row label="Class">
+            <PropertiesTable.Row label="Alert class">
               <AlertClassBadge>{alert.class}</AlertClassBadge>
             </PropertiesTable.Row>
             <PropertiesTable.Row
@@ -190,7 +190,7 @@ export default function AlertsTab() {
         <Row className="pb-2">
           <HeadCell className={col.time}>Created</HeadCell>
           <HeadCell className={col.id}>Alert ID</HeadCell>
-          <HeadCell className={col.class}>Class</HeadCell>
+          <HeadCell className={col.class}>Alert class</HeadCell>
           <HeadCell className={col.payload}>Payload</HeadCell>
         </Row>
         {items.map((alert) => (
