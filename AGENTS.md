@@ -5,6 +5,7 @@
 - Before starting a feature, skim an existing page or form with similar behavior and mirror the conventions—this codebase is intentionally conventional. Look for similar pages in `app/pages` and forms in `app/forms` to use as templates.
 - `@oxide/api` is at `app/api` and `@oxide/api-mocks` is at `mock-api/index.ts`.
 - The language server often has out of date errors. TypeScript 7 is extremely fast, so confirm errors that come from the language server by running `npm run tsc`
+- This repo uses oxfmt and oxlint, not prettier or eslint
 - Use Node.js 22+, then install deps and start the mock-backed dev server (skip if `npm run dev` is already running in another terminal):
 
   ```sh
@@ -49,6 +50,7 @@
 # Mutations & UI flow
 
 - Wrap writes in `useApiMutation`, use `confirmAction` to guard destructive intent, and surface results with `addToast`.
+- When a form's `onSuccess` always navigates away, pass `loading={mutation.isPending || mutation.isSuccess}` to the form shell. `isPending` alone flips false before the navigation unmounts the modal, so the button's spinner animates back out right before close. Skip `isSuccess` if the form can stay open and be reused after success, or if the mutation lives in a component that survives the modal (e.g., a tab page with `{open && <Modal/>}`) — there success closes the modal synchronously so `isPending` alone is glitch-free, and a sticky `isSuccess` would strand a spinner on next open.
 - Mutation error display depends on context. In forms, errors display inline via `submitError={mutation.error}` — do not add `onError` with a toast to the `useApiMutation` call. In `confirmAction`/`confirmDelete` flows, the confirm modal catches the error and shows a toast using `errorTitle` — do not also add `onError` on the mutation, or the user will see two toasts. For standalone actions (fire-and-forget `mutate` calls not wrapped in a confirm modal or form), use `onError` on the mutation to show an error toast.
 - Keep page scaffolding consistent: `PageHeader`, `PageTitle`, `DocsPopover`, `RefreshButton`, `PropertiesTable`, and `CardBlock` provide the expected layout for new system pages.
 - When a page should be discoverable from the command palette, extend `useQuickActions` with the new entry so it appears in the quick actions menu (see `app/pages/ProjectsPage.tsx:100-115`).

@@ -85,7 +85,7 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
           path: { silo },
         })
       }
-      loading={updateQuotas.isPending}
+      loading={updateQuotas.isPending || updateQuotas.isSuccess}
       submitError={updateQuotas.error}
     >
       <Message

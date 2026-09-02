@@ -23,6 +23,7 @@ import type {
   SiloIpPool,
   SiloUtilization,
   Sled,
+  Vpc,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
@@ -109,6 +110,18 @@ export const MIN_DISK_SIZE_GiB = 1
  * @see https://github.com/oxidecomputer/omicron/issues/3212#issuecomment-1634497344
  */
 export const MAX_DISK_SIZE_GiB = 1023
+
+/**
+ * The `default_*` network interface attachment types resolve a VPC and VPC
+ * subnet both named literally 'default', so they fail with a 404 if that VPC
+ * doesn't exist, even when the project has other VPCs.
+ *
+ * https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/src/app/sagas/instance_create.rs#L739-L773
+ */
+export const DEFAULT_VPC_NAME = 'default'
+
+export const hasDefaultVpc = (vpcs: Vpc[]) =>
+  vpcs.some((vpc) => vpc.name === DEFAULT_VPC_NAME)
 
 type PortRange = [number, number]
 
