@@ -680,7 +680,7 @@ const ExpandedItem = ({
           >
             <NextArrow12Icon />
           </button>
-          <h3 className="mr-1 ml-2">
+          <h3 className="mr-1 ml-2 flex">
             <Badge color="neutral">{item.operationId.split('_').join(' ')}</Badge>
           </h3>
           {match(item.result)
