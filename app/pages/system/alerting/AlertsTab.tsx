@@ -14,10 +14,10 @@ import { Webhooks24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { AlertClassBadge } from '~/components/AlertClassBadge'
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { HighlightJSON } from '~/components/HighlightJSON'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { usePaginatedList } from '~/table/QueryTable'
-import { Button } from '~/ui/lib/Button'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { DateTime, SyslogDateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -110,41 +110,32 @@ const AlertRow = memo(function AlertRow({ alert, selected, onSelect }: AlertRowP
 
 function AlertDetail({ alert, onDismiss }: { alert: Alert; onDismiss: () => void }) {
   return (
-    <SideModal isOpen onDismiss={onDismiss} title="Alert details">
-      <SideModal.Body>
-        <SideModal.Section>
-          <PropertiesTable>
-            <PropertiesTable.Row label="Alert class">
-              <AlertClassBadge>{alert.class}</AlertClassBadge>
-            </PropertiesTable.Row>
-            <PropertiesTable.Row
-              // TODO: explain this in the info bubble or column header. doc comment below
-              //
-              // Alert schemas are versioned on a per-alert-class basis. The schema version
-              // for a particular alert class does not correspond to an Oxide API version.
-              // Clients should expect to encounter earlier schema versions when retrieving
-              // alerts recorded by an earlier version of the system software.
-              label="Class version"
-            >
-              <Badge color="neutral">{alert.version}</Badge>
-            </PropertiesTable.Row>
-            <PropertiesTable.IdRow id={alert.id} label="Alert ID" />
-            <PropertiesTable.Row label="Created">
-              <DateTime date={alert.timeCreated} />
-            </PropertiesTable.Row>
-            <PropertiesTable.Row label="Modified">
-              <DateTime date={alert.timeModified} />
-            </PropertiesTable.Row>
-          </PropertiesTable>
-          <ApiResponseViewer body={alert.alert} />
-        </SideModal.Section>
-      </SideModal.Body>
-      <SideModal.Footer>
-        <Button variant="ghost" size="sm" onClick={onDismiss}>
-          Close
-        </Button>
-      </SideModal.Footer>
-    </SideModal>
+    <ReadOnlySideModalForm title="Alert details" onDismiss={onDismiss} animate>
+      <PropertiesTable>
+        <PropertiesTable.Row label="Alert class">
+          <AlertClassBadge>{alert.class}</AlertClassBadge>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row
+          // TODO: explain this in the info bubble or column header. doc comment below
+          //
+          // Alert schemas are versioned on a per-alert-class basis. The schema version
+          // for a particular alert class does not correspond to an Oxide API version.
+          // Clients should expect to encounter earlier schema versions when retrieving
+          // alerts recorded by an earlier version of the system software.
+          label="Class version"
+        >
+          <Badge color="neutral">{alert.version}</Badge>
+        </PropertiesTable.Row>
+        <PropertiesTable.IdRow id={alert.id} label="Alert ID" />
+        <PropertiesTable.Row label="Created">
+          <DateTime date={alert.timeCreated} />
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="Modified">
+          <DateTime date={alert.timeModified} />
+        </PropertiesTable.Row>
+      </PropertiesTable>
+      <ApiResponseViewer body={alert.alert} />
+    </ReadOnlySideModalForm>
   )
 }
 

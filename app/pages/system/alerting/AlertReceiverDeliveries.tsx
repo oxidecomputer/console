@@ -264,25 +264,23 @@ function DeliverySideModal({
       }
     >
       <SideModal.Body>
-        <SideModal.Section>
-          <PropertiesTable>
-            <PropertiesTable.Row label="Alert class">
-              <AlertClassBadge>{delivery.alertClass}</AlertClassBadge>
-            </PropertiesTable.Row>
-            <PropertiesTable.IdRow id={delivery.id} label="Delivery ID" />
-            <PropertiesTable.IdRow id={delivery.alertId} label="Alert ID" />
-            <PropertiesTable.Row label="Started">
-              <DateTime date={delivery.timeStarted} />
-            </PropertiesTable.Row>
-            <PropertiesTable.Row label="State">
-              <DeliveryStateBadge state={delivery.state} />
-            </PropertiesTable.Row>
-            <PropertiesTable.Row label="Trigger">
-              <Badge color="neutral">{delivery.trigger}</Badge>
-            </PropertiesTable.Row>
-            <PropertiesTable.IdRow id={delivery.receiverId} label="Receiver ID" />
-          </PropertiesTable>
-        </SideModal.Section>
+        <PropertiesTable>
+          <PropertiesTable.Row label="Alert class">
+            <AlertClassBadge>{delivery.alertClass}</AlertClassBadge>
+          </PropertiesTable.Row>
+          <PropertiesTable.IdRow id={delivery.id} label="Delivery ID" />
+          <PropertiesTable.IdRow id={delivery.alertId} label="Alert ID" />
+          <PropertiesTable.Row label="Started">
+            <DateTime date={delivery.timeStarted} />
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="State">
+            <DeliveryStateBadge state={delivery.state} />
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="Trigger">
+            <Badge color="neutral">{delivery.trigger}</Badge>
+          </PropertiesTable.Row>
+          <PropertiesTable.IdRow id={delivery.receiverId} label="Receiver ID" />
+        </PropertiesTable>
         <Tabs.Root className="full-width" defaultValue="attempts">
           <Tabs.List aria-label="Delivery details">
             <Tabs.Trigger value="attempts">Attempts</Tabs.Trigger>
