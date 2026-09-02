@@ -98,7 +98,12 @@ export function EquivalentCliCommand({ project, instance }: EquivProps) {
 
   return (
     <>
-      <Button variant="secondary" size="sm" onClick={() => setIsOpen(true)}>
+      <Button
+        variant="secondary"
+        size="sm"
+        className="max-1000:hidden"
+        onClick={() => setIsOpen(true)}
+      >
         CLI Command
       </Button>
       <CopyCodeModal

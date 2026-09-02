@@ -124,7 +124,13 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
 export const MetricHeader = ({ children }: { children: ReactNode }) => {
   // If header has only one child, align it to the end of the container
   const justify = Children.count(children) === 1 ? 'justify-end' : 'justify-between'
-  return <div className={`flex flex-wrap gap-2 ${justify}`}>{children}</div>
+  return (
+    <div
+      className={`max-1000:flex-col max-1000:[&>*]:w-full flex flex-wrap gap-2 ${justify}`}
+    >
+      {children}
+    </div>
+  )
 }
 export const MetricCollection = classed.div`mt-3 flex flex-col gap-4`
 
