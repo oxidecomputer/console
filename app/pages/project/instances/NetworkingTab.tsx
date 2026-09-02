@@ -788,8 +788,14 @@ export default function NetworkingTab() {
 
         {createModalOpen && (
           <CreateNetworkInterfaceForm
-            onDismiss={() => setCreateModalOpen(false)}
+            onDismiss={() => {
+              setCreateModalOpen(false)
+              createNic.reset() // clear stale error state
+            }}
             onSubmit={(body) => createNic.mutate({ query: instanceSelector, body })}
+            // not || isSuccess: the modal unmounts synchronously in onSuccess,
+            // and a sticky isSuccess would strand a spinner on next open
+            loading={createNic.isPending}
             submitError={createNic.error}
           />
         )}
@@ -897,7 +903,7 @@ const AttachExternalSubnetModal = ({
       }}
       submitLabel="Attach"
       submitError={externalSubnetAttach.error}
-      loading={externalSubnetAttach.isPending}
+      loading={externalSubnetAttach.isPending || externalSubnetAttach.isSuccess}
       onDismiss={onDismiss}
     >
       <ListboxField

@@ -21,12 +21,13 @@ import { useCurrentUser } from '~/hooks/use-current-user'
 import { Divider } from '~/ui/lib/Divider'
 import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
-const projectList = q(api.projectList, {})
+const projectList = q(api.projectList, { query: { limit: ALL_ISH } })
 const utilizationView = q(api.utilizationView, {})
 
 export const handle = { crumb: 'Utilization' }

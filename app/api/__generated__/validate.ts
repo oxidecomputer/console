@@ -930,7 +930,11 @@ export const RouterPeerType = z.preprocess(
   processResponseBody,
   z.union([
     z.object({ routerLifetime: RouterLifetimeConfig, type: z.enum(['unnumbered']) }),
-    z.object({ ip: z.union([z.ipv4(), z.ipv6()]), type: z.enum(['numbered']) }),
+    z.object({
+      srcAddr: z.union([z.ipv4(), z.ipv6()]).nullable().default(null),
+      targetAddr: z.union([z.ipv4(), z.ipv6()]),
+      type: z.enum(['numbered']),
+    }),
   ])
 )
 

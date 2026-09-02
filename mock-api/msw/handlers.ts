@@ -13,6 +13,7 @@ import { match } from 'ts-pattern'
 import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
+  DEFAULT_VPC_NAME,
   diskCan,
   fleetRoles,
   FLEET_ID,
@@ -612,6 +613,13 @@ export const handlers = makeHandlers({
         lookup.vpc({ ...query, vpc: vpc_name })
         lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
       })
+    } else if (body.network_interfaces?.type.startsWith('default_')) {
+      // The default attachment types resolve a VPC and subnet both named
+      // literally 'default', so they 404 when that VPC doesn't exist, even if
+      // the project has other VPCs.
+      // https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/src/app/sagas/instance_create.rs#L739-L773
+      lookup.vpc({ ...query, vpc: DEFAULT_VPC_NAME })
+      lookup.vpcSubnet({ ...query, vpc: DEFAULT_VPC_NAME, subnet: DEFAULT_VPC_NAME })
     }
 
     // validate floating IP attachments before we actually do anything

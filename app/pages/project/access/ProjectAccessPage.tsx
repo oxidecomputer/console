@@ -47,14 +47,15 @@ import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { identityTypeLabel, roleColor } from '~/util/access'
 import { groupBy } from '~/util/array'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import type * as PP from '~/util/path-params'
 
 const policyView = q(api.policyView, {})
 const projectPolicyView = ({ project }: PP.Project) =>
   q(api.projectPolicyView, { path: { project } })
-const userList = q(api.userList, {})
-const groupList = q(api.groupList, {})
+const userList = q(api.userList, { query: { limit: ALL_ISH } })
+const groupList = q(api.groupList, { query: { limit: ALL_ISH } })
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>

@@ -222,7 +222,8 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
 
   test('serial console', async ({ page }) => {
     await page.goto(`${p}/instances/db1/serial-console`, { waitUntil: 'networkidle' })
-    await expect(page.getByText('Serial Console')).toBeVisible()
+    // role-scoped: getByText also matches the hidden breadcrumb measurement copy
+    await expect(page.getByRole('link', { name: 'Serial Console' })).toBeVisible()
     await expect(page).toHaveScreenshot('serial-console.png', fullPage)
   })
 

@@ -132,7 +132,7 @@ export default function EditFirewallRuleForm() {
       }
       // validationSchema={validationSchema}
       // validateOnBlur
-      loading={updateRules.isPending}
+      loading={updateRules.isPending || updateRules.isSuccess}
       submitError={updateRules.error}
     >
       <FormMetadata resource={originalRule} />

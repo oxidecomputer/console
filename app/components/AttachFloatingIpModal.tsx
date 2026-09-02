@@ -91,7 +91,7 @@ export const AttachFloatingIpModal = ({
       onDismiss={onDismiss}
       submitLabel="Attach floating IP"
       submitError={floatingIpAttach.error}
-      loading={floatingIpAttach.isPending}
+      loading={floatingIpAttach.isPending || floatingIpAttach.isSuccess}
       title="Attach floating IP"
       onSubmit={() =>
         floatingIpAttach.mutate({

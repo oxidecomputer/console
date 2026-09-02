@@ -79,7 +79,7 @@ export default function CreateRouterRouteSideModalForm() {
           },
         })
       }
-      loading={createRouterRoute.isPending}
+      loading={createRouterRoute.isPending || createRouterRoute.isSuccess}
       submitError={createRouterRoute.error}
     >
       <RouteFormFields form={form} />

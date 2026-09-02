@@ -14,6 +14,8 @@
 import { useMemo } from 'react'
 import * as R from 'remeda'
 
+import { ALL_ISH } from '~/util/consts'
+
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 import { api, q, usePrefetchedQuery } from './client'
 
@@ -111,8 +113,10 @@ export function useUserRows<Role extends RoleKey = RoleKey>(
 ): UserAccessRow<Role>[] {
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
-  const { data: users } = usePrefetchedQuery(q(api.userList, {}))
-  const { data: groups } = usePrefetchedQuery(q(api.groupList, {}))
+  const { data: users } = usePrefetchedQuery(q(api.userList, { query: { limit: ALL_ISH } }))
+  const { data: groups } = usePrefetchedQuery(
+    q(api.groupList, { query: { limit: ALL_ISH } })
+  )
   return useMemo(() => {
     const userItems = users?.items || []
     const groupItems = groups?.items || []
@@ -156,8 +160,10 @@ export type Actor = {
 export function useActorsNotInPolicy<Role extends RoleKey = RoleKey>(
   policy: Policy<Role>
 ): Actor[] {
-  const { data: users } = usePrefetchedQuery(q(api.userList, {}))
-  const { data: groups } = usePrefetchedQuery(q(api.groupList, {}))
+  const { data: users } = usePrefetchedQuery(q(api.userList, { query: { limit: ALL_ISH } }))
+  const { data: groups } = usePrefetchedQuery(
+    q(api.groupList, { query: { limit: ALL_ISH } })
+  )
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const actorsInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
