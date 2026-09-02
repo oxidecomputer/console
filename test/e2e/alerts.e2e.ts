@@ -243,10 +243,18 @@ test('Webhook receiver create: subscriptions field', async ({ page }) => {
   await subsInput.fill('leftover')
   await page.getByRole('textbox', { name: 'Name' }).click()
   await expect(subsInput).toHaveValue('')
+  await expect(chipRemove('leftover')).toBeHidden()
 
   // subscribed classes sort to the top when the panel opens
   await subsInput.click()
   await expect(listbox.getByRole('option').first()).toContainText('system.update.fail')
+
+  // but a valid glob commits on blur, so typing one and going straight to the
+  // submit button doesn't silently drop it
+  await subsInput.fill('hardware.disk.*')
+  await page.getByRole('textbox', { name: 'Name' }).click()
+  await expect(subsInput).toHaveValue('')
+  await expect(chipRemove('hardware.disk.*')).toBeVisible()
 })
 
 test('Webhook receiver detail: properties, subscriptions, secrets', async ({ page }) => {

@@ -343,9 +343,13 @@ export function SubscriptionsField({
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget)) {
             closePanel()
-            // discard uncommitted text so it doesn't read as added
-            setQuery('')
-            setCommitError(undefined)
+            // valid globs save on blur
+            if (isGlobPattern(queryTrimmed) && !validateSubscription(queryTrimmed)) {
+              commitQuery()
+            } else {
+              setQuery('')
+              setCommitError(undefined)
+            }
           }
         }}
       >
