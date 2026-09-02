@@ -226,7 +226,8 @@ const LoadingState = () => {
 }
 
 function StatusCodeCell({ code }: { code: number }) {
-  const color = code >= 200 && code < 500 ? 'default' : 'destructive'
+  // 4xx is a failed request, but the client's fault rather than the system's
+  const color = code >= 500 ? 'destructive' : code >= 400 ? 'notice' : 'default'
   return <Badge color={color}>{code}</Badge>
 }
 
