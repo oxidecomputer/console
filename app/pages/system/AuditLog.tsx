@@ -450,6 +450,9 @@ export default function SiloAuditLogsPage() {
     startTime,
     endTime,
     sortBy: 'time_and_id_descending',
+    // server default is 100. rows are virtualized and the response is small (a
+    // few hundred KB uncompressed at this size), so fewer Load More clicks wins
+    limit: 500,
   }
 
   const {
