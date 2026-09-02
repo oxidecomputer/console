@@ -11,7 +11,7 @@
 .ox-tabs-list-wrap {
   position: sticky;
   top: calc(var(--top-bar-height) + var(--preview-banner-height));
-  z-index: var(--z-top-bar);
+  z-index: var(--z-sticky);
   @apply bg-default light:bg-raise;
 }
 

@@ -75,25 +75,23 @@ export function DisksTableField({
           emptyState={{ title: 'No disks', body: 'Add a disk to see it here' }}
         />
 
-        <div className="max-1000:flex-col flex gap-3">
-          <Button
-            size="sm"
-            className="max-1000:w-full"
-            onClick={() => setShowDiskCreate(true)}
-            disabled={disabled}
-          >
-            Create new disk
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="max-1000:w-full"
-            onClick={() => setShowDiskAttach(true)}
-            disabled={disabled}
-          >
-            Attach existing disk
-          </Button>
-        </div>
+        <Button
+          size="sm"
+          className="max-1000:w-full"
+          onClick={() => setShowDiskCreate(true)}
+          disabled={disabled}
+        >
+          Create new disk
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="max-1000:w-full"
+          onClick={() => setShowDiskAttach(true)}
+          disabled={disabled}
+        >
+          Attach existing disk
+        </Button>
       </div>
 
       {showDiskCreate && (

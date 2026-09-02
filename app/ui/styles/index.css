@@ -165,11 +165,11 @@
   body,
   #root {
     height: 100%;
+    overscroll-behavior-y: none; /* open for discussion but makes it feel more app-like */
   }
 
   body {
     @apply text-default bg-default font-sans;
-    overscroll-behavior-y: none;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
