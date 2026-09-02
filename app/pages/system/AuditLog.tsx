@@ -215,7 +215,10 @@ const LoadingState = () => {
 
             {/* Duration column */}
             <div className="col-duration">
-              <div className="bg-tertiary h-4 rounded" style={{ width: row.duration }} />
+              <div
+                className="bg-tertiary ml-auto h-4 rounded"
+                style={{ width: row.duration }}
+              />
             </div>
           </div>
         ))}
@@ -327,10 +330,13 @@ const COLUMNS = [
   { title: 'Actor ID', className: 'col-actor-id' },
   { title: 'Auth Method', className: 'col-auth-method' },
   { title: 'Silo ID', className: 'col-silo-id' },
-  { title: 'Duration', className: 'col-duration' },
+  { title: 'Duration (ms)', className: 'col-duration' },
 ] as const
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
+
+// shared so the virtualized rows don't each construct a formatter
+const msFormat = Intl.NumberFormat()
 
 type RowProps = {
   log: AuditLogEntry
@@ -428,8 +434,9 @@ const Row = memo(function Row({
           )}
         </div>
         <div className="col-duration text-secondary">
-          {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
-          ms
+          {msFormat.format(
+            differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)
+          )}
         </div>
       </div>
     </div>
@@ -846,7 +853,10 @@ const ExpandedItem = ({
           </PropertiesTable.Row>
 
           <PropertiesTable.Row label="Duration">
-            {differenceInMilliseconds(new Date(item.timeCompleted), item.timeStarted)}ms
+            {msFormat.format(
+              differenceInMilliseconds(new Date(item.timeCompleted), item.timeStarted)
+            )}{' '}
+            ms
           </PropertiesTable.Row>
         </PropertiesTable>
       </div>

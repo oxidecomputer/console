@@ -36,6 +36,11 @@
 .audit-log-row > .col-silo-id {
   width: 8.125rem;
 }
+.audit-log-row > .col-duration {
+  width: 5rem;
+  text-align: right;
+  white-space: nowrap;
+}
 
 @container (width < 1025px) {
   .audit-log-row > .col-silo-id {
