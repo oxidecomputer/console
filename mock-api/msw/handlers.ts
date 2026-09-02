@@ -2783,7 +2783,12 @@ export const handlers = makeHandlers({
     requireFleetViewer(cookies)
     const receiver = lookup.alertReceiver(path)
     retryPendingDeliveries(receiver)
-    let deliveries = db.alertDeliveries.filter((d) => d.receiver_id === receiver.id)
+    // probe deliveries are stored like any other but never listed, matching
+    // omicron, which only queries the alert and resend triggers here
+    // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/src/app/alert.rs#L355-L365
+    let deliveries = db.alertDeliveries.filter(
+      (d) => d.receiver_id === receiver.id && d.trigger !== 'probe'
+    )
     // if any state filters are specified, only include deliveries in those states
     const states = [
       query.delivered && 'delivered',

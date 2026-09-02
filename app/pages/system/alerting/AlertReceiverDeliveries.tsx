@@ -16,6 +16,7 @@ import {
   getListQFn,
   q,
   queryClient,
+  snakeify,
   useApiMutation,
   type Alert,
   type AlertDelivery,
@@ -115,7 +116,6 @@ export function DeliveriesTab() {
       },
       {
         label: 'Resend',
-        disabled: delivery.trigger === 'probe' && 'Probes cannot be resent',
         onActivate: () =>
           confirmAction({
             doAction: () =>
@@ -322,9 +322,8 @@ function DeliverySideModal({
 // up as an angle-bracket placeholder, as do alert data and version while the
 // alert hasn't loaded.
 
-// nest the payload's lines under the `data` key's 2-space indent
 const dataJson = (alert: Alert) =>
-  JSON.stringify(alert.alert, null, 2).replaceAll('\n', '\n  ')
+  JSON.stringify(snakeify(alert.alert), null, 2).replaceAll('\n', '\n  ')
 
 const payloadJson = (delivery: AlertDelivery, sentAt: string, alert?: Alert) => `{
   "alert_class": ${JSON.stringify(delivery.alertClass)},

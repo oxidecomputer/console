@@ -10,13 +10,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 import { alerts } from '@oxide/api-mocks'
 
-import {
-  clickRowAction,
-  clickRowActions,
-  expectRowVisible,
-  expectToast,
-  selectOption,
-} from './utils'
+import { clickRowAction, expectRowVisible, expectToast, selectOption } from './utils'
 
 test('Alerting nav and tabs', async ({ page }) => {
   const sidebar = page.getByRole('navigation', { name: 'Sidebar navigation' })
@@ -468,18 +462,13 @@ test('Webhook receiver deliveries', async ({ page }) => {
   await page.getByRole('tab', { name: 'Deliveries' }).click()
 
   const table = page.getByRole('table')
-  await expect(table.getByRole('row')).toHaveCount(8) // header + 7
+  // header + 6. the seeded probe delivery is excluded: the API never lists
+  // probe-triggered deliveries
+  await expect(table.getByRole('row')).toHaveCount(7)
+  await expect(table.getByText('9bbdf44f-7dac-4cd0-b4c2-3e622c9693ee')).toBeHidden()
 
   // Truncate renders the full ID (invisible, for stable layout) alongside the
   // ellipsized copy, so cell text contains both. Match on the full value.
-  await expectRowVisible(table, {
-    'Delivery ID': expect.stringContaining('9bbdf44f-7dac-4cd0-b4c2-3e622c9693ee'),
-    // the singleton probe alert ID, shared by all probe deliveries
-    'Alert ID': expect.stringContaining('001de000-7768-4000-8000-000000000001'),
-    'Alert class': 'probe',
-    state: 'delivered',
-    trigger: 'probe',
-  })
   await expectRowVisible(table, {
     'Delivery ID': expect.stringContaining('30ece63e-5efd-4365-99a6-d4f09dfa685e'),
     'Alert ID': expect.stringContaining('beef336d-99db-4b12-ac08-7ebcaab8421a'),
@@ -496,7 +485,7 @@ test('Webhook receiver deliveries', async ({ page }) => {
   await selectOption(page, 'Filter by state', 'Failed')
   await expect(table.getByRole('row')).toHaveCount(4) // header + 3 failed
   await selectOption(page, 'Filter by state', 'All states')
-  await expect(table.getByRole('row')).toHaveCount(8)
+  await expect(table.getByRole('row')).toHaveCount(7)
 
   // delivery detail side modal shows attempts
   await clickRowAction(page, '30ece63e-5efd-4365-99a6-d4f09dfa685e', 'View details')
@@ -527,6 +516,9 @@ test('Webhook receiver deliveries', async ({ page }) => {
   // alert version and data payload come from the alert record
   await expect(request.getByText('"alert_version": 0')).toBeVisible()
   await expect(request.getByText('"manufacturer": "Murata"')).toBeVisible()
+  // payload keys are snake_case like the body the receiver got, not the
+  // camelCase the client uses internally
+  await expect(request.getByText('"firmware_revision": "1.9"')).toBeVisible()
   // the signature can't be reconstructed, so it stays a placeholder
   await expect(request.getByText('a=sha256&id=<secret ID>&s=<signature>')).toBeVisible()
   await expect(request.getByText('x-oxide-alert-class')).toBeVisible()
@@ -547,17 +539,12 @@ test('Webhook receiver deliveries', async ({ page }) => {
   ).toBeVisible()
   await confirmModal.getByRole('button', { name: 'Confirm' }).click()
   await expectToast(page, 'Delivery resend started')
-  await expect(table.getByRole('row')).toHaveCount(9)
+  await expect(table.getByRole('row')).toHaveCount(8)
   await expectRowVisible(table, {
     'Alert class': 'hardware.power_shelf.psu.insert',
     state: 'pending',
     trigger: 'resend',
   })
-
-  // probes can't be resent
-  await clickRowActions(page, '9bbdf44f-7dac-4cd0-b4c2-3e622c9693ee')
-  await expect(page.getByRole('menuitem', { name: 'Resend' })).toBeDisabled()
-  await page.keyboard.press('Escape')
 
   // send a liveness probe from the testing tab, resending failed deliveries
   await page.getByRole('tab', { name: 'Testing' }).click()
@@ -581,8 +568,8 @@ test('Webhook receiver deliveries', async ({ page }) => {
 
   // the result links to the deliveries tab, where the resends resolve
   await panel.getByRole('link', { name: 'View deliveries' }).click()
-  // 9 rows + the probe + the one resend
-  await expect(table.getByRole('row')).toHaveCount(11)
+  // 8 rows + the one resend. the probe itself is not listed
+  await expect(table.getByRole('row')).toHaveCount(9)
 })
 
 // The bug that got this checkbox removed the first time: the mock resent every
@@ -698,7 +685,7 @@ test('Resend fails for an unsubscribed alert class', async ({ page }) => {
     "Could not resend alertCannot resend alert: receiver is not subscribed to the 'hardware.power_shelf.psu.insert' alert class"
   )
   // the rejected resend must not have created a new delivery
-  await expect(page.getByRole('table').getByRole('row')).toHaveCount(8) // header + 7
+  await expect(page.getByRole('table').getByRole('row')).toHaveCount(7) // header + 6
 })
 
 test('Webhook receiver delete', async ({ page }) => {

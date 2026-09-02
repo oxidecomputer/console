@@ -189,6 +189,8 @@ export const alerts: Json<Alert>[] = [
 // the mock paginated() helper ignores sortBy and preserves array order
 export const alertDeliveries: Json<AlertDelivery>[] = [
   {
+    // stored but never returned by alertDeliveryList, like omicron. kept so
+    // the exclusion is exercised
     id: '9bbdf44f-7dac-4cd0-b4c2-3e622c9693ee',
     alert_id: PROBE_ALERT_ID,
     alert_class: 'probe',
