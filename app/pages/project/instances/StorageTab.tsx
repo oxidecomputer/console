@@ -19,7 +19,6 @@ import {
   useApiMutation,
   usePrefetchedQuery,
   type Disk,
-  type InstanceState,
 } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
@@ -61,15 +60,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-// Bit of a hack: by putting the instance state in the row data, we can avoid
-// remaking the row actions callback whenever the instance state changes, which
-// causes the whole table to get re-rendered, which jarringly closes any open
-// row actions menus
-type InstanceDisk = Disk & {
-  instanceState: InstanceState
-}
-
-const colHelper = createColumnHelper<InstanceDisk>()
+const colHelper = createColumnHelper<Disk>()
 
 export const handle = { crumb: 'Storage' }
 
@@ -152,7 +143,7 @@ export default function StorageTab() {
 
   // shared between boot and other disks
   const getSnapshotAction = useCallback(
-    (disk: InstanceDisk) => ({
+    (disk: Disk) => ({
       label: 'Snapshot',
       disabled: snapshotDisabledReason(disk),
       onActivate() {
@@ -173,11 +164,11 @@ export default function StorageTab() {
   )
 
   const makeBootDiskActions = useCallback(
-    (disk: InstanceDisk): MenuAction[] => [
+    (disk: Disk): MenuAction[] => [
       getSnapshotAction(disk),
       {
         label: 'Unset as boot disk',
-        disabled: !instanceCan.updateBootDisk({ runState: disk.instanceState }) && (
+        disabled: !instanceCan.updateBootDisk(instance) && (
           <>
             Instance must be <span className="text-raise">stopped</span> before boot disk
             can be changed
@@ -223,26 +214,15 @@ export default function StorageTab() {
         onActivate() {}, // it's always disabled, so noop is ok
       },
     ],
-    [
-      instanceUpdate,
-      // don't put the entire instance in here. it is not referentially
-      // stable across polls, so the menus will close during polling
-      instance.id,
-      instance.autoRestartPolicy,
-      instance.ncpus,
-      instance.memory,
-      instance.cpuPlatform,
-      instance.enableJumboFrames,
-      getSnapshotAction,
-    ]
+    [instanceUpdate, instance, getSnapshotAction]
   )
 
   const makeOtherDiskActions = useCallback(
-    (disk: InstanceDisk): MenuAction[] => [
+    (disk: Disk): MenuAction[] => [
       getSnapshotAction(disk),
       {
         label: 'Set as boot disk',
-        disabled: !instanceCan.updateBootDisk({ runState: disk.instanceState }) && (
+        disabled: !instanceCan.updateBootDisk(instance) && (
           <>
             Instance must be <span className="text-raise">stopped</span> before boot disk
             can be changed
@@ -286,7 +266,7 @@ export default function StorageTab() {
       },
       {
         label: 'Detach',
-        disabled: !instanceCan.detachDisk({ runState: disk.instanceState }) && (
+        disabled: !instanceCan.detachDisk(instance) && (
           <>
             Instance must be <span className="text-raise">stopped</span> before disk can be
             detached
@@ -304,20 +284,7 @@ export default function StorageTab() {
           }),
       },
     ],
-    [
-      detachDisk,
-      instanceUpdate,
-      // don't put the entire instance in here. it is not referentially
-      // stable across polls, so the menus will close during polling
-      instance.id,
-      instance.autoRestartPolicy,
-      instance.ncpus,
-      instance.memory,
-      instance.cpuPlatform,
-      instance.enableJumboFrames,
-      getSnapshotAction,
-      bootDisks,
-    ]
+    [detachDisk, instanceUpdate, instance, getSnapshotAction, bootDisks]
   )
 
   // attach step of the create-then-attach flow only; the attach modal owns its
@@ -340,19 +307,13 @@ export default function StorageTab() {
 
   const bootDisksTable = useReactTable({
     columns: useColsWithActions(staticCols, makeBootDiskActions),
-    data: useMemo(
-      () => bootDisks.map((disk) => ({ ...disk, instanceState: instance.runState })),
-      [bootDisks, instance.runState]
-    ),
+    data: bootDisks,
     getCoreRowModel: getCoreRowModel(),
   })
 
   const otherDisksTable = useReactTable({
     columns: useColsWithActions(staticCols, makeOtherDiskActions),
-    data: useMemo(
-      () => otherDisks.map((disk) => ({ ...disk, instanceState: instance.runState })),
-      [otherDisks, instance.runState]
-    ),
+    data: otherDisks,
     getCoreRowModel: getCoreRowModel(),
   })
 
