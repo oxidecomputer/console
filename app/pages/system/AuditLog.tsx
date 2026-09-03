@@ -448,7 +448,7 @@ const Row = memo(function Row({
 })
 
 export default function AuditLogPage() {
-  const [expandedItem, setExpandedItem] = useState<string | null>(null)
+  const [expandedItem, setExpandedItem] = useState<number | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
@@ -520,17 +520,6 @@ export default function AuditLogPage() {
     scrollMargin,
   })
 
-  const handleToggle = useCallback((index: string | null) => {
-    setExpandedItem(index)
-  }, [])
-
-  // Row receives a stable callback that takes a number — keeps the memoized
-  // Row from re-rendering when its only changing prop would be the onClick
-  // closure
-  const selectRow = useCallback((index: number) => {
-    setExpandedItem(index.toString())
-  }, [])
-
   // scroll just enough to bring the row at `index` into the band between the
   // sticky header bottom and the viewport midpoint. only used for keyboard /
   // prev-next navigation — clicks intentionally leave scroll alone so the
@@ -559,10 +548,10 @@ export default function AuditLogPage() {
   const navigateToIndex = useCallback(
     (newIndex: number) => {
       if (newIndex < 0 || newIndex >= allItems.length) return
-      handleToggle(newIndex.toString())
+      setExpandedItem(newIndex)
       scrollToRow(newIndex)
     },
-    [allItems.length, handleToggle, scrollToRow]
+    [allItems.length, scrollToRow]
   )
 
   const focusRow = useCallback((index: number) => {
@@ -584,17 +573,17 @@ export default function AuditLogPage() {
 
       // current row: the expanded one, or (modal closed) the focused one.
       // closest() so this also works when focus is on a copy button inside a row
-      const currentIdx = parseInt(
+      const currentIdx =
         expandedItem ??
-          target?.closest('[data-row-index]')?.getAttribute('data-row-index') ??
-          '',
-        10
-      )
+        parseInt(
+          target?.closest('[data-row-index]')?.getAttribute('data-row-index') ?? '',
+          10
+        )
       if (Number.isNaN(currentIdx)) return
 
       if (e.key === 'Escape' && expandedItem !== null) {
         e.preventDefault()
-        handleToggle(null)
+        setExpandedItem(null)
         // restore focus to the row in case focus was inside the modal
         focusRow(currentIdx)
         return
@@ -614,13 +603,13 @@ export default function AuditLogPage() {
       const next = currentIdx + delta
       if (next < 0 || next >= allItems.length) return
       // with the modal open, selection follows focus; closed, only focus moves
-      if (expandedItem !== null) handleToggle(next.toString())
+      if (expandedItem !== null) setExpandedItem(next)
       scrollToRow(next)
       focusRow(next)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [expandedItem, allItems.length, handleToggle, focusRow, scrollToRow])
+  }, [expandedItem, allItems.length, focusRow, scrollToRow])
 
   // the list has everything it's going to get for this range
   const settled = !hasNextPage && !isFetching && !isPending && errorMessage === null
@@ -639,11 +628,12 @@ export default function AuditLogPage() {
             key={virtualRow.index}
             log={allItems[virtualRow.index]}
             index={virtualRow.index}
-            isExpanded={expandedItem === virtualRow.index.toString()}
+            isExpanded={expandedItem === virtualRow.index}
             size={virtualRow.size}
             start={virtualRow.start}
             scrollMargin={rowVirtualizer.options.scrollMargin}
-            onToggle={selectRow}
+            // setState is stable, so the memoized Row never re-renders for this prop
+            onToggle={setExpandedItem}
           />
         ))}
       </div>
@@ -679,7 +669,8 @@ export default function AuditLogPage() {
     </>
   )
 
-  const selectedItem = expandedItem ? allItems[parseInt(expandedItem, 10)] : null
+  // the row can be gone if a refetch shrank the list
+  const selectedItem = expandedItem !== null ? allItems[expandedItem] : undefined
 
   // measure the list's distance from the top of the document so the window
   // virtualizer can position items correctly. re-measure when the error banner
@@ -719,7 +710,8 @@ export default function AuditLogPage() {
                 </HeaderCell>
               ))}
             </div>
-            {selectedItem &&
+            {expandedItem !== null &&
+              selectedItem &&
               (() => {
                 const [userId, siloId] = match(selectedItem.actor)
                   .with({ kind: 'silo_user' }, (actor) => [actor.siloUserId, actor.siloId])
@@ -731,17 +723,15 @@ export default function AuditLogPage() {
                   .with({ kind: 'unauthenticated' }, () => [undefined, undefined])
                   .exhaustive()
 
-                const currentIndex = parseInt(expandedItem!, 10)
-
                 return (
                   <ExpandedItem
                     item={selectedItem}
                     userId={userId}
                     siloId={siloId}
-                    currentIndex={currentIndex}
+                    currentIndex={expandedItem}
                     totalCount={allItems.length}
                     onNavigate={navigateToIndex}
-                    onClose={() => handleToggle(null)}
+                    onClose={() => setExpandedItem(null)}
                   />
                 )
               })()}
