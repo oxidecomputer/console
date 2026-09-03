@@ -49,6 +49,7 @@ test('path builder', () => {
         "affinityNew": "/projects/p/affinity-new",
         "antiAffinityGroup": "/projects/p/affinity/aag",
         "antiAffinityGroupEdit": "/projects/p/affinity/aag/edit",
+        "auditLog": "/system/audit-log",
         "deviceSuccess": "/device/success",
         "disk": "/projects/p/disks/d",
         "diskInventory": "/system/inventory/disks",

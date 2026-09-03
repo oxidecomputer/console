@@ -7,11 +7,11 @@
  */
 import type { Disk, DiskState } from '@oxide/api'
 
+import { Rando } from '~/util/rando'
 import { GiB } from '~/util/units'
 
 import { instance, stoppedInstance } from './instance'
 import type { Json } from './json-type'
-import { Rando } from './msw/rando'
 import { project, project2 } from './project'
 
 // Use seeded random for consistent states across runs

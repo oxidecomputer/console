@@ -36,6 +36,7 @@ import {
 import { json, type Json } from '~/api/__generated__/msw-handlers'
 import type { OxqlNetworkMetricName, OxqlVcpuState } from '~/components/oxql-metrics/util'
 import { parseIp } from '~/util/ip'
+import { Rando } from '~/util/rando'
 import { GiB, TiB } from '~/util/units'
 
 import type { DbRoleAssignmentResourceType } from '..'
@@ -43,7 +44,6 @@ import { SENTINEL_FLAT_INSTANCE_ID, SENTINEL_SLOPE_INSTANCE_ID } from '../instan
 import { genI64Data } from '../metrics'
 import { getMockOxqlInstanceData } from '../oxql-metrics'
 import { db, lookupById } from './db'
-import { Rando } from './rando'
 
 interface PaginateOptions {
   limit?: number | null
@@ -54,6 +54,14 @@ export interface ResultsPage<I extends { id: string }> {
   next_page: string | null
 }
 
+/**
+ * Page through `items` the way Dropshot does: the token names the last item of
+ * the page it came from, the next page starts after it, and every page with
+ * items gets a token, including the last one, which then leads to an empty
+ * page. Clients can't learn they've hit the end from the token alone, only
+ * from a page shorter than `limit` (or empty).
+ * https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/pagination.rs#L168-L176
+ */
 export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   params: P,
   items: I[]
@@ -61,26 +69,14 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   const limit = params.limit || 100
   const pageToken = params.pageToken
 
-  let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
-  startIndex = startIndex < 0 ? 0 : startIndex
-
-  if (startIndex > items.length) {
-    return {
-      items: [],
-      next_page: null,
-    }
-  }
-
-  if (limit + startIndex >= items.length) {
-    return {
-      items: items.slice(startIndex),
-      next_page: null,
-    }
-  }
+  // no token, or an unknown one, starts from the beginning
+  const tokenIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : -1
+  const startIndex = tokenIndex + 1
+  const page = items.slice(startIndex, startIndex + limit)
 
   return {
-    items: items.slice(startIndex, startIndex + limit),
-    next_page: items[startIndex + limit].id,
+    items: page,
+    next_page: page.at(-1)?.id ?? null,
   }
 }
 
