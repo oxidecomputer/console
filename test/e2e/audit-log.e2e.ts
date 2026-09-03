@@ -70,3 +70,41 @@ test('keyboard navigation between entries', async ({ page }) => {
   await page.keyboard.press('j')
   await expect(detail).toBeHidden()
 })
+
+test('stops offering Load More after a short page', async ({ page }) => {
+  await page.goto('/system/audit-log')
+  await expect(row(page, 'instance create')).toBeVisible()
+
+  // the default range holds more than one page, so the first page is full
+  const loadMore = page.getByRole('button', { name: 'Load More' })
+  await expect(loadMore).toBeVisible()
+  await loadMore.click()
+
+  // the second page is short. The API still returns a next-page token, but a
+  // short page means there's nothing left, so the button should give way
+  await expect(page.getByText('No more logs in selected time range')).toBeVisible()
+  await expect(loadMore).toBeHidden()
+})
+
+test('shows an empty message when the time range has no entries', async ({ page }) => {
+  await page.goto('/system/audit-log')
+  await expect(row(page, 'instance create')).toBeVisible()
+
+  // Mock entries all fall within the last several hours, so a range ending
+  // days ago is empty. In the range calendar the first Enter anchors a
+  // selection and the second completes it, so finish a throwaway [today, today]
+  // range first. Then only ever move left: anchor at today-6 and complete
+  // further back. Moving right can cross into the current month, where focus
+  // jumps to today (the max date) and the range swallows every entry.
+  await page.getByLabel('Choose a date range').getByRole('button').click()
+  await page.getByRole('button', { name: /Today/ }).click()
+  await page.keyboard.press('Enter')
+  for (let i = 0; i < 6; i++) await page.keyboard.press('ArrowLeft')
+  await page.keyboard.press('Enter')
+  for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowLeft')
+  await page.keyboard.press('Enter')
+  await page.keyboard.press('Escape')
+
+  await expect(page.getByText('No logs in selected time range')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Load More' })).toBeHidden()
+})

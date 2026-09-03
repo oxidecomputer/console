@@ -338,6 +338,10 @@ const HeaderCell = classed.div`text-mono-sm text-tertiary`
 // shared so the virtualized rows don't each construct a formatter
 const msFormat = Intl.NumberFormat()
 
+// server default is 100. rows are virtualized and the response is small (a few
+// hundred KB uncompressed at this size), so fewer Load More clicks wins
+const PAGE_LIMIT = 500
+
 type RowProps = {
   log: AuditLogEntry
   index: number
@@ -457,9 +461,7 @@ export default function SiloAuditLogsPage() {
     startTime,
     endTime,
     sortBy: 'time_and_id_descending',
-    // server default is 100. rows are virtualized and the response is small (a
-    // few hundred KB uncompressed at this size), so fewer Load More clicks wins
-    limit: 500,
+    limit: PAGE_LIMIT,
   }
 
   const {
@@ -485,7 +487,12 @@ export default function SiloAuditLogsPage() {
           throw result
         }),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) => lastPage.nextPage || undefined,
+    // Dropshot hands back a next-page token whenever a page has items, even
+    // the last one, so the token alone can't tell us we're done. A short page
+    // can: anything under the limit means there's nothing after it.
+    // https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/pagination.rs#L168-L176
+    getNextPageParam: (lastPage) =>
+      lastPage.items.length < PAGE_LIMIT ? undefined : lastPage.nextPage || undefined,
     // no placeholderData on purpose: a time range change should show the
     // skeleton rather than the previous range's rows while the new one loads
   })
@@ -616,6 +623,9 @@ export default function SiloAuditLogsPage() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [expandedItem, allItems.length, handleToggle, focusRow, scrollToRow])
 
+  // the list has everything it's going to get for this range
+  const settled = !hasNextPage && !isFetching && !isPending && errorMessage === null
+
   const logTable = (
     <>
       <div
@@ -641,10 +651,16 @@ export default function SiloAuditLogsPage() {
       {errorMessage !== null && (
         <ErrorState error={errorMessage} onDismiss={() => setErrorMessage(null)} />
       )}
-      <div className="border-secondary flex justify-center px-[var(--content-gutter)] py-4">
-        {!hasNextPage && !isFetching && !isPending && allItems.length > 0 ? (
-          <div className="text-mono-sm text-quaternary">
-            No more logs to show within selected timeline
+      <div
+        className={cn(
+          'border-secondary flex justify-center px-[var(--content-gutter)] py-4',
+          // a little extra room so the empty message doesn't sit right under the header
+          settled && allItems.length === 0 && 'pt-8'
+        )}
+      >
+        {settled ? (
+          <div className="text-mono-sm text-tertiary">
+            {allItems.length === 0 ? 'No logs' : 'No more logs'} in selected time range
           </div>
         ) : (
           <Button
