@@ -45,12 +45,13 @@ import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePi
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Button } from '~/ui/lib/Button'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
+import { SyslogDateTime } from '~/ui/lib/DateTime'
 import { Divider } from '~/ui/lib/Divider'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Truncate } from '~/ui/lib/Truncate'
 import { classed } from '~/util/classed'
-import { toLocaleDateString, toSyslogDateString, toSyslogTimeString } from '~/util/date'
+import { toLocaleDateString, toSyslogTimeString } from '~/util/date'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { Rando } from '~/util/rando'
@@ -398,10 +399,8 @@ const Row = memo(function Row({
         tabIndex={0}
         data-row-index={index}
       >
-        {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
-        <div className="col-time text-mono-sm overflow-hidden whitespace-nowrap">
-          <span className="text-tertiary">{toSyslogDateString(log.timeCompleted)}</span>{' '}
-          {toSyslogTimeString(log.timeCompleted)}
+        <div className="col-time overflow-hidden whitespace-nowrap">
+          <SyslogDateTime date={log.timeCompleted} />
         </div>
         <div className="col-status flex gap-1 overflow-hidden whitespace-nowrap">
           {match(log.result)

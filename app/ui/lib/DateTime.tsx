@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { Tooltip } from '~/ui/lib/Tooltip'
 import {
   toLocaleDateString,
   toLocaleTimeString,
@@ -20,10 +21,16 @@ export const DateTime = ({ date, locale }: { date: Date; locale?: string }) => (
   </time>
 )
 
-/** Compact log-style timestamp like `Jan 21 23:33:45`, mono, with the date dimmed */
+/**
+ * Compact log-style timestamp like `Jan 21 23:33:45`, mono, with the date
+ * dimmed. The display is local time with no year or zone, so the full UTC
+ * timestamp is in a tooltip for correlating with logs from other systems.
+ */
 export const SyslogDateTime = ({ date, locale }: { date: Date; locale?: string }) => (
-  <time dateTime={date.toISOString()} className="text-mono-sm whitespace-nowrap">
-    <span className="text-tertiary">{toSyslogDateString(date, locale)}</span>{' '}
-    {toSyslogTimeString(date, locale)}
-  </time>
+  <Tooltip content={date.toISOString()} placement="top">
+    <time dateTime={date.toISOString()} className="text-mono-sm whitespace-nowrap">
+      <span className="text-tertiary">{toSyslogDateString(date, locale)}</span>{' '}
+      {toSyslogTimeString(date, locale)}
+    </time>
+  </Tooltip>
 )
