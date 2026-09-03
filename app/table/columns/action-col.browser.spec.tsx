@@ -18,14 +18,18 @@ type Item = { id: string; name: string }
 const data: Item[] = [{ id: '1', name: 'alpha' }]
 const staticCols: ColumnDef<Item>[] = [{ accessorKey: 'name', header: 'Name' }]
 
-function ActionsTable({ version }: { version: number }) {
-  // depends on `version` so its identity changes when the prop changes, like a
-  // real page whose actions depend on a background query result
+function ActionsTable({ version, locked }: { version: number; locked?: boolean }) {
+  // depends on `version` and `locked` so its identity changes when the props
+  // change, like a real page whose actions depend on a polled query result
   const makeActions = useCallback(
     (item: Item): MenuAction[] => [
-      { label: `Rename ${item.name} v${version}`, onActivate: () => {} },
+      {
+        label: `Rename ${item.name} v${version}`,
+        onActivate: () => {},
+        disabled: locked && `${item.name} is locked`,
+      },
     ],
-    [version]
+    [version, locked]
   )
   const columns = useColsWithActions(staticCols, makeActions)
   const table = useReactTable({
@@ -52,4 +56,19 @@ test('open row actions menu survives makeActions identity change', async () => {
   await expect
     .element(screen.getByRole('menuitem', { name: 'Rename alpha v2' }))
     .toBeVisible()
+})
+
+test('open row actions menu updates items when actions change', async () => {
+  const screen = await render(<ActionsTable version={1} locked />)
+
+  await screen.getByRole('button', { name: 'Row actions' }).click()
+  const item = screen.getByRole('menuitem', { name: 'Rename alpha v1' })
+  await expect.element(item).toHaveAttribute('aria-disabled', 'true')
+
+  // like an instance poll landing while a menu is open: the item should flip
+  // to enabled in place rather than the menu closing or going stale
+  await screen.rerender(<ActionsTable version={1} locked={false} />)
+
+  await expect.element(item).toBeVisible()
+  await expect.element(item).not.toHaveAttribute('aria-disabled')
 })
