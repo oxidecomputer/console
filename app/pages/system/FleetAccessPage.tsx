@@ -14,6 +14,7 @@ import {
   api,
   byGroupThenName,
   deleteRole,
+  displayUserName,
   getEffectiveRole,
   q,
   queryClient,
@@ -22,6 +23,7 @@ import {
   useUserRows,
   type FleetRole,
   type IdentityType,
+  type UserName,
 } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -85,7 +87,7 @@ type AssignmentRow = {
   kind: 'assignment'
   id: string
   identityType: IdentityType
-  name: string
+  name: UserName
   fleetRole: FleetRole
 }
 
@@ -151,20 +153,27 @@ export default function FleetAccessPage() {
         header: 'Name',
         cell: (info) =>
           match(info.row.original)
-            .with({ kind: 'assignment' }, (row) =>
-              row.name === row.id ? (
-                <span className="flex items-center gap-1">
-                  {row.id}
-                  <TipIcon>
-                    Can't resolve name because{' '}
-                    {row.identityType === 'silo_user' ? 'user' : 'group'} is not in your
-                    silo
-                  </TipIcon>
-                </span>
-              ) : (
-                row.name
-              )
-            )
+            .with({ kind: 'assignment' }, (row) => (
+              <span className="flex items-center gap-1">
+                {displayUserName(row.name)}
+                {match(row.name)
+                  .with({ kind: 'real' }, () => null)
+                  .with({ kind: 'stranger' }, () => (
+                    <TipIcon>
+                      Can't resolve name because{' '}
+                      {row.identityType === 'silo_user' ? 'user' : 'group'} is not in your
+                      silo
+                    </TipIcon>
+                  ))
+                  .with({ kind: 'built-in' }, () => (
+                    <TipIcon>
+                      This is a system account for bootstrapping before configuring your
+                      identity provider. It cannot be used to log in.
+                    </TipIcon>
+                  ))
+                  .exhaustive()}
+              </span>
+            ))
             .with({ kind: 'mapping' }, (row) => (
               <span className="flex items-center gap-1.5">
                 Any{' '}
@@ -225,7 +234,8 @@ export default function FleetAccessPage() {
                 doDelete: () => updatePolicy({ body: deleteRole(row.id, fleetPolicy) }),
                 label: (
                   <span>
-                    the <HL>{row.fleetRole}</HL> role for <HL>{row.name}</HL>
+                    the <HL>{row.fleetRole}</HL> role for{' '}
+                    <HL>{displayUserName(row.name)}</HL>
                   </span>
                 ),
                 resourceKind: 'role assignment',
@@ -282,7 +292,7 @@ export default function FleetAccessPage() {
         <FleetAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={fleetPolicy}
-          name={editingUserRow.name}
+          name={displayUserName(editingUserRow.name)}
           identityId={editingUserRow.id}
           identityType={editingUserRow.identityType}
           defaultValues={{ roleName: editingUserRow.fleetRole }}
