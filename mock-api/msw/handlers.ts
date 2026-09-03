@@ -31,7 +31,14 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { instanceCan, OXQL_GROUP_BY_ERROR, subscriptionRegex } from '~/api/util'
+import {
+  ALERT_SUBSCRIPTION_REGEX,
+  instanceCan,
+  isGlobPattern,
+  OXQL_GROUP_BY_ERROR,
+  PROBE_ALERT_CLASS,
+  subscriptionRegex,
+} from '~/api/util'
 import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
@@ -89,6 +96,30 @@ import {
 function toWebhookReceiver(receiver: Json<Api.AlertReceiver>): Json<Api.WebhookReceiver> {
   const { kind, ...rest } = receiver
   return { ...rest, endpoint: kind.endpoint, secrets: kind.secrets }
+}
+
+/**
+ * Omicron parses an exact subscription as a known `AlertClass` and rejects
+ * anything else, along with the synthetic `probe` class, with a 400. Mirror
+ * that so the UI's pre-submit checks can be trusted against the mock.
+ * https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/db-model/src/alert_subscription.rs#L61-L98
+ */
+function validateSubscription(subscription: string) {
+  if (!ALERT_SUBSCRIPTION_REGEX.test(subscription)) {
+    throw invalidRequest(
+      `unsupported value for "alert_class": invalid glob '${subscription}'`
+    )
+  }
+  if (isGlobPattern(subscription)) return
+  if (subscription === PROBE_ALERT_CLASS) {
+    throw invalidRequest(
+      `unsupported value for "alert_class": the 'probe' alert class is a synthetic alert used only for webhook liveness probes, and is not included in alert lists and cannot be subscribed to`
+    )
+  }
+  if (!alertClasses.some((c) => c.name === subscription)) {
+    const known = alertClasses.map((c) => c.name).join(', ')
+    throw invalidRequest(`unsupported value for "alert_class": expected one of [${known}]`)
+  }
 }
 
 /** How long a pending delivery waits before its next attempt */
@@ -2873,6 +2904,7 @@ export const handlers = makeHandlers({
   alertReceiverSubscriptionAdd({ path, body, cookies }) {
     requireFleetAdmin(cookies)
     const receiver = lookup.alertReceiver(path)
+    validateSubscription(body.subscription)
     if (!receiver.subscriptions.includes(body.subscription)) {
       receiver.subscriptions.push(body.subscription)
       receiver.time_modified = new Date().toISOString()
@@ -2923,6 +2955,9 @@ export const handlers = makeHandlers({
   webhookReceiverCreate({ body, cookies }) {
     requireFleetAdmin(cookies)
     errIfExists(db.alertReceivers, { name: body.name }, 'webhook receiver')
+    for (const subscription of body.subscriptions || []) {
+      validateSubscription(subscription)
+    }
 
     const now = new Date().toISOString()
     const newReceiver: Json<Api.AlertReceiver> = {

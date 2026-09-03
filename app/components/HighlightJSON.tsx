@@ -6,10 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-// Lifted from the audit log page (PR #2860) so the alert views can share it.
-// Once that lands, AuditLog.tsx should import from here instead of keeping its
-// own copy.
-
 import { memo } from 'react'
 import { type JsonValue } from 'type-fest'
 

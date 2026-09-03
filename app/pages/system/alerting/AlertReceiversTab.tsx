@@ -75,8 +75,9 @@ export async function clientLoader() {
   return null
 }
 
-// this handle is on a pathless layout route, so its pathname is /system. give
-// the crumb an explicit path so it links to the list instead
+// this handle is on a pathless layout route, so its pathname is the parent's,
+// /system/alerting, which redirects. give the crumb an explicit path so it
+// links straight to the list instead
 export const handle = makeCrumb('Receivers', pb.alertReceivers())
 
 export default function AlertReceiversTab() {

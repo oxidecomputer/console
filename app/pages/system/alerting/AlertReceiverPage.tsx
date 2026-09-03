@@ -24,7 +24,7 @@ import {
 import { Webhooks24Icon } from '@oxide/design-system/icons/react'
 import { Button } from '@oxide/design-system/ui'
 
-import { isSubscribableClass } from '~/api/util'
+import { isGlobPattern, isSubscribableClass, subscriptionRegex } from '~/api/util'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { validateSubscription } from '~/components/form/fields/SubscriptionsField'
@@ -247,9 +247,17 @@ function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
   const subscription = useWatch({ control, name: 'subscription' })
 
   const classes = useQuery(q(api.alertClassList, { query: { limit: ALL_ISH } }))
-  const classItems = (classes.data?.items || [])
-    .filter(isSubscribableClass)
+  const subscribable = (classes.data?.items || []).filter(isSubscribableClass)
+  // undefined while loading so an exact class isn't rejected as unknown before
+  // the list arrives
+  const classNames = classes.data ? new Set(subscribable.map((c) => c.name)) : undefined
+
+  // leave out classes the receiver already gets, whether subscribed exactly or
+  // covered by one of its globs, same as the create form's picker
+  const globs = receiver.subscriptions.filter(isGlobPattern).map(subscriptionRegex)
+  const classItems = subscribable
     .filter((c) => !receiver.subscriptions.includes(c.name))
+    .filter((c) => !globs.some((re) => re.test(c.name)))
     .map(toClassComboboxItem)
 
   const addSubscription = useApiMutation(api.alertReceiverSubscriptionAdd, {
@@ -293,7 +301,7 @@ function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
         isLoading={classes.isPending}
         allowArbitraryValues
         required
-        validate={validateSubscription}
+        validate={(value) => validateSubscription(value, classNames)}
       />
       <SubscriptionMatchPreview pattern={subscription} />
     </ModalForm>

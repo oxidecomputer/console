@@ -188,6 +188,12 @@ test('Webhook receiver create: subscriptions field', async ({ page }) => {
   await subsInput.press(' ')
   await expect(subsInput).toHaveValue('update')
   await expect(chipRemove('update')).toBeHidden()
+  // Enter on a filter that isn't a full class name is rejected instead of
+  // becoming a chip the API would reject at submit
+  await subsInput.press('Enter')
+  await expect(page.getByRole('main').getByText('Not an alert class')).toBeVisible()
+  await expect(chipRemove('update')).toBeHidden()
+  await expect(subsInput).toHaveValue('update')
   await option('system.update.start').click()
   await option('system.update.complete').click()
   await expect(chipRemove('system.update.start')).toBeVisible()
@@ -344,6 +350,23 @@ test('Add subscription modal previews the classes a glob matches', async ({ page
   await input.fill('zzz.**')
   await expect(preview).toBeHidden()
   await expect(modal.getByText('No current alert classes match this pattern')).toBeVisible()
+
+  // an exact class the API doesn't know is rejected before submit
+  await input.fill('hardware.sled.nope')
+  await modal.getByRole('button', { name: 'Add' }).click()
+  await expect(modal.getByText('Not an alert class')).toBeVisible()
+})
+
+test('Add subscription modal omits classes an existing glob already covers', async ({
+  page,
+}) => {
+  // power-mon subscribes to hardware.**, so only non-hardware classes are offered
+  await page.goto('/system/alerting/receivers/power-mon')
+  await page.getByRole('button', { name: 'Add subscription' }).click()
+  const modal = page.getByRole('dialog', { name: 'Add subscription' })
+  await modal.getByRole('combobox', { name: 'Subscription' }).click()
+  await expect(page.getByRole('option', { name: /system\.update\.start/ })).toBeVisible()
+  await expect(page.getByRole('option', { name: /hardware\.sled\.fault/ })).toBeHidden()
 })
 
 test('Testing tab: probe result and signature format', async ({ page }) => {

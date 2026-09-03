@@ -32,13 +32,20 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
 
-// segments may only contain [a-zA-Z0-9_], unlike resource names
-export const validateSubscription = (value: string) => {
+/**
+ * Segments may only contain [a-zA-Z0-9_], unlike resource names. An exact
+ * (non-glob) subscription must also be a class the API knows about: it parses
+ * the value as an `AlertClass` and rejects anything else with a 400, so pass
+ * `knownClasses` once the class list has loaded to catch that before submit.
+ * https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/db-model/src/alert_subscription.rs#L61-L98
+ */
+export const validateSubscription = (value: string, knownClasses?: ReadonlySet<string>) => {
   if (!ALERT_SUBSCRIPTION_REGEX.test(value))
     return 'Must be an alert class or a glob pattern like hardware.** (letters, numbers, and underscores only)'
-  // the API rejects this one with a 400, so catch it before submit
   if (value === PROBE_ALERT_CLASS)
     return 'The probe class is only used for liveness probes and cannot be subscribed to'
+  if (!isGlobPattern(value) && knownClasses && !knownClasses.has(value))
+    return 'Not an alert class. Pick one from the list or use a glob pattern like hardware.**'
   return undefined
 }
 
@@ -157,6 +164,9 @@ export function SubscriptionsField({
 
   const { data } = useQuery(q(api.alertClassList, { query: { limit: ALL_ISH } }))
   const classes = (data?.items ?? []).filter(isSubscribableClass)
+  // undefined while loading so an exact class typed before the list arrives
+  // isn't rejected as unknown
+  const classNames = data ? new Set(classes.map((c) => c.name)) : undefined
 
   const committed = field.value
   const matchers = toMatchers(committed)
@@ -229,7 +239,7 @@ export function SubscriptionsField({
 
   function commitQuery() {
     const value = queryTrimmed
-    const error = validateSubscription(value)
+    const error = validateSubscription(value, classNames)
     if (error) {
       setCommitError(error)
       return
