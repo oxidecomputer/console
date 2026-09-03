@@ -162,15 +162,11 @@ export default function SiloIpPoolsTab() {
   )
 
   const { mutateAsync: updatePoolLink } = useApiMutation(api.systemIpPoolSiloUpdate, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('siloIpPoolList')
-      queryClient.invalidateEndpoint('systemIpPoolSiloList')
-    },
+    invalidateEndpoints: ['siloIpPoolList', 'systemIpPoolSiloList'],
   })
   const { mutateAsync: unlinkPool } = useApiMutation(api.systemIpPoolSiloUnlink, {
+    invalidateEndpoints: ['siloIpPoolList', 'systemIpPoolSiloList'],
     onSuccess() {
-      queryClient.invalidateEndpoint('siloIpPoolList')
-      queryClient.invalidateEndpoint('systemIpPoolSiloList')
       // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'IP pool unlinked' })
     },
