@@ -10,6 +10,7 @@ import { expect, test } from '@playwright/test'
 import {
   clickRowAction,
   clickRowActions,
+  closeToast,
   expectRowVisible,
   expectVisible,
   stopInstance,
@@ -608,4 +609,27 @@ test('IPv6-only instance can attach IPv6 ephemeral IP', async ({ page }) => {
   // Verify ephemeral IP appears in table
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
   await expect(externalIpTable.getByRole('cell', { name: 'ephemeral' })).toBeVisible()
+})
+
+test('NIC row actions menu stays open and updates while instance state polls', async ({
+  page,
+}) => {
+  await page.goto('/projects/mock-project/instances/db1/networking')
+
+  // stop the instance without waiting for it to finish: the page polls every
+  // 2s while transitioning and the mock flips to stopped after 3s
+  await page.getByRole('button', { name: 'Stop' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await closeToast(page)
+  await expect(page.getByText('statestopping')).toBeVisible()
+
+  await clickRowActions(page, 'my-nic')
+  const editItem = page.getByRole('menuitem', { name: 'Edit' })
+  await expect(editItem).toBeDisabled()
+
+  // the poll that lands the state change used to remount the actions cell and
+  // close the menu. Now the menu stays open and its items reflect the new state.
+  await expect(page.getByText('statestopped')).toBeVisible()
+  await expect(editItem).toBeVisible()
+  await expect(editItem).toBeEnabled()
 })
