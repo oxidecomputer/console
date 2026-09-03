@@ -336,7 +336,7 @@ const COLUMNS = [
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
 
 // shared so the virtualized rows don't each construct a formatter
-const msFormat = Intl.NumberFormat()
+const msFormat = new Intl.NumberFormat()
 
 // server default is 100. rows are virtualized and the response is small (a few
 // hundred KB uncompressed at this size), so fewer Load More clicks wins
@@ -447,12 +447,11 @@ const Row = memo(function Row({
   )
 })
 
-export default function SiloAuditLogsPage() {
+export default function AuditLogPage() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  // pass refetch interval to this to keep the date up to date
-  const { preset, startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
     initialPreset: 'lastHour',
     maxValue: now(getLocalTimeZone()),
   })
@@ -496,7 +495,7 @@ export default function SiloAuditLogsPage() {
     setErrorMessage(null)
     setExpandedItem(null)
     window.scrollTo({ top: 0 })
-  }, [startTime, endTime, preset])
+  }, [startTime, endTime])
 
   const allItems = useMemo(() => {
     return data?.pages.flatMap((page) => page.items) || []
@@ -573,10 +572,10 @@ export default function SiloAuditLogsPage() {
   }, [])
 
   // arrow keys (and j/k when the pane is open) move selection (and focus)
-  // between rows; escape closes the
-  // modal. with the modal closed, arrows still move focus when a row is
-  // focused, without opening the modal. adjacent rows are within the
-  // virtualizer's overscan, so they're already in the DOM when we look them up.
+  // between rows; escape closes the pane. with the pane closed, arrows still
+  // move focus when a row is focused, without opening the pane. adjacent rows
+  // are within the virtualizer's overscan, so they're already in the DOM when
+  // we look them up.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
@@ -778,7 +777,10 @@ const ExpandedItem = ({
   const json = useMemo(() => JSON.stringify(snakeJson, null, 2), [snakeJson])
 
   return (
-    <div className="bg-default border-secondary absolute top-0 right-0 z-10 flex h-[calc(100dvh-var(--top-bar-height))] w-120 flex-col gap-6 overflow-y-auto border-l pt-px">
+    <aside
+      aria-label="Audit log entry"
+      className="bg-default border-secondary absolute top-0 right-0 z-10 flex h-[calc(100dvh-var(--top-bar-height))] w-120 flex-col gap-6 overflow-y-auto border-l pt-px"
+    >
       <div className="bg-raise border-secondary flex h-10 items-center justify-between border-b px-2">
         <div className="flex items-center">
           <button
@@ -894,6 +896,6 @@ const ExpandedItem = ({
           </pre>
         </div>
       </div>
-    </div>
+    </aside>
   )
 }

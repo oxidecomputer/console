@@ -88,10 +88,10 @@ function generateAuditLogEntry(index: number): Json<AuditLogEntry> {
   const statusCode = mockHttpStatusCodes[index % mockHttpStatusCodes.length]
   const isError = statusCode >= 400
   const baseTime = new Date()
-  baseTime.setSeconds(baseTime.getSeconds() - index * 5 * 1) // Spread entries over time
+  baseTime.setSeconds(baseTime.getSeconds() - index * 5) // spread entries over time
 
   const completedTime = new Date(baseTime)
-  completedTime.setMilliseconds(rando.next() * 300 + completedTime.getMilliseconds()) // Deterministic random durations
+  completedTime.setMilliseconds(rando.next() * 300 + completedTime.getMilliseconds()) // deterministic random durations
 
   return {
     id: uuid(),
@@ -132,7 +132,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
     operation_id: 'instance_create',
     request_id: mockRequestIds[0],
     time_started: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 minutes ago
-    time_completed: new Date(Date.now() - 1000 * 60 * 5 + 321).toISOString(), // 1 second later
+    time_completed: new Date(Date.now() - 1000 * 60 * 5 + 321).toISOString(),
     request_uri: 'https://maze-war.sys.corp.rack/v1/projects/admin-project/instances',
     source_ip: '192.168.1.100',
   },
@@ -148,7 +148,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
     operation_id: 'instance_start',
     request_id: mockRequestIds[1],
     time_started: new Date(Date.now() - 1000 * 60 * 10).toISOString(), // 10 minutes ago
-    time_completed: new Date(Date.now() - 1000 * 60 * 10 + 126).toISOString(), // 1 second later
+    time_completed: new Date(Date.now() - 1000 * 60 * 10 + 126).toISOString(),
     request_uri:
       'https://maze-war.sys.corp.rack/v1/projects/admin-project/instances/web-server-prod/start',
     source_ip: '10.0.0.50',
@@ -171,7 +171,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
     operation_id: 'instance_delete',
     request_id: mockRequestIds[2],
     time_started: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 minutes ago
-    time_completed: new Date(Date.now() - 1000 * 60 * 15 + 147).toISOString(), // 1 second later
+    time_completed: new Date(Date.now() - 1000 * 60 * 15 + 147).toISOString(),
     request_uri:
       'https://maze-war.sys.corp.rack/v1/projects/dev-project/instances/test-instance',
     source_ip: '172.16.0.25',
@@ -189,7 +189,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
     operation_id: 'user_login',
     request_id: mockRequestIds[3],
     time_started: new Date(Date.now() - 1000 * 60 * 20).toISOString(), // 20 minutes ago
-    time_completed: new Date(Date.now() - 1000 * 60 * 20 + 16).toISOString(), // 1 second later
+    time_completed: new Date(Date.now() - 1000 * 60 * 20 + 16).toISOString(),
     request_uri: 'https://maze-war.sys.corp.rack/v1/login',
     source_ip: '203.0.113.15',
   },
@@ -206,7 +206,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
     operation_id: 'project_create',
     request_id: mockRequestIds[4],
     time_started: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago
-    time_completed: new Date(Date.now() - 1000 * 60 * 60 + 36).toISOString(), // 1 second later
+    time_completed: new Date(Date.now() - 1000 * 60 * 60 + 36).toISOString(),
     request_uri: 'https://maze-war.sys.corp.rack/v1/projects',
     source_ip: '192.168.1.100',
   },

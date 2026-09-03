@@ -12,11 +12,7 @@ import { expect, test, type Page } from '@playwright/test'
 const row = (page: Page, operation: string) =>
   page.getByRole('button', { name: new RegExp(operation, 'i') }).first()
 
-// the detail pane is the only place with a Raw JSON heading
-const pane = (page: Page) =>
-  page
-    .getByRole('heading', { name: 'Raw JSON' })
-    .locator('xpath=ancestor::div[contains(@class, "w-120")]')
+const pane = (page: Page) => page.getByRole('complementary', { name: 'Audit log entry' })
 
 test('lists entries and opens detail pane', async ({ page }) => {
   await page.goto('/system/audit-log')

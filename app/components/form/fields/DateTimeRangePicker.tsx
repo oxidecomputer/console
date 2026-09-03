@@ -42,9 +42,7 @@ const tz = getLocalTimeZone()
 
 /**
  * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
- * a JSX element to render. When we're using a relative preset like last N
- * hours, automatically slide the window forward live by updating the range to
- * have `endTime` of _now_ every `SLIDE_INTERVAL` ms.
+ * a JSX element to render.
  */
 export function useDateTimeRangePicker({
   initialPreset,

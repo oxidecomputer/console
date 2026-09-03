@@ -2333,21 +2333,18 @@ export const handlers = makeHandlers({
     )
     return paginated(query, affinityGroups)
   },
-  auditLogList: ({ query }) => {
+  auditLogList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
+
+    // same semantics as Nexus: start_time <= time_completed < end_time
+    // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/db-queries/src/db/datastore/audit_log.rs
+    const { startTime, endTime } = query
     let filteredLogs = db.auditLog
-
-    if (query.pageToken === 'list-logs-500') throw internalError('list logs failed')
-
-    if (query.startTime) {
-      filteredLogs = filteredLogs.filter(
-        (log) => new Date(log.time_completed) >= query.startTime!
-      )
+    if (startTime) {
+      filteredLogs = filteredLogs.filter((log) => new Date(log.time_completed) >= startTime)
     }
-
-    if (query.endTime) {
-      filteredLogs = filteredLogs.filter(
-        (log) => new Date(log.time_completed) < query.endTime!
-      )
+    if (endTime) {
+      filteredLogs = filteredLogs.filter((log) => new Date(log.time_completed) < endTime)
     }
 
     return paginated(query, filteredLogs)
