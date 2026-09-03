@@ -55,6 +55,7 @@ test('path builder', () => {
         "alerts": "/system/alerting/alerts",
         "antiAffinityGroup": "/projects/p/affinity/aag",
         "antiAffinityGroupEdit": "/projects/p/affinity/aag/edit",
+        "auditLog": "/system/audit-log",
         "deviceSuccess": "/device/success",
         "disk": "/projects/p/disks/d",
         "diskInventory": "/system/inventory/disks",

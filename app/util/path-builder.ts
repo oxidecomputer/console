@@ -156,6 +156,8 @@ export const pb = {
 
   systemUpdate: () => '/system/update',
 
+  auditLog: () => '/system/audit-log',
+
   profile: () => '/settings/profile',
   sshKeys: () => '/settings/ssh-keys',
   sshKeysNew: () => '/settings/ssh-keys-new',

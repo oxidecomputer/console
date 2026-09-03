@@ -48,6 +48,10 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/alerts/overview',
     linkText: 'Alerts Overview',
   },
+  auditLog: {
+    href: 'https://docs.oxide.computer/guides/operator/audit-log',
+    linkText: 'Audit Log',
+  },
   deviceTokens: {
     href: 'https://docs.oxide.computer/guides/working-with-api-and-sdk#_device_token_setup',
     linkText: 'Access Tokens',

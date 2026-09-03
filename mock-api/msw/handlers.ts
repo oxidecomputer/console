@@ -2029,6 +2029,13 @@ export const handlers = makeHandlers({
     requireFleetViewer(cookies)
     return lookup.silo(path)
   },
+  siloUserView({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const silo = lookup.silo({ silo: query.silo })
+    const user = db.users.find((u) => u.id === path.userId && u.silo_id === silo.id)
+    if (!user) throw notFoundErr(`user '${path.userId}'`)
+    return user
+  },
   siloDelete({ path, cookies }) {
     requireFleetViewer(cookies)
     const silo = lookup.silo(path)
@@ -2441,6 +2448,22 @@ export const handlers = makeHandlers({
   alertView({ path, cookies }) {
     requireFleetViewer(cookies)
     return lookupById(db.alerts, path.alertId)
+  },
+  auditLogList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
+
+    // same semantics as Nexus: start_time <= time_completed < end_time
+    // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/db-queries/src/db/datastore/audit_log.rs
+    const { startTime, endTime } = query
+    let filteredLogs = db.auditLog
+    if (startTime) {
+      filteredLogs = filteredLogs.filter((log) => new Date(log.time_completed) >= startTime)
+    }
+    if (endTime) {
+      filteredLogs = filteredLogs.filter((log) => new Date(log.time_completed) < endTime)
+    }
+
+    return paginated(query, filteredLogs)
   },
 
   // SCIM token endpoints
@@ -2966,7 +2989,6 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
-  auditLogList: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
@@ -3044,7 +3066,6 @@ export const handlers = makeHandlers({
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
-  siloUserView: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
   supportBundleCreate: NotImplemented,

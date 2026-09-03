@@ -311,6 +311,10 @@ export const routes = createRoutesFromElements(
           path="access"
           lazy={() => import('./pages/system/FleetAccessPage').then(convert)}
         />
+        <Route
+          path="audit-log"
+          lazy={() => import('./pages/system/AuditLog').then(convert)}
+        />
       </Route>
 
       <Route index loader={() => redirect(pb.projects())} element={null} />

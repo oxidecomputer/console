@@ -80,7 +80,9 @@ function ReceiverTesterCard() {
     ? {
         state: 'known',
         count: resendableAlertIds(data.items).size,
-        truncated: !!data.nextPage,
+        // a page token is present even on the last page, so only a full page
+        // tells us there might be more
+        truncated: data.items.length >= ALL_ISH,
       }
     : { state: 'unknown' }
 

@@ -8,6 +8,7 @@
 
 export * from './affinity-group'
 export * from './alert'
+export * from './audit-log'
 export * from './disk'
 export * from './external-ip'
 export * from './external-subnet'
