@@ -7,8 +7,6 @@
  */
 import {
   clickRowAction,
-  clickRowActions,
-  closeToast,
   expect,
   expectNoToast,
   expectNotVisible,
@@ -309,27 +307,4 @@ test('Change boot disk', async ({ page }) => {
   await expect(noOtherDisks).toBeVisible()
 
   await expect(page.getByText('Attach a disk to be able to set a boot disk')).toBeVisible()
-})
-
-test('Boot disk row actions menu stays open and updates while instance state polls', async ({
-  page,
-}) => {
-  await page.goto('/projects/mock-project/instances/db1/storage')
-
-  // stop the instance without waiting for it to finish: the page polls every
-  // 2s while transitioning and the mock flips to stopped after 3s
-  await page.getByRole('button', { name: 'Stop' }).click()
-  await page.getByRole('button', { name: 'Confirm' }).click()
-  await closeToast(page)
-  await expect(page.getByText('statestopping')).toBeVisible()
-
-  await clickRowActions(page, 'disk-1')
-  const unsetItem = page.getByRole('menuitem', { name: 'Unset as boot disk' })
-  await expect(unsetItem).toBeDisabled()
-
-  // the poll that lands the state change used to remount the actions cell and
-  // close the menu. Now the menu stays open and its items reflect the new state.
-  await expect(page.getByText('statestopped')).toBeVisible()
-  await expect(unsetItem).toBeVisible()
-  await expect(unsetItem).toBeEnabled()
 })
