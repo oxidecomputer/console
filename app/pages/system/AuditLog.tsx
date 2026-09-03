@@ -464,38 +464,31 @@ export default function SiloAuditLogsPage() {
     limit: PAGE_LIMIT,
   }
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isPending,
-    isFetching,
-  } = useInfiniteQuery({
-    queryKey: ['auditLogList', { query: queryParams }],
-    queryFn: ({ pageParam }) =>
-      api
-        .auditLogList({ query: { ...queryParams, pageToken: pageParam } })
-        .then((result) => {
-          if (result.type === 'success') return result.data
-          setErrorMessage(
-            result.type === 'error'
-              ? result.data.message
-              : 'An error occurred while loading the audit log'
-          )
-          throw result
-        }),
-    initialPageParam: undefined as string | undefined,
-    // Dropshot hands back a next-page token whenever a page has items, even
-    // the last one, so the token alone can't tell us we're done. A short page
-    // can: anything under the limit means there's nothing after it.
-    // https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/pagination.rs#L168-L176
-    getNextPageParam: (lastPage) =>
-      lastPage.items.length < PAGE_LIMIT ? undefined : lastPage.nextPage || undefined,
-    // no placeholderData on purpose: a time range change should show the
-    // skeleton rather than the previous range's rows while the new one loads
-  })
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isPending, isFetching } =
+    useInfiniteQuery({
+      queryKey: ['auditLogList', { query: queryParams }],
+      queryFn: ({ pageParam }) =>
+        api
+          .auditLogList({ query: { ...queryParams, pageToken: pageParam } })
+          .then((result) => {
+            if (result.type === 'success') return result.data
+            setErrorMessage(
+              result.type === 'error'
+                ? result.data.message
+                : 'An error occurred while loading the audit log'
+            )
+            throw result
+          }),
+      initialPageParam: undefined as string | undefined,
+      // Dropshot hands back a next-page token whenever a page has items, even
+      // the last one, so the token alone can't tell us we're done. A short page
+      // can: anything under the limit means there's nothing after it.
+      // https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/pagination.rs#L168-L176
+      getNextPageParam: (lastPage) =>
+        lastPage.items.length < PAGE_LIMIT ? undefined : lastPage.nextPage || undefined,
+      // no placeholderData on purpose: a time range change should show the
+      // skeleton rather than the previous range's rows while the new one loads
+    })
 
   // a time range change is a new list: clear the error, close the detail pane
   // (its index would point at a different entry), and start from the top
@@ -508,6 +501,13 @@ export default function SiloAuditLogsPage() {
   const allItems = useMemo(() => {
     return data?.pages.flatMap((page) => page.items) || []
   }, [data])
+
+  // Not TanStack's isLoading, which is only true before a range's first result.
+  // A range seen before has a cache entry and refetches in the background, but
+  // late-arriving entries mean the cached rows may not be the final set for
+  // that window, so show the skeleton until the refetch lands rather than rows
+  // that might shift. Next-page fetches keep the list and spin the button.
+  const loading = isFetching && !isFetchingNextPage
 
   const parentRef = useRef<HTMLDivElement>(null)
   // virtual rows are positioned by their offset from the top of the document, so
@@ -690,7 +690,7 @@ export default function SiloAuditLogsPage() {
       const rect = parentRef.current.getBoundingClientRect()
       setScrollMargin(rect.top + window.scrollY)
     }
-  }, [isLoading])
+  }, [loading])
 
   return (
     <>
@@ -747,7 +747,7 @@ export default function SiloAuditLogsPage() {
                 )
               })()}
           </div>
-          {!isLoading ? logTable : <LoadingState />}
+          {loading ? <LoadingState /> : logTable}
         </div>
       </div>
     </>
