@@ -486,12 +486,16 @@ export default function SiloAuditLogsPage() {
         }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextPage || undefined,
-    placeholderData: (x) => x,
+    // no placeholderData on purpose: a time range change should show the
+    // skeleton rather than the previous range's rows while the new one loads
   })
 
-  // resetting the error if the query params change
+  // a time range change is a new list: clear the error, close the detail pane
+  // (its index would point at a different entry), and start from the top
   useEffect(() => {
     setErrorMessage(null)
+    setExpandedItem(null)
+    window.scrollTo({ top: 0 })
   }, [startTime, endTime, preset])
 
   const allItems = useMemo(() => {
