@@ -32,6 +32,7 @@ export default defineConfig({
   optimizeDeps: {
     entries: ['app/**/*.browser.spec.{ts,tsx}', 'app/util/ip.spec.ts'],
     include: [
+      '@base-ui/react/menu',
       'date-fns',
       'ip-num/IPNumber.js',
       'react-router',
