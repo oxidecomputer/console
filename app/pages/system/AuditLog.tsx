@@ -330,7 +330,7 @@ const COLUMNS = [
   { title: 'Actor ID', className: 'col-actor-id' },
   { title: 'Auth Method', className: 'col-auth-method' },
   { title: 'Silo ID', className: 'col-silo-id' },
-  { title: 'Duration (ms)', className: 'col-duration' },
+  { title: 'Duration', className: 'col-duration' },
 ] as const
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
@@ -441,6 +441,7 @@ const Row = memo(function Row({
           {msFormat.format(
             differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)
           )}
+          <span className="text-tertiary ml-0.5">ms</span>
         </div>
       </div>
     </div>
@@ -867,8 +868,8 @@ const ExpandedItem = ({
           <PropertiesTable.Row label="Duration">
             {msFormat.format(
               differenceInMilliseconds(new Date(item.timeCompleted), item.timeStarted)
-            )}{' '}
-            ms
+            )}
+            <span className="text-tertiary ml-0.5">ms</span>
           </PropertiesTable.Row>
         </PropertiesTable>
       </div>
