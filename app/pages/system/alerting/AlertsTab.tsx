@@ -11,7 +11,6 @@ import { memo, useMemo, useState } from 'react'
 
 import { api, getListQFn, queryClient, snakeify, type Alert } from '@oxide/api'
 import { Webhooks24Icon } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
 
 import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
@@ -124,7 +123,7 @@ function AlertDetail({ alert, onDismiss }: { alert: Alert; onDismiss: () => void
           // alerts recorded by an earlier version of the system software.
           label="Class version"
         >
-          <Badge color="neutral">{alert.version}</Badge>
+          {alert.version}
         </PropertiesTable.Row>
         <PropertiesTable.IdRow id={alert.id} label="Alert ID" />
         <PropertiesTable.Row label="Created">
