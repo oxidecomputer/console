@@ -10,7 +10,13 @@ import { expect, test, type Page } from '@playwright/test'
 
 import { alerts } from '@oxide/api-mocks'
 
-import { clickRowAction, expectRowVisible, expectToast, selectOption } from './utils'
+import {
+  clickRowAction,
+  clickRowActions,
+  expectRowVisible,
+  expectToast,
+  selectOption,
+} from './utils'
 
 test('Alerting nav and tabs', async ({ page }) => {
   const sidebar = page.getByRole('navigation', { name: 'Sidebar navigation' })
@@ -489,6 +495,11 @@ test('Webhook receiver deliveries', async ({ page }) => {
   // probe-triggered deliveries
   await expect(table.getByRole('row')).toHaveCount(7)
   await expect(table.getByText('9bbdf44f-7dac-4cd0-b4c2-3e622c9693ee')).toBeHidden()
+
+  // a pending delivery is already being retried, so it can't be resent
+  await clickRowActions(page, 'a3d830ee-a590-40df-8281-42282c056196')
+  await expect(page.getByRole('menuitem', { name: 'Resend' })).toBeDisabled()
+  await page.keyboard.press('Escape')
 
   // Truncate renders the full ID (invisible, for stable layout) alongside the
   // ellipsized copy, so cell text contains both. Match on the full value.
