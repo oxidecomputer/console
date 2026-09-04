@@ -32,6 +32,7 @@ test-results/
 ci-e2e-traces/
 playwright-report/
 .e2e-logs/
+.vitest/
 .vercel
 
 # Visual regression snapshots
