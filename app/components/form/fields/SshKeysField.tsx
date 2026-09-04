@@ -22,6 +22,7 @@ import { Message } from '~/ui/lib/Message'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { isSubset } from '~/util/array'
 import { ALL_ISH } from '~/util/consts'
+import { links } from '~/util/links'
 
 import { CheckboxField } from './CheckboxField'
 import { ErrorMessage } from './ErrorMessage'
@@ -36,11 +37,7 @@ const CloudInitMessage = () => (
     content={
       <>
         If your image supports the cidata volume and{' '}
-        <a
-          target="_blank"
-          href="https://cloudinit.readthedocs.io/en/latest/"
-          rel="noreferrer"
-        >
+        <a target="_blank" href={links.cloudInit} rel="noreferrer">
           cloud-init
         </a>
         , the keys above will be added to your instance. Keys are added when the instance is
