@@ -7,6 +7,7 @@
  */
 
 export * from './affinity-group'
+export * from './alert'
 export * from './audit-log'
 export * from './disk'
 export * from './external-ip'
@@ -24,8 +25,8 @@ export * from './role-assignment'
 export * from './silo'
 export * from './sled'
 export * from './snapshot'
-export * from './subnet-pool'
 export * from './sshKeys'
+export * from './subnet-pool'
 export * from './switch'
 export * from './system-update'
 export * from './token'

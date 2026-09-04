@@ -31,11 +31,19 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
+import {
+  ALERT_SUBSCRIPTION_REGEX,
+  instanceCan,
+  isGlobPattern,
+  OXQL_GROUP_BY_ERROR,
+  PROBE_ALERT_CLASS,
+  subscriptionRegex,
+} from '~/api/util'
 import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
+import { alertClasses, PROBE_ALERT_ID } from '../alert'
 import { defaultSilo, toIdp } from '../silo'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
@@ -80,6 +88,116 @@ import {
 // the snake-cased objects coming straight from the API before the generated
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
+
+/**
+ * The webhook-specific endpoints return the receiver with the webhook config
+ * (endpoint, secrets) at the top level rather than nested under `kind`.
+ */
+function toWebhookReceiver(receiver: Json<Api.AlertReceiver>): Json<Api.WebhookReceiver> {
+  const { kind, ...rest } = receiver
+  return { ...rest, endpoint: kind.endpoint, secrets: kind.secrets }
+}
+
+/**
+ * Omicron parses an exact subscription as a known `AlertClass` and rejects
+ * anything else, along with the synthetic `probe` class, with a 400. Mirror
+ * that so the UI's pre-submit checks can be trusted against the mock.
+ * https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/db-model/src/alert_subscription.rs#L61-L98
+ */
+function validateSubscription(subscription: string) {
+  if (!ALERT_SUBSCRIPTION_REGEX.test(subscription)) {
+    throw invalidRequest(
+      `unsupported value for "alert_class": invalid glob '${subscription}'`
+    )
+  }
+  if (isGlobPattern(subscription)) return
+  if (subscription === PROBE_ALERT_CLASS) {
+    throw invalidRequest(
+      `unsupported value for "alert_class": the 'probe' alert class is a synthetic alert used only for webhook liveness probes, and is not included in alert lists and cannot be subscribed to`
+    )
+  }
+  if (!alertClasses.some((c) => c.name === subscription)) {
+    const known = alertClasses.map((c) => c.name).join(', ')
+    throw invalidRequest(`unsupported value for "alert_class": expected one of [${known}]`)
+  }
+}
+
+/** How long a pending delivery waits before its next attempt */
+const RETRY_DELAY_MS = 5000
+/** After this many failed attempts the delivery fails permanently */
+const MAX_ATTEMPTS = 3
+
+/** When each pending delivery, by ID, makes its next attempt */
+const nextAttemptAt = new Map<string, number>()
+
+/**
+ * In the real system the deliverator RPW retries pending deliveries in the
+ * background, so pending is a transient state. Stand in for that by making one
+ * more attempt whenever the list is fetched after the retry delay has passed.
+ * State transitions match
+ * https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/db-queries/src/db/datastore/webhook_delivery.rs#L449-L473
+ */
+function retryPendingDeliveries(receiver: Json<Api.AlertReceiver>) {
+  const now = Date.now()
+  // same sentinel as the liveness probe: endpoints we can't reach keep failing
+  const success = !receiver.kind.endpoint.includes('unreachable')
+
+  for (const delivery of db.alertDeliveries) {
+    if (delivery.receiver_id !== receiver.id || delivery.state !== 'pending') continue
+
+    const dueAt = nextAttemptAt.get(delivery.id)
+    if (dueAt === undefined) {
+      nextAttemptAt.set(delivery.id, now + RETRY_DELAY_MS)
+      continue
+    }
+    if (now < dueAt) continue
+
+    const attempt = delivery.attempts.webhook.length + 1
+    delivery.attempts.webhook.push({
+      attempt,
+      result: success ? 'succeeded' : 'failed_unreachable',
+      response: success ? { status: 200, duration_ms: 137 } : null,
+      time_sent: new Date().toISOString(),
+    })
+    delivery.state = success ? 'delivered' : attempt >= MAX_ATTEMPTS ? 'failed' : 'pending'
+
+    if (delivery.state === 'pending') {
+      nextAttemptAt.set(delivery.id, now + RETRY_DELAY_MS)
+    } else {
+      nextAttemptAt.delete(delivery.id)
+    }
+  }
+}
+
+/**
+ * Alerts eligible for resend to this receiver: it has a delivery for the alert
+ * and no non-probe delivery of that alert has left the failed state. Note this
+ * is per alert, not per delivery: delivery records are immutable history, so a
+ * failed one stays failed and a resend inserts a new record. A resend record
+ * starts out pending, which takes the alert out of this set right away, and if
+ * it succeeds the alert never comes back. That is what drains the backlog.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-queries/src/db/datastore/webhook_delivery.rs#L205-L240
+ *
+ * Returns one delivery per alert so callers can read the alert class off it.
+ * The console previews this count with `resendableAlertIds` (app/api/util.ts),
+ * which applies the same rule to camelCase records.
+ *
+ * Omicron's NOT EXISTS subquery filters on alert_id, state, and triggered_by
+ * but not rx_id, so upstream a success on one receiver makes the alert
+ * non-resendable for every receiver. We scope per receiver, which is what the
+ * API docs describe.
+ */
+function resendableAlerts(receiver: Json<Api.AlertReceiver>) {
+  const forRx = db.alertDeliveries.filter(
+    (d) => d.receiver_id === receiver.id && d.alert_class !== 'probe'
+  )
+  const settled = new Set(
+    forRx
+      .filter((d) => d.trigger !== 'probe' && d.state !== 'failed')
+      .map((d) => d.alert_id)
+  )
+  return R.uniqueBy(forRx, (d) => d.alert_id).filter((d) => !settled.has(d.alert_id))
+}
 
 export const handlers = makeHandlers({
   logout: () => 204,
@@ -2333,6 +2451,35 @@ export const handlers = makeHandlers({
     )
     return paginated(query, affinityGroups)
   },
+  alertList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
+    const { startTime, endTime, alertClass } = query
+    let final = db.alerts
+
+    if (startTime)
+      final = final.filter((alert) => new Date(alert.time_created) >= startTime)
+    if (endTime) final = final.filter((alert) => new Date(alert.time_created) <= endTime)
+    if (alertClass) {
+      const matcher = subscriptionRegex(alertClass)
+      final = final.filter((alert) => matcher.test(alert.class))
+    }
+
+    final = match(query.sortBy)
+      .with(undefined, () => final)
+      .with('time_and_id_descending', () =>
+        R.reverse(R.sortBy(final, ({ time_created, id }) => `${time_created}|${id}`))
+      )
+      .with('time_and_id_ascending', () =>
+        R.sortBy(final, ({ time_created, id }) => `${time_created}|${id}`)
+      )
+      .exhaustive()
+
+    return paginated(query, final)
+  },
+  alertView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookupById(db.alerts, path.alertId)
+  },
   auditLogList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
 
@@ -2661,6 +2808,214 @@ export const handlers = makeHandlers({
     return paginated(query, pools)
   },
 
+  alertClassList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    const filter = query.filter ? subscriptionRegex(query.filter) : null
+    // can't use paginated() because alert classes have no ID
+    return { items: alertClasses.filter((c) => !filter || filter.test(c.name)) }
+  },
+  alertReceiverList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    return paginated(query, db.alertReceivers)
+  },
+  alertReceiverView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookup.alertReceiver(path)
+  },
+  alertReceiverDelete({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver(path)
+    db.alertReceivers = db.alertReceivers.filter((r) => r.id !== receiver.id)
+    db.alertDeliveries = db.alertDeliveries.filter((d) => d.receiver_id !== receiver.id)
+    return 204
+  },
+  alertDeliveryList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const receiver = lookup.alertReceiver(path)
+    retryPendingDeliveries(receiver)
+    // probe deliveries are stored like any other but never listed, matching
+    // omicron, which only queries the alert and resend triggers here
+    // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/src/app/alert.rs#L355-L365
+    let deliveries = db.alertDeliveries.filter(
+      (d) => d.receiver_id === receiver.id && d.trigger !== 'probe'
+    )
+    // if any state filters are specified, only include deliveries in those states
+    const states = [
+      query.delivered && 'delivered',
+      query.failed && 'failed',
+      query.pending && 'pending',
+    ].filter((s) => !!s)
+    if (states.length > 0) {
+      deliveries = deliveries.filter((d) => states.includes(d.state))
+    }
+    return paginated(query, deliveries)
+  },
+  alertReceiverProbe({ path, query, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver(path)
+    const now = new Date().toISOString()
+    // sentinel to let tests exercise the failure path
+    const success = !receiver.kind.endpoint.includes('unreachable')
+    const probe: Json<Api.AlertDelivery> = {
+      id: uuid(),
+      // all probes reference the singleton probe alert, mirroring omicron
+      alert_id: PROBE_ALERT_ID,
+      alert_class: 'probe',
+      receiver_id: receiver.id,
+      state: success ? 'delivered' : 'failed',
+      trigger: 'probe',
+      time_started: now,
+      attempts: {
+        webhook: [
+          success
+            ? {
+                attempt: 1,
+                result: 'succeeded',
+                response: { status: 200, duration_ms: 123 },
+                time_sent: now,
+              }
+            : { attempt: 1, result: 'failed_unreachable', response: null, time_sent: now },
+        ],
+      },
+    }
+    db.alertDeliveries.unshift(probe)
+
+    // a successful probe with resend=true re-queues every alert that has not
+    // yet been delivered successfully to this receiver
+    let resendsStarted = null
+    if (query.resend && success) {
+      const alerts = resendableAlerts(receiver)
+      for (const d of alerts) {
+        db.alertDeliveries.unshift({
+          id: uuid(),
+          alert_id: d.alert_id,
+          alert_class: d.alert_class,
+          receiver_id: receiver.id,
+          state: 'pending',
+          trigger: 'resend',
+          time_started: now,
+          attempts: { webhook: [] },
+        })
+      }
+      resendsStarted = alerts.length
+    }
+    return { probe, resends_started: resendsStarted }
+  },
+  alertReceiverSubscriptionAdd({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver(path)
+    validateSubscription(body.subscription)
+    if (!receiver.subscriptions.includes(body.subscription)) {
+      receiver.subscriptions.push(body.subscription)
+      receiver.time_modified = new Date().toISOString()
+    }
+    return json({ subscription: body.subscription }, { status: 201 })
+  },
+  alertReceiverSubscriptionRemove({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver({ receiver: path.receiver })
+    if (!receiver.subscriptions.includes(path.subscription)) {
+      throw notFoundErr(`subscription '${path.subscription}'`)
+    }
+    receiver.subscriptions = receiver.subscriptions.filter((s) => s !== path.subscription)
+    receiver.time_modified = new Date().toISOString()
+    return 204
+  },
+  alertDeliveryResend({ path, query, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver({ receiver: query.receiver })
+    const delivery = db.alertDeliveries.find(
+      (d) => d.alert_id === path.alertId && d.receiver_id === receiver.id
+    )
+    if (!delivery) throw notFoundErr(`alert ${path.alertId}`)
+    // the real API rejects resends of alerts the receiver is no longer subscribed to
+    // https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/src/app/alert.rs#L439-L449
+    const subscribed = receiver.subscriptions.some((s) =>
+      subscriptionRegex(s).test(delivery.alert_class)
+    )
+    if (!subscribed) {
+      throw invalidRequest(
+        `cannot resend alert: receiver is not subscribed to the '${delivery.alert_class}' alert class`
+      )
+    }
+    const now = new Date().toISOString()
+    const newDelivery: Json<Api.AlertDelivery> = {
+      id: uuid(),
+      alert_id: delivery.alert_id,
+      alert_class: delivery.alert_class,
+      receiver_id: receiver.id,
+      state: 'pending',
+      trigger: 'resend',
+      time_started: now,
+      attempts: { webhook: [] },
+    }
+    db.alertDeliveries.unshift(newDelivery)
+    return json({ delivery_id: newDelivery.id }, { status: 201 })
+  },
+  webhookReceiverCreate({ body, cookies }) {
+    requireFleetAdmin(cookies)
+    errIfExists(db.alertReceivers, { name: body.name }, 'webhook receiver')
+    for (const subscription of body.subscriptions || []) {
+      validateSubscription(subscription)
+    }
+
+    const now = new Date().toISOString()
+    const newReceiver: Json<Api.AlertReceiver> = {
+      id: uuid(),
+      name: body.name,
+      description: body.description,
+      kind: {
+        kind: 'webhook',
+        endpoint: body.endpoint,
+        // secret values are write-only; only IDs are stored
+        secrets: body.secrets.map(() => ({ id: uuid(), time_created: now })),
+      },
+      subscriptions: body.subscriptions || [],
+      ...getTimestamps(),
+    }
+    db.alertReceivers.push(newReceiver)
+    return json(toWebhookReceiver(newReceiver), { status: 201 })
+  },
+  webhookReceiverUpdate({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver(path)
+
+    if (body.name && body.name !== receiver.name) {
+      errIfExists(db.alertReceivers, { name: body.name })
+      receiver.name = body.name
+    }
+    updateDesc(receiver, body)
+    if (body.endpoint) {
+      receiver.kind.endpoint = body.endpoint
+    }
+    receiver.time_modified = new Date().toISOString()
+    return 204
+  },
+  webhookSecretsList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    const receiver = lookup.alertReceiver({ receiver: query.receiver })
+    return { secrets: receiver.kind.secrets }
+  },
+  webhookSecretsAdd({ query, body: _body, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver({ receiver: query.receiver })
+    const secret: Json<Api.WebhookSecret> = {
+      id: uuid(),
+      time_created: new Date().toISOString(),
+    }
+    receiver.kind.secrets.push(secret)
+    return json(secret, { status: 201 })
+  },
+  webhookSecretsDelete({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = db.alertReceivers.find((r) =>
+      r.kind.secrets.some((s) => s.id === path.secretId)
+    )
+    if (!receiver) throw notFoundErr(`secret ${path.secretId}`)
+    receiver.kind.secrets = receiver.kind.secrets.filter((s) => s.id !== path.secretId)
+    return 204
+  },
+
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
   affinityGroupDelete: NotImplemented,
@@ -2668,17 +3023,6 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
-  alertClassList: NotImplemented,
-  alertDeliveryList: NotImplemented,
-  alertDeliveryResend: NotImplemented,
-  alertList: NotImplemented,
-  alertReceiverDelete: NotImplemented,
-  alertReceiverList: NotImplemented,
-  alertReceiverProbe: NotImplemented,
-  alertReceiverSubscriptionAdd: NotImplemented,
-  alertReceiverSubscriptionRemove: NotImplemented,
-  alertReceiverView: NotImplemented,
-  alertView: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
@@ -2787,9 +3131,4 @@ export const handlers = makeHandlers({
   userSessionList: NotImplemented,
   userTokenList: NotImplemented,
   userView: NotImplemented,
-  webhookReceiverCreate: NotImplemented,
-  webhookReceiverUpdate: NotImplemented,
-  webhookSecretsAdd: NotImplemented,
-  webhookSecretsDelete: NotImplemented,
-  webhookSecretsList: NotImplemented,
 })

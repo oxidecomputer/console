@@ -1,0 +1,792 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+import { expect, test, type Page } from '@playwright/test'
+
+import { alerts } from '@oxide/api-mocks'
+
+import {
+  clickRowAction,
+  clickRowActions,
+  expectRowVisible,
+  expectToast,
+  selectOption,
+} from './utils'
+
+test('Alerting nav and tabs', async ({ page }) => {
+  const sidebar = page.getByRole('navigation', { name: 'Sidebar navigation' })
+
+  await page.goto('/system/silos')
+  await sidebar.getByRole('link', { name: 'Alerting' }).click()
+
+  // the section root redirects to the first tab
+  await expect(page).toHaveURL('/system/alerting/receivers')
+  await expect(page).toHaveTitle('Receivers / Alerting / Oxide Console')
+  await expect(page.getByRole('tab', { name: 'Receivers' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  )
+
+  await page.getByRole('tab', { name: 'Alerts' }).click()
+  await expect(page).toHaveURL('/system/alerting/alerts')
+  await expect(page).toHaveTitle('Alerts / Alerting / Oxide Console')
+  // nav item stays highlighted on both tabs
+  await expect(sidebar.getByRole('link', { name: 'Alerting' })).toHaveAttribute(
+    'aria-current',
+    'page'
+  )
+})
+
+test('Alert receivers list', async ({ page }) => {
+  await page.goto('/system/alerting/receivers')
+  await expect(page).toHaveTitle('Receivers / Alerting / Oxide Console')
+  await expect(page.getByRole('heading', { name: 'Alerting' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: 'Receivers' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  )
+
+  const table = page.getByRole('table')
+  await expect(table.getByRole('row')).toHaveCount(4) // header + 3 receivers
+
+  await expectRowVisible(table, {
+    name: 'webhook-1',
+    Subscriptions: 'hardware.power_shelf.psu.insert+1',
+    description: 'Main web deployments',
+  })
+  await expectRowVisible(table, { name: 'power-mon', Subscriptions: 'hardware.**' })
+  await expectRowVisible(table, { name: 'general-sys-webhook', Subscriptions: '—' })
+})
+
+test('Webhook receiver create', async ({ page }) => {
+  await page.goto('/system/alerting/receivers')
+
+  await page.getByRole('link', { name: 'New webhook receiver' }).click()
+  await expect(page).toHaveURL('/system/alerting/receivers-new')
+
+  await expect(page.getByRole('heading', { name: 'Create webhook receiver' })).toBeVisible()
+
+  // scope text assertions to main to avoid matching the aria-live announcer,
+  // which repeats validation error messages at the body level
+  const main = page.getByRole('main')
+
+  await page.getByRole('textbox', { name: 'Name' }).fill('deploy-hook')
+  await page.getByRole('textbox', { name: 'Description' }).fill('CI deploys')
+
+  // endpoint must be a valid URL
+  await page.getByRole('textbox', { name: 'Endpoint URL' }).fill('not-a-url')
+  await page.getByRole('button', { name: 'Create webhook receiver' }).click()
+  await expect(
+    main.getByText('Must be a valid URL, including the scheme (e.g., https://)')
+  ).toBeVisible()
+  // at least one secret is required
+  await expect(main.getByText('At least one secret is required')).toBeVisible()
+  // and no longer than the database column holding it
+  await page
+    .getByRole('textbox', { name: 'Endpoint URL' })
+    .fill(`https://ci.example.com/${'a'.repeat(512)}`)
+  await page.getByRole('button', { name: 'Create webhook receiver' }).click()
+  await expect(main.getByText('Must be at most 512 characters')).toBeVisible()
+  await page.getByRole('textbox', { name: 'Endpoint URL' }).fill('https://ci.example.com')
+
+  // add a secret; it lands in the mini table
+  await page.getByRole('textbox', { name: 'Secret' }).fill('super-secret')
+  await page.getByRole('button', { name: 'Add secret' }).click()
+  await expect(
+    page
+      .getByRole('table', { name: 'Secrets' })
+      .getByRole('cell', { name: 'super-secret', exact: true })
+  ).toBeVisible()
+  await expect(main.getByText('At least one secret is required')).toBeHidden()
+
+  // add a subscription: a bad glob is rejected on Enter, a good one becomes a chip
+  const subsInput = page.getByRole('combobox', { name: 'Alert subscriptions' })
+  await subsInput.fill('hardware..bad')
+  await subsInput.press('Enter')
+  await expect(
+    main.getByText('Must be an alert class or a glob pattern like hardware.**')
+  ).toBeVisible()
+
+  // the probe class is synthetic and the API rejects subscribing to it
+  await subsInput.fill('probe')
+  await subsInput.press('Enter')
+  await expect(
+    main.getByText('The probe class is only used for liveness probes')
+  ).toBeVisible()
+  await subsInput.fill('hardware.**')
+  await subsInput.press('Enter')
+  await expect(
+    page.getByRole('button', { name: 'remove subscription hardware.**' })
+  ).toBeVisible()
+  await expect(subsInput).toHaveValue('')
+
+  await page.getByRole('button', { name: 'Create webhook receiver' }).click()
+  await expectToast(page, 'Webhook receiver deploy-hook created')
+
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'deploy-hook',
+    Subscriptions: 'hardware.**',
+    description: 'CI deploys',
+  })
+})
+
+test('Webhook receiver create: subscriptions field', async ({ page }) => {
+  await page.goto('/system/alerting/receivers-new')
+
+  const subsInput = page.getByRole('combobox', { name: 'Alert subscriptions' })
+  const listbox = page.getByRole('listbox')
+  const chipRemove = (sub: string) =>
+    page.getByRole('button', { name: `remove subscription ${sub}` })
+
+  // accessible-name matching is brittle here because the highlighted name is
+  // split across elements, so filter rows by rendered text instead
+  const option = (name: string) => listbox.getByRole('option').filter({ hasText: name })
+
+  // focusing opens the catalog showing all classes
+  await subsInput.click()
+  await expect(listbox.getByText('All classes')).toBeVisible()
+  await expect(listbox.getByRole('option')).toHaveCount(14)
+
+  // a glob query filters the catalog and labels matched rows with the pattern
+  await subsInput.fill('hardware.*.fault')
+  await expect(listbox.getByText('Matching “hardware.*.fault”')).toBeVisible()
+  // 3 classes match; psu.fault is one segment too deep, shown as a near miss
+  // labeled with the broader pattern that would cover it
+  await expect(listbox.getByText('Showing 4 of 14')).toBeVisible()
+  const pendingRow = option('hardware.disk.fault')
+  await expect(pendingRow.getByText('hardware.*.fault', { exact: true })).toBeVisible()
+  const nearMissRow = option('hardware.power_shelf.psu.fault')
+  await expect(nearMissRow.getByText('hardware.**.fault', { exact: true })).toBeVisible()
+
+  // Enter commits the glob as a chip and clears the query
+  await subsInput.press('Enter')
+  await expect(chipRemove('hardware.*.fault')).toBeVisible()
+  await expect(subsInput).toHaveValue('')
+
+  // space commits a glob too, since a subscription can't contain one. Remove
+  // the chip again so it doesn't cover the rows picked further down.
+  await subsInput.fill('system.**')
+  await subsInput.press(' ')
+  await expect(chipRemove('system.**')).toBeVisible()
+  await expect(subsInput).toHaveValue('')
+  await chipRemove('system.**').click()
+
+  // rows matched by the committed glob are locked and can't be double-added
+  await subsInput.fill('fault')
+  const coveredRow = option('hardware.disk.fault')
+  await expect(coveredRow.getByText('via hardware.*.fault')).toBeVisible()
+  await expect(coveredRow).toHaveAttribute('aria-disabled', 'true')
+  // force because playwright refuses to click aria-disabled elements; we want
+  // to verify the click is a no-op anyway
+  await coveredRow.click({ force: true })
+  await expect(chipRemove('hardware.disk.fault')).toBeHidden()
+
+  // plain-text filter + ticking rows commits exact classes without resetting the query
+  await subsInput.fill('update')
+  await expect(listbox.getByText('Showing 3 of 14')).toBeVisible()
+  // space is a no-op on a non-glob query: no stray space in the filter, and no
+  // chip made from a half-typed class name
+  await subsInput.press(' ')
+  await expect(subsInput).toHaveValue('update')
+  await expect(chipRemove('update')).toBeHidden()
+  // Enter on a filter that isn't a full class name is rejected instead of
+  // becoming a chip the API would reject at submit
+  await subsInput.press('Enter')
+  await expect(page.getByRole('main').getByText('Not an alert class')).toBeVisible()
+  await expect(chipRemove('update')).toBeHidden()
+  await expect(subsInput).toHaveValue('update')
+  await option('system.update.start').click()
+  await option('system.update.complete').click()
+  await expect(chipRemove('system.update.start')).toBeVisible()
+  await expect(chipRemove('system.update.complete')).toBeVisible()
+  await expect(subsInput).toHaveValue('update')
+  await expect(listbox).toBeVisible()
+
+  // clicking a picked row unpicks it
+  await option('system.update.start').click()
+  await expect(chipRemove('system.update.start')).toBeHidden()
+
+  // zero matches shows an explicit empty state with a clear action
+  await subsInput.fill('zzz')
+  await expect(listbox.getByText('No classes match')).toBeVisible()
+  await listbox.getByRole('button', { name: 'Clear' }).click()
+  await expect(listbox.getByText('All classes')).toBeVisible()
+
+  // an incomplete glob shows the full catalog, not a bogus empty state
+  await subsInput.fill('*.')
+  await expect(listbox.getByRole('option')).toHaveCount(14)
+  await subsInput.fill('')
+
+  // backspace on an empty query arms the last chip, a second one removes it
+  await subsInput.press('Backspace')
+  await expect(chipRemove('system.update.complete')).toBeVisible()
+  await subsInput.press('Backspace')
+  await expect(chipRemove('system.update.complete')).toBeHidden()
+
+  // typing disarms, so the chip survives
+  await subsInput.press('Backspace')
+  await subsInput.pressSequentially('x')
+  await subsInput.press('Backspace')
+  await subsInput.press('Backspace')
+  await expect(chipRemove('hardware.*.fault')).toBeVisible()
+
+  // arrow keys move the armed selection, so a specific chip can be deleted
+  await subsInput.fill('system.update.fail')
+  await subsInput.press('Enter')
+  await expect(chipRemove('system.update.fail')).toBeVisible()
+  await subsInput.press('ArrowLeft') // arm system.update.fail
+  await subsInput.press('ArrowLeft') // arm hardware.*.fault
+  await subsInput.press('Backspace')
+  await expect(chipRemove('hardware.*.fault')).toBeHidden()
+  await expect(chipRemove('system.update.fail')).toBeVisible()
+
+  // uncommitted text is discarded on blur so it doesn't read as added
+  await subsInput.fill('leftover')
+  await page.getByRole('textbox', { name: 'Name' }).click()
+  await expect(subsInput).toHaveValue('')
+  await expect(chipRemove('leftover')).toBeHidden()
+
+  // subscribed classes sort to the top when the panel opens
+  await subsInput.click()
+  await expect(listbox.getByRole('option').first()).toContainText('system.update.fail')
+
+  // but a valid glob commits on blur, so typing one and going straight to the
+  // submit button doesn't silently drop it
+  await subsInput.fill('hardware.disk.*')
+  await page.getByRole('textbox', { name: 'Name' }).click()
+  await expect(subsInput).toHaveValue('')
+  await expect(chipRemove('hardware.disk.*')).toBeVisible()
+})
+
+test('Webhook receiver detail: properties, subscriptions, secrets', async ({ page }) => {
+  await page.goto('/system/alerting/receivers')
+  await page.getByRole('link', { name: 'webhook-1' }).click()
+  await expect(page).toHaveURL('/system/alerting/receivers/webhook-1')
+
+  await expect(page.getByRole('heading', { name: 'webhook-1' })).toBeVisible()
+  await expect(page.getByText('https://fma.corp.oxide.computer')).toBeVisible()
+  await expect(page.getByText('Main web deployments')).toBeVisible()
+
+  // subscriptions card
+  const subscriptions = page.getByRole('table', { name: 'Alert classes' })
+  await expect(subscriptions.getByRole('row')).toHaveCount(3) // header + 2
+
+  // add a subscription
+  await page.getByRole('button', { name: 'Add subscription' }).click()
+  const addModal = page.getByRole('dialog', { name: 'Add subscription' })
+  await addModal
+    .getByRole('combobox', { name: 'Subscription' })
+    .fill('hardware.sensor.overtemp')
+  await page.getByRole('option', { name: 'hardware.sensor.overtemp' }).click()
+  await addModal.getByRole('button', { name: 'Add' }).click()
+  await expectToast(page, 'Subscribed to hardware.sensor.overtemp')
+  await expect(subscriptions.getByRole('row')).toHaveCount(4)
+
+  // remove it again
+  await clickRowAction(page, 'hardware.sensor.overtemp', 'Remove')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, 'Subscription hardware.sensor.overtemp removed')
+  await expect(subscriptions.getByRole('row')).toHaveCount(3)
+
+  // secrets card
+  const secrets = page.getByRole('table', { name: 'Secrets' })
+  await expect(secrets.getByRole('row')).toHaveCount(3) // header + 2
+
+  // newest first
+  await expect(secrets.getByRole('row').nth(1)).toContainText('b15f4584')
+  await expect(secrets.getByRole('row').nth(2)).toContainText('88c7b9bb')
+
+  // add a secret
+  await page.getByRole('button', { name: 'Add secret' }).click()
+  const secretModal = page.getByRole('dialog', { name: 'Add secret' })
+  await secretModal.getByRole('textbox', { name: 'Secret' }).fill('another-secret')
+  await secretModal.getByRole('button', { name: 'Add' }).click()
+  await expectToast(page, 'Secret added')
+  await expect(secrets.getByRole('row')).toHaveCount(4)
+  // the new secret sorts above the seeded ones
+  await expect(secrets.getByRole('row').nth(1)).not.toContainText('b15f4584')
+
+  // delete one of the seeded secrets
+  await clickRowAction(page, '88c7b9bb-fa79-4516-8f12-abebd2626062', 'Delete')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, 'Secret removed')
+  await expect(secrets.getByRole('row')).toHaveCount(3)
+
+  // deleting down to one secret warns that payloads will be unverifiable
+  await clickRowAction(page, 'b15f4584-98f1-4cac-b0d3-67294e41aab7', 'Delete')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, 'Secret removed')
+  const remainingRow = secrets.getByRole('row').nth(1)
+  await remainingRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await expect(page.getByText('Deleting the only secret stops deliveries')).toBeVisible()
+  await page.getByRole('button', { name: 'Cancel' }).click()
+})
+
+test('Add subscription modal previews the classes a glob matches', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/webhook-1')
+
+  await page.getByRole('button', { name: 'Add subscription' }).click()
+  const modal = page.getByRole('dialog', { name: 'Add subscription' })
+  const input = modal.getByRole('combobox', { name: 'Subscription' })
+  const preview = modal.getByText(/Matches \d+ alert class/)
+
+  // an exact class only ever matches itself, so there is nothing to preview
+  await input.fill('hardware.sled.fault')
+  await expect(preview).toBeHidden()
+
+  await input.fill('hardware.**')
+  await expect(preview).toHaveText(/^Matches 11 alert classes:/)
+  await expect(preview).toContainText('hardware.sensor.overtemp')
+  await expect(preview).not.toContainText('system.update.start')
+
+  // ** matches every class except the synthetic probe class, which can't be
+  // subscribed to
+  await input.fill('**')
+  await expect(preview).toHaveText(/^Matches 14 alert classes:/)
+  await expect(preview).not.toContainText('probe')
+
+  // a well-formed glob matching nothing says so rather than rendering an
+  // empty list
+  await input.fill('zzz.**')
+  await expect(preview).toBeHidden()
+  await expect(modal.getByText('No current alert classes match this pattern')).toBeVisible()
+
+  // an exact class the API doesn't know is rejected before submit
+  await input.fill('hardware.sled.nope')
+  await modal.getByRole('button', { name: 'Add' }).click()
+  await expect(modal.getByText('Not an alert class')).toBeVisible()
+})
+
+test('Add subscription modal omits classes an existing glob already covers', async ({
+  page,
+}) => {
+  // power-mon subscribes to hardware.**, so only non-hardware classes are offered
+  await page.goto('/system/alerting/receivers/power-mon')
+  await page.getByRole('button', { name: 'Add subscription' }).click()
+  const modal = page.getByRole('dialog', { name: 'Add subscription' })
+  await modal.getByRole('combobox', { name: 'Subscription' }).click()
+  await expect(page.getByRole('option', { name: /system\.update\.start/ })).toBeVisible()
+  await expect(page.getByRole('option', { name: /hardware\.sled\.fault/ })).toBeHidden()
+})
+
+test('Testing tab: probe result and signature format', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/webhook-1')
+  await page.getByRole('tab', { name: 'Testing' }).click()
+
+  const panel = page.getByRole('tabpanel')
+  await expect(
+    panel.getByText('Send a liveness probe to see the result here')
+  ).toBeVisible()
+
+  await panel.getByRole('button', { name: 'Send liveness probe' }).click()
+  const probeModal = page.getByRole('dialog', { name: 'Send liveness probe' })
+  await probeModal.getByRole('button', { name: 'Send probe' }).click()
+
+  await expect(panel.getByText('Succeeded')).toBeVisible()
+  await expect(panel.getByText('200')).toBeVisible()
+  await expect(panel.getByText('123ms')).toBeVisible()
+
+  // signature format docs
+  await expect(panel.getByText('a={algorithm}&id={secret-id}&s={signature}')).toBeVisible()
+  await expect(panel.getByText('The HMAC signature of the request body')).toBeVisible()
+})
+
+test('Testing tab: probe failure', async ({ page }) => {
+  await page.goto('/system/alerting/receivers')
+
+  // the mock backend fails probes for endpoints containing 'unreachable'
+  await clickRowAction(page, 'power-mon', 'Edit')
+  await page
+    .getByRole('dialog', { name: 'Edit webhook receiver' })
+    .getByRole('textbox', { name: 'Endpoint URL' })
+    .fill('https://unreachable.example.com')
+  await page.getByRole('button', { name: 'Update webhook receiver' }).click()
+  await expectToast(page, 'Webhook receiver power-mon updated')
+
+  await page.getByRole('tab', { name: 'Testing' }).click()
+  const panel = page.getByRole('tabpanel')
+  await panel.getByRole('button', { name: 'Send liveness probe' }).click()
+  await page
+    .getByRole('dialog', { name: 'Send liveness probe' })
+    .getByRole('button', { name: 'Send probe' })
+    .click()
+
+  await expect(panel.getByText('Unreachable')).toBeVisible()
+})
+
+test('Webhook receiver edit', async ({ page }) => {
+  await page.goto('/system/alerting/receivers')
+  await clickRowAction(page, 'general-sys-webhook', 'Edit')
+
+  const modal = page.getByRole('dialog', { name: 'Edit webhook receiver' })
+  await expect(modal.getByRole('textbox', { name: 'Endpoint URL' })).toHaveValue(
+    'https://api.example.dev/hooks/oxide'
+  )
+  await modal.getByRole('textbox', { name: 'Name' }).fill('general-webhook')
+  await modal
+    .getByRole('textbox', { name: 'Endpoint URL' })
+    .fill('https://hooks.example.dev')
+  await page.getByRole('button', { name: 'Update webhook receiver' }).click()
+
+  await expectToast(page, 'Webhook receiver general-webhook updated')
+  // lands on the detail page for the new name
+  await expect(page).toHaveURL('/system/alerting/receivers/general-webhook')
+  await expect(page.getByText('https://hooks.example.dev')).toBeVisible()
+})
+
+// The mock backend retries a pending delivery 5s after the list is first
+// fetched, so refresh until the state settles rather than sleeping.
+const refreshUntil = (page: Page, expectation: () => Promise<void>) =>
+  expect(async () => {
+    await page.getByRole('button', { name: 'Refresh data' }).click()
+    await expectation()
+  }).toPass({ timeout: 30_000 })
+
+test('Pending delivery resolves to delivered', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/webhook-1?tab=deliveries')
+
+  const row = page.getByRole('row', { name: /a3d830ee/ })
+  await expect(row.getByText('pending')).toBeVisible()
+
+  await refreshUntil(page, () =>
+    expect(row.getByText('delivered')).toBeVisible({ timeout: 1000 })
+  )
+
+  // the retry shows up as a second attempt on the delivery
+  await clickRowAction(page, 'a3d830ee-a590-40df-8281-42282c056196', 'View details')
+  const sideModal = page.getByRole('dialog', { name: 'Webhook delivery' })
+  await expect(sideModal.getByRole('table').getByRole('row')).toHaveCount(3) // header + 2
+})
+
+test('Pending delivery fails after exhausting retries', async ({ page }) => {
+  await page.goto('/system/alerting/receivers')
+
+  // the mock backend fails delivery to endpoints containing 'unreachable'
+  await clickRowAction(page, 'webhook-1', 'Edit')
+  await page
+    .getByRole('dialog', { name: 'Edit webhook receiver' })
+    .getByRole('textbox', { name: 'Endpoint URL' })
+    .fill('https://unreachable.example.com')
+  await page.getByRole('button', { name: 'Update webhook receiver' }).click()
+  await expectToast(page, 'Webhook receiver webhook-1 updated')
+
+  await page.getByRole('tab', { name: 'Deliveries' }).click()
+  const row = page.getByRole('row', { name: /a3d830ee/ })
+  await expect(row.getByText('pending')).toBeVisible()
+
+  // one attempt already failed, so it takes two more to hit the 3-attempt limit
+  await refreshUntil(page, () =>
+    expect(row.getByText('failed')).toBeVisible({ timeout: 1000 })
+  )
+})
+
+test('Webhook receiver deliveries', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/webhook-1')
+  await page.getByRole('tab', { name: 'Deliveries' }).click()
+
+  const table = page.getByRole('table')
+  // header + 6. the seeded probe delivery is excluded: the API never lists
+  // probe-triggered deliveries
+  await expect(table.getByRole('row')).toHaveCount(7)
+  await expect(table.getByText('9bbdf44f-7dac-4cd0-b4c2-3e622c9693ee')).toBeHidden()
+
+  // a pending delivery is already being retried, so it can't be resent
+  await clickRowActions(page, 'a3d830ee-a590-40df-8281-42282c056196')
+  await expect(page.getByRole('menuitem', { name: 'Resend' })).toBeDisabled()
+  await page.keyboard.press('Escape')
+
+  // Truncate renders the full ID (invisible, for stable layout) alongside the
+  // ellipsized copy, so cell text contains both. Match on the full value.
+  await expectRowVisible(table, {
+    'Delivery ID': expect.stringContaining('30ece63e-5efd-4365-99a6-d4f09dfa685e'),
+    'Alert ID': expect.stringContaining('beef336d-99db-4b12-ac08-7ebcaab8421a'),
+    'Alert class': 'hardware.power_shelf.psu.insert',
+    state: 'failed',
+    trigger: 'alert',
+  })
+  // the untruncated ID is still the row's accessible name, so it stays findable
+  await expect(
+    table.getByRole('row', { name: '30ece63e-5efd-4365-99a6-d4f09dfa685e' })
+  ).toBeVisible()
+
+  // filter by state
+  await selectOption(page, 'Filter by state', 'Failed')
+  await expect(table.getByRole('row')).toHaveCount(4) // header + 3 failed
+  await selectOption(page, 'Filter by state', 'All states')
+  await expect(table.getByRole('row')).toHaveCount(7)
+
+  // delivery detail side modal shows attempts
+  await clickRowAction(page, '30ece63e-5efd-4365-99a6-d4f09dfa685e', 'View details')
+  const sideModal = page.getByRole('dialog', { name: 'Webhook delivery' })
+
+  // the metadata table spells out all three IDs, which are easy to confuse.
+  // IdRow truncates, but keeps the full value as the accessible name
+  const props = sideModal.getByLabel('Properties table')
+  await expect(props).toContainText('Delivery ID')
+  await expect(props.getByLabel('30ece63e-5efd-4365-99a6-d4f09dfa685e')).toBeVisible()
+  await expect(props).toContainText('Alert ID')
+  await expect(props.getByLabel('beef336d-99db-4b12-ac08-7ebcaab8421a')).toBeVisible()
+  await expect(props).toContainText('Receiver ID')
+  await expect(props.getByLabel('ae2d6e09-9f4d-4dd1-ac54-160d61c7ce42')).toBeVisible()
+
+  const attempts = sideModal.getByRole('table')
+  await expect(attempts.getByRole('row')).toHaveCount(4) // header + 3 attempts
+  await expect(attempts.getByRole('cell', { name: 'HTTP error' })).toBeVisible()
+
+  // request tab reconstructs the payload and headers from the delivery and
+  // the alert fetched by ID
+  await sideModal.getByRole('tab', { name: 'Request' }).click()
+  await expect(attempts).toBeHidden()
+  const request = sideModal.getByRole('tabpanel')
+  await expect(
+    request.getByText('"id": "30ece63e-5efd-4365-99a6-d4f09dfa685e"')
+  ).toBeVisible()
+  // alert version and data payload come from the alert record
+  await expect(request.getByText('"alert_version": 0')).toBeVisible()
+  await expect(request.getByText('"manufacturer": "Murata"')).toBeVisible()
+  // payload keys are snake_case like the body the receiver got, not the
+  // camelCase the client uses internally
+  await expect(request.getByText('"firmware_revision": "1.9"')).toBeVisible()
+  // the signature can't be reconstructed, so it stays a placeholder
+  await expect(request.getByText('a=sha256&id=<secret ID>&s=<signature>')).toBeVisible()
+  await expect(request.getByText('x-oxide-alert-class')).toBeVisible()
+  await expect(
+    request.getByText('hardware.power_shelf.psu.insert', { exact: true })
+  ).toBeVisible()
+
+  await sideModal.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+
+  // resend a failed delivery requires confirmation, then creates a new
+  // pending delivery
+  await clickRowAction(page, '30ece63e-5efd-4365-99a6-d4f09dfa685e', 'Resend')
+  const confirmModal = page.getByRole('dialog', { name: 'Confirm resend' })
+  // the alert ID is truncated for display, but keeps the full value as its
+  // accessible name
+  await expect(
+    confirmModal.getByLabel('beef336d-99db-4b12-ac08-7ebcaab8421a')
+  ).toBeVisible()
+  await confirmModal.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, 'Delivery resend started')
+  await expect(table.getByRole('row')).toHaveCount(8)
+  await expectRowVisible(table, {
+    'Alert class': 'hardware.power_shelf.psu.insert',
+    state: 'pending',
+    trigger: 'resend',
+  })
+
+  // send a liveness probe from the testing tab, resending failed deliveries
+  await page.getByRole('tab', { name: 'Testing' }).click()
+  await page.getByRole('button', { name: 'Send liveness probe' }).click()
+  const probeModal = page.getByRole('dialog', { name: 'Send liveness probe' })
+  // the preview already accounts for the manual resend above, so it says one,
+  // not one per failed record
+  await expect(
+    probeModal.getByText('1 alert has never reached this endpoint')
+  ).toBeVisible()
+  await probeModal
+    .getByRole('checkbox', { name: 'Resend failed deliveries if the probe succeeds' })
+    .check()
+  await probeModal.getByRole('button', { name: 'Send probe' }).click()
+  const panel = page.getByRole('tabpanel')
+  await expect(panel.getByText('Succeeded')).toBeVisible()
+  // resends are counted per alert, not per failed delivery record. of the three
+  // failed records, 8c8a74ba already has a successful resend and beef336d was
+  // just resent by hand, so only 81dd4626 is left
+  await expect(panel.getByText('1 delivery requeued')).toBeVisible()
+
+  // the result links to the deliveries tab, where the resends resolve
+  await panel.getByRole('link', { name: 'View deliveries' }).click()
+  // 8 rows + the one resend. the probe itself is not listed
+  await expect(table.getByRole('row')).toHaveCount(9)
+})
+
+// The bug that got this checkbox removed the first time: the mock resent every
+// delivery record in the failed state, so already-resent alerts were requeued on
+// every probe and the count never dropped.
+test('Probe resends drain the backlog', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/webhook-1?tab=testing')
+
+  const panel = page.getByRole('tabpanel')
+  // the modal previews how many alerts a resend would requeue, so the user can
+  // see the number before committing to the checkbox
+  const openProbeModal = async (expectedNote: string) => {
+    await panel.getByRole('button', { name: 'Send liveness probe' }).click()
+    const modal = page.getByRole('dialog', { name: 'Send liveness probe' })
+    await expect(modal.getByText(expectedNote)).toBeVisible()
+    return modal
+  }
+  const sendProbe = async (resend: boolean, expectedNote: string) => {
+    const modal = await openProbeModal(expectedNote)
+    if (resend) {
+      await modal
+        .getByRole('checkbox', { name: 'Resend failed deliveries if the probe succeeds' })
+        .check()
+    }
+    await modal.getByRole('button', { name: 'Send probe' }).click()
+    await expect(panel.getByText('Succeeded')).toBeVisible()
+  }
+
+  // beef336d and 81dd4626 have only ever failed. 8c8a74ba also has a failed
+  // record, but it already has a successful resend, so it does not count
+  const twoWaiting = '2 alerts have never reached this endpoint'
+
+  // leaving the box unchecked resends nothing, even though 2 are waiting
+  await sendProbe(false, twoWaiting)
+  await expect(panel.getByText('requeued')).toBeHidden()
+  await expect(panel.getByText('No failed deliveries to resend')).toBeHidden()
+
+  // the preview matches what the probe actually reports
+  await sendProbe(true, twoWaiting)
+  await expect(panel.getByText('2 deliveries requeued')).toBeVisible()
+
+  // let the two resends land
+  await panel.getByRole('link', { name: 'View deliveries' }).click()
+  await selectOption(page, 'Filter by state', 'Pending')
+  const table = page.getByRole('table')
+  // the two resends plus the seeded pending delivery
+  await expect(table.getByRole('row')).toHaveCount(4) // header + 3
+  await refreshUntil(page, () =>
+    expect(page.getByText('No pending deliveries found')).toBeVisible({ timeout: 1000 })
+  )
+
+  // now that every alert has been delivered there is nothing to resend, so the
+  // checkbox is disabled rather than offering a no-op
+  await page.getByRole('tab', { name: 'Testing' }).click()
+  const modal = await openProbeModal('Every alert has reached this endpoint')
+  const resendBox = modal.getByRole('checkbox', {
+    name: 'Resend failed deliveries if the probe succeeds',
+  })
+  await expect(resendBox).toBeDisabled()
+  await expect(resendBox).not.toBeChecked()
+
+  // the probe still works, it just doesn't ask for resends
+  await modal.getByRole('button', { name: 'Send probe' }).click()
+  await expect(panel.getByText('Succeeded')).toBeVisible()
+  await expect(panel.getByText('requeued')).toBeHidden()
+  await expect(panel.getByText('No failed deliveries to resend')).toBeHidden()
+})
+
+test('Probe failure reports no resends', async ({ page }) => {
+  await page.goto('/system/alerting/receivers')
+
+  // the mock backend fails probes for endpoints containing 'unreachable'
+  await clickRowAction(page, 'webhook-1', 'Edit')
+  await page
+    .getByRole('dialog', { name: 'Edit webhook receiver' })
+    .getByRole('textbox', { name: 'Endpoint URL' })
+    .fill('https://unreachable.example.com')
+  await page.getByRole('button', { name: 'Update webhook receiver' }).click()
+  await expectToast(page, 'Webhook receiver webhook-1 updated')
+
+  await page.getByRole('tab', { name: 'Testing' }).click()
+  const panel = page.getByRole('tabpanel')
+  await panel.getByRole('button', { name: 'Send liveness probe' }).click()
+  const modal = page.getByRole('dialog', { name: 'Send liveness probe' })
+  await modal
+    .getByRole('checkbox', { name: 'Resend failed deliveries if the probe succeeds' })
+    .check()
+  await modal.getByRole('button', { name: 'Send probe' }).click()
+
+  // resends only happen on success, so the API returns null and we show no row
+  await expect(panel.getByText('Unreachable')).toBeVisible()
+  await expect(panel.getByText('requeued')).toBeHidden()
+  await expect(panel.getByText('No failed deliveries to resend')).toBeHidden()
+})
+
+test('Resend fails for an unsubscribed alert class', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/webhook-1')
+
+  // unsubscribe from the class of an existing failed delivery
+  await clickRowAction(page, 'hardware.power_shelf.psu.insert', 'Remove')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, 'Subscription hardware.power_shelf.psu.insert removed')
+
+  // resending a delivery of that class is rejected, matching the real API
+  await page.getByRole('tab', { name: 'Deliveries' }).click()
+  await clickRowAction(page, '30ece63e-5efd-4365-99a6-d4f09dfa685e', 'Resend')
+  await page
+    .getByRole('dialog', { name: 'Confirm resend' })
+    .getByRole('button', { name: 'Confirm' })
+    .click()
+  await expectToast(
+    page,
+    "Could not resend alertCannot resend alert: receiver is not subscribed to the 'hardware.power_shelf.psu.insert' alert class"
+  )
+  // the rejected resend must not have created a new delivery
+  await expect(page.getByRole('table').getByRole('row')).toHaveCount(7) // header + 6
+})
+
+test('Webhook receiver delete', async ({ page }) => {
+  await page.goto('/system/alerting/receivers')
+
+  await clickRowAction(page, 'power-mon', 'Delete')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, 'Webhook receiver power-mon deleted')
+
+  await expect(page.getByRole('cell', { name: 'power-mon' })).toBeHidden()
+  await expect(page.getByRole('table').getByRole('row')).toHaveCount(3) // header + 2
+})
+
+test('Alert list basics', async ({ page }) => {
+  await page.goto('/system/alerting/alerts')
+
+  await expect(page).toHaveTitle('Alerts / Alerting / Oxide Console')
+  await expect(page.getByRole('heading', { name: 'Alerting' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: 'Alerts' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  )
+
+  const table = page.getByRole('table')
+  await expect(table.getByRole('row')).toHaveCount(alerts.length + 1)
+
+  // newest first, with the ID and a one-line preview of the payload
+  await expectRowVisible(table, {
+    'Alert ID': expect.stringContaining('26cb0726'),
+    'Alert class': 'hardware.power_shelf.psu.insert',
+    Payload: expect.stringContaining('rack_id'),
+  })
+  await expectRowVisible(table, {
+    'Alert ID': expect.stringContaining('8c8a74ba'),
+    'Alert class': 'hardware.power_shelf.psu.remove',
+  })
+  // the probe alert has an empty payload
+  await expectRowVisible(table, { 'Alert class': 'probe', Payload: '—' })
+
+  // alert classes must stay lowercase so they can be copied into a subscription
+  await expect(table.getByText('hardware.power_shelf.psu.insert').first()).toHaveCSS(
+    'text-transform',
+    'none'
+  )
+})
+
+test('Alert list detail view', async ({ page }) => {
+  await page.goto('/system/alerting/alerts')
+
+  const rows = page.getByRole('table').getByRole('row')
+
+  // the whole row opens the details
+  await rows.filter({ hasText: '26cb0726' }).click()
+  const modal = page.getByRole('dialog', { name: 'Alert details' })
+  await expect(modal).toBeVisible()
+  const alertBody = modal.locator('pre')
+  await expect(alertBody).toContainText('"Murata"')
+  await expect(alertBody).toContainText('slot: 0')
+  await modal.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+  await expect(modal).toBeHidden()
+
+  // keyboard users have a hidden button per row
+  await rows
+    .filter({ hasText: '0d38abba' })
+    .getByRole('button', { name: 'View alert details' })
+    .focus()
+  await page.keyboard.press('Enter')
+  await expect(modal).toBeVisible()
+  await expect(modal.locator('pre')).toContainText('slot: 3')
+})

@@ -7,7 +7,53 @@
  */
 import { describe, expect, it, test } from 'vitest'
 
-import { diskCan, genName, instanceCan, parsePortRange, synthesizeData } from './util'
+import {
+  diskCan,
+  genName,
+  instanceCan,
+  parsePortRange,
+  resendableAlertIds,
+  subscriptionRegex,
+  synthesizeData,
+} from './util'
+
+describe('subscriptionRegex', () => {
+  it('matches exact class names', () => {
+    expect(subscriptionRegex('instance.create').test('instance.create')).toBe(true)
+    expect(subscriptionRegex('instance.create').test('instance.created')).toBe(false)
+  })
+
+  it('* matches exactly one segment', () => {
+    const re = subscriptionRegex('disk.*')
+    expect(re.test('disk.create')).toBe(true)
+    expect(re.test('disk.snapshot.create')).toBe(false)
+    expect(re.test('disk')).toBe(false)
+  })
+
+  it('* can appear in any position', () => {
+    const re = subscriptionRegex('*.create')
+    expect(re.test('disk.create')).toBe(true)
+    expect(re.test('instance.create')).toBe(true)
+    expect(re.test('instance.ephemeral_ip.create')).toBe(false)
+  })
+
+  it('** matches one or more segments', () => {
+    const re = subscriptionRegex('hardware.**')
+    expect(re.test('hardware.power_shelf.psu.insert')).toBe(true)
+    expect(re.test('hardware.psu')).toBe(true)
+    expect(re.test('hardware')).toBe(false)
+
+    const suffix = subscriptionRegex('**.delete')
+    expect(suffix.test('project.delete')).toBe(true)
+    expect(suffix.test('instance.ephemeral_ip.delete')).toBe(true)
+    expect(suffix.test('delete')).toBe(false)
+  })
+
+  it('does not match substrings within a segment', () => {
+    expect(subscriptionRegex('instance.**').test('silo.instance_quota.hit')).toBe(false)
+    expect(subscriptionRegex('disk.*').test('bigdisk.create')).toBe(false)
+  })
+})
 
 describe('parsePortRange', () => {
   describe('parses', () => {
@@ -196,4 +242,77 @@ test('diskCan', () => {
   // @ts-expect-error typechecker rejects actions that don't exist
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   diskCan.abc
+})
+
+describe('resendableAlertIds', () => {
+  // the rule only reads these four fields, so build them directly
+  type Delivery = Parameters<typeof resendableAlertIds>[0][number]
+
+  const d = (
+    alertId: string,
+    state: Delivery['state'],
+    trigger: Delivery['trigger'],
+    alertClass = 'hardware.sled.fault'
+  ): Delivery => ({ alertId, state, trigger, alertClass })
+
+  const ids = (deliveries: Delivery[]) => [...resendableAlertIds(deliveries)].sort()
+
+  it('is empty when there are no deliveries', () => {
+    expect(ids([])).toEqual([])
+  })
+
+  it('includes an alert whose only delivery failed', () => {
+    expect(ids([d('a', 'failed', 'alert')])).toEqual(['a'])
+  })
+
+  it('excludes delivered and pending alerts', () => {
+    expect(ids([d('a', 'delivered', 'alert'), d('b', 'pending', 'alert')])).toEqual([])
+  })
+
+  // the bug this rule replaced: it counted failed delivery records, so an
+  // alert that had already been resent successfully was requeued forever
+  it('excludes an alert that has a failed record but also a successful resend', () => {
+    const deliveries = [d('a', 'failed', 'alert'), d('a', 'delivered', 'resend')]
+    expect(ids(deliveries)).toEqual([])
+  })
+
+  // a resend in flight takes the alert out of the set, so a second probe does
+  // not double-queue it
+  it('excludes an alert with a resend still pending', () => {
+    const deliveries = [d('a', 'failed', 'alert'), d('a', 'pending', 'resend')]
+    expect(ids(deliveries)).toEqual([])
+  })
+
+  it('counts an alert once no matter how many times it failed', () => {
+    const deliveries = [d('a', 'failed', 'alert'), d('a', 'failed', 'resend')]
+    expect(ids(deliveries)).toEqual(['a'])
+  })
+
+  it('ignores probe deliveries entirely', () => {
+    const deliveries = [
+      d('probe-alert', 'delivered', 'probe', 'probe'),
+      d('probe-alert', 'failed', 'probe', 'probe'),
+      d('a', 'failed', 'alert'),
+    ]
+    expect(ids(deliveries)).toEqual(['a'])
+  })
+
+  // a successful probe of an alert does not mean the alert itself landed, so it
+  // must not settle the alert. matches omicron's triggered_by != probe filter
+  it('does not let a probe-triggered success settle a real alert', () => {
+    const deliveries = [d('a', 'failed', 'alert'), d('a', 'delivered', 'probe')]
+    expect(ids(deliveries)).toEqual(['a'])
+  })
+
+  it('handles several alerts at once', () => {
+    const deliveries = [
+      d('w', 'failed', 'alert'),
+      d('x', 'delivered', 'alert'),
+      d('y', 'failed', 'alert'),
+      d('y', 'failed', 'resend'),
+      d('z', 'failed', 'alert'),
+      d('z', 'pending', 'resend'),
+    ]
+    expect(ids(deliveries)).toEqual(['w', 'y'])
+  })
 })

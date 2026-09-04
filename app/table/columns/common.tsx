@@ -27,6 +27,14 @@ function idCell(info: Info<string>) {
   )
 }
 
+// narrow enough to leave ~5 characters on either side of the ellipsis, enough
+// to tell UUIDs apart at a glance without the wide column a full one demands
+function shortIdCell(info: Info<string>) {
+  return (
+    <Truncate text={info.getValue()} position="middle" className="max-w-32" hasCopyButton />
+  )
+}
+
 function instanceStateCell(info: Info<InstanceState>) {
   return <InstanceStateBadge state={info.getValue()} />
 }
@@ -38,6 +46,12 @@ export const Columns = {
     cell: (info: Info<string | undefined>) => <DescriptionCell text={info.getValue()} />,
   },
   id: { header: 'ID', cell: idCell },
+  /**
+   * Like `id`, but middle-truncated, with the full value in a tooltip and on
+   * the copy button. For tables too crowded to give an ID its full width, or
+   * that show more than one ID per row.
+   */
+  shortId: { header: 'ID', cell: shortIdCell },
   instanceState: { header: 'state', cell: instanceStateCell },
   size: { cell: (info: Info<number>) => <Size bytes={info.getValue()} /> },
   timeCreated: { header: 'created', cell: dateCell },

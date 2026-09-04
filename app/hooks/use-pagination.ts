@@ -9,9 +9,26 @@ import { useCallback, useState } from 'react'
 
 type PageToken = string | undefined
 
-export function usePagination() {
+/**
+ * @param queryId Identifies the query being paginated. When it changes, we jump
+ * back to the first page: a page token is only meaningful for the query that
+ * produced it, so carrying one across a query change (e.g., a filter above the
+ * table) means asking the API to resume from a position that doesn't exist in
+ * the new result set.
+ */
+export function usePagination(queryId?: string) {
   const [prevPages, setPrevPages] = useState<PageToken[]>([])
   const [currentPage, setCurrentPage] = useState<PageToken>()
+
+  // Adjusting state during render rather than in an effect, as recommended by
+  // https://react.dev/learn/you-might-not-need-an-effect. An effect would let a
+  // render go out with the stale token, firing off a bogus request.
+  const [prevQueryId, setPrevQueryId] = useState(queryId)
+  if (queryId !== prevQueryId) {
+    setPrevQueryId(queryId)
+    setPrevPages([])
+    setCurrentPage(undefined)
+  }
 
   const goToPrevPage = useCallback(() => {
     const prevPage = prevPages.pop()

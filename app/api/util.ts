@@ -12,6 +12,7 @@ import { match } from 'ts-pattern'
 import { bytesToGiB } from '~/util/units'
 
 import type {
+  AlertDelivery,
   Disk,
   DiskState,
   DiskType,
@@ -39,6 +40,69 @@ export const INSTANCE_MAX_CPU = 254
 
 export const INSTANCE_MIN_RAM_GiB = 1
 export const INSTANCE_MAX_RAM_GiB = 1536
+
+// Webhook endpoint URL column width. The API does no length validation, so a
+// longer URL fails with a database error rather than a 400.
+// https://github.com/oxidecomputer/omicron/blob/6db4c7e/schema/crdb/dbinit.sql#L7192
+export const WEBHOOK_ENDPOINT_MAX_LENGTH = 512
+
+// Valid alert subscription: an alert class or a glob pattern matching multiple
+// classes. https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/types/versions/src/initial/alert.rs#L22-L23
+export const ALERT_SUBSCRIPTION_REGEX =
+  /^([a-zA-Z0-9_]+|\*|\*\*)(\.([a-zA-Z0-9_]+|\*|\*\*))*$/
+
+/** A subscription with a `*` or `**` segment, as opposed to an exact class */
+export const isGlobPattern = (subscription: string) => subscription.includes('*')
+
+/**
+ * The `probe` class is synthetic: it exists for webhook receiver liveness
+ * probes only.
+ * The API lists it in `alertClassList` but rejects exact subscriptions to it
+ * with a 400, so keep it out of anything the user can pick. Globs are exempt
+ * because the API returns from its glob branch before reaching this check.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-model/src/alert_subscription.rs#L91-L98
+ */
+export const PROBE_ALERT_CLASS = 'probe'
+
+/** Alert classes a receiver can actually subscribe to */
+export const isSubscribableClass = (c: { name: string }) => c.name !== PROBE_ALERT_CLASS
+
+/**
+ * Convert an alert subscription to a regex matching the class names it covers:
+ * a `*` segment matches exactly one segment, `**` matches one or more.
+ * https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/db-model/src/alert_subscription.rs
+ */
+export function subscriptionRegex(subscription: string) {
+  const pattern = subscription
+    .split('.')
+    .map((seg) => (seg === '**' ? '.+' : seg === '*' ? '[^.]+' : seg))
+    .join('\\.')
+  return new RegExp(`^${pattern}$`)
+}
+
+/**
+ * IDs of the alerts a probe with `resend=true` would requeue: the receiver has
+ * a delivery for the alert and no non-probe delivery of that alert has left the
+ * failed state. Note this is per alert, not per delivery — delivery records are
+ * immutable history, so a failed one stays failed forever and a resend inserts
+ * a new record. The API has no endpoint for this, so we derive it from the
+ * delivery list to preview the count before the user commits to a resend.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-queries/src/db/datastore/webhook_delivery.rs#L205-L240
+ *
+ * The mock backend applies the same rule in its own `resendableAlerts`, which
+ * works on snake_case records, so the two have to be changed together.
+ */
+export function resendableAlertIds(
+  deliveries: Pick<AlertDelivery, 'alertId' | 'alertClass' | 'state' | 'trigger'>[]
+): Set<string> {
+  const relevant = deliveries.filter((d) => d.alertClass !== PROBE_ALERT_CLASS)
+  const settled = new Set(
+    relevant
+      .filter((d) => d.trigger !== 'probe' && d.state !== 'failed')
+      .map((d) => d.alertId)
+  )
+  return new Set(relevant.filter((d) => !settled.has(d.alertId)).map((d) => d.alertId))
+}
 
 export const MIN_DISK_SIZE_GiB = 1
 /**
