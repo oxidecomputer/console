@@ -16,7 +16,9 @@
     },
     "skipLibCheck": true,
     "target": "es2024",
-    "types": ["node", "vite/client", "vitest/importMeta"]
+    "types": ["node", "vite/client", "vitest/importMeta"],
+    "rootDirs": [".", "./.react-router/types"]
   },
-  "exclude": ["tools/deno"]
+  "exclude": ["tools/deno", "build", "dist"],
+  "include": ["**/*", ".react-router/types/**/*"]
 }

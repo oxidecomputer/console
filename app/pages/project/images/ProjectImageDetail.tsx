@@ -5,22 +5,25 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+
+import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 
 import { ImageDetailSideModal } from '~/components/ImageDetailSideModal'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getProjectImageSelector, useProjectImageSelector } from '~/hooks/use-params'
+import { useProjectImageSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+import type { Route } from './+types/ProjectImageDetail'
 
 const imageView = ({ image, project }: PP.Image) =>
   q(api.imageView, { path: { image }, query: { project } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getProjectImageSelector(params)
-  await queryClient.prefetchQuery(imageView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, image } = params
+  await queryClient.prefetchQuery(imageView({ project, image }))
   return null
 }
 

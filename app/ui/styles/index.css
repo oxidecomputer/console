@@ -21,7 +21,10 @@
 
 @layer base, components, utilities;
 
-@import 'tailwindcss';
+/* Keep docs and tooling out of the scan: watched Markdown can trigger full reloads.
+   Paths are relative to this stylesheet; name app explicitly so a bad path fails.
+   The design-system source is registered separately below. */
+@import 'tailwindcss' source('../../../app');
 
 @import '@oxide/design-system/styles/tailwind.css';
 @import '@oxide/design-system/styles/main.css';
@@ -163,8 +166,7 @@
 
 @layer base {
   html,
-  body,
-  #root {
+  body {
     height: 100%;
   }
 

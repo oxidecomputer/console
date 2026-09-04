@@ -5,10 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useQuery } from '@tanstack/react-query'
 import { useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
 import {
   api,
@@ -38,11 +39,7 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { InstanceStateBadge } from '~/components/StateBadge'
-import {
-  getInstanceSelector,
-  useInstanceSelector,
-  useProjectSelector,
-} from '~/hooks/use-params'
+import { useInstanceSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Button } from '~/ui/lib/Button'
@@ -58,6 +55,7 @@ import type * as PP from '~/util/path-params'
 import { pluralize } from '~/util/str'
 import { GiB } from '~/util/units'
 
+import type { Route } from './+types/InstancePage'
 import { useMakeInstanceActions } from './actions'
 
 const instanceView = ({ project, instance }: PP.Instance) =>
@@ -92,8 +90,9 @@ async function refreshData() {
   ])
 }
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getInstanceSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, instance } = params
+  const selector = { project, instance }
   await Promise.all([
     queryClient.prefetchQuery(instanceView(selector)),
     queryClient.prefetchQuery(instanceExternalIpList(selector)),

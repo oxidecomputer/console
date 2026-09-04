@@ -8,7 +8,6 @@
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
@@ -34,7 +33,7 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
-import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -50,6 +49,8 @@ import { groupBy } from '~/util/array'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import type * as PP from '~/util/path-params'
+
+import type { Route } from './+types/ProjectAccessPage'
 
 const policyView = q(api.policyView, {})
 const projectPolicyView = ({ project }: PP.Project) =>
@@ -69,11 +70,11 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   await Promise.all([
     queryClient.prefetchQuery(policyView),
-    queryClient.prefetchQuery(projectPolicyView(selector)),
+    queryClient.prefetchQuery(projectPolicyView({ project })),
     // used to resolve user names
     queryClient.prefetchQuery(userList),
     queryClient.prefetchQuery(groupList),
@@ -202,7 +203,7 @@ export default function ProjectAccessPage() {
     [projectPolicy, projectSelector.project, updatePolicy]
   )
 
-  const tableInstance = useReactTable({
+  const tableInstance = useReactTable<UserRow>({
     columns,
     data: rows,
     getCoreRowModel: getCoreRowModel(),

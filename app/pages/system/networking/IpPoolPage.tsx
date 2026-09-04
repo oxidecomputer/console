@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import {
   api,
@@ -34,7 +34,7 @@ import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
+import { useIpPoolSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import {
   ReplacedDefaultNote,
@@ -66,6 +66,8 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 import { capitalize } from '~/util/str'
 
+import type { Route } from './+types/IpPoolPage'
+
 const ipPoolView = ({ pool }: PP.IpPool) => q(api.systemIpPoolView, { path: { pool } })
 const ipPoolUtilizationView = ({ pool }: PP.IpPool) =>
   q(api.systemIpPoolUtilizationView, { path: { pool } })
@@ -78,8 +80,9 @@ const siloView = ({ silo }: PP.Silo) => q(api.siloView, { path: { silo } })
 const siloIpPoolList = (silo: string) =>
   q(api.siloIpPoolList, { path: { silo }, query: { limit: ALL_ISH } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getIpPoolSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { pool } = params
+  const selector = { pool }
   await Promise.all([
     queryClient.prefetchQuery(ipPoolView(selector)),
     // prefetch silo pool lists so "Make default" can show existing default name.

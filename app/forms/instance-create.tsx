@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useController, useForm, useWatch, type Control } from 'react-hook-form'
-import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import * as R from 'remeda'
 import { match, P } from 'ts-pattern'
 import type { SetRequired } from 'type-fest'
@@ -65,7 +66,7 @@ import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
 import { toPoolItem } from '~/components/PoolListboxItem'
-import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { toComboboxItems } from '~/ui/lib/Combobox'
@@ -91,6 +92,8 @@ import { docLinks, links } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
+
+import type { Route } from './+types/instance-create'
 
 // for referential stability
 const EMPTY_NAME_OR_ID_LIST: NameOrId[] = []
@@ -231,8 +234,8 @@ const baseDefaultValues: InstanceCreateInput = {
   floatingIps: [],
 }
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   await Promise.all([
     // fetch both project and silo images
     queryClient.prefetchQuery(q(api.imageList, { query: { project, limit: ALL_ISH } })),

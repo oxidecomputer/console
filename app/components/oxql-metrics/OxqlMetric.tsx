@@ -13,13 +13,12 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Children, useMemo, useState, type ReactNode } from 'react'
-import type { LoaderFunctionArgs } from 'react-router'
 
-import { api, OXQL_GROUP_BY_ERROR, q, queryClient } from '@oxide/api'
+import { api, OXQL_GROUP_BY_ERROR, q } from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { getInstanceSelector, useProjectSelector } from '~/hooks/use-params'
+import { useProjectSelector } from '~/hooks/use-params'
 import { LearnMore } from '~/ui/lib/CardBlock'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { classed } from '~/util/classed'
@@ -34,14 +33,6 @@ import {
   getUtilizationChartProps,
   type OxqlQuery,
 } from './util'
-
-export async function loader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
-  await queryClient.prefetchQuery(
-    q(api.instanceView, { path: { instance }, query: { project } })
-  )
-  return null
-}
 
 export type OxqlMetricProps = OxqlQuery & {
   title: string

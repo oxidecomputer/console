@@ -9,9 +9,9 @@ import { createHash, randomBytes } from 'crypto'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
+import { reactRouter } from '@react-router/dev/vite'
 import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
-import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
 import { z } from 'zod/v4'
@@ -28,7 +28,7 @@ function bail(msg: string): never {
 const apiModeResult = ApiMode.default('nexus').safeParse(process.env.API_MODE)
 if (!apiModeResult.success) {
   const options = ApiMode.options.join(', ')
-  bail(`Error: API_MODE must be one of: [${options}]. If unset, default is "msw".`)
+  bail(`Error: API_MODE must be one of: [${options}]. If unset, default is "nexus".`)
 }
 /**
  * What API are we talking to? Only relevant in development mode.
@@ -44,39 +44,6 @@ if (apiMode === 'remote' && !process.env.EXT_HOST) {
 }
 
 const EXT_HOST = process.env.EXT_HOST
-
-const previewTags = [
-  {
-    injectTo: 'head' as const,
-    tag: 'script',
-    attrs: {
-      'data-domain':
-        process.env.VERCEL_ENV === 'production'
-          ? 'oxide-console-preview.vercel.app'
-          : // not a real domain. we're only using it to distinguish prod
-            // from preview traffic in plausible
-            'console-pr-preview.vercel.app',
-      defer: true,
-      src: '/viewscript.js',
-    },
-  },
-  {
-    injectTo: 'head' as const,
-    tag: 'meta',
-    attrs: {
-      property: 'og:image',
-      content: '/assets/og-preview-image.webp',
-    },
-  },
-  {
-    injectTo: 'head' as const,
-    tag: 'meta',
-    attrs: {
-      property: 'og:description',
-      content: 'Preview of the Oxide web console with in-browser mock API',
-    },
-  },
-]
 
 // vercel config is source of truth for headers
 const vercelHeaders = vercelConfig.headers[0].headers
@@ -95,6 +62,14 @@ const devHeaders = {
 
 // see https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  optimizeDeps: {
+    entries: [
+      'app/root.tsx',
+      'app/entry.client.tsx',
+      'app/{pages,forms,layouts}/**/*.tsx',
+      '!app/**/*.spec.{ts,tsx}',
+    ],
+  },
   build: {
     // Must match `target` in tsconfig.json: tsc only checks against lib types
     // and nothing polyfills missing APIs, so the browser floor and the type
@@ -102,14 +77,30 @@ export default defineConfig(({ mode }) => ({
     // with full ES2024 support. We pin it because the default
     // (baseline-widely-available) drifts across Vite versions.
     target: 'es2024',
-    outDir: resolve(__dirname, 'dist'),
     emptyOutDir: true,
     sourcemap: true,
     // minify: false, // uncomment for debugging
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
     assetsInlineLimit: 0,
   },
+  environments: {
+    ssr: {
+      define: {
+        'process.env.CSP_NONCE': JSON.stringify(
+          mode === 'production' ? undefined : cspNonce
+        ),
+      },
+    },
+  },
   define: {
+    'process.env.VERCEL': JSON.stringify(!!process.env.VERCEL),
+    'process.env.VERCEL_ENV': JSON.stringify(process.env.VERCEL_ENV),
+    'process.env.THEME_INIT_HASH': JSON.stringify(
+      createHash('sha256')
+        .update(readFileSync(resolve(__dirname, 'public/assets/theme-init.js')))
+        .digest('hex')
+        .slice(0, 8)
+    ),
     'process.env.MSW': JSON.stringify(apiMode === 'msw'),
     // we don't want to have to look at this banner all day
     'process.env.MSW_BANNER': JSON.stringify(apiMode === 'msw' && mode === 'production'),
@@ -120,32 +111,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     tailwindcss(),
-    {
-      name: 'inject-html-tags',
-      transformIndexHtml: () => (process.env.VERCEL ? previewTags : []),
-    },
-    {
-      // Inject theme-init.js as a classic (non-module) render-blocking script
-      // so it sets data-theme before first paint. It lives in public/assets/
-      // so it passes CSP default-src 'self' and is served by the /assets/*
-      // route in Nexus. We inject it here rather than putting it in index.html
-      // because Vite tries to bundle any <script src> it finds there. Content
-      // hash query param handles cache-busting since public/ files aren't
-      // fingerprinted by Vite.
-      name: 'theme-init',
-      transformIndexHtml() {
-        const content = readFileSync(resolve(__dirname, 'public/assets/theme-init.js'))
-        const hash = createHash('sha256').update(content).digest('hex').slice(0, 8)
-        return [
-          {
-            injectTo: 'head-prepend',
-            tag: 'script',
-            attrs: { src: `/assets/theme-init.js?v=${hash}` },
-          },
-        ]
-      },
-    },
-    react(),
+    !process.env.VITEST && reactRouter(),
     apiMode === 'remote' && basicSsl(),
     apiMode === 'msw' && {
       // The console downloads support bundles with an <a download> navigation.

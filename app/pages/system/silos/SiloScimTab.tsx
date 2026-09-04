@@ -8,7 +8,6 @@
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { type LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
@@ -25,7 +24,7 @@ import {
   type ScimClientBearerTokenValue,
 } from '~/api'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
+import { useSiloSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -42,6 +41,8 @@ import { Modal } from '~/ui/lib/Modal'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
 import { docLinks } from '~/util/links'
+
+import type { Route } from './+types/SiloScimTab'
 
 export const handle = makeCrumb('SCIM')
 
@@ -86,8 +87,8 @@ const EmptyState = () => (
   </TableEmptyBox>
 )
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { silo } = getSiloSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { silo } = params
   // Use errors-allowed approach so 403s don't throw and break the loader
   await queryClient.prefetchQuery(scimTokenListErrorsAllowedQ(silo))
   return null

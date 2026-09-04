@@ -38,3 +38,6 @@ playwright-report/
 # Visual regression snapshots
 test/visual/**/*-snapshots/
 test/visual/**/*.png
+
+# React Router build output. build/client is the deployable static site
+/build/

@@ -6,13 +6,16 @@
  * Copyright Oxide Computer Company
  */
 
+import type { Route } from './+types/ProjectLayout'
 import {
   ProjectLayoutBase,
   projectLayoutHandle,
   projectLayoutLoader,
 } from './ProjectLayoutBase.tsx'
 
-export const clientLoader = projectLayoutLoader
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  return projectLayoutLoader(params)
+}
 
 export const handle = projectLayoutHandle
 

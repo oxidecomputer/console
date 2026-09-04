@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import {
   api,
@@ -38,6 +39,8 @@ import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
+import type { Route } from './+types/SnapshotsPage'
+
 const EmptyState = () => (
   <EmptyMessage
     icon={<Snapshots24Icon />}
@@ -51,8 +54,8 @@ const EmptyState = () => (
 const snapshotList = (project: string) =>
   getListQFn(api.snapshotList, { query: { project } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   await Promise.all([
     queryClient.prefetchQuery(snapshotList(project).optionsFn()),
 

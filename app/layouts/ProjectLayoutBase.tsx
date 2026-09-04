@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import type { ReactElement } from 'react'
-import { useLocation, type LoaderFunctionArgs } from 'react-router'
+import { useLocation } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import {
@@ -47,8 +47,8 @@ type ProjectLayoutProps = {
 
 const projectView = ({ project }: PP.Project) => q(api.projectView, { path: { project } })
 
-export async function projectLayoutLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+/** Shared by the layout routes, which pass in their typed route params */
+export async function projectLayoutLoader({ project }: PP.Project) {
   await queryClient.prefetchQuery(projectView({ project }))
   return null
 }
