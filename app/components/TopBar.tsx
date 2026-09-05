@@ -62,13 +62,13 @@ function MobileNavToggle() {
   return (
     // full-height cell with a right border so the toggle reads as its own
     // region, mirroring the desktop home button cell
-    <div className="border-secondary 1000:hidden -ml-3 flex h-(--top-bar-height) shrink-0 items-center border-r px-1.5">
+    <div className="border-secondary 1000:hidden -ml-3 flex h-(--top-bar-height) shrink-0 items-center border-r">
       <button
         type="button"
         onClick={toggleMobileNav}
         aria-label="Toggle sidebar"
         aria-expanded={isOpen}
-        className="hover:bg-hover flex h-10 w-10 items-center justify-center rounded-md"
+        className="hover:bg-hover flex h-full w-10 items-center justify-center"
       >
         <Icon className="text-secondary" />
       </button>

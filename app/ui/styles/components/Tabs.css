@@ -6,9 +6,18 @@
  * Copyright Oxide Computer Company
  */
 
+/* Sticky lives on a wrapper so the list can overflow-x without becoming
+   its own scroll container (which would prevent sticking). */
+.ox-tabs-list-wrap {
+  position: sticky;
+  top: calc(var(--top-bar-height) + var(--preview-banner-height));
+  z-index: var(--z-sticky);
+  @apply bg-default light:bg-raise;
+}
+
 /* Tab list container styles */
 .ox-tabs-list {
-  @apply mb-8 flex bg-transparent;
+  @apply flex;
 }
 
 /* let long tab lists scroll horizontally on small screens instead of
@@ -21,9 +30,29 @@
   }
 }
 
+.ox-tabs > .ox-tabs-panel {
+  @apply mt-8;
+}
+
+/* forms can have multiple tab lists on one page; keep those in flow */
+.ox-form .ox-tabs-list-wrap {
+  position: static;
+  top: auto;
+  z-index: auto;
+  background-color: transparent;
+}
+
 .ox-tabs-list:after {
-  @apply border-secondary block w-full border-b;
+  @apply border-secondary block w-full flex-grow border-b;
   content: '';
+}
+
+@media (max-width: 999px) {
+  .ox-tabs-list:after {
+    width: var(--content-gutter);
+    min-width: max-content;
+    flex-shrink: 0;
+  }
 }
 
 /* Panel styles */
@@ -77,13 +106,28 @@
 }
 
 .ox-tabs.full-width .ox-tabs-list:before {
-  @apply border-secondary block w-10 min-w-max flex-shrink-0 border-b;
+  @apply border-secondary block min-w-max flex-shrink-0 border-b;
+  width: var(--content-gutter);
   content: '';
 }
 
 /* Side tabs styles */
+.ox-side-tabs {
+  @apply max-1000:flex-col flex;
+}
+
 .ox-side-tabs-list {
   @apply sticky top-10 flex w-[180px] flex-shrink-0 flex-col gap-0.5 self-start;
+}
+
+@media (max-width: 999px) {
+  .ox-side-tabs-list {
+    position: static;
+    top: auto;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
 }
 
 .ox-side-tabs-list .ox-tab {
