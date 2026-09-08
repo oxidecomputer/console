@@ -24,9 +24,8 @@
 
 # Testing code
 
-- Run local checks before sending PRs: `npm run lint`, `npm run tsc`, `npm test run`, and `npm run e2ec`.
-- You don't usually need to run all the e2e tests, so try to filter by file and tes t name like `npm run e2ec -- instance -g 'boot disk'`. CI will run the full set.
-- Keep Playwright specs focused on user-visible behavior—use accessible locators (`getByRole`, `getByLabel`), the helpers in `test/e2e/utils.ts` (`expectToast`, `expectRowVisible`, `selectOption`, `clickRowAction`), and close toasts so follow-on assertions aren’t blocked. Avoid Playwright’s legacy string selector syntax like `page.click(‘role=button[name="..."]’)`; prefer `page.getByRole(‘button’, { name: ‘...’ }).click()` and friends. Avoid `getByTestId` in e2e tests—prefer scoping with accessible locators like `page.getByRole(‘dialog’)` when possible.
+- Before sending a PR, run `npm run lint`, `npm run tsc`, and `npm test run`. For e2e, run only the specs your change touches, filtered by file and test name like `npm run e2ec -- instance -g 'boot disk'`. CI runs the full e2e suite.
+- Keep Playwright specs focused on user-visible behavior—use accessible locators (`getByRole`, `getByLabel`), the helpers in `test/e2e/utils.ts` (`expectToast`, `expectRowVisible`, `selectOption`, `clickRowAction`), and close toasts so follow-on assertions aren't blocked. Avoid Playwright's legacy string selector syntax like `page.click('role=button[name="..."]')`; prefer `page.getByRole('button', { name: '...' }).click()` and friends. Avoid `getByTestId` in e2e tests—prefer scoping with accessible locators like `page.getByRole('dialog')` when possible.
 - Cover role-gated flows by logging in with `getPageAsUser`; exercise negative paths (e.g., forbidden actions) alongside happy paths as shown in `test/e2e/system-update.e2e.ts`.
 - Consider `expectVisible` and `expectNotVisible` deprecated: prefer `expect().toBeVisible()` and `toBeHidden()` in new code.
 - When UI needs new mock behavior, extend the MSW handlers/db minimally so E2E tests stay deterministic; prefer storing full API responses so subsequent calls see the updated state (`mock-api/msw/db.ts`, `mock-api/msw/handlers.ts`).
@@ -42,7 +41,7 @@
 - `usePrefetchedQuery` requires that the loader fetched and awaited the same query — the hook throws if the data isn't in the cache. Because of that guarantee, do not add `if (!data) return` guards on its results. If the loader's fetch is conditional or not awaited, the guarantee doesn't hold: use `useQuery` with a loading fallback instead.
 - Define queries with `q(api.endpoint, params)` for single items or `getListQFn(api.listEndpoint, params)` for lists. Prefetch in `clientLoader` and read with `usePrefetchedQuery`; for on-demand fetches (modals, secondary data), use `useQuery` directly.
 - Use `ALL_ISH` from `app/util/consts.ts` when UI needs "all" items. Use `queryClient.invalidateEndpoint` to invalidate queries.
-- For paginated tables, compose `getListQFn` with `useQueryTable`; the helper wraps `limit`/`pageToken` handling and keeps placeholder data stable (`app/api/hooks.ts:123-188`, `app/pages/ProjectsPage.tsx:40-132`).
+- For paginated tables, compose `getListQFn` with `useQueryTable`; the helper wraps `limit`/`pageToken` handling and keeps placeholder data stable (`app/api/client.ts`, `app/table/QueryTable.tsx`, `app/pages/ProjectsPage.tsx`).
 - When a loader needs per-item data for a list, await the list with `queryClient.fetchQuery`, then kick off `prefetchQuery` for each item without awaiting, so render isn't blocked. Read the per-item queries with `useQuery` and a skeleton fallback — they may not have resolved by first render (see `app/pages/project/affinity/AffinityPage.tsx`).
 - When modals need async data, fetch with `queryClient.ensureQueryData` before opening the modal so cached data is reused and there's no content pop-in.
 - Use `qErrorsAllowed` in loaders for endpoints where some users may lack permission, so the page degrades gracefully instead of the loader throwing (see `SiloScimTab.tsx`).
@@ -53,8 +52,8 @@
 - When a form's `onSuccess` always navigates away, pass `loading={mutation.isPending || mutation.isSuccess}` to the form shell. `isPending` alone flips false before the navigation unmounts the modal, so the button's spinner animates back out right before close. Skip `isSuccess` if the form can stay open and be reused after success, or if the mutation lives in a component that survives the modal (e.g., a tab page with `{open && <Modal/>}`) — there success closes the modal synchronously so `isPending` alone is glitch-free, and a sticky `isSuccess` would strand a spinner on next open.
 - Mutation error display depends on context. In forms, errors display inline via `submitError={mutation.error}` — do not add `onError` with a toast to the `useApiMutation` call. In `confirmAction`/`confirmDelete` flows, the confirm modal catches the error and shows a toast using `errorTitle` — do not also add `onError` on the mutation, or the user will see two toasts. For standalone actions (fire-and-forget `mutate` calls not wrapped in a confirm modal or form), use `onError` on the mutation to show an error toast.
 - Keep page scaffolding consistent: `PageHeader`, `PageTitle`, `DocsPopover`, `RefreshButton`, `PropertiesTable`, and `CardBlock` provide the expected layout for new system pages.
-- When a page should be discoverable from the command palette, extend `useQuickActions` with the new entry so it appears in the quick actions menu (see `app/pages/ProjectsPage.tsx:100-115`).
-- Gate per-resource actions with capability helpers: `instanceCan.start(instance)`, `diskCan.delete(disk)`, etc. (`app/api/util.ts:91-207`)—these return booleans and have `.states` properties listing valid states. Always use these instead of inline state checks; they centralize business logic and link to Omicron source explaining restrictions.
+- When a page should be discoverable from the command palette, extend `useQuickActions` with the new entry so it appears in the quick actions menu (see `app/pages/ProjectsPage.tsx`).
+- Gate per-resource actions with capability helpers: `instanceCan.start(instance)`, `diskCan.delete(disk)`, etc. (`app/api/util.ts`)—these return booleans and have `.states` properties listing valid states. Always use these instead of inline state checks; they centralize business logic and link to Omicron source explaining restrictions.
 - Prefer disabling buttons with `disabledReason` over hiding them so users can discover the action exists. Compute `disabledReason` as a `string | undefined` ternary chain and derive `disabled` from `!!disabledReason`.
 - When closing a modal that uses `useApiMutation`, call `mutation.reset()` in the dismiss handler to clear stale error state so it doesn't persist on next open.
 
@@ -78,15 +77,15 @@
 
 - Add routes in `app/routes.tsx`, using `lazy(() => import(...).then(convert))` so loaders become `clientLoader` and components stay tree-shakeable.
 - Export navigation helpers via `pb` in `app/util/path-builder.ts`; every new route should get a path-builder entry and appear in `app/util/path-builder.spec.ts`'s snapshot.
-- Breadcrumbs come from route `handle.crumb`; use `makeCrumb`/`titleCrumb` and provide a `path` when the parent route redirects (`app/hooks/use-crumbs.ts:21-64`). Use `titleCrumb` for side modal forms that should appear in page title but not nav breadcrumbs (check `Crumb.titleOnly` flag).
+- Breadcrumbs come from route `handle.crumb`; use `makeCrumb`/`titleCrumb` and provide a `path` when the parent route redirects (`app/hooks/use-crumbs.ts`). Use `titleCrumb` for side modal forms that should appear in page title but not nav breadcrumbs (check `Crumb.titleOnly` flag).
 - When adding tabs or redirects, wire the canonical link in the path builder (e.g., point to the default tab) and update the sidebar/quick actions as needed.
 - For tabs synced with query params, use `QueryParamTabs` component which manages `?tab=` param and removes it when default tab is selected (`app/components/QueryParamTabs.tsx`).
 
 # Forms
 
-- Forms live under `app/forms`; start by copying a nearby example such as `app/forms/project-create.tsx:21-61`.
-- Use `react-hook-form` with the shared shells (`SideModalForm`, `ModalForm`, `FullPageForm`) so UX and submit handling stay consistent (`app/components/form/SideModalForm.tsx:32-140`).
-- Wire submissions through `useApiMutation`, invalidate or seed queries with `useApiQueryClient`, and surface success with toasts/navigation (`app/forms/project-create.tsx:34-55`).
+- Forms live under `app/forms`; start by copying a nearby example such as `app/forms/project-create.tsx`.
+- Use `react-hook-form` with the shared shells (`SideModalForm`, `ModalForm`, `FullPageForm`) so UX and submit handling stay consistent (`app/components/form/SideModalForm.tsx`).
+- Wire submissions through `useApiMutation`, invalidate or seed queries with `useApiQueryClient`, and surface success with toasts/navigation (`app/forms/project-create.tsx`).
 - Prefer the existing field components (`app/components/form/fields`) and only introduce new ones when the design system requires it.
 - Let form state mirror the form's UI structure, not the API request shape. Transform to the API shape in the `onSubmit` handler. This keeps fields, validation, and conditional logic straightforward.
 - Use react-hook-form's `watch` and conditional rendering to keep fields in sync. Avoid `useEffect` to propagate form values between fields—it causes extra renders and subtle ordering bugs. Reset related fields in change handlers instead. Compute default values up front in `useForm({ defaultValues })` rather than using `useEffect` + `setValue`.
@@ -125,7 +124,7 @@
 
 - Reach for primitives in `app/ui` before inventing page-specific widgets; that directory holds router-agnostic building blocks.
 - When you just need Tailwind classes on a DOM element, use the `classed` helper instead of creating one-off wrappers (`app/util/classed.ts`).
-- Define helper components at the module level, not inside other components' render functions—the `react/no-unstable-nested-components` eslint rule enforces this to prevent performance issues and broken component identity. Extract nested components to the top level and pass any needed values as props.
+- Define helper components at the module level, not inside other components' render functions. Nested definitions get a new identity every render, which breaks state and hurts performance. This is a convention, not a lint rule. Extract nested components to the top level and pass any needed values as props.
 - Reuse utility components for consistent formatting—`TimeAgo`, `EmptyMessage`, `CardBlock`, `DocsPopover`, `PropertiesTable`, etc.
 - Import icons from `@oxide/design-system/icons/react` with size suffixes: `16` for inline/table, `24` for headers/buttons, `12` for tiny indicators.
 - Keep help URLs in `links`/`docLinks` (`app/util/links.ts`).
