@@ -168,6 +168,7 @@ export default defineConfig(({ mode }) => ({
   preview: { headers },
   test: {
     name: 'unit',
+    fsModuleCache: true,
     // no DOM environment: anything needing a real DOM is a browser mode test
     environment: 'node',
     includeSource: ['app/**/*.ts'],
