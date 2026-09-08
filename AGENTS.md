@@ -54,14 +54,13 @@
 - `usePrefetchedQuery` requires that the loader fetched and awaited the same query — the hook throws if the data isn't in the cache. Because of that guarantee, do not add `if (!data) return` guards on its results. If the loader's fetch is conditional or not awaited, the guarantee doesn't hold: use `useQuery` with a loading fallback instead.
 - Define queries with `q(api.endpoint, params)` for single items or `getListQFn(api.listEndpoint, params)` for lists. Prefetch in `clientLoader` and read with `usePrefetchedQuery`; for on-demand fetches (modals, secondary data), use `useQuery` directly.
 - Use `ALL_ISH` from `app/util/consts.ts` when UI needs "all" items. After a mutation, invalidate with `queryClient.invalidateEndpoint` or seed the cache with `setQueryData` (from `useApiQueryClient`).
-- For paginated tables, compose `getListQFn` with `useQueryTable`; the helper wraps `limit`/`pageToken` handling and keeps placeholder data stable (`app/api/client.ts`, `app/table/QueryTable.tsx`, `app/pages/ProjectsPage.tsx`).
 - When a loader needs per-item data for a list, await the list with `queryClient.fetchQuery`, then kick off `prefetchQuery` for each item without awaiting, so render isn't blocked. Read the per-item queries with `useQuery` and a skeleton fallback — they may not have resolved by first render (see `app/pages/project/affinity/AffinityPage.tsx`).
 - When modals need async data, fetch with `queryClient.ensureQueryData` before opening the modal so cached data is reused and there's no content pop-in.
 - Use `qErrorsAllowed` in loaders for endpoints where some users may lack permission, so the page degrades gracefully instead of the loader throwing (see `SiloScimTab.tsx`).
 
 # Mutations & UI flow
 
-- Wrap writes in `useApiMutation` and surface results with `addToast`. Guard destructive flows with the zustand confirm helpers `confirmDelete`/`confirmAction` (`app/stores/confirm-delete.tsx`, `app/stores/confirm-action.ts`), passing a `mutateAsync` lambda so the modal can catch failures and toast them.
+- Wrap writes in `useApiMutation` and surface results with `addToast` (`app/stores/toast.ts`). Guard destructive flows with the zustand confirm helpers `confirmDelete`/`confirmAction` (`app/stores/confirm-delete.tsx`, `app/stores/confirm-action.ts`), passing a `mutateAsync` lambda so the modal can catch failures and toast them.
 - When a form's `onSuccess` always navigates away, pass `loading={mutation.isPending || mutation.isSuccess}` to the form shell. `isPending` alone flips false before the navigation unmounts the modal, so the button's spinner animates back out right before close. Skip `isSuccess` if the form can stay open and be reused after success, or if the mutation lives in a component that survives the modal (e.g., a tab page with `{open && <Modal/>}`) — there success closes the modal synchronously so `isPending` alone is glitch-free, and a sticky `isSuccess` would strand a spinner on next open.
 - Mutation error display depends on context. In forms, errors display inline via `submitError={mutation.error}` — do not add `onError` with a toast to the `useApiMutation` call. In `confirmAction`/`confirmDelete` flows, the confirm modal catches the error and shows a toast using `errorTitle` — do not also add `onError` on the mutation, or the user will see two toasts. For standalone actions (fire-and-forget `mutate` calls not wrapped in a confirm modal or form), use `onError` on the mutation to show an error toast.
 - Keep page scaffolding consistent: `PageHeader`, `PageTitle`, `DocsPopover`, `RefreshButton`, `PropertiesTable`, and `CardBlock` provide the expected layout for new system pages.
@@ -92,7 +91,7 @@
 - Export navigation helpers via `pb` in `app/util/path-builder.ts`; every new route should get a path-builder entry and appear in `app/util/path-builder.spec.ts`'s snapshot.
 - Breadcrumbs come from route `handle.crumb`; use `makeCrumb`/`titleCrumb` and provide a `path` when the parent route redirects (`app/hooks/use-crumbs.ts`). Use `titleCrumb` for side modal forms that should appear in page title but not nav breadcrumbs (check `Crumb.titleOnly` flag).
 - When adding tabs or redirects, wire the canonical link in the path builder (e.g., point to the default tab) and update the sidebar/quick actions as needed.
-- For tabs synced with query params, use `QueryParamTabs` component which manages `?tab=` param and removes it when default tab is selected (`app/components/QueryParamTabs.tsx`).
+- For tabs synced with the URL, use `QueryParamTabs` (`app/components/QueryParamTabs.tsx`).
 
 # Forms
 
@@ -108,16 +107,16 @@
 
 # Tables & detail views
 
-- Use shared column helpers from `app/table/columns/common.tsx`: `Columns.id` (with copy button), `Columns.description` (truncated with tooltip), `Columns.size` (formatted with units), `Columns.timeCreated`, `Columns.timeModified`.
+- Use the shared `Columns` helpers in `app/table/columns/common.tsx` for common columns like ID, description, size, and timestamps.
 - Compose row actions with `useColsWithActions`; prime modals by seeding list data into the cache (e.g., `queryClient.setQueryData`) so edits open immediately (`app/pages/ProjectsPage.tsx`).
 - `getActionsCol` automatically includes "Copy ID" if row has `id` field, and actions labeled "delete" get destructive styling. Pass `disabled` prop with ReactNode for tooltip explaining why action is unavailable (`app/table/columns/action-col.tsx`).
-- Let `useQueryTable` drive pagination, scroll reset, and placeholder loading states instead of reimplementing TanStack Table plumbing (`app/table/QueryTable.tsx`).
-- Use `PropertiesTable` compound component for detail views: `PropertiesTable.Row`, `PropertiesTable.IdRow` (truncated ID with copy), `PropertiesTable.DescriptionRow`, `PropertiesTable.DateRow` (`app/ui/lib/PropertiesTable.tsx`).
+- For paginated tables, pass a `getListQFn` query to `useQueryTable` (`app/table/QueryTable.tsx`) instead of wiring up TanStack Table and pagination yourself (see `app/pages/ProjectsPage.tsx`).
+- Use the `PropertiesTable` compound component for detail views (`app/ui/lib/PropertiesTable.tsx`).
 - Hoist static column definitions to module scope.
 
 # Layout & accessibility
 
-- Build pages inside the shared `PageContainer`/`ContentPane` so you inherit the skip link, sticky footer, pagination target, and scroll restoration (`app/layouts/helpers.tsx`, `app/hooks/use-scroll-restoration.ts`).
+- Build pages inside the shared `PageContainer`/`ContentPane` (`app/layouts/helpers.tsx`).
 - Surface page-level buttons and pagination via the `PageActions` and `Pagination` tunnels from `tunnel-rat`; anything rendered through `.In` lands in `.Target` automatically.
 - For global loading states, reuse `PageSkeleton`—it keeps the MSW banner and grid layout stable, and `skipPaths` lets you opt-out for routes with custom layouts (`app/components/PageSkeleton.tsx`).
 - Enforce accessibility at the type level: use `AriaLabel` type from `app/ui/util/aria.ts` which requires exactly one of `aria-label` or `aria-labelledby` on custom interactive components.
@@ -126,10 +125,6 @@
 
 - Wrap `useParams` with the provided selectors (`useProjectSelector`, `useInstanceSelector`, etc.) so required params throw during dev and produce memoized results safe for dependency arrays (`app/hooks/use-params.ts`).
 - Prefer `queryClient.fetchQuery` inside `clientLoader` blocks when the page needs data up front, and throw `trigger404` on real misses so the error boundary renders Not Found.
-
-# Global stores & modals
-
-- Toasts live in the global store: call `addToast` with a string, node, or config and let `ToastStack` handle animation and dismissal (`app/stores/toast.ts`, `app/components/ToastStack.tsx`).
 
 # UI components & styling
 
@@ -145,8 +140,7 @@
 
 # Error handling
 
-- All API errors flow through `processServerError` in `app/api/errors.ts`, which transforms raw errors into user-friendly messages.
-- On 401 errors, requests auto-redirect to `/login`. On 403, the error boundary checks for IDP misconfiguration.
+- Don't format API errors by hand. They already pass through `processServerError` (`app/api/errors.ts`), and 401/403 handling lives in the client and error boundary.
 
 # Utilities & helpers
 
