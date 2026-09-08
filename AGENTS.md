@@ -1,7 +1,6 @@
 # Principles & setup
 
-- Keep the console a thin client over the Oxide API: minimize client-only state, surface API concepts, and bias toward simple, predictable UI that works everywhere.
-- Favor well-supported libraries, avoid premature abstractions, and use routes to capture state.
+- The console is a thin client over the Oxide API. Minimize client-only state, surface API concepts directly, and use routes to capture state.
 - Before starting a feature, skim an existing page or form with similar behavior and mirror the conventions—this codebase is intentionally conventional. Look for similar pages in `app/pages` and forms in `app/forms` to use as templates.
 - `@oxide/api` is at `app/api` and `@oxide/api-mocks` is at `mock-api/index.ts`.
 - The language server often has out of date errors. TypeScript 7 is extremely fast, so confirm errors that come from the language server by running `npm run tsc`
@@ -71,10 +70,7 @@
 
 # Upgrading pinned omicron version
 
-1. Update commit hash in `OMICRON_VERSION`.
-2. Run `npm run gen-api`.
-3. Run `npm run tsc`.
-4. Fix type errors. New endpoints in `mock-api/msw/handlers.ts` should be added as `NotImplemented`.
+- Follow `docs/update-pinned-api.md`.
 
 # Mock API work
 
