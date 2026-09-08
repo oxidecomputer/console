@@ -83,12 +83,12 @@ test('clamps typed values below minValue on blur', async () => {
 })
 
 test('does not clamp intermediate input while typing', async () => {
-  const screen = await render(<NumberInputHarness minValue={10} value={10} />)
+  const screen = await render(<NumberInputHarness minValue={10} />)
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
   await input.click()
   // if clamping happened mid-typing, this would be 10 after hitting 2, then 100 after hitting 0
-  await userEvent.keyboard('{Control>}a{/Control}20')
+  await userEvent.type(input, '20')
   await expect.element(input).toHaveValue('20')
 
   await userEvent.tab()
@@ -96,11 +96,12 @@ test('does not clamp intermediate input while typing', async () => {
 })
 
 test('does not step intermediate input while typing', async () => {
-  const screen = await render(<NumberInputHarness step={1} minValue={10} value={10} />)
+  const screen = await render(<NumberInputHarness step={1} minValue={10} />)
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
   await input.click()
-  await userEvent.keyboard('{Control>}a{/Control}20')
+  await userEvent.type(input, '20')
+  await expect.element(input).toHaveValue('20')
   await userEvent.type(input, '.1')
   await expect.element(input).toHaveValue('20.1')
 
