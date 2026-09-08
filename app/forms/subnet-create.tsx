@@ -78,7 +78,7 @@ export default function CreateSubnetForm() {
           },
         })
       }
-      loading={createSubnet.isPending}
+      loading={createSubnet.isPending || createSubnet.isSuccess}
       submitError={createSubnet.error}
     >
       <NameField name="name" control={form.control} />

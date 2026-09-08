@@ -24,7 +24,6 @@ import { invariant } from '~/util/invariant'
 import { Api, type ApiResult } from './__generated__/Api'
 import type { FetchParams } from './__generated__/http-client'
 import { processServerError, type ApiError } from './errors'
-import { navToLogin } from './nav-to-login'
 
 const _api = new Api({
   // unit tests run in Node, whose fetch implementation requires a full URL
@@ -95,6 +94,18 @@ type ExpectedError = {
 }
 
 const expectedErrorLabel = ({ statusCode }: ExpectedError) => `status ${statusCode}`
+
+function loginUrl(opts: { includeCurrent: boolean }) {
+  const { pathname, search } = window.location
+  return opts.includeCurrent
+    ? // TODO: include query args too?
+      `/login?redirect_uri=${encodeURIComponent(pathname + search)}`
+    : '/login'
+}
+
+export function navToLogin(opts: { includeCurrent: boolean }) {
+  window.location.assign(loginUrl(opts))
+}
 
 // method: keyof Api would be strictly more correct, but making it a string
 // means we can call this directly in all the spots below instead of having to

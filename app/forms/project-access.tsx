@@ -64,7 +64,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
-      loading={updatePolicy.isPending}
+      loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
       onDismiss={onDismiss}
     >
@@ -118,7 +118,7 @@ export function ProjectAccessEditUserSideModal({
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
-      loading={updatePolicy.isPending}
+      loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
       onDismiss={onDismiss}
     >

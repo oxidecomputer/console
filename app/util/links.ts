@@ -22,8 +22,6 @@ export const links = {
   instanceBootDiskDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
   oxqlSchemaDocs: (metric: string) =>
     `https://docs.oxide.computer/guides/metrics/timeseries-schemas#_${metric.replace(':', '')}`,
-  siloQuotasDocs:
-    'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
   siloTlsCertsDocs:
     'https://docs.oxide.computer/guides/system/system-setup#tls-certificate',
   transitIpsDocs:
@@ -41,6 +39,10 @@ export const docLinks = {
   affinity: {
     href: 'https://docs.oxide.computer/guides/deploying-workloads#_affinity_and_anti_affinity',
     linkText: 'Anti-Affinity Groups',
+  },
+  auditLog: {
+    href: 'https://docs.oxide.computer/guides/operator/audit-log',
+    linkText: 'Audit Log',
   },
   deviceTokens: {
     href: 'https://docs.oxide.computer/guides/working-with-api-and-sdk#_device_token_setup',
@@ -109,6 +111,10 @@ export const docLinks = {
   remoteAccess: {
     href: remoteAccess,
     linkText: 'Remote Access',
+  },
+  resourceManagement: {
+    href: 'https://docs.oxide.computer/guides/operator/resource-management',
+    linkText: 'Resource Management',
   },
   scim: {
     href: 'https://docs.oxide.computer/guides/operator/identity-providers#_saml_authentication_scim_user_provisioning',

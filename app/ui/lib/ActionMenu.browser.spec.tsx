@@ -67,7 +67,8 @@ test('filters items and resets the search when dismissed', async () => {
     .element(screen.getByRole('option', { name: 'New instance' }))
     .not.toBeInTheDocument()
 
-  await userEvent.keyboard('{Escape}')
+  // Target the input because global keyboard input can miss it in Firefox CI.
+  await userEvent.type(search, '{Escape}')
   await expect
     .element(screen.getByRole('dialog', { name: 'Quick actions' }))
     .not.toBeInTheDocument()

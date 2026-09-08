@@ -41,6 +41,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { identityTypeLabel, roleColor } from '~/util/access'
 import { groupBy } from '~/util/array'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
@@ -56,8 +57,8 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 )
 
 const policyView = q(api.policyView, {})
-const userList = q(api.userList, {})
-const groupList = q(api.groupList, {})
+const userList = q(api.userList, { query: { limit: ALL_ISH } })
+const groupList = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {
   await Promise.all([

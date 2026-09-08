@@ -70,7 +70,7 @@ export default function EditSubnetPoolSideModalForm() {
           body: { name, description },
         })
       }}
-      loading={editPool.isPending}
+      loading={editPool.isPending || editPool.isSuccess}
       submitError={editPool.error}
     >
       <FormMetadata resource={pool} />

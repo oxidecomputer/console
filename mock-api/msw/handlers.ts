@@ -13,6 +13,7 @@ import { match } from 'ts-pattern'
 import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
+  DEFAULT_VPC_NAME,
   diskCan,
   FLEET_ID,
   fleetRoles,
@@ -75,6 +76,7 @@ import {
   requireFleetViewer,
   requireRole,
   resolveIpStack,
+  unauthorizedErr,
   unavailableErr,
   updateDesc,
   userHasRole,
@@ -126,6 +128,8 @@ export const handlers = makeHandlers({
       throw unavailableErr()
     } else if (path.project.endsWith('error-403')) {
       throw forbiddenErr()
+    } else if (path.project.endsWith('error-401')) {
+      throw unauthorizedErr()
     }
 
     return R.omit(lookup.project({ ...path }), ['silo_id'])
@@ -615,6 +619,13 @@ export const handlers = makeHandlers({
         lookup.vpc({ ...query, vpc: vpc_name })
         lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
       })
+    } else if (body.network_interfaces?.type.startsWith('default_')) {
+      // The default attachment types resolve a VPC and subnet both named
+      // literally 'default', so they 404 when that VPC doesn't exist, even if
+      // the project has other VPCs.
+      // https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/src/app/sagas/instance_create.rs#L739-L773
+      lookup.vpc({ ...query, vpc: DEFAULT_VPC_NAME })
+      lookup.vpcSubnet({ ...query, vpc: DEFAULT_VPC_NAME, subnet: DEFAULT_VPC_NAME })
     }
 
     // validate floating IP attachments before we actually do anything
@@ -1937,6 +1948,13 @@ export const handlers = makeHandlers({
     requireFleetViewer(cookies)
     return lookup.silo(path)
   },
+  siloUserView({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const silo = lookup.silo({ silo: query.silo })
+    const user = db.users.find((u) => u.id === path.userId && u.silo_id === silo.id)
+    if (!user) throw notFoundErr(`user '${path.userId}'`)
+    return user
+  },
   siloDelete({ path, cookies }) {
     requireFleetViewer(cookies)
     const silo = lookup.silo(path)
@@ -2428,6 +2446,22 @@ export const handlers = makeHandlers({
     )
     return paginated(query, affinityGroups)
   },
+  auditLogList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
+
+    // same semantics as Nexus: start_time <= time_completed < end_time
+    // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/db-queries/src/db/datastore/audit_log.rs
+    const { startTime, endTime } = query
+    let filteredLogs = db.auditLog
+    if (startTime) {
+      filteredLogs = filteredLogs.filter((log) => new Date(log.time_completed) >= startTime)
+    }
+    if (endTime) {
+      filteredLogs = filteredLogs.filter((log) => new Date(log.time_completed) < endTime)
+    }
+
+    return paginated(query, filteredLogs)
+  },
 
   // SCIM token endpoints
   scimTokenList({ query, cookies }) {
@@ -2759,7 +2793,6 @@ export const handlers = makeHandlers({
   alertReceiverView: NotImplemented,
   alertView: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
-  auditLogList: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
@@ -2837,7 +2870,6 @@ export const handlers = makeHandlers({
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
-  siloUserView: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
   // unreachable in the mock: the console downloads bundles with an <a download>

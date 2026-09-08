@@ -38,6 +38,12 @@ test('Shows something went wrong page on other errors', async ({ page }) => {
   await expect(page).toHaveURL('/login')
 })
 
+test('401 redirects to login with current page in redirect_uri', async ({ page }) => {
+  await page.goto('/projects/error-401?tab=x') // specially handled in mock server
+  // as above, the login route 404s in the mock setup, but the URL is right
+  await expect(page).toHaveURL('/login?redirect_uri=%2Fprojects%2Ferror-401%3Ftab%3Dx')
+})
+
 test('error page for user with no groups or silo role', async ({ browser }) => {
   const page = await getPageAsUser(browser, 'Jacob Klein')
   await page.goto('/projects')

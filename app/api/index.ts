@@ -19,4 +19,4 @@ export * from './__generated__/Api'
 export type { ApiTypes }
 
 export type { ApiError } from './errors'
-export { navToLogin } from './nav-to-login'
+export { navToLogin } from './client'

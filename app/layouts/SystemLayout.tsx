@@ -59,6 +59,7 @@ export default function SystemLayout() {
       { value: 'System Update', path: pb.systemUpdate() },
       { value: 'Support Bundles', path: pb.supportBundles() },
       { value: 'Fleet Access', path: pb.fleetAccess() },
+      { value: 'Audit Log', path: pb.auditLog() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
@@ -111,6 +112,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.fleetAccess()}>
             <Access16Icon /> Fleet Access
+          </NavLinkItem>
+          <NavLinkItem to={pb.auditLog()}>
+            <Logs16Icon /> Audit Log
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

@@ -21,6 +21,7 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { isSubset } from '~/util/array'
+import { ALL_ISH } from '~/util/consts'
 
 import { CheckboxField } from './CheckboxField'
 import { ErrorMessage } from './ErrorMessage'
@@ -56,7 +57,9 @@ export function SshKeysField({
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
 }) {
-  const allKeys = usePrefetchedQuery(q(api.currentUserSshKeyList, {})).data.items
+  const allKeys = usePrefetchedQuery(
+    q(api.currentUserSshKeyList, { query: { limit: ALL_ISH } })
+  ).data.items
   const [showAddSshKey, setShowAddSshKey] = useState(false)
 
   const {

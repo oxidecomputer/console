@@ -66,7 +66,7 @@ export default function CreateVpcSideModalForm() {
         })
       }
       onDismiss={() => navigate(pb.vpcs(projectSelector))}
-      loading={createVpc.isPending}
+      loading={createVpc.isPending || createVpc.isSuccess}
       submitError={createVpc.error}
     >
       <NameField name="name" control={form.control} />

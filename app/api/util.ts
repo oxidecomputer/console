@@ -24,6 +24,7 @@ import type {
   Sled,
   SnapshotState,
   SupportBundleState,
+  Vpc,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
@@ -55,6 +56,18 @@ export const MAX_BUNDLE_COMMENT_BYTES = 4096
 
 /** Nexus limits by UTF-8 byte length, not JS string length */
 export const utf8ByteLength = (s: string) => new TextEncoder().encode(s).length
+
+/**
+ * The `default_*` network interface attachment types resolve a VPC and VPC
+ * subnet both named literally 'default', so they fail with a 404 if that VPC
+ * doesn't exist, even when the project has other VPCs.
+ *
+ * https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/src/app/sagas/instance_create.rs#L739-L773
+ */
+export const DEFAULT_VPC_NAME = 'default'
+
+export const hasDefaultVpc = (vpcs: Vpc[]) =>
+  vpcs.some((vpc) => vpc.name === DEFAULT_VPC_NAME)
 
 type PortRange = [number, number]
 

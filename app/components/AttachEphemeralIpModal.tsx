@@ -85,7 +85,7 @@ export const AttachEphemeralIpModal = ({
       submitLabel="Attach"
       submitDisabled={submitDisabled}
       submitError={instanceEphemeralIpAttach.error}
-      loading={instanceEphemeralIpAttach.isPending}
+      loading={instanceEphemeralIpAttach.isPending || instanceEphemeralIpAttach.isSuccess}
       onSubmit={({ pool }) => {
         instanceEphemeralIpAttach.mutate({
           path: { instance },

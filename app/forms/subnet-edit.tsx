@@ -94,7 +94,7 @@ export default function EditSubnetForm() {
           },
         })
       }}
-      loading={updateSubnet.isPending}
+      loading={updateSubnet.isPending || updateSubnet.isSuccess}
       submitError={updateSubnet.error}
     >
       <FormMetadata resource={subnet}>

@@ -31,7 +31,17 @@ const pressComboboxKey: BrowserCommand<[label: string, key: string]> = async (
 export default defineConfig({
   optimizeDeps: {
     entries: ['app/**/*.browser.spec.{ts,tsx}', 'app/util/ip.spec.ts'],
-    include: ['react-router'],
+    include: [
+      '@base-ui/react/menu',
+      'date-fns',
+      'ip-num/IPNumber.js',
+      'react-router',
+      'semver',
+      'uplot',
+      'uplot-react',
+      'uuid',
+      'zod/v4',
+    ],
   },
   plugins: [tailwindcss(), react()],
   resolve: { tsconfigPaths: true },

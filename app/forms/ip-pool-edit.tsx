@@ -71,7 +71,7 @@ export default function EditIpPoolSideModalForm() {
       onSubmit={({ name, description }) => {
         editPool.mutate({ path: poolSelector, body: { name, description } })
       }}
-      loading={editPool.isPending}
+      loading={editPool.isPending || editPool.isSuccess}
       submitError={editPool.error}
     >
       <FormMetadata resource={pool} />

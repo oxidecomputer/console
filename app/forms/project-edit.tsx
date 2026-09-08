@@ -66,7 +66,7 @@ export default function EditProjectSideModalForm() {
       onSubmit={({ name, description }) => {
         editProject.mutate({ path: projectSelector, body: { name, description } })
       }}
-      loading={editProject.isPending}
+      loading={editProject.isPending || editProject.isSuccess}
       submitError={editProject.error}
     >
       <FormMetadata resource={project} />

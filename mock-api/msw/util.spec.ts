@@ -17,7 +17,8 @@ describe('paginated', () => {
     const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
     const page = paginated({}, items)
     expect(page.items).toEqual([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
-    expect(page.next_page).toBeNull()
+    // like Dropshot, a page with items always gets a token, even the last one
+    expect(page.next_page).toBe('c')
   })
 
   it('should return the first 100 items with no limit passed', () => {
@@ -25,10 +26,10 @@ describe('paginated', () => {
     const page = paginated({}, items)
     expect(page.items.length).toBe(100)
     expect(page.items).toEqual(items.slice(0, 100))
-    expect(page.next_page).toBe('i100')
+    expect(page.next_page).toBe('i99')
   })
 
-  it('should return page with null `next_page` if items equal page', () => {
+  it('should return a token when the items exactly fill a page', () => {
     const items = [
       { id: 'a' },
       { id: 'b' },
@@ -44,7 +45,7 @@ describe('paginated', () => {
     const page = paginated({}, items)
     expect(page.items.length).toBe(10)
     expect(page.items).toEqual(items.slice(0, 10))
-    expect(page.next_page).toBeNull()
+    expect(page.next_page).toBe('j')
   })
 
   it('should return 5 items with a limit of 5', () => {
@@ -59,14 +60,20 @@ describe('paginated', () => {
     const page = paginated({ limit: 5 }, items)
     expect(page.items.length).toBe(5)
     expect(page.items).toEqual(items.slice(0, 5))
-    expect(page.next_page).toBe('f')
+    expect(page.next_page).toBe('e')
   })
 
-  it('should return the second page when given a `page_token`', () => {
+  it('should start the next page after the token item', () => {
     const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }]
     const page = paginated({ pageToken: 'b' }, items)
-    expect(page.items.length).toBe(3)
-    expect(page.items).toEqual([{ id: 'b' }, { id: 'c' }, { id: 'd' }])
+    expect(page.items).toEqual([{ id: 'c' }, { id: 'd' }])
+    expect(page.next_page).toBe('d')
+  })
+
+  it('should return an empty page with no token after the last item', () => {
+    const items = [{ id: 'a' }, { id: 'b' }]
+    const page = paginated({ pageToken: 'b' }, items)
+    expect(page.items).toEqual([])
     expect(page.next_page).toBeNull()
   })
 })

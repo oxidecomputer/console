@@ -45,9 +45,10 @@ const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss 
 const remToPx = (rem: number) =>
   rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 // We measure axis label widths on a detached canvas instead of uPlot's to avoid overwriting its
-// own font setting.
-const measureCtx = document.createElement('canvas').getContext('2d')
+// own font setting. Created lazily so importing this module doesn't require a DOM.
+let measureCtx: CanvasRenderingContext2D | null = null
 const measureTextWidth = (text: string, font: string) => {
+  measureCtx ??= document.createElement('canvas').getContext('2d')
   // getContext('2d') is only null if '2d' is unsupported, which, hey, you're not getting a graph
   if (!measureCtx) return 0
   measureCtx.font = font
@@ -152,6 +153,13 @@ type TimeSeriesChartProps = {
   yAxisTickFormatter?: (val: number) => string
   hasError?: boolean
   loading: boolean
+  /**
+   * Test-only: exposes the underlying uPlot instance so specs can spy on its
+   * methods. uPlot assigns methods per-instance (no prototype), and module
+   * mocks are unreliable in Vitest browser mode, so this is the only reliable
+   * observation point.
+   */
+  onCreate?: (u: uPlot) => void
 }
 
 // this top margin is also in the chart, probably want a way of unifying the sizing between the two
@@ -201,6 +209,7 @@ export function TimeSeriesChart({
   yAxisTickFormatter = defaultYAxisTickFormatter,
   hasError = false,
   loading,
+  onCreate,
 }: TimeSeriesChartProps) {
   const theme = useChartTheme()
   const fontPx = remToPx(AXIS_FONT_REM_XS)
@@ -418,7 +427,10 @@ export function TimeSeriesChart({
             className="absolute top-0 left-0"
             options={options}
             data={aligned}
-            onCreate={(u) => (uRef.current = u)}
+            onCreate={(u) => {
+              uRef.current = u
+              onCreate?.(u)
+            }}
           />
         )}
         {tooltip && hovered && hovered.value !== null && (
