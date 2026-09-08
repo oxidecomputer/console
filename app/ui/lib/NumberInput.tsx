@@ -11,6 +11,7 @@ import {
   useButton,
   useLocale,
   useNumberField,
+  useNumberFormatter,
   type AriaButtonProps,
   type AriaNumberFieldProps,
 } from 'react-aria'
@@ -23,8 +24,6 @@ type NumberInputProps = AriaNumberFieldProps & {
   ref?: Ref<HTMLInputElement>
 }
 
-export const isCanonicalNumberString = (value: string) => String(Number(value)) === value
-
 export function NumberInput(props: NumberInputProps) {
   const { locale } = useLocale()
   const state = useNumberFieldState({ ...props, locale })
@@ -36,14 +35,30 @@ export function NumberInput(props: NumberInputProps) {
   // react-aria only fires props.onChange on commit (blur / Enter / stepper),
   // but we want form state to update as soon as it would produce a different
   // field value. Committing whenever state.inputValue changes to an
-  // unambiguous number lets react-aria keep controlling parsing, clamping
-  // etc., but forces it to be more eager.
+  // unambiguous number lets react-aria keep control, but forces it to be more
+  // eager.
   //
   // Context: https://github.com/adobe/react-spectrum/issues/7984
+  //
+  // HOWEVER! This eagerness should only apply if it doesn't get in the user's
+  // way, and so we check whether the bounds/stepping/formatting would rewrite
+  // the field post-commit before going ahead.
+  //
+  // Context: https://github.com/adobe/react-spectrum/blob/4682b6d6eee6f2d5d0b63c5e340c21a27f4d5ec1/packages/react-stately/src/numberfield/useNumberFieldState.ts#L88
+  const formatter = useNumberFormatter(props.formatOptions)
   useEffect(() => {
-    if (isCanonicalNumberString(state.inputValue) || state.inputValue === '') {
+    if (state.inputValue === '') {
       state.commit()
+      return
     }
+
+    const { numberValue } = state
+    if (Number.isNaN(numberValue)) return
+    if (state.minValue != null && numberValue < state.minValue) return
+    if (state.maxValue != null && numberValue > state.maxValue) return
+    if (props.step && (numberValue - (state.minValue ?? 0)) % props.step !== 0) return
+    if (formatter.format(numberValue) !== state.inputValue) return
+    state.commit()
     // eslint-disable-next-line exhaustive-deps
   }, [state.inputValue])
 
