@@ -57,24 +57,54 @@ test('fires onChange with NaN when the input is cleared', async () => {
   await expect.element(screen.getByText('Changes: NaN')).toBeVisible()
 })
 
-test('clamps typed values above maxValue', async () => {
+test('clamps typed values above maxValue on blur', async () => {
   const screen = await render(<NumberInputHarness value={5} maxValue={100} />)
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
+  // out-of-range values are left alone while editing, not clamped mid-keystroke
   await input.fill('150')
+  await expect.element(input).toHaveValue('150')
 
+  await userEvent.tab()
   await expect.element(screen.getByText('Changes: 100')).toBeVisible()
   await expect.element(input).toHaveValue('100')
 })
 
-test('clamps typed values below minValue', async () => {
+test('clamps typed values below minValue on blur', async () => {
   const screen = await render(<NumberInputHarness minValue={1} value={5} />)
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
   await input.fill('0')
+  await expect.element(input).toHaveValue('0')
 
+  await userEvent.tab()
   await expect.element(screen.getByText('Changes: 1')).toBeVisible()
   await expect.element(input).toHaveValue('1')
+})
+
+test('does not clamp intermediate input while typing', async () => {
+  const screen = await render(<NumberInputHarness minValue={10} value={10} />)
+  const input = screen.getByRole('textbox', { name: 'Test number' })
+
+  await input.click()
+  // if clamping happened mid-typing, this would be 10 after hitting 2, then 100 after hitting 0
+  await userEvent.type(input, '{Control>}a{/Control}20')
+  await expect.element(input).toHaveValue('20')
+
+  await userEvent.tab()
+  await expect.element(input).toHaveValue('20')
+})
+
+test('does not step intermediate input while typing', async () => {
+  const screen = await render(<NumberInputHarness step={1} minValue={10} value={10} />)
+  const input = screen.getByRole('textbox', { name: 'Test number' })
+
+  await input.click()
+  await userEvent.type(input, '{Control>}a{/Control}20.1')
+  await expect.element(input).toHaveValue('20.1')
+
+  await userEvent.tab()
+  await expect.element(input).toHaveValue('20')
 })
 
 test('only simplifies numbers on blur', async () => {
@@ -102,8 +132,10 @@ test('still controls the displayed value when onChange causes no re-render', asy
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
   await input.fill('1099')
+  await userEvent.tab()
   await expect.element(input).toHaveValue('1023')
 
   await input.fill('10239')
+  await userEvent.tab()
   await expect.element(input).toHaveValue('1023')
 })
