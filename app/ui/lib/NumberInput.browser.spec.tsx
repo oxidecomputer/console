@@ -88,7 +88,7 @@ test('does not clamp intermediate input while typing', async () => {
 
   await input.click()
   // if clamping happened mid-typing, this would be 10 after hitting 2, then 100 after hitting 0
-  await userEvent.type(input, '{Control>}a{/Control}20')
+  await userEvent.keyboard('{Control>}a{/Control}20')
   await expect.element(input).toHaveValue('20')
 
   await userEvent.tab()
@@ -100,7 +100,8 @@ test('does not step intermediate input while typing', async () => {
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
   await input.click()
-  await userEvent.type(input, '{Control>}a{/Control}20.1')
+  await userEvent.keyboard('{Control>}a{/Control}20')
+  await userEvent.type(input, '.1')
   await expect.element(input).toHaveValue('20.1')
 
   await userEvent.tab()
