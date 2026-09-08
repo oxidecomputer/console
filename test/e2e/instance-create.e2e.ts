@@ -229,15 +229,17 @@ test('can create an instance with custom hardware', async ({ page }) => {
   // the disk size should bot have been changed from what was entered earlier
   await expect(diskSizeInput).toHaveValue('20')
 
-  // test disk size validation against image size
-  // the minimum on the number input will be the size of the image (6GiB),
-  // so manually entering a number less than that will be corrected
+  // test disk size validation against image size: the minimum is the size of
+  // the image (6 GiB), so a smaller number is not clamped but does block submit
   await diskSizeInput.fill('5')
-  await page.keyboard.press('Tab')
-  await expect(diskSizeInput).toHaveValue('6')
-
   const submitButton = page.getByRole('button', { name: 'Create instance' })
-  await submitButton.click() // submit to trigger validation
+  await submitButton.click()
+  await expect(diskSizeInput).toHaveValue('5')
+  await expect(page.getByRole('main').getByText('Must be at least 6 GiB')).toBeVisible()
+
+  await diskSizeInput.fill('20')
+  await expect(page.getByRole('main').getByText('Must be at least 6 GiB')).toBeHidden()
+  await submitButton.click()
 
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 

@@ -379,20 +379,24 @@ test('create form prefix length max changes with pool IP version', async ({ page
   const v6Pool = page.getByRole('option', { name: 'ipv6-subnet-pool' })
   const v4Pool = page.getByRole('option', { name: 'default-v4-subnet-pool' })
 
-  // With v4 pool selected, typing 64 should be clamped to 32
+  await page.getByRole('textbox', { name: 'Name' }).fill('too-long')
+  const submit = page.getByRole('button', { name: 'Create external subnet' })
+  const dialog = page.getByRole('dialog', { name: 'Create external subnet' })
+
+  // With v4 pool selected, 64 is over the max
   await prefixLen.fill('64')
-  await prefixLen.blur()
-  await expect(prefixLen).toHaveValue('32')
+  await submit.click()
+  await expect(prefixLen).toHaveValue('64')
+  await expect(dialog.getByText('Can be at most 32')).toBeVisible()
 
   // Switch to v6 pool — 64 should now be accepted
   await selectOption(page, 'Subnet pool', v6Pool)
-  await prefixLen.fill('64')
-  await prefixLen.blur()
-  await expect(prefixLen).toHaveValue('64')
+  await expect(dialog.getByText('Can be at most 32')).toBeHidden()
 
-  // Switch back to v4 — value should clamp back to 32
+  // Switch back to v4 — over the max again
   await selectOption(page, 'Subnet pool', v4Pool)
-  await expect(prefixLen).toHaveValue('32')
+  await submit.click()
+  await expect(dialog.getByText('Can be at most 32')).toBeVisible()
 })
 
 test('create form toggles between auto and explicit fields', async ({ page }) => {

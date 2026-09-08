@@ -7,7 +7,6 @@
  */
 import { clearAnnouncer, destroyAnnouncer } from '@react-aria/live-announcer'
 import { useState } from 'react'
-import * as R from 'remeda'
 import { afterAll, afterEach, expect, test } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { page, userEvent } from 'vitest/browser'
@@ -17,32 +16,36 @@ import { NumberInput } from './NumberInput'
 afterEach(() => clearAnnouncer('assertive'))
 afterAll(destroyAnnouncer)
 
-type Props = Omit<React.ComponentProps<typeof NumberInput>, 'onChange'> & {
-  recordChanges?: boolean
+type Props = Omit<
+  React.ComponentProps<typeof NumberInput>,
+  'onChange' | 'value' | 'label'
+> & {
+  value?: number
   /** Renders a button that sets the value from outside the input */
   externalValue?: number
 }
 
-function NumberInputHarness({ recordChanges = true, externalValue, ...props }: Props) {
+function NumberInputHarness({ externalValue, ...props }: Props) {
   const [value, setValue] = useState<number>(props.value ?? NaN)
   const [changes, setChanges] = useState<number[]>([])
   return (
     <>
+      <label htmlFor="test-number">Test number</label>
+      <NumberInput
+        id="test-number"
+        label="Test number"
+        {...props}
+        value={value}
+        onChange={(nextValue) => {
+          setValue(nextValue)
+          setChanges((values) => [...values, nextValue])
+        }}
+      />
       {externalValue !== undefined && (
         <button type="button" onClick={() => setValue(externalValue)}>
           Set externally
         </button>
       )}
-      <NumberInput
-        aria-label="Test number"
-        formatOptions={{ useGrouping: false }}
-        {...props}
-        value={value}
-        onChange={(nextValue) => {
-          setValue(nextValue)
-          if (recordChanges) setChanges((values) => [...values, nextValue])
-        }}
-      />
       <output>Changes: {changes.length ? changes.map(String).join(', ') : '(none)'}</output>
     </>
   )
@@ -68,93 +71,78 @@ test('fires onChange with NaN when the input is cleared', async () => {
   await expect.element(screen.getByText('Changes: NaN')).toBeVisible()
 })
 
-test('clamps typed values above maxValue on blur', async () => {
-  const screen = await render(<NumberInputHarness value={5} maxValue={100} />)
+test('does not clamp typed values to min or max', async () => {
+  const screen = await render(<NumberInputHarness value={15} min={10} max={100} />)
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
-  // out-of-range values are left alone while editing, not clamped mid-keystroke
-  await input.fill('150')
-  await expect.element(input).toHaveValue('150')
-
+  // typing each digit separately lets the input process the intermediate value
+  await userEvent.type(input, '2')
+  await userEvent.type(input, '0')
+  await expect.element(input).toHaveValue('1520')
   await userEvent.tab()
-  await expect.element(screen.getByText('Changes: 100')).toBeVisible()
-  await expect.element(input).toHaveValue('100')
+  await expect.element(input).toHaveValue('1520')
+
+  await input.fill('2')
+  await userEvent.keyboard('{Enter}')
+
+  await expect.element(input).toHaveValue('2')
+  await expect.element(screen.getByText('Changes: 152, 1520, 2')).toBeVisible()
 })
 
-test('clamps typed values below minValue on blur', async () => {
-  const screen = await render(<NumberInputHarness minValue={1} value={5} />)
-  const input = screen.getByRole('textbox', { name: 'Test number' })
-
-  await input.fill('0')
-  await expect.element(input).toHaveValue('0')
-
-  await userEvent.tab()
-  await expect.element(screen.getByText('Changes: 1')).toBeVisible()
-  await expect.element(input).toHaveValue('1')
-})
-
-test('does not clamp intermediate input while typing', async () => {
-  const screen = await render(<NumberInputHarness minValue={10} />)
-  const input = screen.getByRole('textbox', { name: 'Test number' })
-
-  await input.click()
-  // if clamping happened mid-typing, this would be 10 after hitting 2, then 100 after hitting 0
-  await userEvent.type(input, '20')
-  await expect.element(input).toHaveValue('20')
-
-  await userEvent.tab()
-  await expect.element(input).toHaveValue('20')
-})
-
-test('does not step intermediate input while typing', async () => {
-  const screen = await render(<NumberInputHarness step={1} minValue={10} />)
-  const input = screen.getByRole('textbox', { name: 'Test number' })
-
-  await input.click()
-  await userEvent.type(input, '20')
-  await expect.element(input).toHaveValue('20')
-  await userEvent.type(input, '.1')
-  await expect.element(input).toHaveValue('20.1')
-
-  await userEvent.tab()
-  await expect.element(input).toHaveValue('20')
-})
-
-test('only simplifies numbers on blur', async () => {
+test('rejects non-digit characters', async () => {
   const screen = await render(<NumberInputHarness />)
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
-  await input.fill('0')
-  await expect.element(screen.getByText('Changes: 0')).toBeVisible()
+  await userEvent.type(input, 'a1b-2.c')
 
-  for (const precision of R.range(0, 6)) {
-    const value = `1.${'0'.repeat(precision)}` // 1., 1.0, etc.
-    await input.fill(value)
-    await expect.element(screen.getByText('Changes: 0')).toBeVisible()
-    await expect.element(input).toHaveValue(value)
-  }
-
-  await userEvent.tab()
-
-  await expect.element(screen.getByText('Changes: 0, 1')).toBeVisible()
-  await expect.element(input).toHaveValue('1')
+  await expect.element(input).toHaveValue('12')
+  await expect.element(screen.getByText('Changes: 1, 12')).toBeVisible()
 })
 
-test('still controls the displayed value when onChange causes no re-render', async () => {
-  const screen = await render(<NumberInputHarness maxValue={1023} recordChanges={false} />)
+test('normalizes leading zeros', async () => {
+  const screen = await render(<NumberInputHarness />)
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
-  await input.fill('1099')
-  await userEvent.tab()
-  await expect.element(input).toHaveValue('1023')
+  await userEvent.type(input, '0')
+  await userEvent.type(input, '0')
+  await userEvent.type(input, '7')
 
-  await input.fill('10239')
-  await userEvent.tab()
-  await expect.element(input).toHaveValue('1023')
+  await expect.element(input).toHaveValue('7')
+  await expect.element(screen.getByText('Changes: 0, 7')).toBeVisible()
+})
+
+test('rejects unsafe integers and keeps the value editable', async () => {
+  const screen = await render(<NumberInputHarness value={12} />)
+  const input = screen.getByRole('textbox', { name: 'Test number' })
+
+  for (const value of ['9007199254740993', '1000000000000000000000', '9'.repeat(309)]) {
+    await input.fill(value)
+    await expect.element(input).toHaveValue('12')
+  }
+  await expect.element(screen.getByText('Changes: (none)')).toBeVisible()
+
+  await input.fill(String(Number.MAX_SAFE_INTEGER))
+  await expect.element(input).toHaveValue('9007199254740991')
+  await userEvent.keyboard('{Backspace}')
+  await expect.element(input).toHaveValue('900719925474099')
+})
+
+test('steppers and arrow keys cannot exceed the largest safe integer', async () => {
+  const screen = await render(<NumberInputHarness value={Number.MAX_SAFE_INTEGER - 1} />)
+  const input = screen.getByRole('textbox', { name: 'Test number' })
+  const increase = screen.getByRole('button', { name: 'Increase Test number' })
+
+  await increase.click()
+  await expect.element(input).toHaveValue('9007199254740991')
+  await expect.element(increase).toBeDisabled()
+  await userEvent.keyboard('{ArrowUp}')
+  await expect.element(input).toHaveValue('9007199254740991')
+  await userEvent.keyboard('{ArrowDown}')
+  await expect.element(input).toHaveValue('9007199254740990')
 })
 
 test('stepper buttons increment and decrement within bounds', async () => {
-  const screen = await render(<NumberInputHarness value={9} minValue={8} maxValue={10} />)
+  const screen = await render(<NumberInputHarness value={9} min={8} max={10} />)
   const input = screen.getByRole('textbox', { name: 'Test number' })
   const increase = screen.getByRole('button', { name: 'Increase Test number' })
   const decrease = screen.getByRole('button', { name: 'Decrease Test number' })
@@ -171,8 +159,22 @@ test('stepper buttons increment and decrement within bounds', async () => {
   await expect.element(decrease).toBeDisabled()
 })
 
+test('stepping an out-of-range typed value lands in range', async () => {
+  const screen = await render(<NumberInputHarness min={10} max={20} />)
+  const input = screen.getByRole('textbox', { name: 'Test number' })
+
+  await input.fill('2')
+  await screen.getByRole('button', { name: 'Increase Test number' }).click()
+  await expect.element(input).toHaveValue('10')
+
+  await input.fill('50')
+  await screen.getByRole('button', { name: 'Decrease Test number' }).click()
+
+  await expect.element(input).toHaveValue('20')
+})
+
 test('incrementing an empty input starts from the minimum', async () => {
-  const screen = await render(<NumberInputHarness minValue={5} />)
+  const screen = await render(<NumberInputHarness min={5} />)
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
   await screen.getByRole('button', { name: 'Increase Test number' }).click()
@@ -181,7 +183,7 @@ test('incrementing an empty input starts from the minimum', async () => {
   await expect.element(screen.getByText('Changes: 5')).toBeVisible()
 })
 
-test('arrow keys step the value and commit', async () => {
+test('arrow keys step the value', async () => {
   const screen = await render(<NumberInputHarness value={5} />)
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
@@ -194,33 +196,41 @@ test('arrow keys step the value and commit', async () => {
   await expect.element(screen.getByText('Changes: 6, 7, 6')).toBeVisible()
 })
 
-test('rejects non-numeric characters while typing', async () => {
-  const screen = await render(<NumberInputHarness />)
+test('does not announce typing, external updates, or steps at a bound', async () => {
+  const screen = await render(
+    <NumberInputHarness value={9} min={8} max={10} externalValue={42} />
+  )
   const input = screen.getByRole('textbox', { name: 'Test number' })
+  const announcements = page.getByRole('log').first()
 
-  await userEvent.type(input, 'a')
-  await expect.element(input).toHaveValue('')
-  await userEvent.type(input, '1')
-  await expect.element(input).toHaveValue('1')
-  await userEvent.type(input, 'b')
-  await expect.element(input).toHaveValue('1')
-  await userEvent.type(input, '2')
-  await expect.element(input).toHaveValue('12')
-  await userEvent.type(input, 'c')
-  await expect.element(input).toHaveValue('12')
-  await expect.element(screen.getByText('Changes: 1, 12')).toBeVisible()
+  await screen.getByRole('button', { name: 'Increase Test number' }).click()
+  await expect.element(announcements).toHaveTextContent('10')
+  clearAnnouncer('assertive')
+  await userEvent.keyboard('{ArrowUp}')
+  await expect.element(announcements).toBeEmptyDOMElement()
+
+  await input.fill('8')
+  await userEvent.keyboard('{ArrowDown}')
+  await expect.element(announcements).toBeEmptyDOMElement()
+
+  await input.fill('9')
+  await screen.getByRole('button', { name: 'Set externally' }).click()
+  await expect.element(input).toHaveValue('42')
+  await expect.element(announcements).toBeEmptyDOMElement()
 })
 
-test('allows a leading minus sign when negative values are in range', async () => {
-  const screen = await render(<NumberInputHarness minValue={-10} />)
+test('modified arrow keys preserve the value', async () => {
+  const screen = await render(<NumberInputHarness value={10} />)
   const input = screen.getByRole('textbox', { name: 'Test number' })
 
-  await userEvent.type(input, '-')
-  await expect.element(input).toHaveValue('-')
-  await userEvent.type(input, '3')
-
-  await expect.element(input).toHaveValue('-3')
-  await expect.element(screen.getByText('Changes: -3')).toBeVisible()
+  await input.click()
+  for (const modifier of ['Shift', 'Control', 'Alt', 'Meta']) {
+    await userEvent.keyboard(`{${modifier}>}{ArrowUp}{/${modifier}}`)
+    await expect.element(input).toHaveValue('10')
+    await userEvent.keyboard(`{${modifier}>}{ArrowDown}{/${modifier}}`)
+    await expect.element(input).toHaveValue('10')
+  }
+  await expect.element(screen.getByText('Changes: (none)')).toBeVisible()
 })
 
 test('reflects a value set from outside the input', async () => {
@@ -235,7 +245,7 @@ test('reflects a value set from outside the input', async () => {
 })
 
 test('disabled input and steppers cannot be used', async () => {
-  const screen = await render(<NumberInputHarness value={3} isDisabled />)
+  const screen = await render(<NumberInputHarness value={3} disabled />)
 
   await expect.element(screen.getByRole('textbox', { name: 'Test number' })).toBeDisabled()
   await expect

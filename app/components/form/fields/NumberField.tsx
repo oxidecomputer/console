@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import cn from 'classnames'
 import { useId } from 'react'
 import { useController, type FieldPathByValue, type FieldValues } from 'react-hook-form'
 
@@ -44,7 +43,14 @@ export function NumberField<
         )}
       </div>
       {/* passing the generated id is very important for a11y */}
-      <NumberFieldInner name={name} id={id} label={label} required={required} {...props} />
+      <NumberFieldInner
+        name={name}
+        id={id}
+        label={label}
+        units={units}
+        required={required}
+        {...props}
+      />
     </div>
   )
 }
@@ -72,6 +78,7 @@ export const NumberFieldInner = <
   disabled,
   max,
   min = 0,
+  units,
 }: TextFieldProps<TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
@@ -85,9 +92,15 @@ export const NumberFieldInner = <
     rules: {
       required,
       deps,
-      // it seems we need special logic to enforce required on NaN
       validate(value, values) {
-        if (required && Number.isNaN(value)) return `${label} is required`
+        // RHF's required rule doesn't catch NaN, and its min/max rules don't
+        // know about units, so we do all three here
+        if (Number.isNaN(value)) return required ? `${label} is required` : undefined
+        const suffix = units ? ` ${units}` : ''
+        if (min !== undefined && value < Number(min))
+          return `Must be at least ${min}${suffix}`
+        if (max !== undefined && value > Number(max))
+          return `Can be at most ${max}${suffix}`
         return validate?.(value, values)
       },
     },
@@ -97,13 +110,12 @@ export const NumberFieldInner = <
     <>
       <NumberInput
         id={id}
+        label={units ? `${label} (${units})` : label}
         error={!!error}
-        aria-labelledby={cn(`${id}-label`)}
-        isDisabled={disabled}
-        maxValue={max ? Number(max) : undefined}
-        minValue={min !== undefined ? Number(min) : undefined}
+        disabled={disabled}
+        max={max !== undefined ? Number(max) : undefined}
+        min={min !== undefined ? Number(min) : undefined}
         {...field}
-        formatOptions={{ useGrouping: false }}
       />
       <ErrorMessage error={error} label={label} />
     </>

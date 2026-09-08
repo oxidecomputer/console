@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 import { match } from 'ts-pattern'
@@ -86,6 +87,13 @@ export default function CreateExternalSubnetSideModalForm() {
   // IP version.
   // https://github.com/oxidecomputer/omicron/blob/e7d260a/nexus/db-queries/src/db/queries/external_subnet.rs#L906-L908
   const prefixLenMax = !selectedPool || selectedPool.ipVersion === 'v6' ? 128 : 32
+
+  // The max only gets checked when the prefix length itself changes, so an
+  // error from a v4 pool would stick around after switching to v6 (and vice
+  // versa) until the next edit or submit. Re-run validation when the max moves.
+  useEffect(() => {
+    form.trigger('prefixLength')
+  }, [form, prefixLenMax])
 
   return (
     <SideModalForm
