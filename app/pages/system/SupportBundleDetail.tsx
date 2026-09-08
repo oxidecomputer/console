@@ -125,7 +125,7 @@ export default function SupportBundleDetail() {
           body: { userComment: userComment || null },
         })
       }}
-      loading={editBundle.isPending}
+      loading={editBundle.isPending || editBundle.isSuccess}
       submitError={editBundle.error}
     >
       <div className="flex flex-col gap-4">

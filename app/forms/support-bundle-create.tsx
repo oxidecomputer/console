@@ -45,7 +45,7 @@ export default function CreateSupportBundleSideModalForm() {
       onSubmit={({ userComment }) => {
         createBundle.mutate({ body: { userComment: userComment || null } })
       }}
-      loading={createBundle.isPending}
+      loading={createBundle.isPending || createBundle.isSuccess}
       submitError={createBundle.error}
     >
       <Message
