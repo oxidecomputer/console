@@ -77,9 +77,10 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
         updateQuotas.mutate({
           body: {
             cpus,
-            memory: memory * GiB,
+            // fractional GiB can produce a fractional byte count, which the API rejects
+            memory: Math.round(memory * GiB),
             // TODO: we use GiB on instance create but TiB on utilization. HM
-            storage: storage * GiB,
+            storage: Math.round(storage * GiB),
           },
           path: { silo },
         })

@@ -106,8 +106,9 @@ export default function CreateSiloSideModalForm() {
             mappedFleetRoles,
             quotas: {
               cpus: quotas.cpus,
-              memory: quotas.memory * GiB,
-              storage: quotas.storage * GiB,
+              // fractional GiB can produce a fractional byte count, which the API rejects
+              memory: Math.round(quotas.memory * GiB),
+              storage: Math.round(quotas.storage * GiB),
             },
             ...rest,
           },
