@@ -88,6 +88,7 @@ it('mock-api is only referenced in test files', () => {
       "app/main.tsx",
       "app/msw-mock-api.ts",
       "docs/mock-api-differences.md",
+      "docs/update-pinned-api.md",
       "package.json",
       "test/e2e/utils.ts",
       "tools/start_mock_api.ts",

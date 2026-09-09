@@ -100,5 +100,7 @@ jobs:
         if: always()
         with:
           name: test-results-${{ matrix.playwright }}
-          path: test-results/
+          path: |
+            test-results/
+            .vitest/
           retention-days: 7

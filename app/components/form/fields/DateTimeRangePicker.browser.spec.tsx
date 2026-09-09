@@ -56,7 +56,7 @@ test.each([
   await expect.element(screen.getByText(`Preset: ${preset}`)).toBeVisible()
   await expect
     .element(screen.getByRole('button', { name: 'Choose a time range preset' }))
-    .toHaveTextContent(option)
+    .toMatchTextContent(option)
 })
 
 test('chooses a preset with the keyboard', async () => {

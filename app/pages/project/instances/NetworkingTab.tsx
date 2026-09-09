@@ -24,7 +24,6 @@ import {
   type ExternalIp,
   type ExternalSubnet,
   type InstanceNetworkInterface,
-  type InstanceState,
   type IpVersion,
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
@@ -194,15 +193,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-// Bit of a hack: by putting the instance state in the row data, we can avoid
-// remaking the row actions callback whenever the instance state changes, which
-// causes the whole table to get re-rendered, which jarringly closes any open
-// row actions menus
-type NicRow = InstanceNetworkInterface & {
-  instanceState: InstanceState
-}
-
-const colHelper = createColumnHelper<NicRow>()
+const colHelper = createColumnHelper<InstanceNetworkInterface>()
 const staticCols = [
   colHelper.accessor('name', {
     header: 'name',
@@ -417,8 +408,8 @@ export default function NetworkingTab() {
   const multipleNics = nics.length > 1
 
   const makeActions = useCallback(
-    (nic: NicRow): MenuAction[] => {
-      const canUpdateNic = instanceCan.updateNic({ runState: nic.instanceState })
+    (nic: InstanceNetworkInterface): MenuAction[] => {
+      const canUpdateNic = instanceCan.updateNic(instance)
 
       const deleteDisabledReason = () => {
         if (!canUpdateNic) {
@@ -480,19 +471,14 @@ export default function NetworkingTab() {
         },
       ]
     },
-    [deleteNic, editNic, instanceSelector, multipleNics]
+    [deleteNic, editNic, instance, instanceSelector, multipleNics]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
 
-  const nicRows = useMemo(
-    () => nics.map((nic) => ({ ...nic, instanceState: instance.runState })),
-    [nics, instance]
-  )
-
   const tableInstance = useReactTable({
     columns,
-    data: nicRows,
+    data: nics,
     getCoreRowModel: getCoreRowModel(),
   })
 
