@@ -178,7 +178,7 @@ export const routes = createRoutesFromElements(
         />
         <Route
           path="metrics-explorer"
-          lazy={() => import('./pages/system/OxqlPage').then(convert)}
+          lazy={() => import('./pages/system/MetricsExplorer.tsx').then(convert)}
         />
         <Route
           path="inventory"

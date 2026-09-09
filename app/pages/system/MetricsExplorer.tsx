@@ -728,7 +728,7 @@ const ResultsSection = ({ children }: { children: ReactNode }) => (
   </>
 )
 
-export default function OxqlPage() {
+export default function MetricsExplorer() {
   const query = useApiMutation(api.systemTimeseriesQuery)
 
   // powers editor autocomplete. no loading state needed: completions are a
