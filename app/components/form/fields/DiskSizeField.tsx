@@ -39,20 +39,7 @@ export function DiskSizeField<
       name={name}
       min={min}
       max={max}
-      validate={(diskSizeGiB) => {
-        // Run a number of default validators
-        if (Number.isNaN(diskSizeGiB)) {
-          return 'Disk size is required'
-        }
-        if (diskSizeGiB < min) {
-          return `Must be at least ${min} GiB`
-        }
-        if (max !== undefined && diskSizeGiB > max) {
-          return `Can be at most ${max} GiB`
-        }
-        // Run any additional validators passed in from the callsite
-        return validate?.(diskSizeGiB)
-      }}
+      validate={validate}
       {...props}
     />
   )

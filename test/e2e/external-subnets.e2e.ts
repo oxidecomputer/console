@@ -393,6 +393,14 @@ test('create form prefix length max changes with pool IP version', async ({ page
   // Switch back to v4 — value should clamp back to 32
   await selectOption(page, 'Subnet pool', v4Pool)
   await expect(prefixLen).toHaveValue('32')
+
+  // The clamp is display-only: the form still holds 64, so submit must be
+  // blocked with a message rather than sending an out-of-range prefix
+  await page.getByRole('textbox', { name: 'Name' }).fill('too-long')
+  await page.getByRole('button', { name: 'Create external subnet' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Create external subnet' })
+  await expect(dialog.getByText('Can be at most 32')).toBeVisible()
+  await expect(dialog).toBeVisible()
 })
 
 test('create form toggles between auto and explicit fields', async ({ page }) => {

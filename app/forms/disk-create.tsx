@@ -242,7 +242,12 @@ const DiskBackendField = ({
 }) => {
   const {
     field: { value: diskBackend, onChange },
-  } = useController({ control, name: 'diskBackend' })
+  } = useController({
+    control,
+    name: 'diskBackend',
+    // Switching disk type changes the size limit.
+    rules: { deps: 'size' },
+  })
   // react-hook-form types onChange as (...event: any[]) => void
   // https://github.com/react-hook-form/react-hook-form/issues/10466
   const setDiskBackend: (value: DiskBackendForm) => void = onChange
