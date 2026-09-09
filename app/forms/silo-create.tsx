@@ -134,6 +134,7 @@ export default function CreateSiloSideModalForm() {
         control={form.control}
         label="Memory quota"
         name="quotas.memory"
+        allowDecimals
         required
         units="GiB"
       />
@@ -141,6 +142,7 @@ export default function CreateSiloSideModalForm() {
         control={form.control}
         label="Storage quota"
         name="quotas.storage"
+        allowDecimals
         required
         units="GiB"
       />

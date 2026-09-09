@@ -17,6 +17,14 @@ import { capitalize } from '~/util/str'
 import { ErrorMessage } from './ErrorMessage'
 import type { TextFieldProps } from './TextField'
 
+type NumberFieldProps<
+  T extends FieldValues,
+  N extends FieldPathByValue<T, number>,
+> = TextFieldProps<T, N> & {
+  /** Counts and resource sizes require whole numbers; byte quotas can use fractional GiB. */
+  allowDecimals?: boolean
+}
+
 export function NumberField<
   TFieldValues extends FieldValues,
   // can only be used on fields with number values
@@ -28,7 +36,7 @@ export function NumberField<
   description,
   required,
   ...props
-}: Omit<TextFieldProps<TFieldValues, TName>, 'id'>) {
+}: Omit<NumberFieldProps<TFieldValues, TName>, 'id'>) {
   // id is omitted from props because we generate it here
   const id = useId()
   return (
@@ -79,8 +87,9 @@ export const NumberFieldInner = <
   disabled,
   max,
   min = 0,
+  allowDecimals = false,
   units,
-}: TextFieldProps<TFieldValues, TName>) => {
+}: NumberFieldProps<TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
 
@@ -98,6 +107,7 @@ export const NumberFieldInner = <
       // clamps, so this is what stops out-of-range values.
       validate(value, values) {
         if (Number.isNaN(value)) return required ? `${label} is required` : undefined
+        if (!allowDecimals && !Number.isInteger(value)) return 'Must be a whole number'
         const suffix = units ? ` ${units}` : ''
         if (min !== undefined && value < Number(min))
           return `Must be at least ${min}${suffix}`

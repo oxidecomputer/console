@@ -105,6 +105,7 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
       <div>
         <NumberField
           name="memory"
+          allowDecimals
           label="Memory"
           units="GiB"
           required
@@ -115,6 +116,7 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
       <div>
         <NumberField
           name="storage"
+          allowDecimals
           label="Storage"
           units="GiB"
           required
