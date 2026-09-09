@@ -11,6 +11,7 @@ import { api, q, queryClient } from '@oxide/api'
 import {
   Access16Icon,
   Cloud16Icon,
+  Folder16Icon,
   IpGlobal16Icon,
   Logs16Icon,
   Metrics16Icon,
@@ -107,14 +108,14 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.systemUpdate()}>
             <SoftwareUpdate16Icon /> System Update
           </NavLinkItem>
-          <NavLinkItem to={pb.supportBundles()}>
-            <Logs16Icon /> Support Bundles
-          </NavLinkItem>
           <NavLinkItem to={pb.fleetAccess()}>
             <Access16Icon /> Fleet Access
           </NavLinkItem>
           <NavLinkItem to={pb.auditLog()}>
             <Logs16Icon /> Audit Log
+          </NavLinkItem>
+          <NavLinkItem to={pb.supportBundles()}>
+            <Folder16Icon /> Support Bundles
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
