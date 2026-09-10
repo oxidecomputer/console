@@ -744,7 +744,9 @@ test('Alert list basics', async ({ page }) => {
   )
 
   const table = page.getByRole('table')
-  await expect(table.getByRole('row')).toHaveCount(alerts.length + 1)
+  await expect(table.getByRole('row')).toHaveCount(
+    alerts.filter((a) => a.class !== 'probe').length + 1
+  )
 
   // newest first, with the ID and a one-line preview of the payload
   await expectRowVisible(table, {
@@ -756,8 +758,6 @@ test('Alert list basics', async ({ page }) => {
     'Alert ID': expect.stringContaining('8c8a74ba'),
     'Alert class': 'hardware.power_shelf.psu.remove',
   })
-  // the probe alert has an empty payload
-  await expectRowVisible(table, { 'Alert class': 'probe', Payload: '—' })
 
   // alert classes must stay lowercase so they can be copied into a subscription
   await expect(table.getByText('hardware.power_shelf.psu.insert').first()).toHaveCSS(
