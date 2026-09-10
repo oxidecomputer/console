@@ -26,6 +26,15 @@ const IntEnum = <T extends readonly number[]>(values: T) =>
 const SafeBoolean = z.preprocess((v) => (v === 'false' ? false : v), z.coerce.boolean())
 
 /**
+ * z.int() rejects values outside the JS safe-integer range, so it can't be
+ * used for int64/uint64 or for integers with explicit bounds beyond that
+ * range. This accepts any integral number instead.
+ */
+const LargeInt = z
+  .number()
+  .refine(Number.isInteger, 'Invalid input: expected int, received number')
+
+/**
  * An IPv4 subnet
  *
  * An IPv4 subnet, including prefix and prefix length
@@ -81,7 +90,7 @@ export const Address = z.preprocess(
   z.object({
     address: IpNet,
     addressLot: NameOrId,
-    vlanId: z.number().min(0).max(65535).nullable().optional(),
+    vlanId: z.int().min(0).max(65535).nullable().optional(),
   })
 )
 
@@ -358,7 +367,7 @@ export const Alert = z.preprocess(
     id: z.uuid(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
-    version: z.number().min(0).max(4294967295),
+    version: z.int().min(0).max(4294967295),
   })
 )
 
@@ -383,7 +392,7 @@ export const AlertClassResultsPage = z.preprocess(
  */
 export const WebhookDeliveryResponse = z.preprocess(
   processResponseBody,
-  z.object({ durationMs: z.number().min(0), status: z.number().min(0).max(65535) })
+  z.object({ durationMs: LargeInt.min(0), status: z.int().min(0).max(65535) })
 )
 
 export const WebhookDeliveryAttemptResult = z.preprocess(
@@ -399,7 +408,7 @@ export const WebhookDeliveryAttemptResult = z.preprocess(
 export const WebhookDeliveryAttempt = z.preprocess(
   processResponseBody,
   z.object({
-    attempt: z.number().min(0),
+    attempt: LargeInt.min(0),
     response: WebhookDeliveryResponse.nullable().optional(),
     result: WebhookDeliveryAttemptResult,
     timeSent: z.coerce.date(),
@@ -467,10 +476,7 @@ export const AlertDeliveryResultsPage = z.preprocess(
  */
 export const AlertProbeResult = z.preprocess(
   processResponseBody,
-  z.object({
-    probe: AlertDelivery,
-    resendsStarted: z.number().min(0).nullable().optional(),
-  })
+  z.object({ probe: AlertDelivery, resendsStarted: LargeInt.min(0).nullable().optional() })
 )
 
 /**
@@ -677,11 +683,11 @@ export const AuthMethod = z.preprocess(
 export const AuditLogEntryResult = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ httpStatusCode: z.number().min(0).max(65535), kind: z.enum(['success']) }),
+    z.object({ httpStatusCode: z.int().min(0).max(65535), kind: z.enum(['success']) }),
     z.object({
       errorCode: z.string().nullable().optional(),
       errorMessage: z.string(),
-      httpStatusCode: z.number().min(0).max(65535),
+      httpStatusCode: z.int().min(0).max(65535),
       kind: z.enum(['error']),
     }),
     z.object({ kind: z.enum(['unknown']) }),
@@ -734,7 +740,7 @@ export const Baseboard = z.preprocess(
   processResponseBody,
   z.object({
     part: z.string(),
-    revision: z.number().min(0).max(4294967295),
+    revision: z.int().min(0).max(4294967295),
     serial: z.string(),
   })
 )
@@ -771,11 +777,11 @@ export const BfdSessionDisable = z.preprocess(
 export const BfdSessionEnable = z.preprocess(
   processResponseBody,
   z.object({
-    detectionThreshold: z.number().min(0).max(255),
+    detectionThreshold: z.int().min(0).max(255),
     local: z.union([z.ipv4(), z.ipv6()]).nullable().optional(),
     mode: BfdMode,
     remote: z.union([z.ipv4(), z.ipv6()]),
-    requiredRx: z.number().min(0),
+    requiredRx: LargeInt.min(0),
     switchSlot: SwitchSlot,
   })
 )
@@ -788,11 +794,11 @@ export const BfdState = z.preprocess(
 export const BfdStatus = z.preprocess(
   processResponseBody,
   z.object({
-    detectionThreshold: z.number().min(0).max(255),
+    detectionThreshold: z.int().min(0).max(255),
     local: z.union([z.ipv4(), z.ipv6()]).nullable().optional(),
     mode: BfdMode,
     peer: z.union([z.ipv4(), z.ipv6()]),
-    requiredRx: z.number().min(0),
+    requiredRx: LargeInt.min(0),
     state: BfdState,
     switchSlot: SwitchSlot,
   })
@@ -840,7 +846,7 @@ export const BgpAnnouncement = z.preprocess(
   z.object({ addressLotBlockId: z.uuid(), announceSetId: z.uuid(), network: IpNet })
 )
 
-export const MaxPathConfig = z.preprocess(processResponseBody, z.number().min(1).max(32))
+export const MaxPathConfig = z.preprocess(processResponseBody, z.int().min(1).max(32))
 
 /**
  * A base BGP configuration.
@@ -848,7 +854,7 @@ export const MaxPathConfig = z.preprocess(processResponseBody, z.number().min(1)
 export const BgpConfig = z.preprocess(
   processResponseBody,
   z.object({
-    asn: z.number().min(0).max(4294967295),
+    asn: z.int().min(0).max(4294967295),
     description: z.string(),
     id: z.uuid(),
     maxPaths: MaxPathConfig,
@@ -865,7 +871,7 @@ export const BgpConfig = z.preprocess(
 export const BgpConfigCreate = z.preprocess(
   processResponseBody,
   z.object({
-    asn: z.number().min(0).max(4294967295),
+    asn: z.int().min(0).max(4294967295),
     bgpAnnounceSetId: NameOrId,
     description: z.string(),
     maxPaths: MaxPathConfig.default(1),
@@ -911,7 +917,7 @@ export const BgpExported = z.preprocess(
 export const BgpImported = z.preprocess(
   processResponseBody,
   z.object({
-    id: z.number().min(0).max(4294967295),
+    id: z.int().min(0).max(4294967295),
     nexthop: z.union([z.ipv4(), z.ipv6()]),
     prefix: IpNet,
     switch: SwitchSlot,
@@ -923,7 +929,7 @@ export const BgpImported = z.preprocess(
  */
 export const RouterLifetimeConfig = z.preprocess(
   processResponseBody,
-  z.number().min(0).max(9000)
+  z.int().min(0).max(9000)
 )
 
 export const RouterPeerType = z.preprocess(
@@ -959,19 +965,19 @@ export const BgpPeer = z.preprocess(
     allowedExport: ImportExportPolicy,
     allowedImport: ImportExportPolicy,
     bgpConfig: NameOrId,
-    communities: z.number().min(0).max(4294967295).array(),
-    connectRetry: z.number().min(0).max(4294967295),
-    delayOpen: z.number().min(0).max(4294967295),
+    communities: z.int().min(0).max(4294967295).array(),
+    connectRetry: z.int().min(0).max(4294967295),
+    delayOpen: z.int().min(0).max(4294967295),
     enforceFirstAs: SafeBoolean,
-    holdTime: z.number().min(0).max(4294967295),
-    idleHoldTime: z.number().min(0).max(4294967295),
-    keepalive: z.number().min(0).max(4294967295),
-    localPref: z.number().min(0).max(4294967295).nullable().optional(),
+    holdTime: z.int().min(0).max(4294967295),
+    idleHoldTime: z.int().min(0).max(4294967295),
+    keepalive: z.int().min(0).max(4294967295),
+    localPref: z.int().min(0).max(4294967295).nullable().optional(),
     md5AuthKey: z.string().nullable().optional(),
-    minTtl: z.number().min(0).max(255).nullable().optional(),
-    multiExitDiscriminator: z.number().min(0).max(4294967295).nullable().optional(),
-    remoteAsn: z.number().min(0).max(4294967295).nullable().optional(),
-    vlanId: z.number().min(0).max(65535).nullable().optional(),
+    minTtl: z.int().min(0).max(255).nullable().optional(),
+    multiExitDiscriminator: z.int().min(0).max(4294967295).nullable().optional(),
+    remoteAsn: z.int().min(0).max(4294967295).nullable().optional(),
+    vlanId: z.int().min(0).max(65535).nullable().optional(),
   })
 )
 
@@ -1004,11 +1010,11 @@ export const BgpPeerStatus = z.preprocess(
   processResponseBody,
   z.object({
     addr: z.union([z.ipv4(), z.ipv6()]),
-    localAsn: z.number().min(0).max(4294967295),
+    localAsn: z.int().min(0).max(4294967295),
     peerId: z.string(),
-    remoteAsn: z.number().min(0).max(4294967295),
+    remoteAsn: z.int().min(0).max(4294967295),
     state: BgpPeerState,
-    stateDurationMillis: z.number().min(0),
+    stateDurationMillis: LargeInt.min(0),
     switch: SwitchSlot,
   })
 )
@@ -1049,13 +1055,13 @@ export const BinRangefloat = z.preprocess(
 export const BinRangeint16 = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ end: z.number().min(-32767).max(32767), type: z.enum(['range_to']) }),
+    z.object({ end: z.int().min(-32768).max(32767), type: z.enum(['range_to']) }),
     z.object({
-      end: z.number().min(-32767).max(32767),
-      start: z.number().min(-32767).max(32767),
+      end: z.int().min(-32768).max(32767),
+      start: z.int().min(-32768).max(32767),
       type: z.enum(['range']),
     }),
-    z.object({ start: z.number().min(-32767).max(32767), type: z.enum(['range_from']) }),
+    z.object({ start: z.int().min(-32768).max(32767), type: z.enum(['range_from']) }),
   ])
 )
 
@@ -1067,17 +1073,14 @@ export const BinRangeint16 = z.preprocess(
 export const BinRangeint32 = z.preprocess(
   processResponseBody,
   z.union([
+    z.object({ end: z.int().min(-2147483648).max(2147483647), type: z.enum(['range_to']) }),
     z.object({
-      end: z.number().min(-2147483647).max(2147483647),
-      type: z.enum(['range_to']),
-    }),
-    z.object({
-      end: z.number().min(-2147483647).max(2147483647),
-      start: z.number().min(-2147483647).max(2147483647),
+      end: z.int().min(-2147483648).max(2147483647),
+      start: z.int().min(-2147483648).max(2147483647),
       type: z.enum(['range']),
     }),
     z.object({
-      start: z.number().min(-2147483647).max(2147483647),
+      start: z.int().min(-2147483648).max(2147483647),
       type: z.enum(['range_from']),
     }),
   ])
@@ -1091,9 +1094,9 @@ export const BinRangeint32 = z.preprocess(
 export const BinRangeint64 = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ end: z.number(), type: z.enum(['range_to']) }),
-    z.object({ end: z.number(), start: z.number(), type: z.enum(['range']) }),
-    z.object({ start: z.number(), type: z.enum(['range_from']) }),
+    z.object({ end: LargeInt, type: z.enum(['range_to']) }),
+    z.object({ end: LargeInt, start: LargeInt, type: z.enum(['range']) }),
+    z.object({ start: LargeInt, type: z.enum(['range_from']) }),
   ])
 )
 
@@ -1105,13 +1108,13 @@ export const BinRangeint64 = z.preprocess(
 export const BinRangeint8 = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ end: z.number().min(-127).max(127), type: z.enum(['range_to']) }),
+    z.object({ end: z.int().min(-128).max(127), type: z.enum(['range_to']) }),
     z.object({
-      end: z.number().min(-127).max(127),
-      start: z.number().min(-127).max(127),
+      end: z.int().min(-128).max(127),
+      start: z.int().min(-128).max(127),
       type: z.enum(['range']),
     }),
-    z.object({ start: z.number().min(-127).max(127), type: z.enum(['range_from']) }),
+    z.object({ start: z.int().min(-128).max(127), type: z.enum(['range_from']) }),
   ])
 )
 
@@ -1123,13 +1126,13 @@ export const BinRangeint8 = z.preprocess(
 export const BinRangeuint16 = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ end: z.number().min(0).max(65535), type: z.enum(['range_to']) }),
+    z.object({ end: z.int().min(0).max(65535), type: z.enum(['range_to']) }),
     z.object({
-      end: z.number().min(0).max(65535),
-      start: z.number().min(0).max(65535),
+      end: z.int().min(0).max(65535),
+      start: z.int().min(0).max(65535),
       type: z.enum(['range']),
     }),
-    z.object({ start: z.number().min(0).max(65535), type: z.enum(['range_from']) }),
+    z.object({ start: z.int().min(0).max(65535), type: z.enum(['range_from']) }),
   ])
 )
 
@@ -1141,13 +1144,13 @@ export const BinRangeuint16 = z.preprocess(
 export const BinRangeuint32 = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ end: z.number().min(0).max(4294967295), type: z.enum(['range_to']) }),
+    z.object({ end: z.int().min(0).max(4294967295), type: z.enum(['range_to']) }),
     z.object({
-      end: z.number().min(0).max(4294967295),
-      start: z.number().min(0).max(4294967295),
+      end: z.int().min(0).max(4294967295),
+      start: z.int().min(0).max(4294967295),
       type: z.enum(['range']),
     }),
-    z.object({ start: z.number().min(0).max(4294967295), type: z.enum(['range_from']) }),
+    z.object({ start: z.int().min(0).max(4294967295), type: z.enum(['range_from']) }),
   ])
 )
 
@@ -1159,9 +1162,9 @@ export const BinRangeuint32 = z.preprocess(
 export const BinRangeuint64 = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ end: z.number().min(0), type: z.enum(['range_to']) }),
-    z.object({ end: z.number().min(0), start: z.number().min(0), type: z.enum(['range']) }),
-    z.object({ start: z.number().min(0), type: z.enum(['range_from']) }),
+    z.object({ end: LargeInt.min(0), type: z.enum(['range_to']) }),
+    z.object({ end: LargeInt.min(0), start: LargeInt.min(0), type: z.enum(['range']) }),
+    z.object({ start: LargeInt.min(0), type: z.enum(['range_from']) }),
   ])
 )
 
@@ -1173,13 +1176,13 @@ export const BinRangeuint64 = z.preprocess(
 export const BinRangeuint8 = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ end: z.number().min(0).max(255), type: z.enum(['range_to']) }),
+    z.object({ end: z.int().min(0).max(255), type: z.enum(['range_to']) }),
     z.object({
-      end: z.number().min(0).max(255),
-      start: z.number().min(0).max(255),
+      end: z.int().min(0).max(255),
+      start: z.int().min(0).max(255),
       type: z.enum(['range']),
     }),
-    z.object({ start: z.number().min(0).max(255), type: z.enum(['range_from']) }),
+    z.object({ start: z.int().min(0).max(255), type: z.enum(['range_from']) }),
   ])
 )
 
@@ -1188,7 +1191,7 @@ export const BinRangeuint8 = z.preprocess(
  */
 export const Bindouble = z.preprocess(
   processResponseBody,
-  z.object({ count: z.number().min(0), range: BinRangedouble })
+  z.object({ count: LargeInt.min(0), range: BinRangedouble })
 )
 
 /**
@@ -1196,7 +1199,7 @@ export const Bindouble = z.preprocess(
  */
 export const Binfloat = z.preprocess(
   processResponseBody,
-  z.object({ count: z.number().min(0), range: BinRangefloat })
+  z.object({ count: LargeInt.min(0), range: BinRangefloat })
 )
 
 /**
@@ -1204,7 +1207,7 @@ export const Binfloat = z.preprocess(
  */
 export const Binint16 = z.preprocess(
   processResponseBody,
-  z.object({ count: z.number().min(0), range: BinRangeint16 })
+  z.object({ count: LargeInt.min(0), range: BinRangeint16 })
 )
 
 /**
@@ -1212,7 +1215,7 @@ export const Binint16 = z.preprocess(
  */
 export const Binint32 = z.preprocess(
   processResponseBody,
-  z.object({ count: z.number().min(0), range: BinRangeint32 })
+  z.object({ count: LargeInt.min(0), range: BinRangeint32 })
 )
 
 /**
@@ -1220,7 +1223,7 @@ export const Binint32 = z.preprocess(
  */
 export const Binint64 = z.preprocess(
   processResponseBody,
-  z.object({ count: z.number().min(0), range: BinRangeint64 })
+  z.object({ count: LargeInt.min(0), range: BinRangeint64 })
 )
 
 /**
@@ -1228,7 +1231,7 @@ export const Binint64 = z.preprocess(
  */
 export const Binint8 = z.preprocess(
   processResponseBody,
-  z.object({ count: z.number().min(0), range: BinRangeint8 })
+  z.object({ count: LargeInt.min(0), range: BinRangeint8 })
 )
 
 /**
@@ -1236,7 +1239,7 @@ export const Binint8 = z.preprocess(
  */
 export const Binuint16 = z.preprocess(
   processResponseBody,
-  z.object({ count: z.number().min(0), range: BinRangeuint16 })
+  z.object({ count: LargeInt.min(0), range: BinRangeuint16 })
 )
 
 /**
@@ -1244,7 +1247,7 @@ export const Binuint16 = z.preprocess(
  */
 export const Binuint32 = z.preprocess(
   processResponseBody,
-  z.object({ count: z.number().min(0), range: BinRangeuint32 })
+  z.object({ count: LargeInt.min(0), range: BinRangeuint32 })
 )
 
 /**
@@ -1252,7 +1255,7 @@ export const Binuint32 = z.preprocess(
  */
 export const Binuint64 = z.preprocess(
   processResponseBody,
-  z.object({ count: z.number().min(0), range: BinRangeuint64 })
+  z.object({ count: LargeInt.min(0), range: BinRangeuint64 })
 )
 
 /**
@@ -1260,7 +1263,7 @@ export const Binuint64 = z.preprocess(
  */
 export const Binuint8 = z.preprocess(
   processResponseBody,
-  z.object({ count: z.number().min(0), range: BinRangeuint8 })
+  z.object({ count: LargeInt.min(0), range: BinRangeuint8 })
 )
 
 /**
@@ -1276,7 +1279,7 @@ export const BlockSize = z.preprocess(
 /**
  * Byte count to express memory or storage capacity.
  */
-export const ByteCount = z.preprocess(processResponseBody, z.number().min(0))
+export const ByteCount = z.preprocess(processResponseBody, LargeInt.min(0))
 
 /**
  * The service intended to use this certificate.
@@ -1361,7 +1364,7 @@ export const Cumulativefloat = z.preprocess(
  */
 export const Cumulativeint64 = z.preprocess(
   processResponseBody,
-  z.object({ startTime: z.coerce.date(), value: z.number() })
+  z.object({ startTime: z.coerce.date(), value: LargeInt })
 )
 
 /**
@@ -1369,7 +1372,7 @@ export const Cumulativeint64 = z.preprocess(
  */
 export const Cumulativeuint64 = z.preprocess(
   processResponseBody,
-  z.object({ startTime: z.coerce.date(), value: z.number().min(0) })
+  z.object({ startTime: z.coerce.date(), value: LargeInt.min(0) })
 )
 
 /**
@@ -1401,7 +1404,7 @@ export const Quantile = z.preprocess(
   z.object({
     desiredMarkerPositions: z.number().array(),
     markerHeights: z.number().array(),
-    markerPositions: z.number().min(0).array(),
+    markerPositions: LargeInt.min(0).array(),
     p: z.number(),
   })
 )
@@ -1417,15 +1420,15 @@ export const Histogramint8 = z.preprocess(
   processResponseBody,
   z.object({
     bins: Binint8.array(),
-    max: z.number().min(-127).max(127),
-    min: z.number().min(-127).max(127),
-    nSamples: z.number().min(0),
+    max: z.int().min(-128).max(127),
+    min: z.int().min(-128).max(127),
+    nSamples: LargeInt.min(0),
     p50: Quantile,
     p90: Quantile,
     p99: Quantile,
     squaredMean: z.number(),
     startTime: z.coerce.date(),
-    sumOfSamples: z.number(),
+    sumOfSamples: LargeInt,
   })
 )
 
@@ -1440,15 +1443,15 @@ export const Histogramuint8 = z.preprocess(
   processResponseBody,
   z.object({
     bins: Binuint8.array(),
-    max: z.number().min(0).max(255),
-    min: z.number().min(0).max(255),
-    nSamples: z.number().min(0),
+    max: z.int().min(0).max(255),
+    min: z.int().min(0).max(255),
+    nSamples: LargeInt.min(0),
     p50: Quantile,
     p90: Quantile,
     p99: Quantile,
     squaredMean: z.number(),
     startTime: z.coerce.date(),
-    sumOfSamples: z.number(),
+    sumOfSamples: LargeInt,
   })
 )
 
@@ -1463,15 +1466,15 @@ export const Histogramint16 = z.preprocess(
   processResponseBody,
   z.object({
     bins: Binint16.array(),
-    max: z.number().min(-32767).max(32767),
-    min: z.number().min(-32767).max(32767),
-    nSamples: z.number().min(0),
+    max: z.int().min(-32768).max(32767),
+    min: z.int().min(-32768).max(32767),
+    nSamples: LargeInt.min(0),
     p50: Quantile,
     p90: Quantile,
     p99: Quantile,
     squaredMean: z.number(),
     startTime: z.coerce.date(),
-    sumOfSamples: z.number(),
+    sumOfSamples: LargeInt,
   })
 )
 
@@ -1486,15 +1489,15 @@ export const Histogramuint16 = z.preprocess(
   processResponseBody,
   z.object({
     bins: Binuint16.array(),
-    max: z.number().min(0).max(65535),
-    min: z.number().min(0).max(65535),
-    nSamples: z.number().min(0),
+    max: z.int().min(0).max(65535),
+    min: z.int().min(0).max(65535),
+    nSamples: LargeInt.min(0),
     p50: Quantile,
     p90: Quantile,
     p99: Quantile,
     squaredMean: z.number(),
     startTime: z.coerce.date(),
-    sumOfSamples: z.number(),
+    sumOfSamples: LargeInt,
   })
 )
 
@@ -1509,15 +1512,15 @@ export const Histogramint32 = z.preprocess(
   processResponseBody,
   z.object({
     bins: Binint32.array(),
-    max: z.number().min(-2147483647).max(2147483647),
-    min: z.number().min(-2147483647).max(2147483647),
-    nSamples: z.number().min(0),
+    max: z.int().min(-2147483648).max(2147483647),
+    min: z.int().min(-2147483648).max(2147483647),
+    nSamples: LargeInt.min(0),
     p50: Quantile,
     p90: Quantile,
     p99: Quantile,
     squaredMean: z.number(),
     startTime: z.coerce.date(),
-    sumOfSamples: z.number(),
+    sumOfSamples: LargeInt,
   })
 )
 
@@ -1532,15 +1535,15 @@ export const Histogramuint32 = z.preprocess(
   processResponseBody,
   z.object({
     bins: Binuint32.array(),
-    max: z.number().min(0).max(4294967295),
-    min: z.number().min(0).max(4294967295),
-    nSamples: z.number().min(0),
+    max: z.int().min(0).max(4294967295),
+    min: z.int().min(0).max(4294967295),
+    nSamples: LargeInt.min(0),
     p50: Quantile,
     p90: Quantile,
     p99: Quantile,
     squaredMean: z.number(),
     startTime: z.coerce.date(),
-    sumOfSamples: z.number(),
+    sumOfSamples: LargeInt,
   })
 )
 
@@ -1555,15 +1558,15 @@ export const Histogramint64 = z.preprocess(
   processResponseBody,
   z.object({
     bins: Binint64.array(),
-    max: z.number(),
-    min: z.number(),
-    nSamples: z.number().min(0),
+    max: LargeInt,
+    min: LargeInt,
+    nSamples: LargeInt.min(0),
     p50: Quantile,
     p90: Quantile,
     p99: Quantile,
     squaredMean: z.number(),
     startTime: z.coerce.date(),
-    sumOfSamples: z.number(),
+    sumOfSamples: LargeInt,
   })
 )
 
@@ -1578,15 +1581,15 @@ export const Histogramuint64 = z.preprocess(
   processResponseBody,
   z.object({
     bins: Binuint64.array(),
-    max: z.number().min(0),
-    min: z.number().min(0),
-    nSamples: z.number().min(0),
+    max: LargeInt.min(0),
+    min: LargeInt.min(0),
+    nSamples: LargeInt.min(0),
     p50: Quantile,
     p90: Quantile,
     p99: Quantile,
     squaredMean: z.number(),
     startTime: z.coerce.date(),
-    sumOfSamples: z.number(),
+    sumOfSamples: LargeInt,
   })
 )
 
@@ -1603,7 +1606,7 @@ export const Histogramfloat = z.preprocess(
     bins: Binfloat.array(),
     max: z.number(),
     min: z.number(),
-    nSamples: z.number().min(0),
+    nSamples: LargeInt.min(0),
     p50: Quantile,
     p90: Quantile,
     p99: Quantile,
@@ -1626,7 +1629,7 @@ export const Histogramdouble = z.preprocess(
     bins: Bindouble.array(),
     max: z.number(),
     min: z.number(),
-    nSamples: z.number().min(0),
+    nSamples: LargeInt.min(0),
     p50: Quantile,
     p90: Quantile,
     p99: Quantile,
@@ -1684,18 +1687,18 @@ export const Datum = z.preprocess(
   processResponseBody,
   z.union([
     z.object({ datum: SafeBoolean, type: z.enum(['bool']) }),
-    z.object({ datum: z.number().min(-127).max(127), type: z.enum(['i8']) }),
-    z.object({ datum: z.number().min(0).max(255), type: z.enum(['u8']) }),
-    z.object({ datum: z.number().min(-32767).max(32767), type: z.enum(['i16']) }),
-    z.object({ datum: z.number().min(0).max(65535), type: z.enum(['u16']) }),
-    z.object({ datum: z.number().min(-2147483647).max(2147483647), type: z.enum(['i32']) }),
-    z.object({ datum: z.number().min(0).max(4294967295), type: z.enum(['u32']) }),
-    z.object({ datum: z.number(), type: z.enum(['i64']) }),
-    z.object({ datum: z.number().min(0), type: z.enum(['u64']) }),
+    z.object({ datum: z.int().min(-128).max(127), type: z.enum(['i8']) }),
+    z.object({ datum: z.int().min(0).max(255), type: z.enum(['u8']) }),
+    z.object({ datum: z.int().min(-32768).max(32767), type: z.enum(['i16']) }),
+    z.object({ datum: z.int().min(0).max(65535), type: z.enum(['u16']) }),
+    z.object({ datum: z.int().min(-2147483648).max(2147483647), type: z.enum(['i32']) }),
+    z.object({ datum: z.int().min(0).max(4294967295), type: z.enum(['u32']) }),
+    z.object({ datum: LargeInt, type: z.enum(['i64']) }),
+    z.object({ datum: LargeInt.min(0), type: z.enum(['u64']) }),
     z.object({ datum: z.number(), type: z.enum(['f32']) }),
     z.object({ datum: z.number(), type: z.enum(['f64']) }),
     z.object({ datum: z.string(), type: z.enum(['string']) }),
-    z.object({ datum: z.number().min(0).max(255).array(), type: z.enum(['bytes']) }),
+    z.object({ datum: z.int().min(0).max(255).array(), type: z.enum(['bytes']) }),
     z.object({ datum: Cumulativeint64, type: z.enum(['cumulative_i64']) }),
     z.object({ datum: Cumulativeuint64, type: z.enum(['cumulative_u64']) }),
     z.object({ datum: Cumulativefloat, type: z.enum(['cumulative_f32']) }),
@@ -1748,7 +1751,7 @@ export const DeviceAuthRequest = z.preprocess(
   processResponseBody,
   z.object({
     clientId: z.uuid(),
-    ttlSeconds: z.number().min(1).max(4294967295).nullable().optional(),
+    ttlSeconds: z.int().min(1).max(4294967295).nullable().optional(),
   })
 )
 
@@ -1872,7 +1875,7 @@ export const Distributiondouble = z.preprocess(
   processResponseBody,
   z.object({
     bins: z.number().array(),
-    counts: z.number().min(0).array(),
+    counts: LargeInt.min(0).array(),
     max: z.number().nullable().optional(),
     min: z.number().nullable().optional(),
     p50: z.number().nullable().optional(),
@@ -1891,15 +1894,15 @@ export const Distributiondouble = z.preprocess(
 export const Distributionint64 = z.preprocess(
   processResponseBody,
   z.object({
-    bins: z.number().array(),
-    counts: z.number().min(0).array(),
-    max: z.number().nullable().optional(),
-    min: z.number().nullable().optional(),
+    bins: LargeInt.array(),
+    counts: LargeInt.min(0).array(),
+    max: LargeInt.nullable().optional(),
+    min: LargeInt.nullable().optional(),
     p50: z.number().nullable().optional(),
     p90: z.number().nullable().optional(),
     p99: z.number().nullable().optional(),
     squaredMean: z.number(),
-    sumOfSamples: z.number(),
+    sumOfSamples: LargeInt,
   })
 )
 
@@ -1923,11 +1926,11 @@ export const ExternalIp = z.preprocess(
   processResponseBody,
   z.union([
     z.object({
-      firstPort: z.number().min(0).max(65535),
+      firstPort: z.int().min(0).max(65535),
       ip: z.union([z.ipv4(), z.ipv6()]),
       ipPoolId: z.uuid(),
       kind: z.enum(['snat']),
-      lastPort: z.number().min(0).max(65535),
+      lastPort: z.int().min(0).max(65535),
     }),
     z.object({
       ip: z.union([z.ipv4(), z.ipv6()]),
@@ -1999,7 +2002,7 @@ export const ExternalSubnetAllocator = z.preprocess(
     z.object({ subnet: IpNet, type: z.enum(['explicit']) }),
     z.object({
       poolSelector: PoolSelector.default({ ipVersion: null, type: 'auto' }),
-      prefixLength: z.number().min(0).max(255),
+      prefixLength: z.int().min(0).max(255),
       type: z.enum(['auto']),
     }),
   ])
@@ -2086,14 +2089,14 @@ export const FieldValue = z.preprocess(
   processResponseBody,
   z.union([
     z.object({ type: z.enum(['string']), value: z.string() }),
-    z.object({ type: z.enum(['i8']), value: z.number().min(-127).max(127) }),
-    z.object({ type: z.enum(['u8']), value: z.number().min(0).max(255) }),
-    z.object({ type: z.enum(['i16']), value: z.number().min(-32767).max(32767) }),
-    z.object({ type: z.enum(['u16']), value: z.number().min(0).max(65535) }),
-    z.object({ type: z.enum(['i32']), value: z.number().min(-2147483647).max(2147483647) }),
-    z.object({ type: z.enum(['u32']), value: z.number().min(0).max(4294967295) }),
-    z.object({ type: z.enum(['i64']), value: z.number() }),
-    z.object({ type: z.enum(['u64']), value: z.number().min(0) }),
+    z.object({ type: z.enum(['i8']), value: z.int().min(-128).max(127) }),
+    z.object({ type: z.enum(['u8']), value: z.int().min(0).max(255) }),
+    z.object({ type: z.enum(['i16']), value: z.int().min(-32768).max(32767) }),
+    z.object({ type: z.enum(['u16']), value: z.int().min(0).max(65535) }),
+    z.object({ type: z.enum(['i32']), value: z.int().min(-2147483648).max(2147483647) }),
+    z.object({ type: z.enum(['u32']), value: z.int().min(0).max(4294967295) }),
+    z.object({ type: z.enum(['i64']), value: LargeInt }),
+    z.object({ type: z.enum(['u64']), value: LargeInt.min(0) }),
     z.object({ type: z.enum(['ip_addr']), value: z.union([z.ipv4(), z.ipv6()]) }),
     z.object({ type: z.enum(['uuid']), value: z.uuid() }),
     z.object({ type: z.enum(['bool']), value: SafeBoolean }),
@@ -2346,7 +2349,7 @@ export const ImageResultsPage = z.preprocess(
  */
 export const ImportBlocksBulkWrite = z.preprocess(
   processResponseBody,
-  z.object({ base64EncodedData: z.string(), offset: z.number().min(0) })
+  z.object({ base64EncodedData: z.string(), offset: LargeInt.min(0) })
 )
 
 /**
@@ -2378,10 +2381,7 @@ export const InstanceCpuPlatform = z.preprocess(
 /**
  * The number of CPUs in an Instance
  */
-export const InstanceCpuCount = z.preprocess(
-  processResponseBody,
-  z.number().min(0).max(65535)
-)
+export const InstanceCpuCount = z.preprocess(processResponseBody, z.int().min(0).max(65535))
 
 /**
  * View of an Instance
@@ -2680,7 +2680,7 @@ export const InstanceResultsPage = z.preprocess(
  */
 export const InstanceSerialConsoleData = z.preprocess(
   processResponseBody,
-  z.object({ data: z.number().min(0).max(255).array(), lastByteOffset: z.number().min(0) })
+  z.object({ data: z.int().min(0).max(255).array(), lastByteOffset: LargeInt.min(0) })
 )
 
 /**
@@ -2702,9 +2702,9 @@ export const InstanceUpdate = z.preprocess(
 export const InterfaceNum = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ unknown: z.number().min(0).max(4294967295) }),
-    z.object({ ifIndex: z.number().min(0).max(4294967295) }),
-    z.object({ portNumber: z.number().min(0).max(4294967295) }),
+    z.object({ unknown: z.int().min(0).max(4294967295) }),
+    z.object({ ifIndex: z.int().min(0).max(4294967295) }),
+    z.object({ portNumber: z.int().min(0).max(4294967295) }),
   ])
 )
 
@@ -3022,11 +3022,11 @@ export const LinkSpeed = z.preprocess(
 export const TxEqConfig = z.preprocess(
   processResponseBody,
   z.object({
-    main: z.number().min(-2147483647).max(2147483647).nullable().optional(),
-    post1: z.number().min(-2147483647).max(2147483647).nullable().optional(),
-    post2: z.number().min(-2147483647).max(2147483647).nullable().optional(),
-    pre1: z.number().min(-2147483647).max(2147483647).nullable().optional(),
-    pre2: z.number().min(-2147483647).max(2147483647).nullable().optional(),
+    main: z.int().min(-2147483648).max(2147483647).nullable().optional(),
+    post1: z.int().min(-2147483648).max(2147483647).nullable().optional(),
+    post2: z.int().min(-2147483648).max(2147483647).nullable().optional(),
+    pre1: z.int().min(-2147483648).max(2147483647).nullable().optional(),
+    pre2: z.int().min(-2147483648).max(2147483647).nullable().optional(),
   })
 )
 
@@ -3040,7 +3040,7 @@ export const LinkConfigCreate = z.preprocess(
     fec: LinkFec.nullable().optional(),
     linkName: Name,
     lldp: LldpLinkConfigCreate,
-    mtu: z.number().min(0).max(65535),
+    mtu: z.int().min(0).max(65535),
     speed: LinkSpeed,
     txEq: TxEqConfig.nullable().optional(),
   })
@@ -3067,7 +3067,7 @@ export const NetworkAddress = z.preprocess(
   processResponseBody,
   z.union([
     z.object({ ipAddr: z.union([z.ipv4(), z.ipv6()]) }),
-    z.object({ iEEE802: z.number().min(0).max(255).array() }),
+    z.object({ iEEE802: z.int().min(0).max(255).array() }),
   ])
 )
 
@@ -3076,7 +3076,7 @@ export const ManagementAddress = z.preprocess(
   z.object({
     addr: NetworkAddress,
     interfaceNum: InterfaceNum,
-    oid: z.number().min(0).max(255).array().nullable().optional(),
+    oid: z.int().min(0).max(255).array().nullable().optional(),
   })
 )
 
@@ -3129,7 +3129,7 @@ export const LoopbackAddressCreate = z.preprocess(
     address: z.union([z.ipv4(), z.ipv6()]),
     addressLot: NameOrId,
     anycast: SafeBoolean,
-    mask: z.number().min(0).max(255),
+    mask: z.int().min(0).max(255),
     rackId: z.uuid(),
     switchSlot: SwitchSlot,
   })
@@ -3270,7 +3270,7 @@ export const NetworkInterfaceKind = z.preprocess(
 /**
  * A Geneve Virtual Network Identifier
  */
-export const Vni = z.preprocess(processResponseBody, z.number().min(0).max(4294967295))
+export const Vni = z.preprocess(processResponseBody, z.int().min(0).max(4294967295))
 
 /**
  * Information required to construct a virtual network interface
@@ -3284,7 +3284,7 @@ export const NetworkInterface = z.preprocess(
     mac: MacAddr,
     name: Name,
     primary: SafeBoolean,
-    slot: z.number().min(0).max(255),
+    slot: z.int().min(0).max(255),
     vni: Vni,
   })
 )
@@ -3297,7 +3297,7 @@ export const NetworkInterface = z.preprocess(
 export const ValueArray = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ type: z.enum(['integer']), values: z.number().nullable().array() }),
+    z.object({ type: z.enum(['integer']), values: LargeInt.nullable().array() }),
     z.object({ type: z.enum(['double']), values: z.number().nullable().array() }),
     z.object({ type: z.enum(['boolean']), values: SafeBoolean.nullable().array() }),
     z.object({ type: z.enum(['string']), values: z.string().nullable().array() }),
@@ -3493,10 +3493,10 @@ export const ProbeExternalIpKind = z.preprocess(
 export const ProbeExternalIp = z.preprocess(
   processResponseBody,
   z.object({
-    firstPort: z.number().min(0).max(65535),
+    firstPort: z.int().min(0).max(65535),
     ip: z.union([z.ipv4(), z.ipv6()]),
     kind: ProbeExternalIpKind,
-    lastPort: z.number().min(0).max(65535),
+    lastPort: z.int().min(0).max(65535),
   })
 )
 
@@ -3653,7 +3653,7 @@ export const RackMembershipChangeState = z.preprocess(
 /**
  * A unique, monotonically increasing number representing the set of active sleds in a rack at a given point in time.
  */
-export const RackMembershipVersion = z.preprocess(processResponseBody, z.number().min(0))
+export const RackMembershipVersion = z.preprocess(processResponseBody, LargeInt.min(0))
 
 /**
  * Status of the rack membership uniquely identified by the (rack_id, version) pair
@@ -3688,8 +3688,8 @@ export const Route = z.preprocess(
   z.object({
     dst: IpNet,
     gw: z.union([z.ipv4(), z.ipv6()]),
-    ribPriority: z.number().min(0).max(255).nullable().optional(),
-    vid: z.number().min(0).max(65535).nullable().optional(),
+    ribPriority: z.int().min(0).max(255).nullable().optional(),
+    vid: z.int().min(0).max(65535).nullable().optional(),
   })
 )
 
@@ -3911,7 +3911,7 @@ export const Silo = z.preprocess(
 export const SiloAuthSettings = z.preprocess(
   processResponseBody,
   z.object({
-    deviceTokenMaxTtlSeconds: z.number().min(0).max(4294967295).nullable().optional(),
+    deviceTokenMaxTtlSeconds: z.int().min(0).max(4294967295).nullable().optional(),
     siloId: z.uuid(),
   })
 )
@@ -3921,7 +3921,7 @@ export const SiloAuthSettings = z.preprocess(
  */
 export const SiloAuthSettingsUpdate = z.preprocess(
   processResponseBody,
-  z.object({ deviceTokenMaxTtlSeconds: z.number().min(1).max(4294967295).nullable() })
+  z.object({ deviceTokenMaxTtlSeconds: z.int().min(1).max(4294967295).nullable() })
 )
 
 /**
@@ -3929,7 +3929,7 @@ export const SiloAuthSettingsUpdate = z.preprocess(
  */
 export const SiloQuotasCreate = z.preprocess(
   processResponseBody,
-  z.object({ cpus: z.number(), memory: ByteCount, storage: ByteCount })
+  z.object({ cpus: LargeInt, memory: ByteCount, storage: ByteCount })
 )
 
 /**
@@ -3979,7 +3979,7 @@ export const SiloIpPoolResultsPage = z.preprocess(
  */
 export const SiloQuotas = z.preprocess(
   processResponseBody,
-  z.object({ cpus: z.number(), memory: ByteCount, siloId: z.uuid(), storage: ByteCount })
+  z.object({ cpus: LargeInt, memory: ByteCount, siloId: z.uuid(), storage: ByteCount })
 )
 
 /**
@@ -3996,7 +3996,7 @@ export const SiloQuotasResultsPage = z.preprocess(
 export const SiloQuotasUpdate = z.preprocess(
   processResponseBody,
   z.object({
-    cpus: z.number().nullable().optional(),
+    cpus: LargeInt.nullable().optional(),
     memory: ByteCount.nullable().optional(),
     storage: ByteCount.nullable().optional(),
   })
@@ -4064,7 +4064,7 @@ export const SiloSubnetPoolResultsPage = z.preprocess(
  */
 export const VirtualResourceCounts = z.preprocess(
   processResponseBody,
-  z.object({ cpus: z.number(), memory: ByteCount, storage: ByteCount })
+  z.object({ cpus: LargeInt, memory: ByteCount, storage: ByteCount })
 )
 
 /**
@@ -4127,11 +4127,11 @@ export const Sled = z.preprocess(
     id: z.uuid(),
     policy: SledPolicy,
     rackId: z.uuid(),
-    slot: z.number().min(0).max(65535).nullable().optional(),
+    slot: z.int().min(0).max(65535).nullable().optional(),
     state: SledState,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
-    usableHardwareThreads: z.number().min(0).max(4294967295),
+    usableHardwareThreads: z.int().min(0).max(4294967295),
     usablePhysicalRam: ByteCount,
   })
 )
@@ -4144,10 +4144,10 @@ export const SledInstance = z.preprocess(
   z.object({
     activeSledId: z.uuid(),
     id: z.uuid(),
-    memory: z.number(),
+    memory: LargeInt,
     migrationId: z.uuid().nullable().optional(),
     name: Name,
-    ncpus: z.number(),
+    ncpus: LargeInt,
     projectName: Name,
     siloName: Name,
     state: InstanceState,
@@ -4299,8 +4299,8 @@ export const SubnetPoolMember = z.preprocess(
   processResponseBody,
   z.object({
     id: z.uuid(),
-    maxPrefixLength: z.number().min(0).max(255),
-    minPrefixLength: z.number().min(0).max(255),
+    maxPrefixLength: z.int().min(0).max(255),
+    minPrefixLength: z.int().min(0).max(255),
     subnet: IpNet,
     subnetPoolId: z.uuid(),
     timeCreated: z.coerce.date(),
@@ -4313,8 +4313,8 @@ export const SubnetPoolMember = z.preprocess(
 export const SubnetPoolMemberAdd = z.preprocess(
   processResponseBody,
   z.object({
-    maxPrefixLength: z.number().min(0).max(255).nullable().optional(),
-    minPrefixLength: z.number().min(0).max(255).nullable().optional(),
+    maxPrefixLength: z.int().min(0).max(255).nullable().optional(),
+    minPrefixLength: z.int().min(0).max(255).nullable().optional(),
     subnet: IpNet,
   })
 )
@@ -4447,7 +4447,7 @@ export const SwitchInterfaceKind = z.preprocess(
   processResponseBody,
   z.union([
     z.object({ type: z.enum(['primary']) }),
-    z.object({ type: z.enum(['vlan']), vid: z.number().min(0).max(65535) }),
+    z.object({ type: z.enum(['vlan']), vid: z.int().min(0).max(65535) }),
     z.object({ type: z.enum(['loopback']) }),
   ])
 )
@@ -4505,7 +4505,7 @@ export const SwitchPortAddressView = z.preprocess(
     addressLotName: Name,
     interfaceName: Name,
     portSettingsId: z.uuid(),
-    vlanId: z.number().min(0).max(65535).nullable().optional(),
+    vlanId: z.int().min(0).max(65535).nullable().optional(),
   })
 )
 
@@ -4551,7 +4551,7 @@ export const SwitchPortLinkConfig = z.preprocess(
     fec: LinkFec.nullable().optional(),
     linkName: Name,
     lldpLinkConfig: LldpLinkConfig.nullable().optional(),
-    mtu: z.number().min(0).max(65535),
+    mtu: z.int().min(0).max(65535),
     portSettingsId: z.uuid(),
     speed: LinkSpeed,
     txEqConfig: TxEqConfig.nullable().optional(),
@@ -4576,8 +4576,8 @@ export const SwitchPortRouteConfig = z.preprocess(
     gw: z.union([z.ipv4(), z.ipv6()]),
     interfaceName: Name,
     portSettingsId: z.uuid(),
-    ribPriority: z.number().min(0).max(255).nullable().optional(),
-    vlanId: z.number().min(0).max(65535).nullable().optional(),
+    ribPriority: z.int().min(0).max(255).nullable().optional(),
+    vlanId: z.int().min(0).max(65535).nullable().optional(),
   })
 )
 
@@ -4757,7 +4757,7 @@ export const TimeseriesSchema = z.preprocess(
     fieldSchema: FieldSchema.array().refine(...uniqueItems),
     timeseriesName: TimeseriesName,
     units: Units,
-    version: z.number().min(1).max(255),
+    version: z.int().min(1).max(255),
   })
 )
 
@@ -4815,7 +4815,7 @@ export const UnadoptedPhysicalDisk = z.preprocess(
   z.object({
     diskId: PhysicalDiskManufacturerIdentity,
     sledId: SledUuid,
-    slot: z.number(),
+    slot: LargeInt,
     variant: PhysicalDiskKind,
   })
 )
@@ -4836,7 +4836,7 @@ export const UnadoptedPhysicalDiskResultsPage = z.preprocess(
  */
 export const UninitializedSled = z.preprocess(
   processResponseBody,
-  z.object({ baseboard: Baseboard, cubby: z.number().min(0).max(65535), rackId: z.uuid() })
+  z.object({ baseboard: Baseboard, cubby: z.int().min(0).max(65535), rackId: z.uuid() })
 )
 
 /**
@@ -4850,7 +4850,7 @@ export const UninitializedSledResultsPage = z.preprocess(
 export const UpdateStatus = z.preprocess(
   processResponseBody,
   z.object({
-    componentsByReleaseVersion: z.record(z.string(), z.number().min(0)),
+    componentsByReleaseVersion: z.record(z.string(), LargeInt.min(0)),
     contactSupport: SafeBoolean,
     suspended: SafeBoolean,
     targetRelease: TargetRelease.nullable(),
@@ -5011,7 +5011,7 @@ export const VpcFirewallIcmpFilter = z.preprocess(
   processResponseBody,
   z.object({
     code: IcmpParamRange.nullable().optional(),
-    icmpType: z.number().min(0).max(255),
+    icmpType: z.int().min(0).max(255),
   })
 )
 
@@ -5095,7 +5095,7 @@ export const VpcFirewallRule = z.preprocess(
     filters: VpcFirewallRuleFilter,
     id: z.uuid(),
     name: Name,
-    priority: z.number().min(0).max(65535),
+    priority: z.int().min(0).max(65535),
     status: VpcFirewallRuleStatus,
     targets: VpcFirewallRuleTarget.array(),
     timeCreated: z.coerce.date(),
@@ -5115,7 +5115,7 @@ export const VpcFirewallRuleUpdate = z.preprocess(
     direction: VpcFirewallRuleDirection,
     filters: VpcFirewallRuleFilter,
     name: Name,
-    priority: z.number().min(0).max(65535),
+    priority: z.int().min(0).max(65535),
     status: VpcFirewallRuleStatus,
     targets: VpcFirewallRuleTarget.array(),
   })
@@ -5390,7 +5390,7 @@ export const ProbeListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -5448,7 +5448,7 @@ export const AffinityGroupListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -5509,7 +5509,7 @@ export const AffinityGroupMemberListParams = z.preprocess(
       affinityGroup: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -5561,7 +5561,7 @@ export const AlertClassListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       filter: AlertSubscription.optional(),
     }),
@@ -5573,7 +5573,7 @@ export const AlertReceiverListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -5610,7 +5610,7 @@ export const AlertDeliveryListParams = z.preprocess(
       delivered: SafeBoolean.nullable().optional(),
       failed: SafeBoolean.nullable().optional(),
       pending: SafeBoolean.nullable().optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: TimeAndIdSortMode.optional(),
     }),
@@ -5657,7 +5657,7 @@ export const AlertListParams = z.preprocess(
     query: z.object({
       alertClass: AlertSubscription.optional(),
       endTime: z.coerce.date().nullable().optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: TimeAndIdSortMode.optional(),
       startTime: z.coerce.date().nullable().optional(),
@@ -5692,7 +5692,7 @@ export const AntiAffinityGroupListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -5753,7 +5753,7 @@ export const AntiAffinityGroupMemberListParams = z.preprocess(
       antiAffinityGroup: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -5821,7 +5821,7 @@ export const CertificateListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -5861,7 +5861,7 @@ export const DiskListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -5956,7 +5956,7 @@ export const ExternalSubnetListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6039,7 +6039,7 @@ export const FloatingIpListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6122,7 +6122,7 @@ export const GroupListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -6144,7 +6144,7 @@ export const ImageListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6215,7 +6215,7 @@ export const InstanceListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6276,7 +6276,7 @@ export const InstanceAffinityGroupListParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6291,7 +6291,7 @@ export const InstanceAntiAffinityGroupListParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6306,7 +6306,7 @@ export const InstanceDiskListParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6394,7 +6394,7 @@ export const InstanceMulticastGroupListParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: IdSortMode.optional(),
@@ -6447,9 +6447,9 @@ export const InstanceSerialConsoleParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      fromStart: z.number().min(0).nullable().optional(),
-      maxBytes: z.number().min(0).nullable().optional(),
-      mostRecent: z.number().min(0).nullable().optional(),
+      fromStart: LargeInt.min(0).nullable().optional(),
+      maxBytes: LargeInt.min(0).nullable().optional(),
+      mostRecent: LargeInt.min(0).nullable().optional(),
       project: NameOrId.optional(),
     }),
   })
@@ -6462,7 +6462,7 @@ export const InstanceSerialConsoleStreamParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      mostRecent: z.number().min(0).nullable().optional(),
+      mostRecent: LargeInt.min(0).nullable().optional(),
       project: NameOrId.optional(),
     }),
   })
@@ -6475,7 +6475,7 @@ export const InstanceSshPublicKeyListParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6513,7 +6513,7 @@ export const InternetGatewayIpAddressListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       gateway: NameOrId.optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6555,7 +6555,7 @@ export const InternetGatewayIpPoolListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       gateway: NameOrId.optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6596,7 +6596,7 @@ export const InternetGatewayListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6649,7 +6649,7 @@ export const IpPoolListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       ipVersion: IpVersion.optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       poolType: IpPoolType.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6698,7 +6698,7 @@ export const CurrentUserAccessTokenListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -6720,7 +6720,7 @@ export const CurrentUserGroupsParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -6732,7 +6732,7 @@ export const CurrentUserSshKeyListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -6775,7 +6775,7 @@ export const SiloMetricParams = z.preprocess(
     }),
     query: z.object({
       endTime: z.coerce.date().optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       order: PaginationOrder.optional(),
       pageToken: z.string().nullable().optional(),
       startTime: z.coerce.date().optional(),
@@ -6789,7 +6789,7 @@ export const MulticastGroupListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -6813,7 +6813,7 @@ export const MulticastGroupMemberListParams = z.preprocess(
       multicastGroup: MulticastGroupIdentifier,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -6826,7 +6826,7 @@ export const InstanceNetworkInterfaceListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       instance: NameOrId.optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6913,7 +6913,7 @@ export const ProjectListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -6983,7 +6983,7 @@ export const SnapshotListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -7030,7 +7030,7 @@ export const SubnetPoolListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -7053,7 +7053,7 @@ export const AuditLogListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       endTime: z.coerce.date().nullable().optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: TimeAndIdSortMode.optional(),
       startTime: z.coerce.date().optional(),
@@ -7084,7 +7084,7 @@ export const PhysicalDiskListAdoptionRequestsParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7096,7 +7096,7 @@ export const PhysicalDiskListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7118,7 +7118,7 @@ export const PhysicalDiskListUnadoptedParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
     }),
   })
@@ -7133,7 +7133,7 @@ export const NetworkingSwitchPortLldpNeighborsParams = z.preprocess(
       switchSlot: SwitchSlot,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7145,7 +7145,7 @@ export const RackListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7199,7 +7199,7 @@ export const SledListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7223,7 +7223,7 @@ export const SledPhysicalDiskListParams = z.preprocess(
       sledId: z.uuid(),
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7237,7 +7237,7 @@ export const SledInstanceListParams = z.preprocess(
       sledId: z.uuid(),
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7259,7 +7259,7 @@ export const SledListUninitializedParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
     }),
   })
@@ -7270,7 +7270,7 @@ export const NetworkingSwitchPortListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
       switchPortId: z.uuid().nullable().optional(),
@@ -7348,7 +7348,7 @@ export const SwitchListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7370,7 +7370,7 @@ export const SiloIdentityProviderListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       silo: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -7441,7 +7441,7 @@ export const SystemIpPoolListParams = z.preprocess(
     query: z.object({
       assignment: IpPoolAssignment.optional(),
       ipVersion: IpVersion.optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       poolType: IpPoolType.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -7504,7 +7504,7 @@ export const SystemIpPoolRangeListParams = z.preprocess(
       pool: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
     }),
   })
@@ -7537,7 +7537,7 @@ export const SystemIpPoolSiloListParams = z.preprocess(
       pool: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7594,7 +7594,7 @@ export const SystemMetricParams = z.preprocess(
     }),
     query: z.object({
       endTime: z.coerce.date().optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       order: PaginationOrder.optional(),
       pageToken: z.string().nullable().optional(),
       startTime: z.coerce.date().optional(),
@@ -7608,7 +7608,7 @@ export const NetworkingAddressLotListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -7650,7 +7650,7 @@ export const NetworkingAddressLotBlockListParams = z.preprocess(
       addressLot: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7702,7 +7702,7 @@ export const NetworkingBgpConfigListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -7742,7 +7742,7 @@ export const NetworkingBgpAnnounceSetListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -7790,7 +7790,7 @@ export const NetworkingBgpImportedParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      asn: z.number().min(0).max(4294967295),
+      asn: z.int().min(0).max(4294967295),
     }),
   })
 )
@@ -7800,7 +7800,7 @@ export const NetworkingBgpMessageHistoryParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      asn: z.number().min(0).max(4294967295),
+      asn: z.int().min(0).max(4294967295),
     }),
   })
 )
@@ -7834,7 +7834,7 @@ export const NetworkingLoopbackAddressListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7855,7 +7855,7 @@ export const NetworkingLoopbackAddressDeleteParams = z.preprocess(
     path: z.object({
       address: z.union([z.ipv4(), z.ipv6()]),
       rackId: z.uuid(),
-      subnetMask: z.number().min(0).max(255),
+      subnetMask: z.int().min(0).max(255),
       switchSlot: SwitchSlot,
     }),
     query: z.object({}),
@@ -7883,7 +7883,7 @@ export const NetworkingSwitchPortSettingsListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       portSettings: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -7984,7 +7984,7 @@ export const SystemQuotasListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -7996,7 +7996,7 @@ export const SiloListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -8038,7 +8038,7 @@ export const SiloIpPoolListParams = z.preprocess(
       silo: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -8092,7 +8092,7 @@ export const SiloSubnetPoolListParams = z.preprocess(
       silo: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -8104,7 +8104,7 @@ export const SystemSubnetPoolListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -8156,7 +8156,7 @@ export const SystemSubnetPoolMemberListParams = z.preprocess(
       pool: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
     }),
   })
@@ -8189,7 +8189,7 @@ export const SystemSubnetPoolSiloListParams = z.preprocess(
       pool: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -8243,7 +8243,7 @@ export const SupportBundleListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: TimeAndIdSortMode.optional(),
     }),
@@ -8353,7 +8353,7 @@ export const SystemTimeseriesSchemaListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
     }),
   })
@@ -8372,7 +8372,7 @@ export const SystemUpdateRepositoryListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: VersionSortMode.optional(),
     }),
@@ -8424,7 +8424,7 @@ export const SystemUpdateTrustRootListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -8464,7 +8464,7 @@ export const SiloUserListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       silo: NameOrId.optional(),
       sortBy: IdSortMode.optional(),
@@ -8489,7 +8489,7 @@ export const UserBuiltinListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameSortMode.optional(),
     }),
@@ -8511,7 +8511,7 @@ export const SiloUtilizationListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -8544,7 +8544,7 @@ export const UserListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       group: z.uuid().nullable().optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -8568,7 +8568,7 @@ export const UserTokenListParams = z.preprocess(
       userId: z.uuid(),
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -8592,7 +8592,7 @@ export const UserSessionListParams = z.preprocess(
       userId: z.uuid(),
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -8634,7 +8634,7 @@ export const VpcRouterRouteListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       router: NameOrId.optional(),
@@ -8703,7 +8703,7 @@ export const VpcRouterListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -8767,7 +8767,7 @@ export const VpcSubnetListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -8833,7 +8833,7 @@ export const VpcSubnetListNetworkInterfacesParams = z.preprocess(
       subnet: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -8847,7 +8847,7 @@ export const VpcListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
