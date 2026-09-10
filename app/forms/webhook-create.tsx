@@ -127,12 +127,12 @@ function SecretsField({ control }: { control: Control<WebhookCreateFormValues> }
   )
 }
 
-const globCode = 'text-mono-sm bg-info-secondary text-info rounded-sm px-1'
+const globCode = 'text-mono-sm bg-info-secondary text-info rounded-sm px-1 normal-case'
 
 const SubscriptionsMessage = (
   <>
     Alert subscriptions may include simple globs to subscribe to multiple classes of alerts.
-    E.g. <code className={globCode}>hardware.**</code> or{' '}
+    E.g. <code className={globCode}>hardware.sled.*</code> or{' '}
     <code className={globCode}>**.fault</code>.{' '}
     <a
       href={links.webhooksGuide}
