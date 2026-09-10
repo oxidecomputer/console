@@ -45,7 +45,7 @@
     "@base-ui/react": "^1.1.0",
     "@floating-ui/react": "^0.26.23",
     "@headlessui/react": "^2.2.9",
-    "@oxide/design-system": "^6.7.0-canary.e427db5",
+    "@oxide/design-system": "^6.7.1",
     "@peculiar/x509": "^1.12.3",
     "@react-aria/live-announcer": "^3.3.4",
     "@tailwindcss/container-queries": "^0.1.1",
