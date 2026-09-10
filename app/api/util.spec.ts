@@ -30,11 +30,18 @@ describe('subscriptionRegex', () => {
     expect(re.test('disk')).toBe(false)
   })
 
-  it('* can appear in any position', () => {
+  it('* can appear at the head', () => {
     const re = subscriptionRegex('*.create')
     expect(re.test('disk.create')).toBe(true)
     expect(re.test('instance.create')).toBe(true)
     expect(re.test('instance.ephemeral_ip.create')).toBe(false)
+  })
+
+  it('* can appear mid-string', () => {
+    const re = subscriptionRegex('hardware.*.insert')
+    expect(re.test('hardware.sled.insert')).toBe(true)
+    expect(re.test('hardware.power_shelf.psu.insert')).toBe(false)
+    expect(re.test('hardware.insert')).toBe(false)
   })
 
   it('** matches one or more segments', () => {
@@ -47,11 +54,21 @@ describe('subscriptionRegex', () => {
     expect(suffix.test('project.delete')).toBe(true)
     expect(suffix.test('instance.ephemeral_ip.delete')).toBe(true)
     expect(suffix.test('delete')).toBe(false)
+
+    const infix = subscriptionRegex('hardware.**.insert')
+    expect(infix.test('hardware.sled.insert')).toBe(true)
+    expect(infix.test('hardware.power_shelf.psu.insert')).toBe(true)
+    expect(infix.test('hardware.insert')).toBe(false)
   })
 
   it('does not match substrings within a segment', () => {
     expect(subscriptionRegex('instance.**').test('silo.instance_quota.hit')).toBe(false)
     expect(subscriptionRegex('disk.*').test('bigdisk.create')).toBe(false)
+  })
+
+  it('does not match leading/trailing segments without a star pattern', () => {
+    expect(subscriptionRegex('instance.**').test('silo.instance.hit')).toBe(false)
+    expect(subscriptionRegex('**.power_shelf').test('hardware.power_shelf.psu')).toBe(false)
   })
 })
 
