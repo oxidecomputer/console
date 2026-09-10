@@ -15,6 +15,7 @@ import {
   clickRowActions,
   expectRowVisible,
   expectToast,
+  getPageAsUser,
   selectOption,
 } from './utils'
 
@@ -128,6 +129,7 @@ test('Webhook receiver create', async ({ page }) => {
   })
   await page.getByRole('link', { name: 'deploy-hook', exact: true }).click()
   const subscriptions = page.getByRole('table', { name: 'Alert classes' })
+  await expect(subscriptions.getByRole('row')).toHaveCount(3) // header + 2
   await expect(
     subscriptions.getByRole('cell', {
       name: 'hardware.power_shelf.psu.insert',
@@ -137,6 +139,78 @@ test('Webhook receiver create', async ({ page }) => {
   await expect(
     subscriptions.getByRole('cell', { name: 'system.**', exact: true })
   ).toBeVisible()
+})
+
+test('Webhook receiver create: select subscriptions from dropdown', async ({ page }) => {
+  await page.goto('/system/alerting/receivers-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('picker-hook')
+  await page.getByRole('textbox', { name: 'Endpoint URL' }).fill('https://ci.example.com')
+  await page.getByRole('textbox', { name: 'Secret' }).fill('super-secret')
+  await page.getByRole('button', { name: 'Add secret' }).click()
+
+  // This exercises fetched alert classes in the real form; component tests seed
+  // the query cache and cannot catch a mismatch in that setup.
+  const input = page.getByRole('combobox', { name: 'Alert subscriptions' })
+  await input.fill('update')
+  const options = page.getByRole('listbox').getByRole('option')
+  await options.filter({ hasText: 'system.update.start' }).click()
+  await options.filter({ hasText: 'system.update.complete' }).click()
+  await page
+    .getByRole('button', { name: 'remove subscription system.update.complete' })
+    .click()
+
+  // Submitting with a filter still in the input should save only the remaining
+  // selection, without the removed chip or the uncommitted filter text.
+  await input.fill('update')
+  await page.getByRole('button', { name: 'Create webhook receiver' }).click()
+  await expectToast(page, 'Webhook receiver picker-hook created')
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'picker-hook',
+    Subscriptions: 'system.update.start',
+  })
+  await page.getByRole('link', { name: 'picker-hook', exact: true }).click()
+  const subscriptions = page.getByRole('table', { name: 'Alert classes' })
+  await expect(subscriptions.getByRole('row')).toHaveCount(2) // header + 1
+  await expect(
+    subscriptions.getByRole('cell', { name: 'system.update.start', exact: true })
+  ).toBeVisible()
+})
+
+test('Webhook receiver create: API 400', async ({ page }) => {
+  await page.goto('/system/alerting/receivers-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('webhook-1')
+  await page
+    .getByRole('textbox', { name: 'Endpoint URL' })
+    .fill('https://recovery.example.com')
+  await page.getByRole('textbox', { name: 'Secret' }).fill('keep-this-secret')
+  await page.getByRole('button', { name: 'Add secret' }).click()
+  await page.getByRole('button', { name: 'Create webhook receiver' }).click()
+
+  // A duplicate name exercises a real API failure, after client validation.
+  await expect(page.getByText('Webhook receiver name already exists')).toBeVisible()
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('recovered-hook')
+  await page.getByRole('button', { name: 'Create webhook receiver' }).click()
+  await expectToast(page, 'Webhook receiver recovered-hook created')
+
+  // Subscriptions are optional. A newly created receiver starts with empty
+  // subscription and delivery views.
+  await page.getByRole('link', { name: 'recovered-hook', exact: true }).click()
+  await expect(page.getByText('https://recovery.example.com')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'No subscriptions' })).toBeVisible()
+  await expect(page.getByRole('table', { name: 'Secrets' }).getByRole('row')).toHaveCount(2)
+  await page.getByRole('tab', { name: 'Deliveries' }).click()
+  await expect(page.getByRole('heading', { name: 'No deliveries' })).toBeVisible()
+})
+
+test('Webhook receiver delete: API 403', async ({ browser }) => {
+  const page = await getPageAsUser(browser, 'Jane Austen')
+  await page.goto('/system/alerting/receivers')
+  await expect(page.getByRole('link', { name: 'power-mon', exact: true })).toBeVisible()
+  await clickRowAction(page, 'power-mon', 'Delete')
+  await page.getByRole('button', { name: 'Confirm', exact: true }).click()
+  await expectToast(page, 'Action not authorized')
+  await expect(page.getByRole('link', { name: 'power-mon', exact: true })).toBeVisible()
+  await expect(page.getByRole('table').getByRole('row')).toHaveCount(4)
 })
 
 test('Webhook receiver detail: properties, subscriptions, secrets', async ({ page }) => {
@@ -193,7 +267,7 @@ test('Webhook receiver detail: properties, subscriptions, secrets', async ({ pag
   await expectToast(page, 'Secret removed')
   await expect(secrets.getByRole('row')).toHaveCount(3)
 
-  // deleting down to one secret warns that payloads will be unverifiable
+  // deleting the last secret warns that deliveries will stop
   await clickRowAction(page, 'b15f4584-98f1-4cac-b0d3-67294e41aab7', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectToast(page, 'Secret removed')
@@ -485,7 +559,7 @@ test('Webhook receiver deliveries', async ({ page }) => {
 // The bug that got this checkbox removed the first time: the mock resent every
 // delivery record in the failed state, so already-resent alerts were requeued on
 // every probe and the count never dropped.
-test('Probe resends drain the backlog', async ({ page }) => {
+test('Testing tab: probe resends and preview update', async ({ page }) => {
   await page.goto('/system/alerting/receivers/webhook-1?tab=testing')
 
   const panel = page.getByRole('tabpanel')
@@ -531,8 +605,7 @@ test('Probe resends drain the backlog', async ({ page }) => {
     expect(page.getByText('No pending deliveries found')).toBeVisible({ timeout: 1000 })
   )
 
-  // now that every alert has been delivered there is nothing to resend, so the
-  // checkbox is disabled rather than offering a no-op
+  // the refreshed preview shows no eligible alerts and disables resending
   await page.getByRole('tab', { name: 'Testing' }).click()
   const modal = await openProbeModal('Every alert has reached this endpoint')
   const resendBox = modal.getByRole('checkbox', {
@@ -548,7 +621,7 @@ test('Probe resends drain the backlog', async ({ page }) => {
   await expect(panel.getByText('No failed deliveries to resend')).toBeHidden()
 })
 
-test('Probe failure reports no resends', async ({ page }) => {
+test('Testing tab: failed probe with resends requested', async ({ page }) => {
   await page.goto('/system/alerting/receivers')
 
   // the mock backend fails probes for endpoints containing 'unreachable'
@@ -624,7 +697,7 @@ test('Alert list basics', async ({ page }) => {
     alerts.filter((a) => a.class !== 'probe').length + 1
   )
 
-  // newest first, with the ID and a one-line preview of the payload
+  // rows show the ID, class, and a one-line preview of the payload
   await expectRowVisible(table, {
     'Alert ID': expect.stringContaining('26cb0726'),
     'Alert class': 'hardware.power_shelf.psu.insert',

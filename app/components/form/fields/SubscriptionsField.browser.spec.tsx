@@ -35,7 +35,7 @@ function FieldHarness({ subscriptions }: { subscriptions: string[] }) {
 }
 
 async function renderField(subscriptions: string[] = []) {
-  // Seed the catalog only; the field still writes to a real react-hook-form
+  // Seed the alert classes; the field still writes to a real react-hook-form
   // control. Submission and blur-to-submit are covered by the create E2E test.
   const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } })
   client.setQueryData(q(api.alertClassList, { query: { limit: ALL_ISH } }).queryKey, {
@@ -63,7 +63,7 @@ async function renderField(subscriptions: string[] = []) {
 
 const press = (key: string) => commands.pressComboboxKey('Alert subscriptions', key)
 
-test('opens the catalog and shows glob matches and broader near misses', async () => {
+test('opens the dropdown and shows glob matches and broader near misses', async () => {
   const { input, listbox, option } = await renderField()
   await input.click()
   await expect.element(listbox.getByText('All classes')).toBeVisible()
@@ -158,7 +158,7 @@ test('picks multiple classes without clearing the filter and unpicks a selected 
   await expect.element(values).toHaveTextContent('["system.update.complete"]')
 })
 
-test('clears an empty search and keeps the catalog visible for an incomplete glob', async () => {
+test('clears an empty search and keeps the dropdown visible for an incomplete glob', async () => {
   const { input, listbox } = await renderField()
   await input.fill('zzz')
   await expect.element(listbox.getByText('No classes match')).toBeVisible()
@@ -211,7 +211,7 @@ test('arrow keys select which chip Backspace removes', async () => {
   await expect.element(values).toHaveTextContent('["system.update.fail"]')
 })
 
-test('sorts new selections to the top only after reopening the catalog', async () => {
+test('sorts new selections to the top only after reopening the dropdown', async () => {
   const { screen, input, listbox, option, values } = await renderField()
   await input.click()
   await expect

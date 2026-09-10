@@ -35,7 +35,7 @@ export const alertClasses: Json<AlertClass>[] = [
   // are modeled on Omicron's hardware.power_shelf.psu.* taxonomy and the fault
   // management subsystem (RFD 538 says alerts come from FMA, RFD 307). They
   // are not yet defined in Omicron's alert.rs; they exist to exercise the
-  // catalog UI.
+  // subscription dropdown.
   { name: 'hardware.sled.insert', description: 'A sled has been inserted into the rack' },
   { name: 'hardware.sled.remove', description: 'A sled has been removed from the rack' },
   { name: 'hardware.sled.fault', description: 'A sled has reported a hardware fault' },
