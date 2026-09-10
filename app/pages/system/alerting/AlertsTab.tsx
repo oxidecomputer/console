@@ -41,8 +41,13 @@ export async function clientLoader() {
  * strips the implicit semantics of table elements, so like MiniTable this is
  * divs with explicit ARIA table roles.
  */
-const Table = roleDiv('table', 'text-sans-md')
-const Row = roleDiv('row', 'flex items-center gap-8 border-secondary border-b')
+// bleed past the tab panel's gutter margins so row borders run edge to edge
+// like the audit log, then pad the cells back in by the same amount
+const Table = roleDiv('table', 'text-sans-md -mx-[var(--content-gutter)]')
+const Row = roleDiv(
+  'row',
+  'flex items-center gap-8 border-secondary border-b px-[var(--content-gutter)]'
+)
 const HeadCell = roleDiv('columnheader', 'text-mono-sm text-tertiary')
 const Cell = roleDiv('cell', '')
 
