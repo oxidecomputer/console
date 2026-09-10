@@ -6,10 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
@@ -24,16 +23,13 @@ import {
 import { Webhooks24Icon } from '@oxide/design-system/icons/react'
 import { Button } from '@oxide/design-system/ui'
 
-import { isGlobPattern, isSubscribableClass, subscriptionRegex } from '~/api/util'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
-import { ComboboxField } from '~/components/form/fields/ComboboxField'
-import { validateSubscription } from '~/components/form/fields/SubscriptionsField'
+import { SubscriptionsField } from '~/components/form/fields/SubscriptionsField'
 import { TextField } from '~/components/form/fields/TextField'
 import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
-import { SubscriptionMatchPreview } from '~/components/SubscriptionMatchPreview'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getAlertReceiverSelector, useAlertReceiverSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
@@ -43,18 +39,15 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
-import { type ComboboxItem } from '~/ui/lib/Combobox'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { InlineCode } from '~/ui/lib/InlineCode'
-import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { HintLink } from '~/ui/lib/TextInput'
-import { ALL_ISH } from '~/util/consts'
 import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -153,7 +146,7 @@ const subscriptionCols = [
 function SubscriptionsCard() {
   const receiverSelector = useAlertReceiverSelector()
   const { data: receiver } = usePrefetchedQuery(receiverView(receiverSelector))
-  const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
 
   const { mutateAsync: removeSubscription } = useApiMutation(
     api.alertReceiverSubscriptionRemove,
@@ -204,8 +197,8 @@ function SubscriptionsCard() {
         title="Alert subscriptions"
         description="The alert classes the webhook receiver is subscribed to"
       >
-        <Button size="sm" onClick={() => setShowAddModal(true)}>
-          Add subscription
+        <Button size="sm" onClick={() => setShowEditModal(true)}>
+          Edit subscriptions
         </Button>
       </CardBlock.Header>
       <CardBlock.Body>
@@ -221,66 +214,68 @@ function SubscriptionsCard() {
           </TableEmptyBox>
         )}
       </CardBlock.Body>
-      {showAddModal && <AddSubscriptionModal onDismiss={() => setShowAddModal(false)} />}
+      {showEditModal && (
+        <EditSubscriptionsModal onDismiss={() => setShowEditModal(false)} />
+      )}
     </CardBlock>
   )
 }
 
-// Combobox item showing the alert class name with its description underneath.
-const toClassComboboxItem = ({
-  name,
-  description,
-}: {
-  name: string
-  description: string
-}): ComboboxItem => ({
-  value: name,
-  selectedLabel: name,
-  label: <ItemLabel name={name}>{description}</ItemLabel>,
-})
-
-function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
+/**
+ * Same picker as the create form, seeded with the current subscriptions. The
+ * API only has per-subscription add and remove endpoints, so submit diffs the
+ * edited list against the receiver and makes one call per change.
+ */
+function EditSubscriptionsModal({ onDismiss }: { onDismiss: () => void }) {
   const receiverSelector = useAlertReceiverSelector()
   const { data: receiver } = usePrefetchedQuery(receiverView(receiverSelector))
-  const form = useForm({ defaultValues: { subscription: '' } })
-  const { control } = form
-  const subscription = useWatch({ control, name: 'subscription' })
+  const form = useForm({ defaultValues: { subscriptions: receiver.subscriptions } })
 
-  const classes = useQuery(q(api.alertClassList, { query: { limit: ALL_ISH } }))
-  const subscribable = (classes.data?.items || []).filter(isSubscribableClass)
-  // undefined while loading so an exact class isn't rejected as unknown before
-  // the list arrives
-  const classNames = classes.data ? new Set(subscribable.map((c) => c.name)) : undefined
+  const addSubscription = useApiMutation(api.alertReceiverSubscriptionAdd)
+  const removeSubscription = useApiMutation(api.alertReceiverSubscriptionRemove)
 
-  // leave out classes the receiver already gets, whether subscribed exactly or
-  // covered by one of its globs, same as the create form's picker
-  const globs = receiver.subscriptions.filter(isGlobPattern).map(subscriptionRegex)
-  const classItems = subscribable
-    .filter((c) => !receiver.subscriptions.includes(c.name))
-    .filter((c) => !globs.some((re) => re.test(c.name)))
-    .map(toClassComboboxItem)
-
-  const addSubscription = useApiMutation(api.alertReceiverSubscriptionAdd, {
-    onSuccess(result) {
+  const onSubmit = async ({ subscriptions }: { subscriptions: string[] }) => {
+    const added = subscriptions.filter((s) => !receiver.subscriptions.includes(s))
+    const removed = receiver.subscriptions.filter((s) => !subscriptions.includes(s))
+    if (added.length === 0 && removed.length === 0) {
+      onDismiss()
+      return
+    }
+    try {
+      for (const subscription of added) {
+        await addSubscription.mutateAsync({
+          path: receiverSelector,
+          body: { subscription },
+        })
+      }
+      for (const subscription of removed) {
+        await removeSubscription.mutateAsync({
+          path: { ...receiverSelector, subscription },
+        })
+      }
+    } catch {
+      // the failed call's error shows inline via submitError. Leave the modal
+      // open: the receiver refetch below shrinks the diff to what's left, so
+      // resubmitting retries only the changes that didn't land
+      return
+    } finally {
+      // calls before a failure did land, so refresh either way
       queryClient.invalidateEndpoint('alertReceiverView')
       queryClient.invalidateEndpoint('alertReceiverList')
-      // prettier-ignore
-      addToast(<>Subscribed to <HL>{result.subscription}</HL></>)
-      onDismiss()
-    },
-  })
+    }
+    addToast('Subscriptions updated')
+    onDismiss()
+  }
 
   return (
     <ModalForm
       form={form}
       onDismiss={onDismiss}
-      title="Add subscription"
-      submitLabel="Add"
-      onSubmit={({ subscription }) =>
-        addSubscription.mutate({ path: receiverSelector, body: { subscription } })
-      }
-      loading={addSubscription.isPending}
-      submitError={addSubscription.error}
+      title="Edit subscriptions"
+      submitLabel="Save"
+      onSubmit={onSubmit}
+      loading={addSubscription.isPending || removeSubscription.isPending}
+      submitError={addSubscription.error || removeSubscription.error}
     >
       <Message
         variant="info"
@@ -292,18 +287,7 @@ function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
           </>
         }
       />
-      <ComboboxField
-        control={control}
-        name="subscription"
-        label="Subscription"
-        placeholder="Enter alert pattern"
-        items={classItems}
-        isLoading={classes.isPending}
-        allowArbitraryValues
-        required
-        validate={(value) => validateSubscription(value, classNames)}
-      />
-      <SubscriptionMatchPreview pattern={subscription} />
+      <SubscriptionsField name="subscriptions" control={form.control} />
     </ModalForm>
   )
 }

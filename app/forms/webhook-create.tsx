@@ -204,7 +204,7 @@ export default function CreateWebhookForm() {
         <FormDivider />
         <Form.Heading id="subscriptions">Subscriptions</Form.Heading>
         <div className="flex flex-col gap-4">
-          <SubscriptionsField control={form.control} />
+          <SubscriptionsField name="subscriptions" control={form.control} />
           <Message variant="info" className="max-w-lg" content={SubscriptionsMessage} />
         </div>
         <FormDivider />

@@ -284,14 +284,13 @@ test('Webhook receiver detail: properties, subscriptions, secrets', async ({ pag
   await expect(subscriptions.getByRole('row')).toHaveCount(3) // header + 2
 
   // add a subscription
-  await page.getByRole('button', { name: 'Add subscription' }).click()
-  const addModal = page.getByRole('dialog', { name: 'Add subscription' })
-  await addModal
-    .getByRole('combobox', { name: 'Subscription' })
-    .fill('hardware.sensor.overtemp')
-  await page.getByRole('option', { name: 'hardware.sensor.overtemp' }).click()
-  await addModal.getByRole('button', { name: 'Add' }).click()
-  await expectToast(page, 'Subscribed to hardware.sensor.overtemp')
+  await page.getByRole('button', { name: 'Edit subscriptions' }).click()
+  const editModal = page.getByRole('dialog', { name: 'Edit subscriptions' })
+  const subsInput = editModal.getByRole('combobox', { name: 'Alert subscriptions' })
+  await subsInput.fill('hardware.sensor.overtemp')
+  await subsInput.press('Enter')
+  await editModal.getByRole('button', { name: 'Save' }).click()
+  await expectToast(page, 'Subscriptions updated')
   await expect(subscriptions.getByRole('row')).toHaveCount(4)
 
   // remove it again
@@ -335,51 +334,75 @@ test('Webhook receiver detail: properties, subscriptions, secrets', async ({ pag
   await page.getByRole('button', { name: 'Cancel' }).click()
 })
 
-test('Add subscription modal previews the classes a glob matches', async ({ page }) => {
+test('Edit subscriptions modal edits the full list', async ({ page }) => {
   await page.goto('/system/alerting/receivers/webhook-1')
 
-  await page.getByRole('button', { name: 'Add subscription' }).click()
-  const modal = page.getByRole('dialog', { name: 'Add subscription' })
-  const input = modal.getByRole('combobox', { name: 'Subscription' })
-  const preview = modal.getByText(/Matches \d+ alert class/)
+  await page.getByRole('button', { name: 'Edit subscriptions' }).click()
+  const modal = page.getByRole('dialog', { name: 'Edit subscriptions' })
+  const input = modal.getByRole('combobox', { name: 'Alert subscriptions' })
+  // the panel is portalled out of the modal so it isn't clipped by the body
+  const listbox = page.getByRole('listbox')
+  const chipRemove = (sub: string) =>
+    modal.getByRole('button', { name: `remove subscription ${sub}` })
 
-  // an exact class only ever matches itself, so there is nothing to preview
-  await input.fill('hardware.sled.fault')
-  await expect(preview).toBeHidden()
+  // the receiver's current subscriptions start out as chips
+  await expect(chipRemove('hardware.power_shelf.psu.insert')).toBeVisible()
+  await expect(chipRemove('hardware.power_shelf.psu.remove')).toBeVisible()
 
+  // a glob query shows how many classes it covers before it's committed
   await input.fill('hardware.**')
-  await expect(preview).toHaveText(/^Matches 11 alert classes:/)
-  await expect(preview).toContainText('hardware.sensor.overtemp')
-  await expect(preview).not.toContainText('system.update.start')
-
+  await expect(listbox.getByText('Showing 11 of 14')).toBeVisible()
   // ** matches every class except the synthetic probe class, which can't be
   // subscribed to
   await input.fill('**')
-  await expect(preview).toHaveText(/^Matches 14 alert classes:/)
-  await expect(preview).not.toContainText('probe')
+  await expect(listbox.getByText('Showing 14 of 14')).toBeVisible()
+  await expect(listbox.getByRole('option', { name: /probe/ })).toBeHidden()
 
-  // a well-formed glob matching nothing says so rather than rendering an
-  // empty list
+  // a well-formed glob matching nothing says so
   await input.fill('zzz.**')
-  await expect(preview).toBeHidden()
-  await expect(modal.getByText('No current alert classes match this pattern')).toBeVisible()
+  await expect(listbox.getByText('No classes match')).toBeVisible()
 
   // an exact class the API doesn't know is rejected before submit
   await input.fill('hardware.sled.nope')
-  await modal.getByRole('button', { name: 'Add' }).click()
+  await input.press('Enter')
   await expect(modal.getByText('Not an alert class')).toBeVisible()
+
+  // Escape closes the panel but not the modal
+  await expect(listbox).toBeVisible()
+  await input.press('Escape')
+  await expect(listbox).toBeHidden()
+  await expect(modal).toBeVisible()
+
+  // swap one exact subscription for a glob, then save. the API only has add
+  // and remove endpoints, so this is one call each
+  await chipRemove('hardware.power_shelf.psu.remove').click()
+  await input.fill('system.**')
+  await input.press('Enter')
+  await expect(chipRemove('system.**')).toBeVisible()
+  await modal.getByRole('button', { name: 'Save' }).click()
+  await expectToast(page, 'Subscriptions updated')
+
+  const table = page.getByRole('table', { name: 'Alert classes' })
+  await expect(table.getByRole('row')).toHaveCount(3) // header + 2
+  await expect(table.getByText('hardware.power_shelf.psu.insert')).toBeVisible()
+  await expect(table.getByText('system.**')).toBeVisible()
+  await expect(table.getByText('hardware.power_shelf.psu.remove')).toBeHidden()
 })
 
-test('Add subscription modal omits classes an existing glob already covers', async ({
+test('Edit subscriptions modal locks classes an existing glob already covers', async ({
   page,
 }) => {
-  // power-mon subscribes to hardware.**, so only non-hardware classes are offered
+  // power-mon subscribes to hardware.**, so hardware classes can't be added again
   await page.goto('/system/alerting/receivers/power-mon')
-  await page.getByRole('button', { name: 'Add subscription' }).click()
-  const modal = page.getByRole('dialog', { name: 'Add subscription' })
-  await modal.getByRole('combobox', { name: 'Subscription' }).click()
-  await expect(page.getByRole('option', { name: /system\.update\.start/ })).toBeVisible()
-  await expect(page.getByRole('option', { name: /hardware\.sled\.fault/ })).toBeHidden()
+  await page.getByRole('button', { name: 'Edit subscriptions' }).click()
+  const modal = page.getByRole('dialog', { name: 'Edit subscriptions' })
+  await modal.getByRole('combobox', { name: 'Alert subscriptions' }).click()
+  const option = (name: string) =>
+    page.getByRole('listbox').getByRole('option').filter({ hasText: name })
+  const covered = option('hardware.sled.fault')
+  await expect(covered.getByText('via hardware.**')).toBeVisible()
+  await expect(covered).toHaveAttribute('aria-disabled', 'true')
+  await expect(option('system.update.start')).not.toHaveAttribute('aria-disabled')
 })
 
 test('Testing tab: probe result and signature format', async ({ page }) => {

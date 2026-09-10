@@ -5,10 +5,24 @@
  *
  * Copyright Oxide Computer Company
  */
+import {
+  autoUpdate,
+  flip,
+  FloatingPortal,
+  offset,
+  size,
+  useFloating,
+  useMergeRefs,
+} from '@floating-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
 import { useCallback, useId, useRef, useState } from 'react'
-import { useController, type Control } from 'react-hook-form'
+import {
+  useController,
+  type Control,
+  type FieldPathByValue,
+  type FieldValues,
+} from 'react-hook-form'
 import * as R from 'remeda'
 import { match, P } from 'ts-pattern'
 
@@ -22,11 +36,11 @@ import {
   PROBE_ALERT_CLASS,
   subscriptionRegex,
 } from '~/api/util'
-import type { WebhookCreateFormValues } from '~/forms/webhook-create'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { ItemLabel } from '~/ui/lib/ItemLabel'
+import { usePopoverZIndex } from '~/ui/lib/SideModal'
 import { TextInputError } from '~/ui/lib/TextInput'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { KEYS } from '~/ui/util/keys'
@@ -121,41 +135,66 @@ function toMatchers(subscriptions: string[]) {
   }
 }
 
-export function SubscriptionsField({
-  control,
-}: {
-  control: Control<WebhookCreateFormValues>
-}) {
+/** Multi-select for alert subscriptions. Works on a `string[]` form field. */
+export function SubscriptionsField<
+  TFieldValues extends FieldValues,
+  TName extends FieldPathByValue<TFieldValues, string[]>,
+>({ name, control }: { name: TName; control: Control<TFieldValues> }) {
   const id = useId()
   const listboxId = `${id}-listbox`
   const inputRef = useRef<HTMLInputElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false)
+
+  // The panel is portalled and positioned off the shell so it escapes any
+  // overflow clipping on ancestors, like the scroll container in a modal body
+  const { refs, floatingStyles } = useFloating({
+    open,
+    placement: 'bottom-start',
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      offset(12),
+      flip({ padding: 8 }),
+      // match the shell's width, like a native select
+      size({
+        apply({ rects, elements }) {
+          elements.floating.style.width = `${rects.reference.width}px`
+        },
+      }),
+    ],
+  })
+  const zIndex = usePopoverZIndex()
 
   // Keep the open panel visually stationary when adding or removing chips
   // wraps the shell to a different number of lines: the panel hangs off the
   // shell's bottom edge, so scrolling the page by the height delta cancels
   // the layout shift. The input row (the shell's last line) stays put too;
   // only the content above shifts. useCallback so the observer isn't torn
-  // down and recreated on every render.
-  const observeShellResize = useCallback((el: HTMLDivElement) => {
-    let prevHeight = el.offsetHeight
-    const observer = new ResizeObserver(() => {
-      const delta = el.offsetHeight - prevHeight
-      prevHeight = el.offsetHeight
-      if (delta === 0 || !panelRef.current) return
-      // instant, and ResizeObserver fires between layout and paint, so the
-      // compensation is never visible as motion. If the page can't scroll
-      // far enough (already at the top or bottom), the panel just moves as
-      // it would have without compensation.
-      window.scrollBy({ top: delta, behavior: 'instant' })
-    })
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
+  // down and recreated on every render. The floating reference is set here
+  // too, since a merged ref would drop the cleanup return.
+  const observeShellResize = useCallback(
+    (el: HTMLDivElement) => {
+      refs.setReference(el)
+      let prevHeight = el.offsetHeight
+      const observer = new ResizeObserver(() => {
+        const delta = el.offsetHeight - prevHeight
+        prevHeight = el.offsetHeight
+        if (delta === 0 || !panelRef.current) return
+        // instant, and ResizeObserver fires between layout and paint, so the
+        // compensation is never visible as motion. If the page can't scroll
+        // far enough (already at the top or bottom), the panel just moves as
+        // it would have without compensation.
+        window.scrollBy({ top: delta, behavior: 'instant' })
+      })
+      observer.observe(el)
+      return () => observer.disconnect()
+    },
+    [refs]
+  )
+  const setPanelRef = useMergeRefs([refs.setFloating, panelRef])
 
-  const { field } = useController({ control, name: 'subscriptions' })
+  const { field } = useController({ control, name })
   const [query, setQuery] = useState('')
-  const [open, setOpen] = useState(false)
   // index of the chip primed for deletion. Backspace on an empty query arms
   // the last chip; arrow keys move the armed selection through the chips.
   const [armedIdx, setArmedIdx] = useState<number | null>(null)
@@ -168,7 +207,9 @@ export function SubscriptionsField({
   // isn't rejected as unknown
   const classNames = data ? new Set(classes.map((c) => c.name)) : undefined
 
-  const committed = field.value
+  // TName is constrained to string[] paths, but TS can't resolve the generic
+  // PathValue to string[] here, so annotate to pin it
+  const committed: string[] = field.value
   const matchers = toMatchers(committed)
 
   // glob chip tooltip counts; empty while classes load so lookups come back
@@ -411,115 +452,121 @@ export function SubscriptionsField({
           // ARIA 1.2 combobox pattern: focus stays on the input, which points at
           // the active row via aria-activedescendant, so the listbox and options
           // are divs and never take focus themselves
-          <div
-            ref={panelRef}
-            id={listboxId}
-            // oxlint-disable-next-line prefer-tag-over-role
-            role="listbox"
-            tabIndex={-1}
-            aria-labelledby={`${id}-label`}
-            className="ox-menu shadow-menu-inset border-secondary absolute inset-x-0 top-full z-10 mt-3 overflow-y-auto border"
-            // prevent the input from losing focus when clicking inside the panel
-            onMouseDown={(e) => e.preventDefault()}
-          >
-            <div className="text-sans-md text-secondary border-secondary bg-raise sticky -inset-x-px -top-px z-10 flex items-center justify-between border-b px-3 py-2">
-              {queryTrimmed === '' ? (
-                <>
-                  <span>All classes</span>
-                  <span className="text-tertiary">Showing {classes.length}</span>
-                </>
+          <FloatingPortal>
+            <div
+              ref={setPanelRef}
+              id={listboxId}
+              // oxlint-disable-next-line prefer-tag-over-role
+              role="listbox"
+              tabIndex={-1}
+              aria-labelledby={`${id}-label`}
+              className={cn(
+                'ox-menu shadow-menu-inset border-secondary overflow-y-auto border',
+                zIndex
+              )}
+              style={floatingStyles}
+              // prevent the input from losing focus when clicking inside the panel
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <div className="text-sans-md text-secondary border-secondary bg-raise sticky -inset-x-px -top-px z-10 flex items-center justify-between border-b px-3 py-2">
+                {queryTrimmed === '' ? (
+                  <>
+                    <span>All classes</span>
+                    <span className="text-tertiary">Showing {classes.length}</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Matching &ldquo;{queryTrimmed}&rdquo;</span>
+                    <span className="text-tertiary">
+                      Showing {rows.length} of {classes.length}
+                    </span>
+                  </>
+                )}
+              </div>
+              {/* no empty state while classes are still loading */}
+              {rows.length === 0 && data ? (
+                <div className="flex justify-center py-4">
+                  <EmptyMessage
+                    title="No classes match"
+                    body="Check the pattern or clear to see them all"
+                    buttonText="Clear"
+                    onClick={() => setQuery('')}
+                  />
+                </div>
               ) : (
-                <>
-                  <span>Matching &ldquo;{queryTrimmed}&rdquo;</span>
-                  <span className="text-tertiary">
-                    Showing {rows.length} of {classes.length}
-                  </span>
-                </>
+                rows.map((row, i) => {
+                  const { state } = row
+                  const covered = state.kind === 'covered'
+                  // right-aligned mono label: the pattern that covers (or would
+                  // cover) this row
+                  const label = match(state)
+                    .returnType<{ text: string; className: string } | null>()
+                    .with({ kind: 'covered' }, ({ via }) => ({
+                      text: `via ${via}`,
+                      className: 'text-tertiary',
+                    }))
+                    .with({ kind: 'pending' }, () => ({
+                      text: queryTrimmed,
+                      className: 'text-accent-secondary',
+                    }))
+                    .with({ kind: 'promoted' }, ({ via }) => ({
+                      text: via,
+                      className: 'text-tertiary',
+                    }))
+                    .with({ kind: P.union('picked', 'plain') }, () => null)
+                    .exhaustive()
+                  return (
+                    // oxlint-disable-next-line click-events-have-key-events, interactive-supports-focus
+                    <div
+                      key={row.name}
+                      id={optionId(i)}
+                      // oxlint-disable-next-line prefer-tag-over-role
+                      role="option"
+                      aria-selected={state.kind === 'picked'}
+                      aria-disabled={covered || undefined}
+                      className={cn(
+                        'ox-menu-item border-secondary flex items-start gap-2.5 py-1.5 border-b last:border-0',
+                        { 'is-highlighted': i === activeIdx },
+                        'hover:bg-hover',
+                        covered && 'cursor-default'
+                      )}
+                      onClick={() => toggleRow(row.name)}
+                    >
+                      <span aria-hidden className="pointer-events-none">
+                        <Checkbox
+                          checked={state.kind === 'picked'}
+                          indeterminate={covered}
+                          disabled={covered}
+                          readOnly
+                          tabIndex={-1}
+                        />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <ItemLabel
+                          name={
+                            queryTrimmed && !queryRegex ? (
+                              <HighlightedName name={row.name} query={queryTrimmed} />
+                            ) : (
+                              row.name
+                            )
+                          }
+                        >
+                          {row.description}
+                        </ItemLabel>
+                      </span>
+                      {label && (
+                        // mt-1 optically centers the 1rem mono label on the
+                        // 1.5rem name line
+                        <span className={cn('text-mono-xs mt-1', label.className)}>
+                          {label.text}
+                        </span>
+                      )}
+                    </div>
+                  )
+                })
               )}
             </div>
-            {/* no empty state while classes are still loading */}
-            {rows.length === 0 && data ? (
-              <div className="flex justify-center py-4">
-                <EmptyMessage
-                  title="No classes match"
-                  body="Check the pattern or clear to see them all"
-                  buttonText="Clear"
-                  onClick={() => setQuery('')}
-                />
-              </div>
-            ) : (
-              rows.map((row, i) => {
-                const { state } = row
-                const covered = state.kind === 'covered'
-                // right-aligned mono label: the pattern that covers (or would
-                // cover) this row
-                const label = match(state)
-                  .returnType<{ text: string; className: string } | null>()
-                  .with({ kind: 'covered' }, ({ via }) => ({
-                    text: `via ${via}`,
-                    className: 'text-tertiary',
-                  }))
-                  .with({ kind: 'pending' }, () => ({
-                    text: queryTrimmed,
-                    className: 'text-accent-secondary',
-                  }))
-                  .with({ kind: 'promoted' }, ({ via }) => ({
-                    text: via,
-                    className: 'text-tertiary',
-                  }))
-                  .with({ kind: P.union('picked', 'plain') }, () => null)
-                  .exhaustive()
-                return (
-                  // oxlint-disable-next-line click-events-have-key-events, interactive-supports-focus
-                  <div
-                    key={row.name}
-                    id={optionId(i)}
-                    // oxlint-disable-next-line prefer-tag-over-role
-                    role="option"
-                    aria-selected={state.kind === 'picked'}
-                    aria-disabled={covered || undefined}
-                    className={cn(
-                      'ox-menu-item border-secondary flex items-start gap-2.5 py-1.5 border-b last:border-0',
-                      { 'is-highlighted': i === activeIdx },
-                      'hover:bg-hover',
-                      covered && 'cursor-default'
-                    )}
-                    onClick={() => toggleRow(row.name)}
-                  >
-                    <span aria-hidden className="pointer-events-none">
-                      <Checkbox
-                        checked={state.kind === 'picked'}
-                        indeterminate={covered}
-                        disabled={covered}
-                        readOnly
-                        tabIndex={-1}
-                      />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <ItemLabel
-                        name={
-                          queryTrimmed && !queryRegex ? (
-                            <HighlightedName name={row.name} query={queryTrimmed} />
-                          ) : (
-                            row.name
-                          )
-                        }
-                      >
-                        {row.description}
-                      </ItemLabel>
-                    </span>
-                    {label && (
-                      // mt-1 optically centers the 1rem mono label on the
-                      // 1.5rem name line
-                      <span className={cn('text-mono-xs mt-1', label.className)}>
-                        {label.text}
-                      </span>
-                    )}
-                  </div>
-                )
-              })
-            )}
-          </div>
+          </FloatingPortal>
         )}
       </div>
       {commitError && <TextInputError>{commitError}</TextInputError>}

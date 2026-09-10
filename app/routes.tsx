@@ -269,7 +269,14 @@ export const routes = createRoutesFromElements(
           path="alerting"
           lazy={() => import('./pages/system/alerting/AlertingPage').then(convert)}
         >
-          <Route index element={<Navigate to="receivers" replace />} />
+          <Route
+            index
+            lazy={() =>
+              import('./pages/system/alerting/AlertReceiversTab').then(
+                redirectWithLoader('receivers')
+              )
+            }
+          />
           <Route
             lazy={() => import('./pages/system/alerting/AlertReceiversTab').then(convert)}
           >
