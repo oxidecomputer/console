@@ -176,6 +176,13 @@ test('Webhook receiver create: subscriptions field', async ({ page }) => {
   await expect(subsInput).toHaveValue('')
   await chipRemove('system.**').click()
 
+  // space also commits a complete class name
+  await subsInput.fill('hardware.power_shelf.psu.insert')
+  await subsInput.press(' ')
+  await expect(chipRemove('hardware.power_shelf.psu.insert')).toBeVisible()
+  await expect(subsInput).toHaveValue('')
+  await chipRemove('hardware.power_shelf.psu.insert').click()
+
   // rows matched by the committed glob are locked and can't be double-added
   await subsInput.fill('fault')
   const coveredRow = option('hardware.disk.fault')
@@ -189,7 +196,7 @@ test('Webhook receiver create: subscriptions field', async ({ page }) => {
   // plain-text filter + ticking rows commits exact classes without resetting the query
   await subsInput.fill('update')
   await expect(listbox.getByText('Showing 3 of 14')).toBeVisible()
-  // space is a no-op on a non-glob query: no stray space in the filter, and no
+  // space is a no-op on a partial class name: no stray space in the filter, and no
   // chip made from a half-typed class name
   await subsInput.press(' ')
   await expect(subsInput).toHaveValue('update')
