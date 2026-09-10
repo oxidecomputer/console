@@ -11,6 +11,7 @@ import { api, q, queryClient } from '@oxide/api'
 import {
   Access16Icon,
   Cloud16Icon,
+  Issues16Icon,
   IpGlobal16Icon,
   Logs16Icon,
   Metrics16Icon,
@@ -57,6 +58,7 @@ export default function SystemLayout() {
       { value: 'IP Pools', path: pb.ipPools() },
       { value: 'Subnet Pools', path: pb.subnetPools() },
       { value: 'System Update', path: pb.systemUpdate() },
+      { value: 'Support Bundles', path: pb.supportBundles() },
       { value: 'Fleet Access', path: pb.fleetAccess() },
       { value: 'Audit Log', path: pb.auditLog() },
     ]
@@ -111,6 +113,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.auditLog()}>
             <Logs16Icon /> Audit Log
+          </NavLinkItem>
+          <NavLinkItem to={pb.supportBundles()}>
+            <Issues16Icon /> Support Bundles
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

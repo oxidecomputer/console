@@ -269,6 +269,18 @@ export const routes = createRoutesFromElements(
           path="update"
           lazy={() => import('./pages/system/UpdatePage').then(convert)}
         />
+        <Route lazy={() => import('./pages/system/SupportBundlesPage').then(convert)}>
+          <Route path="support-bundles" element={null}>
+            <Route
+              path=":bundleId"
+              lazy={() => import('./pages/system/SupportBundleDetail').then(convert)}
+            />
+          </Route>
+          <Route
+            path="support-bundles-new"
+            lazy={() => import('./forms/support-bundle-create').then(convert)}
+          />
+        </Route>
         <Route
           path="access"
           lazy={() => import('./pages/system/FleetAccessPage').then(convert)}
