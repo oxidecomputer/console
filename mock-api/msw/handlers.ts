@@ -2454,7 +2454,7 @@ export const handlers = makeHandlers({
   alertList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
     const { startTime, endTime, alertClass } = query
-    let final = db.alerts
+    let final = db.alerts.filter((d) => d.class !== 'probe')
 
     if (startTime)
       final = final.filter((alert) => new Date(alert.time_created) >= startTime)
