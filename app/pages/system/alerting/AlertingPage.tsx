@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { Notifications16Icon, Prohibited24Icon } from '@oxide/design-system/icons/react'
+import { Notifications16Icon, Notifications24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
@@ -21,9 +21,7 @@ export default function AlertingPage() {
   return (
     <>
       <PageHeader>
-        {/* PLACEHOLDER — do not ship with Prohibited24Icon. Ben is
-        going to add a notifications-24 icon to the design system. */}
-        <PageTitle icon={<Prohibited24Icon />}>Alerting</PageTitle>
+        <PageTitle icon={<Notifications24Icon />}>Alerting</PageTitle>
         <DocsPopover
           heading="alerting"
           icon={<Notifications16Icon />}
