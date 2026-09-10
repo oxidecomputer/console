@@ -10,7 +10,7 @@ import cn from 'classnames'
 import { memo, useMemo, useState } from 'react'
 
 import { api, getListQFn, queryClient, snakeify, type Alert } from '@oxide/api'
-import { Webhooks24Icon } from '@oxide/design-system/icons/react'
+import { Alerts24Icon } from '@oxide/design-system/icons/react'
 
 import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
@@ -171,7 +171,7 @@ export default function AlertsTab() {
     return (
       <TableEmptyBox>
         <EmptyMessage
-          icon={<Webhooks24Icon />}
+          icon={<Alerts24Icon />}
           title="No alerts"
           body="Alerts created by the system will appear here."
         />
