@@ -103,7 +103,7 @@ export function usePaginatedList<TItem>(
     />
   )
 
-  return { items, isEmpty, pagination, query: queryResult }
+  return { items, isEmpty, pagination, queryResult }
 }
 
 // require ID only so we can use it in getRowId
@@ -119,12 +119,7 @@ export function useQueryTable<TItem>({
     : // @ts-expect-error we know from the types that getId is only defined when there is no ID
       (row: TItem) => row.id as string
 
-  const {
-    items,
-    isEmpty,
-    pagination,
-    query: queryResult,
-  } = usePaginatedList(query, getRowId)
+  const { items, isEmpty, pagination, queryResult } = usePaginatedList(query, getRowId)
 
   const table = useReactTable({
     columns,
