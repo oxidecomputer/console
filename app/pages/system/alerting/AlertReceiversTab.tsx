@@ -34,7 +34,6 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableActions } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
@@ -147,11 +146,9 @@ export default function AlertReceiversTab() {
 
   return (
     <>
-      {/* webhook receivers are the only kind of alert receiver for now, so the
-          button names that kind while the tab itself stays generic */}
-      <TableActions>
-        <CreateLink to={pb.alertReceiversNew()}>New webhook receiver</CreateLink>
-      </TableActions>
+      <div className="mb-3 flex justify-end">
+        <CreateLink to={pb.alertReceiversNew()}>New receiver</CreateLink>
+      </div>
       {table}
     </>
   )

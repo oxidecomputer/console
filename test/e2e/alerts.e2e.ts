@@ -66,7 +66,7 @@ test('Alert receivers list', async ({ page }) => {
 test('Webhook receiver create', async ({ page }) => {
   await page.goto('/system/alerting/receivers')
 
-  await page.getByRole('link', { name: 'New webhook receiver' }).click()
+  await page.getByRole('link', { name: 'New receiver' }).click()
   await expect(page).toHaveURL('/system/alerting/receivers-new')
 
   await expect(page.getByRole('heading', { name: 'Create webhook receiver' })).toBeVisible()
