@@ -69,7 +69,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
               : 'border-default ring-accent-secondary'
           )}
         >
-          <div className="text-sans-md relative flex w-[16rem] items-center px-3">
+          <div className="text-sans-md max-1000:sr-only 1000:w-[16rem] relative flex items-center px-3">
             <div className="truncate">{label}</div>
             {state.isInvalid && (
               <div className="text-error absolute top-0 right-2 bottom-0 flex items-center">
@@ -77,8 +77,8 @@ export function DateRangePicker(props: DateRangePickerProps) {
               </div>
             )}
           </div>
-          <div className="border-default -ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r-md border-l outline-hidden">
-            <Calendar16Icon className="text-secondary h-4 w-4" />
+          <div className="border-default max-1000:ml-0 1000:-ml-px 1000:border-l flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r-md outline-hidden">
+            <Calendar16Icon className="text-secondary h-4 w-4" aria-hidden />
           </div>
         </button>
       </div>

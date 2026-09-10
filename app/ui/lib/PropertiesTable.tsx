@@ -46,13 +46,15 @@ export function PropertiesTable({
       aria-label="Properties table"
       className={cn(
         className,
-        'properties-table bg-default border-default min-w-min basis-6/12 rounded-lg border',
-        '*:border-secondary *:border-t *:pr-6 *:pl-3 [&>*:nth-child(-n+2)]:border-t-0!',
-        'grid grid-cols-[minmax(min-content,1fr)_3fr]',
-        {
-          '1000:grid-cols-[minmax(min-content,1fr)_3fr_minmax(min-content,1fr)_3fr] 1000:[&>*:nth-child(-n+4)]:border-t-0! 1000:[&>*:nth-child(4n-2)]:border-r':
-            columns === 2,
-        }
+        'properties-table bg-default border-default w-full min-w-0 basis-6/12 rounded-lg border 1000:min-w-min',
+        '*:border-secondary *:border-t *:pr-6 *:pl-3 [&>*:nth-child(1)]:border-t-0!',
+        // stack label above value below the layout breakpoint so long IDs don't overflow
+        'grid grid-cols-1',
+        'max-1000:[&>*:nth-child(odd)]:pt-2 max-1000:[&>*:nth-child(odd)]:pb-1',
+        'max-1000:[&>*:nth-child(even)]:border-t-0 max-1000:[&>*:nth-child(even)]:pb-2',
+        columns === 2
+          ? '1000:grid-cols-[minmax(min-content,1fr)_3fr_minmax(min-content,1fr)_3fr] 1000:[&>*:nth-child(-n+4)]:border-t-0! 1000:[&>*:nth-child(4n-2)]:border-r'
+          : '1000:grid-cols-[minmax(min-content,1fr)_3fr] 1000:[&>*:nth-child(-n+2)]:border-t-0!'
       )}
     >
       {children}
@@ -69,7 +71,7 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
     <span className="text-mono-sm text-secondary flex items-center whitespace-nowrap">
       {label}
     </span>
-    <div className="text-sans-md text-default flex h-[38px] items-center overflow-hidden pr-4 whitespace-nowrap">
+    <div className="text-sans-md text-default max-1000:h-auto flex h-[38px] items-center overflow-hidden pr-4 whitespace-nowrap">
       {children}
     </div>
   </>

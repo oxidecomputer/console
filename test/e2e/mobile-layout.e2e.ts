@@ -121,3 +121,96 @@ test('mobile dialogs and toasts stay within the viewport', async ({ page }) => {
     )
     .toEqual({ left: 16, right: 304, width: 288 })
 })
+
+test('properties table stacks label above value on small screens', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+  const props = page.getByLabel('Properties table')
+  const label = props.getByText('cpu', { exact: true })
+  const value = props.getByText('2 vCPUs')
+  const columnCount = () =>
+    props.evaluate(
+      (element) => getComputedStyle(element).gridTemplateColumns.split(' ').length
+    )
+
+  await page.setViewportSize({ width: 404, height: 800 })
+  await expect.poll(columnCount).toBe(1)
+  const stacked = await Promise.all([label.boundingBox(), value.boundingBox()])
+  expect(stacked[0]).toBeTruthy()
+  expect(stacked[1]).toBeTruthy()
+  expect(stacked[0]!.y).toBeLessThan(stacked[1]!.y)
+
+  await page.setViewportSize({ width: 1000, height: 800 })
+  await expect.poll(columnCount).toBe(4)
+  const sideBySide = await Promise.all([label.boundingBox(), value.boundingBox()])
+  expect(sideBySide[0]).toBeTruthy()
+  expect(sideBySide[1]).toBeTruthy()
+  expect(sideBySide[0]!.x).toBeLessThan(sideBySide[1]!.x)
+})
+
+test('date range picker is icon-only on small screens', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/metrics/cpu')
+  const picker = page.getByLabel('Choose a date range', { exact: true })
+  const button = picker.getByRole('button')
+
+  await page.setViewportSize({ width: 404, height: 800 })
+  await expect
+    .poll(() => button.evaluate((element) => element.getBoundingClientRect().width))
+    .toBeLessThan(50)
+
+  await page.setViewportSize({ width: 1000, height: 800 })
+  await expect
+    .poll(() => button.evaluate((element) => element.getBoundingClientRect().width))
+    .toBeGreaterThan(200)
+})
+
+test('metrics filters go full width on small screens', async ({ page }) => {
+  await page.goto('/system/utilization?tab=metrics')
+  const listbox = page.getByRole('button', { name: 'Filter by silo' })
+
+  await page.setViewportSize({ width: 404, height: 800 })
+  await expect
+    .poll(() => listbox.evaluate((element) => element.getBoundingClientRect().width))
+    .toBeGreaterThan(300)
+
+  await page.setViewportSize({ width: 1000, height: 800 })
+  await expect
+    .poll(() =>
+      listbox.evaluate((element) => Math.round(element.getBoundingClientRect().width))
+    )
+    .toBe(208)
+})
+
+test('tab list sticks under the top bar', async ({ page }) => {
+  // Short viewport so the page can scroll far enough for the tabs to hit the
+  // stick point (stacked properties above the tabs eat most of an 800px frame).
+  await page.setViewportSize({ width: 404, height: 480 })
+  await page.goto('/projects/mock-project/instances/db1/storage')
+
+  const tabList = page.getByRole('tablist')
+  const wrap = page.locator('.ox-tabs-list-wrap')
+  await expect
+    .poll(() => wrap.evaluate((element) => getComputedStyle(element).position))
+    .toBe('sticky')
+
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+  await expect
+    .poll(async () => {
+      const box = await tabList.boundingBox()
+      const top = await wrap.evaluate((element) =>
+        parseFloat(getComputedStyle(element).top)
+      )
+      return box ? Math.abs(box.y - top) < 2 : false
+    })
+    .toBe(true)
+})
+
+test('CLI command is hidden on small screens', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/connect')
+  const cli = page.getByRole('button', { name: 'CLI Command' })
+
+  await page.setViewportSize({ width: 404, height: 800 })
+  await expect(cli).toBeHidden()
+
+  await page.setViewportSize({ width: 1000, height: 800 })
+  await expect(cli).toBeVisible()
+})

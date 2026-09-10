@@ -100,9 +100,9 @@ function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
   return (
     <>
       <MetricHeader>
-        <div className="flex gap-2">
+        <div className="max-1000:w-full flex gap-2">
           <Listbox
-            className="w-52"
+            className="max-1000:w-full w-52"
             aria-label="Choose network interface"
             name="nic-name"
             selected={selectedNic}
