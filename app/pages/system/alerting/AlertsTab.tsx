@@ -12,16 +12,15 @@ import { memo, useMemo, useState } from 'react'
 import { api, getListQFn, queryClient, snakeify, type Alert } from '@oxide/api'
 import { Notifications24Icon } from '@oxide/design-system/icons/react'
 
+import { AlertBodyViewer } from '~/components/AlertBodyViewer'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { HighlightJSON } from '~/components/HighlightJSON'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { usePaginatedList } from '~/table/QueryTable'
-import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { DateTime, SyslogDateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { SideModal } from '~/ui/lib/SideModal'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
 import { roleDiv } from '~/util/classed'
@@ -131,37 +130,16 @@ function AlertDetail({ alert, onDismiss }: { alert: Alert; onDismiss: () => void
           {alert.version}
         </PropertiesTable.Row>
         <PropertiesTable.IdRow id={alert.id} label="Alert ID" />
+        {/* no Modified row: nothing in Nexus updates an alert after insert, so
+            time_modified always equals time_created */}
         <PropertiesTable.Row label="Created">
           <DateTime date={alert.timeCreated} />
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="Modified">
-          <DateTime date={alert.timeModified} />
-        </PropertiesTable.Row>
       </PropertiesTable>
-      <ApiResponseViewer body={alert.alert} />
+      <AlertBodyViewer body={alert.alert} />
     </ReadOnlySideModalForm>
   )
 }
-
-const ApiResponseViewer = memo(({ body }: { body: Record<string, unknown> }) => {
-  // recomputing on every render would hand HighlightJSON a new object each
-  // time and defeat its memo
-  const snakeJson = useMemo(() => snakeify(body), [body])
-  const stringified = useMemo(() => JSON.stringify(snakeJson, null, 2), [snakeJson])
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <SideModal.Heading>Alert body</SideModal.Heading>
-        <CopyToClipboard text={stringified} ariaLabel="Copy alert body" />
-      </div>
-      <div className="bg-raise border-secondary overflow-x-auto rounded border px-3 py-2">
-        <pre className="text-mono-code [font-size:13px]! [line-height:18px]!">
-          <HighlightJSON json={snakeJson} />
-        </pre>
-      </div>
-    </div>
-  )
-})
 
 export default function AlertsTab() {
   const [detail, setDetail] = useState<Alert | null>(null)

@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback, useState, type ReactNode } from 'react'
+import { useCallback, useState } from 'react'
 import { match } from 'ts-pattern'
 
 import {
@@ -16,7 +16,6 @@ import {
   getListQFn,
   q,
   queryClient,
-  snakeify,
   useApiMutation,
   type Alert,
   type AlertDelivery,
@@ -26,6 +25,7 @@ import {
 import { Webhooks16Icon, Webhooks24Icon } from '@oxide/design-system/icons/react'
 import { Badge, Button, type BadgeColor } from '@oxide/design-system/ui'
 
+import { AlertBodyViewer } from '~/components/AlertBodyViewer'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { useAlertReceiverSelector } from '~/hooks/use-params'
@@ -35,7 +35,6 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Table } from '~/table/Table'
-import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -251,10 +250,10 @@ function DeliverySideModal({
     getCoreRowModel: getCoreRowModel(),
   })
 
-  // fetched here rather than in RequestTab so it's usually ready by the time
-  // that tab is opened. throwOnError off so a missing alert falls back to the
-  // request tab's placeholders instead of hitting the error boundary
-  const { data: alert } = useQuery(
+  // fetched here rather than in AlertTab so it's usually ready by the time
+  // that tab is opened. throwOnError off so a missing alert shows an empty
+  // state in the tab instead of hitting the error boundary
+  const alertQuery = useQuery(
     q(api.alertView, { path: { alertId: delivery.alertId } }, { throwOnError: false })
   )
 
@@ -274,23 +273,22 @@ function DeliverySideModal({
           <PropertiesTable.Row label="Alert class">
             <AlertClassBadge>{delivery.alertClass}</AlertClassBadge>
           </PropertiesTable.Row>
-          <PropertiesTable.IdRow id={delivery.id} label="Delivery ID" />
-          <PropertiesTable.IdRow id={delivery.alertId} label="Alert ID" />
-          <PropertiesTable.Row label="Started">
-            <DateTime date={delivery.timeStarted} />
-          </PropertiesTable.Row>
           <PropertiesTable.Row label="State">
             <DeliveryStateBadge state={delivery.state} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Trigger">
             <Badge color="neutral">{delivery.trigger}</Badge>
           </PropertiesTable.Row>
+          <PropertiesTable.Row label="Started">
+            <DateTime date={delivery.timeStarted} />
+          </PropertiesTable.Row>
+          <PropertiesTable.IdRow id={delivery.id} label="Delivery ID" />
           <PropertiesTable.IdRow id={delivery.receiverId} label="Receiver ID" />
         </PropertiesTable>
         <Tabs.Root className="full-width" defaultValue="attempts">
           <Tabs.List aria-label="Delivery details">
             <Tabs.Trigger value="attempts">Attempts</Tabs.Trigger>
-            <Tabs.Trigger value="request">Request</Tabs.Trigger>
+            <Tabs.Trigger value="alert">Alert</Tabs.Trigger>
           </Tabs.List>
           {/* full-width tabs put the panel at the modal gutter; the extra
               padding lines the content up with the properties table above */}
@@ -306,8 +304,12 @@ function DeliverySideModal({
               </TableEmptyBox>
             )}
           </Tabs.Content>
-          <Tabs.Content value="request" className="px-8">
-            <RequestTab delivery={delivery} alert={alert} />
+          <Tabs.Content value="alert" className="px-8">
+            <AlertTab
+              alertId={delivery.alertId}
+              alert={alertQuery.data}
+              isError={alertQuery.isError}
+            />
           </Tabs.Content>
         </Tabs.Root>
       </SideModal.Body>
@@ -320,97 +322,38 @@ function DeliverySideModal({
   )
 }
 
-// The delivery request format is defined by RFD 538 and built in
-// https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/src/app/webhook.rs#L395-L555
-// The API does not return the request that was sent, so we reconstruct it from
-// the delivery record and the alert fetched by ID. The signature can't be
-// known from here (it's an HMAC made with the receiver's secrets), so it shows
-// up as an angle-bracket placeholder, as do alert data and version while the
-// alert hasn't loaded.
-
-const dataJson = (alert: Alert) =>
-  JSON.stringify(snakeify(alert.alert), null, 2).replaceAll('\n', '\n  ')
-
-const payloadJson = (delivery: AlertDelivery, sentAt: string, alert?: Alert) => `{
-  "alert_class": ${JSON.stringify(delivery.alertClass)},
-  "alert_version": ${alert ? alert.version : '<version>'},
-  "alert_id": ${JSON.stringify(delivery.alertId)},
-  "data": ${alert ? dataJson(alert) : '<alert data>'},
-  "delivery": {
-    "id": ${JSON.stringify(delivery.id)},
-    "receiver_id": ${JSON.stringify(delivery.receiverId)},
-    "sent_at": ${JSON.stringify(sentAt)},
-    "trigger": ${JSON.stringify(delivery.trigger)}
-  }
-}`
-
-const requestHeaders = (
-  delivery: AlertDelivery,
-  sentAt: string,
-  alert?: Alert
-): [string, string][] => [
-  ['x-oxide-receiver-id', delivery.receiverId],
-  ['x-oxide-delivery-id', delivery.id],
-  ['x-oxide-alert-id', delivery.alertId],
-  ['x-oxide-alert-class', delivery.alertClass],
-  ['x-oxide-alert-version', alert ? alert.version.toString() : '<version>'],
-  ['x-oxide-timestamp', sentAt],
-  ['content-type', 'application/json'],
-  // one signature header per secret on the receiver
-  ['x-oxide-signature', 'a=sha256&id=<secret ID>&s=<signature>'],
-]
-
-function RequestTab({ delivery, alert }: { delivery: AlertDelivery; alert?: Alert }) {
-  // every attempt is signed and timestamped when it is sent, so the timestamp
-  // shown is the one from the most recent attempt
-  const lastSent = delivery.attempts.webhook.at(-1)?.timeSent
-  const sentAt = lastSent ? lastSent.toISOString() : '<timestamp>'
-  const payload = payloadJson(delivery, sentAt, alert)
-  const headers = requestHeaders(delivery, sentAt, alert)
-  const headersText = headers.map(([name, value]) => `${name}: ${value}`).join('\n')
-
-  return (
-    <div className="space-y-6">
-      <p className="text-sans-md text-secondary">
-        The API does not return the request that was sent, so this is reconstructed from the
-        delivery and alert records. Values in angle brackets are not available through the
-        API.
-      </p>
-      <RequestSection title="Payload" copyText={payload}>
-        <pre className="text-mono-md border-secondary bg-default w-full overflow-x-auto rounded-md border px-4 py-3 tracking-normal! normal-case!">
-          {payload}
-        </pre>
-      </RequestSection>
-      <RequestSection title="Headers" copyText={headersText}>
-        <div className="border-secondary *:border-b-secondary rounded-md border *:border-b *:px-4 *:py-3 *:last:border-b-0">
-          {headers.map(([name, value]) => (
-            <div key={name}>
-              <div className="text-mono-sm text-secondary">{name}</div>
-              <div className="text-sans-md text-default break-all">{value}</div>
-            </div>
-          ))}
-        </div>
-      </RequestSection>
-    </div>
-  )
-}
-
-function RequestSection({
-  title,
-  copyText,
-  children,
+// Mirrors the alerts page detail modal, minus the class badge already shown in
+// the delivery header above
+function AlertTab({
+  alertId,
+  alert,
+  isError,
 }: {
-  title: string
-  copyText: string
-  children: ReactNode
+  alertId: string
+  alert: Alert | undefined
+  isError: boolean
 }) {
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <SideModal.Heading>{title}</SideModal.Heading>
-        <CopyToClipboard text={copyText} ariaLabel={`Copy ${title.toLowerCase()}`} />
-      </div>
-      {children}
+    <div className="space-y-6">
+      <PropertiesTable>
+        {/* from the delivery so the ID is available even if the alert isn't */}
+        <PropertiesTable.IdRow id={alertId} label="Alert ID" />
+        {alert && (
+          <PropertiesTable.Row label="Class version">{alert.version}</PropertiesTable.Row>
+        )}
+      </PropertiesTable>
+      {isError ? (
+        <TableEmptyBox>
+          <EmptyMessage
+            title="Alert not found"
+            body="The alert this delivery was for is no longer available"
+          />
+        </TableEmptyBox>
+      ) : (
+        // the fetch usually finishes before this tab is opened, so a blank
+        // body for the rest of the load is fine
+        alert && <AlertBodyViewer body={alert.alert} />
+      )}
     </div>
   )
 }

@@ -475,40 +475,33 @@ test('Webhook receiver deliveries', async ({ page }) => {
   await clickRowAction(page, '30ece63e-5efd-4365-99a6-d4f09dfa685e', 'View details')
   const sideModal = page.getByRole('dialog', { name: 'Webhook delivery' })
 
-  // the metadata table spells out all three IDs, which are easy to confuse.
-  // IdRow truncates, but keeps the full value as the accessible name
-  const props = sideModal.getByLabel('Properties table')
+  const props = sideModal.getByLabel('Properties table').first()
+  await expect(props).toContainText('Started')
   await expect(props).toContainText('Delivery ID')
   await expect(props.getByLabel('30ece63e-5efd-4365-99a6-d4f09dfa685e')).toBeVisible()
-  await expect(props).toContainText('Alert ID')
-  await expect(props.getByLabel('beef336d-99db-4b12-ac08-7ebcaab8421a')).toBeVisible()
   await expect(props).toContainText('Receiver ID')
   await expect(props.getByLabel('ae2d6e09-9f4d-4dd1-ac54-160d61c7ce42')).toBeVisible()
+  await expect(props).not.toContainText('Alert ID')
 
   const attempts = sideModal.getByRole('table')
   await expect(attempts.getByRole('row')).toHaveCount(4) // header + 3 attempts
   await expect(attempts.getByRole('cell', { name: 'HTTP error' })).toBeVisible()
 
-  // request tab reconstructs the payload and headers from the delivery and
-  // the alert fetched by ID
-  await sideModal.getByRole('tab', { name: 'Request' }).click()
+  // alert tab shows the alert record fetched by ID, laid out like the alerts
+  // page detail modal
+  await sideModal.getByRole('tab', { name: 'Alert' }).click()
   await expect(attempts).toBeHidden()
-  const request = sideModal.getByRole('tabpanel')
-  await expect(
-    request.getByText('"id": "30ece63e-5efd-4365-99a6-d4f09dfa685e"')
-  ).toBeVisible()
-  // alert version and data payload come from the alert record
-  await expect(request.getByText('"alert_version": 0')).toBeVisible()
-  await expect(request.getByText('"manufacturer": "Murata"')).toBeVisible()
-  // payload keys are snake_case like the body the receiver got, not the
+  const alertPanel = sideModal.getByRole('tabpanel')
+  const alertProps = alertPanel.getByLabel('Properties table')
+  await expect(alertProps).toContainText('Alert ID')
+  await expect(alertProps.getByLabel('beef336d-99db-4b12-ac08-7ebcaab8421a')).toBeVisible()
+  await expect(alertProps).toContainText('Class version')
+  await expect(alertProps.getByText('0', { exact: true })).toBeVisible()
+  const alertBody = alertPanel.locator('pre')
+  await expect(alertBody).toContainText('"Murata"')
+  // keys are snake_case like the API and the webhook payload, not the
   // camelCase the client uses internally
-  await expect(request.getByText('"firmware_revision": "1.9"')).toBeVisible()
-  // the signature can't be reconstructed, so it stays a placeholder
-  await expect(request.getByText('a=sha256&id=<secret ID>&s=<signature>')).toBeVisible()
-  await expect(request.getByText('x-oxide-alert-class')).toBeVisible()
-  await expect(
-    request.getByText('hardware.power_shelf.psu.insert', { exact: true })
-  ).toBeVisible()
+  await expect(alertBody).toContainText('firmware_revision')
 
   await sideModal.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
 
