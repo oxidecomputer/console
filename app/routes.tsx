@@ -176,6 +176,7 @@ export const routes = createRoutesFromElements(
           path="utilization"
           lazy={() => import('./pages/system/UtilizationPage').then(convert)}
         />
+        <Route path="oxql" lazy={() => import('./pages/system/OxqlPage').then(convert)} />
         <Route
           path="inventory"
           lazy={() => import('./pages/system/inventory/InventoryPage.tsx').then(convert)}

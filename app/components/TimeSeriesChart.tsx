@@ -6,145 +6,32 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { format } from 'date-fns'
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
 import uPlot from 'uplot'
-import UplotReact from 'uplot-react'
 
 import type { ChartDatum } from '@oxide/api'
 import { Error12Icon } from '@oxide/design-system/icons/react'
 
-import { useElementSize } from '~/hooks/use-element-size'
-import { subscribeToTheme } from '~/stores/theme'
+import { ChartTooltip, type LeftRight, type TopBottom } from '~/components/ChartTooltip'
+import { FramedChart, type UPlotOptions } from '~/components/FramedChart'
+import {
+  type ChartTheme,
+  seriesColor,
+  timeFormatterForRange,
+  useChartTheme,
+  useLiveAxisFormatter,
+  xTimeAxis,
+  yValueAxis,
+} from '~/util/charts'
 import { classed } from '~/util/classed'
 
-/**
- * Check if the start and end time are on the same day
- * If they are we can omit the day/month in the date time format
- */
-function isSameDay(d1: Date, d2: Date) {
-  return (
-    d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate()
-  )
-}
-
-const shortDateTime = (ts: number) => {
-  const date = new Date(ts)
-  return format(
-    date,
-    date.getHours() === 0 && date.getMinutes() === 0 ? 'M/d' : 'M/d HH:mm'
-  )
-}
-const shortTime = (ts: number) => format(new Date(ts), 'HH:mm')
-const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss zz')
-
-const remToPx = (rem: number) =>
-  rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
-// We measure axis label widths on a detached canvas instead of uPlot's to avoid overwriting its
-// own font setting. Created lazily so importing this module doesn't require a DOM.
-let measureCtx: CanvasRenderingContext2D | null = null
-const measureTextWidth = (text: string, font: string) => {
-  measureCtx ??= document.createElement('canvas').getContext('2d')
-  // getContext('2d') is only null if '2d' is unsupported, which, hey, you're not getting a graph
-  if (!measureCtx) return 0
-  measureCtx.font = font
-  return measureCtx.measureText(text).width
-}
-
-const AXIS_FONT_REM_XS = 0.6875
-const AXIS_TICK_LENGTH = 6
-const AXIS_TICK_GAP = 8
-// Left padding (px-5) is taken from the container and given to uPlot instead, so the plot sits
-// flush left while x-tick labels can bleed into the gutter without clipping.
-const CHART_LEFT_PAD = 20
 const CHART_HEIGHT = 300
-const TOOLTIP_GAP = 12
-
-type ChartTheme = {
-  fontFamily: string
-  stroke: string
-  fill: string
-  hoverPoint: string
-  axisLine: string
-  axisText: string
-}
-
-// Append an alpha channel to a resolved color, e.g. `oklch(l c h)` -> `oklch(l c h / 0.6)`. Assumes
-// our colors are set in oklch!
-const withAlpha = (color: string, alpha: number) => color.replace(/\)\s*$/, ` / ${alpha})`)
-
-// uPlot draws to a canvas, so it can't consume CSS custom properties directly. We subscribe to the
-// theme instead.
-function getChartTheme(): ChartTheme {
-  const style = getComputedStyle(document.body)
-  const v = (name: string) => style.getPropertyValue(name)
-  return {
-    fontFamily: v('--font-mono'),
-    stroke: v('--stroke-accent-secondary'),
-    fill: withAlpha(v('--surface-accent-secondary'), 0.6),
-    hoverPoint: v('--content-accent'),
-    axisLine: v('--stroke-secondary'),
-    axisText: v('--content-quaternary'),
-  }
-}
-
-function useChartTheme(): ChartTheme {
-  const [colors, setColors] = useState(getChartTheme)
-  useEffect(() => subscribeToTheme(() => setColors(getChartTheme())), [])
-  return colors
-}
-
-/** Offset the box into the quadrant away from the point so it never overflows an edge */
-type LeftRight = 'left' | 'right'
-type TopBottom = 'top' | 'bottom'
-function tooltipTransform(leftRight: LeftRight, topBottom: TopBottom): string {
-  const tx = match(leftRight)
-    .with('left', () => `calc(-100% - ${TOOLTIP_GAP}px)`)
-    .with('right', () => `${TOOLTIP_GAP}px`)
-    .exhaustive()
-  const ty = match(topBottom)
-    .with('top', () => `calc(-100% - ${TOOLTIP_GAP}px)`)
-    .with('bottom', () => `${TOOLTIP_GAP}px`)
-    .exhaustive()
-  return `translate(${tx}, ${ty})`
-}
-
-function ChartTooltip({
-  timestamp,
-  value,
-  seriesName,
-  unit,
-}: {
-  timestamp: number
-  value: number
-  seriesName: string
-  unit?: string
-}) {
-  return (
-    <div
-      role="tooltip"
-      className="text-sans-md text-secondary bg-raise shadow-tooltip rounded-md outline-0"
-    >
-      <div className="border-secondary border-b px-3 py-2 pr-6">
-        {longDateTime(timestamp)}
-      </div>
-      <div className="px-3 py-2">
-        <div className="text-secondary">{seriesName}</div>
-        <div className="text-raise">
-          {value.toLocaleString()}
-          {unit && <span className="text-secondary ml-1">{unit}</span>}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 type TimeSeriesChartProps = {
-  data: ChartDatum[] | undefined
+  timestamps: number[] | undefined
+  data: (number | null)[][] | undefined
   title: string
   interpolation?: 'linear' | 'stepAfter'
   startTime: Date
@@ -153,6 +40,7 @@ type TimeSeriesChartProps = {
   yAxisTickFormatter?: (val: number) => string
   hasError?: boolean
   loading: boolean
+  seriesLabels?: readonly string[]
   /**
    * Test-only: exposes the underlying uPlot instance so specs can spy on its
    * methods. uPlot assigns methods per-instance (no prototype), and module
@@ -163,7 +51,7 @@ type TimeSeriesChartProps = {
 }
 
 // this top margin is also in the chart, probably want a way of unifying the sizing between the two
-const SkeletonMetric = ({
+export const SkeletonMetric = ({
   children,
   shimmer = false,
   className,
@@ -199,7 +87,23 @@ const SkeletonMetric = ({
 
 const defaultYAxisTickFormatter = (val: number) => val.toLocaleString()
 
+/**
+ * Split a single `ChartDatum[]` into the parallel `timestamps`/`data` arrays the chart consumes.
+ * Returns `undefined` props when there's no data so the chart goes into the loading/empty state.
+ */
+export function toChartSeries(data: ChartDatum[] | undefined): {
+  timestamps: number[] | undefined
+  values: (number | null)[][] | undefined
+} {
+  if (!data) return { timestamps: undefined, values: undefined }
+  return {
+    timestamps: data.map((d) => d.timestamp),
+    values: [data.map((d) => d.value)],
+  }
+}
+
 export function TimeSeriesChart({
+  timestamps,
   data,
   title,
   interpolation = 'linear',
@@ -209,18 +113,20 @@ export function TimeSeriesChart({
   yAxisTickFormatter = defaultYAxisTickFormatter,
   hasError = false,
   loading,
+  seriesLabels,
   onCreate,
 }: TimeSeriesChartProps) {
   const theme = useChartTheme()
-  const fontPx = remToPx(AXIS_FONT_REM_XS)
-  const axisFont = `${fontPx}px ${theme.fontFamily}`
 
-  const [size, sizeRef] = useElementSize()
+  const formatTime = timeFormatterForRange(startTime, endTime)
 
-  const formatTime = isSameDay(startTime, endTime) ? shortTime : shortDateTime
+  const dataLength = data?.length ?? 0
 
   const [tooltip, setTooltip] = useState<{
+    // the x position
     hoveredDataIndex: number
+    // which series is hovered
+    hoveredSeriesIndex: number
     left: number
     top: number
     // which side of the point the box sits on
@@ -238,12 +144,19 @@ export function TimeSeriesChart({
             return
           }
 
-          const x = self.data[0][idx]
-          const y = self.data[1][idx]
-          if (y == null) {
+          // We hunt down the series whose Y is closest to the cursor position at the given X index.
+          // Reminder that the first series is the X values, so we start at series index 1 here.
+          const nearestSeriesIndex = R.firstBy(
+            R.range(1, self.series.length).filter((s) => self.data[s][idx] != null),
+            // non-null: the filter above dropped series that are null at this idx
+            (s) => Math.abs(self.valToPos(self.data[s][idx]!, 'y') - top)
+          )
+          if (nearestSeriesIndex === undefined) {
             setTooltip(null)
             return
           }
+
+          const x = self.data[0][idx]
 
           const plotRect = self.over.getBoundingClientRect()
           const chartRect = self.root.getBoundingClientRect()
@@ -253,6 +166,7 @@ export function TimeSeriesChart({
 
           setTooltip({
             hoveredDataIndex: idx,
+            hoveredSeriesIndex: nearestSeriesIndex - 1,
             // cursor coords are relative to the plot area, so we add in the diff between the plot
             // and the whole container
             left: plotRect.left - chartRect.left + left,
@@ -269,20 +183,7 @@ export function TimeSeriesChart({
     []
   )
 
-  const uRef = useRef<uPlot | null>(null)
-  const yAxisTickFormatterRef = useRef<(val: number) => string>(yAxisTickFormatter)
-  yAxisTickFormatterRef.current = yAxisTickFormatter
-  useEffect(() => {
-    uRef.current?.redraw(
-      // Setting the `rebuildPaths` argument to true causes uPlot to reapply the _current_ x bounds,
-      // which in the right conditions (e.g., initial render) can leave the chart blank. We only
-      // need the axes recalculated anyways!
-      //
-      // See https://github.com/leeoniya/uPlot/issues/1099
-      false, // rebuildPaths
-      true // recalcAxes
-    )
-  }, [yAxisTickFormatter])
+  const { uRef, formatterRef } = useLiveAxisFormatter(yAxisTickFormatter)
 
   // uplot-react rebuilds the whole chart (they call this the "create" path) when any top-level
   // option (other than width or height) changes by reference.
@@ -297,94 +198,53 @@ export function TimeSeriesChart({
         },
         series: [
           {},
-          {
+          ...R.times(dataLength, (i) => ({
             show: true,
-            stroke: theme.stroke,
-            fill: theme.fill,
+            stroke: seriesColor(i, theme),
+            fill: dataLength === 1 ? theme.fill : undefined,
             points: { show: false },
             paths: match(interpolation)
               .with('linear', () => uPlot.paths.linear?.())
               .with('stepAfter', () => uPlot.paths.stepped?.({ align: 1 }))
               .exhaustive(),
-          },
+          })),
         ],
         axes: [
-          {
-            stroke: theme.axisText,
-            font: axisFont,
-            space: (_u, _axisIdx, _min, _max, plotDim) => plotDim / 5,
-            values: (_u, times) => times.map((t) => formatTime(t * 1000)),
-            border: { show: true, stroke: theme.axisLine, width: 1 },
-            gap: AXIS_TICK_GAP,
-            grid: { show: false },
-            size: fontPx + AXIS_TICK_GAP + AXIS_TICK_LENGTH,
-            ticks: {
-              show: true,
-              stroke: theme.axisLine,
-              width: 1,
-              size: AXIS_TICK_LENGTH,
-            },
-          },
-          {
-            stroke: theme.axisText,
-            font: axisFont,
-            side: 1,
-            border: { show: true, stroke: theme.axisLine, width: 1 },
-            gap: AXIS_TICK_GAP,
-            ticks: {
-              show: true,
-              stroke: theme.axisLine,
-              width: 1,
-              size: AXIS_TICK_LENGTH,
-              filter: (_u, yValues) => yValues.map((v) => (v === 0 ? null : v)),
-            },
-            values: (_u, yValues) =>
-              yValues.map((v) => (v === 0 ? '' : yAxisTickFormatterRef.current(v))),
+          xTimeAxis({ theme, formatTime }),
+          yValueAxis({
+            theme,
             grid: { show: true, stroke: theme.axisLine, width: 1 },
-            size: (_self, values) => {
-              const axisBase = AXIS_TICK_LENGTH + AXIS_TICK_GAP
-              // given the monospace font, longest by char count is longest by rendered width
-              const longestVal = R.firstBy(values ?? [], (s) => -s.length) || ''
-              return axisBase + measureTextWidth(longestVal, axisFont)
-            },
-          },
+            values: (_u, yValues) =>
+              yValues.map((v) => (v === 0 ? '' : formatterRef.current(v))),
+          }),
         ],
-        padding: [null, null, null, CHART_LEFT_PAD],
+        focus: { alpha: 0.5 },
         cursor: {
+          // setting this property causes non-focused series to dim on hover.
+          // 1e9 just means "any proximity will do"
+          focus: { prox: 1e9 },
           x: false,
           y: false,
           // TODO: i like the drag and we should put it back in
           drag: { x: false },
           points: {
             size: 6,
+            // TODO: with multiline, pinning the focused point color doesn't make much sense anymore
             fill: theme.hoverPoint,
           },
         },
         legend: { show: false },
         plugins: [tooltipPlugin],
-      }) satisfies Omit<uPlot.Options, 'width' | 'height'>,
-    [formatTime, tooltipPlugin, interpolation, theme, axisFont, fontPx]
-  )
-
-  // Width/height changes cause a cheaper "update" path for uplot, instead of "create", so it gets
-  // its own layer of memo
-  const options = useMemo(
-    () =>
-      ({
-        ...chartOptions,
-        width: size?.width ?? 0,
-        height: CHART_HEIGHT,
-      }) satisfies uPlot.Options,
-    [chartOptions, size?.width]
+      }) satisfies UPlotOptions,
+    [dataLength, formatTime, tooltipPlugin, interpolation, theme, formatterRef]
   )
 
   const aligned = useMemo<uPlot.AlignedData>(() => {
     const points = data ?? []
-    return [
-      points.map(({ timestamp }) => timestamp / 1000),
-      points.map(({ value }) => value),
-    ]
-  }, [data])
+    const times = timestamps ?? []
+
+    return [times.map((t) => t / 1000), ...points]
+  }, [data, timestamps])
 
   if (hasError) {
     return (
@@ -402,7 +262,7 @@ export function TimeSeriesChart({
     )
   }
 
-  if (!data || data.length === 0) {
+  if (!data || data.length === 0 || !timestamps || timestamps.length === 0) {
     return (
       <SkeletonMetric>
         <MetricsEmpty />
@@ -410,48 +270,58 @@ export function TimeSeriesChart({
     )
   }
 
-  const hovered = tooltip ? data[tooltip.hoveredDataIndex] : undefined
+  // in case the data changed out from under us, let's at least check that we can find something
+  // to render
+  const hoveredValue =
+    tooltip &&
+    tooltip.hoveredSeriesIndex < data.length &&
+    tooltip.hoveredDataIndex < timestamps.length
+      ? data[tooltip.hoveredSeriesIndex][tooltip.hoveredDataIndex]
+      : null
+
+  const hovered =
+    tooltip && hoveredValue != null
+      ? { timestamp: timestamps[tooltip.hoveredDataIndex], value: hoveredValue }
+      : undefined
+
   return (
-    <figure aria-label={title} className="m-0 pt-8 pr-5 pb-5 pl-0">
-      {/* The chart is absolutely positioned so its fixed pixel width doesn't feed back into the
-          container's min-content width — otherwise the chart props the container open and it can
-          grow but never shrink. The wrapper needs an explicit height because the absolute child
-          contributes none, so it gets the same fixed height passed to uPlot. */}
-      <div ref={sizeRef} className="relative" style={{ height: CHART_HEIGHT }}>
-        {/* Wait for the container measurement rather than creating a zero-width chart and
-            immediately resizing it. The chart may appear a frame after the container, but the
-            zero-width version had the same gap: an invisible chart until the measurement
-            arrived through the same ResizeObserver → setState path. */}
-        {size && (
-          <UplotReact
-            className="absolute top-0 left-0"
-            options={options}
-            data={aligned}
-            onCreate={(u) => {
-              uRef.current = u
-              onCreate?.(u)
-            }}
+    <FramedChart
+      title={title}
+      height={CHART_HEIGHT}
+      chartOptions={chartOptions}
+      data={aligned}
+      uRef={uRef}
+      onCreate={onCreate}
+      legend={
+        seriesLabels && (
+          <ChartLegend
+            title={title}
+            count={data.length}
+            seriesLabels={seriesLabels}
+            theme={theme}
           />
-        )}
-        {tooltip && hovered && hovered.value !== null && (
-          <div
-            className="pointer-events-none absolute z-10 w-max"
-            style={{
-              left: tooltip.left,
-              top: tooltip.top,
-              transform: tooltipTransform(tooltip.leftRight, tooltip.topBottom),
-            }}
-          >
-            <ChartTooltip
-              timestamp={hovered.timestamp}
-              value={hovered.value}
-              seriesName={title}
-              unit={unit}
-            />
+        )
+      }
+    >
+      {tooltip && hovered && (
+        <ChartTooltip
+          timestamp={hovered.timestamp}
+          left={tooltip.left}
+          top={tooltip.top}
+          offset={[tooltip.leftRight, tooltip.topBottom]}
+        >
+          <div className="text-secondary">
+            {seriesLabels
+              ? seriesLabel(title, tooltip.hoveredSeriesIndex, seriesLabels)
+              : title}
           </div>
-        )}
-      </div>
-    </figure>
+          <div className="text-raise">
+            {hovered.value.toLocaleString()}
+            {unit && <span className="text-secondary ml-1">{unit}</span>}
+          </div>
+        </ChartTooltip>
+      )}
+    </FramedChart>
   )
 }
 
@@ -503,7 +373,7 @@ const MetricsError = () => (
   />
 )
 
-const MetricsEmpty = () => (
+export const MetricsEmpty = () => (
   <MetricsMessage
     // mt-3 is a shameful hack to get it vertically centered in the chart
     title={<div className="mt-3">No data</div>}
@@ -531,5 +401,37 @@ export function ChartHeader({ title, label, description, children }: ChartHeader
       </div>
       {children}
     </div>
+  )
+}
+
+// We generally expect a list of labels to be the same length as the data list (or not provided), so
+// the fallback here is just for bad behavior.
+function seriesLabel(title: string, i: number, labels: readonly string[]): string {
+  return labels[i] ?? `${title} #${i + 1}`
+}
+
+function ChartLegend({
+  title,
+  count,
+  seriesLabels,
+  theme,
+}: {
+  title: string
+  count: number
+  seriesLabels: readonly string[]
+  theme: ChartTheme
+}) {
+  return (
+    <ul className="mt-2 flex max-h-24 flex-wrap gap-x-4 gap-y-1.5 overflow-y-auto pl-5">
+      {Array.from({ length: count }, (_, i) => (
+        <li key={i} className="text-mono-xs text-secondary flex items-center gap-2">
+          <span
+            className="h-0.5 w-3 shrink-0 rounded-full"
+            style={{ backgroundColor: seriesColor(i, theme) }}
+          />
+          {seriesLabel(title, i, seriesLabels)}
+        </li>
+      ))}
+    </ul>
   )
 }
