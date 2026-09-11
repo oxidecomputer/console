@@ -71,7 +71,10 @@ function ReceiverTesterCard() {
   const { data } = useQuery(
     q(
       api.alertDeliveryList,
-      { path: { receiver }, query: { limit: ALL_ISH } },
+      {
+        path: { receiver },
+        query: { limit: ALL_ISH, sortBy: 'time_and_id_descending' },
+      },
       { throwOnError: false }
     )
   )
