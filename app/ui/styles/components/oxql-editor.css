@@ -52,6 +52,15 @@
     @apply bg-accent-inverse/30;
   }
 
+  /*
+   * drawSelection sets z-index: -2 on the selection layer as an inline style,
+   * rendering it invisible. But we actually want to see it!
+   */
+  .cm-selectionLayer {
+    z-index: unset !important;
+    pointer-events: none; /* without making it interactive, that is */
+  }
+
   .cm-activeLine {
     background-color: transparent;
   }
