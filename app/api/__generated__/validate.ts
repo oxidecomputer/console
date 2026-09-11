@@ -3534,11 +3534,58 @@ export const Project = z.preprocess(
 )
 
 /**
+ * Default resources to create in the default subnet
+ *
+ * Including this object in the request creates the default subnet. A subnet has no default resources yet, so the object is always empty.
+ */
+export const SubnetCreateDefaults = z.preprocess(
+  processResponseBody,
+  z.record(z.string(), z.unknown())
+)
+
+/**
+ * Default resources to create in a VPC
+ *
+ * Each field corresponds to one resource. Set a field to an object to create that resource. Omit it or pass `null` to skip it.
+ *
+ * This does not affect the system router, default firewall rules, or default internet gateway, which are always created and do not block deletion of the VPC.
+ */
+export const VpcCreateDefaults = z.preprocess(
+  processResponseBody,
+  z.object({ subnet: SubnetCreateDefaults.nullable().optional() })
+)
+
+/**
+ * Default resources to create in a VPC
+ */
+export const VpcCreateDefaultsSelection = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['all']) }),
+    z.object({ defaults: VpcCreateDefaults, type: z.enum(['explicit']) }),
+  ])
+)
+
+/**
+ * Default resources to create in a project
+ *
+ * Each field corresponds to one resource. Set a field to an object to create that resource. Omit it or pass `null` to skip it.
+ */
+export const ProjectCreateDefaults = z.preprocess(
+  processResponseBody,
+  z.object({ vpc: VpcCreateDefaultsSelection.nullable().optional() })
+)
+
+/**
  * Create-time parameters for a `Project`
  */
 export const ProjectCreate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string(), name: Name })
+  z.object({
+    defaults: ProjectCreateDefaults.nullable().optional(),
+    description: z.string(),
+    name: Name,
+  })
 )
 
 /**
@@ -4952,6 +4999,7 @@ export const Vpc = z.preprocess(
 export const VpcCreate = z.preprocess(
   processResponseBody,
   z.object({
+    defaults: VpcCreateDefaults.nullable().optional(),
     description: z.string(),
     dnsName: Name,
     ipv6Prefix: Ipv6Net.nullable().optional(),
