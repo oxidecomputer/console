@@ -176,6 +176,9 @@ export function getBlockSize(backend: Json<DiskBackend>): BlockSize {
 }
 
 export const errIfInvalidDiskSize = (disk: Json<DiskCreate>) => {
+  // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/src/app/disk.rs#L230-L244
+  if (disk.size % GiB !== 0) throw 'Disk size must be a multiple of 1 GiB'
+
   if (disk.size < MIN_DISK_SIZE_GiB * GiB) {
     throw `Disk size must be greater than or equal to ${MIN_DISK_SIZE_GiB} GiB`
   }

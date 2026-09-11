@@ -166,6 +166,8 @@ export const handlers = makeHandlers({
 
     errIfExists(db.disks, { name: body.name, project_id: project.id })
 
+    errIfInvalidDiskSize(body)
+
     if (body.name === 'disk-create-500') throw internalError('disk create failed')
 
     // Mirrors the InsufficientCapacity error from omicron's virtual
@@ -564,6 +566,9 @@ export const handlers = makeHandlers({
 
     const instanceId = uuid()
 
+    // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/src/app/instance.rs#L2894-L2908
+    if (body.memory % GiB !== 0) throw 'Memory must be a multiple of 1 GiB'
+
     if (body.memory > INSTANCE_MAX_RAM_GiB * GiB) {
       throw `Memory can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
     }
@@ -851,6 +856,8 @@ export const handlers = makeHandlers({
     if (instance.name === 'instance-update-error') {
       throw 'Cannot update instance'
     }
+
+    if (body.memory % GiB !== 0) throw 'Memory must be a multiple of 1 GiB'
 
     const resize = body.ncpus !== instance.ncpus || body.memory !== instance.memory
     if (resize && !instanceCan.resize({ runState: instance.run_state })) {

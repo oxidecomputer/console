@@ -59,18 +59,19 @@ export type IpVersion = 'v4' | 'v6'
 /**
  * Specify which IP or external subnet pool to allocate from.
  */
-export type PoolSelector = /** Use the specified pool by name or ID. */
-| {
-    /** The pool to allocate from. */
-    pool: NameOrId
-    type: 'explicit'
-  }
-/** Use the default pool for the silo. */
-| {
-    /** IP version to use when multiple default pools exist. Required if both IPv4 and IPv6 default pools are configured. */
-    ipVersion?: IpVersion | null
-    type: 'auto'
-  }
+export type PoolSelector =
+  /** Use the specified pool by name or ID. */
+  | {
+      /** The pool to allocate from. */
+      pool: NameOrId
+      type: 'explicit'
+    }
+  /** Use the default pool for the silo. */
+  | {
+      /** IP version to use when multiple default pools exist. Required if both IPv4 and IPv6 default pools are configured. */
+      ipVersion?: IpVersion | null
+      type: 'auto'
+    }
 
 /**
  * Specify how to allocate a floating IP address.
@@ -254,35 +255,36 @@ export type AffinityGroupCreate = {
  *
  * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
  */
-export type InstanceState = /** The instance is being created. */
-| 'creating'
+export type InstanceState =
+  /** The instance is being created. */
+  | 'creating'
 
-/** The instance is currently starting up. */
-| 'starting'
+  /** The instance is currently starting up. */
+  | 'starting'
 
-/** The instance is currently running. */
-| 'running'
+  /** The instance is currently running. */
+  | 'running'
 
-/** The instance has been requested to stop and a transition to "Stopped" is imminent. */
-| 'stopping'
+  /** The instance has been requested to stop and a transition to "Stopped" is imminent. */
+  | 'stopping'
 
-/** The instance is currently stopped. */
-| 'stopped'
+  /** The instance is currently stopped. */
+  | 'stopped'
 
-/** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
-| 'rebooting'
+  /** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
+  | 'rebooting'
 
-/** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
-| 'migrating'
+  /** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
+  | 'migrating'
 
-/** The instance is attempting to recover from a failure. */
-| 'repairing'
+  /** The instance is attempting to recover from a failure. */
+  | 'repairing'
 
-/** The instance has encountered a failure. */
-| 'failed'
+  /** The instance has encountered a failure. */
+  | 'failed'
 
-/** The instance has been deleted. */
-| 'destroyed'
+  /** The instance has been deleted. */
+  | 'destroyed'
 
 /**
  * A member of an Affinity Group
@@ -326,11 +328,12 @@ export type BgpMessageHistory = Record<string, unknown>
 /**
  * Identifies switch physical location
  */
-export type SwitchSlot = /** Switch in upper slot */
-| 'switch0'
+export type SwitchSlot =
+  /** Switch in upper slot */
+  | 'switch0'
 
-/** Switch in lower slot */
-| 'switch1'
+  /** Switch in lower slot */
+  | 'switch1'
 
 /**
  * BGP message history for a particular switch.
@@ -461,14 +464,15 @@ Either no delivery attempts have yet been performed, or the delivery has failed 
 /**
  * The reason an alert was delivered
  */
-export type AlertDeliveryTrigger = /** Delivery was triggered by the alert itself. */
-| 'alert'
+export type AlertDeliveryTrigger =
+  /** Delivery was triggered by the alert itself. */
+  | 'alert'
 
-/** Delivery was triggered by a request to resend the alert. */
-| 'resend'
+  /** Delivery was triggered by a request to resend the alert. */
+  | 'resend'
 
-/** This delivery is a liveness probe. */
-| 'probe'
+  /** This delivery is a liveness probe. */
+  | 'probe'
 
 /**
  * A delivery of a webhook event.
@@ -599,12 +603,13 @@ export type AlertSubscriptionCreated = {
 /**
  * Description of source IPs allowed to reach rack services.
  */
-export type AllowedSourceIps = /** Allow traffic from any external IP address. */
-| { allow: 'any' }
-/** Restrict access to a specific set of source IP addresses or subnets.
+export type AllowedSourceIps =
+  /** Allow traffic from any external IP address. */
+  | { allow: 'any' }
+  /** Restrict access to a specific set of source IP addresses or subnets.
 
 All others are prevented from reaching rack services. */
-| { allow: 'list'; ips: IpNet[] }
+  | { allow: 'list'; ips: IpNet[] }
 
 /**
  * Allowlist of IPs or subnets that can make requests to user-facing services.
@@ -701,34 +706,36 @@ export type AuditLogEntryActor =
 /**
  * Authentication method used for a request
  */
-export type AuthMethod = /** Console session cookie */
-| 'session_cookie'
+export type AuthMethod =
+  /** Console session cookie */
+  | 'session_cookie'
 
-/** Device access token (OAuth 2.0 device authorization flow) */
-| 'access_token'
+  /** Device access token (OAuth 2.0 device authorization flow) */
+  | 'access_token'
 
-/** SCIM client bearer token */
-| 'scim_token'
+  /** SCIM client bearer token */
+  | 'scim_token'
 
 /**
  * Result of an audit log entry
  */
-export type AuditLogEntryResult = /** The operation completed successfully */
-| {
-    /** HTTP status code */
-    httpStatusCode: number
-    kind: 'success'
-  }
-/** The operation failed */
-| {
-    errorCode?: string | null
-    errorMessage: string
-    /** HTTP status code */
-    httpStatusCode: number
-    kind: 'error'
-  }
-/** After the logged operation completed, our attempt to write the result to the audit log failed, so it was automatically marked completed later by a background job. This does not imply that the operation itself timed out or failed, only our attempts to log its result. */
-| { kind: 'unknown' }
+export type AuditLogEntryResult =
+  /** The operation completed successfully */
+  | {
+      /** HTTP status code */
+      httpStatusCode: number
+      kind: 'success'
+    }
+  /** The operation failed */
+  | {
+      errorCode?: string | null
+      errorMessage: string
+      /** HTTP status code */
+      httpStatusCode: number
+      kind: 'error'
+    }
+  /** After the logged operation completed, our attempt to write the result to the audit log failed, so it was automatically marked completed later by a background job. This does not imply that the operation itself timed out or failed, only our attempts to log its result. */
+  | { kind: 'unknown' }
 
 /**
  * Audit log entry
@@ -774,17 +781,18 @@ export type AuditLogEntryResultsPage = {
  *
  * This describes the level at which a user must be authorized to read data from a timeseries. For example, fleet-scoping means the data is only visible to an operator or fleet reader. Project-scoped, on the other hand, indicates that a user will see data limited to the projects on which they have read permissions.
  */
-export type AuthzScope = /** Timeseries data is limited to fleet readers. */
-| 'fleet'
+export type AuthzScope =
+  /** Timeseries data is limited to fleet readers. */
+  | 'fleet'
 
-/** Timeseries data is limited to the authorized silo for a user. */
-| 'silo'
+  /** Timeseries data is limited to the authorized silo for a user. */
+  | 'silo'
 
-/** Timeseries data is limited to the authorized projects for a user. */
-| 'project'
+  /** Timeseries data is limited to the authorized projects for a user. */
+  | 'project'
 
-/** The timeseries is viewable to all without limitation. */
-| 'viewable_to_all'
+  /** The timeseries is viewable to all without limitation. */
+  | 'viewable_to_all'
 
 /**
  * Properties that uniquely identify an Oxide hardware component
@@ -836,17 +844,18 @@ export type BfdSessionEnable = {
   switchSlot: SwitchSlot
 }
 
-export type BfdState = /** A stable down state. Non-responsive to incoming messages. */
-| 'admin_down'
+export type BfdState =
+  /** A stable down state. Non-responsive to incoming messages. */
+  | 'admin_down'
 
-/** The initial state. */
-| 'down'
+  /** The initial state. */
+  | 'down'
 
-/** The peer has detected a remote peer in the down state. */
-| 'init'
+  /** The peer has detected a remote peer in the down state. */
+  | 'init'
 
-/** The peer has detected a remote peer in the up or init state while in the init state. */
-| 'up'
+  /** The peer has detected a remote peer in the up or init state while in the init state. */
+  | 'up'
 
 export type BfdStatus = {
   detectionThreshold: number
@@ -1017,8 +1026,9 @@ export type RouterPeerType =
 /**
  * Define policy relating to the import and export of prefixes from a BGP peer.
  */
-export type ImportExportPolicy = /** Do not perform any filtering. */
-{ type: 'no_filtering' } | { type: 'allow'; value: IpNet[] }
+export type ImportExportPolicy =
+  /** Do not perform any filtering. */
+  { type: 'no_filtering' } | { type: 'allow'; value: IpNet[] }
 
 /**
  * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer. The `bgp_config` parameter is a reference to global BGP parameters.
@@ -1119,120 +1129,130 @@ export type BgpPeerStatus = {
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangedouble = /** A range unbounded below and exclusively above, `..end`. */
-| { end: number; type: 'range_to' }
-/** A range bounded inclusively below and exclusively above, `start..end`. */
-| { end: number; start: number; type: 'range' }
-/** A range bounded inclusively below and unbounded above, `start..`. */
-| { start: number; type: 'range_from' }
+export type BinRangedouble =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangefloat = /** A range unbounded below and exclusively above, `..end`. */
-| { end: number; type: 'range_to' }
-/** A range bounded inclusively below and exclusively above, `start..end`. */
-| { end: number; start: number; type: 'range' }
-/** A range bounded inclusively below and unbounded above, `start..`. */
-| { start: number; type: 'range_from' }
+export type BinRangefloat =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeint16 = /** A range unbounded below and exclusively above, `..end`. */
-| { end: number; type: 'range_to' }
-/** A range bounded inclusively below and exclusively above, `start..end`. */
-| { end: number; start: number; type: 'range' }
-/** A range bounded inclusively below and unbounded above, `start..`. */
-| { start: number; type: 'range_from' }
+export type BinRangeint16 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeint32 = /** A range unbounded below and exclusively above, `..end`. */
-| { end: number; type: 'range_to' }
-/** A range bounded inclusively below and exclusively above, `start..end`. */
-| { end: number; start: number; type: 'range' }
-/** A range bounded inclusively below and unbounded above, `start..`. */
-| { start: number; type: 'range_from' }
+export type BinRangeint32 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeint64 = /** A range unbounded below and exclusively above, `..end`. */
-| { end: number; type: 'range_to' }
-/** A range bounded inclusively below and exclusively above, `start..end`. */
-| { end: number; start: number; type: 'range' }
-/** A range bounded inclusively below and unbounded above, `start..`. */
-| { start: number; type: 'range_from' }
+export type BinRangeint64 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeint8 = /** A range unbounded below and exclusively above, `..end`. */
-| { end: number; type: 'range_to' }
-/** A range bounded inclusively below and exclusively above, `start..end`. */
-| { end: number; start: number; type: 'range' }
-/** A range bounded inclusively below and unbounded above, `start..`. */
-| { start: number; type: 'range_from' }
+export type BinRangeint8 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeuint16 = /** A range unbounded below and exclusively above, `..end`. */
-| { end: number; type: 'range_to' }
-/** A range bounded inclusively below and exclusively above, `start..end`. */
-| { end: number; start: number; type: 'range' }
-/** A range bounded inclusively below and unbounded above, `start..`. */
-| { start: number; type: 'range_from' }
+export type BinRangeuint16 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeuint32 = /** A range unbounded below and exclusively above, `..end`. */
-| { end: number; type: 'range_to' }
-/** A range bounded inclusively below and exclusively above, `start..end`. */
-| { end: number; start: number; type: 'range' }
-/** A range bounded inclusively below and unbounded above, `start..`. */
-| { start: number; type: 'range_from' }
+export type BinRangeuint32 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeuint64 = /** A range unbounded below and exclusively above, `..end`. */
-| { end: number; type: 'range_to' }
-/** A range bounded inclusively below and exclusively above, `start..end`. */
-| { end: number; start: number; type: 'range' }
-/** A range bounded inclusively below and unbounded above, `start..`. */
-| { start: number; type: 'range_from' }
+export type BinRangeuint64 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
 
 /**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
-export type BinRangeuint8 = /** A range unbounded below and exclusively above, `..end`. */
-| { end: number; type: 'range_to' }
-/** A range bounded inclusively below and exclusively above, `start..end`. */
-| { end: number; start: number; type: 'range' }
-/** A range bounded inclusively below and unbounded above, `start..`. */
-| { start: number; type: 'range_from' }
+export type BinRangeuint8 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
 
 /**
  * Type storing bin edges and a count of samples within it.
@@ -1918,30 +1938,31 @@ export type DiskType = 'distributed' | 'local'
 /**
  * State of a Disk
  */
-export type DiskState = /** Disk is being initialized */
-| { state: 'creating' }
-/** Disk is ready but detached from any Instance */
-| { state: 'detached' }
-/** Disk is ready to receive blocks from an external source */
-| { state: 'import_ready' }
-/** Disk is importing blocks from a URL */
-| { state: 'importing_from_url' }
-/** Disk is importing blocks from bulk writes */
-| { state: 'importing_from_bulk_writes' }
-/** Disk is being finalized to state Detached */
-| { state: 'finalizing' }
-/** Disk is undergoing maintenance */
-| { state: 'maintenance' }
-/** Disk is being attached to the given Instance */
-| { instance: string; state: 'attaching' }
-/** Disk is attached to the given Instance */
-| { instance: string; state: 'attached' }
-/** Disk is being detached from the given Instance */
-| { instance: string; state: 'detaching' }
-/** Disk has been destroyed */
-| { state: 'destroyed' }
-/** Disk is unavailable */
-| { state: 'faulted' }
+export type DiskState =
+  /** Disk is being initialized */
+  | { state: 'creating' }
+  /** Disk is ready but detached from any Instance */
+  | { state: 'detached' }
+  /** Disk is ready to receive blocks from an external source */
+  | { state: 'import_ready' }
+  /** Disk is importing blocks from a URL */
+  | { state: 'importing_from_url' }
+  /** Disk is importing blocks from bulk writes */
+  | { state: 'importing_from_bulk_writes' }
+  /** Disk is being finalized to state Detached */
+  | { state: 'finalizing' }
+  /** Disk is undergoing maintenance */
+  | { state: 'maintenance' }
+  /** Disk is being attached to the given Instance */
+  | { instance: string; state: 'attaching' }
+  /** Disk is attached to the given Instance */
+  | { instance: string; state: 'attached' }
+  /** Disk is being detached from the given Instance */
+  | { instance: string; state: 'detaching' }
+  /** Disk has been destroyed */
+  | { state: 'destroyed' }
+  /** Disk is unavailable */
+  | { state: 'faulted' }
 
 /**
  * View of a Disk
@@ -1974,28 +1995,29 @@ export type Disk = {
 /**
  * Different sources for a Distributed Disk
  */
-export type DiskSource = /** Create a blank disk */
-| {
-    /** Size of blocks for this disk. Valid values are: 512, 2048, or 4096. */
-    blockSize: BlockSize
-    type: 'blank'
-  }
-/** Create a disk from a disk snapshot */
-| {
-    /** If `true`, the disk created from this snapshot will be read-only. */
-    readOnly?: boolean
-    snapshotId: string
-    type: 'snapshot'
-  }
-/** Create a disk from an image */
-| {
-    imageId: string
-    /** If `true`, the disk created from this image will be read-only. */
-    readOnly?: boolean
-    type: 'image'
-  }
-/** Create a blank disk that will accept bulk writes or pull blocks from an external source. */
-| { blockSize: BlockSize; type: 'importing_blocks' }
+export type DiskSource =
+  /** Create a blank disk */
+  | {
+      /** Size of blocks for this disk. Valid values are: 512, 2048, or 4096. */
+      blockSize: BlockSize
+      type: 'blank'
+    }
+  /** Create a disk from a disk snapshot */
+  | {
+      /** If `true`, the disk created from this snapshot will be read-only. */
+      readOnly?: boolean
+      snapshotId: string
+      type: 'snapshot'
+    }
+  /** Create a disk from an image */
+  | {
+      imageId: string
+      /** If `true`, the disk created from this image will be read-only. */
+      readOnly?: boolean
+      type: 'image'
+    }
+  /** Create a blank disk that will accept bulk writes or pull blocks from an external source. */
+  | { blockSize: BlockSize; type: 'importing_blocks' }
 
 /**
  * The source of a `Disk`'s blocks
@@ -2077,43 +2099,44 @@ export type EphemeralIpCreate = {
   poolSelector?: PoolSelector
 }
 
-export type ExternalIp = /** A source NAT IP address.
+export type ExternalIp =
+  /** A source NAT IP address.
 
 SNAT addresses are ephemeral addresses used only for outbound connectivity. */
-| {
-    /** The first usable port within the IP address. */
-    firstPort: number
-    /** The IP address. */
-    ip: string
-    /** ID of the IP Pool from which the address is taken. */
-    ipPoolId: string
-    kind: 'snat'
-    /** The last usable port within the IP address. */
-    lastPort: number
-  }
-| { ip: string; ipPoolId: string; kind: 'ephemeral' }
-/** A Floating IP is a well-known IP address which can be attached and detached from instances. */
-| {
-    /** Human-readable free-form text about a resource */
-    description: string
-    /** Unique, immutable, system-controlled identifier for each resource */
-    id: string
-    /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
-    instanceId?: string | null
-    /** The IP address held by this resource. */
-    ip: string
-    /** The ID of the IP pool this resource belongs to. */
-    ipPoolId: string
-    kind: 'floating'
-    /** Unique, mutable, user-controlled identifier for each resource */
-    name: Name
-    /** The project this resource exists within. */
-    projectId: string
-    /** Timestamp when this resource was created */
-    timeCreated: Date
-    /** Timestamp when this resource was last modified */
-    timeModified: Date
-  }
+  | {
+      /** The first usable port within the IP address. */
+      firstPort: number
+      /** The IP address. */
+      ip: string
+      /** ID of the IP Pool from which the address is taken. */
+      ipPoolId: string
+      kind: 'snat'
+      /** The last usable port within the IP address. */
+      lastPort: number
+    }
+  | { ip: string; ipPoolId: string; kind: 'ephemeral' }
+  /** A Floating IP is a well-known IP address which can be attached and detached from instances. */
+  | {
+      /** Human-readable free-form text about a resource */
+      description: string
+      /** Unique, immutable, system-controlled identifier for each resource */
+      id: string
+      /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
+      instanceId?: string | null
+      /** The IP address held by this resource. */
+      ip: string
+      /** The ID of the IP pool this resource belongs to. */
+      ipPoolId: string
+      kind: 'floating'
+      /** Unique, mutable, user-controlled identifier for each resource */
+      name: Name
+      /** The project this resource exists within. */
+      projectId: string
+      /** Timestamp when this resource was created */
+      timeCreated: Date
+      /** Timestamp when this resource was last modified */
+      timeModified: Date
+    }
 
 /**
  * Parameters for creating an external IP address for instances.
@@ -2169,22 +2192,23 @@ export type ExternalSubnet = {
 /**
  * Specify how to allocate an external subnet.
  */
-export type ExternalSubnetAllocator = /** Reserve a specific subnet. */
-| {
-    /** The subnet CIDR to reserve. Must be available in the pool. */
-    subnet: IpNet
-    type: 'explicit'
-  }
-/** Automatically allocate a subnet with the specified prefix length. */
-| {
-    /** Pool selection.
+export type ExternalSubnetAllocator =
+  /** Reserve a specific subnet. */
+  | {
+      /** The subnet CIDR to reserve. Must be available in the pool. */
+      subnet: IpNet
+      type: 'explicit'
+    }
+  /** Automatically allocate a subnet with the specified prefix length. */
+  | {
+      /** Pool selection.
 
 If omitted, this field uses the silo's default pool. If the silo has default pools for both IPv4 and IPv6, the request will fail unless `ip_version` is specified in the pool selector. */
-    poolSelector?: PoolSelector
-    /** The prefix length for the allocated subnet (e.g., 24 for a /24). */
-    prefixLength: number
-    type: 'auto'
-  }
+      poolSelector?: PoolSelector
+      /** The prefix length for the allocated subnet (e.g., 24 for a /24). */
+      prefixLength: number
+      type: 'auto'
+    }
 
 /**
  * Attach an external subnet to an instance
@@ -2528,18 +2552,19 @@ export type InstanceAutoRestartPolicy =
  *
  * In all cases, the CPU features presented by a given CPU platform are a subset of what the corresponding hardware may actually support; features which cannot be used from a virtual environment or do not have full hypervisor support may be masked off.
  */
-export type InstanceCpuPlatform = /** An AMD Milan-like CPU platform. */
-| 'amd_milan'
+export type InstanceCpuPlatform =
+  /** An AMD Milan-like CPU platform. */
+  | 'amd_milan'
 
-/** An AMD Turin-like CPU platform. Prefer `amd_turin_v2` over this; this CPU platform is retained for instances that specifically requested it before `amd_turin_v2` was added.
+  /** An AMD Turin-like CPU platform. Prefer `amd_turin_v2` over this; this CPU platform is retained for instances that specifically requested it before `amd_turin_v2` was added.
 
 This initial version of the Turin CPU platform includes no cache or TLB information in CPUID leaf `8000_0006`. While this was intentional, Oxide later discovered some guest software interprets the zeroed leaves as reporting cache sizes of 0 bytes and behaves incorrectly and unpredictably as a result (see [Propolis#1152](https://github.com/oxidecomputer/propolis/issues/1152)). */
-| 'amd_turin'
+  | 'amd_turin'
 
-/** An AMD Turin-like CPU platform.
+  /** An AMD Turin-like CPU platform.
 
 This version of the Turin CPU platform includes cache and TLB information in CPUID leaf `8000_0006`, similar to the cache information included in the initial Milan-like CPU platform. */
-| 'amd_turin_v2'
+  | 'amd_turin_v2'
 
 /**
  * The number of CPUs in an Instance
@@ -2637,10 +2662,11 @@ export type MulticastGroupJoinSpec = {
 /**
  * How a VPC-private IP address is assigned to a network interface.
  */
-export type Ipv4Assignment = /** Automatically assign an IP address from the VPC Subnet. */
-| { type: 'auto' }
-/** Explicitly assign a specific address, if available. */
-| { type: 'explicit'; value: string }
+export type Ipv4Assignment =
+  /** Automatically assign an IP address from the VPC Subnet. */
+  | { type: 'auto' }
+  /** Explicitly assign a specific address, if available. */
+  | { type: 'explicit'; value: string }
 
 /**
  * Configuration for a network interface's IPv4 addressing.
@@ -2655,10 +2681,11 @@ export type PrivateIpv4StackCreate = {
 /**
  * How a VPC-private IP address is assigned to a network interface.
  */
-export type Ipv6Assignment = /** Automatically assign an IP address from the VPC Subnet. */
-| { type: 'auto' }
-/** Explicitly assign a specific address, if available. */
-| { type: 'explicit'; value: string }
+export type Ipv6Assignment =
+  /** Automatically assign an IP address from the VPC Subnet. */
+  | { type: 'auto' }
+  /** Explicitly assign a specific address, if available. */
+  | { type: 'explicit'; value: string }
 
 /**
  * Configuration for a network interface's IPv6 addressing.
@@ -2673,12 +2700,16 @@ export type PrivateIpv6StackCreate = {
 /**
  * Create parameters for a network interface's IP stack.
  */
-export type PrivateIpStackCreate = /** The interface has only an IPv4 stack. */
-| { type: 'v4'; value: PrivateIpv4StackCreate }
-/** The interface has only an IPv6 stack. */
-| { type: 'v6'; value: PrivateIpv6StackCreate }
-/** The interface has both an IPv4 and IPv6 stack. */
-| { type: 'dual_stack'; value: { v4: PrivateIpv4StackCreate; v6: PrivateIpv6StackCreate } }
+export type PrivateIpStackCreate =
+  /** The interface has only an IPv4 stack. */
+  | { type: 'v4'; value: PrivateIpv4StackCreate }
+  /** The interface has only an IPv6 stack. */
+  | { type: 'v6'; value: PrivateIpv6StackCreate }
+  /** The interface has both an IPv4 and IPv6 stack. */
+  | {
+      type: 'dual_stack'
+      value: { v4: PrivateIpv4StackCreate; v6: PrivateIpv6StackCreate }
+    }
 
 /**
  * Create-time parameters for an `InstanceNetworkInterface`
@@ -2812,12 +2843,13 @@ export type PrivateIpv6Stack = {
 /**
  * The VPC-private IP stack for a network interface.
  */
-export type PrivateIpStack = /** The interface has only an IPv4 stack. */
-| { type: 'v4'; value: PrivateIpv4Stack }
-/** The interface has only an IPv6 stack. */
-| { type: 'v6'; value: PrivateIpv6Stack }
-/** The interface is dual-stack IPv4 and IPv6. */
-| { type: 'dual_stack'; value: { v4: PrivateIpv4Stack; v6: PrivateIpv6Stack } }
+export type PrivateIpStack =
+  /** The interface has only an IPv4 stack. */
+  | { type: 'v4'; value: PrivateIpv4Stack }
+  /** The interface has only an IPv6 stack. */
+  | { type: 'v6'; value: PrivateIpv6Stack }
+  /** The interface is dual-stack IPv4 and IPv6. */
+  | { type: 'dual_stack'; value: { v4: PrivateIpv4Stack; v6: PrivateIpv6Stack } }
 
 /**
  * A MAC address
@@ -3055,22 +3087,24 @@ export type InternetGatewayResultsPage = {
 /**
  * Assignment of an IP pool to resources and services.
  */
-export type IpPoolAssignment = /** Pool is available to be linked to customer silos. */
-| 'silos'
+export type IpPoolAssignment =
+  /** Pool is available to be linked to customer silos. */
+  | 'silos'
 
-/** Pool is reserved for Oxide-operated rack services (NTP, DNS, etc.). */
-| 'system_services'
+  /** Pool is reserved for Oxide-operated rack services (NTP, DNS, etc.). */
+  | 'system_services'
 
 /**
  * Type of IP pool.
  */
-export type IpPoolType = /** Unicast IP pool for standard IP allocations. */
-| 'unicast'
+export type IpPoolType =
+  /** Unicast IP pool for standard IP allocations. */
+  | 'unicast'
 
-/** Multicast IP pool for multicast group allocations.
+  /** Multicast IP pool for multicast group allocations.
 
 All ranges in a multicast pool must be either ASM or SSM (not mixed). */
-| 'multicast'
+  | 'multicast'
 
 /**
  * A collection of IP ranges.
@@ -3226,14 +3260,15 @@ export type L4PortRange = string
 /**
  * The forward error correction mode of a link.
  */
-export type LinkFec = /** Firecode forward error correction. */
-| 'firecode'
+export type LinkFec =
+  /** Firecode forward error correction. */
+  | 'firecode'
 
-/** No forward error correction. */
-| 'none'
+  /** No forward error correction. */
+  | 'none'
 
-/** Reed-Solomon forward error correction. */
-| 'rs'
+  /** Reed-Solomon forward error correction. */
+  | 'rs'
 
 /**
  * The LLDP configuration associated with a port.
@@ -3258,32 +3293,33 @@ export type LldpLinkConfigCreate = {
 /**
  * The speed of a link.
  */
-export type LinkSpeed = /** Zero gigabits per second. */
-| 'speed0_g'
+export type LinkSpeed =
+  /** Zero gigabits per second. */
+  | 'speed0_g'
 
-/** 1 gigabit per second. */
-| 'speed1_g'
+  /** 1 gigabit per second. */
+  | 'speed1_g'
 
-/** 10 gigabits per second. */
-| 'speed10_g'
+  /** 10 gigabits per second. */
+  | 'speed10_g'
 
-/** 25 gigabits per second. */
-| 'speed25_g'
+  /** 25 gigabits per second. */
+  | 'speed25_g'
 
-/** 40 gigabits per second. */
-| 'speed40_g'
+  /** 40 gigabits per second. */
+  | 'speed40_g'
 
-/** 50 gigabits per second. */
-| 'speed50_g'
+  /** 50 gigabits per second. */
+  | 'speed50_g'
 
-/** 100 gigabits per second. */
-| 'speed100_g'
+  /** 100 gigabits per second. */
+  | 'speed100_g'
 
-/** 200 gigabits per second. */
-| 'speed200_g'
+  /** 200 gigabits per second. */
+  | 'speed200_g'
 
-/** 400 gigabits per second. */
-| 'speed400_g'
+  /** 400 gigabits per second. */
+  | 'speed400_g'
 
 /**
  * Per-port tx-eq overrides.  This can be used to fine-tune the transceiver equalization settings to improve signal integrity.
@@ -3449,14 +3485,15 @@ export type MeasurementResultsPage = {
 /**
  * The type of the metric itself, indicating what its values represent.
  */
-export type MetricType = /** The value represents an instantaneous measurement in time. */
-| 'gauge'
+export type MetricType =
+  /** The value represents an instantaneous measurement in time. */
+  | 'gauge'
 
-/** The value represents a difference between two points in time. */
-| 'delta'
+  /** The value represents a difference between two points in time. */
+  | 'delta'
 
-/** The value represents an accumulation between two points in time. */
-| 'cumulative'
+  /** The value represents an accumulation between two points in time. */
+  | 'cumulative'
 
 /**
  * View of a Multicast Group
@@ -3563,30 +3600,32 @@ export type PrivateIpv6Config = {
 /**
  * VPC-private IP address configuration for a network interface.
  */
-export type PrivateIpConfig = /** The interface has only an IPv4 configuration. */
-| { type: 'v4'; value: PrivateIpv4Config }
-/** The interface has only an IPv6 configuration. */
-| { type: 'v6'; value: PrivateIpv6Config }
-/** The interface is dual-stack. */
-| {
-    type: 'dual_stack'
-    value: {
-      /** The interface's IPv4 configuration. */
-      v4: PrivateIpv4Config
-      /** The interface's IPv6 configuration. */
-      v6: PrivateIpv6Config
+export type PrivateIpConfig =
+  /** The interface has only an IPv4 configuration. */
+  | { type: 'v4'; value: PrivateIpv4Config }
+  /** The interface has only an IPv6 configuration. */
+  | { type: 'v6'; value: PrivateIpv6Config }
+  /** The interface is dual-stack. */
+  | {
+      type: 'dual_stack'
+      value: {
+        /** The interface's IPv4 configuration. */
+        v4: PrivateIpv4Config
+        /** The interface's IPv6 configuration. */
+        v6: PrivateIpv6Config
+      }
     }
-  }
 
 /**
  * The type of network interface
  */
-export type NetworkInterfaceKind = /** A vNIC attached to a guest instance */
-| { id: string; type: 'instance' }
-/** A vNIC associated with an internal service */
-| { id: string; type: 'service' }
-/** A vNIC associated with a probe */
-| { id: string; type: 'probe' }
+export type NetworkInterfaceKind =
+  /** A vNIC attached to a guest instance */
+  | { id: string; type: 'instance' }
+  /** A vNIC associated with an internal service */
+  | { id: string; type: 'service' }
+  /** A vNIC associated with a probe */
+  | { id: string; type: 'probe' }
 
 /**
  * A Geneve Virtual Network Identifier
@@ -4022,18 +4061,19 @@ export type RouteDestination =
 /**
  * A `RouteTarget` describes the possible locations that traffic matching a route destination can be sent.
  */
-export type RouteTarget = /** Forward traffic to a particular IP address. */
-| { type: 'ip'; value: string }
-/** Forward traffic to a VPC */
-| { type: 'vpc'; value: Name }
-/** Forward traffic to a VPC Subnet */
-| { type: 'subnet'; value: Name }
-/** Forward traffic to a specific instance */
-| { type: 'instance'; value: Name }
-/** Forward traffic to an internet gateway */
-| { type: 'internet_gateway'; value: Name }
-/** Drop matching traffic */
-| { type: 'drop' }
+export type RouteTarget =
+  /** Forward traffic to a particular IP address. */
+  | { type: 'ip'; value: string }
+  /** Forward traffic to a VPC */
+  | { type: 'vpc'; value: Name }
+  /** Forward traffic to a VPC Subnet */
+  | { type: 'subnet'; value: Name }
+  /** Forward traffic to a specific instance */
+  | { type: 'instance'; value: Name }
+  /** Forward traffic to an internet gateway */
+  | { type: 'internet_gateway'; value: Name }
+  /** Drop matching traffic */
+  | { type: 'drop' }
 
 /**
  * The kind of a `RouterRoute`
@@ -4473,27 +4513,29 @@ export type SiloUtilizationResultsPage = {
  *
  * This controls whether new resources are going to be provisioned on this sled.
  */
-export type SledProvisionPolicy = /** New resources will be provisioned on this sled. */
-| 'provisionable'
+export type SledProvisionPolicy =
+  /** New resources will be provisioned on this sled. */
+  | 'provisionable'
 
-/** New resources will not be provisioned on this sled. However, if the sled is currently in service, existing resources will continue to be on this sled unless manually migrated off. */
-| 'non_provisionable'
+  /** New resources will not be provisioned on this sled. However, if the sled is currently in service, existing resources will continue to be on this sled unless manually migrated off. */
+  | 'non_provisionable'
 
 /**
  * The operator-defined policy of a sled.
  */
-export type SledPolicy = /** The operator has indicated that the sled is in-service. */
-| {
-    kind: 'in_service'
-    /** Determines whether new resources can be provisioned onto the sled. */
-    provisionPolicy: SledProvisionPolicy
-  }
-/** The operator has indicated that the sled has been permanently removed from service.
+export type SledPolicy =
+  /** The operator has indicated that the sled is in-service. */
+  | {
+      kind: 'in_service'
+      /** Determines whether new resources can be provisioned onto the sled. */
+      provisionPolicy: SledProvisionPolicy
+    }
+  /** The operator has indicated that the sled has been permanently removed from service.
 
 This is a terminal state: once a particular sled ID is expunged, it will never return to service. (The actual hardware may be reused, but it will be treated as a brand-new sled.)
 
 An expunged sled is always non-provisionable. */
-| { kind: 'expunged' }
+  | { kind: 'expunged' }
 
 /**
  * The current state of the sled.
@@ -4823,25 +4865,26 @@ export type SupportBundleCreate = {
   userComment?: string | null
 }
 
-export type SupportBundleState = /** Support Bundle still actively being collected.
+export type SupportBundleState =
+  /** Support Bundle still actively being collected.
 
 This is the initial state for a Support Bundle, and it will automatically transition to either "Failing" or "Active".
 
 If a user no longer wants to access a Support Bundle, they can request cancellation, which will transition to the "Destroying" state. */
-| 'collecting'
+  | 'collecting'
 
-/** Support Bundle is being destroyed.
+  /** Support Bundle is being destroyed.
 
 Once backing storage has been freed, this bundle is destroyed. */
-| 'destroying'
+  | 'destroying'
 
-/** Support Bundle was not created successfully, or was created and has lost backing storage.
+  /** Support Bundle was not created successfully, or was created and has lost backing storage.
 
 The record of the bundle still exists for readability, but the only valid operation on these bundles is to destroy them. */
-| 'failed'
+  | 'failed'
 
-/** Support Bundle has been processed, and is ready for usage. */
-| 'active'
+  /** Support Bundle has been processed, and is ready for usage. */
+  | 'active'
 
 export type SupportBundleInfo = {
   id: string
@@ -5271,11 +5314,12 @@ export type TufRepoResultsPage = {
 /**
  * Whether the uploaded TUF repo already existed or was new and had to be inserted. Part of `TufRepoUpload`.
  */
-export type TufRepoUploadStatus = /** The repository already existed in the database */
-| 'already_exists'
+export type TufRepoUploadStatus =
+  /** The repository already existed in the database */
+  | 'already_exists'
 
-/** The repository did not exist, and was inserted into the database */
-| 'inserted'
+  /** The repository did not exist, and was inserted into the database */
+  | 'inserted'
 
 export type TufRepoUpload = { repo: TufRepo; status: TufRepoUploadStatus }
 
@@ -5416,10 +5460,11 @@ export type UserId = string
 /**
  * Parameters for setting a user's password
  */
-export type UserPassword = /** Sets the user's password to the provided value */
-| { mode: 'password'; value: Password }
-/** Invalidates any current password (disabling password authentication) */
-| { mode: 'login_disallowed' }
+export type UserPassword =
+  /** Sets the user's password to the provided value */
+  | { mode: 'password'; value: Password }
+  /** Invalidates any current password (disabling password authentication) */
+  | { mode: 'login_disallowed' }
 
 /**
  * Create-time parameters for a `User`
@@ -5548,16 +5593,17 @@ export type VpcFirewallRuleStatus = 'disabled' | 'enabled'
 /**
  * A `VpcFirewallRuleTarget` is used to specify the set of instances to which a firewall rule applies. You can target instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet, which will apply the rule to traffic going to all matching instances. Targets are additive: the rule applies to instances matching ANY target.
  */
-export type VpcFirewallRuleTarget = /** The rule applies to all instances in the VPC */
-| { type: 'vpc'; value: Name }
-/** The rule applies to all instances in the VPC Subnet */
-| { type: 'subnet'; value: Name }
-/** The rule applies to this specific instance */
-| { type: 'instance'; value: Name }
-/** The rule applies to a specific IP address */
-| { type: 'ip'; value: string }
-/** The rule applies to a specific IP subnet */
-| { type: 'ip_net'; value: IpNet }
+export type VpcFirewallRuleTarget =
+  /** The rule applies to all instances in the VPC */
+  | { type: 'vpc'; value: Name }
+  /** The rule applies to all instances in the VPC Subnet */
+  | { type: 'subnet'; value: Name }
+  /** The rule applies to this specific instance */
+  | { type: 'instance'; value: Name }
+  /** The rule applies to a specific IP address */
+  | { type: 'ip'; value: string }
+  /** The rule applies to a specific IP subnet */
+  | { type: 'ip_net'; value: IpNet }
 
 /**
  * A single rule in a VPC firewall
@@ -5806,14 +5852,15 @@ export type WebhookSecrets = { secrets: WebhookSecret[] }
 /**
  * Supported set of sort modes for scanning by name or id
  */
-export type NameOrIdSortMode = /** Sort in increasing order of "name" */
-| 'name_ascending'
+export type NameOrIdSortMode =
+  /** Sort in increasing order of "name" */
+  | 'name_ascending'
 
-/** Sort in decreasing order of "name" */
-| 'name_descending'
+  /** Sort in decreasing order of "name" */
+  | 'name_descending'
 
-/** Sort in increasing order of "id" */
-| 'id_ascending'
+  /** Sort in increasing order of "id" */
+  | 'id_ascending'
 
 /**
  * Supported set of sort modes for scanning by timestamp and ID

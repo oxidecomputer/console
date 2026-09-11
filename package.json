@@ -89,7 +89,7 @@
   },
   "devDependencies": {
     "@mswjs/http-middleware": "^0.10.3",
-    "@oxide/openapi-gen-ts": "~0.14.0",
+    "@oxide/openapi-gen-ts": "~0.16.0",
     "@playwright/test": "^1.61.0",
     "@types/lodash.throttle": "^4.1.9",
     "@types/md5": "^2.3.5",

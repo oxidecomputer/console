@@ -126,7 +126,7 @@ export function mergeParams(a: FetchParams, b: FetchParams): FetchParams {
 
 /** Query params with null values filtered out. `"?"` included. */
 export function toQueryString(rawQuery?: QueryParams): string {
-  const qs = Object.entries(rawQuery || {})
+  const qs = Object.entries(rawQuery ?? {})
     .filter(([_key, value]) => isNotNull(value))
     .map(([key, value]) =>
       Array.isArray(value)
