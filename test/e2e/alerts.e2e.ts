@@ -347,6 +347,21 @@ test('Testing tab: probe result and signature format', async ({ page }) => {
   await expect(panel.getByText('The HMAC signature of the request body')).toBeVisible()
 })
 
+test('Testing tab: no deliveries hides resend option', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/general-sys-webhook?tab=testing')
+
+  const panel = page.getByRole('tabpanel')
+  await panel.getByRole('button', { name: 'Send liveness probe' }).click()
+  const modal = page.getByRole('dialog', { name: 'Send liveness probe' })
+  await expect(
+    modal.getByRole('checkbox', { name: 'Resend failed deliveries if the probe succeeds' })
+  ).toBeHidden()
+  await expect(modal.getByText('Every alert so far has reached this endpoint')).toBeHidden()
+
+  await modal.getByRole('button', { name: 'Send probe' }).click()
+  await expect(panel.getByText('Succeeded')).toBeVisible()
+})
+
 test('Testing tab: probe failure', async ({ page }) => {
   await page.goto('/system/alerting/receivers')
 
@@ -529,9 +544,7 @@ test('Webhook receiver deliveries', async ({ page }) => {
   const probeModal = page.getByRole('dialog', { name: 'Send liveness probe' })
   // the preview already accounts for the manual resend above, so it says one,
   // not one per failed record
-  await expect(
-    probeModal.getByText('1 alert has never reached this endpoint')
-  ).toBeVisible()
+  await expect(probeModal.getByText('1 alert would be resent')).toBeVisible()
   await probeModal
     .getByRole('checkbox', { name: 'Resend failed deliveries if the probe succeeds' })
     .check()
@@ -577,7 +590,7 @@ test('Testing tab: probe resends and preview update', async ({ page }) => {
 
   // beef336d and 81dd4626 have only ever failed. 8c8a74ba also has a failed
   // record, but it already has a successful resend, so it does not count
-  const twoWaiting = '2 alerts have never reached this endpoint'
+  const twoWaiting = '2 alerts would be resent'
 
   // leaving the box unchecked resends nothing, even though 2 are waiting
   await sendProbe(false, twoWaiting)
@@ -600,7 +613,7 @@ test('Testing tab: probe resends and preview update', async ({ page }) => {
 
   // the refreshed preview shows no eligible alerts and disables resending
   await page.getByRole('tab', { name: 'Testing' }).click()
-  const modal = await openProbeModal('Every alert has reached this endpoint')
+  const modal = await openProbeModal('Every alert so far has reached this endpoint')
   const resendBox = modal.getByRole('checkbox', {
     name: 'Resend failed deliveries if the probe succeeds',
   })

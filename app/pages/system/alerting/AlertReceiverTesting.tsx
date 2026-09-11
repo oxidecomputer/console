@@ -18,6 +18,7 @@ import {
   queryClient,
   resendableAlertIds,
   useApiMutation,
+  type AlertDelivery,
   type AlertProbeResult,
 } from '@oxide/api'
 import { Error12Icon, Success12Icon } from '@oxide/design-system/icons/react'
@@ -51,43 +52,19 @@ export function TestingTab() {
   )
 }
 
-/**
- * How many alerts a resend would requeue. The API has no endpoint for this, so
- * we derive it from the delivery list, which means the answer is only as
- * complete as one page. `truncated` says we hit the cap and the real number is
- * higher, so the copy can hedge rather than quietly undercount.
- */
-type ResendPreview =
-  | { state: 'unknown' }
-  | { state: 'known'; count: number; truncated: boolean }
-
 function ReceiverTesterCard() {
   const { receiver } = useAlertReceiverSelector()
   const [showProbeModal, setShowProbeModal] = useState(false)
   const [result, setResult] = useState<AlertProbeResult | null>(null)
 
-  // throwOnError off because this only feeds a preview count: if it fails the
-  // modal falls back to describing the behavior without a number
-  const { data } = useQuery(
-    q(
-      api.alertDeliveryList,
-      {
-        path: { receiver },
-        query: { limit: ALL_ISH, sortBy: 'time_and_id_descending' },
-      },
-      { throwOnError: false }
-    )
+  // fetched here rather than in the modal so it's usually ready by the time
+  // the modal opens. the probe itself doesn't depend on it
+  const { data: deliveries } = useQuery(
+    q(api.alertDeliveryList, {
+      path: { receiver },
+      query: { limit: ALL_ISH, sortBy: 'time_and_id_descending' },
+    })
   )
-
-  const preview: ResendPreview = data
-    ? {
-        state: 'known',
-        count: resendableAlertIds(data.items).size,
-        // a page token is present even on the last page, so only a full page
-        // tells us there might be more
-        truncated: data.items.length >= ALL_ISH,
-      }
-    : { state: 'unknown' }
 
   return (
     <CardBlock>
@@ -116,7 +93,7 @@ function ReceiverTesterCard() {
       </CardBlock.Body>
       {showProbeModal && (
         <ProbeModal
-          preview={preview}
+          deliveries={deliveries?.items}
           onDismiss={() => setShowProbeModal(false)}
           onSuccess={setResult}
         />
@@ -179,35 +156,19 @@ function ProbeResult({ result }: { result: AlertProbeResult }) {
   )
 }
 
-const resendNote = (preview: ResendPreview) =>
-  match(preview)
-    .with(
-      { state: 'unknown' },
-      () => 'Alerts that never reached the endpoint are queued for another attempt.'
-    )
-    .with(
-      { state: 'known', count: 0 },
-      () => 'Every alert has reached this endpoint, so nothing would be resent.'
-    )
-    .with({ state: 'known' }, ({ count, truncated }) => {
-      const alerts = `${count} ${pluralize('alert', count)}`
-      const subject = truncated ? `At least ${alerts}` : alerts
-      const verb = !truncated && count === 1 ? 'has' : 'have'
-      return `${subject} ${verb} never reached this endpoint.`
-    })
-    .exhaustive()
-
 function ProbeModal({
-  preview,
+  deliveries,
   onDismiss,
   onSuccess,
 }: {
-  preview: ResendPreview
+  /** undefined while the list is still loading */
+  deliveries: AlertDelivery[] | undefined
   onDismiss: () => void
   onSuccess: (result: AlertProbeResult) => void
 }) {
   const receiverSelector = useAlertReceiverSelector()
   const form = useForm({ defaultValues: { resend: false } })
+  const resendCheckbox = deliveries && resendOption(deliveries)
 
   const sendProbe = useApiMutation(api.alertReceiverProbe, {
     onSuccess(result) {
@@ -234,21 +195,49 @@ function ProbeModal({
           Sends a synthetic <InlineCode>probe</InlineCode> alert to the endpoint to check
           that it is reachable.
         </p>
-        {/* only disable on a known zero: while the count is unknown we can't
-            rule out that there is something to resend. the note below the label
-            says why it's off, so no tooltip is needed */}
-        <CheckboxField
-          name="resend"
-          control={form.control}
-          disabled={preview.state === 'known' && preview.count === 0}
-        >
-          Resend failed deliveries if the probe succeeds
-          <span className="text-sans-sm text-tertiary mt-1 block">
-            {resendNote(preview)}
-          </span>
-        </CheckboxField>
+        {resendCheckbox && (
+          <CheckboxField
+            name="resend"
+            control={form.control}
+            disabled={resendCheckbox.disabled}
+          >
+            Resend failed deliveries if the probe succeeds
+            <span className="text-sans-sm text-tertiary mt-1 block">
+              {resendCheckbox.note}
+            </span>
+          </CheckboxField>
+        )}
       </div>
     </ModalForm>
+  )
+}
+
+/**
+ * The API has no endpoint for how many alerts a resend would requeue, so we
+ * derive it from the first 1000-item page of the delivery list.
+ */
+function resendOption(deliveries: AlertDelivery[]) {
+  if (deliveries.length === 0) return null
+
+  const resendableCount = resendableAlertIds(deliveries).size
+  // this is the only way we can tell whether there might be more
+  const truncated = deliveries.length >= ALL_ISH
+
+  return (
+    match({ resendableCount, truncated })
+      .with({ resendableCount: 0, truncated: false }, () => ({
+        disabled: true,
+        note: 'Every alert so far has reached this endpoint',
+      }))
+      // a truncated zero can't rule out older failures, so leave it enabled
+      .with({ resendableCount: 0, truncated: true }, () => ({
+        disabled: false,
+        note: `No alerts to resend among the latest ${ALL_ISH.toLocaleString()} deliveries`,
+      }))
+      .otherwise(() => ({
+        disabled: false,
+        note: `${truncated ? 'At least ' : ''}${resendableCount} ${pluralize('alert', resendableCount)} would be resent`,
+      }))
   )
 }
 
