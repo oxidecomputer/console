@@ -261,11 +261,11 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
 
   for (const [name, query] of Object.entries(oxqlQueries)) {
     test(`oxql ${name}`, async ({ page }) => {
-      await page.goto('/system/oxql', { waitUntil: 'networkidle' })
+      await page.goto('/system/metrics-explorer', { waitUntil: 'networkidle' })
       await page.getByRole('textbox').fill(query)
       await page.getByRole('button', { name: 'Run query' }).click()
       await expect(page.locator('figure').first()).toBeVisible()
-      await expect(page).toHaveScreenshot(`oxql-${name}.png`, fullPage)
+      await expect(page).toHaveScreenshot(`metrics-explorer-${name}.png`, fullPage)
     })
   }
 })
