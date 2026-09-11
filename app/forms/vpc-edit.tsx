@@ -73,7 +73,7 @@ export default function EditVpcSideModalForm() {
           body: { name, description, dnsName },
         })
       }}
-      loading={editVpc.isPending}
+      loading={editVpc.isPending || editVpc.isSuccess}
       submitError={editVpc.error}
     >
       <FormMetadata resource={vpc} />

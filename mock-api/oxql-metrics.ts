@@ -9,9 +9,9 @@ import * as R from 'remeda'
 
 import type { Timeseries, Points, OxqlQueryResult } from '~/api'
 import type { OxqlMetricName, OxqlVcpuState } from '~/components/oxql-metrics/util'
+import { Rando } from '~/util/rando'
 
 import type { Json } from './json-type'
-import { Rando } from './msw/rando'
 
 const oneHourAgo = new Date()
 oneHourAgo.setHours(oneHourAgo.getHours() - 1)

@@ -107,7 +107,7 @@ export default function CreateExternalSubnetSideModalForm() {
           body: { name, description, allocator },
         })
       }}
-      loading={createExternalSubnet.isPending}
+      loading={createExternalSubnet.isPending || createExternalSubnet.isSuccess}
       submitError={createExternalSubnet.error}
     >
       <NameField name="name" control={form.control} />

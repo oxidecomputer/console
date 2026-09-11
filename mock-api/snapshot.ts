@@ -10,11 +10,11 @@ import { v4 as uuid } from 'uuid'
 
 import type { Snapshot } from '@oxide/api'
 
+import { Rando } from '~/util/rando'
 import { GiB } from '~/util/units'
 
 import { disks } from './disk'
 import type { Json } from './json-type'
-import { Rando } from './msw/rando'
 import { project } from './project'
 
 // Use seeded random for consistent states across runs

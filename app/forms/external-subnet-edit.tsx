@@ -98,7 +98,7 @@ export default function EditExternalSubnetSideModalForm() {
           body: { name, description },
         })
       }}
-      loading={editExternalSubnet.isPending}
+      loading={editExternalSubnet.isPending || editExternalSubnet.isSuccess}
       submitError={editExternalSubnet.error}
     >
       <FormMetadata resource={subnet}>

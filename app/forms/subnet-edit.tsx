@@ -7,16 +7,8 @@
  */
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
-import type { SetNonNullable } from 'type-fest'
 
-import {
-  api,
-  q,
-  queryClient,
-  useApiMutation,
-  usePrefetchedQuery,
-  type VpcSubnetUpdate,
-} from '@oxide/api'
+import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -38,6 +30,12 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+type SubnetEditFormValues = {
+  name: string
+  description: string
+  customRouter: string
+}
 
 const subnetView = ({ project, vpc, subnet }: PP.VpcSubnet) =>
   q(api.vpcSubnetView, { query: { project, vpc }, path: { subnet } })
@@ -68,7 +66,7 @@ export default function EditSubnetForm() {
     },
   })
 
-  const defaultValues: SetNonNullable<Required<VpcSubnetUpdate>> = {
+  const defaultValues: SubnetEditFormValues = {
     name: subnet.name,
     description: subnet.description,
     customRouter: customRouterDataToForm(subnet.customRouterId),
@@ -94,7 +92,7 @@ export default function EditSubnetForm() {
           },
         })
       }}
-      loading={updateSubnet.isPending}
+      loading={updateSubnet.isPending || updateSubnet.isSuccess}
       submitError={updateSubnet.error}
     >
       <FormMetadata resource={subnet}>

@@ -49,3 +49,15 @@ export const classed = {
 } as const
 
 // result: classed.button`text-green-500 uppercase` returns a component with those classes
+
+/**
+ * Like `classed.div`, but with an ARIA role too. For grid or flex layouts that
+ * need table semantics, where `display: grid` on real table elements would
+ * strip them anyway.
+ */
+export function roleDiv(role: string, baseClassName: string) {
+  const Comp = ({ className, ...rest }: JSX.IntrinsicElements['div']) =>
+    React.createElement('div', { role, className: cn(baseClassName, className), ...rest })
+  Comp.displayName = `roled.${role}`
+  return Comp
+}

@@ -65,7 +65,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
-      loading={updatePolicy.isPending}
+      loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
     >
       <ListboxField
@@ -136,7 +136,7 @@ export function SiloAccessEditUserSideModal({
         }
         updatePolicy.mutate({ body })
       }}
-      loading={updatePolicy.isPending}
+      loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
       onDismiss={() => {
         updatePolicy.reset() // clear API error state so it doesn't persist on next open

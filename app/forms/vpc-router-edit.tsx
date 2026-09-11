@@ -78,7 +78,7 @@ export default function EditRouterSideModalForm() {
           body,
         })
       }
-      loading={editRouter.isPending}
+      loading={editRouter.isPending || editRouter.isSuccess}
       submitError={editRouter.error}
     >
       <FormMetadata resource={routerData}>

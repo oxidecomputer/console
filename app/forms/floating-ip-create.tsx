@@ -94,7 +94,7 @@ export default function CreateFloatingIpSideModalForm() {
         }
         createFloatingIp.mutate({ query: projectSelector, body })
       }}
-      loading={createFloatingIp.isPending}
+      loading={createFloatingIp.isPending || createFloatingIp.isSuccess}
       submitError={createFloatingIp.error}
     >
       <NameField name="name" control={form.control} />

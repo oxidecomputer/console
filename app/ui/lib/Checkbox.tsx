@@ -17,9 +17,12 @@ const Check = () => (
 
 const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-(--theme-accent-800) light:bg-(--theme-accent-600) pointer-events-none`
 
+// the disabled: rules repeat under hover: because the hover: rules below them
+// would otherwise win and make a disabled box look interactive, same as Radio
 const inputStyle = `
   appearance-none border border-default bg-default h-4 w-4 rounded-sm absolute left-0 outline-none
-  disabled:cursor-not-allowed
+  disabled:cursor-not-allowed disabled:bg-disabled disabled:border-default
+  hover:disabled:cursor-not-allowed hover:disabled:bg-disabled hover:disabled:border-default
   hover:border-raise hover:cursor-pointer
   checked:bg-accent checked:border-accent-tertiary checked:hover:border-accent-secondary checked:hover:light:border-accent
   indeterminate:bg-accent indeterminate:border-accent-tertiary indeterminate:hover:light:border-accent indeterminate:hover:border-accent-secondary
@@ -63,6 +66,15 @@ export const Checkbox = ({
       {indeterminate && <Indeterminate />}
     </span>
 
-    {children && <span className="text-sans-md text-default ml-2.5">{children}</span>}
+    {children && (
+      <span
+        className={cn(
+          'text-sans-md ml-2.5',
+          inputProps.disabled ? 'text-disabled' : 'text-default'
+        )}
+      >
+        {children}
+      </span>
+    )}
   </label>
 )

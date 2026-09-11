@@ -52,7 +52,8 @@ The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`
 
 ### Node.js version
 
-Use Node.js v18+.
+Use Node.js v24+ and npm v12+. Node bundles an older npm, so upgrade it with
+`npm install --global npm@12`.
 
 ### Install dependencies
 

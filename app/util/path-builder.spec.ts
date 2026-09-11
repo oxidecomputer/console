@@ -38,6 +38,7 @@ const params = {
   subnet: 'su',
   router: 'r',
   route: 'rr',
+  receiver: 'rc',
 }
 
 test('path builder', () => {
@@ -47,8 +48,14 @@ test('path builder', () => {
         "accessTokens": "/settings/access-tokens",
         "affinity": "/projects/p/affinity",
         "affinityNew": "/projects/p/affinity-new",
+        "alertReceiver": "/system/alerting/receivers/rc",
+        "alertReceiverEdit": "/system/alerting/receivers/rc/edit",
+        "alertReceivers": "/system/alerting/receivers",
+        "alertReceiversNew": "/system/alerting/receivers-new",
+        "alerts": "/system/alerting/alerts",
         "antiAffinityGroup": "/projects/p/affinity/aag",
         "antiAffinityGroupEdit": "/projects/p/affinity/aag/edit",
+        "auditLog": "/system/audit-log",
         "deviceSuccess": "/device/success",
         "disk": "/projects/p/disks/d",
         "diskInventory": "/system/inventory/disks",

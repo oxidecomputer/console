@@ -13,6 +13,7 @@ import {
   ContentPane,
   PageContainer,
   sidebarWrapperClass,
+  topBarHomeCellClass,
   topBarWrapperClass,
 } from '~/layouts/helpers'
 import { classed } from '~/util/classed'
@@ -31,7 +32,7 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
     <PageContainer>
       {/* TopBar */}
       <div className={topBarWrapperClass}>
-        <div className="border-secondary flex items-center gap-2 border-r p-3">
+        <div className={cn(topBarHomeCellClass, 'gap-2 p-3')}>
           <Block className="h-8 w-8" />
           <Block className="h-4 w-24" />
         </div>
@@ -44,7 +45,8 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
         </div>
       </div>
       {/* Sidebar */}
-      <div className={cn(sidebarWrapperClass, 'p-4')}>
+      {/* on mobile the sidebar is an overlay, closed (translated off-screen) by default */}
+      <div className={cn(sidebarWrapperClass, 'p-4 max-1000:-translate-x-full')}>
         <Block className="mb-10 h-4 w-full" />
         <div className="mb-6 space-y-2">
           <Block className="h-4 w-32" />

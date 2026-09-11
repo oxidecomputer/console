@@ -214,12 +214,10 @@ export type FailureDomain = 'sled'
  * Used for both Affinity and Anti-Affinity Groups
  */
 export type AffinityPolicy =
-  /** If the affinity request cannot be satisfied, allow it anyway.
-
-This enables a "best-effort" attempt to satisfy the affinity policy. */
+  /** Best-effort: instances can start even when the group's constraints cannot be satisfied. */
   | 'allow'
 
-  /** If the affinity request cannot be satisfied, fail explicitly. */
+  /** When the group's constraints cannot be satisfied, an instance start request will fail and the instance will remain stopped. Starting the instance may succeed later if conditions change, e.g., other instances stop. */
   | 'fail'
 
 /**
@@ -1009,8 +1007,10 @@ export type RouterPeerType =
       type: 'unnumbered'
     }
   | {
-      /** IP address for numbered BGP peers. */
-      ip: string
+      /** Optional local IP address to bind when establishing outbound TCP connections to this peer. If `None`, the OS selects the source address. */
+      srcAddr?: string | null
+      /** Target IP address for numbered BGP peers. */
+      targetAddr: string
       type: 'numbered'
     }
 
@@ -2748,7 +2748,7 @@ Disk attachments of type "create" will be created, while those of type "attach" 
 
 The order of this list does not guarantee a boot order for the instance. Use the boot_disk attribute to specify a boot disk. When boot_disk is specified it will count against the disk attachment limit. */
   disks?: InstanceDiskAttachment[]
-  /** Enable jumbo frames (8500 byte MTU) on the instance's primary OPTE interface. Requires the fleet-wide jumbo-frames opt-in to be enabled by an operator; otherwise this field must be `false`. Changes only take effect on the next instance restart. */
+  /** Enable jumbo frames (8500 byte MTU) on the instance's primary network interface. Requires the fleet-wide jumbo-frames opt-in to be enabled by an operator; otherwise this field must be `false`. Changes only take effect on the next instance restart. */
   enableJumboFrames?: boolean
   /** The external IP addresses provided to this instance.
 
@@ -3842,9 +3842,57 @@ export type Project = {
 }
 
 /**
+ * Default resources to create in the default subnet
+ *
+ * Including this object in the request creates the default subnet. A subnet has no default resources yet, so the object is always empty.
+ */
+export type SubnetCreateDefaults = Record<string, unknown>
+
+/**
+ * Default resources to create in a VPC
+ *
+ * Each field corresponds to one resource. Set a field to an object to create that resource. Omit it or pass `null` to skip it.
+ *
+ * This does not affect the system router, default firewall rules, or default internet gateway, which are always created and do not block deletion of the VPC.
+ */
+export type VpcCreateDefaults = {
+  /** Create the default subnet. Pass `{}` to create it and omit this field (or pass `null`) to skip it. */
+  subnet?: SubnetCreateDefaults | null
+}
+
+/**
+ * Default resources to create in a VPC
+ */
+export type VpcCreateDefaultsSelection = /** Create all default resources */
+| { type: 'all' }
+/** Create only the default resources listed in `defaults`. Pass `{}` as `defaults` to skip them all. */
+| { defaults: VpcCreateDefaults; type: 'explicit' }
+
+/**
+ * Default resources to create in a project
+ *
+ * Each field corresponds to one resource. Set a field to an object to create that resource. Omit it or pass `null` to skip it.
+ */
+export type ProjectCreateDefaults = {
+  /** Create the default VPC. Omit this field or pass `null` to skip it.
+
+When present, the value also determines which of the VPC's own defaults to create: `{"type": "all"}` creates all of them, and `{"type": "explicit", "defaults": {...}}` creates only those specified. */
+  vpc?: VpcCreateDefaultsSelection | null
+}
+
+/**
  * Create-time parameters for a `Project`
  */
-export type ProjectCreate = { description: string; name: Name }
+export type ProjectCreate = {
+  /** Default resources to create in the project
+
+Omit this field or pass `null` to create all defaults: currently, a default VPC with its own defaults. Pass an object to specify which resources to create. `{}` creates none.
+
+For example, to create the default VPC but not its default subnet, pass `{"vpc": {"type": "explicit", "defaults": {}}}`. */
+  defaults?: ProjectCreateDefaults | null
+  description: string
+  name: Name
+}
 
 /**
  * A single page of results
@@ -4180,7 +4228,7 @@ export type Silo = {
   adminGroupName?: string | null
   /** Human-readable free-form text about a resource */
   description: string
-  /** A silo where discoverable is false can be retrieved only by its id - it will not be part of the "list all silos" output. */
+  /** A non-discoverable silo can only be retrieved by ID - it will not be part of the "list all silos" output. */
   discoverable: boolean
   /** Unique, immutable, system-controlled identifier for each resource */
   id: string
@@ -4236,6 +4284,7 @@ export type SiloCreate = {
 Note that if configuring a SAML based identity provider, group_attribute_name must be set for users to be considered part of a group. See `SamlIdentityProviderCreate` for more information. */
   adminGroupName?: string | null
   description: string
+  /** A non-discoverable silo can only be retrieved by ID - it will not be part of the "list all silos" output. */
   discoverable: boolean
   identityMode: SiloIdentityMode
   /** Mapping of which Fleet roles are conferred by each Silo role
@@ -5103,7 +5152,7 @@ export type SwitchResultsPage = {
  * Fleet-wide networking settings. Only fleet viewers may view these settings. Only fleet admins can modify them.
  */
 export type SystemNetworkingSettings = {
-  /** When true, end users may opt in to jumbo frames (8500 byte MTU) on the primary interface of an instance. When false, instance-level opt-in is ignored and OPTE ports are created with the default MTU. */
+  /** When true, end users may opt in to jumbo frames (8500 byte MTU) on the primary interface of an instance. When false, instance-level opt-in is ignored and the primary interface uses the default MTU. */
   externalJumboFramesOptInEnabled: boolean
 }
 
@@ -5437,11 +5486,17 @@ export type Vpc = {
  * Create-time parameters for a `Vpc`
  */
 export type VpcCreate = {
+  /** Default resources to create in the VPC
+
+Omit this field  or pass `null`  to create all defaults: currently, the default subnet. Pass an object to specify which resources to create. `{}` creates none.
+
+This does not affect the system router, default firewall rules, or default internet gateway, which are always created and do not block deletion of the VPC. */
+  defaults?: VpcCreateDefaults | null
   description: string
   dnsName: Name
   /** The IPv6 prefix for this VPC
 
-All IPv6 subnets created from this VPC must be taken from this range, which should be a Unique Local Address in the range `fd00::/48`. The default VPC Subnet will have the first `/64` range from this prefix. */
+All IPv6 subnets created from this VPC must be taken from this range, which should be a Unique Local Address in the range `fd00::/48`. The default subnet, if requested, will take the first `/64` range from this prefix. */
   ipv6Prefix?: Ipv6Net | null
   name: Name
 }
@@ -7637,7 +7692,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026081700.0.0'
+  apiVersion = '2026090800.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -11886,7 +11941,7 @@ export class Api {
       })
     },
     /**
-     * List built-in (system) users in silo
+     * List users in silo
      */
     siloUserList: (
       { query = {} }: { query?: SiloUserListQueryParams },
@@ -11900,7 +11955,7 @@ export class Api {
       })
     },
     /**
-     * Fetch built-in (system) user
+     * Fetch user in silo
      */
     siloUserView: (
       { path, query }: { path: SiloUserViewPathParams; query: SiloUserViewQueryParams },
