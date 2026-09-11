@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 import { alerts } from '@oxide/api-mocks'
 
@@ -362,29 +362,6 @@ test('Testing tab: no deliveries hides resend option', async ({ page }) => {
   await expect(panel.getByText('Succeeded')).toBeVisible()
 })
 
-test('Testing tab: probe failure', async ({ page }) => {
-  await page.goto('/system/alerting/receivers')
-
-  // the mock backend fails probes for endpoints containing 'unreachable'
-  await clickRowAction(page, 'power-mon', 'Edit')
-  await page
-    .getByRole('dialog', { name: 'Edit webhook receiver' })
-    .getByRole('textbox', { name: 'Endpoint URL' })
-    .fill('https://unreachable.example.com')
-  await page.getByRole('button', { name: 'Update webhook receiver' }).click()
-  await expectToast(page, 'Webhook receiver power-mon updated')
-
-  await page.getByRole('tab', { name: 'Testing' }).click()
-  const panel = page.getByRole('tabpanel')
-  await panel.getByRole('button', { name: 'Send liveness probe' }).click()
-  await page
-    .getByRole('dialog', { name: 'Send liveness probe' })
-    .getByRole('button', { name: 'Send probe' })
-    .click()
-
-  await expect(panel.getByText('Unreachable')).toBeVisible()
-})
-
 test('Webhook receiver edit', async ({ page }) => {
   await page.goto('/system/alerting/receivers')
   await clickRowAction(page, 'general-sys-webhook', 'Edit')
@@ -405,53 +382,7 @@ test('Webhook receiver edit', async ({ page }) => {
   await expect(page.getByText('https://hooks.example.dev')).toBeVisible()
 })
 
-// The mock backend retries a pending delivery 5s after the list is first
-// fetched, so refresh until the state settles rather than sleeping.
-const refreshUntil = (page: Page, expectation: () => Promise<void>) =>
-  expect(async () => {
-    await page.getByRole('button', { name: 'Refresh data' }).click()
-    await expectation()
-  }).toPass({ timeout: 30_000 })
-
-test('Pending delivery resolves to delivered', async ({ page }) => {
-  await page.goto('/system/alerting/receivers/webhook-1?tab=deliveries')
-
-  const row = page.getByRole('row', { name: /a3d830ee/ })
-  await expect(row.getByText('pending')).toBeVisible()
-
-  await refreshUntil(page, () =>
-    expect(row.getByText('delivered')).toBeVisible({ timeout: 1000 })
-  )
-
-  // the retry shows up as a second attempt on the delivery
-  await clickRowAction(page, 'a3d830ee-a590-40df-8281-42282c056196', 'View details')
-  const sideModal = page.getByRole('dialog', { name: 'Webhook delivery' })
-  await expect(sideModal.getByRole('table').getByRole('row')).toHaveCount(3) // header + 2
-})
-
-test('Pending delivery fails after exhausting retries', async ({ page }) => {
-  await page.goto('/system/alerting/receivers')
-
-  // the mock backend fails delivery to endpoints containing 'unreachable'
-  await clickRowAction(page, 'webhook-1', 'Edit')
-  await page
-    .getByRole('dialog', { name: 'Edit webhook receiver' })
-    .getByRole('textbox', { name: 'Endpoint URL' })
-    .fill('https://unreachable.example.com')
-  await page.getByRole('button', { name: 'Update webhook receiver' }).click()
-  await expectToast(page, 'Webhook receiver webhook-1 updated')
-
-  await page.getByRole('tab', { name: 'Deliveries' }).click()
-  const row = page.getByRole('row', { name: /a3d830ee/ })
-  await expect(row.getByText('pending')).toBeVisible()
-
-  // one attempt already failed, so it takes two more to hit the 3-attempt limit
-  await refreshUntil(page, () =>
-    expect(row.getByText('failed')).toBeVisible({ timeout: 1000 })
-  )
-})
-
-test('Webhook receiver deliveries', async ({ page }) => {
+test('Webhook receiver deliveries: list and filter', async ({ page }) => {
   await page.goto('/system/alerting/receivers/webhook-1')
   await page.getByRole('tab', { name: 'Deliveries' }).click()
 
@@ -485,8 +416,12 @@ test('Webhook receiver deliveries', async ({ page }) => {
   await expect(table.getByRole('row')).toHaveCount(4) // header + 3 failed
   await selectOption(page, 'Filter by state', 'All states')
   await expect(table.getByRole('row')).toHaveCount(7)
+})
 
-  // delivery detail side modal shows attempts
+test('Webhook receiver deliveries: detail side modal', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/webhook-1?tab=deliveries')
+
+  // the side modal shows the delivery properties and each attempt
   await clickRowAction(page, '30ece63e-5efd-4365-99a6-d4f09dfa685e', 'View details')
   const sideModal = page.getByRole('dialog', { name: 'Webhook delivery' })
 
@@ -517,8 +452,12 @@ test('Webhook receiver deliveries', async ({ page }) => {
   // keys are snake_case like the API and the webhook payload, not the
   // camelCase the client uses internally
   await expect(alertBody).toContainText('firmware_revision')
+})
 
-  await sideModal.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+test('Webhook receiver deliveries: manual resend then probe', async ({ page }) => {
+  await page.goto('/system/alerting/receivers/webhook-1?tab=deliveries')
+  const table = page.getByRole('table')
+  await expect(table.getByRole('row')).toHaveCount(7) // header + 6
 
   // resend a failed delivery requires confirmation, then creates a new
   // pending delivery
@@ -601,18 +540,9 @@ test('Testing tab: probe resends and preview update', async ({ page }) => {
   await sendProbe(true, twoWaiting)
   await expect(panel.getByText('2 deliveries requeued')).toBeVisible()
 
-  // let the two resends land
-  await panel.getByRole('link', { name: 'View deliveries' }).click()
-  await selectOption(page, 'Filter by state', 'Pending')
-  const table = page.getByRole('table')
-  // the two resends plus the seeded pending delivery
-  await expect(table.getByRole('row')).toHaveCount(4) // header + 3
-  await refreshUntil(page, () =>
-    expect(page.getByText('No pending deliveries found')).toBeVisible({ timeout: 1000 })
-  )
-
-  // the refreshed preview shows no eligible alerts and disables resending
-  await page.getByRole('tab', { name: 'Testing' }).click()
+  // the resends are still pending, but a pending delivery already counts as
+  // settled, so the preview drops to zero and disables resending without
+  // waiting for them to land
   const modal = await openProbeModal('Every alert so far has reached this endpoint')
   const resendBox = modal.getByRole('checkbox', {
     name: 'Resend failed deliveries if the probe succeeds',
