@@ -9,7 +9,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useForm, useWatch } from 'react-hook-form'
 import { expect, test } from 'vitest'
 import { render } from 'vitest-browser-react'
-import { commands, userEvent } from 'vitest/browser'
+import { commands, page, userEvent } from 'vitest/browser'
 
 import { api, q } from '@oxide/api'
 import { alertClasses } from '@oxide/api-mocks'
@@ -48,7 +48,7 @@ async function renderField(subscriptions: string[] = []) {
       <FieldHarness subscriptions={subscriptions} />
     </QueryClientProvider>
   )
-  const listbox = screen.getByRole('listbox')
+  const listbox = page.getByRole('listbox')
   return {
     screen,
     input: screen.getByRole('combobox', { name: 'Alert subscriptions' }),
