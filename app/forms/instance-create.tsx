@@ -49,7 +49,6 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import {
   DisksTableField,
   type DiskTableItem,
@@ -487,11 +486,13 @@ export default function CreateInstanceForm() {
   const bootDiskSizeAndName = (
     <>
       <div key="divider1" className="my-6! content-['a']" />
-      <DiskSizeField
+      <NumberField
         key="diskSizeField"
         label="Disk size"
         name="bootDiskSize"
         control={control}
+        units="GiB"
+        required
         min={imageSizeGiB || 1}
         // Max size applies: this disk can only be distributed
         max={MAX_DISK_SIZE_GiB}

@@ -24,10 +24,10 @@ import {
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
+import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
@@ -207,9 +207,12 @@ export function CreateDiskSideModalForm({
         }}
       />
       <DescriptionField name="description" control={form.control} />
-      <DiskSizeField
+      <NumberField
         name="size"
         control={form.control}
+        units="GiB"
+        required
+        min={1}
         // Local disk size is only capped by server capacity
         max={match(diskBackend)
           .with({ type: 'local' }, () => undefined)
@@ -242,7 +245,12 @@ const DiskBackendField = ({
 }) => {
   const {
     field: { value: diskBackend, onChange },
-  } = useController({ control, name: 'diskBackend' })
+  } = useController({
+    control,
+    name: 'diskBackend',
+    // Switching disk type changes the size limit.
+    rules: { deps: 'size' },
+  })
   // react-hook-form types onChange as (...event: any[]) => void
   // https://github.com/react-hook-form/react-hook-form/issues/10466
   const setDiskBackend: (value: DiskBackendForm) => void = onChange
