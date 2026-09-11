@@ -16,6 +16,7 @@ export const links = {
   cloudInitExamples: 'https://docs.cloud-init.io/en/latest/reference/examples.html',
   firewallRulesDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
+  globbingDocs: 'https://docs.oxide.computer/guides/alerts/overview#_globbing',
   preparingImagesDocs:
     'https://docs.oxide.computer/guides/creating-and-sharing-images#_preparing_images_for_import',
   identityProvidersDocs: 'https://docs.oxide.computer/guides/operator/identity-providers',
@@ -29,6 +30,9 @@ export const links = {
     'https://docs.oxide.computer/guides/configuring-guest-networking#_example_4_software_routing_tunnels',
   troubleshootingAccess:
     'https://docs.oxide.computer/guides/operator/faq#_how_do_i_fix_the_something_went_wrong_error',
+  webhooksGuide: 'https://docs.oxide.computer/guides/alerts/webhooks',
+  webhookSecretsDocs: 'https://docs.oxide.computer/guides/alerts/webhooks#_secrets',
+  webhooksApiDocs: 'https://docs.oxide.computer/api/webhook_receiver_create',
 }
 
 // Links with a canonical label, used in DocsPopover and SideModalFormDocs.
@@ -40,6 +44,10 @@ export const docLinks = {
   affinity: {
     href: 'https://docs.oxide.computer/guides/deploying-workloads#_affinity_and_anti_affinity',
     linkText: 'Anti-Affinity Groups',
+  },
+  alerts: {
+    href: 'https://docs.oxide.computer/guides/alerts/overview',
+    linkText: 'Alerts Overview',
   },
   auditLog: {
     href: 'https://docs.oxide.computer/guides/operator/audit-log',
@@ -188,5 +196,13 @@ export const docLinks = {
   vpcs: {
     href: 'https://docs.oxide.computer/guides/configuring-guest-networking',
     linkText: 'Networking',
+  },
+  webhookReceivers: {
+    href: links.webhooksGuide,
+    linkText: 'Webhook Receivers',
+  },
+  webhookSecretRotation: {
+    href: 'https://docs.oxide.computer/guides/alerts/reliable-receivers#_zero_downtime_webhook_secret_rotation',
+    linkText: 'Secret Rotation',
   },
 }

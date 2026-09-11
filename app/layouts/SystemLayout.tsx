@@ -14,6 +14,7 @@ import {
   IpGlobal16Icon,
   Logs16Icon,
   Metrics16Icon,
+  Notifications16Icon,
   Servers16Icon,
   SoftwareUpdate16Icon,
   Subnet16Icon,
@@ -25,7 +26,7 @@ import { TopBar } from '~/components/TopBar'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useQuickActions, type QuickActionItem } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
-import { inventoryBase, pb } from '~/util/path-builder'
+import { alertingBase, inventoryBase, pb } from '~/util/path-builder'
 
 import { ContentPane, PageContainer } from './helpers'
 
@@ -56,6 +57,8 @@ export default function SystemLayout() {
       { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
       { value: 'Subnet Pools', path: pb.subnetPools() },
+      { value: 'Alerting', path: pb.alertReceivers() },
+      { value: 'Alerts', path: pb.alerts() },
       { value: 'System Update', path: pb.systemUpdate() },
       { value: 'Fleet Access', path: pb.fleetAccess() },
       { value: 'Audit Log', path: pb.auditLog() },
@@ -102,6 +105,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.subnetPools()}>
             <Subnet16Icon /> Subnet Pools
+          </NavLinkItem>
+          <NavLinkItem to={pb.alertReceivers()} activePrefix={alertingBase()}>
+            <Notifications16Icon /> Alerting
           </NavLinkItem>
           <NavLinkItem to={pb.systemUpdate()}>
             <SoftwareUpdate16Icon /> System Update

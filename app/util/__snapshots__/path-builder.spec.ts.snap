@@ -40,6 +40,68 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/affinity",
     },
   ],
+  "alertReceiver (/system/alerting/receivers/rc)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "rc",
+      "path": "/system/alerting/receivers/rc",
+    },
+  ],
+  "alertReceiverEdit (/system/alerting/receivers/rc/edit)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "rc",
+      "path": "/system/alerting/receivers/rc",
+    },
+  ],
+  "alertReceivers (/system/alerting/receivers)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
+    },
+  ],
+  "alertReceiversNew (/system/alerting/receivers-new)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "New webhook receiver",
+      "path": "/system/alerting/receivers-new",
+    },
+  ],
+  "alerts (/system/alerting/alerts)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "Alerts",
+      "path": "/system/alerting/alerts",
+    },
+  ],
   "antiAffinityGroup (/projects/p/affinity/aag)": [
     {
       "label": "Projects",
