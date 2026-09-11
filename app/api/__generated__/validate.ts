@@ -353,9 +353,9 @@ export const AggregateBgpMessageHistory = z.preprocess(
 export const Alert = z.preprocess(
   processResponseBody,
   z.object({
-    alert: z.record(z.string(), z.unknown()),
     class: z.string(),
     id: z.uuid(),
+    payload: z.record(z.string(), z.unknown()),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
     version: z.number().min(0).max(4294967295),

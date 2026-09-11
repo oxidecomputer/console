@@ -147,7 +147,7 @@ const psuAlert = (
   id,
   class: `hardware.power_shelf.psu.${action}`,
   version: 0,
-  alert: {
+  payload: {
     rack_id: rack.id,
     power_shelf: {
       shelf: 0,
@@ -173,7 +173,7 @@ export const alerts: Json<Alert>[] = [
     id: PROBE_ALERT_ID,
     class: 'probe',
     version: 0,
-    alert: {},
+    payload: {},
     time_created: minutesAgo(24 * 60),
     time_modified: minutesAgo(24 * 60),
   },
