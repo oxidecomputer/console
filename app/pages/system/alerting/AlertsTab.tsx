@@ -12,8 +12,8 @@ import { memo, useMemo, useState } from 'react'
 import { api, getListQFn, queryClient, snakeify, type Alert } from '@oxide/api'
 import { Notifications24Icon } from '@oxide/design-system/icons/react'
 
-import { AlertBodyViewer } from '~/components/AlertBodyViewer'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
+import { AlertPayload } from '~/components/AlertPayload'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { HighlightJSON } from '~/components/HighlightJSON'
 import { EmptyCell } from '~/table/cells/EmptyCell'
@@ -116,7 +116,7 @@ function AlertDetail({ alert, onDismiss }: { alert: Alert; onDismiss: () => void
   return (
     <ReadOnlySideModalForm title="Alert details" onDismiss={onDismiss} animate>
       <PropertiesTable>
-        <PropertiesTable.Row label="Alert class">
+        <PropertiesTable.Row label="Class">
           <AlertClassBadge>{alert.class}</AlertClassBadge>
         </PropertiesTable.Row>
         <PropertiesTable.Row
@@ -130,14 +130,14 @@ function AlertDetail({ alert, onDismiss }: { alert: Alert; onDismiss: () => void
         >
           {alert.version}
         </PropertiesTable.Row>
-        <PropertiesTable.IdRow id={alert.id} label="Alert ID" />
+        <PropertiesTable.IdRow id={alert.id} label="ID" />
         {/* no Modified row: nothing in Nexus updates an alert after insert, so
             time_modified always equals time_created */}
         <PropertiesTable.Row label="Created">
           <DateTime date={alert.timeCreated} />
         </PropertiesTable.Row>
       </PropertiesTable>
-      <AlertBodyViewer body={alert.alert} />
+      <AlertPayload payload={alert.alert} />
     </ReadOnlySideModalForm>
   )
 }
@@ -163,8 +163,8 @@ export default function AlertsTab() {
       <Table aria-label="Alerts">
         <Row className="pb-2">
           <HeadCell className={col.time}>Created</HeadCell>
-          <HeadCell className={col.id}>Alert ID</HeadCell>
-          <HeadCell className={col.class}>Alert class</HeadCell>
+          <HeadCell className={col.id}>ID</HeadCell>
+          <HeadCell className={col.class}>Class</HeadCell>
           <HeadCell className={col.payload}>Payload</HeadCell>
         </Row>
         {items.map((alert) => (

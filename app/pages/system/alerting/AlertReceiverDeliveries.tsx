@@ -25,8 +25,8 @@ import {
 import { Webhooks16Icon, Webhooks24Icon } from '@oxide/design-system/icons/react'
 import { Badge, Button, type BadgeColor } from '@oxide/design-system/ui'
 
-import { AlertBodyViewer } from '~/components/AlertBodyViewer'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
+import { AlertPayload } from '~/components/AlertPayload'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { useAlertReceiverSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
@@ -349,8 +349,8 @@ function AlertTab({
         </TableEmptyBox>
       ) : (
         // the fetch usually finishes before this tab is opened, so a blank
-        // body for the rest of the load is fine
-        alert && <AlertBodyViewer body={alert.alert} />
+        // payload for the rest of the load is fine
+        alert && <AlertPayload payload={alert.alert} />
       )}
     </div>
   )

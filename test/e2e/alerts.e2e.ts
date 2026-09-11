@@ -447,11 +447,11 @@ test('Webhook receiver deliveries: detail side modal', async ({ page }) => {
   await expect(alertProps.getByLabel('beef336d-99db-4b12-ac08-7ebcaab8421a')).toBeVisible()
   await expect(alertProps).toContainText('Class version')
   await expect(alertProps.getByText('0', { exact: true })).toBeVisible()
-  const alertBody = alertPanel.locator('pre')
-  await expect(alertBody).toContainText('"Murata"')
+  const alertPayload = alertPanel.locator('pre')
+  await expect(alertPayload).toContainText('"Murata"')
   // keys are snake_case like the API and the webhook payload, not the
   // camelCase the client uses internally
-  await expect(alertBody).toContainText('firmware_revision')
+  await expect(alertPayload).toContainText('firmware_revision')
 })
 
 test('Webhook receiver deliveries: manual resend then probe', async ({ page }) => {
@@ -635,13 +635,13 @@ test('Alert list basics', async ({ page }) => {
 
   // rows show the ID, class, and a one-line preview of the payload
   await expectRowVisible(table, {
-    'Alert ID': expect.stringContaining('26cb0726'),
-    'Alert class': 'hardware.power_shelf.psu.insert',
+    ID: expect.stringContaining('26cb0726'),
+    Class: 'hardware.power_shelf.psu.insert',
     Payload: expect.stringContaining('rack_id'),
   })
   await expectRowVisible(table, {
-    'Alert ID': expect.stringContaining('8c8a74ba'),
-    'Alert class': 'hardware.power_shelf.psu.remove',
+    ID: expect.stringContaining('8c8a74ba'),
+    Class: 'hardware.power_shelf.psu.remove',
   })
 
   // alert classes must stay lowercase so they can be copied into a subscription
@@ -660,9 +660,9 @@ test('Alert list detail view', async ({ page }) => {
   await rows.filter({ hasText: '26cb0726' }).click()
   const modal = page.getByRole('dialog', { name: 'Alert details' })
   await expect(modal).toBeVisible()
-  const alertBody = modal.locator('pre')
-  await expect(alertBody).toContainText('"Murata"')
-  await expect(alertBody).toContainText('slot: 0')
+  const alertPayload = modal.locator('pre')
+  await expect(alertPayload).toContainText('"Murata"')
+  await expect(alertPayload).toContainText('slot: 0')
   await modal.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
   await expect(modal).toBeHidden()
 

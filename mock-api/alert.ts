@@ -128,7 +128,7 @@ export const alertReceivers = [receiverGeneral, receiverPowerMon, receiverWebhoo
 const minutesAgo = (n: number) => subMinutes(new Date(), n).toISOString()
 
 // Alerts backing the seeded deliveries, so alertView can resolve their IDs.
-// All current alert classes are at payload version 0.
+// All current alert classes are at class version 0.
 
 // Probe deliveries all reference a well-known singleton alert rather than
 // creating a row per probe.
