@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useQuery } from '@tanstack/react-query'
-
-import { api, q } from '@oxide/api'
+import type { AlertClassResultsPage } from '@oxide/api'
 
 import {
   ALERT_SUBSCRIPTION_REGEX,
@@ -16,7 +14,6 @@ import {
   subscriptionRegex,
 } from '~/api/util'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
-import { ALL_ISH } from '~/util/consts'
 
 /**
  * For a glob subscription pattern, show which alert classes it currently
@@ -24,12 +21,13 @@ import { ALL_ISH } from '~/util/consts'
  * Note the match set is point-in-time: globs are re-evaluated by the control
  * plane as alert classes are added.
  */
-export function SubscriptionMatchPreview({ pattern }: { pattern: string }) {
-  // Same query as the class picker this sits under, so it's a cache hit rather
-  // than a fetch. Matching locally with `subscriptionRegex`, mirroring the
-  // control plane's glob compiler.
-  const { data } = useQuery(q(api.alertClassList, { query: { limit: ALL_ISH } }))
-
+export function SubscriptionMatchPreview({
+  data,
+  pattern,
+}: {
+  data: AlertClassResultsPage | undefined
+  pattern: string
+}) {
   // validate before subscriptionRegex, which assumes a well-formed subscription
   const isValidGlob = isGlobPattern(pattern) && ALERT_SUBSCRIPTION_REGEX.test(pattern)
   if (!isValidGlob || !data) return null

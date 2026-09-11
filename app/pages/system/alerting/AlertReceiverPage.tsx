@@ -303,7 +303,7 @@ function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
         required
         validate={(value) => validateSubscription(value, classNames)}
       />
-      <SubscriptionMatchPreview pattern={subscription} />
+      <SubscriptionMatchPreview data={classes.data} pattern={subscription} />
     </ModalForm>
   )
 }

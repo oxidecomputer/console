@@ -28,7 +28,7 @@ function FieldHarness({ subscriptions }: { subscriptions: string[] }) {
   return (
     <>
       <button type="button">Outside</button>
-      <SubscriptionsField control={control} />
+      <SubscriptionsField name="subscriptions" control={control} />
       <output aria-label="Selected subscriptions">{JSON.stringify(selected)}</output>
     </>
   )
