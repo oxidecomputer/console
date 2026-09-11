@@ -68,8 +68,9 @@ type AlertRowProps = {
   onSelect: (alert: Alert) => void
 }
 
-// memoized so opening the detail for one row doesn't re-render the JSON
-// preview in every other row
+// memoized so selecting a row doesn't re-run the per-row Tooltip /
+// CopyToClipboard / Badge work for all 50 rows (~40ms in dev). Props are
+// referentially stable, so only the rows whose `selected` flips re-render.
 const AlertRow = memo(function AlertRow({ alert, selected, onSelect }: AlertRowProps) {
   // stable object identity so HighlightJSON's memo holds across re-renders
   const payload = useMemo(() => snakeify(alert.alert), [alert])

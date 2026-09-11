@@ -5,28 +5,29 @@
  *
  * Copyright Oxide Computer Company
  */
-import { memo, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { snakeify } from '@oxide/api'
 
 import { HighlightJSON } from '~/components/HighlightJSON'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
-import { SideModal } from '~/ui/lib/SideModal'
 
 /**
  * Highlighted, copyable view of an alert's data payload for side modals. Keys
  * are snake_case to match the alert as the API and the webhook payload present
  * it.
  */
-export const AlertBodyViewer = memo(({ body }: { body: Record<string, unknown> }) => {
+export function AlertBodyViewer({ body }: { body: Record<string, unknown> }) {
   // recomputing on every render would hand HighlightJSON a new object each
   // time and defeat its memo
   const snakeJson = useMemo(() => snakeify(body), [body])
   const stringified = useMemo(() => JSON.stringify(snakeJson, null, 2), [snakeJson])
   return (
     <div className="space-y-2">
+      {/* labeled like a properties table row rather than a section heading,
+          since this is one field of the alert shown alongside the others */}
       <div className="flex items-center justify-between">
-        <SideModal.Heading>Alert body</SideModal.Heading>
+        <span className="text-mono-sm text-secondary uppercase">Alert body</span>
         <CopyToClipboard text={stringified} ariaLabel="Copy alert body" />
       </div>
       <div className="bg-raise border-secondary overflow-x-auto rounded border px-3 py-2">
@@ -36,4 +37,4 @@ export const AlertBodyViewer = memo(({ body }: { body: Record<string, unknown> }
       </div>
     </div>
   )
-})
+}

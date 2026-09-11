@@ -285,14 +285,12 @@ function DeliverySideModal({
           <PropertiesTable.IdRow id={delivery.id} label="Delivery ID" />
           <PropertiesTable.IdRow id={delivery.receiverId} label="Receiver ID" />
         </PropertiesTable>
-        <Tabs.Root className="full-width" defaultValue="attempts">
+        <Tabs.Root className="full-width mt-6" defaultValue="attempts">
           <Tabs.List aria-label="Delivery details">
             <Tabs.Trigger value="attempts">Attempts</Tabs.Trigger>
             <Tabs.Trigger value="alert">Alert</Tabs.Trigger>
           </Tabs.List>
-          {/* full-width tabs put the panel at the modal gutter; the extra
-              padding lines the content up with the properties table above */}
-          <Tabs.Content value="attempts" className="px-8">
+          <Tabs.Content value="attempts">
             {delivery.attempts.webhook.length ? (
               <Table table={attemptsTable} aria-label="Attempts" />
             ) : (
@@ -304,7 +302,7 @@ function DeliverySideModal({
               </TableEmptyBox>
             )}
           </Tabs.Content>
-          <Tabs.Content value="alert" className="px-8">
+          <Tabs.Content value="alert">
             <AlertTab
               alertId={delivery.alertId}
               alert={alertQuery.data}
