@@ -1,3 +1,4 @@
+import { acceptCompletion } from '@codemirror/autocomplete'
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -184,8 +185,10 @@ export function OxqlEditor({
           },
           ...defaultKeymap,
           ...historyKeymap,
-          // tab indents instead of moving focus. the standard escape hatch
-          // still works: Ctrl-m (from defaultKeymap) toggles tab focus mode
+          // tab accepts/indents instead of moving focus. the standard escape
+          // hatch still works: Ctrl-m (from defaultKeymap) toggles tab focus
+          // mode
+          { key: 'Tab', run: acceptCompletion },
           indentWithTab,
         ]),
         EditorView.lineWrapping,
