@@ -379,27 +379,28 @@ test('create form prefix length max changes with pool IP version', async ({ page
   const v6Pool = page.getByRole('option', { name: 'ipv6-subnet-pool' })
   const v4Pool = page.getByRole('option', { name: 'default-v4-subnet-pool' })
 
-  // With v4 pool selected, typing 64 should be clamped to 32
-  await prefixLen.fill('64')
-  await prefixLen.blur()
-  await expect(prefixLen).toHaveValue('32')
+  await page.getByRole('textbox', { name: 'Name' }).fill('too-long')
+  const submit = page.getByRole('button', { name: 'Create external subnet' })
+  const dialog = page.getByRole('dialog', { name: 'Create external subnet' })
+  const maxError = dialog.getByText('Can be at most 32')
 
-  // Switch to v6 pool — 64 should now be accepted
-  await selectOption(page, 'Subnet pool', v6Pool)
+  // With v4 pool selected, 64 is over the max. The field must keep showing
+  // what the form holds rather than snapping to 32 and hiding the problem
   await prefixLen.fill('64')
-  await prefixLen.blur()
+  await submit.click()
+  await expect(prefixLen).toHaveValue('64')
+  await expect(maxError).toBeVisible()
+
+  // Switch to v6 pool — 64 is now in range
+  await selectOption(page, 'Subnet pool', v6Pool)
+  await expect(maxError).toBeHidden()
   await expect(prefixLen).toHaveValue('64')
 
-  // Switch back to v4 — value should clamp back to 32
+  // Switch back to v4 — over the max again, and still showing 64
   await selectOption(page, 'Subnet pool', v4Pool)
-  await expect(prefixLen).toHaveValue('32')
-
-  // The clamp is display-only: the form still holds 64, so submit must be
-  // blocked with a message rather than sending an out-of-range prefix
-  await page.getByRole('textbox', { name: 'Name' }).fill('too-long')
-  await page.getByRole('button', { name: 'Create external subnet' }).click()
-  const dialog = page.getByRole('dialog', { name: 'Create external subnet' })
-  await expect(dialog.getByText('Can be at most 32')).toBeVisible()
+  await expect(prefixLen).toHaveValue('64')
+  await expect(maxError).toBeVisible()
+  await submit.click()
   await expect(dialog).toBeVisible()
 })
 

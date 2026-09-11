@@ -1,3 +1,4 @@
+import { useRef, type ReactNode } from 'react'
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -5,13 +6,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import {
-  DismissButton,
-  Overlay,
-  usePopover,
-  type AriaPopoverProps,
-} from '@react-aria/overlays'
-import { useRef, type ReactNode } from 'react'
+import { DismissButton, Overlay, usePopover, type AriaPopoverProps } from 'react-aria'
 import type { OverlayTriggerState } from 'react-stately'
 
 interface PopoverProps extends Omit<AriaPopoverProps, 'popoverRef'> {
