@@ -295,7 +295,10 @@ export function SubscriptionsField<
     const state = rowState(name)
     if (state.kind === 'covered') return
     field.onChange(
-      state.kind === 'picked' ? committed.filter((c) => c !== name) : [...committed, name]
+      match(state.kind)
+        .with('picked', () => committed.filter((c) => c !== name))
+        .with('pending', 'promoted', 'plain', () => [...committed, name])
+        .exhaustive()
     )
     // query is deliberately not reset so multiple picks are cheap
   }

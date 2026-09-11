@@ -139,11 +139,12 @@ function ProbeResult({ result }: { result: AlertProbeResult }) {
       <PropertiesTable.Row label="Status">
         {status ? (
           <span className="flex items-center gap-1.5">
-            {attempt.result === 'succeeded' ? (
-              <Success12Icon className="text-accent" />
-            ) : (
-              <Error12Icon className="text-error" />
-            )}
+            {match(attempt.result)
+              .with('succeeded', () => <Success12Icon className="text-accent" />)
+              .with('failed_http_error', 'failed_unreachable', 'failed_timeout', () => (
+                <Error12Icon className="text-error" />
+              ))
+              .exhaustive()}
             {status}
           </span>
         ) : (

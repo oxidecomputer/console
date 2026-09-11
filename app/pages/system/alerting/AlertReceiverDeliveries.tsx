@@ -117,10 +117,10 @@ export function DeliveriesTab() {
         label: 'Resend',
         // a pending delivery is already being retried, so a resend would only
         // queue a second copy of the same alert
-        disabled:
-          delivery.state === 'pending'
-            ? 'This alert is already being delivered'
-            : undefined,
+        disabled: match(delivery.state)
+          .with('pending', () => 'This alert is already being delivered')
+          .with('delivered', 'failed', () => undefined)
+          .exhaustive(),
         onActivate: () =>
           confirmAction({
             doAction: () =>
