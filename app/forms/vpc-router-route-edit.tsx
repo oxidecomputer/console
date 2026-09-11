@@ -98,7 +98,7 @@ export default function EditRouterRouteSideModalForm() {
           },
         })
       }
-      loading={updateRouterRoute.isPending}
+      loading={updateRouterRoute.isPending || updateRouterRoute.isSuccess}
       submitError={updateRouterRoute.error}
       submitDisabled={disabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >

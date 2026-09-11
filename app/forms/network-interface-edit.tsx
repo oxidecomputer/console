@@ -120,7 +120,7 @@ export function EditNetworkInterfaceForm({
           body,
         })
       }}
-      loading={editNetworkInterface.isPending}
+      loading={editNetworkInterface.isPending || editNetworkInterface.isSuccess}
       submitError={editNetworkInterface.error}
     >
       <FormMetadata resource={editing}>

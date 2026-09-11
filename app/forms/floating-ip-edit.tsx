@@ -97,7 +97,7 @@ export default function EditFloatingIpSideModalForm() {
           body: { name, description },
         })
       }}
-      loading={editFloatingIp.isPending}
+      loading={editFloatingIp.isPending || editFloatingIp.isSuccess}
       submitError={editFloatingIp.error}
     >
       <FormMetadata resource={floatingIp}>

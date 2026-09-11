@@ -66,7 +66,7 @@ export function FleetAccessAddUserSideModal({
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
-      loading={updatePolicy.isPending}
+      loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
     >
       <ListboxField
@@ -114,7 +114,7 @@ export function FleetAccessEditUserSideModal({
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
-      loading={updatePolicy.isPending}
+      loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
       onDismiss={() => {
         updatePolicy.reset() // clear API error state so it doesn't persist on next open

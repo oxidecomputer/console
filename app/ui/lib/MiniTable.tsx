@@ -6,9 +6,11 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { useRef, useState, type JSX, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 
 import { Error16Icon } from '@oxide/design-system/icons/react'
+
+import { roleDiv } from '~/util/classed'
 
 import { Button } from './Button'
 import { EmptyMessage } from './EmptyMessage'
@@ -22,15 +24,6 @@ import { Tooltip } from './Tooltip'
  * table semantics anyway, we use divs with explicit ARIA table roles rather
  * than the semantic elements.
  */
-
-/** Like `classed.div`, but with an ARIA role too */
-function roleDiv(role: string, baseClassName: string) {
-  const Comp = ({ className, ...rest }: JSX.IntrinsicElements['div']) => (
-    <div role={role} className={cn(baseClassName, className)} {...rest} />
-  )
-  Comp.displayName = `roled.${role}`
-  return Comp
-}
 
 /** Divider between cells, inset so it doesn't touch the row's y borders */
 const headerSeparator = `relative before:border-secondary before:absolute before:inset-y-px before:left-0 before:w-px before:border-l before:content-['']`

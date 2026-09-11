@@ -52,7 +52,7 @@ export default function RouterCreate() {
       resourceName="router"
       onDismiss={onDismiss}
       onSubmit={(body) => createRouter.mutate({ query: vpcSelector, body })}
-      loading={createRouter.isPending}
+      loading={createRouter.isPending || createRouter.isSuccess}
       submitError={createRouter.error}
     >
       <NameField name="name" control={form.control} />

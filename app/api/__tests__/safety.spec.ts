@@ -68,7 +68,9 @@ it('mock-api is only referenced in test files', () => {
     [
       "AGENTS.md",
       "app/api/__tests__/client.browser.spec.ts",
+      "app/components/form/fields/SubscriptionsField.browser.spec.tsx",
       "mock-api/msw/db.ts",
+      "test/e2e/alerts.e2e.ts",
       "test/e2e/fleet-access.e2e.ts",
       "test/e2e/instance-create.e2e.ts",
       "test/e2e/inventory.e2e.ts",
@@ -87,6 +89,7 @@ it('mock-api is only referenced in test files', () => {
       "app/main.tsx",
       "app/msw-mock-api.ts",
       "docs/mock-api-differences.md",
+      "docs/update-pinned-api.md",
       "package.json",
       "test/e2e/utils.ts",
       "tools/start_mock_api.ts",

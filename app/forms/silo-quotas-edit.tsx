@@ -6,15 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import type { SetNonNullable } from 'type-fest'
 
-import {
-  api,
-  queryClient,
-  useApiMutation,
-  type SiloQuotasUpdate,
-  type VirtualResourceCounts,
-} from '@oxide/api'
+import { api, queryClient, useApiMutation, type VirtualResourceCounts } from '@oxide/api'
 import { Cloud16Icon } from '@oxide/design-system/icons/react'
 
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -37,6 +30,13 @@ type Props = {
   onDismiss: () => void
 }
 
+// memory and storage are in GiB here and converted to bytes on submit
+type QuotasFormValues = {
+  cpus: number
+  memory: number
+  storage: number
+}
+
 const ProvisionedHint = ({ value, unit }: { value: number; unit: string }) => (
   <div className="text-sans-sm text-secondary mt-1">
     Provisioned: <BigNum num={value} /> {unit}
@@ -44,8 +44,7 @@ const ProvisionedHint = ({ value, unit }: { value: number; unit: string }) => (
 )
 
 export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }: Props) {
-  // required because we need to rule out undefined because NumberField hates that
-  const defaultValues: SetNonNullable<Required<SiloQuotasUpdate>> = {
+  const defaultValues: QuotasFormValues = {
     cpus: quotas.cpus,
     memory: bytesToGiB(quotas.memory),
     storage: bytesToGiB(quotas.storage),
@@ -85,7 +84,7 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
           path: { silo },
         })
       }
-      loading={updateQuotas.isPending}
+      loading={updateQuotas.isPending || updateQuotas.isSuccess}
       submitError={updateQuotas.error}
     >
       <Message

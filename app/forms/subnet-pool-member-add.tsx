@@ -138,7 +138,7 @@ export default function SubnetPoolMemberAdd() {
           },
         })
       }}
-      loading={addMember.isPending}
+      loading={addMember.isPending || addMember.isSuccess}
       submitError={addMember.error}
     >
       <Message
