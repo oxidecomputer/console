@@ -53,6 +53,10 @@
   }
 
   .cm-activeLine {
+    background-color: transparent;
+  }
+
+  &.cm-focused .cm-activeLine {
     background-color: var(--surface-secondary);
   }
 
