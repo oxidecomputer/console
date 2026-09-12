@@ -359,16 +359,16 @@ export type AggregateBgpMessageHistory = {
  * Alerts provide notifications about events that occurred in the system at a point in time. See the guide-level documentation on alerts for details.
  */
 export type Alert = {
-  /** The alert's data payload.
-
-The schema for this object depends on the alert class and version. */
-  alert: Record<string, unknown>
   /** The alert's class.
 
 See the guide-level documentation on alerts for details on alert classes. */
   class: string
   /** Unique, immutable, system-controlled identifier for each resource */
   id: string
+  /** The alert's data payload.
+
+The schema for this object depends on the alert class and version. */
+  payload: Record<string, unknown>
   /** Timestamp when this resource was created */
   timeCreated: Date
   /** Timestamp when this resource was last modified */
@@ -7739,7 +7739,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026090800.0.0'
+  apiVersion = '2026091100.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
