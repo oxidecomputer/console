@@ -5,10 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { queryOptions } from '@tanstack/react-query'
-
-import { api } from '@oxide/api'
-
 /*
  * The generated API client only handles JSON responses, so the zip download
  * is a plain anchor navigation. The browser sends the session cookie the same
@@ -37,23 +33,3 @@ function triggerDownload(url: string, filename: string) {
 export function downloadBundle(bundleId: string) {
   triggerDownload(bundleDownloadUrl(bundleId), `support-bundle-${bundleId}.zip`)
 }
-
-/**
- * Total bundle size from `Content-Length` on a HEAD of the download endpoint.
- * A HEAD response has no body, so the JSON-only generated client handles it.
- */
-export const bundleSizeQuery = (bundleId: string) =>
-  queryOptions({
-    queryKey: ['supportBundleSize', bundleId],
-    queryFn: async () => {
-      const result = await api.supportBundleHead({ path: { bundleId } })
-      if (result.type !== 'success') {
-        throw new Error(`Error fetching bundle size (${result.response.status})`)
-      }
-      // handle missing/malformed headers, rather than showing `0 B`
-      const size = Number(result.response.headers.get('content-length'))
-      if (!size) throw new Error('Bundle size missing from response')
-      return size
-    },
-    staleTime: Infinity,
-  })

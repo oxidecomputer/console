@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useQuery, type UseQueryResult } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
@@ -39,11 +38,7 @@ import { Size } from '~/ui/lib/ValueUnit'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-import {
-  bundleSizeQuery,
-  downloadBundle,
-  DOWNLOAD_DISABLED_REASON,
-} from '~/util/support-bundle'
+import { downloadBundle, DOWNLOAD_DISABLED_REASON } from '~/util/support-bundle'
 
 const SEC = 1000 // ms
 const POLL_INTERVAL = 10 * SEC
@@ -66,17 +61,30 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 export const handle = titleCrumb('Support bundle')
 
-/** Skeleton while the query is in flight, em dash if it failed */
-function AsyncValue<T>({
-  query,
-  children,
-}: {
-  query: UseQueryResult<T>
-  children: (data: T) => ReactNode
-}) {
-  if (query.isPending) return <SkeletonCell />
-  if (query.isError) return <EmptyCell />
-  return <>{children(query.data)}</>
+/**
+ * Total bundle size from `Content-Length` on a HEAD of the download endpoint.
+ * Calls the generated client directly rather than through `q`, which unwraps
+ * the result to `data` and drops the response headers.
+ */
+function BundleSize({ bundleId }: { bundleId: string }) {
+  const { data: size, isPending } = useQuery({
+    queryKey: ['supportBundleSize', bundleId],
+    queryFn: async () => {
+      const result = await api.supportBundleHead({ path: { bundleId } })
+      if (result.type !== 'success') {
+        throw new Error(`Error fetching bundle size (${result.response.status})`)
+      }
+      // handle missing/malformed headers, rather than showing `0 B`
+      const size = Number(result.response.headers.get('content-length'))
+      if (!size) throw new Error('Bundle size missing from response')
+      return size
+    },
+    // bundle contents never change once collection is complete
+    staleTime: Infinity,
+  })
+  if (isPending) return <SkeletonCell />
+  if (!size) return <EmptyCell />
+  return <Size bytes={size} />
 }
 
 export default function SupportBundleDetail() {
@@ -86,7 +94,6 @@ export default function SupportBundleDetail() {
 
   // the bundle zip only exists once collection has completed
   const isActive = bundle.state === 'active'
-  const sizeQuery = useQuery({ ...bundleSizeQuery(bundleId), enabled: isActive })
 
   const form = useForm({ defaultValues: { userComment: bundle.userComment || '' } })
   // must destructure to subscribe to changes; inlining does not work
@@ -143,7 +150,7 @@ export default function SupportBundleDetail() {
           <PropertiesTable.DateRow label="Created" date={bundle.timeCreated} />
           {isActive && (
             <PropertiesTable.Row label="Size">
-              <AsyncValue query={sizeQuery}>{(bytes) => <Size bytes={bytes} />}</AsyncValue>
+              <BundleSize bundleId={bundleId} />
             </PropertiesTable.Row>
           )}
         </PropertiesTable>
