@@ -27,6 +27,7 @@ import {
   type TimeseriesQuery,
   type ValueArray,
   type FieldValue,
+  type TimeseriesSchema,
 } from '@oxide/api'
 import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -59,6 +60,7 @@ import { ErrorInlineCode } from '~/ui/lib/InlineCode'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TextInputError } from '~/ui/lib/TextInput'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate } from '~/ui/lib/Truncate'
 import { ALL_ISH } from '~/util/consts'
@@ -281,6 +283,11 @@ const FieldsList = ({ fields }: { fields: Record<string, FieldValue> }) => {
   )
 }
 
+// In a joined table, the table name is component metric names, comma-joined.
+// e.g. bfd_session:timeout_expired,hardware_component:current
+const retrieveMetricNames = (tableName: string): string[] =>
+  tableName.split(',').map((s) => s.trim())
+
 const tableToGroup = (table: OxqlTable): ChartGroup => {
   const { name, timeseries } = table
   if (timeseries.length === 0) return 'empty-timeseries'
@@ -301,11 +308,7 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
 
   const chart = match(kind)
     .with('joined', (kind) => {
-      // In a joined table, each Values item is a distinct metric:target and the
-      // table name is those metric names comma-joined, index-aligned to the Values.
-      // So the line labels come from the table name, not the (identical-per-line)
-      // joined field.
-      const metricNames = name.split(',').map((s) => s.trim())
+      const metricNames = retrieveMetricNames(name)
 
       return {
         kind,
@@ -438,8 +441,56 @@ const trimHeatmap = <T,>(
 // The first aligned point of a cumulative counter is diffed against the counter's start_time,
 // collapsing all pre-window history into one giant bucket. It's not "erroneous" but it's usually
 // not useful, and you'd want to hide it to get a more useful y-axis for the rest of your data.
-// TODO: now that we know the schema, we can instead look at a successful query and check whether
-// one of its tables has a cumulative type
+const queryHasCumulativeData = (
+  queryResult: OxqlQueryResult,
+  schemas: TimeseriesSchema[]
+): boolean => {
+  const metricNames = new Set(
+    queryResult.tables.flatMap((t) => retrieveMetricNames(t.name))
+  )
+  return schemas.some(
+    (schema) =>
+      metricNames.has(schema.timeseriesName) &&
+      match(schema.datumType)
+        .with(
+          'bool',
+          'i8',
+          'u8',
+          'i16',
+          'u16',
+          'i32',
+          'u32',
+          'i64',
+          'u64',
+          'f32',
+          'f64',
+          'string',
+          'bytes',
+          () => false
+        )
+        .with(
+          'cumulative_i64',
+          'cumulative_u64',
+          'cumulative_f32',
+          'cumulative_f64',
+          // histogram data is cumulative by definition
+          'histogram_i8',
+          'histogram_u8',
+          'histogram_i16',
+          'histogram_u16',
+          'histogram_i32',
+          'histogram_u32',
+          'histogram_i64',
+          'histogram_u64',
+          'histogram_f32',
+          'histogram_f64',
+          () => true
+        )
+        .exhaustive()
+  )
+}
+
+// If the schemas haven't loaded, this is a decent heuristic
 const groupHasPointWorthDropping = (g: ChartGroup): boolean =>
   match(g)
     .with('empty-timeseries', () => false)
@@ -618,7 +669,7 @@ const tablesToCsv = (tables: OxqlTable[]): string => {
   for (const table of tables) {
     // like the chart labels, joined tables get their per-line metric names
     // from the comma-joined table name
-    const metricNames = table.name.split(',').map((s) => s.trim())
+    const metricNames = retrieveMetricNames(table.name)
     for (const series of table.timeseries) {
       const fields = getFormattedFields(series)
       series.points.values.forEach((v, i) => {
@@ -776,7 +827,10 @@ export default function MetricsExplorer() {
     [query.data]
   )
 
-  const hasTrimmableCharts = chartGroups?.some(groupHasPointWorthDropping) ?? false
+  const hasTrimmableCharts =
+    schemas.data && query.data
+      ? queryHasCumulativeData(query.data, schemas.data.items)
+      : (chartGroups?.some(groupHasPointWorthDropping) ?? false)
   const trim = dropFirstPoint && hasTrimmableCharts
 
   const charts = useMemo(
@@ -893,17 +947,21 @@ export default function MetricsExplorer() {
             </ChartContainer>
           </ResultsSection>
         ))
-        // TODO: explainer for the drop first point thing
         .with({ status: 'success' }, () => (
           <ResultsSection>
             {hasTrimmableCharts && (
-              <div className="mb-2">
+              <div className="mb-2 flex items-center gap-2">
                 <Checkbox
                   checked={dropFirstPoint}
                   onChange={(e) => setDropFirstPoint(e.target.checked)}
                 >
-                  Drop first point
+                  Drop first data point
                 </Checkbox>
+                <TipIcon>
+                  With deltas and cumulative counters, the initial point is a delta from the
+                  earliest observed value. It's therefore typically much larger, and not
+                  worth comparing to the rest of your data.
+                </TipIcon>
               </div>
             )}
             <div

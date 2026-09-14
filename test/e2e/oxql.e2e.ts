@@ -88,7 +88,7 @@ test('joined query renders a chart per instance with a legend line per metric', 
 })
 
 test('"Drop first point" appears only for cumulative-derived charts', async ({ page }) => {
-  const dropFirst = page.getByLabel('Drop first point')
+  const dropFirst = page.getByLabel('Drop first data point')
 
   // a plain gauge is never cumulative, so there's no giant first point to drop
   await runQuery(page, oxqlQueries.basicTctl)
