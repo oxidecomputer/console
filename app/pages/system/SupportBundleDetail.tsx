@@ -96,8 +96,6 @@ export default function SupportBundleDetail() {
   const downloadDisabled = downloadDisabledReason(bundle.state)
 
   const form = useForm({ defaultValues: { userComment: bundle.userComment || '' } })
-  // must destructure to subscribe to changes; inlining does not work
-  const { isDirty } = form.formState
 
   const onDismiss = () => navigate(pb.supportBundles())
 
@@ -117,7 +115,7 @@ export default function SupportBundleDetail() {
       // scoped to the one editable field, like access forms' "Update role"
       resourceName="comment"
       title="Support bundle"
-      submitDisabled={isDirty ? undefined : 'No changes to save'}
+      submitDisabled={form.formState.isDirty ? undefined : 'No changes to save'}
       subtitle={
         <ResourceLabel>
           <Archive16Icon /> {truncate(bundle.id, 14, 'middle')}

@@ -45,7 +45,7 @@ const SEC = 1000 // ms
  * ahead of time how long, and there is no slow tier because nothing changes a
  * bundle's state without an operator action (unlike crashing or auto-restart
  * for instances). Bundles created elsewhere will show up on refresh. The
- * updated timestamp next to the refresh button make clear when the data is
+ * updated timestamp next to the refresh button makes clear when the data is
  * really out of date.
  */
 export const POLL_INTERVAL = 10 * SEC

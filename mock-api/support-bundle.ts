@@ -18,10 +18,12 @@ export const supportBundles: Json<SupportBundleInfo>[] = [
     user_comment: 'Investigating slow instance start times',
   },
   {
-    // created by fault management rather than an operator, hence the
-    // diagnosis-style reason and lack of comment
+    // created by fault management rather than an operator, hence no comment.
+    // reason format is the fallback FM uses when the diagnosis engine gives none
+    // https://github.com/oxidecomputer/omicron/blob/9d95e0c/nexus/src/app/background/tasks/fm_rendezvous.rs#L433-L436
     id: '7bdd4ef3-8183-46fe-9e9f-81b34bf6b2c5',
-    reason_for_creation: 'Diagnosis: fan failure on sled BRM42220031',
+    reason_for_creation:
+      'Requested by PhysicalDisk diagnosis engine for case ffae3627-d3c5-4b80-a05a-37139dcf9ef5',
     state: 'collecting',
     time_created: new Date('2025-08-01T09:15:00Z').toISOString(),
   },

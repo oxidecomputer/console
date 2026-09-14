@@ -177,8 +177,8 @@ export default function SupportBundlesPage() {
           links={[docLinks.supportBundles]}
         />
       </PageHeader>
-      {/* Avoid changing justify-end on TableActions for this one case. We can
-       * fix this properly when we add refresh and filtering for all tables. */}
+      {/* Same override as the instances page. Fix properly when refresh and
+       * filtering come to all tables. */}
       <TableActions className="justify-between!">
         <div className="flex items-center gap-2">
           <RefreshButton
