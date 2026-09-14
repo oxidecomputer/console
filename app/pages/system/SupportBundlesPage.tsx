@@ -18,7 +18,7 @@ import {
   useApiMutation,
   type SupportBundleInfo,
 } from '@oxide/api'
-import { Issues16Icon, Issues24Icon } from '@oxide/design-system/icons/react'
+import { Archive16Icon, Archive24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
@@ -51,7 +51,7 @@ import {
 
 const EmptyState = () => (
   <EmptyMessage
-    icon={<Issues24Icon />}
+    icon={<Archive24Icon />}
     title="No support bundles"
     body="Create a support bundle to see it here"
     buttonText="New support bundle"
@@ -169,10 +169,10 @@ export default function SupportBundlesPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Issues24Icon />}>Support Bundles</PageTitle>
+        <PageTitle icon={<Archive24Icon />}>Support Bundles</PageTitle>
         <DocsPopover
           heading="support bundles"
-          icon={<Issues16Icon />}
+          icon={<Archive16Icon />}
           summary="Support bundles capture diagnostic data to share with Oxide support."
           links={[docLinks.supportBundles]}
         />

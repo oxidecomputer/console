@@ -17,7 +17,7 @@ import {
   useApiMutation,
   usePrefetchedQuery,
 } from '@oxide/api'
-import { Issues16Icon } from '@oxide/design-system/icons/react'
+import { Archive16Icon } from '@oxide/design-system/icons/react'
 
 import { BundleCommentField } from '~/components/form/fields/BundleCommentField'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -120,7 +120,7 @@ export default function SupportBundleDetail() {
       submitDisabled={isDirty ? undefined : 'No changes to save'}
       subtitle={
         <ResourceLabel>
-          <Issues16Icon /> {truncate(bundle.id, 14, 'middle')}
+          <Archive16Icon /> {truncate(bundle.id, 14, 'middle')}
         </ResourceLabel>
       }
       onDismiss={onDismiss}

@@ -10,8 +10,8 @@ import { useLocation } from 'react-router'
 import { api, q, queryClient } from '@oxide/api'
 import {
   Access16Icon,
+  Archive16Icon,
   Cloud16Icon,
-  Issues16Icon,
   IpGlobal16Icon,
   Logs16Icon,
   Metrics16Icon,
@@ -115,7 +115,7 @@ export default function SystemLayout() {
             <SoftwareUpdate16Icon /> System Update
           </NavLinkItem>
           <NavLinkItem to={pb.supportBundles()}>
-            <Issues16Icon /> Support Bundles
+            <Archive16Icon /> Support Bundles
           </NavLinkItem>
           <NavLinkItem to={pb.auditLog()}>
             <Logs16Icon /> Audit Log
