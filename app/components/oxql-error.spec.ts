@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { codeSegment, parseOxqlQueryError, stripCaretLine } from './oxql-error'
+import { errorMessageToSegments, parseOxqlQueryError, stripCaretLine } from './oxql-error'
 
 // realistic examples of omicron's fmt_parse_error output
 const parseError = `Error at 1:1: .. junk junk junk! ..
@@ -81,61 +81,76 @@ Expected: error at 1:1: expected one of "get", "{"
   })
 })
 
-describe('codeSegment', () => {
-  // odd indices are the code segments
-  const split = (message: string) => message.split(codeSegment)
+describe('errorMessageToSegments', () => {
+  const t = (text: string) => ({ type: 'text', text })
+  const c = (raw: string, code: string, isTruncated = false) => ({
+    type: 'code',
+    isTruncated,
+    code,
+    raw,
+  })
 
   it('splits out excerpt markers, quoted tokens, and backticked names', () => {
-    expect(split('Error at 1:1: .. junk junk! ..\nExpected: one of "get", "{"')).toEqual([
-      'Error at 1:1: ',
-      '.. junk junk! ..',
-      '\nExpected: one of ',
-      '"get"',
-      ', ',
-      '"{"',
-      '',
+    expect(
+      errorMessageToSegments('Error at 1:1: .. junk junk! ..\nExpected: one of "get", "{"')
+    ).toEqual([
+      t('Error at 1:1: '),
+      c('.. junk junk! ..', 'junk junk!', true),
+      t('\nExpected: one of '),
+      c('"get"', 'get'),
+      t(', '),
+      c('"{"', '{'),
+      t(''),
     ])
-    expect(split('Input tables to a `group_by` must be aligned')).toEqual([
-      'Input tables to a ',
-      '`group_by`',
-      ' must be aligned',
+    expect(errorMessageToSegments('Input tables to a `group_by` must be aligned')).toEqual([
+      t('Input tables to a '),
+      c('`group_by`', 'group_by'),
+      t(' must be aligned'),
     ])
   })
 
   it('keeps a filter expression with nested quotes in one segment', () => {
     // omicron interpolates the raw expression, so quotes inside it are unescaped
-    expect(split('The filter expression "kind == "power"" is not valid, because')).toEqual([
-      'The filter expression ',
-      '"kind == "power""',
-      ' is not valid, because',
+    expect(
+      errorMessageToSegments(
+        'The filter expression "kind == "power"" is not valid, because'
+      )
+    ).toEqual([
+      t('The filter expression '),
+      c('"kind == "power""', 'kind == "power"'),
+      t(' is not valid, because'),
     ])
     // nested quotes mid-expression, where the inner closing quote is followed
     // by a delimiter and could be mistaken for the end of the segment
     expect(
-      split('The filter expression "kind == "power" && sled == 1" is not valid, because')
+      errorMessageToSegments(
+        'The filter expression "kind == "power" && sled == 1" is not valid, because'
+      )
     ).toEqual([
-      'The filter expression ',
-      '"kind == "power" && sled == 1"',
-      ' is not valid, because',
+      t('The filter expression '),
+      c('"kind == "power" && sled == 1"', 'kind == "power" && sled == 1'),
+      t(' is not valid, because'),
     ])
   })
 
   it('splits identifier lists into one segment per name', () => {
     expect(
-      split('Invalid identifiers: ["chassis_kind"], valid: ["datum", "peer"]')
+      errorMessageToSegments(
+        'Invalid identifiers: ["chassis_kind"], valid: ["datum", "peer"]'
+      )
     ).toEqual([
-      'Invalid identifiers: [',
-      '"chassis_kind"',
-      '], valid: [',
-      '"datum"',
-      ', ',
-      '"peer"',
-      ']',
+      t('Invalid identifiers: ['),
+      c('"chassis_kind"', 'chassis_kind'),
+      t('], valid: ['),
+      c('"datum"', 'datum'),
+      t(', '),
+      c('"peer"', 'peer'),
+      t(']'),
     ])
   })
 
   it('leaves unbalanced quotes alone', () => {
     const message = 'something with a stray " quote'
-    expect(split(message)).toEqual([message])
+    expect(errorMessageToSegments(message)).toEqual([t(message)])
   })
 })

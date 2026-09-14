@@ -13,6 +13,15 @@ export type OxqlDiagnostic = {
   message: string
 }
 
+export type Segment =
+  | {
+      type: 'code'
+      isTruncated: boolean
+      code: string
+      raw: string
+    }
+  | { type: 'text'; text: string }
+
 /**
  * Drop the caret line (whitespace + `^`) from a parse error: its alignment
  * assumes a monospace terminal, and the editor underline already points at
@@ -33,8 +42,24 @@ export const stripCaretLine = (message: string) => message.replace(/\n *\^ *(?=\
  * delimiter rather than a word char or another quote.
  * https://github.com/oxidecomputer/omicron/blob/6db4c7e/oximeter/db/src/oxql/plan/filter.rs
  */
-export const codeSegment =
+const codeSegment =
   /(\.\. [\s\S]*? \.\.|(?<=The filter expression )"[^\n]*"(?= is not valid)|(?<![\w"])"[^\n]*?"(?![\w"])|`[^`\n]*`)/
+
+export function errorMessageToSegments(message: string): Segment[] {
+  return message.split(codeSegment).map((part, i) => {
+    if (i % 2 === 0) return { type: 'text', text: part }
+
+    // code snippets are always wrapped in quotes, backticks, or `.. <code> ..`
+    const isTruncated = part.startsWith('.. ')
+    const wrapperLength = isTruncated ? 3 : 1
+    return {
+      type: 'code',
+      isTruncated,
+      code: part.slice(wrapperLength, -wrapperLength),
+      raw: part,
+    }
+  })
+}
 
 /**
  * Pull the position and expectation out of an OxQL parse error so it can be

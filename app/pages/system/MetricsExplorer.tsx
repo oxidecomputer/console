@@ -33,7 +33,11 @@ import { Badge } from '@oxide/design-system/ui'
 import { DocsPopover } from '~/components/DocsPopover'
 import { Heatmap } from '~/components/Heatmap'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { codeSegment, parseOxqlQueryError, stripCaretLine } from '~/components/oxql-error'
+import {
+  errorMessageToSegments,
+  parseOxqlQueryError,
+  stripCaretLine,
+} from '~/components/oxql-error'
 import { OxqlEditor } from '~/components/OxqlEditor'
 import {
   ChartContainer,
@@ -693,20 +697,22 @@ function ResultsSummary({ tables }: { tables: OxqlTable[] }) {
 // chip, reading as ellipses.
 const ErrorMessage = ({ message }: { message: string }) => (
   <span className="whitespace-pre-wrap">
-    {message.split(codeSegment).map((part, i) => {
-      if (i % 2 === 0) return part
-      // the chip delimits the code, so drop the markers/quotes around it
-      const code = part.startsWith('.. ') ? part.slice(3, -3) : part.slice(1, -1)
-      // an empty chip is just visual noise; show the raw text instead
-      if (!code) return part
-      return (
-        <span key={i}>
-          {part.startsWith('.. ') && '.. '}
-          <ErrorInlineCode>{code}</ErrorInlineCode>
-          {part.startsWith('.. ') && ' ..'}
-        </span>
-      )
-    })}
+    {errorMessageToSegments(message).map((segment, i) =>
+      match(segment)
+        .with({ type: 'text' }, ({ text }) => text)
+        .with({ type: 'code' }, ({ isTruncated, code, raw }) => {
+          // an empty chip is just visual noise; show the raw text instead
+          if (!code) return raw
+          return (
+            <span key={i}>
+              {isTruncated && '.. '}
+              <ErrorInlineCode>{code}</ErrorInlineCode>
+              {isTruncated && ' ..'}
+            </span>
+          )
+        })
+        .exhaustive()
+    )}
   </span>
 )
 
