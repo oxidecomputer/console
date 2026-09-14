@@ -43,7 +43,11 @@ import { truncate } from '~/ui/lib/Truncate'
 import { toLocaleTimeString } from '~/util/date'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
-import { DOWNLOAD_DISABLED_REASON, downloadBundle } from '~/util/support-bundle'
+import {
+  downloadBundle,
+  downloadDisabledReason,
+  POLL_INTERVAL,
+} from '~/util/support-bundle'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -87,9 +91,6 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-const SEC = 1000 // ms
-const POLL_INTERVAL = 10 * SEC
-
 const bundleList = getListQFn(
   api.supportBundleList,
   { query: { sortBy: 'time_and_id_descending' } },
@@ -126,7 +127,7 @@ export default function SupportBundlesPage() {
         onActivate() {
           downloadBundle(bundle.id)
         },
-        disabled: bundle.state !== 'active' && DOWNLOAD_DISABLED_REASON,
+        disabled: downloadDisabledReason(bundle.state),
       },
       {
         label: 'Delete',

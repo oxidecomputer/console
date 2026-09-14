@@ -64,9 +64,7 @@ test('download only available for active bundles', async ({ page }) => {
   const downloadItem = page.getByRole('menuitem', { name: 'Download' })
   await expect(downloadItem).toBeDisabled()
   await downloadItem.hover()
-  await expect(page.getByRole('tooltip')).toHaveText(
-    'Only bundles that have completed collection can be downloaded'
-  )
+  await expect(page.getByRole('tooltip')).toHaveText('The bundle is still being collected')
   await page.keyboard.press('Escape')
 
   const activeRow = page.getByRole('row', { name: 'Investigating slow' })
@@ -112,17 +110,14 @@ test('bundle detail modal for failed bundle', async ({ page }) => {
   await expect(modal.getByText('failed')).toBeVisible()
   await expect(modal.getByText(/Allocated dataset/)).toBeVisible()
 
-  // no zip exists, so no file count or size rows and no download
-  await expect(modal.getByText('Files')).toBeHidden()
+  // no zip exists, so no size row and no download
   await expect(modal.getByText('Size')).toBeHidden()
   const download = modal.getByRole('button', { name: 'Download bundle' })
   await expect(download).toBeDisabled()
   await download.hover()
   // getByText rather than role=tooltip: the open modal makes the portaled
   // tooltip aria-hidden, so it has no role, but it is still visible
-  await expect(
-    page.getByText('Only bundles that have completed collection can be downloaded')
-  ).toBeVisible()
+  await expect(page.getByText('Bundle collection failed')).toBeVisible()
 })
 
 test('detail modal polls a collecting bundle to active', async ({ page }) => {

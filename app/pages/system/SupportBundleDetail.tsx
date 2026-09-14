@@ -16,7 +16,6 @@ import {
   supportBundleTransitioning,
   useApiMutation,
   usePrefetchedQuery,
-  type SupportBundleInfo,
 } from '@oxide/api'
 import { Issues16Icon } from '@oxide/design-system/icons/react'
 
@@ -38,21 +37,23 @@ import { Size } from '~/ui/lib/ValueUnit'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-import { downloadBundle, DOWNLOAD_DISABLED_REASON } from '~/util/support-bundle'
+import {
+  downloadBundle,
+  downloadDisabledReason,
+  POLL_INTERVAL,
+} from '~/util/support-bundle'
 
-const SEC = 1000 // ms
-const POLL_INTERVAL = 10 * SEC
-
-const bundleView = ({ bundleId }: PP.SupportBundle) => ({
-  ...q(api.supportBundleView, { path: { bundleId } }),
-  // keep transitional states moving while the modal is open, matching the
-  // list's polling, so a collecting bundle flips to active in place
-  refetchInterval: ({
-    state: { data },
-  }: {
-    state: { data: SupportBundleInfo | undefined }
-  }) => (data && supportBundleTransitioning(data.state) ? POLL_INTERVAL : false),
-})
+const bundleView = ({ bundleId }: PP.SupportBundle) =>
+  q(
+    api.supportBundleView,
+    { path: { bundleId } },
+    {
+      // keep transitional states moving while the modal is open, matching the
+      // list's polling, so a collecting bundle flips to active in place
+      refetchInterval: ({ state: { data } }) =>
+        data && supportBundleTransitioning(data.state) ? POLL_INTERVAL : false,
+    }
+  )
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   await queryClient.prefetchQuery(bundleView(getSupportBundleSelector(params)))
@@ -92,8 +93,7 @@ export default function SupportBundleDetail() {
   const { bundleId } = useSupportBundleSelector()
   const { data: bundle } = usePrefetchedQuery(bundleView({ bundleId }))
 
-  // the bundle zip only exists once collection has completed
-  const isActive = bundle.state === 'active'
+  const downloadDisabled = downloadDisabledReason(bundle.state)
 
   const form = useForm({ defaultValues: { userComment: bundle.userComment || '' } })
   // must destructure to subscribe to changes; inlining does not work
@@ -148,7 +148,7 @@ export default function SupportBundleDetail() {
             <DescriptionCell text={bundle.reasonForCreation} />
           </PropertiesTable.Row>
           <PropertiesTable.DateRow label="Created" date={bundle.timeCreated} />
-          {isActive && (
+          {bundle.state === 'active' && (
             <PropertiesTable.Row label="Size">
               <BundleSize bundleId={bundleId} />
             </PropertiesTable.Row>
@@ -157,8 +157,8 @@ export default function SupportBundleDetail() {
         <Button
           className="w-full"
           size="sm"
-          disabled={!isActive}
-          disabledReason={DOWNLOAD_DISABLED_REASON}
+          disabled={!!downloadDisabled}
+          disabledReason={downloadDisabled}
           onClick={() => downloadBundle(bundle.id)}
         >
           Download bundle
