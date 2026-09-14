@@ -45,7 +45,7 @@ type HeaderProps = {
 }
 
 CardBlock.Header = ({ title, description, children, titleId }: HeaderProps) => (
-  <header className="text-secondary flex items-start justify-between px-5 pb-4">
+  <header className="text-secondary max-800:flex-col flex items-start justify-between gap-4 px-5 pb-4">
     <div className="flex flex-col gap-0.5">
       <div className="text-sans-semi-lg text-raise" id={titleId}>
         {title}
@@ -53,7 +53,9 @@ CardBlock.Header = ({ title, description, children, titleId }: HeaderProps) => (
       {description && <div className="text-secondary">{description}</div>}
     </div>
 
-    <div className="max-1000:flex-col flex gap-2">{children}</div>
+    <div className="max-800:flex-col max-800:[&>.ox-button]:w-full! max-800:w-full flex gap-2">
+      {children}
+    </div>
   </header>
 )
 
