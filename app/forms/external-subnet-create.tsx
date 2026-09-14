@@ -132,6 +132,8 @@ export default function CreateExternalSubnetSideModalForm() {
             items={pools.items.map(toPoolItem)}
             required
             description="Subnet pool to allocate from"
+            // the pool's IP version sets the prefix length max
+            deps="prefixLength"
           />
           <NumberField
             name="prefixLength"

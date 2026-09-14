@@ -35,6 +35,7 @@ export default defineConfig({
       '@base-ui/react/menu',
       'date-fns',
       'ip-num/IPNumber.js',
+      'react-hook-form',
       'react-router',
       'semver',
       'uplot',

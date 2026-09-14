@@ -6,9 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import { createCalendar, type DateValue } from '@internationalized/date'
-import type { TimeValue } from '@react-types/datepicker'
 import cn from 'classnames'
 import { useRef } from 'react'
+import type { TimeValue } from 'react-aria'
 import {
   useDateField,
   useDateSegment,

@@ -19,6 +19,13 @@ test('lists entries and opens detail pane', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Audit Log' })).toBeVisible()
   await expect(row(page, 'instance create')).toBeVisible()
 
+  // the compact timestamp has no year or zone, so the full UTC value is in a
+  // tooltip. mock times are relative to now, so only check the shape
+  await row(page, 'instance create').locator('time').hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+  )
+
   await row(page, 'instance create').click()
   const detail = pane(page)
   await expect(detail).toBeVisible()

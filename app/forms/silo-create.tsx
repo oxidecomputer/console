@@ -106,8 +106,10 @@ export default function CreateSiloSideModalForm() {
             mappedFleetRoles,
             quotas: {
               cpus: quotas.cpus,
-              memory: quotas.memory * GiB,
-              storage: quotas.storage * GiB,
+              // fractional GiB can produce a fractional byte count, which the API rejects.
+              // Ceil rather than round so the quota is never less than what was asked for
+              memory: Math.ceil(quotas.memory * GiB),
+              storage: Math.ceil(quotas.storage * GiB),
             },
             ...rest,
           },
@@ -134,6 +136,7 @@ export default function CreateSiloSideModalForm() {
         control={form.control}
         label="Memory quota"
         name="quotas.memory"
+        allowDecimals
         required
         units="GiB"
       />
@@ -141,6 +144,7 @@ export default function CreateSiloSideModalForm() {
         control={form.control}
         label="Storage quota"
         name="quotas.storage"
+        allowDecimals
         required
         units="GiB"
       />

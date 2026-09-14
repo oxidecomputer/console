@@ -49,7 +49,6 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import {
   DisksTableField,
   type DiskTableItem,
@@ -205,7 +204,7 @@ const baseDefaultValues: InstanceCreateInput = {
    */
   presetId: 'general-xs',
   memory: 8,
-  ncpus: 2,
+  ncpus: 1,
   hostname: '',
 
   bootDiskName: '',
@@ -487,11 +486,13 @@ export default function CreateInstanceForm() {
   const bootDiskSizeAndName = (
     <>
       <div key="divider1" className="my-6! content-['a']" />
-      <DiskSizeField
+      <NumberField
         key="diskSizeField"
         label="Disk size"
         name="bootDiskSize"
         control={control}
+        units="GiB"
+        required
         min={imageSizeGiB || 1}
         // Max size applies: this disk can only be distributed
         max={MAX_DISK_SIZE_GiB}
@@ -646,12 +647,6 @@ export default function CreateInstanceForm() {
             <Tabs.Trigger value="general" disabled={isSubmitting}>
               General Purpose
             </Tabs.Trigger>
-            <Tabs.Trigger value="highCPU" disabled={isSubmitting}>
-              High CPU
-            </Tabs.Trigger>
-            <Tabs.Trigger value="highMemory" disabled={isSubmitting}>
-              High Memory
-            </Tabs.Trigger>
             <Tabs.Trigger value="custom" disabled={isSubmitting}>
               Custom
             </Tabs.Trigger>
@@ -659,18 +654,6 @@ export default function CreateInstanceForm() {
           <Tabs.Content value="general">
             <RadioFieldDyn name="presetId" control={control} disabled={isSubmitting}>
               {renderLargeRadioCards('general')}
-            </RadioFieldDyn>
-          </Tabs.Content>
-
-          <Tabs.Content value="highCPU">
-            <RadioFieldDyn name="presetId" control={control} disabled={isSubmitting}>
-              {renderLargeRadioCards('highCPU')}
-            </RadioFieldDyn>
-          </Tabs.Content>
-
-          <Tabs.Content value="highMemory">
-            <RadioFieldDyn name="presetId" control={control} disabled={isSubmitting}>
-              {renderLargeRadioCards('highMemory')}
             </RadioFieldDyn>
           </Tabs.Content>
 
@@ -1102,21 +1085,12 @@ const renderLargeRadioCards = (category: string) => {
   ))
 }
 
+// 1 vCPU to 8 GiB RAM
 const PRESETS = [
-  { category: 'general', id: 'general-xs', memory: 8, ncpus: 2 },
-  { category: 'general', id: 'general-sm', memory: 16, ncpus: 4 },
-  { category: 'general', id: 'general-md', memory: 32, ncpus: 8 },
-  { category: 'general', id: 'general-lg', memory: 64, ncpus: 16 },
-
-  { category: 'highCPU', id: 'highCPU-xs', memory: 4, ncpus: 2 },
-  { category: 'highCPU', id: 'highCPU-sm', memory: 8, ncpus: 4 },
-  { category: 'highCPU', id: 'highCPU-md', memory: 16, ncpus: 8 },
-  { category: 'highCPU', id: 'highCPU-lg', memory: 32, ncpus: 16 },
-
-  { category: 'highMemory', id: 'highMemory-xs', memory: 16, ncpus: 2 },
-  { category: 'highMemory', id: 'highMemory-sm', memory: 32, ncpus: 4 },
-  { category: 'highMemory', id: 'highMemory-md', memory: 64, ncpus: 8 },
-  { category: 'highMemory', id: 'highMemory-lg', memory: 128, ncpus: 16 },
+  { category: 'general', id: 'general-xs', memory: 8, ncpus: 1 },
+  { category: 'general', id: 'general-sm', memory: 16, ncpus: 2 },
+  { category: 'general', id: 'general-md', memory: 32, ncpus: 4 },
+  { category: 'general', id: 'general-lg', memory: 64, ncpus: 8 },
 
   { category: 'custom', id: 'custom', memory: 0, ncpus: 0 },
 ] as const

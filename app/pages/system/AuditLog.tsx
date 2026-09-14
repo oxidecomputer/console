@@ -21,7 +21,6 @@ import {
 } from 'react'
 import { Link } from 'react-router'
 import { match, P } from 'ts-pattern'
-import { type JsonValue } from 'type-fest'
 
 import {
   api,
@@ -42,101 +41,22 @@ import { Badge } from '@oxide/design-system/ui'
 import { snakeify } from '~/api/__generated__/util'
 import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
+import { HighlightJSON } from '~/components/HighlightJSON'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Button } from '~/ui/lib/Button'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
+import { SyslogDateTime } from '~/ui/lib/DateTime'
 import { Divider } from '~/ui/lib/Divider'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Truncate } from '~/ui/lib/Truncate'
 import { classed } from '~/util/classed'
-import { toLocaleDateString, toSyslogDateString, toSyslogTimeString } from '~/util/date'
+import { toLocaleDateString, toSyslogTimeString } from '~/util/date'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { Rando } from '~/util/rando'
 
 export const handle = { crumb: 'Audit Log' }
-
-const Indent = ({ depth }: { depth: number }) => (
-  <span className="inline-block" style={{ width: `${depth * 2}ch` }} />
-)
-
-const greenText = 'text-(--color-green-1000) light:text-(--color-green-600)'
-const yellowText = 'text-(--color-yellow-1000) light:text-(--color-yellow-600)'
-
-const Primitive = ({ value }: { value: JsonValue | Date }) => {
-  if (value === null) return <span className={yellowText}>null</span>
-  if (typeof value === 'string') return <span className={greenText}>{`"${value}"`}</span>
-  if (value instanceof Date)
-    return <span className={greenText}>{`"${value.toISOString()}"`}</span>
-  if (typeof value === 'boolean' || typeof value === 'number') {
-    return <span className={yellowText}>{String(value)}</span>
-  }
-  // objects/arrays are handled by HighlightJSON, never reach here
-  return null
-}
-
-// memo is important to avoid re-renders if the value hasn't changed. value
-// passed in must be referentially stable, which should generally be the case
-// with API responses
-const HighlightJSON = memo(({ json, depth = 0 }: { json: JsonValue; depth?: number }) => {
-  if (json === undefined) return null
-
-  if (
-    json === null ||
-    typeof json === 'boolean' ||
-    typeof json === 'number' ||
-    typeof json === 'string' ||
-    // special case. the types don't currently reflect that this is possible.
-    // dates have type object so you can't use typeof
-    json instanceof Date
-  ) {
-    return <Primitive value={json} />
-  }
-
-  if (Array.isArray(json)) {
-    if (json.length === 0) return <span className="text-quaternary">[]</span>
-
-    return (
-      <>
-        <span className="text-quaternary">[</span>
-        {'\n'}
-        {json.map((item, index) => (
-          <span key={index}>
-            <Indent depth={depth + 1} />
-            <HighlightJSON json={item} depth={depth + 1} />
-            {index < json.length - 1 && <span className="text-quaternary">,</span>}
-            {'\n'}
-          </span>
-        ))}
-        <Indent depth={depth} />
-        <span className="text-quaternary">]</span>
-      </>
-    )
-  }
-
-  const entries = Object.entries(json)
-  if (entries.length === 0) return <span className="text-quaternary">{'{}'}</span>
-
-  return (
-    <>
-      <span className="text-quaternary">{'{'}</span>
-      {'\n'}
-      {entries.map(([key, val], index) => (
-        <span key={key}>
-          <Indent depth={depth + 1} />
-          <span className="text-default">{key}</span>
-          <span className="text-quaternary">: </span>
-          <HighlightJSON json={val} depth={depth + 1} />
-          {index < entries.length - 1 && <span className="text-quaternary">,</span>}
-          {'\n'}
-        </span>
-      ))}
-      <Indent depth={depth} />
-      <span className="text-quaternary">{'}'}</span>
-    </>
-  )
-})
 
 const ErrorState = ({ error, onDismiss }: { error: string; onDismiss: () => void }) => {
   return (
@@ -398,10 +318,8 @@ const Row = memo(function Row({
         tabIndex={0}
         data-row-index={index}
       >
-        {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
-        <div className="col-time text-mono-sm overflow-hidden whitespace-nowrap">
-          <span className="text-tertiary">{toSyslogDateString(log.timeCompleted)}</span>{' '}
-          {toSyslogTimeString(log.timeCompleted)}
+        <div className="col-time overflow-hidden whitespace-nowrap">
+          <SyslogDateTime date={log.timeCompleted} />
         </div>
         <div className="col-status flex gap-1 overflow-hidden whitespace-nowrap">
           {match(log.result)
@@ -764,7 +682,7 @@ const ExpandedItem = ({
   // recomputing these on every parent re-render (e.g. on scroll) would be
   // wasted work — and would also defeat HighlightJSON's memo by passing a new
   // object identity each time
-  const snakeJson = useMemo(() => snakeify(item) as JsonValue, [item])
+  const snakeJson = useMemo(() => snakeify(item), [item])
   const json = useMemo(() => JSON.stringify(snakeJson, null, 2), [snakeJson])
 
   return (

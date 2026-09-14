@@ -42,6 +42,13 @@ export type SideModalProps = {
   animate?: boolean
 }
 
+/**
+ * Low-level side modal shell. Most callers want `SideModalForm` or
+ * `ReadOnlySideModalForm` from `~/components/form`, which wire up the body,
+ * footer, and content spacing. Use this directly only for layouts those don't
+ * fit, and note that `SideModal.Body` handles horizontal gutters itself, so
+ * children should not add their own padding.
+ */
 export function SideModal({
   children,
   onDismiss,
@@ -126,8 +133,6 @@ SideModal.Body = ({ children }: { children?: ReactNode }) => (
 )
 
 SideModal.Heading = classed.div`text-sans-semi-xl text-raise`
-
-SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
 SideModal.Footer = ({ children, error }: { children: ReactNode; error?: boolean }) => (
   <footer className="border-secondary flex w-full items-center justify-end gap-2.5 border-t py-5 *:shrink-0">

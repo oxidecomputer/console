@@ -140,6 +140,15 @@ const toSiloIpPool = (
 })
 
 export const lookup = {
+  alertReceiver({ receiver: id }: Sel.AlertReceiver): Json<Api.AlertReceiver> {
+    if (!id) throw notFoundErr('no alert receiver specified')
+
+    if (isUuid(id)) return lookupById(db.alertReceivers, id)
+
+    const receiver = db.alertReceivers.find((r) => r.name === id)
+    if (!receiver) throw notFoundErr(`alert receiver '${id}'`)
+    return receiver
+  },
   affinityGroup({
     affinityGroup: id,
     ...projectSelector
@@ -619,6 +628,9 @@ type DiskBulkImport = {
 
 const initDb = {
   affinityGroups: [...mock.affinityGroups],
+  alertDeliveries: [...mock.alertDeliveries],
+  alertReceivers: [...mock.alertReceivers],
+  alerts: [...mock.alerts],
   affinityGroupMemberLists: [...mock.affinityGroupMemberLists],
   antiAffinityGroups: [...mock.antiAffinityGroups],
   antiAffinityGroupMemberLists: [...mock.antiAffinityGroupMemberLists],

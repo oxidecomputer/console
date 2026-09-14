@@ -7,7 +7,6 @@
  */
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
-import type { SetNonNullable } from 'type-fest'
 
 import { api, q, queryClient, useApiMutation, type VpcCreate } from '@oxide/api'
 
@@ -24,7 +23,16 @@ import { validateVpcIpv6Prefix } from '~/util/ip'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: SetNonNullable<Required<VpcCreate>> = {
+type VpcCreateFormValues = {
+  name: string
+  description: string
+  dnsName: string
+  ipv6Prefix: string
+  // defaults will go here once we support it in the UI. for now, omitting means
+  // all defaults
+}
+
+const defaultValues: VpcCreateFormValues = {
   name: '',
   description: '',
   dnsName: '',
@@ -59,12 +67,11 @@ export default function CreateVpcSideModalForm() {
       form={form}
       formType="create"
       resourceName="VPC"
-      onSubmit={({ ipv6Prefix, ...rest }) =>
-        createVpc.mutate({
-          query: projectSelector,
-          body: { ...rest, ipv6Prefix: ipv6Prefix.trim() || undefined },
-        })
-      }
+      onSubmit={({ ipv6Prefix, ...rest }) => {
+        // omitting `defaults` means create all defaults, i.e., the original behavior
+        const body: VpcCreate = { ...rest, ipv6Prefix: ipv6Prefix.trim() || undefined }
+        createVpc.mutate({ query: projectSelector, body })
+      }}
       onDismiss={() => navigate(pb.vpcs(projectSelector))}
       loading={createVpc.isPending || createVpc.isSuccess}
       submitError={createVpc.error}
