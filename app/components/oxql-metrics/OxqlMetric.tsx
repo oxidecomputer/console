@@ -72,17 +72,16 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
   const hasError = !!error && !errorMeansEmpty
 
   const { startTime, endTime } = queryObj
-  const { chartData, timeseriesCount } = useMemo(
-    () =>
-      errorMeansEmpty ? { chartData: [], timeseriesCount: 0 } : composeOxqlData(metrics),
+  const { chartData, valueCounts } = useMemo(
+    () => (errorMeansEmpty ? { chartData: [], valueCounts: [] } : composeOxqlData(metrics)),
     [metrics, errorMeansEmpty]
   )
 
   const { data, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
     if (unit === 'Bytes') return getBytesChartProps(chartData)
     if (unit === 'Count') return getCountChartProps(chartData)
-    return getUtilizationChartProps(chartData, timeseriesCount)
-  }, [unit, chartData, timeseriesCount])
+    return getUtilizationChartProps(chartData, valueCounts)
+  }, [unit, chartData, valueCounts])
 
   const [modalOpen, setModalOpen] = useState(false)
 
