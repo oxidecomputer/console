@@ -11,6 +11,7 @@ import { api, q, queryClient } from '@oxide/api'
 import {
   Access16Icon,
   Cloud16Icon,
+  Monitoring16Icon,
   IpGlobal16Icon,
   Logs16Icon,
   Metrics16Icon,
@@ -61,6 +62,7 @@ export default function SystemLayout() {
       { value: 'Alerts', path: pb.alerts() },
       { value: 'System Update', path: pb.systemUpdate() },
       { value: 'Fleet Access', path: pb.fleetAccess() },
+      { value: 'OxQL Explorer', path: pb.systemOxql() },
       { value: 'Audit Log', path: pb.auditLog() },
     ]
       // filter out the entry for the path we're currently on
@@ -114,6 +116,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.fleetAccess()}>
             <Access16Icon /> Fleet Access
+          </NavLinkItem>
+          <NavLinkItem to={pb.systemOxql()}>
+            <Monitoring16Icon /> OxQL Explorer
           </NavLinkItem>
           <NavLinkItem to={pb.auditLog()}>
             <Logs16Icon /> Audit Log
