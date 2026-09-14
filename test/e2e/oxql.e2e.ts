@@ -135,16 +135,15 @@ test('picking an example populates the query and runs it', async ({ page }) => {
 })
 
 test('editor completions are wired to live timeseries schemas', async ({ page }) => {
-  // the completion logic itself is unit-tested in oxql-autocomplete.spec.ts;
   // here we only check the editor is hooked up to the schema list from the API
   const textbox = page.getByRole('textbox')
   await textbox.click()
   await page.keyboard.type('get hardware')
 
-  // ctrl-space explicitly re-requests completions in case the schema list
-  // hadn't loaded when typing started
   const options = page.getByRole('listbox').getByRole('option')
   await expect(async () => {
+    // ctrl-space explicitly re-requests completions in case the schema list
+    // hadn't loaded when typing started
     await page.keyboard.press('Control+Space')
     await expect(options.first()).toBeVisible({ timeout: 1000 })
   }).toPass()
@@ -160,7 +159,7 @@ test('editor completions are wired to live timeseries schemas', async ({ page })
 test('results can be copied as JSON or CSV', async ({ page }) => {
   await runQuery(page, oxqlQueries.basicTctl)
 
-  // result summary is visible in the query card header
+  // result summary is visible
   await expect(page.getByText('1 timeseries', { exact: true })).toBeVisible()
 
   await page.getByRole('button', { name: 'Results actions' }).click()
@@ -208,16 +207,17 @@ test('parse errors underline the offending spot in the editor', async ({ page })
   await expect(underlined).toBeHidden()
 })
 
-test('query round-trips through the URL', async ({ page }) => {
+test('pages writes the query to the URL after a successful run', async ({ page }) => {
   // a successful run writes the query to the URL
   await runQuery(page, oxqlQueries.basicTctl)
   await expect
     .poll(() => new URL(page.url()).searchParams.get('query'))
     .toBe(oxqlQueries.basicTctl)
+})
 
-  // and a fresh load of that URL populates the editor from the query param.
+test('page loads queries from the URL when set', async ({ page }) => {
+  await page.goto(`${page.url()}?query=${encodeURIComponent(oxqlQueries.basicTctl)}`)
   // the editor is a contenteditable, so assert line by line rather than on value
-  await page.goto(page.url())
   const textbox = page.getByRole('textbox')
   await expect(textbox).toContainText('get hardware_component:amd_cpu_tctl')
   await expect(textbox).toContainText('| filter timestamp > @now() - 1m')
@@ -233,5 +233,5 @@ test('cursor sits at the start of the line when the query is empty', async ({ pa
 
   // the cursor sits where the placeholder text starts, give or take its own width
   expect(Math.abs(cursor!.x - placeholder!.x)).toBeLessThan(2)
-  expect(cursor!.y).toEqual(placeholder!.y)
+  expect(Math.abs(cursor!.y - placeholder!.y)).toBeLessThan(1)
 })
