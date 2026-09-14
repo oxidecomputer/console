@@ -502,8 +502,7 @@ const groupHasPointWorthDropping = (g: ChartGroup): boolean =>
     )
     .exhaustive()
 
-// TODO: showDivider is a dead field
-type ChartDisplay = { key: string; showDivider: boolean } & (
+type ChartDisplay = { key: string } & (
   | { kind: 'empty' }
   | {
       kind: 'chart'
@@ -528,8 +527,7 @@ type ChartDisplay = { key: string; showDivider: boolean } & (
 // Virtualization relies on a list of near-same-size items, so we flatten out all the groups
 const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
   groups.flatMap((g, t): ChartDisplay[] => {
-    if (g === 'empty-timeseries')
-      return [{ kind: 'empty', key: `t${t}`, showDivider: true }]
+    if (g === 'empty-timeseries') return [{ kind: 'empty', key: `t${t}` }]
     const { startTime, endTime } = g
     return match(g)
       .with({ kind: 'distributions' }, ({ charts }) =>
@@ -537,7 +535,6 @@ const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
           (chart, i): ChartDisplay => ({
             kind: 'heatmap',
             key: `t${t}.${i}`,
-            showDivider: i === 0,
             name: chart.name,
             description: chart.description,
             ...trimHeatmap(trim, {
@@ -553,7 +550,6 @@ const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
           (chart, i): ChartDisplay => ({
             kind: 'chart',
             key: `t${t}.${i}`,
-            showDivider: i === 0,
             startTime,
             endTime,
             name: chart.name,
@@ -570,7 +566,6 @@ const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
           (chart, i): ChartDisplay => ({
             kind: 'chart',
             key: `t${t}.${i}`,
-            showDivider: i === 0,
             startTime,
             endTime,
             name: chart.name,
