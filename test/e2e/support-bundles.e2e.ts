@@ -25,7 +25,8 @@ test('support bundle list', async ({ page }) => {
   })
   await expectRowVisible(table, {
     state: 'collecting',
-    'Creation reason': 'Diagnosis: fan failure on sled BRM42220031',
+    'Creation reason':
+      'Requested by PhysicalDisk diagnosis engine for case ffae3627-d3c5-4b80-a05a-37139dcf9ef5',
   })
   await expectRowVisible(table, { state: 'failed' })
 
@@ -59,7 +60,7 @@ test('download only available for active bundles', async ({ page }) => {
   await page.goto('/system/support-bundles')
 
   // collecting bundle: download disabled with reason
-  const collectingRow = page.getByRole('row', { name: 'fan failure' })
+  const collectingRow = page.getByRole('row', { name: 'PhysicalDisk' })
   await collectingRow.getByRole('button', { name: 'Row actions' }).click()
   const downloadItem = page.getByRole('menuitem', { name: 'Download' })
   await expect(downloadItem).toBeDisabled()
@@ -162,6 +163,35 @@ test('create support bundle and poll to active', async ({ page }) => {
   await expect(row.getByText('active')).toBeVisible({ timeout: 20_000 })
 })
 
+test('create bundle whose collection fails', async ({ page }) => {
+  await page.goto('/system/support-bundles-new')
+
+  // mock sentinel: collection fails instead of completing
+  await page.getByRole('textbox', { name: 'Comment' }).fill('fail collection')
+  await page.getByRole('button', { name: 'Create support bundle' }).click()
+  await expectToast(page, 'Support bundle created')
+
+  const row = page.getByRole('table').getByRole('row', { name: 'fail collection' })
+  await expect(row.getByText('collecting')).toBeVisible()
+  // mock flips it to failed after 3s; list polls every 10s
+  await expect(row.getByText('failed')).toBeVisible({ timeout: 20_000 })
+  await row.getByRole('button', { name: 'Tip' }).hover()
+  await expect(page.getByRole('tooltip')).toHaveText('Bundle collection failed')
+})
+
+test('comment length validation', async ({ page }) => {
+  await page.goto('/system/support-bundles-new')
+
+  // 2049 two-byte characters is 4098 bytes, over the limit despite being
+  // well under 4096 characters
+  await page.getByRole('textbox', { name: 'Comment' }).fill('é'.repeat(2049))
+  await page.getByRole('button', { name: 'Create support bundle' }).click()
+  // scope to the dialog: the message is also announced in a live region
+  const modal = page.getByRole('dialog', { name: 'Create support bundle' })
+  await expect(modal.getByText('Comment cannot exceed 4096 bytes')).toBeVisible()
+  await expect(page).toHaveURL('/system/support-bundles-new')
+})
+
 test('create shows insufficient capacity error in modal', async ({ page }) => {
   await page.goto('/system/support-bundles-new')
 
@@ -243,7 +273,7 @@ test('bundle deleted mid-view 404s', async ({ page }) => {
 test('delete collecting bundle warns about cancellation', async ({ page }) => {
   await page.goto('/system/support-bundles')
 
-  await clickRowAction(page, 'fan failure', 'Delete')
+  await clickRowAction(page, 'PhysicalDisk', 'Delete')
   await expect(
     page.getByText('This bundle is still being collected', { exact: false })
   ).toBeVisible()
