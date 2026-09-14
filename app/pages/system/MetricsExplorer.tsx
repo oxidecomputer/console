@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
-import { Fragment, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useController, useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
 import * as R from 'remeda'
@@ -26,6 +26,7 @@ import {
   type Timeseries,
   type TimeseriesQuery,
   type ValueArray,
+  type FieldValue,
 } from '@oxide/api'
 import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -50,6 +51,7 @@ import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { Checkbox } from '~/ui/lib/Checkbox'
+import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { Divider } from '~/ui/lib/Divider'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -58,7 +60,7 @@ import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TextInputError } from '~/ui/lib/TextInput'
 import { Tooltip } from '~/ui/lib/Tooltip'
-import { Truncate, truncate } from '~/ui/lib/Truncate'
+import { truncate } from '~/ui/lib/Truncate'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pluralize } from '~/util/str'
@@ -231,16 +233,20 @@ const getFormattedFields = (t: Timeseries): string =>
     .map(([fieldName, x]) => `${camelToSnake(fieldName)}: ${x.value}`)
     .join(' / ')
 
-const FIELDS_SHOWN = 5
+const DEFAULT_FIELDS_SHOWN = 5
 // long enough for names/serials; a UUID (36 chars) gets middle-truncated
 const FIELD_VALUE_MAX_LEN = 24
 
 const FieldBadge = ({ fieldName, value }: { fieldName: string; value: string }) => {
   const truncated = value.length > FIELD_VALUE_MAX_LEN
+  const text = truncate(value, FIELD_VALUE_MAX_LEN, 'middle')
   const badge = (
-    <Badge color="neutral">
-      <span className="opacity-60">{camelToSnake(fieldName)}</span>
-      <span className="ml-1">{truncate(value, FIELD_VALUE_MAX_LEN, 'middle')}</span>
+    <Badge className="h-6 pl-2" color="neutral">
+      <div className="flex items-center">
+        <span className="opacity-60">{camelToSnake(fieldName)}</span>
+        <span className="ml-1">{text}</span>
+        <CopyToClipboard text={text} />
+      </div>
     </Badge>
   )
   if (!truncated) return badge
@@ -252,40 +258,24 @@ const FieldBadge = ({ fieldName, value }: { fieldName: string; value: string }) 
   )
 }
 
-// JSX version of getFormattedFields for chart descriptions: each field is a
-// badge, capped at FIELDS_SHOWN with a +N tooltip listing the rest
-// TODO: make overflow a toggle instead of a hover
-// TODO: make values copyable
-const FieldsList = ({ timeseries }: { timeseries: Timeseries }) => {
-  const fields = Object.entries(timeseries.fields)
-  const overflow = fields.slice(FIELDS_SHOWN)
+const FieldsList = ({ fields }: { fields: Record<string, FieldValue> }) => {
+  const [showOverflow, setShowOverflow] = useState(false)
+  const entries = Object.entries(fields)
+  const toShow = showOverflow ? entries : entries.slice(0, DEFAULT_FIELDS_SHOWN)
+
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-1">
-      {fields.slice(0, FIELDS_SHOWN).map(([fieldName, x]) => (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {toShow.map(([fieldName, x]) => (
         <FieldBadge key={fieldName} fieldName={fieldName} value={String(x.value)} />
       ))}
-      {overflow.length > 0 && (
-        <Tooltip
-          placement="bottom"
-          content={
-            <div className="-mx-2 grid grid-cols-[auto_minmax(0,1fr)] gap-y-1 *:first:border-0 *:first:pt-0 *:nth-[2]:border-0 *:nth-[2]:pt-0">
-              {overflow.map(([fieldName, x]) => (
-                <Fragment key={fieldName}>
-                  <span className="text-mono-sm text-tertiary border-default flex items-center border-t pt-1 pr-6 pl-2">
-                    {camelToSnake(fieldName)}
-                  </span>
-                  <Truncate
-                    text={String(x.value)}
-                    position="middle"
-                    className="border-default border-t pt-1 pr-4"
-                  />
-                </Fragment>
-              ))}
-            </div>
-          }
+      {!showOverflow && entries.length > DEFAULT_FIELDS_SHOWN && (
+        <button
+          type="button"
+          onClick={() => setShowOverflow(true)}
+          className="text-mono-xs border-default text-secondary hover:bg-hover h-6 rounded border px-2"
         >
-          <div className="text-mono-sm target-4">+{overflow.length}</div>
-        </Tooltip>
+          +{entries.length - DEFAULT_FIELDS_SHOWN}
+        </button>
       )}
     </div>
   )
@@ -324,7 +314,7 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
         // no further
         charts: timeseries.map((series) => ({
           name,
-          description: <FieldsList timeseries={series} />,
+          description: <FieldsList fields={series.fields} />,
           timestamps: toPosix(series.points.timestamps),
           data: series.points.values.map((v, i) => ({
             label:
@@ -369,7 +359,7 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
             const timestamps = toPosix(series.points.timestamps)
             return {
               name,
-              description: <FieldsList timeseries={series} />,
+              description: <FieldsList fields={series.fields} />,
               timestamps,
               metricType: series.points.values[0].metricType,
               startTimes:
@@ -383,7 +373,7 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
           charts: seriesList.map(
             (series): LineChartData => ({
               name,
-              description: <FieldsList timeseries={series} />,
+              description: <FieldsList fields={series.fields} />,
               timestamps: toPosix(series.points.timestamps),
               metricType: series.points.values[0].metricType,
               data: narrowToNumbers(series.points.values[0].values),
