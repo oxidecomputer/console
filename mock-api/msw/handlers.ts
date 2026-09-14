@@ -44,7 +44,7 @@ import { GiB } from '~/util/units'
 
 import { alertClasses, PROBE_ALERT_ID } from '../alert'
 import { defaultSilo, toIdp } from '../silo'
-import { SUPPORT_BUNDLE_SIZE, supportBundleIndexText } from '../support-bundle'
+import { SUPPORT_BUNDLE_SIZE } from '../support-bundle'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
 import { resendableAlerts, retryPendingDeliveries, validateSubscription } from './alert'
@@ -2146,17 +2146,6 @@ export const handlers = makeHandlers({
       },
     })
   },
-  // @ts-expect-error Response passthrough, see supportBundleHead
-  supportBundleIndex({ path, cookies }) {
-    requireFleetViewer(cookies)
-    const bundle = lookupById(db.supportBundles, path.bundleId)
-    if (bundle.state !== 'active') {
-      throw invalidRequest('Cannot download bundle in non-active state')
-    }
-    return new HttpResponse(supportBundleIndexText, {
-      headers: { 'Content-Type': 'text/plain' },
-    })
-  },
   switchList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
     return paginated(query, db.switches)
@@ -3118,6 +3107,7 @@ export const handlers = makeHandlers({
   supportBundleDownload: NotImplemented,
   supportBundleDownloadFile: NotImplemented,
   supportBundleHeadFile: NotImplemented,
+  supportBundleIndex: NotImplemented,
   switchView: NotImplemented,
   systemIpPoolAssign: NotImplemented,
   systemNetworkingSettingsUpdate: NotImplemented,

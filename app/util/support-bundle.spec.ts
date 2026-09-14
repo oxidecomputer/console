@@ -9,15 +9,14 @@ import { afterEach, expect, it, vi } from 'vitest'
 
 import { api } from '@oxide/api'
 
-import { bundleDownloadUrl, bundleIndexUrl } from './support-bundle'
+import { bundleDownloadUrl } from './support-bundle'
 
 afterEach(() => vi.unstubAllGlobals())
 
-// The download URL is used in an anchor navigation and the index is plain
-// text, so neither request can go through the generated client, and their
-// paths are restated in support-bundle.ts. Catch drift by comparing against
-// the URLs the generated client actually requests.
-it('hand-built bundle URLs match the generated client', async () => {
+// The download URL is used in an anchor navigation, so it can't go through
+// the generated client and its path is restated in support-bundle.ts. Catch
+// drift by comparing against the URL the generated client actually requests.
+it('hand-built download URL matches the generated client', async () => {
   const urls: string[] = []
   // the generated client always calls fetch with a URL string
   vi.stubGlobal('fetch', (url: string) => {
@@ -26,11 +25,7 @@ it('hand-built bundle URLs match the generated client', async () => {
   })
 
   await api.supportBundleDownload({ path: { bundleId: 'bundle-id' } })
-  await api.supportBundleIndex({ path: { bundleId: 'bundle-id' } })
 
   // 'http://testhost' is the client host under NODE_ENV=test (app/api/client.ts)
-  expect(urls).toEqual([
-    'http://testhost' + bundleDownloadUrl('bundle-id'),
-    'http://testhost' + bundleIndexUrl('bundle-id'),
-  ])
+  expect(urls).toEqual(['http://testhost' + bundleDownloadUrl('bundle-id')])
 })

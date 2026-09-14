@@ -40,7 +40,6 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 import {
-  bundleIndexQuery,
   bundleSizeQuery,
   downloadBundle,
   DOWNLOAD_DISABLED_REASON,
@@ -85,9 +84,8 @@ export default function SupportBundleDetail() {
   const { bundleId } = useSupportBundleSelector()
   const { data: bundle } = usePrefetchedQuery(bundleView({ bundleId }))
 
-  // the index and bundle zip only exist once collection has completed
+  // the bundle zip only exists once collection has completed
   const isActive = bundle.state === 'active'
-  const indexQuery = useQuery({ ...bundleIndexQuery(bundleId), enabled: isActive })
   const sizeQuery = useQuery({ ...bundleSizeQuery(bundleId), enabled: isActive })
 
   const form = useForm({ defaultValues: { userComment: bundle.userComment || '' } })
@@ -143,16 +141,6 @@ export default function SupportBundleDetail() {
             <DescriptionCell text={bundle.reasonForCreation} />
           </PropertiesTable.Row>
           <PropertiesTable.DateRow label="Created" date={bundle.timeCreated} />
-          {isActive && (
-            <PropertiesTable.Row label="Files">
-              <AsyncValue query={indexQuery}>
-                {(entries) =>
-                  // directory entries have a trailing slash; count files only
-                  entries.filter((e) => !e.endsWith('/')).length.toLocaleString()
-                }
-              </AsyncValue>
-            </PropertiesTable.Row>
-          )}
           {isActive && (
             <PropertiesTable.Row label="Size">
               <AsyncValue query={sizeQuery}>{(bytes) => <Size bytes={bytes} />}</AsyncValue>
