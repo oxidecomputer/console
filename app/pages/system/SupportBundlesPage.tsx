@@ -185,7 +185,7 @@ export default function SupportBundlesPage() {
         <DocsPopover
           heading="support bundles"
           icon={<Issues16Icon />}
-          summary="Support bundles capture diagnostic data from the rack to share with Oxide Support."
+          summary="Support bundles capture diagnostic data to share with Oxide support."
           links={[docLinks.supportBundles]}
         />
       </PageHeader>
