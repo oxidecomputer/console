@@ -20,12 +20,12 @@ test('support bundle list', async ({ page }) => {
 
   await expectRowVisible(table, {
     state: 'active',
-    Reason: 'Created by external API',
+    'Creation reason': 'Created by external API',
     Comment: 'Investigating slow instance start times',
   })
   await expectRowVisible(table, {
     state: 'collecting',
-    Reason: 'Diagnosis: fan failure on sled BRM42220031',
+    'Creation reason': 'Diagnosis: fan failure on sled BRM42220031',
   })
   await expectRowVisible(table, { state: 'failed' })
 
@@ -123,7 +123,7 @@ test('bundle detail modal for failed bundle', async ({ page }) => {
 test('detail modal polls a collecting bundle to active', async ({ page }) => {
   await page.goto('/system/support-bundles')
 
-  await page.getByRole('link', { name: 'New Support Bundle' }).click()
+  await page.getByRole('link', { name: 'New support bundle' }).click()
   await page.getByRole('textbox', { name: 'Comment' }).fill('poll me')
   await page.getByRole('button', { name: 'Create support bundle' }).click()
   await expectToast(page, 'Support bundle created')
@@ -145,7 +145,7 @@ test('detail modal polls a collecting bundle to active', async ({ page }) => {
 test('create support bundle and poll to active', async ({ page }) => {
   await page.goto('/system/support-bundles')
 
-  await page.getByRole('link', { name: 'New Support Bundle' }).click()
+  await page.getByRole('link', { name: 'New support bundle' }).click()
   await expect(page).toHaveURL('/system/support-bundles-new')
 
   await page.getByRole('textbox', { name: 'Comment' }).fill('test bundle')

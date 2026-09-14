@@ -144,7 +144,7 @@ export default function SupportBundleDetail() {
               <DescriptionCell text={bundle.reasonForFailure} />
             </PropertiesTable.Row>
           )}
-          <PropertiesTable.Row label="Reason">
+          <PropertiesTable.Row label="Creation reason">
             <DescriptionCell text={bundle.reasonForCreation} />
           </PropertiesTable.Row>
           <PropertiesTable.DateRow label="Created" date={bundle.timeCreated} />

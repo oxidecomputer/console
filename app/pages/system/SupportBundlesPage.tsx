@@ -85,7 +85,7 @@ const staticColumns = [
     cell: (info) => <DescriptionCell text={info.getValue() ?? undefined} />,
   }),
   colHelper.accessor('reasonForCreation', {
-    header: 'Reason',
+    header: 'Creation reason',
     cell: (info) => <DescriptionCell text={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
@@ -185,7 +185,7 @@ export default function SupportBundlesPage() {
             onClick={() => queryClient.invalidateEndpoint('supportBundleList')}
           />
           <Tooltip
-            content="Auto-refresh is active while a bundle is being collected"
+            content="Auto-refresh is active while a bundle is being collected or deleted"
             delay={150}
           >
             <span className="text-sans-sm text-secondary">
@@ -193,7 +193,7 @@ export default function SupportBundlesPage() {
             </span>
           </Tooltip>
         </div>
-        <CreateLink to={pb.supportBundlesNew()}>New Support Bundle</CreateLink>
+        <CreateLink to={pb.supportBundlesNew()}>New support bundle</CreateLink>
       </TableActions>
       {table}
       <Outlet />
