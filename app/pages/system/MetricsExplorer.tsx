@@ -240,15 +240,13 @@ const FieldBadge = ({ fieldName, value }: { fieldName: string; value: string }) 
   const badge = (
     <Badge color="neutral">
       <span className="opacity-60">{camelToSnake(fieldName)}</span>
-      <span className="ml-1">
-        {truncated ? truncate(value, FIELD_VALUE_MAX_LEN, 'middle') : value}
-      </span>
+      <span className="ml-1">{truncate(value, FIELD_VALUE_MAX_LEN, 'middle')}</span>
     </Badge>
   )
   if (!truncated) return badge
   return (
     <Tooltip content={value} placement="top">
-      {/* Badge doesn't take a ref, so the tooltip needs a host element target */}
+      {/* Tooltip applies a ref to its child, but Badge doesn't forward refs */}
       <span className="inline-flex">{badge}</span>
     </Tooltip>
   )
@@ -256,6 +254,8 @@ const FieldBadge = ({ fieldName, value }: { fieldName: string; value: string }) 
 
 // JSX version of getFormattedFields for chart descriptions: each field is a
 // badge, capped at FIELDS_SHOWN with a +N tooltip listing the rest
+// TODO: make overflow a toggle instead of a hover
+// TODO: make values copyable
 const FieldsList = ({ timeseries }: { timeseries: Timeseries }) => {
   const fields = Object.entries(timeseries.fields)
   const overflow = fields.slice(FIELDS_SHOWN)
@@ -448,6 +448,8 @@ const trimHeatmap = <T,>(
 // The first aligned point of a cumulative counter is diffed against the counter's start_time,
 // collapsing all pre-window history into one giant bucket. It's not "erroneous" but it's usually
 // not useful, and you'd want to hide it to get a more useful y-axis for the rest of your data.
+// TODO: now that we know the schema, we can instead look at a successful query and check whether
+// one of its tables has a cumulative type
 const groupHasPointWorthDropping = (g: ChartGroup): boolean =>
   match(g)
     .with('empty-timeseries', () => false)
@@ -459,8 +461,7 @@ const groupHasPointWorthDropping = (g: ChartGroup): boolean =>
     )
     .exhaustive()
 
-// A render-ready representation of a single chart. Keep the data arrays memoized: uplot-react
-// deep-compares the whole dataset whenever their identity changes (see TimeSeriesChart.spec.tsx)
+// TODO: showDivider is a dead field
 type ChartDisplay = { key: string; showDivider: boolean } & (
   | { kind: 'empty' }
   | {
@@ -471,7 +472,6 @@ type ChartDisplay = { key: string; showDivider: boolean } & (
       description?: ReactNode
       timestamps: number[]
       data: (number | null)[][]
-      /** only set for multi-series charts, where it enables the legend */
       seriesLabels?: string[]
     }
   | {
@@ -587,7 +587,6 @@ function ChartEntry({ display }: { display: ChartDisplay }) {
         .with({ kind: 'empty' }, () => (
           <ChartContainer>
             <SkeletonMetric>
-              {/* gradient uses the surface-default token so it works in both themes */}
               <div
                 className="absolute bottom-0 z-0 h-full w-full"
                 style={{
@@ -738,7 +737,7 @@ export default function MetricsExplorer() {
   const query = useApiMutation(api.systemTimeseriesQuery)
 
   // powers editor autocomplete. no loading state needed: completions are a
-  // progressive enhancement and simply appear once this resolves
+  // progressive enhancement
   const schemas = useQuery(q(api.systemTimeseriesSchemaList, { query: { limit: ALL_ISH } }))
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -815,6 +814,12 @@ export default function MetricsExplorer() {
     getItemKey: (i) => charts[i].key,
   })
 
+  const errorMessage = fieldState.error?.message ? (
+    <TextInputError>{fieldState.error.message}</TextInputError>
+  ) : query.error ? (
+    <QueryError message={query.error.message} />
+  ) : null
+
   return (
     <>
       <div ref={preChartsRef}>
@@ -832,9 +837,7 @@ export default function MetricsExplorer() {
             <CardBlock.Header title="Query">
               <div className="flex items-center gap-2">
                 {query.status === 'success' && (
-                  <>
-                    <ResultsSummary tables={query.data.tables} />
-                  </>
+                  <ResultsSummary tables={query.data.tables} />
                 )}
                 <Button type="submit" size="sm" loading={query.status === 'pending'}>
                   Run query
@@ -846,18 +849,14 @@ export default function MetricsExplorer() {
               <div>
                 <OxqlEditor
                   aria-label="OxQL query"
-                  error={!!fieldState.error || query.status === 'error'}
+                  error={!!errorMessage}
                   diagnostic={diagnostic}
                   value={field.value}
                   onChange={field.onChange}
                   onSubmit={() => form.handleSubmit(onSubmit)()}
                   schemas={schemas.data?.items}
                 />
-                {fieldState.error?.message ? (
-                  <TextInputError>{fieldState.error.message}</TextInputError>
-                ) : query.error ? (
-                  <QueryError message={query.error.message} />
-                ) : null}
+                {errorMessage}
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-mono-sm text-tertiary mr-1">Examples</span>
@@ -886,7 +885,6 @@ export default function MetricsExplorer() {
         .with({ status: 'idle' }, { status: 'error' }, () => (
           <ResultsSection>
             <ChartContainer>
-              {/* the loading skeleton, minus the shimmer and bouncing indicator */}
               <SkeletonMetric>{null}</SkeletonMetric>
             </ChartContainer>
           </ResultsSection>
@@ -905,6 +903,7 @@ export default function MetricsExplorer() {
             </ChartContainer>
           </ResultsSection>
         ))
+        // TODO: explainer for the drop first point thing
         .with({ status: 'success' }, () => (
           <ResultsSection>
             {hasTrimmableCharts && (
