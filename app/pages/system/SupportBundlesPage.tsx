@@ -8,12 +8,11 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Outlet, useNavigate } from 'react-router'
+import { Outlet } from 'react-router'
 
 import {
   api,
   getListQFn,
-  q,
   queryClient,
   supportBundleTransitioning,
   useApiMutation,
@@ -110,8 +109,6 @@ export async function clientLoader() {
 export const handle = makeCrumb('Support Bundles', pb.supportBundles())
 
 export default function SupportBundlesPage() {
-  const navigate = useNavigate()
-
   const { mutateAsync: deleteBundle } = useApiMutation(api.supportBundleDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('supportBundleList')
@@ -132,16 +129,6 @@ export default function SupportBundlesPage() {
         disabled: bundle.state !== 'active' && DOWNLOAD_DISABLED_REASON,
       },
       {
-        label: 'View details',
-        onActivate() {
-          const bundleView = q(api.supportBundleView, {
-            path: { bundleId: bundle.id },
-          })
-          queryClient.setQueryData(bundleView.queryKey, bundle)
-          navigate(pb.supportBundle({ bundleId: bundle.id }))
-        },
-      },
-      {
         label: 'Delete',
         onActivate: confirmDelete({
           doDelete: () => deleteBundle({ path: { bundleId: bundle.id } }),
@@ -155,7 +142,7 @@ export default function SupportBundlesPage() {
         disabled: bundle.state === 'destroying' && 'Bundle is already being destroyed',
       },
     ],
-    [deleteBundle, navigate]
+    [deleteBundle]
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)

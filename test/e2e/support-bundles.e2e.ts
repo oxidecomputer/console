@@ -181,7 +181,7 @@ test('create shows insufficient capacity error in modal', async ({ page }) => {
 test('edit support bundle comment', async ({ page }) => {
   await page.goto('/system/support-bundles')
 
-  await clickRowAction(page, 'Investigating slow', 'View details')
+  await page.getByRole('link', { name: 'ccdac0…359c31' }).click()
   await expect(page).toHaveURL(
     '/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31'
   )
