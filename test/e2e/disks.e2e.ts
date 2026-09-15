@@ -7,6 +7,7 @@
  */
 import {
   clickRowAction,
+  clickRowActions,
   expect,
   expectNoToast,
   expectRowVisible,
@@ -93,7 +94,7 @@ test('List disks and snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
 
   const table = page.getByRole('table')
-  await expect(table.getByRole('row')).toHaveCount(16) // 15 + header
+  await expect(table.getByRole('row')).toHaveCount(18) // 17 + header
 
   // check one attached and one not attached
   await expectRowVisible(table, {
@@ -164,6 +165,49 @@ test('Read-only disk snapshot disabled', async ({ page }) => {
   await expect(page.getByRole('tooltip')).toHaveText(
     "Read-only disks don't support snapshots"
   )
+})
+
+test('Cancel import from import_ready', async ({ page }) => {
+  const diskImportReadyName = 'tmp-for-image-29884739'
+  await page.goto('/projects/mock-project/disks')
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: diskImportReadyName, state: 'import ready' })
+
+  await clickRowActions(page, diskImportReadyName)
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeHidden()
+  await page.getByRole('menuitem', { name: 'Cancel import' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Cancel import' })
+  await expect(modal).toBeVisible()
+  await modal.getByRole('button', { name: 'Confirm' }).click()
+
+  await expectToast(page, `Import canceled for ${diskImportReadyName}`)
+  await expectRowVisible(table, { name: diskImportReadyName, state: 'detached' })
+  await clickRowActions(page, diskImportReadyName)
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeVisible()
+})
+
+test('Cancel import from importing_from_bulk_writes', async ({ page }) => {
+  const diskImportingName = 'tmp-for-image-59986861'
+  await page.goto('/projects/mock-project/disks')
+  const table = page.getByRole('table')
+  await expectRowVisible(table, {
+    name: diskImportingName,
+    state: 'importing from bulk writes',
+  })
+
+  await clickRowActions(page, diskImportingName)
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeHidden()
+  await page.getByRole('menuitem', { name: 'Cancel import' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Cancel import' })
+  await expect(modal).toBeVisible()
+  await modal.getByRole('button', { name: 'Confirm' }).click()
+
+  await expectToast(page, `Import canceled for ${diskImportingName}`)
+  await expectRowVisible(table, { name: diskImportingName, state: 'detached' })
+  await clickRowActions(page, diskImportingName)
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeVisible()
 })
 
 test.describe('Disk create', () => {
