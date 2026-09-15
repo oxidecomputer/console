@@ -3902,10 +3902,11 @@ export type VpcCreateDefaults = {
 /**
  * Default resources to create in a VPC
  */
-export type VpcCreateDefaultsSelection = /** Create all default resources */
-| { type: 'all' }
-/** Create only the default resources listed in `defaults`. Pass `{}` as `defaults` to skip them all. */
-| { defaults: VpcCreateDefaults; type: 'explicit' }
+export type VpcCreateDefaultsSelection =
+  /** Create all default resources */
+  | { type: 'all' }
+  /** Create only the default resources listed in `defaults`. Pass `{}` as `defaults` to skip them all. */
+  | { defaults: VpcCreateDefaults; type: 'explicit' }
 
 /**
  * Default resources to create in a project
