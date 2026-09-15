@@ -156,6 +156,9 @@ export const pb = {
 
   systemUpdate: () => '/system/update',
 
+  supportBundles: () => '/system/support-bundles',
+  supportBundlesNew: () => '/system/support-bundles-new',
+  supportBundle: (params: PP.SupportBundle) => `${pb.supportBundles()}/${params.bundleId}`,
   auditLog: () => '/system/audit-log',
 
   profile: () => '/settings/profile',

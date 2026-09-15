@@ -103,7 +103,7 @@ export default function AccessTokensPage() {
 
   const emptyState = (
     <EmptyMessage
-      icon={<AccessToken16Icon />}
+      icon={<AccessToken24Icon />}
       title="No access tokens"
       body="Your access tokens will appear here when they are created"
     />

@@ -104,7 +104,7 @@ export default function ProjectAccessPage() {
   const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
   const projectRows = useUserRows(projectPolicy.roleAssignments, 'project')
 
-  const rows = useMemo(() => {
+  const rows: UserRow[] = useMemo(() => {
     return groupBy(siloRows.concat(projectRows), (u) => u.id)
       .map(([userId, userAssignments]) => {
         const { name, identityType } = userAssignments[0]
@@ -123,7 +123,7 @@ export default function ProjectAccessPage() {
           name,
           projectRole: projectAccessRow?.roleName,
           roleBadges,
-        } satisfies UserRow
+        }
       })
       .sort(byGroupThenName)
   }, [siloRows, projectRows])
