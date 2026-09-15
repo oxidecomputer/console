@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test } from '@playwright/test'
+import { expect, test, type Download, type Page } from '@playwright/test'
 
 import { clickRowAction, expectRowVisible, expectToast, getPageAsUser } from './utils'
 
@@ -71,6 +71,38 @@ test('download only available for active bundles', async ({ page }) => {
   const activeRow = page.getByRole('row', { name: 'Investigating slow' })
   await activeRow.getByRole('button', { name: 'Row actions' }).click()
   await expect(page.getByRole('menuitem', { name: 'Download' })).toBeEnabled()
+})
+
+const BUNDLE_ID = 'ccdac005-66a8-4921-9e8b-30531c359c31'
+
+/**
+ * Download is an <a download> navigation, which bypasses MSW, so the request
+ * falls through to the proxy and the download itself fails (see
+ * app/util/support-bundle.ts). The browser still starts it, so we can check
+ * the parts the console controls: URL, filename, and no navigation.
+ */
+async function expectBundleDownload(page: Page, download: Download) {
+  expect(download.url()).toBe(
+    `http://localhost:4009/v1/system/support-bundles/${BUNDLE_ID}/download`
+  )
+  expect(download.suggestedFilename()).toBe(`support-bundle-${BUNDLE_ID}.zip`)
+  // download navigation doesn't leave the page
+  await expect(page).toHaveURL(/\/system\/support-bundles/)
+}
+
+test('download from row action and detail modal', async ({ page }) => {
+  await page.goto('/system/support-bundles')
+
+  let downloadPromise = page.waitForEvent('download')
+  await clickRowAction(page, 'Investigating slow', 'Download')
+  await expectBundleDownload(page, await downloadPromise)
+
+  await page.getByRole('link', { name: 'ccdac0…359c31' }).click()
+  const modal = page.getByRole('dialog', { name: 'Support bundle' })
+  downloadPromise = page.waitForEvent('download')
+  await modal.getByRole('button', { name: 'Download bundle' }).click()
+  await expectBundleDownload(page, await downloadPromise)
+  await expect(modal).toBeVisible()
 })
 
 test('bundle detail modal shows metadata for active bundle', async ({ page }) => {
