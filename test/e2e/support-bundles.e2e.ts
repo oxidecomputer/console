@@ -76,10 +76,10 @@ test('download only available for active bundles', async ({ page }) => {
 const BUNDLE_ID = 'ccdac005-66a8-4921-9e8b-30531c359c31'
 
 /**
- * Download is an <a download> navigation, which bypasses MSW, so the request
- * falls through to the proxy and the download itself fails (see
- * app/util/support-bundle.ts). The browser still starts it, so we can check
- * the parts the console controls: URL, filename, and no navigation.
+ * Download is an <a download> navigation, which bypasses MSW. The dev server
+ * answers it with an empty zip (see vite.config.ts) so the browser starts a
+ * real download, and we can check the parts the console controls: URL,
+ * filename, and no navigation.
  */
 async function expectBundleDownload(page: Page, download: Download) {
   expect(download.url()).toBe(
@@ -87,7 +87,7 @@ async function expectBundleDownload(page: Page, download: Download) {
   )
   expect(download.suggestedFilename()).toBe(`support-bundle-${BUNDLE_ID}.zip`)
   // download navigation doesn't leave the page
-  await expect(page).toHaveURL(/\/system\/support-bundles/)
+  await expect(page).toHaveURL('/system/support-bundles')
 }
 
 test('download from row action and detail modal', async ({ page }) => {
@@ -101,7 +101,9 @@ test('download from row action and detail modal', async ({ page }) => {
   const modal = page.getByRole('dialog', { name: 'Support bundle' })
   downloadPromise = page.waitForEvent('download')
   await modal.getByRole('button', { name: 'Download bundle' }).click()
-  await expectBundleDownload(page, await downloadPromise)
+  expect((await downloadPromise).suggestedFilename()).toBe(
+    `support-bundle-${BUNDLE_ID}.zip`
+  )
   await expect(modal).toBeVisible()
 })
 

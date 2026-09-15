@@ -16,9 +16,11 @@ import type { SupportBundleState } from '@oxide/api'
  * spec next to this file guards against it drifting when the API is
  * regenerated.
  *
- * Note this means downloads do not work against the mock API: the anchor
- * click is a download navigation, which MSW's service worker does not
- * intercept, so the request falls through to the dev server.
+ * Note the anchor click is a navigation-mode request, and MSW's service
+ * worker deliberately passes navigation requests through to the network:
+ * https://github.com/mswjs/msw/blob/b1c2a13/src/mockServiceWorker.js#L100-L103
+ * So in mock mode the request falls through to the dev server, which serves
+ * an empty zip (see vite.config.ts).
  */
 
 export const bundleDownloadUrl = (bundleId: string) =>

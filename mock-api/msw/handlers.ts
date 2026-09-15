@@ -3102,8 +3102,8 @@ export const handlers = makeHandlers({
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
   // unreachable in the mock: the console downloads bundles with an <a download>
-  // navigation, which MSW's service worker can't intercept (see
-  // app/util/support-bundle.ts)
+  // navigation, which MSW's service worker can't intercept. The dev server
+  // handles it instead (see vite.config.ts and app/util/support-bundle.ts)
   supportBundleDownload: NotImplemented,
   supportBundleDownloadFile: NotImplemented,
   supportBundleHeadFile: NotImplemented,
