@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { match } from 'ts-pattern'
 
 import {
   api,
@@ -28,6 +29,7 @@ import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/State
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
+import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DiskSourceName } from '~/table/cells/DiskSourceCell'
@@ -113,6 +115,17 @@ export default function DisksPage() {
     },
   })
 
+  const { mutateAsync: finalize } = useApiMutation(api.diskFinalizeImport, {
+    onSuccess() {
+      queryClient.invalidateEndpoint('diskList')
+    },
+  })
+  const { mutateAsync: stopBulkWriteImport } = useApiMutation(api.diskBulkWriteImportStop, {
+    onSuccess() {
+      queryClient.invalidateEndpoint('diskList')
+    },
+  })
+
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
       {
@@ -131,23 +144,55 @@ export default function DisksPage() {
         },
         disabled: snapshotDisabledReason(disk),
       },
-      {
-        label: 'Delete',
-        onActivate: confirmDelete({
-          doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
-          label: disk.name,
-          resourceKind: 'disk',
-        }),
-        disabled:
-          !diskCan.delete(disk) &&
-          (disk.state.state === 'attached' ? (
-            'Disk must be detached before it can be deleted'
-          ) : (
-            <>Only disks in state {fancifyStates(diskCan.delete.states)} can be deleted</>
-          )),
-      },
+      match(disk.state.state)
+        .with('import_ready', 'importing_from_bulk_writes', () => ({
+          label: 'Cancel import',
+          onActivate() {
+            confirmAction({
+              doAction: async () => {
+                if (disk.state.state === 'importing_from_bulk_writes') {
+                  await stopBulkWriteImport({
+                    path: { disk: disk.name },
+                    query: { project },
+                  })
+                }
+
+                await finalize({
+                  path: { disk: disk.name },
+                  query: { project },
+                  body: {},
+                })
+
+                addToast(
+                  <>
+                    Import canceled for <HL>{disk.name}</HL>
+                  </>
+                )
+              },
+              modalTitle: 'Cancel import',
+              modalContent: `Are you sure you want to cancel import for ${disk.name}?`,
+              errorTitle: 'Failed to cancel import',
+              actionType: 'danger',
+            })
+          },
+        }))
+        .otherwise(() => ({
+          label: 'Delete',
+          onActivate: confirmDelete({
+            doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
+            label: disk.name,
+            resourceKind: 'disk',
+          }),
+          disabled:
+            !diskCan.delete(disk) &&
+            (disk.state.state === 'attached' ? (
+              'Disk must be detached before it can be deleted'
+            ) : (
+              <>Only disks in state {fancifyStates(diskCan.delete.states)} can be deleted</>
+            )),
+        })),
     ],
-    [createSnapshot, deleteDisk, project]
+    [createSnapshot, deleteDisk, stopBulkWriteImport, finalize, project]
   )
 
   const columns = useColsWithActions(
