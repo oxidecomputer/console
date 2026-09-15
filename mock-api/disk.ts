@@ -242,7 +242,7 @@ export const disks: Json<Disk>[] = [
   {
     id: '7b898827-35a1-4459-a4e3-34db90640b74',
     name: 'tmp-for-image-29884739',
-    description: 'stuck in import_ready after bailling on an image upload early',
+    description: 'stuck in import_ready after bailing on an image upload early',
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
@@ -256,7 +256,7 @@ export const disks: Json<Disk>[] = [
   {
     id: 'f874c0b9-72ad-4eac-8e55-e6090e10366a',
     name: 'tmp-for-image-59986861',
-    description: 'stuck in bulk-write after bailling on an image upload early',
+    description: 'stuck in bulk-write after bailing on an image upload early',
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
