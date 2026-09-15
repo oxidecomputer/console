@@ -112,7 +112,7 @@ export default function SupportBundleDetail() {
     <SideModalForm
       form={form}
       formType="edit"
-      // scoped to the one editable field, like access forms' "Update role"
+      // submit button reads "Update comment" since that's the only editable field
       resourceName="comment"
       title="Support bundle"
       submitDisabled={form.formState.isDirty ? undefined : 'No changes to save'}
@@ -125,7 +125,7 @@ export default function SupportBundleDetail() {
       onSubmit={({ userComment }) => {
         editBundle.mutate({
           path: { bundleId },
-          body: { userComment: userComment || null },
+          body: { userComment: userComment.trim() || null },
         })
       }}
       loading={editBundle.isPending || editBundle.isSuccess}

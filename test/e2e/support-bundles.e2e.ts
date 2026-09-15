@@ -153,7 +153,7 @@ test('bundle detail modal for failed bundle', async ({ page }) => {
   await expect(page.getByText('Bundle collection failed')).toBeVisible()
 })
 
-test('detail modal polls a collecting bundle to active', async ({ page }) => {
+test('detail modal polls a collecting bundle until active', async ({ page }) => {
   await page.goto('/system/support-bundles')
 
   await page.getByRole('link', { name: 'New support bundle' }).click()
@@ -175,7 +175,7 @@ test('detail modal polls a collecting bundle to active', async ({ page }) => {
   await expect(modal.getByRole('button', { name: 'Download bundle' })).toBeEnabled()
 })
 
-test('create support bundle and poll to active', async ({ page }) => {
+test('create support bundle and poll until active', async ({ page }) => {
   await page.goto('/system/support-bundles')
 
   await page.getByRole('link', { name: 'New support bundle' }).click()

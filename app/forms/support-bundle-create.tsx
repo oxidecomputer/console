@@ -24,8 +24,6 @@ export const handle = titleCrumb('New support bundle')
 export default function CreateSupportBundleSideModalForm() {
   const navigate = useNavigate()
 
-  const onDismiss = () => navigate(pb.supportBundles())
-
   const createBundle = useApiMutation(api.supportBundleCreate, {
     onSuccess() {
       queryClient.invalidateEndpoint('supportBundleList')
@@ -41,9 +39,9 @@ export default function CreateSupportBundleSideModalForm() {
       form={form}
       formType="create"
       resourceName="support bundle"
-      onDismiss={onDismiss}
+      onDismiss={() => navigate(pb.supportBundles())}
       onSubmit={({ userComment }) => {
-        createBundle.mutate({ body: { userComment: userComment || null } })
+        createBundle.mutate({ body: { userComment: userComment.trim() || null } })
       }}
       loading={createBundle.isPending || createBundle.isSuccess}
       submitError={createBundle.error}
