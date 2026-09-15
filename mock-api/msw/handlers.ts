@@ -284,7 +284,9 @@ export const handlers = makeHandlers({
   diskFinalizeImport: ({ path, query, body }) => {
     const disk = lookup.disk({ ...path, ...query })
 
-    if (disk.name === 'disk-finalize-500') throw internalError('disk finalize failed')
+    if (disk.name === 'disk-finalize-500' || disk.name === 'disk-finalize-fail') {
+      throw internalError('disk finalize failed')
+    }
 
     if (disk.state.state !== 'import_ready') {
       throw `Cannot finalize disk in state ${disk.state.state}. Must be import_ready.`

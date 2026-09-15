@@ -268,6 +268,21 @@ export const disks: Json<Disk>[] = [
     read_only: false,
   },
   {
+    id: '0f60c28e-ead0-48f0-aab9-e74b917dc8e4',
+    name: 'disk-finalize-fail',
+    description:
+      "stuck in bulk-write after bailing on an image upload early, but can't be finalized",
+    project_id: project.id,
+    time_created: new Date().toISOString(),
+    time_modified: new Date().toISOString(),
+    state: { state: 'importing_from_bulk_writes' },
+    device_path: '/import',
+    size: 8 * GiB,
+    block_size: 2048,
+    disk_type: 'distributed',
+    read_only: false,
+  },
+  {
     id: '3f23c80f-c523-4d86-8292-2ca3f807bb12',
     name: 'disk-snapshot-error',
     description: '',

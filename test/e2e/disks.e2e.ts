@@ -94,7 +94,7 @@ test('List disks and snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
 
   const table = page.getByRole('table')
-  await expect(table.getByRole('row')).toHaveCount(18) // 17 + header
+  await expect(table.getByRole('row')).toHaveCount(19) // 18 + header
 
   // check one attached and one not attached
   await expectRowVisible(table, {
@@ -208,6 +208,25 @@ test('Cancel import from importing_from_bulk_writes', async ({ page }) => {
   await expectRowVisible(table, { name: diskImportingName, state: 'detached' })
   await clickRowActions(page, diskImportingName)
   await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeVisible()
+})
+
+test('Cancel import from importing_from_bulk_writes shows error and refreshes state when finalize fails', async ({
+  page,
+}) => {
+  const diskName = 'disk-finalize-fail'
+  await page.goto('/projects/mock-project/disks')
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: diskName, state: 'importing from bulk writes' })
+
+  await clickRowActions(page, diskName)
+  await page.getByRole('menuitem', { name: 'Cancel import' }).click()
+  await page
+    .getByRole('dialog', { name: 'Cancel import' })
+    .getByRole('button', { name: 'Confirm' })
+    .click()
+
+  await expectToast(page, 'Failed to cancel import')
+  await expectRowVisible(table, { name: diskName, state: 'import ready' })
 })
 
 test.describe('Disk create', () => {
