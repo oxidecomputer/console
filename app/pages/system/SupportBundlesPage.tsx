@@ -51,7 +51,7 @@ import {
 
 const EmptyState = () => (
   <EmptyMessage
-    icon={<Archive16Icon />}
+    icon={<Archive24Icon />}
     title="No support bundles"
     body="Create a support bundle to see it here"
     buttonText="New support bundle"

@@ -83,7 +83,7 @@ export default function SSHKeysPage() {
 
   const emptyState = (
     <EmptyMessage
-      icon={<Key16Icon />}
+      icon={<Key24Icon />}
       title="No SSH keys"
       body="Add an SSH key to see it here"
       buttonText="Add SSH key"
