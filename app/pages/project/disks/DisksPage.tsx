@@ -115,8 +115,16 @@ export default function DisksPage() {
     },
   })
 
-  const { mutateAsync: finalize } = useApiMutation(api.diskFinalizeImport)
-  const { mutateAsync: stopBulkWriteImport } = useApiMutation(api.diskBulkWriteImportStop)
+  const { mutateAsync: finalize } = useApiMutation(api.diskFinalizeImport, {
+    onSuccess() {
+      queryClient.invalidateEndpoint('diskList')
+    },
+  })
+  const { mutateAsync: stopBulkWriteImport } = useApiMutation(api.diskBulkWriteImportStop, {
+    onSuccess() {
+      queryClient.invalidateEndpoint('diskList')
+    },
+  })
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
@@ -155,7 +163,6 @@ export default function DisksPage() {
                   body: {},
                 })
 
-                queryClient.invalidateEndpoint('diskList')
                 addToast(
                   <>
                     Import canceled for <HL>{disk.name}</HL>
