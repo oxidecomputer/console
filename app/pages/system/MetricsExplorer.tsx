@@ -18,6 +18,7 @@ import {
   q,
   useApiMutation,
   camelToSnake,
+  snakeify,
   type Distributiondouble,
   type MetricType,
   type OxqlQueryResult,
@@ -659,7 +660,8 @@ function ResultsMenu({ data }: { data?: OxqlQueryResult }) {
       <Dropdown.Item
         disabled={noResults}
         onSelect={() =>
-          data && copyText(JSON.stringify(data, null, 2), 'Results copied as JSON')
+          data &&
+          copyText(JSON.stringify(snakeify(data), null, 2), 'Results copied as JSON')
         }
         label="Copy as JSON"
       />

@@ -9,7 +9,7 @@
 import { expect, test, type Page, type Locator } from '@playwright/test'
 
 import { oxqlQueries } from './oxql-queries'
-import { expectToast } from './utils'
+import { clipboardText, expectToast } from './utils'
 
 const runQuery = async (page: Page, query?: string) => {
   if (query !== undefined) await page.getByRole('textbox').fill(query)
@@ -165,6 +165,25 @@ test('results can be copied as JSON', async ({ page }) => {
   await page.getByRole('button', { name: 'Results actions' }).click()
   await page.getByRole('menuitem', { name: 'Copy as JSON' }).click()
   await expectToast(page, 'Results copied as JSON')
+})
+
+test('copied JSON actually matches the response body', async ({ page, browserName }) => {
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip(
+    browserName === 'webkit',
+    'navigator.clipboard.readText() works locally in Safari but not in CI.'
+  )
+
+  const response = page.waitForResponse('**/v1/system/timeseries/query')
+  // the most likely error here is a failure to restore snake case, so
+  // histograms are a decent test (they always include start_times)
+  await runQuery(page, oxqlQueries.bytesSentAndReceived)
+  const raw = await response.then((r) => r.json())
+
+  await page.getByRole('button', { name: 'Results actions' }).click()
+  await page.getByRole('menuitem', { name: 'Copy as JSON' }).click()
+
+  expect(JSON.stringify(JSON.parse(await clipboardText(page)))).toBe(JSON.stringify(raw))
 })
 
 test('a query the backend rejects surfaces an error instead of a chart', async ({
