@@ -646,44 +646,6 @@ function ChartEntry({ display }: { display: ChartDisplay }) {
   )
 }
 
-// covers the header strings plus every member of ValueArray['values']
-type CsvValue = string | number | boolean | object | null | undefined
-
-const csvCell = (v: CsvValue): string => {
-  const s =
-    v === null || v === undefined
-      ? ''
-      : typeof v === 'object'
-        ? JSON.stringify(v)
-        : String(v)
-  return /[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s
-}
-
-const tablesToCsv = (tables: OxqlTable[]): string => {
-  const rows: CsvValue[][] = [['table', 'fields', 'metric', 'timestamp', 'value']]
-  for (const table of tables) {
-    // like the chart labels, joined tables get their per-line metric names
-    // from the comma-joined table name
-    const metricNames = retrieveMetricNames(table.name)
-    for (const series of table.timeseries) {
-      const fields = getFormattedFields(series)
-      series.points.values.forEach((v, i) => {
-        const metric = metricNames[i] ?? table.name
-        series.points.timestamps.forEach((ts, j) => {
-          rows.push([
-            table.name,
-            fields,
-            metric,
-            new Date(ts).toISOString(),
-            v.values.values[j],
-          ])
-        })
-      })
-    }
-  }
-  return rows.map((row) => row.map(csvCell).join(',')).join('\n')
-}
-
 const copyText = (text: string, toastMessage: string) => {
   window.navigator.clipboard.writeText(text).then(() => addToast(toastMessage))
 }
@@ -700,11 +662,6 @@ function ResultsMenu({ data }: { data?: OxqlQueryResult }) {
           data && copyText(JSON.stringify(data, null, 2), 'Results copied as JSON')
         }
         label="Copy as JSON"
-      />
-      <Dropdown.Item
-        disabled={noResults}
-        onSelect={() => data && copyText(tablesToCsv(data.tables), 'Results copied as CSV')}
-        label="Copy as CSV"
       />
     </MoreActionsMenu>
   )

@@ -156,7 +156,7 @@ test('editor completions are wired to live timeseries schemas', async ({ page })
   await expect(textbox).toContainText('get hardware_component:fan_speed')
 })
 
-test('results can be copied as JSON or CSV', async ({ page }) => {
+test('results can be copied as JSON', async ({ page }) => {
   await runQuery(page, oxqlQueries.basicTctl)
 
   // result summary is visible
@@ -165,10 +165,6 @@ test('results can be copied as JSON or CSV', async ({ page }) => {
   await page.getByRole('button', { name: 'Results actions' }).click()
   await page.getByRole('menuitem', { name: 'Copy as JSON' }).click()
   await expectToast(page, 'Results copied as JSON')
-
-  await page.getByRole('button', { name: 'Results actions' }).click()
-  await page.getByRole('menuitem', { name: 'Copy as CSV' }).click()
-  await expectToast(page, 'Results copied as CSV')
 })
 
 test('a query the backend rejects surfaces an error instead of a chart', async ({
