@@ -66,7 +66,7 @@ export const pointsFrom = (
 
 export const timeseriesFrom = (id: string, points: Json<Points>): Json<Timeseries> => ({
   fields: {
-    instanceId: {
+    instance_id: {
       type: 'uuid',
       value: id,
     },

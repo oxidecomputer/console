@@ -5,44 +5,68 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useController, useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
 import {
   api,
+  q,
   useApiMutation,
   camelToSnake,
+  snakeify,
   type Distributiondouble,
   type MetricType,
+  type OxqlQueryResult,
   type OxqlTable,
   type Points,
   type Timeseries,
   type TimeseriesQuery,
   type ValueArray,
+  type FieldValue,
+  type TimeseriesSchema,
 } from '@oxide/api'
 import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { OxqlField } from '~/components/form/fields/OxqlField'
 import { Heatmap } from '~/components/Heatmap'
+import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import {
+  errorMessageToSegments,
+  parseOxqlQueryError,
+  stripCaretLine,
+} from '~/components/oxql-error'
+import { OxqlEditor } from '~/components/OxqlEditor'
 import {
   ChartContainer,
   ChartHeader,
   SkeletonMetric,
-  MetricsEmpty,
   TimeSeriesChart,
 } from '~/components/TimeSeriesChart'
 import { useElementSize } from '~/hooks/use-element-size'
+import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
+import { CardBlock } from '~/ui/lib/CardBlock'
+import { Checkbox } from '~/ui/lib/Checkbox'
+import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { Divider } from '~/ui/lib/Divider'
-import * as DropdownMenu from '~/ui/lib/DropdownMenu'
+import * as Dropdown from '~/ui/lib/DropdownMenu'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { ErrorInlineCode } from '~/ui/lib/InlineCode'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TextInputError } from '~/ui/lib/TextInput'
+import { TipIcon } from '~/ui/lib/TipIcon'
+import { Tooltip } from '~/ui/lib/Tooltip'
+import { truncate } from '~/ui/lib/Truncate'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
+import { pluralize } from '~/util/str'
 
 const exampleItems: { label: string; value: string }[] = [
   {
@@ -84,7 +108,7 @@ const defaultValues: TimeseriesQuery = {
   query: '',
 }
 
-export const handle = { crumb: 'OxQL Explorer' }
+export const handle = { crumb: 'Metrics Explorer' }
 
 const narrowToNumbers = (vs: ValueArray): (number | null)[] =>
   match(vs)
@@ -186,14 +210,14 @@ const getAlignedTimestamps = (
 
 type Chart<Data> = {
   name: string
-  description?: string
+  description?: ReactNode
   timestamps: number[]
   data: Data
 }
 
 type Multiline = Chart<{ label: string; values: (number | null)[] }[]>
-type Line = Chart<(number | null)[]> & { metricType: MetricType }
-type Heatmap = Chart<(Distributiondouble | null)[]> & {
+type LineChartData = Chart<(number | null)[]> & { metricType: MetricType }
+type HeatmapChartData = Chart<(Distributiondouble | null)[]> & {
   metricType: MetricType
   startTimes: number[]
 }
@@ -201,17 +225,69 @@ type Heatmap = Chart<(Distributiondouble | null)[]> & {
 type ChartGroup =
   | 'empty-timeseries'
   | ({ startTime: Date; endTime: Date } & (
-      | { kind: 'unaligned'; charts: Line[] }
-      | { kind: 'distributions'; charts: Heatmap[] }
+      | { kind: 'unaligned'; charts: LineChartData[] }
+      | { kind: 'distributions'; charts: HeatmapChartData[] }
       | { kind: 'aligned'; charts: Multiline[] }
       | { kind: 'joined'; charts: Multiline[] }
     ))
 
 const getFormattedFields = (t: Timeseries): string =>
   Object.entries(t.fields)
-    // hello my evil friend.
     .map(([fieldName, x]) => `${camelToSnake(fieldName)}: ${x.value}`)
-    .join(' \u2022 ')
+    .join(' / ')
+
+const DEFAULT_FIELDS_SHOWN = 5
+// long enough for names/serials; a UUID (36 chars) gets middle-truncated
+const FIELD_VALUE_MAX_LEN = 24
+
+const FieldBadge = ({ fieldName, value }: { fieldName: string; value: string }) => {
+  const truncated = value.length > FIELD_VALUE_MAX_LEN
+  const text = truncate(value, FIELD_VALUE_MAX_LEN, 'middle')
+  const badge = (
+    <Badge className="h-6 pl-2" color="neutral">
+      <div className="flex items-center">
+        <span className="opacity-60">{camelToSnake(fieldName)}</span>
+        <span className="ml-1">{text}</span>
+        <CopyToClipboard text={text} />
+      </div>
+    </Badge>
+  )
+  if (!truncated) return badge
+  return (
+    <Tooltip content={value} placement="top">
+      {/* Tooltip applies a ref to its child, but Badge doesn't forward refs */}
+      <span className="inline-flex">{badge}</span>
+    </Tooltip>
+  )
+}
+
+const FieldsList = ({ fields }: { fields: Record<string, FieldValue> }) => {
+  const [showOverflow, setShowOverflow] = useState(false)
+  const entries = Object.entries(fields)
+  const toShow = showOverflow ? entries : entries.slice(0, DEFAULT_FIELDS_SHOWN)
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {toShow.map(([fieldName, x]) => (
+        <FieldBadge key={fieldName} fieldName={fieldName} value={String(x.value)} />
+      ))}
+      {!showOverflow && entries.length > DEFAULT_FIELDS_SHOWN && (
+        <button
+          type="button"
+          onClick={() => setShowOverflow(true)}
+          className="text-mono-xs border-default text-secondary hover:bg-hover h-6 rounded border px-2"
+        >
+          +{entries.length - DEFAULT_FIELDS_SHOWN}
+        </button>
+      )}
+    </div>
+  )
+}
+
+// In a joined table, the table name is component metric names, comma-joined.
+// e.g. bfd_session:timeout_expired,hardware_component:current
+const retrieveMetricNames = (tableName: string): string[] =>
+  tableName.split(',').map((s) => s.trim())
 
 const tableToGroup = (table: OxqlTable): ChartGroup => {
   const { name, timeseries } = table
@@ -233,11 +309,7 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
 
   const chart = match(kind)
     .with('joined', (kind) => {
-      // In a joined table, each Values item is a distinct metric:target and the
-      // table name is those metric names comma-joined, index-aligned to the Values.
-      // So the line labels come from the table name, not the (identical-per-line)
-      // joined field.
-      const metricNames = name.split(',').map((s) => s.trim())
+      const metricNames = retrieveMetricNames(name)
 
       return {
         kind,
@@ -246,7 +318,7 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
         // no further
         charts: timeseries.map((series) => ({
           name,
-          description: getFormattedFields(series),
+          description: <FieldsList fields={series.fields} />,
           timestamps: toPosix(series.points.timestamps),
           data: series.points.values.map((v, i) => ({
             label:
@@ -287,11 +359,11 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
       return match(valueType)
         .with('integer_distribution', 'double_distribution', () => ({
           kind: 'distributions' as const,
-          charts: seriesList.map((series): Heatmap => {
+          charts: seriesList.map((series): HeatmapChartData => {
             const timestamps = toPosix(series.points.timestamps)
             return {
               name,
-              description: getFormattedFields(series),
+              description: <FieldsList fields={series.fields} />,
               timestamps,
               metricType: series.points.values[0].metricType,
               startTimes:
@@ -303,9 +375,9 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
         .with('integer', 'double', 'boolean', 'string', () => ({
           kind: 'unaligned' as const,
           charts: seriesList.map(
-            (series): Line => ({
+            (series): LineChartData => ({
               name,
-              description: getFormattedFields(series),
+              description: <FieldsList fields={series.fields} />,
               timestamps: toPosix(series.points.timestamps),
               metricType: series.points.values[0].metricType,
               data: narrowToNumbers(series.points.values[0].values),
@@ -370,6 +442,56 @@ const trimHeatmap = <T,>(
 // The first aligned point of a cumulative counter is diffed against the counter's start_time,
 // collapsing all pre-window history into one giant bucket. It's not "erroneous" but it's usually
 // not useful, and you'd want to hide it to get a more useful y-axis for the rest of your data.
+const queryHasCumulativeData = (
+  queryResult: OxqlQueryResult,
+  schemas: TimeseriesSchema[]
+): boolean => {
+  const metricNames = new Set(
+    queryResult.tables.flatMap((t) => retrieveMetricNames(t.name))
+  )
+  return schemas.some(
+    (schema) =>
+      metricNames.has(schema.timeseriesName) &&
+      match(schema.datumType)
+        .with(
+          'bool',
+          'i8',
+          'u8',
+          'i16',
+          'u16',
+          'i32',
+          'u32',
+          'i64',
+          'u64',
+          'f32',
+          'f64',
+          'string',
+          'bytes',
+          () => false
+        )
+        .with(
+          'cumulative_i64',
+          'cumulative_u64',
+          'cumulative_f32',
+          'cumulative_f64',
+          // histogram data is cumulative by definition
+          'histogram_i8',
+          'histogram_u8',
+          'histogram_i16',
+          'histogram_u16',
+          'histogram_i32',
+          'histogram_u32',
+          'histogram_i64',
+          'histogram_u64',
+          'histogram_f32',
+          'histogram_f64',
+          () => true
+        )
+        .exhaustive()
+  )
+}
+
+// If the schemas haven't loaded, this is a decent heuristic
 const groupHasPointWorthDropping = (g: ChartGroup): boolean =>
   match(g)
     .with('empty-timeseries', () => false)
@@ -381,19 +503,32 @@ const groupHasPointWorthDropping = (g: ChartGroup): boolean =>
     )
     .exhaustive()
 
-// A flattened representation of a single chart.
-type ChartDisplay = { key: string; showDivider: boolean } & (
+type ChartDisplay = { key: string } & (
   | { kind: 'empty' }
-  | { kind: 'multiline'; startTime: Date; endTime: Date; chart: Multiline }
-  | { kind: 'line'; startTime: Date; endTime: Date; chart: Line }
-  | { kind: 'heatmap'; chart: Heatmap }
+  | {
+      kind: 'chart'
+      startTime: Date
+      endTime: Date
+      name: string
+      description?: ReactNode
+      timestamps: number[]
+      data: (number | null)[][]
+      seriesLabels?: string[]
+    }
+  | {
+      kind: 'heatmap'
+      name: string
+      description?: ReactNode
+      timestamps: number[]
+      startTimes: number[]
+      data: (Distributiondouble | null)[]
+    }
 )
 
 // Virtualization relies on a list of near-same-size items, so we flatten out all the groups
-const toDisplays = (groups: ChartGroup[]): ChartDisplay[] =>
+const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
   groups.flatMap((g, t): ChartDisplay[] => {
-    if (g === 'empty-timeseries')
-      return [{ kind: 'empty', key: `t${t}`, showDivider: true }]
+    if (g === 'empty-timeseries') return [{ kind: 'empty', key: `t${t}` }]
     const { startTime, endTime } = g
     return match(g)
       .with({ kind: 'distributions' }, ({ charts }) =>
@@ -401,62 +536,64 @@ const toDisplays = (groups: ChartGroup[]): ChartDisplay[] =>
           (chart, i): ChartDisplay => ({
             kind: 'heatmap',
             key: `t${t}.${i}`,
-            showDivider: i === 0,
-            chart,
+            name: chart.name,
+            description: chart.description,
+            ...trimHeatmap(trim, {
+              timestamps: chart.timestamps,
+              startTimes: chart.startTimes,
+              data: chart.data,
+            }),
           })
         )
       )
       .with({ kind: 'unaligned' }, ({ charts }) =>
         charts.map(
           (chart, i): ChartDisplay => ({
-            kind: 'line',
+            kind: 'chart',
             key: `t${t}.${i}`,
-            showDivider: i === 0,
             startTime,
             endTime,
-            chart,
+            name: chart.name,
+            description: chart.description,
+            ...trimSeries(trim, {
+              timestamps: chart.timestamps,
+              data: [chart.data],
+            }),
           })
         )
       )
       .with({ kind: 'joined' }, { kind: 'aligned' }, ({ charts }) =>
         charts.map(
           (chart, i): ChartDisplay => ({
-            kind: 'multiline',
+            kind: 'chart',
             key: `t${t}.${i}`,
-            showDivider: i === 0,
             startTime,
             endTime,
-            chart,
+            name: chart.name,
+            description: chart.description,
+            seriesLabels: chart.data.map((l) => l.label),
+            ...trimSeries(trim, {
+              timestamps: chart.timestamps,
+              data: chart.data.map((d) => d.values),
+            }),
           })
         )
       )
       .exhaustive()
   })
 
-function MultilineChart({
-  display,
-  trim,
-}: {
-  display: Extract<ChartDisplay, { kind: 'multiline' }>
-  trim: boolean
-}) {
-  const { chart, startTime, endTime } = display
-  const trimmed = trimSeries(trim, {
-    timestamps: chart.timestamps,
-    data: chart.data.map((d) => d.values),
-  })
-  const seriesLabels = chart.data.map((l) => l.label)
+function ChartCard({ display }: { display: Extract<ChartDisplay, { kind: 'chart' }> }) {
   return (
     <ChartContainer>
-      <ChartHeader title={chart.name} label="" description={chart.description} />
+      <ChartHeader title={display.name} label="" description={display.description} />
       <TimeSeriesChart
-        timestamps={trimmed.timestamps}
-        data={trimmed.data}
-        seriesLabels={seriesLabels}
-        title={chart.name}
+        timestamps={display.timestamps}
+        data={display.data}
+        seriesLabels={display.seriesLabels}
+        title={display.name}
         interpolation="linear"
-        startTime={startTime}
-        endTime={endTime}
+        startTime={display.startTime}
+        endTime={display.endTime}
         unit={undefined}
         loading={false}
         yAxisTickFormatter={formatTick}
@@ -465,102 +602,153 @@ function MultilineChart({
   )
 }
 
-function LineChart({
-  display,
-  trim,
-}: {
-  display: Extract<ChartDisplay, { kind: 'line' }>
-  trim: boolean
-}) {
-  const { chart, startTime, endTime } = display
-  const trimmed = trimSeries(trim, { data: [chart.data], timestamps: chart.timestamps })
+function HeatmapCard({ display }: { display: Extract<ChartDisplay, { kind: 'heatmap' }> }) {
   return (
     <ChartContainer>
-      <ChartHeader title={chart.name} label="" description={chart.description} />
-      <TimeSeriesChart
-        data={trimmed.data}
-        timestamps={trimmed.timestamps}
-        title={chart.name}
-        interpolation="linear"
-        startTime={startTime}
-        endTime={endTime}
-        unit={undefined}
-        loading={false}
-        yAxisTickFormatter={formatTick}
-      />
-    </ChartContainer>
-  )
-}
-
-function HeatmapChart({
-  display,
-  trim,
-}: {
-  display: Extract<ChartDisplay, { kind: 'heatmap' }>
-  trim: boolean
-}) {
-  const { chart } = display
-  const trimmed = trimHeatmap(trim, {
-    timestamps: chart.timestamps,
-    startTimes: chart.startTimes,
-    data: chart.data,
-  })
-  return (
-    <ChartContainer>
-      <ChartHeader title={chart.name} label="" description={chart.description} />
+      <ChartHeader title={display.name} label="" description={display.description} />
       <Heatmap
-        title={chart.name}
-        timestamps={trimmed.timestamps}
-        startTimes={trimmed.startTimes}
-        distributions={trimmed.data}
+        title={display.name}
+        timestamps={display.timestamps}
+        startTimes={display.startTimes}
+        distributions={display.data}
         yAxisTickFormatter={formatTick}
       />
     </ChartContainer>
   )
 }
 
-function ChartEntry({ display, trim }: { display: ChartDisplay; trim: boolean }) {
+function ChartEntry({ display }: { display: ChartDisplay }) {
   return (
     <>
-      {display.showDivider ? (
-        // Use padding for spacing so the virtualizer can measure the bounding box properly
-        <div className="py-8">
-          <Divider className="mx-16" />
-        </div>
-      ) : (
-        <div className="pt-8" />
-      )}
       {match(display)
         .with({ kind: 'empty' }, () => (
-          <SkeletonMetric>
-            <MetricsEmpty />
-          </SkeletonMetric>
+          <ChartContainer>
+            <SkeletonMetric>
+              <div
+                className="absolute bottom-0 z-0 h-full w-full"
+                style={{
+                  background:
+                    'linear-gradient(90deg, transparent 0%, var(--surface-default) 33%, var(--surface-default) 66%, transparent 100%)',
+                }}
+              />
+              <div className="z-10">
+                <EmptyMessage
+                  title="No results"
+                  body="Query returned no data. Try adjusting the query or expanding the time range"
+                />
+              </div>
+            </SkeletonMetric>
+          </ChartContainer>
         ))
-        .with({ kind: 'multiline' }, (r) => <MultilineChart display={r} trim={trim} />)
-        .with({ kind: 'line' }, (r) => <LineChart display={r} trim={trim} />)
-        .with({ kind: 'heatmap' }, (r) => <HeatmapChart display={r} trim={trim} />)
+        .with({ kind: 'chart' }, (r) => <ChartCard display={r} />)
+        .with({ kind: 'heatmap' }, (r) => <HeatmapCard display={r} />)
         .exhaustive()}
     </>
   )
 }
 
-const getTextareaHeightForQuery = (q: string): number => Math.max(q.split('\n').length, 4)
+const copyText = (text: string, toastMessage: string) => {
+  window.navigator.clipboard.writeText(text).then(() => addToast(toastMessage))
+}
 
-export default function OxqlPage() {
+function ResultsMenu({ data }: { data?: OxqlQueryResult }) {
+  // the menu is always visible so the header doesn't jump around, but the
+  // actions only make sense once a query has succeeded
+  const noResults = data === undefined ? 'Run a query first' : undefined
+  return (
+    <MoreActionsMenu label="Results actions">
+      <Dropdown.Item
+        disabled={noResults}
+        onSelect={() =>
+          data &&
+          copyText(JSON.stringify(snakeify(data), null, 2), 'Results copied as JSON')
+        }
+        label="Copy as JSON"
+      />
+    </MoreActionsMenu>
+  )
+}
+
+function ResultsSummary({ tables }: { tables: OxqlTable[] }) {
+  const timeseries = tables.flatMap((t) => t.timeseries)
+  const nPoints = R.sumBy(timeseries, (t) => t.points.timestamps.length)
+  return (
+    <div className="text-mono-xs text-quaternary px-2">
+      <span className="text-tertiary">{timeseries.length} timeseries</span> /{' '}
+      <span className="text-tertiary">
+        {nPoints.toLocaleString()} {pluralize('point', nPoints)}
+      </span>
+    </div>
+  )
+}
+
+// Server-side query errors render below the editor in the same Message box we
+// use for API errors elsewhere (e.g., side modal forms). role=alert announces
+// the failure to screen readers on arrival; mono + pre-wrap preserve the parse
+// errors' caret alignment.
+// The code-ish parts of an error message get inline code styling via
+// codeSegment (see oxql-error.ts). The `..` excerpt markers stay outside the
+// chip, reading as ellipses.
+const ErrorMessage = ({ message }: { message: string }) => (
+  <span className="whitespace-pre-wrap">
+    {errorMessageToSegments(message).map((segment, i) =>
+      match(segment)
+        .with({ type: 'text' }, ({ text }) => text)
+        .with({ type: 'code' }, ({ isTruncated, code, raw }) => {
+          // an empty chip is just visual noise; show the raw text instead
+          if (!code) return raw
+          return (
+            <span key={i}>
+              {isTruncated && '.. '}
+              <ErrorInlineCode>{code}</ErrorInlineCode>
+              {isTruncated && ' ..'}
+            </span>
+          )
+        })
+        .exhaustive()
+    )}
+  </span>
+)
+
+const QueryError = ({ message }: { message: string }) => (
+  <div role="alert" className="mt-2">
+    <Message
+      variant="error"
+      title="Query failed"
+      content={<ErrorMessage message={stripCaretLine(message)} />}
+    />
+  </div>
+)
+
+// Rendered in every query state so the layout doesn't shift when results arrive
+const ResultsSection = ({ children }: { children: ReactNode }) => (
+  <>
+    <Divider className="my-8" />
+    {children}
+  </>
+)
+
+export default function MetricsExplorer() {
   const query = useApiMutation(api.systemTimeseriesQuery)
+
+  // powers editor autocomplete. no loading state needed: completions are a
+  // progressive enhancement
+  const schemas = useQuery(q(api.systemTimeseriesSchemaList, { query: { limit: ALL_ISH } }))
 
   const [searchParams, setSearchParams] = useSearchParams()
 
   const defaultQuery = searchParams.get('query') ?? defaultValues.query
 
-  const [textareaRowCount, setTextareaRowCount] = useState(
-    getTextareaHeightForQuery(defaultQuery)
-  )
-
   const form = useForm({
     defaultValues: { query: defaultQuery },
   })
-  const control = form.control
+  const { field, fieldState } = useController({
+    name: 'query',
+    control: form.control,
+    rules: {
+      validate: (value) => (value.trim() ? undefined : 'Enter a query'),
+    },
+  })
 
   const [dropFirstPoint, setDropFirstPoint] = useState(true)
 
@@ -581,15 +769,28 @@ export default function OxqlPage() {
     )
   }
 
+  // Parse errors carry a line:column position we can point at in the editor.
+  // Only show the diagnostic while the editor still holds the exact query that
+  // failed; as soon as the user edits, the position no longer applies.
+  const oxqlError = query.error ? parseOxqlQueryError(query.error.message) : null
+  const diagnostic =
+    oxqlError && field.value === query.variables?.body.query ? oxqlError : undefined
+
   const chartGroups: ChartGroup[] | null = useMemo(
     () => (query.data ? query.data.tables.map(tableToGroup) : null),
     [query.data]
   )
 
-  const hasTrimmableCharts = chartGroups?.some(groupHasPointWorthDropping) ?? false
+  const hasTrimmableCharts =
+    schemas.data && query.data
+      ? queryHasCumulativeData(query.data, schemas.data.items)
+      : (chartGroups?.some(groupHasPointWorthDropping) ?? false)
   const trim = dropFirstPoint && hasTrimmableCharts
 
-  const charts = useMemo(() => (chartGroups ? toDisplays(chartGroups) : []), [chartGroups])
+  const charts = useMemo(
+    () => (chartGroups ? toDisplays(chartGroups, trim) : []),
+    [chartGroups, trim]
+  )
 
   // Since the whole window is the scroll container, the virtualizer needs to
   // know the offset from the top. By reacting to height changes in everything
@@ -611,11 +812,17 @@ export default function OxqlPage() {
     getItemKey: (i) => charts[i].key,
   })
 
+  const errorMessage = fieldState.error?.message ? (
+    <TextInputError>{fieldState.error.message}</TextInputError>
+  ) : query.error ? (
+    <QueryError message={query.error.message} />
+  ) : null
+
   return (
     <>
       <div ref={preChartsRef}>
         <PageHeader>
-          <PageTitle icon={<Monitoring24Icon />}>OxQL Explorer</PageTitle>
+          <PageTitle icon={<Monitoring24Icon />}>Metrics Explorer</PageTitle>
           <DocsPopover
             heading="OxQL"
             icon={<Monitoring16Icon />}
@@ -623,95 +830,112 @@ export default function OxqlPage() {
             links={[docLinks.oxql, docLinks.oxqlSchemas]}
           />
         </PageHeader>
-        <form className="max-w-lg space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="flex justify-end">
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger
-                render={
-                  <Button variant="secondary" size="sm">
-                    Try an example
-                  </Button>
-                }
-              />
-              <DropdownMenu.Content anchor="bottom end" gap={8}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <CardBlock>
+            <CardBlock.Header title="Query">
+              <div className="flex items-center gap-2">
+                {query.status === 'success' && (
+                  <ResultsSummary tables={query.data.tables} />
+                )}
+                <Button type="submit" size="sm" loading={query.status === 'pending'}>
+                  Run query
+                </Button>
+                <ResultsMenu data={query.data} />
+              </div>
+            </CardBlock.Header>
+            <CardBlock.Body>
+              <div>
+                <OxqlEditor
+                  aria-label="OxQL query"
+                  error={!!errorMessage}
+                  diagnostic={diagnostic}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onSubmit={() => form.handleSubmit(onSubmit)()}
+                  schemas={schemas.data?.items}
+                />
+                {errorMessage}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-mono-sm text-tertiary mr-1">Examples</span>
                 {exampleItems.map(({ label, value }) => (
-                  <DropdownMenu.Item
+                  <button
                     key={label}
-                    label={label}
-                    onSelect={() => {
-                      setTextareaRowCount(getTextareaHeightForQuery(value))
-                      form.setValue('query', value)
+                    type="button"
+                    className="text-mono-xs border-default text-secondary hover:bg-hover rounded border px-2 py-1"
+                    onClick={() => {
+                      form.setValue('query', value, { shouldValidate: true })
+                      form.handleSubmit(onSubmit)()
                     }}
-                  />
+                  >
+                    {label}
+                  </button>
                 ))}
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-          </div>
-          <OxqlField rows={textareaRowCount} name="query" required control={control} />
-          <Button type="submit" disabled={query.status === 'pending'}>
-            Run query
-          </Button>
+              </div>
+            </CardBlock.Body>
+          </CardBlock>
         </form>
-        {match(query)
-          .with(
-            { status: 'success' },
-            () =>
-              hasTrimmableCharts && (
-                <div className="mt-8 mb-2">
-                  <label className="text-secondary flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={dropFirstPoint}
-                      onChange={(e) => setDropFirstPoint(e.target.checked)}
-                    />
-                    Drop first point
-                  </label>
-                </div>
-              )
-          )
-          .otherwise(() => '')}
       </div>
 
       {match(query)
-        .with({ status: 'idle' }, () => null)
-        .with({ status: 'pending' }, () => (
-          <ChartContainer className="mt-8">
-            <TimeSeriesChart
-              loading
-              title=""
-              data={undefined}
-              timestamps={undefined}
-              startTime={new Date(0)}
-              endTime={new Date(0)}
-            />
-          </ChartContainer>
+        // on error the message renders below the editor, so the results
+        // section just shows the same empty chart as the idle state
+        .with({ status: 'idle' }, { status: 'error' }, () => (
+          <ResultsSection>
+            <ChartContainer>
+              <SkeletonMetric>{null}</SkeletonMetric>
+            </ChartContainer>
+          </ResultsSection>
         ))
-        .with({ status: 'error' }, (q) => (
-          <Message
-            className="mt-8"
-            variant="error"
-            title="Query failed"
-            content={<span className="font-mono">{q.error.message}</span>}
-          />
+        .with({ status: 'pending' }, () => (
+          <ResultsSection>
+            <ChartContainer>
+              <TimeSeriesChart
+                loading
+                title=""
+                data={undefined}
+                timestamps={undefined}
+                startTime={new Date(0)}
+                endTime={new Date(0)}
+              />
+            </ChartContainer>
+          </ResultsSection>
         ))
         .with({ status: 'success' }, () => (
-          <div
-            ref={chartsRef}
-            className="relative"
-            style={{ height: virtualizer.getTotalSize() }}
-          >
-            {virtualizer.getVirtualItems().map((item) => (
-              <div
-                key={item.key}
-                data-index={item.index}
-                ref={virtualizer.measureElement}
-                className="absolute top-0 left-0 w-full"
-                style={{ transform: `translateY(${item.start - scrollMargin}px)` }}
-              >
-                <ChartEntry display={charts[item.index]} trim={trim} />
+          <ResultsSection>
+            {hasTrimmableCharts && (
+              <div className="mb-2 flex items-center gap-2">
+                <Checkbox
+                  checked={dropFirstPoint}
+                  onChange={(e) => setDropFirstPoint(e.target.checked)}
+                >
+                  Drop first data point
+                </Checkbox>
+                <TipIcon>
+                  With deltas and cumulative counters, the initial point is a delta from the
+                  earliest observed value. It's therefore typically much larger, and not
+                  worth comparing to the rest of your data.
+                </TipIcon>
               </div>
-            ))}
-          </div>
+            )}
+            <div
+              ref={chartsRef}
+              className="relative"
+              style={{ height: virtualizer.getTotalSize() }}
+            >
+              {virtualizer.getVirtualItems().map((item) => (
+                <div
+                  key={item.key}
+                  data-index={item.index}
+                  ref={virtualizer.measureElement}
+                  className="absolute top-0 left-0 w-full pb-4"
+                  style={{ transform: `translateY(${item.start - scrollMargin}px)` }}
+                >
+                  <ChartEntry display={charts[item.index]} />
+                </div>
+              ))}
+            </div>
+          </ResultsSection>
         ))
         .exhaustive()}
     </>
