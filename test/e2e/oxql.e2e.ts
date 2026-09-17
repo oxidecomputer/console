@@ -171,7 +171,7 @@ test('copied JSON actually matches the response body', async ({ page, browserNam
   // eslint-disable-next-line playwright/no-skipped-test
   test.skip(
     browserName === 'webkit',
-    'navigator.clipboard.readText() works locally in Safari but not in CI.'
+    'navigator.clipboard.readText() is forbidden in Safari.'
   )
 
   const response = page.waitForResponse('**/v1/system/timeseries/query')

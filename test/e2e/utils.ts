@@ -208,8 +208,7 @@ export async function closeToast(page: Page) {
 }
 
 /**
- * This will not work in Firefox, which only supports reading from the clipboard in extensions.
- * See [MDN: readText](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/readText#browser_compatibility).
+ * This will not work in Safari, which forbids clipboard reading without a user interaction.
  */
 export const clipboardText = async (page: Page) =>
   page.evaluate(() => navigator.clipboard.readText())
