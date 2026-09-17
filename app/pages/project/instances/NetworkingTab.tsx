@@ -682,24 +682,22 @@ export default function NetworkingTab() {
     <div className="space-y-5">
       <CardBlock>
         <CardBlock.Header title="External IPs" titleId="attached-ips-label">
-          <div className="flex gap-3">
-            <Button
-              size="sm"
-              onClick={() => setAttachEphemeralModalOpen(true)}
-              disabled={!!ephemeralDisabledReason}
-              disabledReason={ephemeralDisabledReason}
-            >
-              Attach ephemeral IP
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => setAttachFloatingModalOpen(true)}
-              disabled={!!floatingDisabledReason}
-              disabledReason={floatingDisabledReason}
-            >
-              Attach floating IP
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            onClick={() => setAttachEphemeralModalOpen(true)}
+            disabled={!!ephemeralDisabledReason}
+            disabledReason={ephemeralDisabledReason}
+          >
+            Attach ephemeral IP
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setAttachFloatingModalOpen(true)}
+            disabled={!!floatingDisabledReason}
+            disabledReason={floatingDisabledReason}
+          >
+            Attach floating IP
+          </Button>
         </CardBlock.Header>
 
         <CardBlock.Body>
