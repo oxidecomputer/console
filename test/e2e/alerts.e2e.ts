@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 import { alerts } from '@oxide/api-mocks'
 
@@ -649,6 +649,126 @@ test('Alert list basics', async ({ page }) => {
     'text-transform',
     'none'
   )
+})
+
+const alertListFilteringBasics = async (page: Page) => {
+  await page.goto('/system/alerting/alerts')
+
+  const table = page.getByRole('table')
+  const allRowCount = alerts.filter((a) => a.class !== 'probe').length + 1
+
+  await expect(table.getByRole('row')).toHaveCount(allRowCount)
+
+  const filterButton = page.getByRole('button', { name: 'Filter alerts' })
+  const input = page.getByRole('combobox', { name: 'Alert class' })
+  const applyButton = page.getByRole('button', { name: 'Apply' })
+
+  return { table, allRowCount, filterButton, input, applyButton }
+}
+
+test('Alert list filtering by class', async ({ page }) => {
+  const { table, filterButton, input, applyButton } = await alertListFilteringBasics(page)
+
+  // typed glob previews how many classes it matches
+  await filterButton.click()
+  await input.fill('**.remove')
+  await page.getByRole('option', { name: /Matches 3 alert classes/ }).click()
+  await applyButton.click()
+
+  // filter is applied and reflected in the URL
+  await expect(page).toHaveURL(/subscription=\*\*\.remove/)
+  await expect(table.getByRole('row')).toHaveCount(3) // header + 2 remove alerts
+  await expectRowVisible(table, { Class: 'hardware.power_shelf.psu.remove' })
+
+  // filter is still applied after refresh
+  await page.reload()
+  await expect(table.getByRole('row')).toHaveCount(3)
+})
+
+test('Alert list filter resetting', async ({ page }) => {
+  const { table, allRowCount, filterButton, input, applyButton } =
+    await alertListFilteringBasics(page)
+
+  // typed glob previews how many classes it matches
+  await filterButton.click()
+  await input.fill('**.remove')
+  await page.getByRole('option', { name: /Matches 3 alert classes/ }).click()
+  await applyButton.click()
+
+  await expect(table.getByRole('row')).toHaveCount(3) // header + 2 remove alerts
+
+  // Reset clears the applied filter
+  await filterButton.click()
+  await page.getByRole('button', { name: 'Reset' }).click()
+  await expect(page).not.toHaveURL(/subscription/)
+  await expect(table.getByRole('row')).toHaveCount(allRowCount)
+
+  // reapply filter
+  await filterButton.click()
+  await input.fill('**.remove')
+  await page.getByRole('option', { name: /Matches 3 alert classes/ }).click()
+  await applyButton.click()
+  await expect(table.getByRole('row')).toHaveCount(3)
+
+  // clearing the input and applying also clears the filter
+  await filterButton.click()
+  await input.fill('')
+  await applyButton.click()
+  await expect(page).not.toHaveURL(/subscription/)
+  await expect(table.getByRole('row')).toHaveCount(allRowCount)
+})
+
+test('Alert list invalid configurations', async ({ page }) => {
+  const { table, allRowCount, filterButton, input, applyButton } =
+    await alertListFilteringBasics(page)
+
+  // a class with no alerts gets the filtered empty state
+  await filterButton.click()
+  await input.fill('system.update.start')
+  await page.getByRole('option', { name: 'system.update.start' }).click()
+  await applyButton.click()
+  await expect(page.getByText('No matching alerts')).toBeVisible()
+  await page.getByRole('button', { name: 'Reset filters' }).click()
+  await expect(table.getByRole('row')).toHaveCount(allRowCount)
+
+  // a glob that matches no classes is rejected on apply
+  await filterButton.click()
+  await input.fill('zzz.**')
+  await page.getByRole('option', { name: /Matches 0 alert classes/ }).click()
+  await applyButton.click()
+  const form = page.getByRole('form', { name: 'Filter alerts' })
+  await expect(form.getByText('Pattern must match at least one alert class')).toBeVisible()
+
+  // an invalid pattern is rejected on apply
+  await input.fill('hardware.(')
+  await page.getByRole('option', { name: 'hardware.(' }).click()
+  await applyButton.click()
+  await expect(form.getByText('Must be an alert class or a glob pattern')).toBeVisible()
+})
+
+test('Alert list loads with a bad subscription param in the URL', async ({ page }) => {
+  const allRowCount = alerts.filter((a) => a.class !== 'probe').length + 1 // + header
+
+  // the API rejects probe as a filter, so the URL reader drops it and the
+  // page loads unfiltered instead of failing in the loader
+  await page.goto('/system/alerting/alerts?subscription=probe')
+  await expect(page.getByRole('table').getByRole('row')).toHaveCount(allRowCount)
+
+  // malformed pattern
+  await page.goto('/system/alerting/alerts?subscription=hardware.(')
+  await expect(page.getByRole('table').getByRole('row')).toHaveCount(allRowCount)
+
+  // unrecognized classes
+  await page.goto('/system/alerting/alerts?subscription=la.la.la')
+  await expect(page.getByRole('table').getByRole('row')).toHaveCount(allRowCount)
+
+  // globs that match no class
+  await page.goto('/system/alerting/alerts?subscription=zzz.**')
+  await expect(page.getByRole('table').getByRole('row')).toHaveCount(allRowCount)
+
+  // a real class with no alerts is a valid filter and gets an empty state
+  await page.goto('/system/alerting/alerts?subscription=system.update.start')
+  await expect(page.getByText('No matching alerts')).toBeVisible()
 })
 
 test('Alert list detail view', async ({ page }) => {
