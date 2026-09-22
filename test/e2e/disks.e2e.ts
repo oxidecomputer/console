@@ -174,7 +174,7 @@ test('Cancel import from import_ready', async ({ page }) => {
   await expectRowVisible(table, { name: diskImportReadyName, state: 'import ready' })
 
   await clickRowActions(page, diskImportReadyName)
-  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeHidden()
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
   await page.getByRole('menuitem', { name: 'Cancel import' }).click()
 
   const modal = page.getByRole('dialog', { name: 'Cancel import' })
@@ -197,7 +197,7 @@ test('Cancel import from importing_from_bulk_writes', async ({ page }) => {
   })
 
   await clickRowActions(page, diskImportingName)
-  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeHidden()
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
   await page.getByRole('menuitem', { name: 'Cancel import' }).click()
 
   const modal = page.getByRole('dialog', { name: 'Cancel import' })

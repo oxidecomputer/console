@@ -144,53 +144,57 @@ export default function DisksPage() {
         },
         disabled: snapshotDisabledReason(disk),
       },
-      match(disk.state.state)
-        .with('import_ready', 'importing_from_bulk_writes', () => ({
-          label: 'Cancel import',
-          onActivate() {
-            confirmAction({
-              doAction: async () => {
-                if (disk.state.state === 'importing_from_bulk_writes') {
-                  await stopBulkWriteImport({
+      ...match(disk.state.state)
+        .returnType<MenuAction[]>()
+        .with('import_ready', 'importing_from_bulk_writes', () => [
+          {
+            label: 'Cancel import',
+            onActivate() {
+              confirmAction({
+                doAction: async () => {
+                  if (disk.state.state === 'importing_from_bulk_writes') {
+                    await stopBulkWriteImport({
+                      path: { disk: disk.name },
+                      query: { project },
+                    })
+                  }
+
+                  await finalize({
                     path: { disk: disk.name },
                     query: { project },
+                    body: {},
                   })
-                }
 
-                await finalize({
-                  path: { disk: disk.name },
-                  query: { project },
-                  body: {},
-                })
-
-                addToast(
-                  <>
-                    Import canceled for <HL>{disk.name}</HL>
-                  </>
-                )
-              },
-              modalTitle: 'Cancel import',
-              modalContent: `Are you sure you want to cancel import for ${disk.name}?`,
-              errorTitle: 'Failed to cancel import',
-              actionType: 'danger',
-            })
+                  addToast(
+                    <>
+                      Import canceled for <HL>{disk.name}</HL>
+                    </>
+                  )
+                },
+                modalTitle: 'Cancel import',
+                modalContent: `Are you sure you want to cancel import for ${disk.name}?`,
+                errorTitle: 'Failed to cancel import',
+                actionType: 'danger',
+              })
+            },
           },
-        }))
-        .otherwise(() => ({
-          label: 'Delete',
-          onActivate: confirmDelete({
-            doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
-            label: disk.name,
-            resourceKind: 'disk',
-          }),
-          disabled:
-            !diskCan.delete(disk) &&
-            (disk.state.state === 'attached' ? (
-              'Disk must be detached before it can be deleted'
-            ) : (
-              <>Only disks in state {fancifyStates(diskCan.delete.states)} can be deleted</>
-            )),
-        })),
+        ])
+        .otherwise(() => []),
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
+          label: disk.name,
+          resourceKind: 'disk',
+        }),
+        disabled:
+          !diskCan.delete(disk) &&
+          (disk.state.state === 'attached' ? (
+            'Disk must be detached before it can be deleted'
+          ) : (
+            <>Only disks in state {fancifyStates(diskCan.delete.states)} can be deleted</>
+          )),
+      },
     ],
     [createSnapshot, deleteDisk, stopBulkWriteImport, finalize, project]
   )
