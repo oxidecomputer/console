@@ -161,9 +161,7 @@ export function CliCommandModal({
               <CopyToClipboard ariaLabel={block.copyAriaLabel} text={block.code} />
             </div>
             <div className="bg-default light:bg-raise border-secondary max-h-80 overflow-auto rounded border px-3 py-2">
-              <pre className="text-mono-code">
-                {block.rendered ?? block.code}
-              </pre>
+              <pre className="text-mono-code">{block.rendered ?? block.code}</pre>
             </div>
           </Modal.Section>
         ))}
