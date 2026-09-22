@@ -6,31 +6,81 @@
  * Copyright Oxide Computer Company
  */
 
+import { Popover, PopoverButton, PopoverPanel, useClose } from '@headlessui/react'
 import cn from 'classnames'
 import { memo, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import {
+  useLocation,
+  useNavigation,
+  useSearchParams,
+  type LoaderFunctionArgs,
+} from 'react-router'
 
-import { api, getListQFn, queryClient, snakeify, type Alert } from '@oxide/api'
-import { Notifications24Icon } from '@oxide/design-system/icons/react'
+import {
+  api,
+  getListQFn,
+  queryClient,
+  snakeify,
+  usePrefetchedQuery,
+  type Alert,
+  type AlertListQueryParams,
+  type AlertSubscription,
+} from '@oxide/api'
+import { Filter16Icon, Notifications24Icon } from '@oxide/design-system/icons/react'
 
+import { isGlobPattern, subscriptionRegex } from '~/api/util'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { AlertPayload } from '~/components/AlertPayload'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
+import { validateSubscription } from '~/components/form/fields/SubscriptionsField'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { HighlightJSON } from '~/components/HighlightJSON'
+import {
+  alertClassMap,
+  type AlertClassMap,
+  alertClassListQuery,
+  toClassComboboxItem,
+} from '~/hooks/use-alert-classes'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { usePaginatedList } from '~/table/QueryTable'
+import { Button, buttonStyle } from '~/ui/lib/Button'
 import { DateTime, SyslogDateTime } from '~/ui/lib/DateTime'
+import { Divider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { Spinner } from '~/ui/lib/Spinner'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
 import { roleDiv } from '~/util/classed'
 
 export const handle = { crumb: 'Alerts' }
 
-const alertList = getListQFn(api.alertList, { query: { sortBy: 'time_and_id_descending' } })
+const alertList = (options: Omit<AlertListQueryParams, 'sortBy'> = {}) =>
+  getListQFn(api.alertList, {
+    query: { sortBy: 'time_and_id_descending', ...options },
+  })
 
-export async function clientLoader() {
-  await queryClient.prefetchQuery(alertList.optionsFn())
+const SUBSCRIPTION_PARAM = 'subscription'
+
+const getAlertClassFilter = (
+  searchParams: URLSearchParams,
+  classes: AlertClassMap
+): string | undefined => {
+  const unsafe = searchParams.get(SUBSCRIPTION_PARAM) || undefined
+
+  return typeof unsafe === 'string' &&
+    typeof validateAlertClassFilter(classes)(unsafe) === 'string'
+    ? undefined
+    : unsafe
+}
+
+export async function clientLoader({ request }: LoaderFunctionArgs) {
+  // Nexus rejects filters that don't match some existing alert class, so we
+  // need to prefetch the list of alert classes to safely apply filters.
+  const classes = alertClassMap(await queryClient.fetchQuery(alertClassListQuery))
+  const alertClass = getAlertClassFilter(new URL(request.url).searchParams, classes)
+  await queryClient.prefetchQuery(alertList({ alertClass }).optionsFn())
   return null
 }
 
@@ -142,23 +192,206 @@ function AlertDetail({ alert, onDismiss }: { alert: Alert; onDismiss: () => void
   )
 }
 
+const matchesAny = (re: RegExp, names: Iterable<string>) => {
+  for (const name of names) if (re.test(name)) return true
+  return false
+}
+
+const validateAlertClassFilter = (classes: AlertClassMap) => (value: string) => {
+  if (value === '') return undefined
+  // covers format, probe, and unrecognized exact classes
+  const error = validateSubscription(classes)(value)
+  if (error) return error
+
+  // for glob filters, the list endpoint rejects globs that don't match any
+  // existing alert class, so we need to test it in the client first
+  // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/db-queries/src/db/datastore/alert.rs#L261-L272
+  const re = subscriptionRegex(value)
+  if (re && !matchesAny(re, classes.keys())) {
+    return 'Pattern must match at least one alert class'
+  }
+
+  return undefined
+}
+
+function PatternMatchCount({
+  pattern,
+  classes,
+}: {
+  pattern: string
+  classes: AlertClassMap
+}) {
+  const re = isGlobPattern(pattern) ? subscriptionRegex(pattern) : null
+  if (!re) return <>{pattern}</>
+  let count = 0
+  for (const name of classes.keys()) if (re.test(name)) count++
+  return (
+    <>
+      {pattern}
+      <span className="text-secondary ml-1 text-xs">
+        Matches {count} alert {count === 1 ? 'class' : 'classes'}
+      </span>
+    </>
+  )
+}
+
+type FilterProps = {
+  isFetching: boolean
+  handleSubmit: (subscription: AlertSubscription) => void
+  lastApplied: AlertSubscription
+  classes: AlertClassMap
+}
+
+type FilterFormProps = Omit<FilterProps, 'isFetching'>
+
+// We're tolerating a little bit of prop drilling here because we want
+// FilterForm to be its own component (so that the form is reset on close for
+// free)
+function FilterForm({ handleSubmit, classes, lastApplied }: FilterFormProps) {
+  const form = useForm({ defaultValues: { alertClassSearch: lastApplied } })
+  const close = useClose()
+
+  const resetDisabled = lastApplied === ''
+
+  return (
+    <form
+      aria-label="Filter alerts"
+      className="py-4"
+      onSubmit={form.handleSubmit(({ alertClassSearch }) => {
+        handleSubmit(alertClassSearch)
+        close()
+      })}
+    >
+      <div className="flex items-start justify-between px-4">
+        <h2 className="text-sans-semi-md text-raise">Filter alerts</h2>
+        <button
+          type="button"
+          className={cn(
+            resetDisabled ? 'text-disabled' : 'text-default hover:text-raise',
+            'text-mono-sm flex items-center'
+          )}
+          disabled={resetDisabled}
+          onClick={() => {
+            handleSubmit('')
+            close()
+          }}
+        >
+          Reset
+        </button>
+      </div>
+      <Divider className="mt-2" />
+      <div className="mt-6 px-4">
+        <ComboboxField
+          name="alertClassSearch"
+          control={form.control}
+          items={[...classes.values()].map(toClassComboboxItem)}
+          label="Alert class"
+          hideOptionalTag
+          description="e.g. hardware.disk.insert or hardware.**"
+          validate={validateAlertClassFilter(classes)}
+          transform={(value) => value.trim()}
+          allowArbitraryValues
+          renderArbitraryLabel={(value) => (
+            <PatternMatchCount pattern={value} classes={classes} />
+          )}
+        />
+      </div>
+      <div className="mt-6 flex justify-end px-4">
+        <Button type="submit">Apply</Button>
+      </div>
+    </form>
+  )
+}
+
+function Filter({ isFetching, handleSubmit, lastApplied, classes }: FilterProps) {
+  return (
+    <Popover>
+      <PopoverButton
+        aria-label={lastApplied ? 'Filter alerts (1 applied)' : 'Filter alerts'}
+        title="Filter alerts"
+        className="headless-hide-focus rounded-md"
+      >
+        <div
+          className={cn(
+            buttonStyle({ size: 'sm', variant: 'ghost' }),
+            lastApplied ? 'px-3 gap-1.5' : 'w-8'
+          )}
+        >
+          {isFetching ? (
+            <Spinner className="shrink-0" />
+          ) : (
+            <Filter16Icon
+              aria-hidden
+              className={cn('shrink-0', lastApplied && 'text-accent')}
+            />
+          )}
+          {lastApplied && '1'}
+        </div>
+      </PopoverButton>
+      <PopoverPanel
+        className="popover-panel bg-raise light:bg-default shadow-menu z-10 w-96 rounded-lg"
+        anchor={{ to: 'bottom end', gap: 12, padding: 16 }}
+      >
+        <FilterForm
+          classes={classes}
+          handleSubmit={handleSubmit}
+          lastApplied={lastApplied}
+        />
+      </PopoverPanel>
+    </Popover>
+  )
+}
+
 export default function AlertsTab() {
   const [detail, setDetail] = useState<Alert | null>(null)
-  const { items, isEmpty, pagination } = usePaginatedList(alertList, getId)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { data: classData } = usePrefetchedQuery(alertClassListQuery)
+  const classes = alertClassMap(classData)
+  const alertClass = getAlertClassFilter(searchParams, classes)
 
-  if (isEmpty) {
-    return (
-      <TableEmptyBox>
+  const { items, isEmpty, pagination, queryResult } = usePaginatedList(
+    alertList({ alertClass }),
+    getId
+  )
+
+  function applyFilter(next: AlertSubscription) {
+    const newParams = new URLSearchParams(searchParams)
+    if (next) {
+      newParams.set(SUBSCRIPTION_PARAM, next)
+    } else {
+      newParams.delete(SUBSCRIPTION_PARAM)
+    }
+    setSearchParams(newParams, { replace: true })
+  }
+
+  const navigation = useNavigation()
+  const { pathname } = useLocation()
+  // Right now the only way to cause the loading state is to change the filters,
+  // so it's a good proxy
+  const isFiltering =
+    navigation.state === 'loading' && navigation.location.pathname === pathname
+
+  const alerts = isEmpty ? (
+    <TableEmptyBox>
+      {isFiltering || queryResult.isPlaceholderData ? (
+        <Spinner size="lg" />
+      ) : alertClass ? (
+        <EmptyMessage
+          icon={<Notifications24Icon />}
+          title="No matching alerts"
+          body="No alerts match your filters."
+          buttonText="Reset filters"
+          onClick={() => applyFilter('')}
+        />
+      ) : (
         <EmptyMessage
           icon={<Notifications24Icon />}
           title="No alerts"
           body="Alerts created by the system will appear here."
         />
-      </TableEmptyBox>
-    )
-  }
-
-  return (
+      )}
+    </TableEmptyBox>
+  ) : (
     <>
       <Table aria-label="Alerts">
         <Row className="pb-2">
@@ -178,6 +411,20 @@ export default function AlertsTab() {
       </Table>
       {pagination}
       {detail && <AlertDetail alert={detail} onDismiss={() => setDetail(null)} />}
+    </>
+  )
+
+  return (
+    <>
+      <div className="mb-4 flex justify-end">
+        <Filter
+          isFetching={isFiltering}
+          handleSubmit={applyFilter}
+          lastApplied={alertClass ?? ''}
+          classes={classes}
+        />
+      </div>
+      {alerts}
     </>
   )
 }
