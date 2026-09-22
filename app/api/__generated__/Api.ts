@@ -4325,8 +4325,6 @@ export type SiloCreate = {
 Note that if configuring a SAML based identity provider, group_attribute_name must be set for users to be considered part of a group. See `SamlIdentityProviderCreate` for more information. */
   adminGroupName?: string | null
   description: string
-  /** A non-discoverable silo can only be retrieved by ID - it will not be part of the "list all silos" output. */
-  discoverable: boolean
   identityMode: SiloIdentityMode
   /** Mapping of which Fleet roles are conferred by each Silo role
 
@@ -7740,7 +7738,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026091100.0.0'
+  apiVersion = '2026091500.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
