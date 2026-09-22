@@ -65,6 +65,7 @@ import { RadioFieldDyn } from '~/components/form/fields/RadioField'
 import { SshKeysField } from '~/components/form/fields/SshKeysField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
+import { HighlightJSON } from '~/components/HighlightJSON'
 import { HL } from '~/components/HL'
 import { toPoolItem } from '~/components/PoolListboxItem'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
@@ -595,9 +596,13 @@ export default function CreateInstanceForm() {
 
   const [cliModal, setCliModal] = useState<{
     open: boolean
-    jsonBody: string
+    body: InstanceCreate | null
     command: string
-  }>({ open: false, jsonBody: '', command: '' })
+  }>({ open: false, body: null, command: '' })
+
+  // snakeify only at the display boundary so state keeps the typed body.
+  // memoized because HighlightJSON's memo needs a stable object identity
+  const snakeBody = useMemo(() => snakeify(cliModal.body), [cliModal.body])
 
   const openCliModal = form.handleSubmit((values) => {
     // surface validation errors inline before opening the preview, so the
@@ -609,13 +614,12 @@ export default function CreateInstanceForm() {
       ? '<base64-encoded contents of user data file>'
       : undefined
     const body = buildInstanceCreateBody(values, allImages, userDataPlaceholder)
-    const jsonBody = JSON.stringify(snakeify(body), null, 2)
     const command = [
       'oxide instance create',
       `--project ${project}`,
       '--json-body instance.json',
     ].join(' \\\n    ')
-    setCliModal({ open: true, jsonBody, command })
+    setCliModal({ open: true, body, command })
   })
 
   return (
@@ -902,7 +906,8 @@ export default function CreateInstanceForm() {
           {
             label: 'instance.json',
             copyAriaLabel: 'Copy instance JSON',
-            code: cliModal.jsonBody,
+            code: JSON.stringify(snakeBody, null, 2),
+            rendered: <HighlightJSON json={snakeBody} />,
           },
           {
             label: 'command',

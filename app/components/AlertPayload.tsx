@@ -31,7 +31,7 @@ export function AlertPayload({ payload }: { payload: Record<string, unknown> }) 
         <CopyToClipboard text={stringified} ariaLabel="Copy alert payload" />
       </div>
       <div className="bg-raise border-secondary overflow-x-auto rounded border px-3 py-2">
-        <pre className="text-mono-code [font-size:13px]! [line-height:18px]!">
+        <pre className="text-mono-code">
           <HighlightJSON json={snakeJson} />
         </pre>
       </div>
