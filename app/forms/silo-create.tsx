@@ -39,7 +39,6 @@ export type SiloCreateFormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
 const defaultValues: SiloCreateFormValues = {
   name: '',
   description: '',
-  discoverable: true,
   identityMode: 'saml_jit',
   adminGroupName: '',
   tlsCertificates: [],
@@ -121,9 +120,6 @@ export default function CreateSiloSideModalForm() {
       <Message variant="info" content={<HelpMessage />} />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <CheckboxField name="discoverable" control={form.control}>
-        Discoverable
-      </CheckboxField>
       <FormDivider />
       <NumberField
         control={form.control}

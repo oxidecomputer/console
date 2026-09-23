@@ -1946,6 +1946,11 @@ export const handlers = makeHandlers({
       id: uuid(),
       ...getTimestamps(),
       ...body,
+      // discoverable was removed from SiloCreate, but it's still on the Silo
+      // view. Silo creation through the API hardcodes discoverable: true in
+      // the DB model
+      // https://github.com/oxidecomputer/omicron/blob/71f52a3/nexus/db-queries/src/db/datastore/silo.rs#L164
+      discoverable: true,
       mapped_fleet_roles: body.mapped_fleet_roles || {},
     }
     db.silos.push(newSilo)
