@@ -12,7 +12,7 @@ import { OxideLogo } from '~/components/OxideLogo'
 
 export default function LoginLayout() {
   return (
-    <main className="layout relative flex h-screen">
+    <main className="layout relative flex h-screen pt-(--preview-banner-height)">
       <div className="hero-bg text-accent max-800:hidden relative flex w-1/2 justify-end">
         <div className="hero-rack-wrapper">
           <img src={heroRackImg} alt="A populated Oxide rack" className="hero-rack" />

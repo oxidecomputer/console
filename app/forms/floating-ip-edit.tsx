@@ -19,6 +19,7 @@ import {
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
@@ -96,13 +97,10 @@ export default function EditFloatingIpSideModalForm() {
           body: { name, description },
         })
       }}
-      loading={editFloatingIp.isPending}
+      loading={editFloatingIp.isPending || editFloatingIp.isSuccess}
       submitError={editFloatingIp.error}
     >
-      <PropertiesTable>
-        <PropertiesTable.IdRow id={floatingIp.id} />
-        <PropertiesTable.DateRow label="Created" date={floatingIp.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={floatingIp.timeModified} />
+      <FormMetadata resource={floatingIp}>
         <PropertiesTable.Row label="IP Address">
           <CopyableIp ip={floatingIp.ip} isLinked={false} />
         </PropertiesTable.Row>
@@ -112,7 +110,7 @@ export default function EditFloatingIpSideModalForm() {
         <PropertiesTable.Row label="Instance">
           <InstanceLink instanceId={floatingIp.instanceId} tab="networking" />
         </PropertiesTable.Row>
-      </PropertiesTable>
+      </FormMetadata>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <SideModalFormDocs docs={[docLinks.floatingIps]} />

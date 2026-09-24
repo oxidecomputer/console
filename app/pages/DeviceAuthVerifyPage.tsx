@@ -58,8 +58,8 @@ export default function DeviceAuthVerifyPage() {
       <Button
         className="text-mono-sm! w-full"
         type="submit"
-        loading={confirmPost.isPending}
-        disabled={confirmPost.isPending || confirmPost.isSuccess || userCode.length < 8}
+        loading={confirmPost.isPending || confirmPost.isSuccess}
+        disabled={userCode.length < 8}
       >
         Log in on device
       </Button>

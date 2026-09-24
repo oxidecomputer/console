@@ -125,13 +125,16 @@ export async function expectRowVisible(
   table: Locator,
   expectedRow: Record<string, string | StringMatcher>
 ) {
-  // wait for header and rows to avoid flake town
-  const headerLoc = table.locator('thead >> role=columnheader')
-  // unlike most things, waitFor has no timeout by default
-  await headerLoc.first().waitFor({ timeout: 10_000 }) // nth=0 bc error if there's more than 1
+  // locate by role rather than thead/tbody because MiniTable is divs with
+  // table roles. header rows are the ones containing column headers
+  const columnheader = table.page().getByRole('columnheader')
+  const headerRowLoc = table.getByRole('row').filter({ has: columnheader })
+  const bodyRowLoc = table.getByRole('row').filter({ hasNot: columnheader })
 
-  const rowLoc = table.locator('tbody >> role=row')
-  await rowLoc.first().waitFor({ timeout: 10_000 })
+  // wait for header and rows to avoid flake town
+  // unlike most things, waitFor has no timeout by default
+  await headerRowLoc.first().waitFor({ timeout: 10_000 }) // nth=0 bc error if there's more than 1
+  await bodyRowLoc.first().waitFor({ timeout: 10_000 })
 
   async function getRows() {
     // need to pull header keys every time because the whole page can change
@@ -139,14 +142,13 @@ export async function expectRowVisible(
 
     // filter out data-test-ignore is specifically for making the header cells
     // match up with the contents on the double-header utilization table
-    const headerKeys = await table
-      .locator('thead')
-      .getByRole('row')
+    const headerKeys = await headerRowLoc
       .last()
-      .locator('th:not([data-test-ignore])')
+      .getByRole('columnheader')
+      .and(table.page().locator(':not([data-test-ignore])'))
       .allTextContents()
 
-    const rows = await map(table.locator('tbody >> role=row'), async (row) => {
+    const rows = await map(bodyRowLoc, async (row) => {
       // accessible name would be better than cell text but it's not in yet
       // https://github.com/microsoft/playwright/issues/13517
       const textContents = await row.locator('role=cell').allTextContents()

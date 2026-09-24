@@ -54,4 +54,7 @@ test('dev user gets 404 on system pages', async ({ browser }) => {
 
   await page.goto('/system/inventory/sleds')
   await expect(page.getByText('Page not found')).toBeVisible()
+
+  await page.goto('/system/alerting/receivers')
+  await expect(page.getByText('Page not found')).toBeVisible()
 })

@@ -17,6 +17,14 @@ import { capitalize } from '~/util/str'
 import { ErrorMessage } from './ErrorMessage'
 import type { TextFieldProps } from './TextField'
 
+type NumberFieldProps<
+  T extends FieldValues,
+  N extends FieldPathByValue<T, number>,
+> = TextFieldProps<T, N> & {
+  /** Counts and resource sizes require whole numbers; byte quotas can use fractional GiB. */
+  allowDecimals?: boolean
+}
+
 export function NumberField<
   TFieldValues extends FieldValues,
   // can only be used on fields with number values
@@ -28,7 +36,7 @@ export function NumberField<
   description,
   required,
   ...props
-}: Omit<TextFieldProps<TFieldValues, TName>, 'id'>) {
+}: Omit<NumberFieldProps<TFieldValues, TName>, 'id'>) {
   // id is omitted from props because we generate it here
   const id = useId()
   return (
@@ -44,7 +52,14 @@ export function NumberField<
         )}
       </div>
       {/* passing the generated id is very important for a11y */}
-      <NumberFieldInner name={name} id={id} label={label} required={required} {...props} />
+      <NumberFieldInner
+        name={name}
+        id={id}
+        label={label}
+        units={units}
+        required={required}
+        {...props}
+      />
     </div>
   )
 }
@@ -72,7 +87,9 @@ export const NumberFieldInner = <
   disabled,
   max,
   min = 0,
-}: TextFieldProps<TFieldValues, TName>) => {
+  allowDecimals = false,
+  units,
+}: NumberFieldProps<TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
 
@@ -85,9 +102,17 @@ export const NumberFieldInner = <
     rules: {
       required,
       deps,
-      // it seems we need special logic to enforce required on NaN
+      // RHF's required rule doesn't catch NaN, and its min/max rules don't
+      // know about units, so we do all three here. The input itself no longer
+      // clamps, so this is what stops out-of-range values.
       validate(value, values) {
-        if (required && Number.isNaN(value)) return `${label} is required`
+        if (Number.isNaN(value)) return required ? `${label} is required` : undefined
+        if (!allowDecimals && !Number.isInteger(value)) return 'Must be a whole number'
+        const suffix = units ? ` ${units}` : ''
+        if (min !== undefined && value < Number(min))
+          return `Must be at least ${min}${suffix}`
+        if (max !== undefined && value > Number(max))
+          return `Can be at most ${max}${suffix}`
         return validate?.(value, values)
       },
     },

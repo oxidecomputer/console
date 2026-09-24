@@ -12,6 +12,7 @@ import { match } from 'ts-pattern'
 import { bytesToGiB } from '~/util/units'
 
 import type {
+  AlertDelivery,
   Disk,
   DiskState,
   DiskType,
@@ -22,6 +23,9 @@ import type {
   SiloIpPool,
   SiloUtilization,
   Sled,
+  SnapshotState,
+  SupportBundleState,
+  Vpc,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
@@ -39,12 +43,95 @@ export const INSTANCE_MAX_CPU = 254
 export const INSTANCE_MIN_RAM_GiB = 1
 export const INSTANCE_MAX_RAM_GiB = 1536
 
+// Webhook endpoint URL column width. The API does no length validation, so a
+// longer URL fails with a database error rather than a 400.
+// https://github.com/oxidecomputer/omicron/blob/6db4c7e/schema/crdb/dbinit.sql#L7192
+export const WEBHOOK_ENDPOINT_MAX_LENGTH = 512
+
+// Valid alert subscription: an alert class or a glob pattern matching multiple
+// classes. https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/types/versions/src/initial/alert.rs#L22-L23
+export const ALERT_SUBSCRIPTION_REGEX =
+  /^([a-zA-Z0-9_]+|\*|\*\*)(\.([a-zA-Z0-9_]+|\*|\*\*))*$/
+
+/** A subscription with a `*` or `**` segment, as opposed to an exact class */
+export const isGlobPattern = (subscription: string) => subscription.includes('*')
+
+/**
+ * The `probe` class is synthetic: it exists for webhook receiver liveness
+ * probes only.
+ * The API lists it in `alertClassList` but rejects exact subscriptions to it
+ * with a 400, so keep it out of anything the user can pick. Globs are exempt
+ * because the API returns from its glob branch before reaching this check.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-model/src/alert_subscription.rs#L91-L98
+ */
+export const PROBE_ALERT_CLASS = 'probe'
+
+/** Alert classes a receiver can actually subscribe to */
+export const isSubscribableClass = (c: { name: string }) => c.name !== PROBE_ALERT_CLASS
+
+/**
+ * Convert an alert subscription to a regex matching the class names it covers:
+ * a `*` segment matches exactly one segment, `**` matches one or more.
+ * https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/db-model/src/alert_subscription.rs
+ */
+export function subscriptionRegex(subscription: string) {
+  const pattern = subscription
+    .split('.')
+    .map((seg) => (seg === '**' ? '.+' : seg === '*' ? '[^.]+' : seg))
+    .join('\\.')
+  return new RegExp(`^${pattern}$`)
+}
+
+/**
+ * IDs of the alerts a probe with `resend=true` would requeue: the receiver has
+ * a delivery for the alert and no non-probe delivery of that alert has left the
+ * failed state. Note this is per alert, not per delivery — delivery records are
+ * immutable history, so a failed one stays failed forever and a resend inserts
+ * a new record. The API has no endpoint for this, so we derive it from the
+ * delivery list to preview the count before the user commits to a resend.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-queries/src/db/datastore/webhook_delivery.rs#L205-L240
+ *
+ * The mock backend applies the same rule in its own `resendableAlerts`, which
+ * works on snake_case records, so the two have to be changed together.
+ */
+export function resendableAlertIds(
+  deliveries: Pick<AlertDelivery, 'alertId' | 'alertClass' | 'state' | 'trigger'>[]
+): Set<string> {
+  const relevant = deliveries.filter((d) => d.alertClass !== PROBE_ALERT_CLASS)
+  const settled = new Set(
+    relevant
+      .filter((d) => d.trigger !== 'probe' && d.state !== 'failed')
+      .map((d) => d.alertId)
+  )
+  return new Set(relevant.filter((d) => !settled.has(d.alertId)).map((d) => d.alertId))
+}
+
 export const MIN_DISK_SIZE_GiB = 1
 /**
  * Disk size limited to 1023 as that's the maximum we can safely allocate right now
  * @see https://github.com/oxidecomputer/omicron/issues/3212#issuecomment-1634497344
  */
 export const MAX_DISK_SIZE_GiB = 1023
+
+// the API only enforces this on update, but apply it at create time too so
+// the comment doesn't become uneditable later
+// https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/support_bundle.rs#L736-L742
+export const MAX_BUNDLE_COMMENT_BYTES = 4096
+
+/** Nexus limits by UTF-8 byte length, not JS string length */
+export const utf8ByteLength = (s: string) => new TextEncoder().encode(s).length
+
+/**
+ * The `default_*` network interface attachment types resolve a VPC and VPC
+ * subnet both named literally 'default', so they fail with a 404 if that VPC
+ * doesn't exist, even when the project has other VPCs.
+ *
+ * https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/src/app/sagas/instance_create.rs#L739-L773
+ */
+export const DEFAULT_VPC_NAME = 'default'
+
+export const hasDefaultVpc = (vpcs: Vpc[]) =>
+  vpcs.some((vpc) => vpc.name === DEFAULT_VPC_NAME)
 
 type PortRange = [number, number]
 
@@ -173,14 +260,15 @@ export const instanceCan = R.mapValues(instanceActions, (states: InstanceState[]
   return test
 })
 
+/**
+ * States the instance is expected to leave on its own, so the UI should poll
+ * and show a spinner. Exhaustive match so new states have to be classified.
+ */
 export function instanceTransitioning(runState: InstanceState) {
-  return (
-    runState === 'creating' ||
-    runState === 'starting' ||
-    runState === 'rebooting' ||
-    runState === 'migrating' ||
-    runState === 'stopping'
-  )
+  return match(runState)
+    .with('creating', 'starting', 'rebooting', 'migrating', 'stopping', () => true)
+    .with('running', 'stopped', 'repairing', 'failed', 'destroyed', () => false)
+    .exhaustive()
 }
 
 /**
@@ -238,13 +326,42 @@ const canSnapshot = (d: SnapshotDisk) => {
 }
 canSnapshot.states = snapshotStates
 
+/** See {@link instanceTransitioning} */
 export function diskTransitioning(diskState: DiskState['state']) {
-  return (
-    diskState === 'attaching' ||
-    diskState === 'creating' ||
-    diskState === 'detaching' ||
-    diskState === 'finalizing'
-  )
+  return match(diskState)
+    .with('attaching', 'creating', 'detaching', 'finalizing', () => true)
+    .with(
+      'attached',
+      'detached',
+      'destroyed',
+      'faulted',
+      'maintenance',
+      'import_ready',
+      'importing_from_url',
+      'importing_from_bulk_writes',
+      () => false
+    )
+    .exhaustive()
+}
+
+/** See {@link instanceTransitioning} */
+export function snapshotTransitioning(state: SnapshotState) {
+  return match(state)
+    .with('creating', () => true)
+    .with('ready', 'faulted', 'destroyed', () => false)
+    .exhaustive()
+}
+
+/**
+ * See {@link instanceTransitioning}. 'active' and 'failed' are terminal, and
+ * 'destroying' resolves by the bundle record going away.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-model/src/support_bundle.rs#L53-L66
+ */
+export function supportBundleTransitioning(state: SupportBundleState) {
+  return match(state)
+    .with('collecting', 'destroying', () => true)
+    .with('active', 'failed', () => false)
+    .exhaustive()
 }
 
 export const diskCan = {

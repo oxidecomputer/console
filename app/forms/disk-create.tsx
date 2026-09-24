@@ -24,10 +24,10 @@ import {
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
+import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
@@ -40,6 +40,7 @@ import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { ALL_ISH } from '~/util/consts'
 import { toLocaleDateString } from '~/util/date'
 import { docLinks } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
@@ -109,8 +110,8 @@ export function CreateDiskSideModalForm({
 
   const form = useForm({ defaultValues })
   const { project } = useProjectSelector()
-  const projectImages = useQuery(q(api.imageList, { query: { project } }))
-  const siloImages = useQuery(q(api.imageList, {}))
+  const projectImages = useQuery(q(api.imageList, { query: { project, limit: ALL_ISH } }))
+  const siloImages = useQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
 
   // put project images first because if there are any, there probably aren't
   // very many and they're probably relevant
@@ -120,7 +121,9 @@ export function CreateDiskSideModalForm({
   )
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
-  const snapshotsQuery = useQuery(q(api.snapshotList, { query: { project } }))
+  const snapshotsQuery = useQuery(
+    q(api.snapshotList, { query: { project, limit: ALL_ISH } })
+  )
   const snapshots = snapshotsQuery.data?.items || []
 
   // validate disk source size
@@ -191,7 +194,7 @@ export function CreateDiskSideModalForm({
           createDisk.mutate({ query: { project }, body })
         }
       }}
-      loading={createDisk.isPending}
+      loading={createDisk.isPending || createDisk.isSuccess}
       submitError={createDisk.error}
     >
       <NameField
@@ -204,9 +207,12 @@ export function CreateDiskSideModalForm({
         }}
       />
       <DescriptionField name="description" control={form.control} />
-      <DiskSizeField
+      <NumberField
         name="size"
         control={form.control}
+        units="GiB"
+        required
+        min={1}
         // Local disk size is only capped by server capacity
         max={match(diskBackend)
           .with({ type: 'local' }, () => undefined)
@@ -239,7 +245,12 @@ const DiskBackendField = ({
 }) => {
   const {
     field: { value: diskBackend, onChange },
-  } = useController({ control, name: 'diskBackend' })
+  } = useController({
+    control,
+    name: 'diskBackend',
+    // Switching disk type changes the size limit.
+    rules: { deps: 'size' },
+  })
   // react-hook-form types onChange as (...event: any[]) => void
   // https://github.com/react-hook-form/react-hook-form/issues/10466
   const setDiskBackend: (value: DiskBackendForm) => void = onChange
@@ -404,7 +415,9 @@ const DiskNameFromId = ({ disk }: { disk: string }) => {
 
 const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) => {
   const { project } = useProjectSelector()
-  const snapshotsQuery = useQuery(q(api.snapshotList, { query: { project } }))
+  const snapshotsQuery = useQuery(
+    q(api.snapshotList, { query: { project, limit: ALL_ISH } })
+  )
 
   const snapshots = snapshotsQuery.data?.items || []
   const diskSizeField = useController({ control, name: 'size' }).field

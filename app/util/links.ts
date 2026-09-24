@@ -11,10 +11,12 @@ const remoteAccess = 'https://docs.oxide.computer/guides/remote-access'
 // URLs used in inline prose links where the label is chosen to fit the
 // surrounding sentence. For links with a canonical label, use docLinks instead.
 export const links = {
-  cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
-  cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
+  cloudInit: 'https://docs.cloud-init.io/',
+  cloudInitFormat: 'https://docs.cloud-init.io/en/latest/explanation/format.html',
+  cloudInitExamples: 'https://docs.cloud-init.io/en/latest/reference/examples.html',
   firewallRulesDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
+  globbingDocs: 'https://docs.oxide.computer/guides/alerts/overview#_globbing',
   preparingImagesDocs:
     'https://docs.oxide.computer/guides/creating-and-sharing-images#_preparing_images_for_import',
   identityProvidersDocs: 'https://docs.oxide.computer/guides/operator/identity-providers',
@@ -22,12 +24,15 @@ export const links = {
   instanceBootDiskDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
   oxqlSchemaDocs: (metric: string) =>
     `https://docs.oxide.computer/guides/metrics/timeseries-schemas#_${metric.replace(':', '')}`,
-  siloQuotasDocs:
-    'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
+  siloTlsCertsDocs:
+    'https://docs.oxide.computer/guides/system/system-setup#tls-certificate',
   transitIpsDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_example_4_software_routing_tunnels',
   troubleshootingAccess:
     'https://docs.oxide.computer/guides/operator/faq#_how_do_i_fix_the_something_went_wrong_error',
+  webhooksGuide: 'https://docs.oxide.computer/guides/alerts/webhooks',
+  webhookSecretsDocs: 'https://docs.oxide.computer/guides/alerts/webhooks#_secrets',
+  webhooksApiDocs: 'https://docs.oxide.computer/api/webhook_receiver_create',
 }
 
 // Links with a canonical label, used in DocsPopover and SideModalFormDocs.
@@ -40,8 +45,16 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/deploying-workloads#_affinity_and_anti_affinity',
     linkText: 'Anti-Affinity Groups',
   },
+  alerts: {
+    href: 'https://docs.oxide.computer/guides/alerts/overview',
+    linkText: 'Alerts Overview',
+  },
+  auditLog: {
+    href: 'https://docs.oxide.computer/guides/operator/audit-log',
+    linkText: 'Audit Log',
+  },
   deviceTokens: {
-    href: 'https://docs.oxide.computer/guides/working-with-api-and-sdk#_device_token_setup',
+    href: 'https://docs.oxide.computer/guides/user-settings#_access_tokens',
     linkText: 'Access Tokens',
   },
   externalSubnets: {
@@ -89,7 +102,7 @@ export const docLinks = {
     linkText: 'Instance Actions',
   },
   oxql: {
-    href: 'https://docs.oxide.computer/guides/operator/system-metrics#_oxql_quickstart',
+    href: 'https://docs.oxide.computer/guides/metrics/oxql-tutorial#_oxql_quick_start',
     linkText: 'OxQL',
   },
   keyConceptsProjects: {
@@ -108,8 +121,12 @@ export const docLinks = {
     href: remoteAccess,
     linkText: 'Remote Access',
   },
+  resourceManagement: {
+    href: 'https://docs.oxide.computer/guides/operator/resource-management',
+    linkText: 'Resource Management',
+  },
   scim: {
-    href: 'https://docs.oxide.computer/guides/operator/identity-providers#_saml_authentication_scim_user_provisioning',
+    href: 'https://docs.oxide.computer/guides/operator/identity-providers#scim',
     linkText: 'SCIM',
   },
   serialConsole: {
@@ -125,7 +142,7 @@ export const docLinks = {
     linkText: 'VPC Subnet Routing',
   },
   sleds: {
-    href: 'https://docs.oxide.computer/guides/architecture/service-processors#_server_sled',
+    href: 'https://docs.oxide.computer/guides/architecture/rack-components#_server_sled',
     linkText: 'Server Sleds',
   },
   snapshots: {
@@ -137,7 +154,7 @@ export const docLinks = {
     linkText: 'SSH',
   },
   sshKeys: {
-    href: 'https://docs.oxide.computer/guides/user-settings#_ssh_keys',
+    href: 'https://docs.oxide.computer/guides/user-settings#manage-ssh-keys',
     linkText: 'SSH Keys',
   },
   storage: {
@@ -152,12 +169,16 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/operator/ip-pool-management#_using_subnet_pools',
     linkText: 'Subnet Pools',
   },
+  supportBundles: {
+    href: 'https://docs.oxide.computer/guides/troubleshooting#_support_bundles',
+    linkText: 'Support Bundles',
+  },
   systemMetrics: {
-    href: 'https://docs.oxide.computer/guides/operator/system-metrics',
-    linkText: 'Metrics',
+    href: 'https://docs.oxide.computer/guides/operator/resource-management#_calculating_utilization',
+    linkText: 'Utilization',
   },
   systemSiloCreate: {
-    href: 'https://docs.oxide.computer/guides/system/completing-rack-config#_create_silo',
+    href: 'https://docs.oxide.computer/guides/system/completing-rack-config#_create_a_silo',
     linkText: 'Create Silo',
   },
   systemSilo: {
@@ -179,5 +200,13 @@ export const docLinks = {
   vpcs: {
     href: 'https://docs.oxide.computer/guides/configuring-guest-networking',
     linkText: 'Networking',
+  },
+  webhookReceivers: {
+    href: links.webhooksGuide,
+    linkText: 'Webhook Receivers',
+  },
+  webhookSecretRotation: {
+    href: 'https://docs.oxide.computer/guides/alerts/reliable-receivers#_zero_downtime_webhook_secret_rotation',
+    linkText: 'Secret Rotation',
   },
 }

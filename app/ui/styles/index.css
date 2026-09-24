@@ -29,6 +29,7 @@
 @import '@oxide/design-system/styles/light.css';
 @import '@oxide/design-system/styles/preflight.css' layer(base);
 @import 'simplebar-react/dist/simplebar.min.css' layer(components);
+@import 'uplot/dist/uPlot.min.css' layer(components);
 
 @import '@oxide/design-system/styles/red.css';
 @import '@oxide/design-system/styles/yellow.css';
@@ -41,9 +42,9 @@
 @import './components/menu-list.css' layer(components);
 @import './components/loading-bar.css' layer(components);
 @import './components/Tabs.css' layer(components);
+@import './components/audit-log.css' layer(components);
 @import './components/form.css' layer(components);
 @import './components/login-page.css' layer(components);
-@import './components/mini-table.css' layer(components);
 @import './components/side-modal.css' layer(components);
 @import './components/spinner.css' layer(components);
 @import './components/tooltip.css' layer(components);
@@ -129,8 +130,10 @@
     --content-gutter: 2.5rem;
     --top-bar-height: 54px;
     --sidebar-width: 14.25rem;
+    /* overridden by PreviewBannerLayout when the banner is enabled */
+    --preview-banner-height: 0px;
 
-    @media (max-width: 767px) {
+    @media (max-width: 999px) {
       --content-gutter: 1.5rem;
     }
 
@@ -167,6 +170,7 @@
 
   body {
     @apply text-default bg-default font-sans;
+    overscroll-behavior-y: none;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */

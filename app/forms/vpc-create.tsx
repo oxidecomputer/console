@@ -19,13 +19,24 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { validateVpcIpv6Prefix } from '~/util/ip'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: VpcCreate = {
+type VpcCreateFormValues = {
+  name: string
+  description: string
+  dnsName: string
+  ipv6Prefix: string
+  // defaults will go here once we support it in the UI. for now, omitting means
+  // all defaults
+}
+
+const defaultValues: VpcCreateFormValues = {
   name: '',
   description: '',
   dnsName: '',
+  ipv6Prefix: '',
 }
 
 export const handle = titleCrumb('New VPC')
@@ -56,15 +67,29 @@ export default function CreateVpcSideModalForm() {
       form={form}
       formType="create"
       resourceName="VPC"
-      onSubmit={(values) => createVpc.mutate({ query: projectSelector, body: values })}
+      onSubmit={({ ipv6Prefix, ...rest }) => {
+        // omitting `defaults` means create all defaults, i.e., the original behavior
+        const body: VpcCreate = { ...rest, ipv6Prefix: ipv6Prefix.trim() || undefined }
+        createVpc.mutate({ query: projectSelector, body })
+      }}
       onDismiss={() => navigate(pb.vpcs(projectSelector))}
-      loading={createVpc.isPending}
+      loading={createVpc.isPending || createVpc.isSuccess}
       submitError={createVpc.error}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <NameField name="dnsName" label="DNS name" control={form.control} />
-      <TextField name="ipv6Prefix" label="IPV6 prefix" control={form.control} />
+      <TextField
+        name="ipv6Prefix"
+        label="IPv6 prefix"
+        control={form.control}
+        validate={(value) => {
+          const prefix = value.trim()
+          // field is optional — API generates a prefix if none is given
+          if (!prefix) return
+          return validateVpcIpv6Prefix(prefix)
+        }}
+      />
       <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )

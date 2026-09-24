@@ -19,6 +19,7 @@ import {
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
@@ -97,13 +98,10 @@ export default function EditExternalSubnetSideModalForm() {
           body: { name, description },
         })
       }}
-      loading={editExternalSubnet.isPending}
+      loading={editExternalSubnet.isPending || editExternalSubnet.isSuccess}
       submitError={editExternalSubnet.error}
     >
-      <PropertiesTable>
-        <PropertiesTable.IdRow id={subnet.id} />
-        <PropertiesTable.DateRow label="Created" date={subnet.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={subnet.timeModified} />
+      <FormMetadata resource={subnet}>
         <PropertiesTable.Row label="Subnet">{subnet.subnet}</PropertiesTable.Row>
         <PropertiesTable.Row label="Subnet Pool">
           <SubnetPoolCell subnetPoolId={subnet.subnetPoolId} />
@@ -111,7 +109,7 @@ export default function EditExternalSubnetSideModalForm() {
         <PropertiesTable.Row label="Instance">
           <InstanceLink instanceId={subnet.instanceId} tab="networking" />
         </PropertiesTable.Row>
-      </PropertiesTable>
+      </FormMetadata>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <SideModalFormDocs docs={[docLinks.externalSubnets]} />

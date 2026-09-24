@@ -3,8 +3,8 @@
 ## Instructions
 
 1. Update [`OMICRON_VERSION`](/OMICRON_VERSION) with new Omicron commit hash
-1. Update the generated API client by running `npm run gen-api`. This will automatically check out the omicron commit specified as `API_VERSION`. If you forget this step, a safety test in `app/api` will fail.
-1. Fix any type errors introduced by changes to the generated code
+1. Update the generated API client by running `npm run gen-api`. This will automatically check out the omicron commit specified in `OMICRON_VERSION`. If you forget this step, a safety test in `app/api` will fail.
+1. Run `npm run tsc` and fix any type errors introduced by changes to the generated code. New endpoints must be added to the handler map in `mock-api/msw/handlers.ts`; use `NotImplemented` unless the UI needs them.
 1. Commit and push to a branch
 
 ## Available omicron versions

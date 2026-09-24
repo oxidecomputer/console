@@ -11,6 +11,7 @@ import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import { api, getListQFn, queryClient, useApiMutation, type VpcSubnet } from '@oxide/api'
 
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -36,7 +37,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = { crumb: 'VPC Subnets' }
+export const handle = makeCrumb('VPC Subnets', (p) => pb.vpcSubnets(getVpcSelector(p)))
 
 export default function VpcSubnetsTab() {
   const vpcSelector = useVpcSelector()

@@ -18,7 +18,7 @@ import {
 import { NotFound } from './components/ErrorPage'
 import { PageSkeleton } from './components/PageSkeleton.tsx'
 import { makeCrumb, type Crumb } from './hooks/use-crumbs'
-import { getInstanceSelector, getVpcSelector } from './hooks/use-params'
+import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
 import { pb } from './util/path-builder'
 
 // hack because RR doesn't export the redirect type
@@ -195,7 +195,7 @@ export const routes = createRoutesFromElements(
             lazy={() => import('./pages/system/inventory/DisksTab').then(convert)}
           />
         </Route>
-        <Route path="inventory" handle={{ crumb: 'Inventory' }}>
+        <Route path="inventory" handle={makeCrumb('Inventory', pb.sledInventory())}>
           <Route path="sleds" handle={{ crumb: 'Sleds' }}>
             {/* a crumb for the sled ID looks ridiculous, unfortunately */}
             <Route
@@ -266,12 +266,73 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
         <Route
+          path="alerting"
+          lazy={() => import('./pages/system/alerting/AlertingPage').then(convert)}
+        >
+          <Route
+            index
+            lazy={() =>
+              import('./pages/system/alerting/AlertReceiversTab').then(
+                redirectWithLoader('receivers')
+              )
+            }
+          />
+          <Route
+            lazy={() => import('./pages/system/alerting/AlertReceiversTab').then(convert)}
+          >
+            <Route path="receivers" element={null} />
+          </Route>
+          <Route
+            path="alerts"
+            lazy={() => import('./pages/system/alerting/AlertsTab').then(convert)}
+          />
+        </Route>
+        {/* /system/alerting redirects to the receivers tab, so point the crumb
+            straight at the tab to avoid a flash */}
+        <Route path="alerting" handle={{ crumb: 'Alerting', path: pb.alertReceivers() }}>
+          <Route path="receivers" handle={{ crumb: 'Receivers' }}>
+            <Route
+              path=":receiver"
+              lazy={() => import('./pages/system/alerting/AlertReceiverPage').then(convert)}
+            >
+              <Route
+                path="edit"
+                lazy={() => import('./forms/webhook-edit').then(convert)}
+              />
+            </Route>
+          </Route>
+          {/* the create form is a whole page, not a modal over the list, so it
+              sits outside the tabs layout. crumb links back to the list */}
+          <Route element={null} handle={makeCrumb('Receivers', pb.alertReceivers())}>
+            <Route
+              path="receivers-new"
+              lazy={() => import('./forms/webhook-create').then(convert)}
+            />
+          </Route>
+        </Route>
+        <Route
           path="update"
           lazy={() => import('./pages/system/UpdatePage').then(convert)}
         />
+        <Route lazy={() => import('./pages/system/SupportBundlesPage').then(convert)}>
+          <Route path="support-bundles" element={null}>
+            <Route
+              path=":bundleId"
+              lazy={() => import('./pages/system/SupportBundleDetail').then(convert)}
+            />
+          </Route>
+          <Route
+            path="support-bundles-new"
+            lazy={() => import('./forms/support-bundle-create').then(convert)}
+          />
+        </Route>
         <Route
           path="access"
           lazy={() => import('./pages/system/FleetAccessPage').then(convert)}
+        />
+        <Route
+          path="audit-log"
+          lazy={() => import('./pages/system/AuditLog').then(convert)}
         />
       </Route>
 
@@ -335,7 +396,13 @@ export const routes = createRoutesFromElements(
           lazy={() => import('./layouts/SerialConsoleLayout').then(convert)}
         >
           <Route path="instances" handle={{ crumb: 'Instances' }}>
-            <Route path=":instance" handle={makeCrumb((p) => p.instance!)}>
+            <Route
+              path=":instance"
+              handle={makeCrumb(
+                (p) => p.instance!,
+                (p) => pb.instance(getInstanceSelector(p))
+              )}
+            >
               <Route
                 path="serial-console"
                 lazy={() =>
@@ -451,7 +518,14 @@ export const routes = createRoutesFromElements(
                     element={null}
                     handle={{ crumb: 'Firewall Rules' }}
                   />
-                  <Route element={null} handle={{ crumb: 'Firewall Rules' }}>
+                  <Route
+                    element={null}
+                    // path makes crumb link straight to the tab instead of
+                    // bouncing through the redirect at the VPC root
+                    handle={makeCrumb('Firewall Rules', (p) =>
+                      pb.vpcFirewallRules(getVpcSelector(p))
+                    )}
+                  >
                     <Route
                       path="firewall-rules-new/:rule?"
                       lazy={() => import('./forms/firewall-rules-create').then(convert)}
@@ -504,7 +578,13 @@ export const routes = createRoutesFromElements(
             </Route>
           </Route>
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
-            <Route path=":vpc" handle={makeCrumb((p) => p.vpc!)}>
+            <Route
+              path=":vpc"
+              handle={makeCrumb(
+                (p) => p.vpc!,
+                (p) => pb.vpc(getVpcSelector(p))
+              )}
+            >
               <Route path="routers" handle={{ crumb: 'Routers' }}>
                 <Route
                   path=":router"
@@ -598,7 +678,7 @@ export const routes = createRoutesFromElements(
           />
           <Route
             lazy={() => import('./pages/project/affinity/AffinityPage').then(convert)}
-            handle={{ crumb: 'Affinity Groups' }}
+            handle={makeCrumb('Affinity Groups', (p) => pb.affinity(getProjectSelector(p)))}
           >
             <Route
               path="affinity-new"

@@ -13,6 +13,7 @@ import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { configDefaults } from 'vitest/config'
 import { z } from 'zod/v4'
 
 import vercelConfig from './vercel.json'
@@ -95,6 +96,12 @@ const devHeaders = {
 // see https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   build: {
+    // Must match `target` in tsconfig.json: tsc only checks against lib types
+    // and nothing polyfills missing APIs, so the browser floor and the type
+    // ceiling have to move together. Vite maps this to the oldest browsers
+    // with full ES2024 support. We pin it because the default
+    // (baseline-widely-available) drifts across Vite versions.
+    target: 'es2024',
     outDir: resolve(__dirname, 'dist'),
     emptyOutDir: true,
     sourcemap: true,
@@ -140,6 +147,26 @@ export default defineConfig(({ mode }) => ({
     },
     react(),
     apiMode === 'remote' && basicSsl(),
+    apiMode === 'msw' && {
+      // The console downloads support bundles with an <a download> navigation.
+      // MSW's service worker bypasses navigation requests (see
+      // app/util/support-bundle.ts), so the request would otherwise hit the
+      // /v1 proxy and fail. Serve an empty zip so the download works in the
+      // mock dev server and in e2e tests. Only GET: the HEAD the detail modal
+      // uses for size goes through MSW as a normal fetch.
+      name: 'mock-support-bundle-download',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          const isDownload =
+            req.method === 'GET' &&
+            /^\/v1\/system\/support-bundles\/[^/]+\/download$/.test(req.url || '')
+          if (!isDownload) return next()
+          res.writeHead(200, { 'Content-Type': 'application/zip' })
+          // end-of-central-directory record: the smallest valid (empty) zip
+          res.end(Buffer.from('504b0506' + '00'.repeat(18), 'hex'))
+        })
+      },
+    },
   ],
   html: {
     // don't include a placeholder nonce in production.
@@ -160,8 +187,11 @@ export default defineConfig(({ mode }) => ({
   resolve: { tsconfigPaths: true },
   preview: { headers },
   test: {
-    environment: 'jsdom',
-    setupFiles: ['test/unit/setup.ts'],
+    name: 'unit',
+    fsModuleCache: true,
+    // no DOM environment: anything needing a real DOM is a browser mode test
+    environment: 'node',
     includeSource: ['app/**/*.ts'],
+    exclude: [...configDefaults.exclude, '**/*.browser.spec.{ts,tsx}'],
   },
 }))

@@ -21,6 +21,8 @@ test('IP pool list', async ({ page }) => {
 
   await expect(table.getByRole('row')).toHaveCount(8) // header + 7 rows (includes multicast pools and `attach-fail` sentinel)
 
+  await expect(table.getByRole('cell', { name: 'service-pool-v4' })).toBeHidden()
+
   await expectRowVisible(table, {
     name: 'ip-pool-1',
     'IPs REMAINING': '15 / 24',

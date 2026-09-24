@@ -64,7 +64,7 @@ export const Toast = ({
   return (
     <div
       className={cn(
-        'shadow-toast relative flex w-96 items-start overflow-hidden rounded-lg border border-current/10 p-4',
+        'shadow-toast relative flex w-96 max-w-[calc(100vw-2rem)] items-start overflow-hidden rounded-lg border border-current/10 p-4',
         'bg-accent text-accent *:text-accent',
         themeClass[variant]
       )}
@@ -82,7 +82,7 @@ export const Toast = ({
             className="text-mono-sm text-accent-secondary hover:text-accent mt-3 block"
             to={cta.link}
           >
-            <Truncate text={cta.text} maxLength={36} />
+            <Truncate text={cta.text} />
           </Link>
         )}
       </div>

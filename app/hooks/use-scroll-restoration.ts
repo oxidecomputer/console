@@ -5,8 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useLocation, useNavigation } from 'react-router'
+
+import { usePagePath } from './use-crumbs'
 
 function getScrollPosition(key: string) {
   const pos = window.sessionStorage.getItem(key)
@@ -33,15 +35,39 @@ function setScrollPosition(key: string, pos: number) {
 export function useScrollRestoration() {
   const key = `scroll-position-${useLocation().key}`
   const { state } = useNavigation()
+  // page path looks at the page under a side modal, which we use to distinguish
+  // modal open/close (which shouldn't reset scroll) from full page navs (which
+  // should)
+  const page = usePagePath()
+  // last committed location, tracked at idle. We can't track it during
+  // 'loading' because a nav with cached loader data can complete without ever
+  // hitting state === 'loading'.
+  const prev = useRef<{ key: string; page: string } | null>(null)
   useEffect(() => {
-    // opt out of the browser's native scroll restoration so it doesn't jump
-    // the still-visible old page to the new page's saved position on POP,
-    // before the new route's loader resolves. We restore manually below.
+    // opt out of native scroll restoration, it conflicts with ours
     window.history.scrollRestoration = 'manual'
+
+    // idle + new key = we just landed somewhere (or this is the initial render)
+    const landed = state === 'idle' && prev.current?.key !== key
+
+    // underlying page didn't change, which either means the nav was opening
+    // or closing a side modal, a query param tab change, or clicking the
+    // breadcrumb for the page you're already on
+    const samePage = prev.current?.page === page
+
     if (state === 'loading') {
+      // nav in flight: save current scroll under the outgoing location's key
       setScrollPosition(key, window.scrollY)
-    } else if (state === 'idle') {
-      window.scrollTo(0, getScrollPosition(key))
+    } else if (landed) {
+      if (samePage) {
+        // leave scroll alone, record under the new key so it can be restored
+        // on forward/back
+        setScrollPosition(key, window.scrollY)
+      } else {
+        // landed on a new page: restore its saved scroll, or 0 if none saved
+        window.scrollTo(0, getScrollPosition(key))
+      }
     }
-  }, [key, state])
+    if (state === 'idle') prev.current = { key, page }
+  }, [key, state, page])
 }

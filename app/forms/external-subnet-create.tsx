@@ -107,7 +107,7 @@ export default function CreateExternalSubnetSideModalForm() {
           body: { name, description, allocator },
         })
       }}
-      loading={createExternalSubnet.isPending}
+      loading={createExternalSubnet.isPending || createExternalSubnet.isSuccess}
       submitError={createExternalSubnet.error}
     >
       <NameField name="name" control={form.control} />
@@ -132,6 +132,8 @@ export default function CreateExternalSubnetSideModalForm() {
             items={pools.items.map(toPoolItem)}
             required
             description="Subnet pool to allocate from"
+            // the pool's IP version sets the prefix length max
+            deps="prefixLength"
           />
           <NumberField
             name="prefixLength"

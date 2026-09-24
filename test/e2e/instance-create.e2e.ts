@@ -52,6 +52,9 @@ test('can create an instance', async ({ page }) => {
   const instanceName = 'my-instance'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await page.fill('textarea[name=description]', 'An instance... from space!')
+
+  // first preset is selected by default
+  await expect(page.getByRole('radio', { name: '1 CPU 8 gibibytes RAM' })).toBeChecked()
   await page.locator('.ox-radio-card').nth(3).click()
 
   await page.getByRole('textbox', { name: 'Disk name' }).fill('my-boot-disk')
@@ -104,7 +107,7 @@ test('can create an instance', async ({ page }) => {
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 
   await expect(page.getByRole('heading', { name: instanceName })).toBeVisible()
-  await expect(page.getByText('16 vCPUs')).toBeVisible()
+  await expect(page.getByText('8 vCPUs')).toBeVisible()
   await expect(page.getByText('64 GiB')).toBeVisible()
   await expect(page.getByText('from space')).toBeVisible()
 
@@ -121,8 +124,8 @@ test('can create an instance', async ({ page }) => {
   const table = page.getByRole('table', { name: 'Network interfaces' })
   await expectRowVisible(table, {
     name: 'defaultprimary',
-    vpc: 'mock-vpc',
-    subnet: 'mock-subnet',
+    vpc: 'default',
+    subnet: 'default',
   })
 })
 
@@ -155,8 +158,12 @@ test('ephemeral pool selection tracks network interface IP version', async ({ pa
 
   // Verify disabled v4 checkbox shows tooltip
   await v4Checkbox.hover()
-  await expect(page.getByText('Add an IPv4 network interface')).toBeVisible()
-  await expect(page.getByText('to attach an ephemeral IPv4 address')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('Add an IPv4 network interface')
+  ).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('to attach an ephemeral IPv4 address')
+  ).toBeVisible()
 
   // Change to IPv4-only NIC - v6 checkbox should become disabled and unchecked
   await selectOption(page, page.getByRole('button', { name: 'IPv6', exact: true }), 'IPv4')
@@ -169,8 +176,12 @@ test('ephemeral pool selection tracks network interface IP version', async ({ pa
 
   // Verify disabled v6 checkbox shows tooltip
   await v6Checkbox.hover()
-  await expect(page.getByText('Add an IPv6 network interface')).toBeVisible()
-  await expect(page.getByText('to attach an ephemeral IPv6 address')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('Add an IPv6 network interface')
+  ).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('to attach an ephemeral IPv6 address')
+  ).toBeVisible()
 })
 
 test('duplicate instance name produces visible error', async ({ page }) => {
@@ -181,30 +192,12 @@ test('duplicate instance name produces visible error', async ({ page }) => {
   await expect(page.getByText('Instance name already exists')).toBeVisible()
 })
 
-test('first preset is auto-selected in each tab', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances-new')
-
-  await expect(page.getByRole('radio', { name: '2 CPU 8 gibibytes RAM' })).toBeChecked()
-  await page.getByRole('tab', { name: 'High CPU' }).click()
-  await expect(page.getByRole('radio', { name: '2 CPU 4 gibibytes RAM' })).toBeChecked()
-  await page.getByRole('tab', { name: 'High Memory' }).click()
-  await expect(page.getByRole('radio', { name: '2 CPU 16 gibibytes RAM' })).toBeChecked()
-  await page.getByRole('tab', { name: 'General Purpose' }).click()
-  await expect(page.getByRole('radio', { name: '2 CPU 8 gibibytes RAM' })).toBeChecked()
-})
-
 test('can create an instance with custom hardware', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 
   const instanceName = 'my-custom-instance'
   await page.fill('input[name=name]', instanceName)
   await page.fill('textarea[name=description]', 'An instance... from space!')
-
-  // Click the other tabs to make sure the custom input works
-  // even when something has been previously selected
-  await page.getByRole('tab', { name: 'High CPU' }).click()
-  await page.getByRole('tab', { name: 'High Memory' }).click()
-  await page.getByText('64 GiB RAM').click()
 
   // Fill in custom specs
   await page.getByRole('tab', { name: 'Custom' }).click()
@@ -221,15 +214,17 @@ test('can create an instance with custom hardware', async ({ page }) => {
   // the disk size should bot have been changed from what was entered earlier
   await expect(diskSizeInput).toHaveValue('20')
 
-  // test disk size validation against image size
-  // the minimum on the number input will be the size of the image (6GiB),
-  // so manually entering a number less than that will be corrected
+  // test disk size validation against image size: the minimum is the size of
+  // the image (6 GiB), so a smaller number is not clamped but does block submit
   await diskSizeInput.fill('5')
-  await page.keyboard.press('Tab')
-  await expect(diskSizeInput).toHaveValue('6')
-
   const submitButton = page.getByRole('button', { name: 'Create instance' })
-  await submitButton.click() // submit to trigger validation
+  await submitButton.click()
+  await expect(diskSizeInput).toHaveValue('5')
+  await expect(page.getByRole('main').getByText('Must be at least 6 GiB')).toBeVisible()
+
+  await diskSizeInput.fill('20')
+  await expect(page.getByRole('main').getByText('Must be at least 6 GiB')).toBeHidden()
+  await submitButton.click()
 
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 
@@ -822,9 +817,9 @@ test('create instance with custom IPv4-only NIC constrains ephemeral IP to IPv4'
 
   await modal.getByRole('textbox', { name: 'Name' }).fill('my-ipv4-nic')
   await modal.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Select IPv4-only IP configuration
   await modal.getByRole('radio', { name: 'IPv4', exact: true }).click()
@@ -898,9 +893,9 @@ test('create instance with custom IPv6-only NIC constrains ephemeral IP to IPv6'
 
   await modal.getByRole('textbox', { name: 'Name' }).fill('my-ipv6-nic')
   await modal.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Select IPv6-only IP configuration
   await modal.getByRole('radio', { name: 'IPv6', exact: true }).click()
@@ -974,9 +969,9 @@ test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephem
 
   await modal.getByRole('textbox', { name: 'Name' }).fill('my-dual-stack-nic')
   await modal.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Select dual-stack IP configuration (should be default)
   await modal.getByRole('radio', { name: 'IPv4 & IPv6', exact: true }).click()
@@ -1073,13 +1068,21 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
 
   // Verify tooltip shows disabled reason for IPv4
   await v4Checkbox.hover()
-  await expect(page.getByText('Add an IPv4 network interface')).toBeVisible()
-  await expect(page.getByText('to attach an ephemeral IPv4 address')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('Add an IPv4 network interface')
+  ).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('to attach an ephemeral IPv4 address')
+  ).toBeVisible()
 
   // Verify tooltip shows disabled reason for IPv6
   await v6Checkbox.hover()
-  await expect(page.getByText('Add an IPv6 network interface')).toBeVisible()
-  await expect(page.getByText('to attach an ephemeral IPv6 address')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('Add an IPv6 network interface')
+  ).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('to attach an ephemeral IPv6 address')
+  ).toBeVisible()
 
   // Select "Custom" radio → verify ephemeral IP checkboxes are still disabled and unchecked
   await customRadio.click()
@@ -1092,8 +1095,12 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
 
   // Verify tooltip still shows disabled reason when in Custom mode with no NICs
   await v4Checkbox.hover()
-  await expect(page.getByText('Add an IPv4 network interface')).toBeVisible()
-  await expect(page.getByText('to attach an ephemeral IPv4 address')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('Add an IPv4 network interface')
+  ).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('to attach an ephemeral IPv4 address')
+  ).toBeVisible()
 
   // Click "Add network interface" button to open modal
   await page.getByRole('button', { name: 'Add network interface' }).click()
@@ -1104,9 +1111,9 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
   // Create an IPv4 NIC named "new-v4-nic"
   await modal.getByRole('textbox', { name: 'Name' }).fill('new-v4-nic')
   await modal.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
 
   // Select IPv4 IP configuration
   await modal.getByRole('radio', { name: 'IPv4', exact: true }).click()
@@ -1169,6 +1176,62 @@ test('network interface options disabled when no VPCs exist', async ({ page }) =
   // Verify "None" is enabled and checked
   await expect(noneRadio).toBeEnabled()
   await expect(noneRadio).toBeChecked()
+})
+
+// The default_* attachment types resolve a VPC named 'default', so they 404 if
+// that VPC has been deleted. other-project has a VPC, just not one named
+// 'default', so only custom interfaces work there.
+test('custom network interface works without a default VPC', async ({ page }) => {
+  await page.goto('/projects/other-project/instances-new')
+  const instanceName = 'custom-nic-without-default-vpc'
+
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  const customRadio = page.getByRole('radio', { name: 'Custom', exact: true })
+  const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
+
+  // default is out, but the project has a VPC, so custom interfaces still work
+  await expect(defaultRadio).toBeDisabled()
+  await expect(defaultRadio).not.toBeChecked()
+  await expect(customRadio).toBeEnabled()
+
+  const defaultRow = defaultRadio.locator('..').locator('..').locator('..')
+  const defaultTip = defaultRow.getByRole('button', { name: 'Tip' })
+  const tooltip = page.getByRole('tooltip')
+
+  await defaultTip.hover()
+  await expect(tooltip).toHaveText('Default networking requires a VPC named default')
+
+  await page.mouse.move(0, 0)
+  await expect(tooltip).toBeHidden()
+  await defaultTip.focus()
+  await expect(tooltip).toHaveText('Default networking requires a VPC named default')
+
+  await expect(noneRadio).toBeEnabled()
+  await expect(noneRadio).toBeChecked()
+
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  await customRadio.click()
+  await page.getByRole('button', { name: 'Add network interface' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Add network interface' })
+  await modal.getByRole('textbox', { name: 'Name' }).fill('custom-primary')
+  await expect(modal.getByLabel('VPC', { exact: true })).toContainText('mock-vpc-2')
+  await modal.getByRole('button', { name: 'VPC subnet' }).click()
+  await page.getByRole('option', { name: 'other-subnet', exact: true }).click()
+  await modal.getByRole('button', { name: 'Add network interface' }).click()
+
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await closeToast(page)
+  await expect(page).toHaveURL(`/projects/other-project/instances/${instanceName}/storage`)
+
+  await page.getByRole('tab', { name: 'Networking' }).click()
+  await expectRowVisible(page.getByRole('table', { name: 'Network interfaces' }), {
+    name: 'custom-primaryprimary',
+    vpc: 'mock-vpc-2',
+    subnet: 'other-subnet',
+  })
 })
 
 test('floating IPs are filtered by NIC IP version', async ({ page }) => {
@@ -1265,8 +1328,10 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
 
   // Verify the disabled reason tooltip
   await attachFloatingIpButton.hover()
-  await expect(page.getByText('A network interface is required')).toBeVisible()
-  await expect(page.getByText('to attach a floating IP')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('A network interface is required')
+  ).toBeVisible()
+  await expect(page.getByRole('tooltip').getByText('to attach a floating IP')).toBeVisible()
 })
 
 test('can create instance with read-only boot disk', async ({ page }) => {

@@ -170,7 +170,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
     },
   })
 
-  const projects = useQuery(q(api.projectList, {}))
+  const projects = useQuery(q(api.projectList, { query: { limit: ALL_ISH } }))
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
   const selectedProject = form.watch('project')
 
@@ -191,7 +191,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
     <ModalForm
       title="Promote image"
       form={form}
-      loading={promoteImage.isPending}
+      loading={promoteImage.isPending || promoteImage.isSuccess}
       submitError={promoteImage.error}
       onSubmit={({ image, project }) => {
         if (!image || !project) return // shouldn't happen because of validation
@@ -268,14 +268,14 @@ const DemoteImageModal = ({
     },
   })
 
-  const projects = useQuery(q(api.projectList, {}))
+  const projects = useQuery(q(api.projectList, { query: { limit: ALL_ISH } }))
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
 
   return (
     <ModalForm
       title="Demote image"
       form={form}
-      loading={demoteImage.isPending}
+      loading={demoteImage.isPending || demoteImage.isSuccess}
       submitError={demoteImage.error}
       onSubmit={({ project }) => {
         if (!project) return // shouldn't happen because of validation

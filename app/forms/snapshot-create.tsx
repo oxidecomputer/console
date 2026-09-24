@@ -77,7 +77,7 @@ export default function SnapshotCreate() {
         createSnapshot.mutate({ query: projectSelector, body: values })
       }}
       submitError={createSnapshot.error}
-      loading={createSnapshot.isPending}
+      loading={createSnapshot.isPending || createSnapshot.isSuccess}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

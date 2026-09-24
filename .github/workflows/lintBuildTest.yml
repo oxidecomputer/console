@@ -15,10 +15,7 @@ jobs:
     runs-on: macos-15-xlarge
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: 'npm'
+      - uses: oxidecomputer/actions/setup-node@0f10e5eb0416cb29a99322222a62b268c81d0be9
       - name: Cache node_modules
         uses: actions/cache@v5
         id: cache-node-modules
@@ -34,10 +31,7 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: 'npm'
+      - uses: oxidecomputer/actions/setup-node@0f10e5eb0416cb29a99322222a62b268c81d0be9
       - name: Get node_modules from cache
         uses: actions/cache@v5
         id: cache-node-modules
@@ -51,24 +45,27 @@ jobs:
       - name: Check formatting
         run: npm run fmt:check
       - name: Test
-        run: npm test run
+        run: npm test run -- --project unit
       - name: Build
         run: npm run build
   playwright:
-    name: Playwright (${{ matrix.browser }})
+    name: Playwright (${{ matrix.playwright }})
     timeout-minutes: 20
     runs-on: macos-15-xlarge
     needs: install
     strategy:
       fail-fast: false
       matrix:
-        browser: ['chrome', 'firefox', 'safari']
+        include:
+          - playwright: chrome
+            vitest: chromium
+          - playwright: firefox
+            vitest: firefox
+          - playwright: safari
+            vitest: webkit
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: 'npm'
+      - uses: oxidecomputer/actions/setup-node@0f10e5eb0416cb29a99322222a62b268c81d0be9
       - name: Get node_modules from cache
         uses: actions/cache@v5
         with:
@@ -95,11 +92,15 @@ jobs:
       - name: 🏗 Install Playwright OS dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps
+      - name: Run Vitest browser tests
+        run: npm run test:browser -- run --browser.name=${{ matrix.vitest }}
       - name: Run Playwright browser tests
-        run: npx playwright test --project=${{matrix.browser}}
+        run: npx playwright test --project=${{ matrix.playwright }}
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: test-results-${{ matrix.browser }}
-          path: test-results/
+          name: test-results-${{ matrix.playwright }}
+          path: |
+            test-results/
+            .vitest/
           retention-days: 7

@@ -62,7 +62,7 @@ export function SSHKeyCreate({ onDismiss, onSuccess, message }: Props) {
       title="Add SSH key"
       onDismiss={handleDismiss}
       onSubmit={(body) => createSshKey.mutate({ body })}
-      loading={createSshKey.isPending}
+      loading={createSshKey.isPending || createSshKey.isSuccess}
       submitError={createSshKey.error}
     >
       <NameField name="name" control={form.control} />

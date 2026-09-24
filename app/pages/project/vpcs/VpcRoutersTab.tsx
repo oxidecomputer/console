@@ -13,6 +13,7 @@ import { api, getListQFn, q, queryClient, useApiMutation, type VpcRouter } from 
 
 import { HL } from '~/components/HL'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -36,7 +37,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = { crumb: 'Routers' }
+export const handle = makeCrumb('Routers', (p) => pb.vpcRouters(getVpcSelector(p)))
 
 export default function VpcRoutersTab() {
   const vpcSelector = useVpcSelector()

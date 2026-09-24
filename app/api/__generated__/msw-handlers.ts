@@ -88,67 +88,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /experimental/v1/system/support-bundles` */
-  supportBundleList: (params: {
-    query: Api.SupportBundleListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SupportBundleInfoResultsPage>>
-  /** `POST /experimental/v1/system/support-bundles` */
-  supportBundleCreate: (params: {
-    body: Json<Api.SupportBundleCreate>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
-  /** `GET /experimental/v1/system/support-bundles/:bundleId` */
-  supportBundleView: (params: {
-    path: Api.SupportBundleViewPathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
-  /** `PUT /experimental/v1/system/support-bundles/:bundleId` */
-  supportBundleUpdate: (params: {
-    path: Api.SupportBundleUpdatePathParams
-    body: Json<Api.SupportBundleUpdate>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
-  /** `DELETE /experimental/v1/system/support-bundles/:bundleId` */
-  supportBundleDelete: (params: {
-    path: Api.SupportBundleDeletePathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
-  /** `GET /experimental/v1/system/support-bundles/:bundleId/download` */
-  supportBundleDownload: (params: {
-    path: Api.SupportBundleDownloadPathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
-  /** `HEAD /experimental/v1/system/support-bundles/:bundleId/download` */
-  supportBundleHead: (params: {
-    path: Api.SupportBundleHeadPathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
-  /** `GET /experimental/v1/system/support-bundles/:bundleId/download/:file` */
-  supportBundleDownloadFile: (params: {
-    path: Api.SupportBundleDownloadFilePathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
-  /** `HEAD /experimental/v1/system/support-bundles/:bundleId/download/:file` */
-  supportBundleHeadFile: (params: {
-    path: Api.SupportBundleHeadFilePathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
-  /** `GET /experimental/v1/system/support-bundles/:bundleId/index` */
-  supportBundleIndex: (params: {
-    path: Api.SupportBundleIndexPathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
   /** `POST /login/:siloName/saml/:providerName` */
   loginSaml: (params: {
     path: Api.LoginSamlPathParams
@@ -269,6 +208,18 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/alerts` */
+  alertList: (params: {
+    query: Api.AlertListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertResultsPage>>
+  /** `GET /v1/alerts/:alertId` */
+  alertView: (params: {
+    path: Api.AlertViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Alert>>
   /** `POST /v1/alerts/:alertId/resend` */
   alertDeliveryResend: (params: {
     path: Api.AlertDeliveryResendPathParams
@@ -1295,6 +1246,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `POST /v1/system/ip-pools/:pool/assignment` */
+  systemIpPoolAssign: (params: {
+    path: Api.SystemIpPoolAssignPathParams
+    body: Json<Api.IpPoolAssignParam>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.IpPool>>
   /** `GET /v1/system/ip-pools/:pool/ranges` */
   systemIpPoolRangeList: (params: {
     path: Api.SystemIpPoolRangeListPathParams
@@ -1349,29 +1307,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.IpPoolUtilization>>
-  /** `GET /v1/system/ip-pools-service` */
-  systemIpPoolServiceView: (params: {
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPool>>
-  /** `GET /v1/system/ip-pools-service/ranges` */
-  systemIpPoolServiceRangeList: (params: {
-    query: Api.SystemIpPoolServiceRangeListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolRangeResultsPage>>
-  /** `POST /v1/system/ip-pools-service/ranges/add` */
-  systemIpPoolServiceRangeAdd: (params: {
-    body: Json<Api.IpRange>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolRange>>
-  /** `POST /v1/system/ip-pools-service/ranges/remove` */
-  systemIpPoolServiceRangeRemove: (params: {
-    body: Json<Api.IpRange>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
   /** `GET /v1/system/metrics/:metricName` */
   systemMetric: (params: {
     path: Api.SystemMetricPathParams
@@ -1765,6 +1700,67 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SubnetPoolUtilization>>
+  /** `GET /v1/system/support-bundles` */
+  supportBundleList: (params: {
+    query: Api.SupportBundleListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfoResultsPage>>
+  /** `POST /v1/system/support-bundles` */
+  supportBundleCreate: (params: {
+    body: Json<Api.SupportBundleCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
+  /** `GET /v1/system/support-bundles/:bundleId` */
+  supportBundleView: (params: {
+    path: Api.SupportBundleViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
+  /** `PUT /v1/system/support-bundles/:bundleId` */
+  supportBundleUpdate: (params: {
+    path: Api.SupportBundleUpdatePathParams
+    body: Json<Api.SupportBundleUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
+  /** `DELETE /v1/system/support-bundles/:bundleId` */
+  supportBundleDelete: (params: {
+    path: Api.SupportBundleDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/support-bundles/:bundleId/download` */
+  supportBundleDownload: (params: {
+    path: Api.SupportBundleDownloadPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `HEAD /v1/system/support-bundles/:bundleId/download` */
+  supportBundleHead: (params: {
+    path: Api.SupportBundleHeadPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/support-bundles/:bundleId/download/:file` */
+  supportBundleDownloadFile: (params: {
+    path: Api.SupportBundleDownloadFilePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `HEAD /v1/system/support-bundles/:bundleId/download/:file` */
+  supportBundleHeadFile: (params: {
+    path: Api.SupportBundleHeadFilePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/support-bundles/:bundleId/index` */
+  supportBundleIndex: (params: {
+    path: Api.SupportBundleIndexPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `POST /v1/system/timeseries/query` */
   systemTimeseriesQuery: (params: {
     body: Json<Api.TimeseriesQuery>
@@ -2236,54 +2232,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/experimental/v1/probes/:probe',
       handler(handlers['probeDelete'], schema.ProbeDeleteParams, null)
     ),
-    http.get(
-      '/experimental/v1/system/support-bundles',
-      handler(handlers['supportBundleList'], schema.SupportBundleListParams, null)
-    ),
-    http.post(
-      '/experimental/v1/system/support-bundles',
-      handler(handlers['supportBundleCreate'], null, schema.SupportBundleCreate)
-    ),
-    http.get(
-      '/experimental/v1/system/support-bundles/:bundleId',
-      handler(handlers['supportBundleView'], schema.SupportBundleViewParams, null)
-    ),
-    http.put(
-      '/experimental/v1/system/support-bundles/:bundleId',
-      handler(
-        handlers['supportBundleUpdate'],
-        schema.SupportBundleUpdateParams,
-        schema.SupportBundleUpdate
-      )
-    ),
-    http.delete(
-      '/experimental/v1/system/support-bundles/:bundleId',
-      handler(handlers['supportBundleDelete'], schema.SupportBundleDeleteParams, null)
-    ),
-    http.get(
-      '/experimental/v1/system/support-bundles/:bundleId/download',
-      handler(handlers['supportBundleDownload'], schema.SupportBundleDownloadParams, null)
-    ),
-    http.head(
-      '/experimental/v1/system/support-bundles/:bundleId/download',
-      handler(handlers['supportBundleHead'], schema.SupportBundleHeadParams, null)
-    ),
-    http.get(
-      '/experimental/v1/system/support-bundles/:bundleId/download/:file',
-      handler(
-        handlers['supportBundleDownloadFile'],
-        schema.SupportBundleDownloadFileParams,
-        null
-      )
-    ),
-    http.head(
-      '/experimental/v1/system/support-bundles/:bundleId/download/:file',
-      handler(handlers['supportBundleHeadFile'], schema.SupportBundleHeadFileParams, null)
-    ),
-    http.get(
-      '/experimental/v1/system/support-bundles/:bundleId/index',
-      handler(handlers['supportBundleIndex'], schema.SupportBundleIndexParams, null)
-    ),
     http.post(
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSaml'], schema.LoginSamlParams, null)
@@ -2387,6 +2335,11 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.AlertReceiverSubscriptionRemoveParams,
         null
       )
+    ),
+    http.get('/v1/alerts', handler(handlers['alertList'], schema.AlertListParams, null)),
+    http.get(
+      '/v1/alerts/:alertId',
+      handler(handlers['alertView'], schema.AlertViewParams, null)
     ),
     http.post(
       '/v1/alerts/:alertId/resend',
@@ -3250,6 +3203,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/system/ip-pools/:pool',
       handler(handlers['systemIpPoolDelete'], schema.SystemIpPoolDeleteParams, null)
     ),
+    http.post(
+      '/v1/system/ip-pools/:pool/assignment',
+      handler(
+        handlers['systemIpPoolAssign'],
+        schema.SystemIpPoolAssignParams,
+        schema.IpPoolAssignParam
+      )
+    ),
     http.get(
       '/v1/system/ip-pools/:pool/ranges',
       handler(handlers['systemIpPoolRangeList'], schema.SystemIpPoolRangeListParams, null)
@@ -3301,26 +3262,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.SystemIpPoolUtilizationViewParams,
         null
       )
-    ),
-    http.get(
-      '/v1/system/ip-pools-service',
-      handler(handlers['systemIpPoolServiceView'], null, null)
-    ),
-    http.get(
-      '/v1/system/ip-pools-service/ranges',
-      handler(
-        handlers['systemIpPoolServiceRangeList'],
-        schema.SystemIpPoolServiceRangeListParams,
-        null
-      )
-    ),
-    http.post(
-      '/v1/system/ip-pools-service/ranges/add',
-      handler(handlers['systemIpPoolServiceRangeAdd'], null, schema.IpRange)
-    ),
-    http.post(
-      '/v1/system/ip-pools-service/ranges/remove',
-      handler(handlers['systemIpPoolServiceRangeRemove'], null, schema.IpRange)
     ),
     http.get(
       '/v1/system/metrics/:metricName',
@@ -3691,6 +3632,54 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.SystemSubnetPoolUtilizationViewParams,
         null
       )
+    ),
+    http.get(
+      '/v1/system/support-bundles',
+      handler(handlers['supportBundleList'], schema.SupportBundleListParams, null)
+    ),
+    http.post(
+      '/v1/system/support-bundles',
+      handler(handlers['supportBundleCreate'], null, schema.SupportBundleCreate)
+    ),
+    http.get(
+      '/v1/system/support-bundles/:bundleId',
+      handler(handlers['supportBundleView'], schema.SupportBundleViewParams, null)
+    ),
+    http.put(
+      '/v1/system/support-bundles/:bundleId',
+      handler(
+        handlers['supportBundleUpdate'],
+        schema.SupportBundleUpdateParams,
+        schema.SupportBundleUpdate
+      )
+    ),
+    http.delete(
+      '/v1/system/support-bundles/:bundleId',
+      handler(handlers['supportBundleDelete'], schema.SupportBundleDeleteParams, null)
+    ),
+    http.get(
+      '/v1/system/support-bundles/:bundleId/download',
+      handler(handlers['supportBundleDownload'], schema.SupportBundleDownloadParams, null)
+    ),
+    http.head(
+      '/v1/system/support-bundles/:bundleId/download',
+      handler(handlers['supportBundleHead'], schema.SupportBundleHeadParams, null)
+    ),
+    http.get(
+      '/v1/system/support-bundles/:bundleId/download/:file',
+      handler(
+        handlers['supportBundleDownloadFile'],
+        schema.SupportBundleDownloadFileParams,
+        null
+      )
+    ),
+    http.head(
+      '/v1/system/support-bundles/:bundleId/download/:file',
+      handler(handlers['supportBundleHeadFile'], schema.SupportBundleHeadFileParams, null)
+    ),
+    http.get(
+      '/v1/system/support-bundles/:bundleId/index',
+      handler(handlers['supportBundleIndex'], schema.SupportBundleIndexParams, null)
     ),
     http.post(
       '/v1/system/timeseries/query',

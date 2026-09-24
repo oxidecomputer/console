@@ -6,16 +6,17 @@
  * Copyright Oxide Computer Company
  */
 import { addHours } from 'date-fns'
-import { delay } from 'msw'
+import { delay, HttpResponse } from 'msw'
 import * as R from 'remeda'
 import { lt as semverLessThan, rcompare as semverRCompare } from 'semver'
 import { match } from 'ts-pattern'
 import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
+  DEFAULT_VPC_NAME,
   diskCan,
-  fleetRoles,
   FLEET_ID,
+  fleetRoles,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   INSTANCE_MIN_RAM_GiB,
@@ -30,14 +31,23 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
+import {
+  instanceCan,
+  MAX_BUNDLE_COMMENT_BYTES,
+  OXQL_GROUP_BY_ERROR,
+  subscriptionRegex,
+  utf8ByteLength,
+} from '~/api/util'
 import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
+import { alertClasses, PROBE_ALERT_ID } from '../alert'
 import { defaultSilo, toIdp } from '../silo'
+import { SUPPORT_BUNDLE_SIZE } from '../support-bundle'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
+import { resendableAlerts, retryPendingDeliveries, validateSubscription } from './alert'
 import {
   db,
   getIpFromPool,
@@ -69,6 +79,7 @@ import {
   requireFleetViewer,
   requireRole,
   resolveIpStack,
+  unauthorizedErr,
   unavailableErr,
   updateDesc,
   userHasRole,
@@ -120,6 +131,8 @@ export const handlers = makeHandlers({
       throw unavailableErr()
     } else if (path.project.endsWith('error-403')) {
       throw forbiddenErr()
+    } else if (path.project.endsWith('error-401')) {
+      throw unauthorizedErr()
     }
 
     return R.omit(lookup.project({ ...path }), ['silo_id'])
@@ -159,6 +172,8 @@ export const handlers = makeHandlers({
     const project = lookup.project(query)
 
     errIfExists(db.disks, { name: body.name, project_id: project.id })
+
+    errIfInvalidDiskSize(body)
 
     if (body.name === 'disk-create-500') throw internalError('disk create failed')
 
@@ -558,6 +573,9 @@ export const handlers = makeHandlers({
 
     const instanceId = uuid()
 
+    // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/src/app/instance.rs#L2894-L2908
+    if (body.memory % GiB !== 0) throw 'Memory must be a multiple of 1 GiB'
+
     if (body.memory > INSTANCE_MAX_RAM_GiB * GiB) {
       throw `Memory can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
     }
@@ -609,6 +627,13 @@ export const handlers = makeHandlers({
         lookup.vpc({ ...query, vpc: vpc_name })
         lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
       })
+    } else if (body.network_interfaces?.type.startsWith('default_')) {
+      // The default attachment types resolve a VPC and subnet both named
+      // literally 'default', so they 404 when that VPC doesn't exist, even if
+      // the project has other VPCs.
+      // https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/src/app/sagas/instance_create.rs#L739-L773
+      lookup.vpc({ ...query, vpc: DEFAULT_VPC_NAME })
+      lookup.vpcSubnet({ ...query, vpc: DEFAULT_VPC_NAME, subnet: DEFAULT_VPC_NAME })
     }
 
     // validate floating IP attachments before we actually do anything
@@ -838,6 +863,8 @@ export const handlers = makeHandlers({
     if (instance.name === 'instance-update-error') {
       throw 'Cannot update instance'
     }
+
+    if (body.memory % GiB !== 0) throw 'Memory must be a multiple of 1 GiB'
 
     const resize = body.ncpus !== instance.ncpus || body.memory !== instance.memory
     if (resize && !instanceCan.resize({ runState: instance.run_state })) {
@@ -1203,7 +1230,10 @@ export const handlers = makeHandlers({
   },
   systemIpPoolList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
-    return paginated(query, db.ipPools)
+    const pools = query.assignment
+      ? db.ipPools.filter((pool) => pool.assignment === query.assignment)
+      : db.ipPools
+    return paginated(query, pools)
   },
   systemIpPoolUtilizationView({ path, cookies }) {
     requireFleetViewer(cookies)
@@ -1418,6 +1448,7 @@ export const handlers = makeHandlers({
       // See https://zod.dev/v4/changelog?id=defaults-applied-within-optional-fields#defaults-applied-within-optional-fields
       ip_version: body.ip_version || 'v4',
       pool_type: body.pool_type || 'unicast',
+      assignment: body.assignment || 'silos',
       ...getTimestamps(),
     }
     db.ipPools.push(newPool)
@@ -1915,6 +1946,11 @@ export const handlers = makeHandlers({
       id: uuid(),
       ...getTimestamps(),
       ...body,
+      // discoverable was removed from SiloCreate, but it's still on the Silo
+      // view. Silo creation through the API hardcodes discoverable: true in
+      // the DB model
+      // https://github.com/oxidecomputer/omicron/blob/71f52a3/nexus/db-queries/src/db/datastore/silo.rs#L164
+      discoverable: true,
       mapped_fleet_roles: body.mapped_fleet_roles || {},
     }
     db.silos.push(newSilo)
@@ -1926,6 +1962,13 @@ export const handlers = makeHandlers({
   siloView({ path, cookies }) {
     requireFleetViewer(cookies)
     return lookup.silo(path)
+  },
+  siloUserView({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const silo = lookup.silo({ silo: query.silo })
+    const user = db.users.find((u) => u.id === path.userId && u.silo_id === silo.id)
+    if (!user) throw notFoundErr(`user '${path.userId}'`)
+    return user
   },
   siloDelete({ path, cookies }) {
     requireFleetViewer(cookies)
@@ -2012,6 +2055,102 @@ export const handlers = makeHandlers({
     return paginated(query, db.users)
   },
 
+  supportBundleList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    const bundles =
+      query.sortBy === 'time_and_id_descending'
+        ? R.sortBy(
+            db.supportBundles,
+            [(b) => b.time_created, 'desc'],
+            [(b) => b.id, 'desc']
+          )
+        : db.supportBundles
+    return paginated(query, bundles)
+  },
+  supportBundleView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookupById(db.supportBundles, path.bundleId)
+  },
+  supportBundleCreate({ body, cookies }) {
+    requireFleetAdmin(cookies)
+
+    // sentinel for testing the one-bundle-per-external-disk policy error
+    // https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/support_bundle.rs#L47-L49
+    if (body.user_comment === 'no space') {
+      throw json(
+        {
+          error_code: 'InsufficientCapacity',
+          message:
+            "Insufficient capacity: Current policy limits support bundle creation to 'one per external disk', and no disks are available. You must delete old support bundles before new ones can be created",
+        },
+        { status: 507 }
+      )
+    }
+
+    const newBundle: Json<Api.SupportBundleInfo> = {
+      id: uuid(),
+      reason_for_creation: 'Created by external API',
+      state: 'collecting',
+      time_created: new Date().toISOString(),
+      user_comment: body.user_comment,
+    }
+    db.supportBundles.push(newBundle)
+
+    // simulate collection finishing, with a sentinel to exercise failure
+    setTimeout(() => {
+      if (body.user_comment === 'fail collection') {
+        newBundle.state = 'failed'
+        newBundle.reason_for_failure = 'Bundle collection failed'
+      } else {
+        newBundle.state = 'active'
+      }
+    }, 3000)
+
+    return json(newBundle, { status: 201 })
+  },
+  supportBundleUpdate({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+    if (body.user_comment && utf8ByteLength(body.user_comment) > MAX_BUNDLE_COMMENT_BYTES) {
+      throw invalidRequest(`User comment cannot exceed ${MAX_BUNDLE_COMMENT_BYTES} bytes`)
+    }
+    bundle.user_comment = body.user_comment
+    return bundle
+  },
+  supportBundleDelete({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+
+    // a failed bundle's storage is already reclaimed, so it's deleted
+    // immediately. otherwise the bundle sits in state 'destroying' until a
+    // background task frees its storage, which we simulate with a timeout
+    if (bundle.state === 'failed') {
+      db.supportBundles = db.supportBundles.filter((b) => b.id !== bundle.id)
+    } else {
+      bundle.state = 'destroying'
+      setTimeout(() => {
+        db.supportBundles = db.supportBundles.filter((b) => b.id !== bundle.id)
+      }, 3000)
+    }
+
+    return 204
+  },
+  // the generated handler type only allows status code returns for binary
+  // endpoints, but the dispatcher passes Response instances through untouched
+  // @ts-expect-error
+  supportBundleHead({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+    if (bundle.state !== 'active') {
+      throw invalidRequest('Cannot download bundle in non-active state')
+    }
+    return new HttpResponse(null, {
+      headers: {
+        'Content-Type': 'application/zip',
+        'Content-Length': SUPPORT_BUNDLE_SIZE.toString(),
+      },
+    })
+  },
   switchList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
     return paginated(query, db.switches)
@@ -2310,6 +2449,51 @@ export const handlers = makeHandlers({
       )
     )
     return paginated(query, affinityGroups)
+  },
+  alertList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
+    const { startTime, endTime, alertClass } = query
+    let final = db.alerts.filter((d) => d.class !== 'probe')
+
+    if (startTime)
+      final = final.filter((alert) => new Date(alert.time_created) >= startTime)
+    if (endTime) final = final.filter((alert) => new Date(alert.time_created) <= endTime)
+    if (alertClass) {
+      const matcher = subscriptionRegex(alertClass)
+      final = final.filter((alert) => matcher.test(alert.class))
+    }
+
+    final = match(query.sortBy)
+      .with(undefined, () => final)
+      .with('time_and_id_descending', () =>
+        R.reverse(R.sortBy(final, ({ time_created, id }) => `${time_created}|${id}`))
+      )
+      .with('time_and_id_ascending', () =>
+        R.sortBy(final, ({ time_created, id }) => `${time_created}|${id}`)
+      )
+      .exhaustive()
+
+    return paginated(query, final)
+  },
+  alertView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookupById(db.alerts, path.alertId)
+  },
+  auditLogList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
+
+    // same semantics as Nexus: start_time <= time_completed < end_time
+    // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/db-queries/src/db/datastore/audit_log.rs
+    const { startTime, endTime } = query
+    let filteredLogs = db.auditLog
+    if (startTime) {
+      filteredLogs = filteredLogs.filter((log) => new Date(log.time_completed) >= startTime)
+    }
+    if (endTime) {
+      filteredLogs = filteredLogs.filter((log) => new Date(log.time_completed) < endTime)
+    }
+
+    return paginated(query, filteredLogs)
   },
 
   // SCIM token endpoints
@@ -2623,6 +2807,218 @@ export const handlers = makeHandlers({
     return paginated(query, pools)
   },
 
+  alertClassList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    const filter = query.filter ? subscriptionRegex(query.filter) : null
+    // can't use paginated() because alert classes have no ID
+    return { items: alertClasses.filter((c) => !filter || filter.test(c.name)) }
+  },
+  alertReceiverList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    return paginated(query, db.alertReceivers)
+  },
+  alertReceiverView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookup.alertReceiver(path)
+  },
+  alertReceiverDelete({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver(path)
+    db.alertReceivers = db.alertReceivers.filter((r) => r.id !== receiver.id)
+    db.alertDeliveries = db.alertDeliveries.filter((d) => d.receiver_id !== receiver.id)
+    return 204
+  },
+  alertDeliveryList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const receiver = lookup.alertReceiver(path)
+    retryPendingDeliveries(receiver)
+    // probe deliveries are stored like any other but never listed, matching
+    // omicron, which only queries the alert and resend triggers here
+    // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/src/app/alert.rs#L355-L365
+    let deliveries = db.alertDeliveries.filter(
+      (d) => d.receiver_id === receiver.id && d.trigger !== 'probe'
+    )
+    // if any state filters are specified, only include deliveries in those states
+    const states = [
+      query.delivered && 'delivered',
+      query.failed && 'failed',
+      query.pending && 'pending',
+    ].filter((s) => !!s)
+    if (states.length > 0) {
+      deliveries = deliveries.filter((d) => states.includes(d.state))
+    }
+    return paginated(query, deliveries)
+  },
+  alertReceiverProbe({ path, query, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver(path)
+    const now = new Date().toISOString()
+    // sentinel to let tests exercise the failure path
+    const success = !receiver.kind.endpoint.includes('unreachable')
+    const probe: Json<Api.AlertDelivery> = {
+      id: uuid(),
+      // all probes reference the singleton probe alert, mirroring omicron
+      alert_id: PROBE_ALERT_ID,
+      alert_class: 'probe',
+      receiver_id: receiver.id,
+      state: success ? 'delivered' : 'failed',
+      trigger: 'probe',
+      time_started: now,
+      attempts: {
+        webhook: [
+          success
+            ? {
+                attempt: 1,
+                result: 'succeeded',
+                response: { status: 200, duration_ms: 123 },
+                time_sent: now,
+              }
+            : { attempt: 1, result: 'failed_unreachable', response: null, time_sent: now },
+        ],
+      },
+    }
+    db.alertDeliveries.unshift(probe)
+
+    // a successful probe with resend=true re-queues every alert that has not
+    // yet been delivered successfully to this receiver
+    let resendsStarted = null
+    if (query.resend && success) {
+      const alerts = resendableAlerts(receiver)
+      for (const d of alerts) {
+        db.alertDeliveries.unshift({
+          id: uuid(),
+          alert_id: d.alert_id,
+          alert_class: d.alert_class,
+          receiver_id: receiver.id,
+          state: 'pending',
+          trigger: 'resend',
+          time_started: now,
+          attempts: { webhook: [] },
+        })
+      }
+      resendsStarted = alerts.length
+    }
+    return { probe, resends_started: resendsStarted }
+  },
+  alertReceiverSubscriptionAdd({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver(path)
+    validateSubscription(body.subscription)
+    if (!receiver.subscriptions.includes(body.subscription)) {
+      receiver.subscriptions.push(body.subscription)
+      receiver.time_modified = new Date().toISOString()
+    }
+    return json({ subscription: body.subscription }, { status: 201 })
+  },
+  alertReceiverSubscriptionRemove({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver({ receiver: path.receiver })
+    if (!receiver.subscriptions.includes(path.subscription)) {
+      throw notFoundErr(`subscription '${path.subscription}'`)
+    }
+    receiver.subscriptions = receiver.subscriptions.filter((s) => s !== path.subscription)
+    receiver.time_modified = new Date().toISOString()
+    return 204
+  },
+  alertDeliveryResend({ path, query, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver({ receiver: query.receiver })
+    const delivery = db.alertDeliveries.find(
+      (d) => d.alert_id === path.alertId && d.receiver_id === receiver.id
+    )
+    if (!delivery) throw notFoundErr(`alert ${path.alertId}`)
+    // the real API rejects resends of alerts the receiver is no longer subscribed to
+    // https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/src/app/alert.rs#L439-L449
+    const subscribed = receiver.subscriptions.some((s) =>
+      subscriptionRegex(s).test(delivery.alert_class)
+    )
+    if (!subscribed) {
+      throw invalidRequest(
+        `cannot resend alert: receiver is not subscribed to the '${delivery.alert_class}' alert class`
+      )
+    }
+    const now = new Date().toISOString()
+    const newDelivery: Json<Api.AlertDelivery> = {
+      id: uuid(),
+      alert_id: delivery.alert_id,
+      alert_class: delivery.alert_class,
+      receiver_id: receiver.id,
+      state: 'pending',
+      trigger: 'resend',
+      time_started: now,
+      attempts: { webhook: [] },
+    }
+    db.alertDeliveries.unshift(newDelivery)
+    return json({ delivery_id: newDelivery.id }, { status: 201 })
+  },
+  webhookReceiverCreate({ body, cookies }) {
+    requireFleetAdmin(cookies)
+    errIfExists(db.alertReceivers, { name: body.name }, 'webhook receiver')
+    for (const subscription of body.subscriptions || []) {
+      validateSubscription(subscription)
+    }
+
+    const now = new Date().toISOString()
+    const newReceiver: Json<Api.AlertReceiver> = {
+      id: uuid(),
+      name: body.name,
+      description: body.description,
+      kind: {
+        kind: 'webhook',
+        endpoint: body.endpoint,
+        // secret values are write-only; only IDs are stored
+        secrets: body.secrets.map(() => ({ id: uuid(), time_created: now })),
+      },
+      subscriptions: body.subscriptions || [],
+      ...getTimestamps(),
+    }
+    db.alertReceivers.push(newReceiver)
+    const { kind, ...rest } = newReceiver
+    return json(
+      { ...rest, endpoint: kind.endpoint, secrets: kind.secrets },
+      { status: 201 }
+    )
+  },
+  webhookReceiverUpdate({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver(path)
+
+    if (body.name && body.name !== receiver.name) {
+      errIfExists(db.alertReceivers, { name: body.name })
+      receiver.name = body.name
+    }
+    updateDesc(receiver, body)
+    if (body.endpoint) {
+      receiver.kind.endpoint = body.endpoint
+    }
+    receiver.time_modified = new Date().toISOString()
+    return 204
+  },
+  webhookSecretsList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    const receiver = lookup.alertReceiver({ receiver: query.receiver })
+    return { secrets: receiver.kind.secrets }
+  },
+  webhookSecretsAdd({ query, body: _body, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = lookup.alertReceiver({ receiver: query.receiver })
+    const secret: Json<Api.WebhookSecret> = {
+      id: uuid(),
+      time_created: new Date().toISOString(),
+    }
+    receiver.kind.secrets.push(secret)
+    return json(secret, { status: 201 })
+  },
+  webhookSecretsDelete({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const receiver = db.alertReceivers.find((r) =>
+      r.kind.secrets.some((s) => s.id === path.secretId)
+    )
+    if (!receiver) throw notFoundErr(`secret ${path.secretId}`)
+    receiver.kind.secrets = receiver.kind.secrets.filter((s) => s.id !== path.secretId)
+    return 204
+  },
+
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
   affinityGroupDelete: NotImplemented,
@@ -2630,17 +3026,7 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
-  alertClassList: NotImplemented,
-  alertDeliveryList: NotImplemented,
-  alertDeliveryResend: NotImplemented,
-  alertReceiverDelete: NotImplemented,
-  alertReceiverList: NotImplemented,
-  alertReceiverProbe: NotImplemented,
-  alertReceiverSubscriptionAdd: NotImplemented,
-  alertReceiverSubscriptionRemove: NotImplemented,
-  alertReceiverView: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
-  auditLogList: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
@@ -2657,10 +3043,6 @@ export const handlers = makeHandlers({
   internetGatewayIpAddressDelete: NotImplemented,
   internetGatewayIpPoolCreate: NotImplemented,
   internetGatewayIpPoolDelete: NotImplemented,
-  systemIpPoolServiceRangeAdd: NotImplemented,
-  systemIpPoolServiceRangeList: NotImplemented,
-  systemIpPoolServiceRangeRemove: NotImplemented,
-  systemIpPoolServiceView: NotImplemented,
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
@@ -2722,20 +3104,17 @@ export const handlers = makeHandlers({
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
-  siloUserView: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
-  supportBundleCreate: NotImplemented,
-  supportBundleDelete: NotImplemented,
+  // unreachable in the mock: the console downloads bundles with an <a download>
+  // navigation, which MSW's service worker can't intercept. The dev server
+  // handles it instead (see vite.config.ts and app/util/support-bundle.ts)
   supportBundleDownload: NotImplemented,
   supportBundleDownloadFile: NotImplemented,
-  supportBundleHead: NotImplemented,
   supportBundleHeadFile: NotImplemented,
   supportBundleIndex: NotImplemented,
-  supportBundleList: NotImplemented,
-  supportBundleUpdate: NotImplemented,
-  supportBundleView: NotImplemented,
   switchView: NotImplemented,
+  systemIpPoolAssign: NotImplemented,
   systemNetworkingSettingsUpdate: NotImplemented,
   systemNetworkingSettingsView: NotImplemented,
   systemQuotasList: NotImplemented,
@@ -2752,9 +3131,4 @@ export const handlers = makeHandlers({
   userSessionList: NotImplemented,
   userTokenList: NotImplemented,
   userView: NotImplemented,
-  webhookReceiverCreate: NotImplemented,
-  webhookReceiverUpdate: NotImplemented,
-  webhookSecretsAdd: NotImplemented,
-  webhookSecretsDelete: NotImplemented,
-  webhookSecretsList: NotImplemented,
 })

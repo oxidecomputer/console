@@ -12,4 +12,8 @@ export const ModalContext = createContext(false)
 export const useIsInModal = () => useContext(ModalContext)
 
 export const SideModalContext = createContext(false)
+/**
+ * Whether the calling component is rendered inside a `SideModal`. For "is a
+ * side modal open on top of the current page", see `useIsSideModalRoute`.
+ */
 export const useIsInSideModal = () => useContext(SideModalContext)

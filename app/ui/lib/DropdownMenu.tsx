@@ -74,7 +74,8 @@ export function Content({
   anchor = 'bottom end',
   gap,
   zIndex,
-  collisionPadding,
+  // keep menus off the viewport edge, mainly for small screens
+  collisionPadding = 12,
 }: ContentProps) {
   const { side, align, sideOffset, alignOffset } = parseAnchor(anchor, gap)
   const isInModal = useIsInModal()
@@ -167,6 +168,8 @@ export const Item = ({ className, onSelect, label, disabled, ref }: ItemProps) =
 
 export const Submenu = Menu.SubmenuRoot
 export const SubmenuTrigger = Menu.SubmenuTrigger
+export const Group = Menu.Group
+export const GroupLabel = Menu.GroupLabel
 export const RadioGroup = Menu.RadioGroup
 export const RadioItem = Menu.RadioItem
 export const Separator = Menu.Separator

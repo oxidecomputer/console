@@ -199,6 +199,9 @@ export const Combobox = ({
       }}
       onClose={() => {
         isOpenRef.current = false
+        // A window or tab switch also closes the combobox. Keep the active query
+        // in that case so it is still visible when the user returns.
+        if (!document.hasFocus()) return
         setIsEditing(false)
         if (!allowArbitraryValues) setQuery('')
       }}

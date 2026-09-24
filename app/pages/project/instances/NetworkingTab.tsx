@@ -24,7 +24,6 @@ import {
   type ExternalIp,
   type ExternalSubnet,
   type InstanceNetworkInterface,
-  type InstanceState,
   type IpVersion,
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
@@ -52,6 +51,7 @@ import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { SubnetNameFromId } from '~/table/cells/SubnetNameCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
@@ -62,6 +62,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
+import { Truncate } from '~/ui/lib/Truncate'
 import { ALL_ISH } from '~/util/consts'
 import {
   getCompatibleVersionsFromNics,
@@ -74,30 +75,24 @@ import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
 
+/**
+ * Resolve a VPC ID to its name. Nexus refuses to delete a VPC while live subnets
+ * exist, and refuses to delete a subnet while a live NIC references it, so a NIC's
+ * vpcId always points at a live VPC and the error branch should be unreachable. It
+ * falls back to the ID rather than taking down the page if that turns out to be
+ * wrong — the ID is true whatever the cause, where "Deleted" would also be wrong for
+ * a transient 5xx. Matches `SubnetNameFromId`, which hedges the same way one hop down.
+ * https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/db-queries/src/db/datastore/vpc.rs#L560-L592
+ */
 const VpcNameFromId = ({ value }: { value: string }) => {
   const { project } = useProjectSelector()
   const { data: vpc, isError } = useQuery(
     q(api.vpcView, { path: { vpc: value } }, { throwOnError: false })
   )
 
-  // If we can't find it, it must have been deleted. This is probably not
-  // possible because you can't delete a VPC that has child resources, but let's
-  // be safe
-  if (isError) return <Badge color="neutral">Deleted</Badge>
+  if (isError) return <Truncate text={value} position="middle" className="max-w-48" />
   if (!vpc) return <SkeletonCell />
   return <LinkCell to={pb.vpc({ project, vpc: vpc.name })}>{vpc.name}</LinkCell>
-}
-
-const SubnetNameFromId = ({ value }: { value: string }) => {
-  const { data: subnet, isError } = useQuery(
-    q(api.vpcSubnetView, { path: { subnet: value } }, { throwOnError: false })
-  )
-
-  // same deal as VPC: probably not possible but let's be safe
-  if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!subnet) return <SkeletonCell /> // loading
-
-  return <span className="text-default">{subnet.name}</span>
 }
 
 const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
@@ -198,15 +193,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-// Bit of a hack: by putting the instance state in the row data, we can avoid
-// remaking the row actions callback whenever the instance state changes, which
-// causes the whole table to get re-rendered, which jarringly closes any open
-// row actions menus
-type NicRow = InstanceNetworkInterface & {
-  instanceState: InstanceState
-}
-
-const colHelper = createColumnHelper<NicRow>()
+const colHelper = createColumnHelper<InstanceNetworkInterface>()
 const staticCols = [
   colHelper.accessor('name', {
     header: 'name',
@@ -242,7 +229,7 @@ const staticCols = [
   }),
   colHelper.accessor('subnetId', {
     header: 'subnet',
-    cell: (info) => <SubnetNameFromId value={info.getValue()} />,
+    cell: (info) => <SubnetNameFromId subnetId={info.getValue()} />,
   }),
   colHelper.display({
     id: 'transitIps',
@@ -421,8 +408,8 @@ export default function NetworkingTab() {
   const multipleNics = nics.length > 1
 
   const makeActions = useCallback(
-    (nic: NicRow): MenuAction[] => {
-      const canUpdateNic = instanceCan.updateNic({ runState: nic.instanceState })
+    (nic: InstanceNetworkInterface): MenuAction[] => {
+      const canUpdateNic = instanceCan.updateNic(instance)
 
       const deleteDisabledReason = () => {
         if (!canUpdateNic) {
@@ -484,19 +471,14 @@ export default function NetworkingTab() {
         },
       ]
     },
-    [deleteNic, editNic, instanceSelector, multipleNics]
+    [deleteNic, editNic, instance, instanceSelector, multipleNics]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
 
-  const nicRows = useMemo(
-    () => nics.map((nic) => ({ ...nic, instanceState: instance.runState })),
-    [nics, instance]
-  )
-
   const tableInstance = useReactTable({
     columns,
-    data: nicRows,
+    data: nics,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -792,8 +774,14 @@ export default function NetworkingTab() {
 
         {createModalOpen && (
           <CreateNetworkInterfaceForm
-            onDismiss={() => setCreateModalOpen(false)}
+            onDismiss={() => {
+              setCreateModalOpen(false)
+              createNic.reset() // clear stale error state
+            }}
             onSubmit={(body) => createNic.mutate({ query: instanceSelector, body })}
+            // not || isSuccess: the modal unmounts synchronously in onSuccess,
+            // and a sticky isSuccess would strand a spinner on next open
+            loading={createNic.isPending}
             submitError={createNic.error}
           />
         )}
@@ -901,7 +889,7 @@ const AttachExternalSubnetModal = ({
       }}
       submitLabel="Attach"
       submitError={externalSubnetAttach.error}
-      loading={externalSubnetAttach.isPending}
+      loading={externalSubnetAttach.isPending || externalSubnetAttach.isSuccess}
       onDismiss={onDismiss}
     >
       <ListboxField

@@ -18,6 +18,7 @@ import {
 } from '@oxide/api'
 
 import { trigger404 } from '~/components/ErrorBoundary'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
@@ -131,9 +132,10 @@ export default function EditFirewallRuleForm() {
       }
       // validationSchema={validationSchema}
       // validateOnBlur
-      loading={updateRules.isPending}
+      loading={updateRules.isPending || updateRules.isSuccess}
       submitError={updateRules.error}
     >
+      <FormMetadata resource={originalRule} />
       <CommonFields
         control={form.control}
         // error if name is being changed to something that conflicts with some other rule

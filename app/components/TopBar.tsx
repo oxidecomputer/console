@@ -6,12 +6,16 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { Fragment, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 
 import { api, navToLogin, useApiMutation } from '@oxide/api'
 import {
+  MenuClose12Icon,
+  MenuOpen12Icon,
   Monitor12Icon,
   Moon12Icon,
+  More12Icon,
   Organization16Icon,
   Profile16Icon,
   SelectArrows6Icon,
@@ -22,31 +26,52 @@ import {
 
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/hooks/use-current-user'
-import { topBarWrapperClass } from '~/layouts/helpers'
+import { topBarHomeCellClass, topBarWrapperClass } from '~/layouts/helpers'
+import { toggleMobileNav, useMobileNavStore } from '~/stores/mobile-nav'
 import { useThemeStore, type Theme } from '~/stores/theme'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Identicon } from '~/ui/lib/Identicon'
 import { Slash } from '~/ui/lib/Slash'
-import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   const { me } = useCurrentUser()
   return (
     <div className={topBarWrapperClass}>
-      <div className="border-secondary flex items-center border-r px-2">
+      <div className={cn(topBarHomeCellClass, 'px-2')}>
         <HomeButton level={systemOrSilo} />
       </div>
-      <div className="flex items-center justify-between gap-4 px-3">
-        <div className="flex flex-1 gap-2.5">
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <MobileNavToggle />
           <Breadcrumbs />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {me.fleetViewer && <SiloSystemPicker level={systemOrSilo} />}
           <UserMenu />
         </div>
       </div>
+    </div>
+  )
+}
+
+function MobileNavToggle() {
+  const isOpen = useMobileNavStore((state) => state.isOpen)
+  const Icon = isOpen ? MenuClose12Icon : MenuOpen12Icon
+  return (
+    // full-height cell with a right border so the toggle reads as its own
+    // region, mirroring the desktop home button cell
+    <div className="border-secondary 1000:hidden -ml-3 flex h-(--top-bar-height) shrink-0 items-center border-r px-1.5">
+      <button
+        type="button"
+        onClick={toggleMobileNav}
+        aria-label="Toggle sidebar"
+        aria-expanded={isOpen}
+        className="hover:bg-hover flex h-10 w-10 items-center justify-center rounded-md"
+      >
+        <Icon className="text-secondary" />
+      </button>
     </div>
   )
 }
@@ -98,28 +123,161 @@ function HomeButton({ level }: { level: 'system' | 'silo' }) {
 
 function Breadcrumbs() {
   const crumbs = useCrumbs().filter((c) => !c.titleOnly)
+  const lastCrumb = crumbs.length - 1
+  const { firstVisibleCrumb, measurementRef, navRef } = useBreadcrumbOverflow(crumbs)
+  const hasHiddenCrumbs = firstVisibleCrumb > 0
+  const visibleCrumbs = crumbs.slice(firstVisibleCrumb)
+
   return (
     <nav
-      className="text-sans-md flex items-center gap-0.5 overflow-clip"
+      ref={navRef}
+      // x-only clip: it exists to keep the measurement copies and long crumbs from
+      // causing page overflow, and y must stay visible so the overflow trigger's
+      // expanded hit target (before:-inset-4) isn't clipped to the 18px nav height
+      className="text-sans-md relative flex min-w-0 flex-1 items-center gap-0.5 overflow-x-clip"
       aria-label="Breadcrumbs"
     >
-      {intersperse(
-        crumbs.map(({ label, path }, i) => (
-          <Link
-            to={path}
-            className={cn(
-              'text-sans-md whitespace-nowrap',
-              i === crumbs.length - 1 ? 'text-raise' : 'text-secondary hover:text-default'
-            )}
-            key={`${label}|${path}`}
-          >
-            {label}
-          </Link>
-        )),
-        <Slash />
+      {hasHiddenCrumbs && (
+        <>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger
+              aria-label="Show full breadcrumb path"
+              className="text-secondary hover:text-default relative flex shrink-0 items-center before:absolute before:-inset-4 before:content-['']"
+            >
+              <More12Icon className="translate-y-0.5 rotate-90" />
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content
+              anchor="bottom start"
+              className="max-w-[calc(100vw-2rem)]"
+              gap={8}
+              zIndex="topBar"
+            >
+              {crumbs.map(({ label, path }, i) => (
+                <DropdownMenu.LinkItem
+                  key={`${label}|${path}`}
+                  to={path}
+                  className={cn(
+                    'wrap-break-word whitespace-normal',
+                    i === lastCrumb && 'is-selected'
+                  )}
+                >
+                  {label}
+                </DropdownMenu.LinkItem>
+              ))}
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+          <Slash className="shrink-0" />
+        </>
       )}
+      {visibleCrumbs.map(({ label, path }, visibleIndex) => {
+        const crumbIndex = firstVisibleCrumb + visibleIndex
+        return (
+          <Fragment key={`${label}|${path}`}>
+            {visibleIndex > 0 && <Slash className="shrink-0" />}
+            <Link
+              to={path}
+              aria-current={crumbIndex === lastCrumb ? 'page' : undefined}
+              className={cn(
+                'text-sans-md whitespace-nowrap',
+                crumbIndex === lastCrumb
+                  ? 'text-raise min-w-0 overflow-hidden text-ellipsis'
+                  : 'text-secondary hover:text-default shrink-0'
+              )}
+            >
+              {label}
+            </Link>
+          </Fragment>
+        )
+      })}
+      {/* Keep natural-width copies available after their interactive counterparts collapse. */}
+      <div
+        ref={measurementRef}
+        aria-hidden
+        className="invisible absolute top-0 left-0 flex w-max items-center gap-0.5 whitespace-nowrap"
+      >
+        <span data-breadcrumb-ellipsis className="block h-3 w-3 shrink-0" />
+        <Slash className="breadcrumb-measure-slash shrink-0" />
+        {crumbs.map(({ label, path }) => (
+          <span data-breadcrumb-crumb key={`${label}|${path}`}>
+            {label}
+          </span>
+        ))}
+      </div>
     </nav>
   )
+}
+
+type Breadcrumb = ReturnType<typeof useCrumbs>[number]
+
+function useBreadcrumbOverflow(crumbs: Breadcrumb[]) {
+  const navRef = useRef<HTMLElement>(null)
+  const measurementRef = useRef<HTMLDivElement>(null)
+  const [firstVisibleCrumb, setFirstVisibleCrumb] = useState(() =>
+    Math.max(0, crumbs.length - 1)
+  )
+  const crumbLabels = crumbs.map(({ label }) => label).join('\0')
+
+  useLayoutEffect(() => {
+    const nav = navRef.current
+    const measurement = measurementRef.current
+    if (!nav || !measurement || crumbs.length === 0) return
+
+    const update = () => {
+      const crumbElements = Array.from(
+        measurement.querySelectorAll<HTMLElement>('[data-breadcrumb-crumb]')
+      )
+      const ellipsis = measurement.querySelector<HTMLElement>('[data-breadcrumb-ellipsis]')
+      const slash = measurement.querySelector<HTMLElement>('.breadcrumb-measure-slash')
+      if (crumbElements.length !== crumbs.length || !ellipsis || !slash) return
+
+      const style = getComputedStyle(measurement)
+      const gap = Number.parseFloat(style.columnGap) || 0
+      const slashStyle = getComputedStyle(slash)
+      const slashWidth =
+        slash.getBoundingClientRect().width +
+        (Number.parseFloat(slashStyle.marginLeft) || 0) +
+        (Number.parseFloat(slashStyle.marginRight) || 0)
+      const ellipsisWidth = ellipsis.getBoundingClientRect().width
+      const crumbWidths = crumbElements.map(
+        (element) => element.getBoundingClientRect().width
+      )
+      const lastCrumbIndex = crumbs.length - 1
+
+      // Prefer the longest complete suffix that fits. The current crumb remains when no
+      // suffix fits and its CSS ellipsis becomes the final fallback.
+      let nextFirstVisible = lastCrumbIndex
+      for (let candidate = 0; candidate <= lastCrumbIndex; candidate++) {
+        const visibleCount = crumbs.length - candidate
+        const visibleCrumbWidth = crumbWidths
+          .slice(candidate)
+          .reduce((total, width) => total + width, 0)
+        const separatorWidth = (visibleCount - 1) * (slashWidth + gap * 2)
+        const collapsedPrefixWidth =
+          candidate > 0 ? ellipsisWidth + slashWidth + gap * 2 : 0
+
+        if (visibleCrumbWidth + separatorWidth + collapsedPrefixWidth <= nav.clientWidth) {
+          nextFirstVisible = candidate
+          break
+        }
+      }
+
+      setFirstVisibleCrumb((current) =>
+        current === nextFirstVisible ? current : nextFirstVisible
+      )
+    }
+
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(nav)
+    observer.observe(measurement)
+    return () => observer.disconnect()
+  }, [crumbLabels, crumbs.length])
+
+  return {
+    firstVisibleCrumb: Math.min(firstVisibleCrumb, Math.max(0, crumbs.length - 1)),
+    measurementRef,
+    navRef,
+  }
 }
 
 function UserMenu() {
@@ -138,15 +296,23 @@ function UserMenu() {
           )}
         >
           <Profile16Icon className="text-tertiary" />
-          <span className="text-sans-md text-default normal-case">
+          <span className="text-sans-md text-default max-1000:hidden normal-case">
             {me.displayName || 'User'}
           </span>
         </div>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content gap={8} zIndex="topBar">
-        <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
-        <ThemeSubmenu />
-        <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
+        <DropdownMenu.Group>
+          <DropdownMenu.GroupLabel className="border-secondary 1000:hidden border-b px-3 py-2">
+            <div className="text-mono-xs text-tertiary">User</div>
+            <div className="text-sans-md text-default mt-0.5">
+              {me.displayName || 'User'}
+            </div>
+          </DropdownMenu.GroupLabel>
+          <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
+          <ThemeSubmenu />
+          <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
+        </DropdownMenu.Group>
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   )

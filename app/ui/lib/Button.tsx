@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import * as m from 'motion/react-m'
 import { type MouseEventHandler, type ReactNode } from 'react'
 
 import { type BadgeColor } from '@oxide/design-system/ui'
@@ -120,25 +119,19 @@ export const Button = ({
         {...rest}
       >
         {loading && (
-          <m.span
-            animate={{ opacity: 1, y: '-50%', x: '-50%' }}
-            initial={{ opacity: 0, y: 'calc(-50% - 25px)', x: '-50%' }}
-            transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
-            className="absolute top-1/2 left-1/2 flex items-center justify-center"
-          >
+          <span className="button-spinner-in absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center">
             <Spinner variant={variantToBadgeColorMap[variant || 'primary']} />
-          </m.span>
+          </span>
         )}
-        <m.span
-          className={cn('flex items-center', innerClassName)}
-          animate={{
-            opacity: loading ? 0 : 1,
-            y: loading ? 25 : 0,
-          }}
-          transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+        <span
+          className={cn(
+            'button-content flex items-center',
+            loading ? 'translate-y-[25px] opacity-0' : 'translate-y-0 opacity-100',
+            innerClassName
+          )}
         >
           {children}
-        </m.span>
+        </span>
       </button>
     </Wrap>
   )

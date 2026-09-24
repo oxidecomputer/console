@@ -18,6 +18,7 @@ const vpcBase = ({ project, vpc }: PP.Vpc) => `${pb.vpcs({ project })}/${vpc}`
 export const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
   `${instanceBase({ project, instance })}/metrics`
 export const inventoryBase = () => '/system/inventory'
+export const alertingBase = () => '/system/alerting'
 const siloBase = ({ silo }: PP.Silo) => `/system/silos/${silo}`
 
 export const pb = {
@@ -131,6 +132,12 @@ export const pb = {
   subnetPoolEdit: (params: PP.SubnetPool) => `${pb.subnetPool(params)}/edit`,
   subnetPoolMemberAdd: (params: PP.SubnetPool) => `${pb.subnetPool(params)}/members-add`,
 
+  alerts: () => `${alertingBase()}/alerts`,
+  alertReceivers: () => `${alertingBase()}/receivers`,
+  alertReceiversNew: () => `${alertingBase()}/receivers-new`,
+  alertReceiver: (params: PP.AlertReceiver) => `${pb.alertReceivers()}/${params.receiver}`,
+  alertReceiverEdit: (params: PP.AlertReceiver) => `${pb.alertReceiver(params)}/edit`,
+
   sledInventory: () => `${inventoryBase()}/sleds`,
   diskInventory: () => `${inventoryBase()}/disks`,
   sledInstances: ({ sledId }: PP.Sled) => `${pb.sledInventory()}/${sledId}/instances`,
@@ -150,6 +157,11 @@ export const pb = {
     `${siloBase(params)}/idps/saml/${params.provider}`,
 
   systemUpdate: () => '/system/update',
+
+  supportBundles: () => '/system/support-bundles',
+  supportBundlesNew: () => '/system/support-bundles-new',
+  supportBundle: (params: PP.SupportBundle) => `${pb.supportBundles()}/${params.bundleId}`,
+  auditLog: () => '/system/audit-log',
 
   profile: () => '/settings/profile',
   sshKeys: () => '/settings/ssh-keys',

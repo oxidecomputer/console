@@ -13,9 +13,10 @@ import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
-import { makeCrumb } from '~/hooks/use-crumbs'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
@@ -33,7 +34,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = makeCrumb('Edit IP pool')
+export const handle = titleCrumb('Edit IP pool')
 
 export default function EditIpPoolSideModalForm() {
   const navigate = useNavigate()
@@ -70,9 +71,10 @@ export default function EditIpPoolSideModalForm() {
       onSubmit={({ name, description }) => {
         editPool.mutate({ path: poolSelector, body: { name, description } })
       }}
-      loading={editPool.isPending}
+      loading={editPool.isPending || editPool.isSuccess}
       submitError={editPool.error}
     >
+      <FormMetadata resource={pool} />
       <IpPoolVisibilityMessage />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

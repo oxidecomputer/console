@@ -25,17 +25,17 @@ test('Access tokens', async ({ page }) => {
 
   const table = page.getByRole('table')
   await expectRowVisible(table, {
-    ID: token1,
+    ID: expect.stringContaining(token1),
     created: expect.stringContaining('May 27, 2025'),
     Expires: expect.stringContaining('Jul 3, 2025'),
   })
   await expectRowVisible(table, {
-    ID: token2,
+    ID: expect.stringContaining(token2),
     created: expect.stringContaining('May 20, 2025'),
     Expires: expect.stringContaining('Aug 2, 2025'),
   })
   await expectRowVisible(table, {
-    ID: token3,
+    ID: expect.stringContaining(token3),
     created: expect.stringContaining('May 31, 2025'),
     Expires: 'Never',
   })
@@ -49,6 +49,6 @@ test('Access tokens', async ({ page }) => {
   await expect(page.getByRole('cell', { name: token1 })).toBeHidden()
 
   // Other two tokens should still be there
-  await expectRowVisible(table, { ID: token2 })
-  await expectRowVisible(table, { ID: token3 })
+  await expectRowVisible(table, { ID: expect.stringContaining(token2) })
+  await expectRowVisible(table, { ID: expect.stringContaining(token3) })
 })

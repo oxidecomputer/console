@@ -36,13 +36,14 @@ import {
 import { json, type Json } from '~/api/__generated__/msw-handlers'
 import type { OxqlNetworkMetricName, OxqlVcpuState } from '~/components/oxql-metrics/util'
 import { parseIp } from '~/util/ip'
+import { Rando } from '~/util/rando'
 import { GiB, TiB } from '~/util/units'
 
 import type { DbRoleAssignmentResourceType } from '..'
+import { SENTINEL_FLAT_INSTANCE_ID, SENTINEL_SLOPE_INSTANCE_ID } from '../instance'
 import { genI64Data } from '../metrics'
 import { getMockOxqlInstanceData } from '../oxql-metrics'
 import { db, lookupById } from './db'
-import { Rando } from './rando'
 
 interface PaginateOptions {
   limit?: number | null
@@ -53,6 +54,14 @@ export interface ResultsPage<I extends { id: string }> {
   next_page: string | null
 }
 
+/**
+ * Page through `items` the way Dropshot does: the token names the last item of
+ * the page it came from, the next page starts after it, and every page with
+ * items gets a token, including the last one, which then leads to an empty
+ * page. Clients can't learn they've hit the end from the token alone, only
+ * from a page shorter than `limit` (or empty).
+ * https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/pagination.rs#L168-L176
+ */
 export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   params: P,
   items: I[]
@@ -60,26 +69,14 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   const limit = params.limit || 100
   const pageToken = params.pageToken
 
-  let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
-  startIndex = startIndex < 0 ? 0 : startIndex
-
-  if (startIndex > items.length) {
-    return {
-      items: [],
-      next_page: null,
-    }
-  }
-
-  if (limit + startIndex >= items.length) {
-    return {
-      items: items.slice(startIndex),
-      next_page: null,
-    }
-  }
+  // no token, or an unknown one, starts from the beginning
+  const tokenIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : -1
+  const startIndex = tokenIndex + 1
+  const page = items.slice(startIndex, startIndex + limit)
 
   return {
-    items: items.slice(startIndex, startIndex + limit),
-    next_page: items[startIndex + limit].id,
+    items: page,
+    next_page: page.at(-1)?.id ?? null,
   }
 }
 
@@ -102,6 +99,9 @@ export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date })
 
 export const forbiddenErr = () =>
   json({ error_code: 'Forbidden', request_id: 'fake-id' }, { status: 403 })
+
+export const unauthorizedErr = () =>
+  json({ error_code: 'Unauthorized', request_id: 'fake-id' }, { status: 401 })
 
 export const unavailableErr = () =>
   json({ error_code: 'ServiceUnavailable', request_id: 'fake-id' }, { status: 503 })
@@ -176,6 +176,9 @@ export function getBlockSize(backend: Json<DiskBackend>): BlockSize {
 }
 
 export const errIfInvalidDiskSize = (disk: Json<DiskCreate>) => {
+  // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/src/app/disk.rs#L230-L244
+  if (disk.size % GiB !== 0) throw 'Disk size must be a multiple of 1 GiB'
+
   if (disk.size < MIN_DISK_SIZE_GiB * GiB) {
     throw `Disk size must be greater than or equal to ${MIN_DISK_SIZE_GiB} GiB`
   }
@@ -581,10 +584,35 @@ const getCpuStateFromQuery = (query: string): OxqlVcpuState | undefined => {
   return match ? (match[1] as OxqlVcpuState) : undefined
 }
 
+// Pull the instance UUID out of the `instance_id == "..."` filter (also matches
+// the `attached_instance_id` used by disk metrics).
+const getInstanceIdFromQuery = (query: string): string | undefined =>
+  query.match(/(?:attached_)?instance_id\s*==\s*"([^"]+)"/)?.[1]
+
+// getUtilizationChartProps renders raw values on screen as value * 100 / (5s *
+// 1e9 * 1 series); invertUtilization goes the other way — from a target percent
+// to the raw value that produces it.
+const invertUtilization = (percent: number): number => (percent * 5 * 1e9) / 100
+const SENTINEL_CONSTANT_RAW_VALUE = invertUtilization(12345) // 12,345%
+const sentinelSlopeRawValue = (i: number) => invertUtilization((i + 1) * 1000) // (i + 1) * 1000%
+
 export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryResult> {
   const metricName = getMetricNameFromQuery(query) as OxqlNetworkMetricName
   const stateValue = getCpuStateFromQuery(query)
-  return getMockOxqlInstanceData(metricName, stateValue)
+  const data = getMockOxqlInstanceData(metricName, stateValue)
+
+  // Sentinel instances: replace the series with synthetic data — flat (constant)
+  // or a slope that increases with time — so tests can assert on plotted values.
+  const instanceId = getInstanceIdFromQuery(query)
+  const points = data.tables[0].timeseries[0].points
+  const series = points.values[0].values.values
+  if (instanceId === SENTINEL_FLAT_INSTANCE_ID) {
+    points.values[0].values.values = series.map(() => SENTINEL_CONSTANT_RAW_VALUE)
+  } else if (instanceId === SENTINEL_SLOPE_INSTANCE_ID) {
+    points.values[0].values.values = series.map((_, i) => sentinelSlopeRawValue(i))
+  }
+
+  return data
 }
 
 export function randomHex(length: number) {

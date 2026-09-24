@@ -16,7 +16,6 @@ import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { Button } from '~/ui/lib/Button'
 import { MiniTable } from '~/ui/lib/MiniTable'
-import { Truncate } from '~/ui/lib/Truncate'
 import { Size } from '~/ui/lib/ValueUnit'
 
 export type DiskTableItem =
@@ -26,7 +25,7 @@ export type DiskTableItem =
 const diskTableColumns = [
   {
     header: 'Name',
-    cell: (item: DiskTableItem) => <Truncate text={item.name} maxLength={35} />,
+    text: (item: DiskTableItem) => item.name,
   },
   {
     header: 'Action',
@@ -76,13 +75,19 @@ export function DisksTableField({
           emptyState={{ title: 'No disks', body: 'Add a disk to see it here' }}
         />
 
-        <div className="space-x-3">
-          <Button size="sm" onClick={() => setShowDiskCreate(true)} disabled={disabled}>
+        <div className="max-1000:flex-col flex gap-3">
+          <Button
+            size="sm"
+            className="max-1000:w-full"
+            onClick={() => setShowDiskCreate(true)}
+            disabled={disabled}
+          >
             Create new disk
           </Button>
           <Button
             variant="secondary"
             size="sm"
+            className="max-1000:w-full"
             onClick={() => setShowDiskAttach(true)}
             disabled={disabled}
           >

@@ -17,8 +17,8 @@ test('Create and edit VPC', async ({ page }) => {
 
   const table = page.getByRole('table')
   await expectRowVisible(table, {
-    name: 'mock-vpc',
-    'DNS name': 'mock-vpc',
+    name: 'default',
+    'DNS name': 'default',
     description: 'a fake vpc',
     'Firewall Rules': '3',
   })
@@ -52,7 +52,7 @@ test('Create and edit VPC', async ({ page }) => {
   })
 
   // Edit VPC form
-  await clickRowAction(page, 'mock-vpc', 'Edit')
+  await clickRowAction(page, 'default', 'Edit')
   await expectVisible(page, [
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
@@ -69,11 +69,11 @@ test('Create and edit VPC', async ({ page }) => {
 })
 
 test('Create and edit subnet', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc')
+  await page.goto('/projects/mock-project/vpcs/default')
 
   // VPC detail, subnets tab
   await expectVisible(page, [
-    'role=heading[name*="mock-vpc"]',
+    'role=heading[name*="default"]',
     'role=tab[name="Firewall Rules"]',
     'role=cell[name="allow-icmp"]',
   ])

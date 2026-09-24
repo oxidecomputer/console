@@ -61,7 +61,9 @@ const colHelper = createColumnHelper<ScimClientBearerToken>()
 const staticColumns = [
   colHelper.accessor('id', {
     header: 'ID',
-    cell: (info) => <Truncate text={info.getValue()} position="middle" maxLength={18} />,
+    cell: (info) => (
+      <Truncate text={info.getValue()} position="middle" className="max-w-48" />
+    ),
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
   colHelper.accessor('timeExpires', {

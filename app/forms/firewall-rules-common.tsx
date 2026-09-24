@@ -320,11 +320,11 @@ const targetAndHostTableColumns = [
   },
   {
     header: 'Value',
-    cell: (item: VpcFirewallRuleTarget | VpcFirewallRuleHostFilter) => item.value,
+    text: (item: VpcFirewallRuleTarget | VpcFirewallRuleHostFilter) => item.value,
   },
 ]
 
-const portTableColumns = [{ header: 'Port ranges', cell: (p: string) => p }]
+const portTableColumns = [{ header: 'Port ranges', text: (p: string) => p }]
 
 const protocolTableColumns = [
   {

@@ -11,6 +11,7 @@ import {
   type Control,
   type FieldPath,
   type FieldValues,
+  type RegisterOptions,
 } from 'react-hook-form'
 
 import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
@@ -37,6 +38,8 @@ export type ListboxFieldProps<
   isLoading?: boolean
   noItemsPlaceholder?: string
   hideOptionalTag?: boolean
+  /** Other fields to re-validate when this one changes */
+  deps?: RegisterOptions<TFieldValues, TName>['deps']
 }
 
 export function ListboxField<
@@ -57,10 +60,11 @@ export function ListboxField<
   noItemsPlaceholder,
   hideOptionalTag,
   hideLabel,
+  deps,
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
-  const { field, fieldState } = useController({ name, control, rules: { required } })
+  const { field, fieldState } = useController({ name, control, rules: { required, deps } })
   return (
     <div className={cn('max-w-lg', className)}>
       <Listbox

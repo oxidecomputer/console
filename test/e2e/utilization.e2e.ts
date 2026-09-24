@@ -56,6 +56,42 @@ test.describe('System utilization', () => {
     expect(await clipboardText(page)).toEqual('6d3a9c06-475e-4f75-b272-c0d0e3f980fa')
   })
 
+  test('can edit quotas', async ({ page }) => {
+    await page.goto('/system/utilization')
+
+    const table = page.getByRole('table')
+    // CPU here is the available column, i.e., quota (50) minus provisioned (30)
+    await expectRowVisible(table, { Silo: 'maze-war', CPU: '20' })
+
+    await clickRowAction(page, 'maze-war', 'Edit quotas')
+
+    const sideModal = page.getByRole('dialog', { name: 'Edit quotas' })
+    await expect(sideModal).toBeVisible()
+    await expect(sideModal.getByRole('heading', { name: 'maze-war' })).toBeVisible()
+
+    // provisioned amounts show under each input
+    await expect(sideModal.getByText('Provisioned: 30 vCPUs')).toBeVisible()
+    await expect(sideModal.getByText('Provisioned: 234 GiB')).toBeVisible()
+    await expect(sideModal.getByText('Provisioned: 4,403.2 GiB')).toBeVisible()
+
+    await expect(
+      sideModal.getByRole('link', { name: 'Resource Management' })
+    ).toHaveAttribute(
+      'href',
+      'https://docs.oxide.computer/guides/operator/resource-management'
+    )
+
+    const cpus = sideModal.getByRole('textbox', { name: 'CPU' })
+    await expect(cpus).toHaveValue('50')
+    await cpus.fill('60')
+    await sideModal.getByRole('button', { name: 'Update quotas' }).click()
+
+    await expect(sideModal).toBeHidden()
+    await closeToast(page)
+
+    await expectRowVisible(table, { Silo: 'maze-war', CPU: '30' })
+  })
+
   test('does not appear for dev user', async ({ browser }) => {
     const page = await getPageAsUser(browser, 'Hans Jonas')
     await page.goto('/system/utilization')

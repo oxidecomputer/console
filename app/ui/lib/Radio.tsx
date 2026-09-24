@@ -27,7 +27,7 @@ const fieldStyles = `
 `
 
 export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
-  <label className="text-sans-md inline-flex items-start">
+  <label className="group text-sans-md inline-flex items-start">
     {/* Center the 1rem (h-4) radio button with the first line of text.
         1lh is the line height, so (1lh - 1rem) / 2 is the top offset
         that vertically centers the indicator within that line. */}
@@ -37,7 +37,11 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
       <div className="bg-accent-inverse light:bg-(--theme-accent-600) pointer-events-none absolute top-1 left-1 hidden h-2 w-2 rounded-full peer-checked:block" />
     </span>
 
-    {children && <span className="text-default ml-2.5">{children}</span>}
+    {children && (
+      <span className="text-default group-has-disabled:text-disabled ml-2.5">
+        {children}
+      </span>
+    )}
   </label>
 )
 
@@ -62,9 +66,11 @@ export function RadioCard({ children, className, ...inputProps }: RadioProps) {
   // HACK: This forces the focus states for storybook stories
   const focus = className?.includes(':focus') ? ':focus' : ''
   return (
-    <label className="inline-flex items-center">
+    <label className="max-1000:w-full inline-flex items-center">
       <input className={cn(focus, 'peer sr-only')} type="radio" {...inputProps} />
-      <span className={cn('ox-radio-card divide-y', cardLabelStyles, className)}>
+      <span
+        className={cn('ox-radio-card divide-y max-1000:w-full', cardLabelStyles, className)}
+      >
         {children}
       </span>
     </label>

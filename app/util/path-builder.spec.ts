@@ -28,6 +28,7 @@ const params = {
   version: 'vs',
   provider: 'pr',
   sledId: '5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0',
+  bundleId: 'ccdac005-66a8-4921-9e8b-30531c359c31',
   image: 'im',
   disk: 'd',
   sshKey: 'ss',
@@ -38,6 +39,7 @@ const params = {
   subnet: 'su',
   router: 'r',
   route: 'rr',
+  receiver: 'rc',
 }
 
 test('path builder', () => {
@@ -47,8 +49,14 @@ test('path builder', () => {
         "accessTokens": "/settings/access-tokens",
         "affinity": "/projects/p/affinity",
         "affinityNew": "/projects/p/affinity-new",
+        "alertReceiver": "/system/alerting/receivers/rc",
+        "alertReceiverEdit": "/system/alerting/receivers/rc/edit",
+        "alertReceivers": "/system/alerting/receivers",
+        "alertReceiversNew": "/system/alerting/receivers-new",
+        "alerts": "/system/alerting/alerts",
         "antiAffinityGroup": "/projects/p/affinity/aag",
         "antiAffinityGroupEdit": "/projects/p/affinity/aag/edit",
+        "auditLog": "/system/audit-log",
         "deviceSuccess": "/device/success",
         "disk": "/projects/p/disks/d",
         "diskInventory": "/system/inventory/disks",
@@ -116,6 +124,9 @@ test('path builder', () => {
         "subnetPoolMemberAdd": "/system/networking/subnet-pools/sp/members-add",
         "subnetPools": "/system/networking/subnet-pools",
         "subnetPoolsNew": "/system/networking/subnet-pools-new",
+        "supportBundle": "/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31",
+        "supportBundles": "/system/support-bundles",
+        "supportBundlesNew": "/system/support-bundles-new",
         "systemUpdate": "/system/update",
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v/firewall-rules",
@@ -187,4 +198,30 @@ test('breadcrumbs', async () => {
   `)
 
   expect(Object.fromEntries(pairs)).toMatchSnapshot()
+})
+
+// Some pages don't have self-referential breadcrumbs (like /instances-new). But
+// these pages also aren't _targeted_ by breadcrumbs! Any page that's targeted
+// by a breadcrumb should be able to point to itself.
+test('every page reachable by breadcrumb should have a self-referential breadcrumb', async () => {
+  // as far as react router is concerned, /blah and /blah/ are equivalent
+  const dropFinalSlash = (p: string) => p.replace(/\/$/, '')
+
+  const allCrumbs = await Promise.all(
+    Object.values(pb).map(async (fn) => {
+      const pathname = fn(params)
+      const matches = await getMatches(pathname)
+      return matchesToCrumbs(matches).filter(({ titleOnly }) => !titleOnly)
+    })
+  )
+  const allPaths = new Set(allCrumbs.flat().map(({ path }) => path))
+
+  for (const path of allPaths) {
+    const crumbs = matchesToCrumbs(await getMatches(path)).filter(
+      ({ titleOnly }) => !titleOnly
+    )
+    const last = R.last(crumbs)
+    if (last === undefined) expect.fail(`Found no breadcrumbs for ${path}`)
+    expect(dropFinalSlash(path)).toEqual(dropFinalSlash(last.path))
+  }
 })

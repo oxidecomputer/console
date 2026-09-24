@@ -16,6 +16,7 @@ import {
   api,
   diskCan,
   genName,
+  hasDefaultVpc,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   isUnicastPool,
@@ -34,6 +35,7 @@ import {
   type IpVersion,
   type NameOrId,
   type UnicastIpPool,
+  type Vpc,
 } from '@oxide/api'
 import {
   Images16Icon,
@@ -47,7 +49,6 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import {
   DisksTableField,
   type DiskTableItem,
@@ -95,8 +96,8 @@ import { GiB } from '~/util/units'
 const EMPTY_NAME_OR_ID_LIST: NameOrId[] = []
 
 const floatingIpTableColumns = [
-  { header: 'Name', cell: (item: FloatingIp) => item.name },
-  { header: 'IP', cell: (item: FloatingIp) => item.ip },
+  { header: 'Name', text: (item: FloatingIp) => item.name },
+  { header: 'IP', text: (item: FloatingIp) => item.ip },
 ]
 
 const getBootDiskAttachment = (
@@ -203,7 +204,7 @@ const baseDefaultValues: InstanceCreateInput = {
    */
   presetId: 'general-xs',
   memory: 8,
-  ncpus: 2,
+  ncpus: 1,
   hostname: '',
 
   bootDiskName: '',
@@ -234,10 +235,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
     // fetch both project and silo images
-    queryClient.prefetchQuery(q(api.imageList, { query: { project } })),
-    queryClient.prefetchQuery(q(api.imageList, {})),
+    queryClient.prefetchQuery(q(api.imageList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(q(api.imageList, { query: { limit: ALL_ISH } })),
     queryClient.prefetchQuery(q(api.diskList, { query: { project, limit: ALL_ISH } })),
-    queryClient.prefetchQuery(q(api.currentUserSshKeyList, {})),
+    queryClient.prefetchQuery(q(api.currentUserSshKeyList, { query: { limit: ALL_ISH } })),
     queryClient.prefetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } })),
     queryClient.prefetchQuery(
       q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
@@ -376,9 +377,11 @@ export default function CreateInstanceForm() {
     },
   })
 
-  const siloImages = usePrefetchedQuery(q(api.imageList, {})).data.items
-  const projectImages = usePrefetchedQuery(q(api.imageList, { query: { project } })).data
-    .items
+  const siloImages = usePrefetchedQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
+    .data.items
+  const projectImages = usePrefetchedQuery(
+    q(api.imageList, { query: { project, limit: ALL_ISH } })
+  ).data.items
   const allImages = [...siloImages, ...projectImages]
 
   const defaultImage = allImages[0]
@@ -388,7 +391,9 @@ export default function CreateInstanceForm() {
   ).data.items
   const disks = useMemo(() => toComboboxItems(allDisks.filter(diskCan.attach)), [allDisks])
 
-  const { data: sshKeys } = usePrefetchedQuery(q(api.currentUserSshKeyList, {}))
+  const { data: sshKeys } = usePrefetchedQuery(
+    q(api.currentUserSshKeyList, { query: { limit: ALL_ISH } })
+  )
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
   // ipPoolList fetches the pools linked to the current silo
@@ -410,19 +415,16 @@ export default function CreateInstanceForm() {
     [siloPools]
   )
 
-  // Check if VPCs exist to determine default network interface type
   const { data: vpcs } = usePrefetchedQuery(
     q(api.vpcList, { query: { project, limit: ALL_ISH } })
   )
-  const hasVpcs = vpcs.items.length > 0
 
   // Determine default network interface type:
-  // - If VPCs exist: default to dual-stack (API default, works with both IPv4 and IPv6 subnets)
-  // - If no VPCs exist: default to 'none' (user must create VPC first or use custom NICs)
+  // - If a default VPC exists: default to dual-stack (API default, works with both IPv4 and IPv6 subnets)
+  // - Otherwise: default to 'none' (user must create a VPC first or use custom NICs)
   // Note: Decoupled from external IP pool configuration, as NIC IP stack and external IPs are separate concerns
-  const defaultNetworkInterfaceType: InstanceNetworkInterfaceAttachment['type'] = hasVpcs
-    ? 'default_dual_stack'
-    : 'none'
+  const defaultNetworkInterfaceType: InstanceNetworkInterfaceAttachment['type'] =
+    hasDefaultVpc(vpcs.items) ? 'default_dual_stack' : 'none'
 
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
@@ -484,11 +486,13 @@ export default function CreateInstanceForm() {
   const bootDiskSizeAndName = (
     <>
       <div key="divider1" className="my-6! content-['a']" />
-      <DiskSizeField
+      <NumberField
         key="diskSizeField"
         label="Disk size"
         name="bootDiskSize"
         control={control}
+        units="GiB"
+        required
         min={imageSizeGiB || 1}
         // Max size applies: this disk can only be distributed
         max={MAX_DISK_SIZE_GiB}
@@ -606,7 +610,7 @@ export default function CreateInstanceForm() {
             },
           })
         }}
-        loading={createInstance.isPending}
+        loading={createInstance.isPending || createInstance.isSuccess}
         submitError={createInstance.error}
       >
         <NameField name="name" control={control} disabled={isSubmitting} />
@@ -643,12 +647,6 @@ export default function CreateInstanceForm() {
             <Tabs.Trigger value="general" disabled={isSubmitting}>
               General Purpose
             </Tabs.Trigger>
-            <Tabs.Trigger value="highCPU" disabled={isSubmitting}>
-              High CPU
-            </Tabs.Trigger>
-            <Tabs.Trigger value="highMemory" disabled={isSubmitting}>
-              High Memory
-            </Tabs.Trigger>
             <Tabs.Trigger value="custom" disabled={isSubmitting}>
               Custom
             </Tabs.Trigger>
@@ -656,18 +654,6 @@ export default function CreateInstanceForm() {
           <Tabs.Content value="general">
             <RadioFieldDyn name="presetId" control={control} disabled={isSubmitting}>
               {renderLargeRadioCards('general')}
-            </RadioFieldDyn>
-          </Tabs.Content>
-
-          <Tabs.Content value="highCPU">
-            <RadioFieldDyn name="presetId" control={control} disabled={isSubmitting}>
-              {renderLargeRadioCards('highCPU')}
-            </RadioFieldDyn>
-          </Tabs.Content>
-
-          <Tabs.Content value="highMemory">
-            <RadioFieldDyn name="presetId" control={control} disabled={isSubmitting}>
-              {renderLargeRadioCards('highMemory')}
             </RadioFieldDyn>
           </Tabs.Content>
 
@@ -841,7 +827,7 @@ export default function CreateInstanceForm() {
           control={control}
           isSubmitting={isSubmitting}
           unicastPools={unicastPools}
-          hasVpcs={hasVpcs}
+          vpcs={vpcs.items}
         />
         <FormDivider />
         <Form.Heading id="advanced">Advanced</Form.Heading>
@@ -854,7 +840,9 @@ export default function CreateInstanceForm() {
           disabled={isSubmitting}
         />
         <Form.Actions>
-          <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
+          <Form.Submit loading={createInstance.isPending || createInstance.isSuccess}>
+            Create instance
+          </Form.Submit>
           <Form.Cancel onClick={() => navigate(pb.instances({ project }))} />
         </Form.Actions>
       </FullPageForm>
@@ -878,12 +866,12 @@ const NetworkingSection = ({
   control,
   isSubmitting,
   unicastPools,
-  hasVpcs,
+  vpcs,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
   unicastPools: UnicastIpPool[]
-  hasVpcs: boolean
+  vpcs: Vpc[]
 }) => {
   const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })
   const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
@@ -953,21 +941,20 @@ const NetworkingSection = ({
     </>
   )
 
+  const vpcMessage =
+    vpcs.length === 0 ? (
+      <>
+        A VPC is required to add network interfaces.{' '}
+        <Link to={pb.vpcsNew({ project })}>Create a VPC</Link> to enable networking.
+      </>
+    ) : null
+
   return (
     <>
-      {!hasVpcs && (
-        <Message
-          className="mb-4"
-          variant="notice"
-          content={
-            <>
-              A VPC is required to add network interfaces.{' '}
-              <Link to={pb.vpcsNew({ project })}>Create a VPC</Link> to enable networking.
-            </>
-          }
-        />
+      {vpcMessage && (
+        <Message className="mb-4 max-w-lg" variant="notice" content={vpcMessage} />
       )}
-      <NetworkInterfaceField control={control} disabled={isSubmitting} hasVpcs={hasVpcs} />
+      <NetworkInterfaceField control={control} disabled={isSubmitting} vpcs={vpcs} />
 
       <div className="flex flex-1 flex-col gap-4">
         <h2 className="text-sans-md flex items-center">
@@ -1098,21 +1085,12 @@ const renderLargeRadioCards = (category: string) => {
   ))
 }
 
+// 1 vCPU to 8 GiB RAM
 const PRESETS = [
-  { category: 'general', id: 'general-xs', memory: 8, ncpus: 2 },
-  { category: 'general', id: 'general-sm', memory: 16, ncpus: 4 },
-  { category: 'general', id: 'general-md', memory: 32, ncpus: 8 },
-  { category: 'general', id: 'general-lg', memory: 64, ncpus: 16 },
-
-  { category: 'highCPU', id: 'highCPU-xs', memory: 4, ncpus: 2 },
-  { category: 'highCPU', id: 'highCPU-sm', memory: 8, ncpus: 4 },
-  { category: 'highCPU', id: 'highCPU-md', memory: 16, ncpus: 8 },
-  { category: 'highCPU', id: 'highCPU-lg', memory: 32, ncpus: 16 },
-
-  { category: 'highMemory', id: 'highMemory-xs', memory: 16, ncpus: 2 },
-  { category: 'highMemory', id: 'highMemory-sm', memory: 32, ncpus: 4 },
-  { category: 'highMemory', id: 'highMemory-md', memory: 64, ncpus: 8 },
-  { category: 'highMemory', id: 'highMemory-lg', memory: 128, ncpus: 16 },
+  { category: 'general', id: 'general-xs', memory: 8, ncpus: 1 },
+  { category: 'general', id: 'general-sm', memory: 16, ncpus: 2 },
+  { category: 'general', id: 'general-md', memory: 32, ncpus: 4 },
+  { category: 'general', id: 'general-lg', memory: 64, ncpus: 8 },
 
   { category: 'custom', id: 'custom', memory: 0, ncpus: 0 },
 ] as const

@@ -24,7 +24,7 @@ import {
   type Placement,
 } from '@floating-ui/react'
 import cn from 'classnames'
-import { Children, cloneElement, useRef, useState, type ReactElement } from 'react'
+import { Children, cloneElement, useId, useRef, useState, type ReactElement } from 'react'
 
 import { usePopoverZIndex } from './SideModal'
 
@@ -36,7 +36,10 @@ export interface TooltipProps {
   // the corner at (0,0).
 
   /** The target the tooltip hovers near; can not be a raw string. */
-  children?: ReactElement<{ ref?: React.Ref<HTMLButtonElement> }>
+  children?: ReactElement<{
+    ref?: React.Ref<HTMLButtonElement>
+    'aria-describedby'?: string
+  }>
   /** The text to appear on hover/focus */
   content?: string | React.ReactNode
   /**
@@ -78,9 +81,20 @@ export const Tooltip = ({ delay = 250, children, content, placement }: TooltipPr
     useRole(context, { role: 'tooltip' }),
   ])
 
+  const descriptionId = useId()
+
   const onlyChild = Children.only(children)!
+  const describedBy = content
+    ? `${onlyChild.props['aria-describedby'] ?? ''} ${descriptionId}`.trim()
+    : onlyChild.props['aria-describedby']
   const child = cloneElement(onlyChild, {
     ...getReferenceProps(),
+    // Point at a visually hidden copy of the content that is always rendered,
+    // overriding the aria-describedby that useRole sets only while the tooltip
+    // is open. Open state requires hover or DOM focus, and a screen reader
+    // cursor is neither, so a description that only exists while open is
+    // unreachable for exactly the users who need it.
+    'aria-describedby': describedBy,
     // merge with whatever ref is already on the button
     ref: useMergeRefs([refs.setReference, onlyChild.props.ref]),
   })
@@ -93,6 +107,15 @@ export const Tooltip = ({ delay = 250, children, content, placement }: TooltipPr
     <>
       {child}
       <FloatingPortal>
+        {/* Keep the persistent description separate from the conditionally
+            rendered tooltip. Floating UI's autoUpdate lifecycle assumes the
+            floating element unmounts while closed. aria-hidden keeps this copy
+            out of the reading order, but description computation still follows
+            the aria-describedby reference into hidden nodes.
+            https://floating-ui.com/docs/react#anchoring */}
+        <div id={descriptionId} className="sr-only" aria-hidden>
+          {content}
+        </div>
         {open && (
           <div
             ref={refs.setFloating}

@@ -62,7 +62,7 @@ export default function CreateAntiAffinityGroupForm() {
           body: { ...values, failureDomain: 'sled' },
         })
       }
-      loading={createAntiAffinityGroup.isPending}
+      loading={createAntiAffinityGroup.isPending || createAntiAffinityGroup.isSuccess}
       submitError={createAntiAffinityGroup.error}
       submitLabel="Add group"
     >

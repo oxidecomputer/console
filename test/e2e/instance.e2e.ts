@@ -54,8 +54,9 @@ test('shows external IPs on the instances table', async ({ page }) => {
   ).toHaveCount(1)
   // hovering the +1 reveals the other external IP in a tooltip
   await table.getByRole('row', { name: 'db1' }).getByText('+1').hover()
-  await expect(page.getByText('Other external IPs')).toBeVisible()
-  await expect(page.getByText('123.4.56.0')).toBeVisible()
+  const tooltip = page.getByRole('tooltip')
+  await expect(tooltip.getByText('Other external IPs')).toBeVisible()
+  await expect(tooltip.getByText('123.4.56.0')).toBeVisible()
 
   // not-there-yet has three ephemeral IPs, so it shows the first plus a +2 overflow
   await expect(
@@ -77,7 +78,7 @@ test('can start a failed instance', async ({ page }) => {
   await clickRowActions(page, 'db1')
   await page.getByRole('menuitem', { name: 'Start' }).hover()
   await expect(
-    page.getByText('Only stopped or failed instances can be started')
+    page.getByRole('tooltip').getByText('Only stopped or failed instances can be started')
   ).toBeVisible()
   await page.keyboard.press('Escape') // get out of the menu
 

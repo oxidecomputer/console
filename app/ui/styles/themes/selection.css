@@ -11,9 +11,21 @@
  * requiring each individual component to implement styles for it
  *
  * This file is _not_ automatically generated
+ *
+ * The checked-sibling selector is deliberately scoped to `.ox-radio-card`
+ * rather than `*`. A bare `*` on the right of `~` gets evaluated against every
+ * element in the document, and Gecko then flags every parent as having
+ * sibling-dependent children. Removing a child from such a parent restyles all
+ * of its later siblings and their subtrees, so removing the top rows of a
+ * virtualized list (audit log, on scroll) restyled every remaining row: ~20ms
+ * per scroll step in Firefox, most of the main-thread time during a fling.
+ * Stylo sets the flag whenever a sibling combinator is evaluated, matched or
+ * not: https://github.com/servo/stylo/blob/11cc72d/selectors/matching.rs#L885-L889
+ * and https://github.com/servo/stylo/blob/11cc72d/selectors/matching.rs#L43-L46
+ * Gecko acts on it in RestyleManager::RestyleForRemove (layout/base/RestyleManager.cpp).
  */
 .is-selected,
-:checked ~ * {
+:checked ~ .ox-radio-card {
   --content-default: var(--theme-accent-800);
   --content-secondary: var(--theme-accent-700);
   --content-tertiary: var(--theme-accent-700);

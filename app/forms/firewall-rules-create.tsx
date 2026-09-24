@@ -122,7 +122,7 @@ export default function CreateFirewallRuleForm() {
           },
         })
       }}
-      loading={updateRules.isPending}
+      loading={updateRules.isPending || updateRules.isSuccess}
       submitError={updateRules.error}
       submitLabel="Add rule"
     >

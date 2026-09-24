@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { DirectionDownIcon, DirectionUpIcon } from '@oxide/design-system/icons/react'
 
+import { subscribeToTheme } from '~/stores/theme'
 import { classed } from '~/util/classed'
 
 import { AttachAddon } from './AttachAddon'
@@ -110,16 +111,12 @@ export function Terminal({ ws }: TerminalProps) {
     // Update terminal colors when the theme changes. getComputedStyle in
     // getTheme() forces a synchronous style recalc, so the CSS custom
     // properties already reflect the new theme by the time we read them.
-    const observer = new MutationObserver(() => {
+    const unsubscribe = subscribeToTheme(() => {
       newTerm.options.theme = getTheme()
-    })
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
     })
 
     return () => {
-      observer.disconnect()
+      unsubscribe()
       newTerm.dispose()
       window.removeEventListener('resize', resize)
     }
@@ -129,10 +126,10 @@ export function Terminal({ ws }: TerminalProps) {
     <>
       <div
         role="application"
-        className="text-mono-code h-full w-[calc(100%-3rem)]"
+        className="text-mono-code 1000:w-[calc(100%-3rem)] h-full w-full"
         ref={terminalRef}
       />
-      <div className="text-default absolute top-0 right-0 space-y-2">
+      <div className="text-default max-1000:hidden absolute top-0 right-0 space-y-2">
         <ScrollButton onClick={() => term?.scrollToTop()} aria-label="Scroll to top">
           <DirectionUpIcon aria-hidden />
         </ScrollButton>

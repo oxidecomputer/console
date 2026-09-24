@@ -20,6 +20,7 @@ import { Badge, type BadgeColor } from '@oxide/design-system/ui'
 
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Truncate } from '~/ui/lib/Truncate'
 
 const POLICY_KIND_BADGE_COLORS: Record<PhysicalDiskPolicy['kind'], BadgeColor> = {
   in_service: 'default',
@@ -50,7 +51,16 @@ export const handle = { crumb: 'Disks' }
 
 const colHelper = createColumnHelper<PhysicalDisk>()
 const staticCols = [
-  colHelper.accessor('id', {}),
+  colHelper.accessor('id', {
+    cell: (info) => (
+      <Truncate
+        text={info.getValue()}
+        position="middle"
+        className="max-w-48"
+        hasCopyButton
+      />
+    ),
+  }),
   colHelper.accessor((d) => (d.formFactor === 'u2' ? 'U.2' : 'M.2'), {
     header: 'Form factor',
     cell: (info) => <Badge>{info.getValue()}</Badge>,

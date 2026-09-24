@@ -136,7 +136,7 @@ export default function SerialConsolePage() {
   }, [canConnect])
 
   return (
-    <div className="mx-0! flex h-full max-h-[calc(100vh-var(--top-bar-height))] w-full! flex-col">
+    <div className="mx-0! flex h-full max-h-[calc(100vh-var(--top-bar-height)-var(--preview-banner-height))] w-full! flex-col">
       <Link
         to={pb.instance(instanceSelector)}
         className="bg-accent mx-3 mt-3 mb-6 flex h-10 shrink-0 items-center rounded-md px-3"
@@ -157,7 +157,7 @@ export default function SerialConsolePage() {
         {ws.current && <Terminal ws={ws.current} />}
       </div>
       <div className="bg-default border-secondary shrink-0 justify-between overflow-hidden border-t empty:border-t-0">
-        <div className="gutter flex h-20 items-center justify-between">
+        <div className="gutter 1000:h-20 max-1000:py-4 flex items-center justify-between">
           <div>
             <EquivalentCliCommand project={project} instance={instance} />
           </div>

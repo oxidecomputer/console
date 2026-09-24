@@ -55,7 +55,7 @@ export default function CreateSubnetPoolSideModalForm() {
       onSubmit={({ name, description, ipVersion }) => {
         createPool.mutate({ body: { name, description, ipVersion } })
       }}
-      loading={createPool.isPending}
+      loading={createPool.isPending || createPool.isSuccess}
       submitError={createPool.error}
     >
       <SubnetPoolVisibilityMessage />
