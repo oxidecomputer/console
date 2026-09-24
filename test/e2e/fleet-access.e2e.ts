@@ -79,9 +79,9 @@ test('Click through fleet access page', async ({ page }) => {
     .getByRole('row', { name: user3.display_name, exact: false })
     .getByRole('button', { name: 'Row actions' })
     .click()
-  await page.getByRole('menuitem', { name: 'Change role' }).click()
+  await page.getByRole('menuitem', { name: 'Change fleet role' }).click()
 
-  await expect(page.getByRole('heading', { name: /Edit role/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Edit fleet role/ })).toBeVisible()
   await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
 
   await page.getByRole('radio', { name: /^Viewer / }).click()
@@ -89,11 +89,11 @@ test('Click through fleet access page', async ({ page }) => {
 
   await expectRowVisible(table, { Name: user3.display_name, 'Fleet role': 'fleet.viewer' })
 
-  // delete user 3
+  // remove user 3
   const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })
   await expect(user3Row).toBeVisible()
   await user3Row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('menuitem', { name: 'Remove fleet role' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectToast(page, 'Access removed')
   await expect(user3Row).toBeHidden()
@@ -131,7 +131,7 @@ test('Self-removal warning on delete', async ({ page }) => {
   // Hannah Arendt is the logged-in user with fleet admin
   const hannahRow = page.getByRole('row', { name: 'Hannah Arendt', exact: false })
   await hannahRow.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('menuitem', { name: 'Remove fleet role' }).click()
 
   // confirm dialog should show the self-removal warning
   await expect(page.getByText('This will remove your own fleet access.')).toBeVisible()
@@ -140,7 +140,10 @@ test('Self-removal warning on delete', async ({ page }) => {
   await page.getByRole('button', { name: 'Cancel' }).click()
 })
 
-test('Fleet viewer cannot modify fleet access', async ({ browser }) => {
+test('Fleet viewer cannot change or remove fleet roles', async ({ browser }) => {
+  // Jane Austen is only a fleet viewer, so she can load the page but lacks
+  // `modify` on the fleet policy (only fleet admins can). Both row actions
+  // should be disabled with an explanation.
   const page = await getPageAsUser(browser, 'Jane Austen')
   await page.goto('/system/access')
 
@@ -148,16 +151,24 @@ test('Fleet viewer cannot modify fleet access', async ({ browser }) => {
   await expect(page.getByRole('heading', { name: /Fleet Access/ })).toBeVisible()
   await expectRowVisible(table, { Name: 'Hannah Arendt', 'Fleet role': 'fleet.admin' })
 
-  // attempt to add a user — the submit should fail with 403
-  await page.getByRole('button', { name: 'Add user or group' }).click()
-  await page.getByRole('button', { name: /User or group/ }).click()
-  await page.getByRole('option', { name: 'Jacob Klein' }).click()
-  await page.getByRole('button', { name: 'Assign role' }).click()
-  await expect(page.getByText('Action not authorized')).toBeVisible()
+  await table
+    .getByRole('row', { name: 'Hannah Arendt', exact: false })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
 
-  // dismiss the modal and confirm the table is unchanged
-  await page.getByRole('button', { name: 'Cancel' }).click()
-  await expect(page.getByRole('cell', { name: 'Jacob Klein' })).toBeHidden()
+  const changeRole = page.getByRole('menuitem', { name: 'Change fleet role' })
+  await expect(changeRole).toBeDisabled()
+  await changeRole.hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    "You don't have permission to change fleet roles"
+  )
+
+  const removeRole = page.getByRole('menuitem', { name: 'Remove fleet role' })
+  await expect(removeRole).toBeDisabled()
+  await removeRole.hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    "You don't have permission to remove fleet roles"
+  )
 })
 
 test('Cross-silo user shows UUID with tooltip', async ({ page }) => {
