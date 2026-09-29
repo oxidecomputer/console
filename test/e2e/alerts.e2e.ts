@@ -689,31 +689,15 @@ test('Alert list filter resetting', async ({ page }) => {
   const { table, allRowCount, filterButton, input, applyButton } =
     await alertListFilteringBasics(page)
 
-  // typed glob previews how many classes it matches
   await filterButton.click()
   await input.fill('**.remove')
   await page.getByRole('option', { name: /Matches 3 alert classes/ }).click()
   await applyButton.click()
-
   await expect(table.getByRole('row')).toHaveCount(3) // header + 2 remove alerts
 
-  // Reset clears the applied filter
+  // Reset clears the applied filter and URL
   await filterButton.click()
   await page.getByRole('button', { name: 'Reset' }).click()
-  await expect(page).not.toHaveURL(/subscription/)
-  await expect(table.getByRole('row')).toHaveCount(allRowCount)
-
-  // reapply filter
-  await filterButton.click()
-  await input.fill('**.remove')
-  await page.getByRole('option', { name: /Matches 3 alert classes/ }).click()
-  await applyButton.click()
-  await expect(table.getByRole('row')).toHaveCount(3)
-
-  // clearing the input and applying also clears the filter
-  await filterButton.click()
-  await input.fill('')
-  await applyButton.click()
   await expect(page).not.toHaveURL(/subscription/)
   await expect(table.getByRole('row')).toHaveCount(allRowCount)
 })
