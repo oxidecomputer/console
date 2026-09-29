@@ -6,10 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import { Popover, PopoverButton, PopoverPanel, useClose } from '@headlessui/react'
 import cn from 'classnames'
 import { memo, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { type UseFormReturn } from 'react-hook-form'
 import {
   useLocation,
   useNavigation,
@@ -27,11 +26,12 @@ import {
   type AlertListQueryParams,
   type AlertSubscription,
 } from '@oxide/api'
-import { Filter16Icon, Notifications24Icon } from '@oxide/design-system/icons/react'
+import { Notifications24Icon } from '@oxide/design-system/icons/react'
 
 import { isGlobPattern, subscriptionRegex } from '~/api/util'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { AlertPayload } from '~/components/AlertPayload'
+import { FilterPopover } from '~/components/FilterPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { validateSubscription } from '~/components/form/fields/SubscriptionsField'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
@@ -44,9 +44,7 @@ import {
 } from '~/hooks/use-alert-classes'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { usePaginatedList } from '~/table/QueryTable'
-import { Button, buttonStyle } from '~/ui/lib/Button'
 import { DateTime, SyslogDateTime } from '~/ui/lib/DateTime'
-import { Divider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Spinner } from '~/ui/lib/Spinner'
@@ -235,113 +233,6 @@ function PatternMatchCount({
   )
 }
 
-type FilterProps = {
-  isFetching: boolean
-  handleSubmit: (subscription: AlertSubscription) => void
-  lastApplied: AlertSubscription
-  classes: AlertClassMap
-}
-
-type FilterFormProps = Omit<FilterProps, 'isFetching'>
-
-// We're tolerating a little bit of prop drilling here because we want
-// FilterForm to be its own component (so that the form is reset on close for
-// free)
-function FilterForm({ handleSubmit, classes, lastApplied }: FilterFormProps) {
-  const form = useForm({ defaultValues: { alertClassSearch: lastApplied } })
-  const close = useClose()
-
-  const resetDisabled = lastApplied === ''
-
-  return (
-    <form
-      aria-label="Filter alerts"
-      className="py-4"
-      onSubmit={form.handleSubmit(({ alertClassSearch }) => {
-        handleSubmit(alertClassSearch)
-        close()
-      })}
-    >
-      <div className="flex items-start justify-between px-4">
-        <h2 className="text-sans-semi-md text-raise">Filter alerts</h2>
-        <button
-          type="button"
-          className={cn(
-            resetDisabled ? 'text-disabled' : 'text-default hover:text-raise',
-            'text-mono-sm flex items-center'
-          )}
-          disabled={resetDisabled}
-          onClick={() => {
-            handleSubmit('')
-            close()
-          }}
-        >
-          Reset
-        </button>
-      </div>
-      <Divider className="mt-2" />
-      <div className="mt-6 px-4">
-        <ComboboxField
-          name="alertClassSearch"
-          control={form.control}
-          items={[...classes.values()].map(toClassComboboxItem)}
-          label="Alert class"
-          hideOptionalTag
-          description="e.g. hardware.disk.insert or hardware.**"
-          validate={validateAlertClassFilter(classes)}
-          transform={(value) => value.trim()}
-          allowArbitraryValues
-          renderArbitraryLabel={(value) => (
-            <PatternMatchCount pattern={value} classes={classes} />
-          )}
-        />
-      </div>
-      <div className="mt-6 flex justify-end px-4">
-        <Button type="submit">Apply</Button>
-      </div>
-    </form>
-  )
-}
-
-function Filter({ isFetching, handleSubmit, lastApplied, classes }: FilterProps) {
-  return (
-    <Popover>
-      <PopoverButton
-        aria-label={lastApplied ? 'Filter alerts (1 applied)' : 'Filter alerts'}
-        title="Filter alerts"
-        className="headless-hide-focus rounded-md"
-      >
-        <div
-          className={cn(
-            buttonStyle({ size: 'sm', variant: 'ghost' }),
-            lastApplied ? 'px-3 gap-1.5' : 'w-8'
-          )}
-        >
-          {isFetching ? (
-            <Spinner className="shrink-0" />
-          ) : (
-            <Filter16Icon
-              aria-hidden
-              className={cn('shrink-0', lastApplied && 'text-accent')}
-            />
-          )}
-          {lastApplied && '1'}
-        </div>
-      </PopoverButton>
-      <PopoverPanel
-        className="popover-panel bg-raise light:bg-default shadow-menu z-10 w-96 rounded-lg"
-        anchor={{ to: 'bottom end', gap: 12, padding: 16 }}
-      >
-        <FilterForm
-          classes={classes}
-          handleSubmit={handleSubmit}
-          lastApplied={lastApplied}
-        />
-      </PopoverPanel>
-    </Popover>
-  )
-}
-
 export default function AlertsTab() {
   const [detail, setDetail] = useState<Alert | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -414,15 +305,37 @@ export default function AlertsTab() {
     </>
   )
 
+  const alertClassField = (form: UseFormReturn<{ alertClassSearch: string }>) => (
+    <ComboboxField
+      name="alertClassSearch"
+      control={form.control}
+      items={[...classes.values()].map(toClassComboboxItem)}
+      label="Alert class"
+      hideOptionalTag
+      description="e.g. hardware.disk.insert or hardware.**"
+      validate={validateAlertClassFilter(classes)}
+      transform={(value) => value.trim()}
+      allowArbitraryValues
+      renderArbitraryLabel={(value) => (
+        <PatternMatchCount pattern={value} classes={classes} />
+      )}
+    />
+  )
+
   return (
     <>
       <div className="mb-4 flex justify-end">
-        <Filter
+        <FilterPopover
           isFetching={isFiltering}
-          handleSubmit={applyFilter}
-          lastApplied={alertClass ?? ''}
-          classes={classes}
-        />
+          resetFieldValues={{ alertClassSearch: '' }}
+          lastApplied={{ alertClassSearch: alertClass ?? '' }}
+          handleSubmit={({ alertClassSearch }) => {
+            applyFilter(alertClassSearch)
+          }}
+          pluralFilteredItemName="alerts"
+        >
+          {alertClassField}
+        </FilterPopover>
       </div>
       {alerts}
     </>
