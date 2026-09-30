@@ -256,7 +256,7 @@ test('Assign role to a user with no direct role from the row action', async ({ p
   })
 })
 
-test('Inherited-only role shows Change/Remove with Remove disabled', async ({ page }) => {
+test('Inherited-only role shows Add/Remove with Remove disabled', async ({ page }) => {
   await page.goto('/users')
   const table = page.getByRole('table')
 
@@ -266,14 +266,15 @@ test('Inherited-only role shows Change/Remove with Remove disabled', async ({ pa
     .getByRole('row', { name: 'Hans Jonas', exact: false })
     .getByRole('button', { name: 'Row actions' })
     .click()
-  await expect(page.getByRole('menuitem', { name: 'Add silo role' })).toBeHidden()
-  await expect(page.getByRole('menuitem', { name: 'Change silo role' })).toBeEnabled()
+  await expect(page.getByRole('menuitem', { name: 'Change silo role' })).toBeHidden()
+  await expect(page.getByRole('menuitem', { name: 'Add silo role' })).toBeEnabled()
   await expect(page.getByRole('menuitem', { name: 'Remove silo role' })).toBeDisabled()
 
-  // Change role opens the edit modal with the inherited role pre-selected
-  await page.getByRole('menuitem', { name: 'Change silo role' }).click()
-  await expect(page.getByRole('heading', { name: /Edit silo role/ })).toBeVisible()
-  await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
+  // Add role opens the add modal with no role pre-selected, since there is no
+  // direct assignment to change
+  await page.getByRole('menuitem', { name: 'Add silo role' }).click()
+  await expect(page.getByRole('heading', { name: /Add silo role/ })).toBeVisible()
+  await expect(page.getByRole('radio', { name: /^Collaborator / })).not.toBeChecked()
 })
 
 test('Groups tab shows roles and member counts; modal lists members', async ({ page }) => {

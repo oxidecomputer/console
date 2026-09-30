@@ -168,22 +168,18 @@ export function AccessUsersTab() {
       )
       const effectiveRole = entries[0]?.roleName
       const actions = roleActions('silo', canEdit)
+      const editAction = directRole
+        ? actions.change(() => setEditingUser({ user, defaultRole: directRole }))
+        : actions.add(() => setEditingUser({ user, defaultRole: undefined }))
       // No role at all, either direct or inherited.
-      if (!effectiveRole) {
-        return [actions.add(() => setEditingUser({ user, defaultRole: undefined }))]
-      }
+      if (!effectiveRole) return [editAction]
       return [
-        // An inherited role can be promoted to a direct assignment; prefill the
-        // modal with the role the user already has.
-        actions.change(() =>
-          setEditingUser({ user, defaultRole: directRole ?? effectiveRole })
-        ),
+        editAction,
         actions.remove({
           name: user.displayName,
           directRole,
           isSelf: user.id === me.id,
-          inheritedReason:
-            'Role is inherited from a group; it can only be removed from the group.',
+          inheritedReason: 'Role is inherited from a group and cannot be changed here.',
           doRemove: () => updatePolicy({ body: deleteRole(user.id, siloPolicy) }),
         }),
       ]
