@@ -373,6 +373,8 @@ const DiskSourceField = ({
               isLoading={areImagesLoading}
               items={images.map((i) => toImageComboboxItem(i, true))}
               required
+              // revalidate size against the new source's minimum
+              deps="size"
               onChange={(id) => {
                 const image = images.find((i) => i.id === id)!
                 const imageSizeGiB = image.size / GiB
@@ -444,6 +446,8 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) 
       })}
       isLoading={snapshotsQuery.isPending}
       required
+      // revalidate size against the new source's minimum
+      deps="size"
       onChange={(id) => {
         const snapshot = snapshots.find((i) => i.id === id)! // if it's selected, it must be present
         const snapshotSizeGiB = snapshot.size / GiB
