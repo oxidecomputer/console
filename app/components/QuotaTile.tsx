@@ -74,7 +74,7 @@ function Pct({ pct }: { pct: number }) {
   return (
     <span>
       <span className="text-raise">{wholeNumber}</span>
-      <span className="text-tertiary">{decimal}%</span>
+      <span className="text-tertiary text-sans-md">{decimal}%</span>
     </span>
   )
 }
