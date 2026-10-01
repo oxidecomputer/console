@@ -10,14 +10,14 @@ import { useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '~/api'
+import { QuotaTiles } from '~/components/QuotaTile'
 import { EditQuotasSideModalForm } from '~/forms/silo-quotas-edit'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { Button } from '~/ui/lib/Button'
-import { Table } from '~/ui/lib/Table'
-import { ValueUnit } from '~/ui/lib/ValueUnit'
+import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
+import { docLinks } from '~/util/links'
 import type * as PP from '~/util/path-params'
-import { bytesToGiB } from '~/util/units'
 
 const siloUtil = ({ silo }: PP.Silo) => q(api.siloUtilizationView, { path: { silo } })
 
@@ -37,49 +37,21 @@ export default function SiloQuotasTab() {
 
   return (
     <>
-      <Table className="max-w-lg">
-        <Table.Header>
-          <Table.HeaderRow>
-            <Table.HeadCell>Resource</Table.HeadCell>
-            <Table.HeadCell>Provisioned</Table.HeadCell>
-            <Table.HeadCell>Quota</Table.HeadCell>
-          </Table.HeaderRow>
-        </Table.Header>
-        <Table.Body>
-          <Table.Row>
-            <Table.Cell>CPU</Table.Cell>
-            <Table.Cell>
-              <ValueUnit value={provisioned.cpus} unit="vCPUs" />
-            </Table.Cell>
-            <Table.Cell>
-              <ValueUnit value={quotas.cpus} unit="vCPUs" />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>Memory</Table.Cell>
-            <Table.Cell>
-              <ValueUnit value={bytesToGiB(provisioned.memory)} unit="GiB" />
-            </Table.Cell>
-            <Table.Cell>
-              <ValueUnit value={bytesToGiB(quotas.memory)} unit="GiB" />
-            </Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell>Storage</Table.Cell>
-            <Table.Cell>
-              <ValueUnit value={bytesToGiB(provisioned.storage)} unit="GiB" />
-            </Table.Cell>
-            <Table.Cell>
-              <ValueUnit value={bytesToGiB(quotas.storage)} unit="GiB" />
-            </Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table>
-      <div className="mt-4 flex space-x-2">
-        <Button size="sm" onClick={() => setEditing(true)}>
-          Edit quotas
-        </Button>
-      </div>
+      <CardBlock>
+        <CardBlock.Header
+          title="Quotas"
+          description="Set the CPU, memory, and storage in this silo that users can provision"
+        />
+        <CardBlock.Body>
+          <QuotaTiles provisioned={provisioned} allocated={quotas} storageUnit="GiB" />
+        </CardBlock.Body>
+        <CardBlock.Footer>
+          <LearnMore doc={docLinks.resourceManagement} />
+          <Button size="sm" onClick={() => setEditing(true)}>
+            Edit quotas
+          </Button>
+        </CardBlock.Footer>
+      </CardBlock>
       {editing && (
         <EditQuotasSideModalForm
           silo={silo}

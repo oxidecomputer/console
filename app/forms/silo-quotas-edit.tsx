@@ -12,8 +12,10 @@ import { Cloud16Icon } from '@oxide/design-system/icons/react'
 
 import { NumberField } from '~/components/form/fields/NumberField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { QuotaUsageChips } from '~/components/QuotaTile'
 import { addToast } from '~/stores/toast'
 import { BigNum } from '~/ui/lib/BigNum'
+import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ResourceLabel } from '~/ui/lib/SideModal'
@@ -89,15 +91,21 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
       loading={updateQuotas.isPending || updateQuotas.isSuccess}
       submitError={updateQuotas.error}
     >
+      <div>
+        <h3 className="text-mono-sm text-secondary mb-2">Quota used</h3>
+        <QuotaUsageChips provisioned={provisioned} allocated={quotas} />
+      </div>
+      <FormDivider />
       <Message
-        content="If a quota is set below the amount currently provisioned, users will not be able to provision new resources."
+        content="If a quota is set below the amount currently in use, users will not be able to provision new resources."
         variant="info"
       />
 
       <div>
         <NumberField
           name="cpus"
-          label="CPU"
+          label="CPU quota"
+          description="Maximum number of vCPUs running instances in this silo can use"
           units="vCPUs"
           required
           control={form.control}
@@ -108,7 +116,8 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
         <NumberField
           name="memory"
           allowDecimals
-          label="Memory"
+          label="Memory quota"
+          description="Maximum memory running instances in this silo can use"
           units="GiB"
           required
           control={form.control}
@@ -119,7 +128,8 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
         <NumberField
           name="storage"
           allowDecimals
-          label="Storage"
+          label="Storage quota"
+          description="Maximum storage disks and snapshots in this silo can use"
           units="GiB"
           required
           control={form.control}
