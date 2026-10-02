@@ -113,15 +113,15 @@ function QuotaTile({ icon, title, unit, provisioned, quota, showBar }: QuotaTile
       aria-label={title}
       className="border-default bg-default w-full min-w-min rounded-lg border"
     >
-      <div className="flex items-start justify-between gap-3 p-4">
+      <div className="flex items-end justify-between gap-3 p-4">
         <div className="flex items-center gap-3">
           <IconBox>{icon}</IconBox>
           <div>
             <div className="text-mono-sm text-secondary">{title}</div>
-            <div className="text-sans-xl -mt-0.5">
+            <span className="text-sans-xl -mt-0.5">
               <BigNum num={quota} className="text-raise" />{' '}
               <span className="text-sans-md text-tertiary">{unit}</span>
-            </div>
+            </span>
           </div>
         </div>
         {showBar && (
