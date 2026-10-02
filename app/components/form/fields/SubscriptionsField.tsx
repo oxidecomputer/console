@@ -14,7 +14,6 @@ import {
   useFloating,
   useMergeRefs,
 } from '@floating-ui/react'
-import { useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
 import { useCallback, useId, useRef, useState } from 'react'
 import {
@@ -26,16 +25,15 @@ import {
 import * as R from 'remeda'
 import { match, P } from 'ts-pattern'
 
-import { api, q } from '@oxide/api'
 import { Close8Icon } from '@oxide/design-system/icons/react'
 
 import {
   ALERT_SUBSCRIPTION_REGEX,
   isGlobPattern,
-  isSubscribableClass,
   PROBE_ALERT_CLASS,
   subscriptionRegex,
 } from '~/api/util'
+import { useAlertClasses, type AlertClassMap } from '~/hooks/use-alert-classes'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
@@ -44,21 +42,20 @@ import { usePopoverZIndex } from '~/ui/lib/SideModal'
 import { TextInputError } from '~/ui/lib/TextInput'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { KEYS } from '~/ui/util/keys'
-import { ALL_ISH } from '~/util/consts'
 
 /**
  * Segments may only contain [a-zA-Z0-9_], unlike resource names. An exact
  * (non-glob) subscription must also be a class the API knows about: it parses
  * the value as an `AlertClass` and rejects anything else with a 400, so pass
- * `knownClasses` once the class list has loaded to catch that before submit.
+ * `classes` once the class list has loaded to catch that before submit.
  * https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/db-model/src/alert_subscription.rs#L61-L98
  */
-export const validateSubscription = (value: string, knownClasses?: ReadonlySet<string>) => {
+export const validateSubscription = (classes?: AlertClassMap) => (value: string) => {
   if (!ALERT_SUBSCRIPTION_REGEX.test(value))
     return 'Must be an alert class or a glob pattern like hardware.** (letters, numbers, and underscores only)'
   if (value === PROBE_ALERT_CLASS)
-    return 'The probe class is only used for liveness probes and cannot be subscribed to'
-  if (!isGlobPattern(value) && knownClasses && !knownClasses.has(value))
+    return 'The probe class is only used for liveness probes and cannot be subscribed to or shown in alert lists'
+  if (!isGlobPattern(value) && classes && !classes.has(value))
     return 'Not an alert class. Pick one from the list or use a glob pattern like hardware.**'
   return undefined
 }
@@ -128,9 +125,10 @@ type RowState =
 /** Split subscriptions into glob matchers and exact class names */
 function toMatchers(subscriptions: string[]) {
   return {
-    globs: subscriptions
-      .filter(isGlobPattern)
-      .map((g) => [g, subscriptionRegex(g)] as const),
+    globs: subscriptions.filter(isGlobPattern).flatMap((g) => {
+      const re = subscriptionRegex(g)
+      return re ? [[g, re] as const] : []
+    }),
     exacts: new Set(subscriptions.filter((s) => !isGlobPattern(s))),
   }
 }
@@ -201,11 +199,8 @@ export function SubscriptionsField<
   const [activeIdx, setActiveIdx] = useState<number | null>(null)
   const [commitError, setCommitError] = useState<string>()
 
-  const { data } = useQuery(q(api.alertClassList, { query: { limit: ALL_ISH } }))
-  const classes = (data?.items ?? []).filter(isSubscribableClass)
-  // undefined while loading so an exact class typed before the list arrives
-  // isn't rejected as unknown
-  const classNames = data ? new Set(classes.map((c) => c.name)) : undefined
+  const { data, classes } = useAlertClasses()
+  const classList = classes ? [...classes.values()] : []
 
   // TName is constrained to string[] paths, but TS can't resolve the generic
   // PathValue to string[] here, so annotate to pin it
@@ -216,17 +211,18 @@ export function SubscriptionsField<
   // undefined and the tooltip stays off
   const chipMatchCounts = new Map(
     data
-      ? matchers.globs.map(([g, re]) => [g, classes.filter((c) => re.test(c.name)).length])
+      ? matchers.globs.map(([g, re]) => [
+          g,
+          classList.filter((c) => re.test(c.name)).length,
+        ])
       : []
   )
 
   const queryTrimmed = query.trim()
-  const queryIsValidGlob =
-    isGlobPattern(queryTrimmed) && ALERT_SUBSCRIPTION_REGEX.test(queryTrimmed)
-  const queryRegex = queryIsValidGlob ? subscriptionRegex(queryTrimmed) : null
+  const queryRegex = isGlobPattern(queryTrimmed) ? subscriptionRegex(queryTrimmed) : null
   // broadest version of the query glob (every wildcard segment widened to `**`),
   // used to keep near-miss rows visible with a hint about the covering pattern
-  const promotedGlob = queryIsValidGlob
+  const promotedGlob = queryRegex
     ? queryTrimmed
         .split('.')
         .map((seg) => (seg.includes('*') ? '**' : seg))
@@ -237,7 +233,7 @@ export function SubscriptionsField<
   // valid glob → its (widened) matches; glob still being typed (e.g. `*.`) →
   // everything, since substring matching on `*` can never hit a class name;
   // otherwise substring filter (which is a no-op for an empty query)
-  const visible = classes.filter((c) =>
+  const visible = classList.filter((c) =>
     promotedRegex
       ? promotedRegex.test(c.name)
       : isGlobPattern(queryTrimmed) ||
@@ -280,7 +276,7 @@ export function SubscriptionsField<
 
   function commitQuery() {
     const value = queryTrimmed
-    const error = validateSubscription(value, classNames)
+    const error = validateSubscription(classes)(value)
     if (error) {
       setCommitError(error)
       return
@@ -340,7 +336,7 @@ export function SubscriptionsField<
       e.preventDefault()
       if (open && activeIdx !== null && rows[activeIdx]) {
         toggleRow(rows[activeIdx].name)
-      } else if (isGlobPattern(queryTrimmed) || classNames?.has(queryTrimmed)) {
+      } else if (isGlobPattern(queryTrimmed) || classes?.has(queryTrimmed)) {
         commitQuery()
       }
     } else if (e.key === KEYS.backspace || e.key === KEYS.delete) {
@@ -395,7 +391,7 @@ export function SubscriptionsField<
           if (!e.currentTarget.contains(e.relatedTarget)) {
             closePanel()
             // valid globs save on blur
-            if (isGlobPattern(queryTrimmed) && !validateSubscription(queryTrimmed)) {
+            if (isGlobPattern(queryTrimmed) && !validateSubscription()(queryTrimmed)) {
               commitQuery()
             } else {
               setQuery('')
@@ -475,13 +471,13 @@ export function SubscriptionsField<
                 {queryTrimmed === '' ? (
                   <>
                     <span>All classes</span>
-                    <span className="text-tertiary">Showing {classes.length}</span>
+                    <span className="text-tertiary">Showing {classList.length}</span>
                   </>
                 ) : (
                   <>
                     <span>Matching &ldquo;{queryTrimmed}&rdquo;</span>
                     <span className="text-tertiary">
-                      Showing {rows.length} of {classes.length}
+                      Showing {rows.length} of {classList.length}
                     </span>
                   </>
                 )}

@@ -144,9 +144,8 @@ test('Theme picker changes data-theme on <html>', async ({ page }) => {
   await page.getByRole('menuitemradio', { name: 'Light' }).click()
   await expectTheme('light')
 
-  // navigate fresh and confirm the choice persisted via localStorage
-  // (page.reload() didn't work in Firefox)
-  await page.goto('/projects')
+  // reload and confirm the choice persisted via localStorage
+  await page.reload()
   await expectTheme('light')
 
   // reopen and pick Dark
