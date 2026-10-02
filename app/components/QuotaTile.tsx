@@ -56,14 +56,21 @@ function getResources(
 }
 
 const IconBox = ({ children }: { children: ReactNode }) => (
-  <div className="text-accent light:text-accent-tertiary flex size-8 shrink-0 items-center justify-center rounded-md bg-[color-mix(in_srgb,var(--surface-accent-inverse)_4%,var(--surface-secondary))]">
+  <div className="text-accent light:text-accent-tertiary bg-accent flex size-8 shrink-0 items-center justify-center rounded-md">
     {children}
   </div>
 )
 
-function Pct({ pct }: { pct: number }) {
-  // NaN happens when both provisioned and quota are 0
-  if (Number.isNaN(pct)) {
+// isCompact controls the size of the decimal part of the percentage; true for sidebar usage
+function Pct({
+  pct,
+  decimalClass,
+}: {
+  pct: number
+  decimalClass: 'text-sans-md' | 'text-sans-xl'
+}) {
+  // NaN when provisioned and quota are both 0, Infinity when only quota is 0
+  if (!Number.isFinite(pct)) {
     return (
       <span className="text-tertiary">
         <span className="text-raise">—</span>%
@@ -74,7 +81,7 @@ function Pct({ pct }: { pct: number }) {
   return (
     <span>
       <span className="text-raise">{wholeNumber}</span>
-      <span className="text-tertiary text-sans-md">{decimal}%</span>
+      <span className={`text-tertiary ${decimalClass}`}>{decimal}%</span>
     </span>
   )
 }
@@ -98,14 +105,7 @@ type QuotaTileProps = Resource & {
   showBar?: boolean
 }
 
-export function QuotaTile({
-  icon,
-  title,
-  unit,
-  provisioned,
-  quota,
-  showBar,
-}: QuotaTileProps) {
+function QuotaTile({ icon, title, unit, provisioned, quota, showBar }: QuotaTileProps) {
   const available = round(quota - provisioned, 2)
   const pct = percentage(provisioned, quota)
   return (
@@ -118,7 +118,7 @@ export function QuotaTile({
           <IconBox>{icon}</IconBox>
           <div>
             <div className="text-mono-sm text-secondary">{title}</div>
-            <div className="text-sans-xl">
+            <div className="text-sans-xl -mt-0.5">
               <BigNum num={quota} className="text-raise" />{' '}
               <span className="text-sans-md text-tertiary">{unit}</span>
             </div>
@@ -126,7 +126,7 @@ export function QuotaTile({
         </div>
         {showBar && (
           <div className="text-sans-2xl font-light">
-            <Pct pct={pct} />
+            <Pct pct={pct} decimalClass="text-sans-xl" />
           </div>
         )}
       </div>
@@ -202,7 +202,7 @@ export const QuotaUsageChips = ({
           <div>
             <div className="text-mono-sm text-secondary">{title}</div>
             <div className="text-sans-xl">
-              <Pct pct={percentage(provisioned, quota)} />
+              <Pct pct={percentage(provisioned, quota)} decimalClass="text-sans-md" />
             </div>
           </div>
         </section>
