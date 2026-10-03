@@ -61,14 +61,7 @@ const IconBox = ({ children }: { children: ReactNode }) => (
   </div>
 )
 
-// isCompact controls the size of the decimal part of the percentage; true for sidebar usage
-function Pct({
-  pct,
-  decimalClass,
-}: {
-  pct: number
-  decimalClass: 'text-sans-md' | 'text-sans-xl'
-}) {
+function Pct({ pct, decimalClass }: { pct: number; decimalClass: string }) {
   // NaN when provisioned and quota are both 0, Infinity when only quota is 0
   if (!Number.isFinite(pct)) {
     return (
