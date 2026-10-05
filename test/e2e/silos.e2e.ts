@@ -221,11 +221,11 @@ test('Create silo', async ({ page }) => {
   ])
   await expect(page.getByText('Silo viewerFleet viewer')).toBeHidden()
 
-  // now go check the quotas in its entry in the utilization table
+  // now go check the quotas in its Quotas tab
   await page.getByRole('tab', { name: 'Quotas' }).click()
-  await expectRowVisible(table, { Resource: 'CPU', Quota: '30 vCPUs' })
-  await expectRowVisible(table, { Resource: 'Memory', Quota: '58 GiB' })
-  await expectRowVisible(table, { Resource: 'Storage', Quota: '735 GiB' })
+  await expect(page.getByRole('region', { name: 'CPU' })).toContainText('30 vCPUs')
+  await expect(page.getByRole('region', { name: 'Memory' })).toContainText('58 GiB')
+  await expect(page.getByRole('region', { name: 'Storage' })).toContainText('735 GiB')
 
   // Go back to the silos list page to delete the silo using breadcrumbs
   await page
