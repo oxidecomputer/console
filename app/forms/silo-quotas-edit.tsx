@@ -97,7 +97,7 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
       </div>
       <FormDivider />
       <Message
-        content="If a quota is set below the amount currently in use, users will not be able to provision new resources."
+        content="If a quota is set below the amount currently provisioned, users will not be able to provision new resources."
         variant="info"
       />
 
