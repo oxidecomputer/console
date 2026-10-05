@@ -82,7 +82,7 @@
     "react-stately": "^3.32.2",
     "remeda": "^2.30.0",
     "semver": "^7.7.3",
-    "shiki": "^3.23.0",
+    "shiki": "^4.5.0",
     "simplebar-react": "^3.2.6",
     "ts-pattern": "^5.8.0",
     "tslib": "^2.7.0",
