@@ -248,7 +248,7 @@ const FieldBadge = ({ fieldName, value }: { fieldName: string; value: string }) 
       <div className="flex items-center">
         <span className="opacity-60">{camelToSnake(fieldName)}</span>
         <span className="ml-1">{text}</span>
-        <CopyToClipboard text={text} />
+        <CopyToClipboard text={value} ariaLabel={`Copy ${camelToSnake(fieldName)}`} />
       </div>
     </Badge>
   )
