@@ -110,7 +110,7 @@
   }
 
   .cm-completionDetail {
-    color: var(--content-quaternary);
+    color: var(--content-tertiary);
     font-style: normal;
     margin-left: 1rem;
   }
