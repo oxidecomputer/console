@@ -237,7 +237,7 @@ const getFormattedFields = (t: Timeseries): string =>
     .map(([fieldName, x]) => `${camelToSnake(fieldName)}: ${x.value}`)
     .join(' / ')
 
-const DEFAULT_FIELDS_SHOWN = 5
+const DEFAULT_FIELDS_SHOWN = 10
 // long enough for names/serials; a UUID (36 chars) gets middle-truncated
 const FIELD_VALUE_MAX_LEN = 24
 
