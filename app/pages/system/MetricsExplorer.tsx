@@ -238,12 +238,16 @@ const getFormattedFields = (t: Timeseries): string =>
     .join(' / ')
 
 const DEFAULT_FIELDS_SHOWN = 10
-// long enough for names/serials; a UUID (36 chars) gets middle-truncated
+// long enough for names/serials
 const FIELD_VALUE_MAX_LEN = 24
+// 6 chars on either side of the ellipsis is enough to tell UUIDs apart
+const UUID_MAX_LEN = 14
 
-const FieldBadge = ({ fieldName, value }: { fieldName: string; value: string }) => {
-  const truncated = value.length > FIELD_VALUE_MAX_LEN
-  const text = truncate(value, FIELD_VALUE_MAX_LEN, 'middle')
+const FieldBadge = ({ fieldName, field }: { fieldName: string; field: FieldValue }) => {
+  const value = String(field.value)
+  const maxLen = field.type === 'uuid' ? UUID_MAX_LEN : FIELD_VALUE_MAX_LEN
+  const truncated = value.length > maxLen
+  const text = truncate(value, maxLen, 'middle')
   const badge = (
     <Badge className="h-6 pl-2" color="neutral">
       <div className="flex items-center">
@@ -270,7 +274,7 @@ const FieldsList = ({ fields }: { fields: Record<string, FieldValue> }) => {
   return (
     <div className="mt-3 flex flex-wrap gap-2">
       {toShow.map(([fieldName, x]) => (
-        <FieldBadge key={fieldName} fieldName={fieldName} value={String(x.value)} />
+        <FieldBadge key={fieldName} fieldName={fieldName} field={x} />
       ))}
       {!showOverflow && entries.length > DEFAULT_FIELDS_SHOWN && (
         <button
