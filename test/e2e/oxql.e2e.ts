@@ -21,6 +21,16 @@ const runQuery = async (page: Page, query?: string) => {
   await expect(page.getByRole('alert')).toBeHidden()
 }
 
+/**
+ * CodeMirror ignores Enter for `interactionDelay` (75ms) after the completion
+ * list opens, so a keypress the user made before seeing the tooltip can't
+ * accept an option.
+ */
+const acceptCompletion = async (page: Page) => {
+  await page.waitForTimeout(150)
+  await page.keyboard.press('Enter')
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/system/metrics-explorer')
   await expect(page.getByRole('heading', { name: 'Metrics Explorer' })).toBeVisible()
@@ -134,8 +144,7 @@ test('picking an example populates the query and runs it', async ({ page }) => {
   await expect(page.getByRole('figure').first()).toBeVisible()
 })
 
-test('editor completions are wired to live timeseries schemas', async ({ page }) => {
-  // here we only check the editor is hooked up to the schema list from the API
+test('editor completions walk from target to metric', async ({ page }) => {
   const textbox = page.getByRole('textbox')
   await textbox.click()
   await page.keyboard.type('get hardware')
@@ -148,11 +157,19 @@ test('editor completions are wired to live timeseries schemas', async ({ page })
     await expect(options.first()).toBeVisible({ timeout: 1000 })
   }).toPass()
 
+  // the first half of a name completes on its own, so this is the target, not
+  // hardware_component:fan_speed
+  await expect(options).toHaveText(['hardware_component10 metrics'])
+
   // accept with the keyboard rather than clicking: the info tooltip can
   // overlap the option and intercept pointer events
-  await expect(options.getByText('hardware_component:fan_speed')).toBeVisible()
-  await page.keyboard.type('_component:fan') // narrow until fan_speed is the top match
-  await page.keyboard.press('Enter')
+  await acceptCompletion(page)
+  await expect(textbox).toContainText('get hardware_component:')
+
+  // accepting a target reopens the list on that target's metrics
+  await expect(options.getByText('fan_speed', { exact: true })).toBeVisible()
+  await page.keyboard.type('fan') // narrow until fan_speed is the top match
+  await acceptCompletion(page)
   await expect(textbox).toContainText('get hardware_component:fan_speed')
 })
 

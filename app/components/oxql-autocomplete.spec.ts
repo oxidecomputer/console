@@ -60,15 +60,40 @@ const schemas: TimeseriesSchema[] = [
     units: 'bytes',
     version: 1,
   },
+  {
+    authzScope: 'fleet',
+    created: new Date(0),
+    datumType: 'f32',
+    description: { target: 'A hardware component', metric: 'Current draw' },
+    fieldSchema: [
+      {
+        name: 'chassis_kind',
+        fieldType: 'string',
+        source: 'target',
+        description: '',
+      },
+    ],
+    timeseriesName: 'hardware_component:current',
+    units: 'none',
+    version: 1,
+  },
 ]
 
-/** Run the completion source on `doc` with the cursor at the end */
 const complete = (doc: string): CompletionResult | null =>
   oxqlCompletionSource(() => schemas)(
     new CompletionContext(EditorState.create({ doc }), doc.length, false)
   )
 
 const labels = (doc: string) => complete(doc)?.options.map((o) => o.label)
+
+/** Run the completion source with the cursor where the first `|` is */
+const completeAt = (docWithCursor: string): CompletionResult | null => {
+  const pos = docWithCursor.indexOf('|')
+  const doc = docWithCursor.replace('|', '')
+  return oxqlCompletionSource(() => schemas)(
+    new CompletionContext(EditorState.create({ doc }), pos, false)
+  )
+}
 
 it('completes table operations at the start of a clause', () => {
   expect(labels('g')).toContain('get')
@@ -77,18 +102,29 @@ it('completes table operations at the start of a clause', () => {
   expect(labels('get hardware_component:fan_speed | ')).toContain('group_by')
 })
 
-it('completes timeseries names after get', () => {
-  expect(labels('get ')).toEqual([
-    'hardware_component:fan_speed',
-    'sled_data_link:bytes_sent',
-  ])
-  expect(labels('get hardware_com')).toEqual([
-    'hardware_component:fan_speed',
-    'sled_data_link:bytes_sent',
-  ])
-  // from points at the start of the name so CM's own prefix filtering applies
-  const result = complete('get hardware_com')
-  expect(result?.from).toBe('get '.length)
+it('completes all available targets after get', () => {
+  expect(labels('get ')).toEqual(['hardware_component', 'sled_data_link'])
+  expect(labels('get hardware_com')).toEqual(['hardware_component', 'sled_data_link'])
+})
+
+it('completes metrics of the chosen target after the colon', () => {
+  expect(labels('get hardware_component:')).toEqual(['fan_speed', 'current'])
+  expect(labels('get hardware_component:fan')).toEqual(['fan_speed', 'current'])
+  // from starts after the colon so the metric half filters against its own text
+  expect(complete('get hardware_component:fan')?.from).toBe(
+    'get hardware_component:'.length
+  )
+  expect(complete('get nonsense:')).toBeNull()
+})
+
+it('offers no name completions with the cursor mid-metric/target', () => {
+  expect(completeAt('get |hardware_component:fan_speed')).toBeNull()
+  expect(completeAt('get hardware_com|ponent:fan_speed')).toBeNull()
+  expect(completeAt('get hardware_component|:fan_speed')).toBeNull()
+  expect(completeAt('get hardware_component:|fan_speed')).toBeNull()
+  expect(completeAt('get hardware_component:fan|_speed')).toBeNull()
+
+  expect(completeAt('get hardware_com| |')).not.toBeNull()
 })
 
 it('completes fields of the queried timeseries in filter', () => {

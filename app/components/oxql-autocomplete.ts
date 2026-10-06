@@ -9,15 +9,19 @@ import {
   autocompletion,
   closeBrackets,
   closeBracketsKeymap,
+  insertCompletionText,
   snippetCompletion,
+  startCompletion,
   type Completion,
   type CompletionContext,
   type CompletionResult,
 } from '@codemirror/autocomplete'
 import type { Extension } from '@codemirror/state'
-import { keymap } from '@codemirror/view'
+import { keymap, type EditorView } from '@codemirror/view'
 
 import type { TimeseriesSchema } from '@oxide/api'
+
+import { pluralize } from '~/util/str'
 
 // The OxQL language surface below comes from RFD 463
 // https://rfd.shared.oxide.computer/rfd/463
@@ -143,11 +147,36 @@ const fieldCompletions = (
   return options
 }
 
-const schemaCompletion = (s: TimeseriesSchema): Completion => ({
-  label: s.timeseriesName,
-  detail: s.units === 'none' ? s.datumType : `${s.datumType}, ${s.units}`,
-  info: s.description.metric,
-})
+const targetOf = (timeseriesName: string) =>
+  timeseriesName.slice(0, timeseriesName.indexOf(':'))
+
+const targetCompletions = (schemas: TimeseriesSchema[]): Completion[] => {
+  const targets = new Map<string, number>()
+  for (const schema of schemas) {
+    const target = targetOf(schema.timeseriesName)
+    targets.set(target, (targets.get(target) || 0) + 1)
+  }
+
+  return Array.from(targets, ([label, count]) => ({
+    label: label,
+    detail: `${count} ${pluralize('metric', count)}`,
+    apply: (view: EditorView, c: Completion, from: number, to: number) => {
+      view.dispatch(insertCompletionText(view.state, `${c.label}:`, from, to))
+      startCompletion(view)
+    },
+  }))
+}
+
+const metricCompletions = (schemas: TimeseriesSchema[], target: string): Completion[] => {
+  const prefix = `${target}:`
+  return schemas
+    .filter((s) => s.timeseriesName.startsWith(prefix))
+    .map((s) => ({
+      label: s.timeseriesName.slice(prefix.length),
+      detail: s.units === 'none' ? s.datumType : `${s.datumType}, ${s.units}`,
+      info: s.description.metric,
+    }))
+}
 
 /**
  * Complete based on which clause the cursor is in, determined with regexes
@@ -174,9 +203,22 @@ export const oxqlCompletionSource =
     const result = (options: Completion[]): CompletionResult | null =>
       options.length > 0 ? { from: word.from, options, validFor: /^[@\w:]*$/ } : null
 
-    // after `get`, complete timeseries names from the schema list
-    if (/^\s*get\s+[\w:]*$/.test(clause)) {
-      return result(getSchemas().map(schemaCompletion))
+    const getTable = /^\s*get\s+(\w*)(:?)(\w*)$/.exec(clause)
+    if (getTable) {
+      // if we're in the middle of a target:metric, don't make a completion
+      if (/[\w:]/.test(doc[context.pos] ?? '')) return null
+
+      const [, target, colon, metric] = getTable
+      const inMetric = colon === ':'
+      const options = inMetric
+        ? metricCompletions(getSchemas(), target)
+        : targetCompletions(getSchemas())
+      if (options.length === 0) return null
+      return {
+        from: context.pos - (inMetric ? metric.length : target.length),
+        options,
+        validFor: /^\w*$/,
+      }
     }
 
     if (/^\s*align\s+\w*$/.test(clause)) return result(alignFns)
