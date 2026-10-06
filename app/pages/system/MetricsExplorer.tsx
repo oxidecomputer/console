@@ -66,6 +66,7 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate } from '~/ui/lib/Truncate'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
+import { formatTick } from '~/util/math'
 import { pluralize } from '~/util/str'
 
 const exampleItems: { label: string; value: string }[] = [
@@ -398,19 +399,6 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
     startTime: new Date(min ?? 0),
     endTime: new Date(max ?? 0),
   }
-}
-
-const TICK_UNITS = [
-  // TODO: this doesn't quite match the suffixes in the oxql-metrics util, but i'm leaving it
-  // because i don't understand those
-  [1e12, 't'],
-  [1e9, 'b'],
-  [1e6, 'm'],
-  [1e3, 'k'],
-] as const
-const formatTick = (n: number): string => {
-  const [divisor, suffix] = TICK_UNITS.find(([min]) => Math.abs(n) >= min) ?? [1, '']
-  return (n / divisor).toLocaleString() + suffix
 }
 
 // Drops (or keeps, without copying) the first sample of a series.
