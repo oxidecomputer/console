@@ -159,7 +159,7 @@ test('editor completions walk from target to metric', async ({ page }) => {
 
   // the first half of a name completes on its own, so this is the target, not
   // hardware_component:fan_speed
-  await expect(options).toHaveText(['hardware_component10 metrics'])
+  await expect(options).toHaveText(['hardware_component4 metrics'])
 
   // accept with the keyboard rather than clicking: the info tooltip can
   // overlap the option and intercept pointer events
