@@ -192,7 +192,7 @@ test.describe('Image upload', () => {
 
   for (const state of cancelStates) {
     test(`cancel in state '${state}'`, async ({ page }) => {
-      await fillForm(page, 'new-image')
+      await fillForm(page, 'cancel-upload')
 
       await page.getByRole('button', { name: 'Upload image' }).click()
 
@@ -219,7 +219,9 @@ test.describe('Image upload', () => {
       await page.getByRole('button', { name: 'Cancel' }).click()
       await page.getByRole('link', { name: 'Disks' }).click()
       await expect(page.getByRole('cell', { name: 'disk-1', exact: true })).toBeVisible()
-      await expect(page.getByRole('cell', { name: 'tmp' })).toBeHidden()
+      await expect(
+        page.getByRole('cell', { name: 'cancel-upload', exact: true })
+      ).toBeHidden()
     })
   }
 
