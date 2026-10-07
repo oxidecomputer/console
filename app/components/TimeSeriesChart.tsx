@@ -37,6 +37,8 @@ type TimeSeriesChartProps = {
   startTime: Date
   endTime: Date
   unit?: string
+  /** Drawn rotated alongside the y-axis tick labels, e.g. a unit */
+  yAxisLabel?: string
   yAxisTickFormatter?: (val: number) => string
   hasError?: boolean
   loading: boolean
@@ -68,7 +70,7 @@ export const SkeletonMetric = ({
         className
       )}
     >
-      <div className="flex h-full flex-col justify-between">
+      <div className="flex h-full flex-col justify-around">
         {[...Array(4)].map((_e, i) => (
           <div key={i} className="h-px w-full bg-(--stroke-secondary)" />
         ))}
@@ -79,7 +81,7 @@ export const SkeletonMetric = ({
         ))}
       </div>
     </div>
-    <div className="relative flex h-full w-full items-center justify-center pb-11">
+    <div className="relative flex h-full w-full items-center justify-center py-8">
       {children}
     </div>
   </div>
@@ -110,6 +112,7 @@ export function TimeSeriesChart({
   startTime,
   endTime,
   unit,
+  yAxisLabel,
   yAxisTickFormatter = defaultYAxisTickFormatter,
   hasError = false,
   loading,
@@ -213,6 +216,7 @@ export function TimeSeriesChart({
           xTimeAxis({ theme, formatTime }),
           yValueAxis({
             theme,
+            label: yAxisLabel,
             grid: { show: true, stroke: theme.axisLine, width: 1 },
             values: (_u, yValues) =>
               yValues.map((v) => (v === 0 ? '' : formatterRef.current(v))),
@@ -236,7 +240,7 @@ export function TimeSeriesChart({
         legend: { show: false },
         plugins: [tooltipPlugin],
       }) satisfies UPlotOptions,
-    [dataLength, formatTime, tooltipPlugin, interpolation, theme, formatterRef]
+    [dataLength, formatTime, tooltipPlugin, interpolation, theme, formatterRef, yAxisLabel]
   )
 
   const aligned = useMemo<uPlot.AlignedData>(() => {
@@ -385,7 +389,7 @@ export const ChartContainer = classed.div`flex w-full grow flex-col rounded-lg b
 type ChartHeaderProps = {
   title: string
   label: string
-  description?: string
+  description?: ReactNode
   children?: ReactNode
 }
 
@@ -394,7 +398,7 @@ export function ChartHeader({ title, label, description, children }: ChartHeader
     <div className="border-secondary flex items-center justify-between border-b px-5 pt-5 pb-4">
       <div>
         <h2 className="flex items-baseline gap-1.5">
-          <div className="text-sans-semi-lg">{title}</div>
+          <div className="text-sans-semi-lg text-default">{title}</div>
           <div className="text-sans-md text-secondary">{label}</div>
         </h2>
         <div className="text-sans-md text-secondary mt-0.5">{description}</div>
@@ -422,9 +426,9 @@ function ChartLegend({
   theme: ChartTheme
 }) {
   return (
-    <ul className="mt-2 flex max-h-24 flex-wrap gap-x-4 gap-y-1.5 overflow-y-auto pl-5">
+    <ul className="mt-4 flex max-h-24 flex-wrap gap-x-4 gap-y-1.5 overflow-y-auto pl-5">
       {Array.from({ length: count }, (_, i) => (
-        <li key={i} className="text-mono-xs text-secondary flex items-center gap-2">
+        <li key={i} className="text-sans-md text-secondary flex items-center gap-2">
           <span
             className="h-0.5 w-3 shrink-0 rounded-full"
             style={{ backgroundColor: seriesColor(i, theme) }}

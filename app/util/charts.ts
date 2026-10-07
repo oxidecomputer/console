@@ -58,6 +58,7 @@ export const measureTextWidth = (text: string, font: string) => {
 export const AXIS_FONT_REM_XS = 0.6875
 export const AXIS_TICK_LENGTH = 6
 export const AXIS_TICK_GAP = 8
+const AXIS_LABEL_GAP = 12
 
 export type ChartTheme = {
   fontFamily: string
@@ -85,7 +86,7 @@ export function getChartTheme(): ChartTheme {
     hoverPoint: v('--content-accent'),
     fill: withAlpha(v('--surface-accent-secondary'), 0.6),
     axisLine: v('--stroke-secondary'),
-    axisText: v('--content-quaternary'),
+    axisText: v('--content-tertiary'),
     lineColors: [
       '--color-green-800',
       '--color-blue-800',
@@ -177,13 +178,20 @@ export function yValueAxis({
   theme,
   grid,
   values,
+  label,
 }: {
   theme: ChartTheme
   grid: uPlot.Axis.Grid
   values: uPlot.Axis.Values
+  /** Drawn rotated alongside the tick labels, e.g. a unit */
+  label?: string
 }): uPlot.Axis {
-  const { axisFont } = chartAxisFont(theme)
+  const { fontPx, axisFont } = chartAxisFont(theme)
   return {
+    label,
+    labelFont: axisFont,
+    labelGap: AXIS_LABEL_GAP,
+    labelSize: fontPx + AXIS_LABEL_GAP,
     stroke: theme.axisText,
     font: axisFont,
     side: 1,

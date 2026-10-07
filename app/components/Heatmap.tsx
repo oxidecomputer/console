@@ -91,6 +91,8 @@ type HeatmapProps = {
   distributions: (HeatmapDistribution | null)[]
   yAxisTickFormatter?: (val: number) => string
   unit?: string
+  /** Drawn rotated alongside the y-axis tick labels, e.g. a unit */
+  yAxisLabel?: string
 }
 
 const defaultYAxisTickFormatter = (val: number) => val.toLocaleString()
@@ -102,6 +104,7 @@ export function Heatmap({
   distributions,
   yAxisTickFormatter = defaultYAxisTickFormatter,
   unit,
+  yAxisLabel,
 }: HeatmapProps) {
   const theme = useChartTheme()
   const [hover, setHover] = useState<Hover | null>(null)
@@ -253,6 +256,7 @@ export function Heatmap({
         xTimeAxis({ theme, formatTime }),
         yValueAxis({
           theme,
+          label: yAxisLabel,
           grid: { show: false },
           values: (_u, splits) =>
             splits.map((v) => {
@@ -277,6 +281,7 @@ export function Heatmap({
     drawCells,
     tooltipPlugin,
     formatterRef,
+    yAxisLabel,
   ])
 
   const data = useMemo<uPlot.AlignedData>(
