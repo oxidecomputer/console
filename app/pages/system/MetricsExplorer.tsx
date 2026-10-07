@@ -603,6 +603,24 @@ function TimeseriesDocsButton({ name }: { name: string }) {
 }
 
 /**
+ * The colon's sidebearings in a proportional font are so narrow that, with
+ * underscores running each half together, it's the tightest spot in the name.
+ * Give it a little room on both sides. Margin rather than inserted spaces so
+ * copying and the heading's accessible name still give the real name.
+ */
+function TimeseriesName({ name }: { name: string }) {
+  const i = name.indexOf(':')
+  if (i === -1) return name
+  return (
+    <>
+      {name.slice(0, i)}
+      <span className="mx-[0.08em]">:</span>
+      {name.slice(i + 1)}
+    </>
+  )
+}
+
+/**
  * Like `ChartHeader`, but each timeseries in the table name (more than one for
  * a joined table) gets its own heading and docs button. The buttons sit
  * outside the headings so they don't end up in the headings' accessible names.
@@ -622,7 +640,9 @@ function TimeseriesChartHeader({
           <Fragment key={name}>
             {i > 0 && <span aria-hidden className="h-4 w-px bg-(--stroke-secondary)" />}
             <div className="flex items-center gap-1">
-              <h2 className="text-sans-semi-lg text-default">{name}</h2>
+              <h2 className="text-sans-semi-lg text-default">
+                <TimeseriesName name={name} />
+              </h2>
               <TimeseriesDocsButton name={name} />
             </div>
           </Fragment>
