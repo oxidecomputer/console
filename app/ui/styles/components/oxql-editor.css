@@ -12,6 +12,14 @@
  * keeps every rule here above that.
  */
 
+/*
+ * The design system's light --syntax-fg (neutral-500) is lighter than body
+ * text, while dark's is brighter. Trying neutral-300 here before upstreaming.
+ */
+[data-theme='light'] .oxql-editor {
+  --syntax-fg: var(--color-neutral-300);
+}
+
 .oxql-editor .cm-editor.cm-editor {
   background-color: var(--syntax-bg);
   color: var(--syntax-fg);
