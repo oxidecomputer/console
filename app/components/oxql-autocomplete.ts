@@ -21,6 +21,7 @@ import { keymap, type EditorView } from '@codemirror/view'
 
 import type { TimeseriesSchema } from '@oxide/api'
 
+import { snapshotDocs } from '~/components/oxql-metrics/timeseries-docs'
 import { pluralize } from '~/util/str'
 
 // The OxQL language surface below comes from RFD 463
@@ -138,10 +139,17 @@ const fieldCompletions = (
   const options: Completion[] = []
   for (const schema of schemas) {
     if (!named.has(schema.timeseriesName)) continue
+    // the endpoint has no field descriptions; see snapshotDocs
+    const docFields = snapshotDocs(schema.timeseriesName)?.fields
     for (const field of schema.fieldSchema) {
       if (seen.has(field.name)) continue
       seen.add(field.name)
-      options.push({ label: field.name, detail: field.fieldType, info: field.description })
+      const description = docFields?.find((f) => f.name === field.name)?.description
+      options.push({
+        label: field.name,
+        detail: field.fieldType,
+        info: description || field.description,
+      })
     }
   }
   return options
@@ -171,11 +179,16 @@ const metricCompletions = (schemas: TimeseriesSchema[], target: string): Complet
   const prefix = `${target}:`
   return schemas
     .filter((s) => s.timeseriesName.startsWith(prefix))
-    .map((s) => ({
-      label: s.timeseriesName.slice(prefix.length),
-      detail: s.units === 'none' ? s.datumType : `${s.datumType}, ${s.units}`,
-      info: s.description.metric,
-    }))
+    .map((s) => {
+      // the endpoint's units and descriptions are always empty; see snapshotDocs
+      const docs = snapshotDocs(s.timeseriesName)
+      const units = docs?.unit ?? s.units
+      return {
+        label: s.timeseriesName.slice(prefix.length),
+        detail: units === 'none' ? s.datumType : `${s.datumType}, ${units}`,
+        info: docs?.description?.metric || s.description.metric,
+      }
+    })
 }
 
 /**

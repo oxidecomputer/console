@@ -9,19 +9,12 @@ import { useQuery } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import * as R from 'remeda'
 
-import {
-  api,
-  q,
-  type DatumType,
-  type FieldSchema,
-  type TimeseriesSchema,
-  type Units,
-} from '@oxide/api'
+import { api, q } from '@oxide/api'
 import { Monitoring16Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { targets, timeseries } from '~/api/__generated__/timeseries-metadata'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
+import { getDocs } from '~/components/oxql-metrics/timeseries-docs'
 import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -32,40 +25,6 @@ import { docLinks } from '~/util/links'
 export const timeseriesSchemasQuery = q(api.systemTimeseriesSchemaList, {
   query: { limit: ALL_ISH },
 })
-
-type Field = Omit<FieldSchema, 'source'>
-
-type TimeseriesDocs = {
-  description?: { target: string; metric: string }
-  unit?: Units
-  datumType?: DatumType
-  fields: Field[]
-  docsHref?: string
-}
-
-// The schema endpoint returns empty descriptions and `none` units for
-// everything because ClickHouse doesn't store them, so prefer the snapshot of
-// omicron's schema files. The endpoint still covers timeseries defined
-// outside omicron.
-function getDocs(name: string, schemas: TimeseriesSchema[] | undefined): TimeseriesDocs {
-  const metric = timeseries[name]
-  const target = metric && targets[metric.target]
-  if (metric && target) {
-    return {
-      description: { target: target.description, metric: metric.description },
-      unit: metric.units,
-      datumType: metric.datumType,
-      fields: [...target.fields, ...metric.fields],
-      // anchors on the schemas page are the timeseries name minus the colon
-      docsHref: `${docLinks.oxqlSchemas.href}#_${name.replace(':', '')}`,
-    }
-  }
-  const schema = schemas?.find((s) => s.timeseriesName === name)
-  if (schema) {
-    return { datumType: schema.datumType, fields: schema.fieldSchema }
-  }
-  return { fields: [] }
-}
 
 const DocsList = ({ children }: { children: ReactNode }) => (
   <ul className="bg-default border-default divide-secondary divide-y rounded-lg border">

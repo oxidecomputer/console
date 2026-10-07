@@ -13,58 +13,59 @@ import type { TimeseriesSchema } from '@oxide/api'
 
 import { oxqlCompletionSource } from './oxql-autocomplete'
 
+// Like real Nexus responses: no descriptions, and units are always `none`
 const schemas: TimeseriesSchema[] = [
   {
     authzScope: 'fleet',
     created: new Date(0),
     datumType: 'f32',
-    description: { target: 'A hardware component', metric: 'A fan speed measurement' },
+    description: { target: '', metric: '' },
     fieldSchema: [
       {
         name: 'chassis_kind',
         fieldType: 'string',
         source: 'target',
-        description: 'What kind of thing the component is a part of',
+        description: '',
       },
       {
         name: 'sled_id',
         fieldType: 'uuid',
         source: 'target',
-        description: 'ID of the sled',
+        description: '',
       },
     ],
     timeseriesName: 'hardware_component:fan_speed',
-    units: 'rpm',
+    units: 'none',
     version: 1,
   },
   {
     authzScope: 'fleet',
     created: new Date(0),
     datumType: 'cumulative_u64',
-    description: { target: 'A sled data link', metric: 'Bytes sent on the link' },
+    description: { target: '', metric: '' },
     fieldSchema: [
       {
         name: 'sled_id',
         fieldType: 'uuid',
         source: 'target',
-        description: 'ID of the sled',
+        description: '',
       },
       {
         name: 'link_name',
         fieldType: 'string',
         source: 'target',
-        description: 'Name of the link',
+        description: '',
       },
     ],
     timeseriesName: 'sled_data_link:bytes_sent',
-    units: 'bytes',
+    units: 'none',
     version: 1,
   },
   {
     authzScope: 'fleet',
     created: new Date(0),
     datumType: 'f32',
-    description: { target: 'A hardware component', metric: 'Current draw' },
+    description: { target: '', metric: '' },
     fieldSchema: [
       {
         name: 'chassis_kind',
@@ -125,6 +126,19 @@ it('offers no name completions with the cursor mid-metric/target', () => {
   expect(completeAt('get hardware_component:fan|_speed')).toBeNull()
 
   expect(completeAt('get hardware_com| |')).not.toBeNull()
+})
+
+it('fills in units and descriptions from the schema snapshot', () => {
+  const metric = complete('get hardware_component:')?.options.find(
+    (o) => o.label === 'current'
+  )
+  expect(metric?.detail).toBe('f32, amps')
+  expect(metric?.info).toBe('Output current reading in amperes')
+
+  const field = complete('get hardware_component:fan_speed | filter ch')?.options.find(
+    (o) => o.label === 'chassis_kind'
+  )
+  expect(field?.info).toMatch(/^What kind of thing the component resides on/)
 })
 
 it('completes fields of the queried timeseries in filter', () => {
