@@ -62,7 +62,6 @@ const AXIS_LABEL_GAP = 12
 
 export type ChartTheme = {
   fontFamily: string
-  stroke: string
   fill: string
   axisLine: string
   axisText: string
@@ -81,7 +80,6 @@ export function getChartTheme(): ChartTheme {
   const v = (name: string) => style.getPropertyValue(name)
   return {
     fontFamily: v('--font-mono'),
-    stroke: v('--stroke-accent-secondary'),
     fill: withAlpha(v('--surface-accent-secondary'), 0.6),
     axisLine: v('--stroke-secondary'),
     axisText: v('--content-tertiary'),
