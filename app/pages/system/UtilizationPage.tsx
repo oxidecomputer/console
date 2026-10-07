@@ -128,13 +128,13 @@ const MetricsTab = () => {
 
   return (
     <>
-      <div className="mt-8 mb-3 flex flex-wrap justify-between gap-3">
-        <div className="flex gap-2">
+      <div className="max-1000:flex-col mt-8 mb-3 flex flex-wrap justify-between gap-3">
+        <div className="max-1000:w-full max-1000:flex-col flex gap-2">
           {intervalPicker}
 
           <Listbox
             selected={filterId}
-            className="w-52"
+            className="max-1000:w-full w-52"
             label="Filter by silo"
             hideLabel
             name="filter-id"
@@ -142,7 +142,7 @@ const MetricsTab = () => {
             onChange={setFilterId}
           />
         </div>
-        <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
+        <div className="max-1000:w-full flex items-center gap-2">{dateTimeRangePicker}</div>
       </div>
       <div className="mb-4 space-y-4">
         <SystemMetric

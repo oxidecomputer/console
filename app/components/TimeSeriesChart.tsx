@@ -481,7 +481,7 @@ const MetricsMessage = ({
       </div>
     </div>
     <div
-      className="bg-accent absolute inset-x-0 top-1 bottom-12"
+      className="bg-accent absolute inset-x-0 bottom-12"
       style={{
         background:
           'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, var(--surface-secondary) 100%)',
