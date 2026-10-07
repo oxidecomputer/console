@@ -31,11 +31,10 @@ import {
   type Units,
 } from '@oxide/api'
 import {
-  Info16Icon,
+  Info12Icon,
   Monitoring16Icon,
   Monitoring24Icon,
 } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
 
 import { timeseries as timeseriesMetadata } from '~/api/__generated__/timeseries-metadata'
 import { DocsPopover } from '~/components/DocsPopover'
@@ -256,19 +255,21 @@ const FieldBadge = ({ fieldName, field }: { fieldName: string; field: FieldValue
   const truncated = value.length > maxLen
   const text = truncate(value, maxLen, 'middle')
   const badge = (
-    <Badge className="h-6 pl-2" color="neutral">
-      <div className="flex items-center">
-        <span className="opacity-60">{camelToSnake(fieldName)}</span>
-        <span className="ml-1.5 normal-case">{text}</span>
-        <CopyToClipboard text={value} ariaLabel={`Copy ${camelToSnake(fieldName)}`} />
-      </div>
-    </Badge>
+    <span className="text-mono-sm bg-secondary text-default inline-flex h-6 items-center rounded-sm px-1.5 whitespace-nowrap uppercase ring ring-current/15 ring-inset">
+      <span className="opacity-60">{camelToSnake(fieldName)}</span>
+      <span className="mx-1 w-px self-stretch bg-(--stroke-default)" />
+      <span className="normal-case">{text}</span>
+      <CopyToClipboard
+        text={value}
+        ariaLabel={`Copy ${camelToSnake(fieldName)}`}
+        className="-mr-1"
+      />
+    </span>
   )
   if (!truncated) return badge
   return (
     <Tooltip content={value} placement="top">
-      {/* Tooltip applies a ref to its child, but Badge doesn't forward refs */}
-      <span className="inline-flex">{badge}</span>
+      {badge}
     </Tooltip>
   )
 }
@@ -673,7 +674,7 @@ function TimeseriesChartHeader({
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
         {names.map((name, i) => (
           <Fragment key={name}>
-            {i > 0 && <span aria-hidden className="h-4 w-px bg-(--stroke-secondary)" />}
+            {i > 0 && <span aria-hidden className="h-4 w-px bg-(--stroke-default)" />}
             <div className="flex items-center gap-1">
               <h2 className="text-sans-semi-lg text-default">
                 <TimeseriesName name={name} />
