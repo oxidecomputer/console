@@ -374,7 +374,7 @@ const MetricsError = () => (
   />
 )
 
-export const MetricsEmpty = () => (
+const MetricsEmpty = () => (
   <MetricsMessage
     // mt-3 is a shameful hack to get it vertically centered in the chart
     title={<div className="mt-3">No data</div>}
@@ -386,7 +386,7 @@ export const ChartContainer = classed.div`flex w-full grow flex-col rounded-lg b
 type ChartHeaderProps = {
   title: string
   label: string
-  description?: ReactNode
+  description?: string
   children?: ReactNode
 }
 

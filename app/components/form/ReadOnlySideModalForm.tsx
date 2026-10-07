@@ -12,7 +12,7 @@ import { Button } from '~/ui/lib/Button'
 import { SideModal } from '~/ui/lib/SideModal'
 
 type ReadOnlySideModalFormProps = {
-  title: ReactNode
+  title: string
   subtitle?: ReactNode
   onDismiss: () => void
   children: ReactNode

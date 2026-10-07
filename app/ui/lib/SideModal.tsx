@@ -28,7 +28,7 @@ export function usePopoverZIndex() {
 }
 
 export type SideModalProps = {
-  title: ReactNode
+  title: string
   subtitle?: ReactNode
   onDismiss: () => void
   isOpen: boolean
