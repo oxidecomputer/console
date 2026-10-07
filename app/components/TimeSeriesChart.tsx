@@ -37,6 +37,8 @@ type TimeSeriesChartProps = {
   startTime: Date
   endTime: Date
   unit?: string
+  /** Drawn rotated alongside the y-axis tick labels, e.g. a unit */
+  yAxisLabel?: string
   yAxisTickFormatter?: (val: number) => string
   hasError?: boolean
   loading: boolean
@@ -110,6 +112,7 @@ export function TimeSeriesChart({
   startTime,
   endTime,
   unit,
+  yAxisLabel,
   yAxisTickFormatter = defaultYAxisTickFormatter,
   hasError = false,
   loading,
@@ -213,6 +216,7 @@ export function TimeSeriesChart({
           xTimeAxis({ theme, formatTime }),
           yValueAxis({
             theme,
+            label: yAxisLabel,
             grid: { show: true, stroke: theme.axisLine, width: 1 },
             values: (_u, yValues) =>
               yValues.map((v) => (v === 0 ? '' : formatterRef.current(v))),
@@ -236,7 +240,7 @@ export function TimeSeriesChart({
         legend: { show: false },
         plugins: [tooltipPlugin],
       }) satisfies UPlotOptions,
-    [dataLength, formatTime, tooltipPlugin, interpolation, theme, formatterRef]
+    [dataLength, formatTime, tooltipPlugin, interpolation, theme, formatterRef, yAxisLabel]
   )
 
   const aligned = useMemo<uPlot.AlignedData>(() => {

@@ -28,6 +28,7 @@ import {
   type ValueArray,
   type FieldValue,
   type TimeseriesSchema,
+  type Units,
 } from '@oxide/api'
 import {
   Info16Icon,
@@ -36,6 +37,7 @@ import {
 } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import { timeseries as timeseriesMetadata } from '~/api/__generated__/timeseries-metadata'
 import { DocsPopover } from '~/components/DocsPopover'
 import { Heatmap } from '~/components/Heatmap'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
@@ -298,6 +300,41 @@ const FieldsList = ({ fields }: { fields: Record<string, FieldValue> }) => {
 // e.g. bfd_session:timeout_expired,hardware_component:current
 const retrieveMetricNames = (tableName: string): string[] =>
   tableName.split(',').map((s) => s.trim())
+
+type UnitLabels = {
+  /** Spelled out, for the y-axis */
+  axis: string
+  /** After a value in the tooltip, so symbols where there's a standard one */
+  tooltip?: string
+}
+
+const unitLabels: Record<Exclude<Units, 'none'>, UnitLabels> = {
+  // "12 count" reads oddly
+  count: { axis: 'Count' },
+  bytes: { axis: 'Bytes', tooltip: 'bytes' },
+  seconds: { axis: 'Seconds', tooltip: 's' },
+  nanoseconds: { axis: 'Nanoseconds', tooltip: 'ns' },
+  volts: { axis: 'Volts', tooltip: 'V' },
+  amps: { axis: 'Amps', tooltip: 'A' },
+  watts: { axis: 'Watts', tooltip: 'W' },
+  joules: { axis: 'Joules', tooltip: 'J' },
+  degrees_celsius: { axis: 'Degrees Celsius', tooltip: '°C' },
+  rpm: { axis: 'RPM', tooltip: 'RPM' },
+}
+
+/**
+ * Units come from the snapshot of omicron's schema files because the schema
+ * endpoint returns `none` for everything. A joined table only gets labels if
+ * all its timeseries share a unit.
+ */
+const tableUnitLabels = (tableName: string): UnitLabels | undefined => {
+  const units = R.unique(
+    retrieveMetricNames(tableName).map((name) => timeseriesMetadata[name]?.units)
+  )
+  return units.length === 1 && units[0] && units[0] !== 'none'
+    ? unitLabels[units[0]]
+    : undefined
+}
 
 const tableToGroup = (table: OxqlTable): ChartGroup => {
   const { name, timeseries } = table
@@ -654,6 +691,7 @@ function TimeseriesChartHeader({
 }
 
 function ChartCard({ display }: { display: Extract<ChartDisplay, { kind: 'chart' }> }) {
+  const units = tableUnitLabels(display.name)
   return (
     <ChartContainer>
       <TimeseriesChartHeader tableName={display.name} description={display.description} />
@@ -665,7 +703,8 @@ function ChartCard({ display }: { display: Extract<ChartDisplay, { kind: 'chart'
         interpolation="linear"
         startTime={display.startTime}
         endTime={display.endTime}
-        unit={undefined}
+        unit={units?.tooltip}
+        yAxisLabel={units?.axis}
         loading={false}
         yAxisTickFormatter={formatTick}
       />
@@ -674,6 +713,7 @@ function ChartCard({ display }: { display: Extract<ChartDisplay, { kind: 'chart'
 }
 
 function HeatmapCard({ display }: { display: Extract<ChartDisplay, { kind: 'heatmap' }> }) {
+  const units = tableUnitLabels(display.name)
   return (
     <ChartContainer>
       <TimeseriesChartHeader tableName={display.name} description={display.description} />
@@ -682,6 +722,8 @@ function HeatmapCard({ display }: { display: Extract<ChartDisplay, { kind: 'heat
         timestamps={display.timestamps}
         startTimes={display.startTimes}
         distributions={display.data}
+        unit={units?.tooltip}
+        yAxisLabel={units?.axis}
         yAxisTickFormatter={formatTick}
       />
     </ChartContainer>
