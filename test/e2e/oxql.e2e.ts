@@ -144,6 +144,61 @@ test('picking an example populates the query and runs it', async ({ page }) => {
   await expect(page.getByRole('figure').first()).toBeVisible()
 })
 
+test('chart title opens timeseries docs', async ({ page }) => {
+  await page.getByRole('button', { name: 'Power shelf fan speeds' }).click()
+  await page
+    .getByRole('button', { name: 'hardware_component:fan_speed details' })
+    .first()
+    .click()
+
+  const modal = page.getByRole('dialog', { name: 'hardware_component:fan_speed' })
+  await expect(modal).toBeVisible()
+  // read-only modal focuses its title instead of the docs link at the bottom
+  await expect(
+    modal.getByRole('heading', { name: 'hardware_component:fan_speed' })
+  ).toBeFocused()
+  // descriptions come from the snapshot, not the schema endpoint
+  await expect(
+    modal.getByText('A fan speed measurement, in rotations per minute')
+  ).toBeVisible()
+  await expect(modal.getByText('f32', { exact: true })).toBeVisible()
+  await expect(modal.getByText('rpm', { exact: true })).toBeVisible()
+  await expect(modal.getByText('hubris_archive_id')).toBeVisible()
+  await expect(modal.getByRole('link', { name: 'Timeseries schemas' })).toHaveAttribute(
+    'href',
+    'https://docs.oxide.computer/guides/metrics/timeseries-schemas#_hardware_componentfan_speed'
+  )
+})
+
+test('joined chart title has docs for each timeseries', async ({ page }) => {
+  await page.getByRole('button', { name: 'Bytes sent & received per sled' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'sled_data_link:bytes_sent' }).first()
+  ).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'sled_data_link:bytes_received' }).first()
+  ).toBeVisible()
+
+  await page
+    .getByRole('button', { name: 'sled_data_link:bytes_received details' })
+    .first()
+    .click()
+  const received = page.getByRole('dialog', { name: 'sled_data_link:bytes_received' })
+  await expect(received).toBeVisible()
+  await expect(received.getByText('Number of bytes received on the link')).toBeVisible()
+  await expect(received.getByText('Number of bytes sent on the link')).toBeHidden()
+  await page.keyboard.press('Escape')
+  await expect(received).toBeHidden()
+
+  await page
+    .getByRole('button', { name: 'sled_data_link:bytes_sent details' })
+    .first()
+    .click()
+  const sent = page.getByRole('dialog', { name: 'sled_data_link:bytes_sent' })
+  await expect(sent).toBeVisible()
+  await expect(sent.getByText('Number of bytes sent on the link')).toBeVisible()
+})
+
 test('editor completions walk from target to metric', async ({ page }) => {
   const textbox = page.getByRole('textbox')
   await textbox.click()

@@ -12,7 +12,7 @@ import { Button } from '~/ui/lib/Button'
 import { SideModal } from '~/ui/lib/SideModal'
 
 type ReadOnlySideModalFormProps = {
-  title: string
+  title: ReactNode
   subtitle?: ReactNode
   onDismiss: () => void
   children: ReactNode
@@ -39,6 +39,7 @@ export function ReadOnlySideModalForm({
       title={title}
       subtitle={subtitle}
       animate={animate ?? animateDefault}
+      focusTitle
     >
       <SideModal.Body>
         <div className="ox-form">{children}</div>

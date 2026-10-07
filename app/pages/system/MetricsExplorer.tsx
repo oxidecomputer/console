@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
-import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useController, useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
 import * as R from 'remeda'
@@ -15,7 +15,6 @@ import { match } from 'ts-pattern'
 
 import {
   api,
-  q,
   useApiMutation,
   camelToSnake,
   snakeify,
@@ -30,7 +29,11 @@ import {
   type FieldValue,
   type TimeseriesSchema,
 } from '@oxide/api'
-import { Monitoring16Icon, Monitoring24Icon } from '@oxide/design-system/icons/react'
+import {
+  Info16Icon,
+  Monitoring16Icon,
+  Monitoring24Icon,
+} from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -41,10 +44,13 @@ import {
   parseOxqlQueryError,
   stripCaretLine,
 } from '~/components/oxql-error'
+import {
+  TimeseriesDocsSideModal,
+  timeseriesSchemasQuery,
+} from '~/components/oxql-metrics/TimeseriesDocsSideModal'
 import { OxqlEditor } from '~/components/OxqlEditor'
 import {
   ChartContainer,
-  ChartHeader,
   SkeletonMetric,
   TimeSeriesChart,
 } from '~/components/TimeSeriesChart'
@@ -64,7 +70,6 @@ import { TextInputError } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate } from '~/ui/lib/Truncate'
-import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { formatTick } from '~/util/math'
 import { pluralize } from '~/util/str'
@@ -574,10 +579,64 @@ const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
       .exhaustive()
   })
 
+function TimeseriesDocsButton({ name }: { name: string }) {
+  const [showDocs, setShowDocs] = useState(false)
+  return (
+    <>
+      <Tooltip content="Timeseries details" placement="top">
+        <button
+          type="button"
+          // -mr-0.5 cancels the 2px padding around the 16px icon so the gap to
+          // the divider in a joined title looks the same on both sides
+          className="text-tertiary hover:text-default hover:bg-hover -mr-0.5 flex h-5 w-5 items-center justify-center rounded-md"
+          onClick={() => setShowDocs(true)}
+          aria-label={`${name} details`}
+        >
+          <Info16Icon />
+        </button>
+      </Tooltip>
+      {showDocs && (
+        <TimeseriesDocsSideModal name={name} onDismiss={() => setShowDocs(false)} />
+      )}
+    </>
+  )
+}
+
+/**
+ * Like `ChartHeader`, but each timeseries in the table name (more than one for
+ * a joined table) gets its own heading and docs button. The buttons sit
+ * outside the headings so they don't end up in the headings' accessible names.
+ */
+function TimeseriesChartHeader({
+  tableName,
+  description,
+}: {
+  tableName: string
+  description: ReactNode
+}) {
+  const names = retrieveMetricNames(tableName)
+  return (
+    <div className="border-secondary border-b px-5 pt-5 pb-4">
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+        {names.map((name, i) => (
+          <Fragment key={name}>
+            {i > 0 && <span aria-hidden className="h-4 w-px bg-(--stroke-secondary)" />}
+            <div className="flex items-center gap-1">
+              <h2 className="text-sans-semi-lg text-default">{name}</h2>
+              <TimeseriesDocsButton name={name} />
+            </div>
+          </Fragment>
+        ))}
+      </div>
+      <div className="text-sans-md text-secondary mt-0.5">{description}</div>
+    </div>
+  )
+}
+
 function ChartCard({ display }: { display: Extract<ChartDisplay, { kind: 'chart' }> }) {
   return (
     <ChartContainer>
-      <ChartHeader title={display.name} label="" description={display.description} />
+      <TimeseriesChartHeader tableName={display.name} description={display.description} />
       <TimeSeriesChart
         timestamps={display.timestamps}
         data={display.data}
@@ -597,7 +656,7 @@ function ChartCard({ display }: { display: Extract<ChartDisplay, { kind: 'chart'
 function HeatmapCard({ display }: { display: Extract<ChartDisplay, { kind: 'heatmap' }> }) {
   return (
     <ChartContainer>
-      <ChartHeader title={display.name} label="" description={display.description} />
+      <TimeseriesChartHeader tableName={display.name} description={display.description} />
       <Heatmap
         title={display.name}
         timestamps={display.timestamps}
@@ -725,7 +784,7 @@ export default function MetricsExplorer() {
 
   // powers editor autocomplete. no loading state needed: completions are a
   // progressive enhancement
-  const schemas = useQuery(q(api.systemTimeseriesSchemaList, { query: { limit: ALL_ISH } }))
+  const schemas = useQuery(timeseriesSchemasQuery)
 
   const [searchParams, setSearchParams] = useSearchParams()
 
