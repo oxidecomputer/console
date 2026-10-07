@@ -1280,7 +1280,9 @@ export const handlers = makeHandlers({
   },
   ipPoolList({ query, cookies }) {
     const user = currentUser(cookies)
-    const pools = lookup.siloIpPools({ silo: user.silo_id })
+    const pools = lookup
+      .siloIpPools({ silo: user.silo_id })
+      .filter((pool) => !query.poolType || pool.pool_type === query.poolType)
     return paginated(query, pools)
   },
   ipPoolView: ({ path: { pool }, cookies }) => {

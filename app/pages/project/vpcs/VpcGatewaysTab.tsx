@@ -11,7 +11,13 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
-import { api, getListQFn, queryClient, type InternetGateway } from '~/api'
+import {
+  api,
+  getListQFn,
+  queryClient,
+  siloUnicastPoolsQ,
+  type InternetGateway,
+} from '~/api'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
@@ -37,9 +43,6 @@ export const handle = { crumb: 'Internet Gateways' }
 
 const gatewayList = ({ project, vpc }: PP.Vpc) =>
   getListQFn(api.internetGatewayList, { query: { project, vpc, limit: ALL_ISH } })
-const projectIpPoolList = getListQFn(api.ipPoolList, {
-  query: { limit: ALL_ISH },
-})
 
 const IpAddressCell = (gatewaySelector: PP.VpcInternetGateway) => {
   const { data: addresses } = useQuery(gatewayIpAddressList(gatewaySelector).optionsFn())
@@ -81,7 +84,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     ...routers.items.map((router) =>
       queryClient.fetchQuery(routeList({ project, vpc, router: router.name }).optionsFn())
     ),
-    queryClient.fetchQuery(projectIpPoolList.optionsFn()).then((pools) => {
+    queryClient.fetchQuery(siloUnicastPoolsQ).then((pools) => {
       for (const pool of pools.items) {
         // IpPoolCell uses the errors-allowed query shape, so seed that exact
         // cache entry instead of the normal ipPoolView query.

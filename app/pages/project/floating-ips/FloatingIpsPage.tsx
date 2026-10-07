@@ -16,6 +16,7 @@ import {
   getListQFn,
   q,
   queryClient,
+  siloUnicastPoolsQ,
   useApiMutation,
   usePrefetchedQuery,
   type FloatingIp,
@@ -75,16 +76,14 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // fetch IP Pools and preload into RQ cache so fetches by ID in
     // IpPoolCell can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
-    queryClient
-      .fetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
-      .then((pools) => {
-        for (const pool of pools.items) {
-          // IpPoolCell uses the errors-allowed query shape, so seed that exact
-          // cache entry instead of the normal ipPoolView query.
-          const { queryKey } = ipPoolErrorsAllowedQuery(pool.id)
-          queryClient.setQueryData(queryKey, { type: 'success', data: pool })
-        }
-      }),
+    queryClient.fetchQuery(siloUnicastPoolsQ).then((pools) => {
+      for (const pool of pools.items) {
+        // IpPoolCell uses the errors-allowed query shape, so seed that exact
+        // cache entry instead of the normal ipPoolView query.
+        const { queryKey } = ipPoolErrorsAllowedQuery(pool.id)
+        queryClient.setQueryData(queryKey, { type: 'success', data: pool })
+      }
+    }),
   ])
   return null
 }

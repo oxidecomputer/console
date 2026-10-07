@@ -184,11 +184,6 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
-export type UnicastIpPool = SiloIpPool & { poolType: 'unicast' }
-
-export const isUnicastPool = (pool: SiloIpPool): pool is UnicastIpPool =>
-  pool.poolType === 'unicast'
-
 export const poolHasIpVersion = (versions: Iterable<IpVersion>) => {
   const versionSet = new Set(versions)
   return (pool: { ipVersion: IpVersion }): boolean => versionSet.has(pool.ipVersion)

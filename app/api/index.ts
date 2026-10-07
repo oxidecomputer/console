@@ -11,6 +11,7 @@ import type * as ApiTypes from './__generated__/Api'
 import './window.ts'
 
 export * from './client'
+export * from './ip-pools'
 export * from './roles'
 export * from './util'
 export * from './__generated__/Api'

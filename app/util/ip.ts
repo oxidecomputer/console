@@ -8,7 +8,7 @@
 
 import * as R from 'remeda'
 
-import type { ExternalIp, InstanceNetworkInterface, IpVersion, UnicastIpPool } from '~/api'
+import type { ExternalIp, InstanceNetworkInterface, IpVersion, SiloIpPool } from '~/api'
 import { setDiff, setIntersection } from '~/util/array'
 
 /** Order IPs: floating first, then ephemeral, then SNAT */
@@ -212,7 +212,7 @@ export type EphemeralIpSlots = {
 export function getEphemeralIpSlots(
   compatibleVersions: ReadonlySet<IpVersion>,
   attachedEphemeralIps: ExternalIp[],
-  unicastPools: UnicastIpPool[]
+  unicastPools: SiloIpPool[]
 ): EphemeralIpSlots {
   if (compatibleVersions.size === 0) {
     return {
@@ -271,7 +271,7 @@ export function getEphemeralIpSlots(
   return { availableVersions: [...availableVersions], disabledReason: null, infoMessage }
 }
 
-export const getDefaultIps = (pools: UnicastIpPool[]) => {
+export const getDefaultIps = (pools: SiloIpPool[]) => {
   const defaultPools = pools.filter((pool) => pool.isDefault)
   const v4Default = defaultPools.find((p) => p.ipVersion === 'v4')
   const hasV4Default = !!v4Default

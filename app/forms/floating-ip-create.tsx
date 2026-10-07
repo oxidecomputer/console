@@ -11,12 +11,11 @@ import { useNavigate } from 'react-router'
 
 import {
   api,
-  isUnicastPool,
-  q,
   queryClient,
+  siloUnicastPoolsQ,
   sortPools,
   useApiMutation,
-  usePrefetchedQuery,
+  useSiloUnicastPools,
   type FloatingIpCreate,
 } from '@oxide/api'
 
@@ -30,24 +29,18 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
-import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const poolList = q(api.ipPoolList, { query: { limit: ALL_ISH } })
-
 export async function clientLoader() {
-  await queryClient.prefetchQuery(poolList)
+  await queryClient.prefetchQuery(siloUnicastPoolsQ)
   return null
 }
 
 export const handle = titleCrumb('New Floating IP')
 
 export default function CreateFloatingIpSideModalForm() {
-  const { data: allPools } = usePrefetchedQuery(poolList)
-
-  // Only unicast pools can be used for floating IPs
-  const unicastPools = useMemo(() => allPools.items.filter(isUnicastPool), [allPools])
+  const unicastPools = useSiloUnicastPools()
 
   const defaultPool = useMemo(() => {
     const defaults = unicastPools.filter((p) => p.isDefault)

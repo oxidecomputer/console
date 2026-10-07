@@ -19,13 +19,14 @@ import {
   hasDefaultVpc,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
-  isUnicastPool,
   MAX_DISK_SIZE_GiB,
   poolHasIpVersion,
   q,
   queryClient,
+  siloUnicastPoolsQ,
   useApiMutation,
   usePrefetchedQuery,
+  useSiloUnicastPools,
   type ExternalIpCreate,
   type FloatingIp,
   type Image,
@@ -34,7 +35,7 @@ import {
   type InstanceNetworkInterfaceAttachment,
   type IpVersion,
   type NameOrId,
-  type UnicastIpPool,
+  type SiloIpPool,
   type Vpc,
 } from '@oxide/api'
 import {
@@ -239,7 +240,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     queryClient.prefetchQuery(q(api.imageList, { query: { limit: ALL_ISH } })),
     queryClient.prefetchQuery(q(api.diskList, { query: { project, limit: ALL_ISH } })),
     queryClient.prefetchQuery(q(api.currentUserSshKeyList, { query: { limit: ALL_ISH } })),
-    queryClient.prefetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } })),
+    queryClient.prefetchQuery(siloUnicastPoolsQ),
     queryClient.prefetchQuery(
       q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
     ),
@@ -273,7 +274,7 @@ function EphemeralIpCheckbox({
   control: Control<InstanceCreateInput>
   ipVersion: IpVersion
   compatibleVersions: IpVersion[]
-  unicastPools: UnicastIpPool[]
+  unicastPools: SiloIpPool[]
   isSubmitting: boolean
 }) {
   const { checkboxName, poolFieldName, displayVersion } = EPHEMERAL_IP_FIELDS[ipVersion]
@@ -396,23 +397,19 @@ export default function CreateInstanceForm() {
   )
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
-  // ipPoolList fetches the pools linked to the current silo
-  const { data: siloPools } = usePrefetchedQuery(
-    q(api.ipPoolList, { query: { limit: ALL_ISH } })
-  )
+  const siloUnicastPools = useSiloUnicastPools()
 
-  // Only unicast pools can be used for ephemeral IPs. Sort once here so
-  // downstream filters (default pool pick, compatible pool list) preserve
-  // the order without needing to re-sort.
+  // Sort once here so downstream filters (default pool pick, compatible pool
+  // list) preserve the order without needing to re-sort.
   const unicastPools = useMemo(
     () =>
       R.sortBy(
-        (siloPools?.items || []).filter(isUnicastPool),
+        siloUnicastPools,
         (p) => !p.isDefault, // defaults first
         (p) => p.ipVersion, // v4 first
         (p) => p.name
       ),
-    [siloPools]
+    [siloUnicastPools]
   )
 
   const { data: vpcs } = usePrefetchedQuery(
@@ -880,7 +877,7 @@ const NetworkingSection = ({
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
-  unicastPools: UnicastIpPool[]
+  unicastPools: SiloIpPool[]
   vpcs: Vpc[]
 }) => {
   const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })

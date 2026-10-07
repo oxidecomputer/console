@@ -11,13 +11,11 @@ import { useForm } from 'react-hook-form'
 
 import {
   api,
-  isUnicastPool,
   poolHasIpVersion,
-  q,
   queryClient,
   sortPools,
   useApiMutation,
-  usePrefetchedQuery,
+  useSiloUnicastPools,
   type IpVersion,
 } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -27,7 +25,6 @@ import { toPoolItem } from '~/components/PoolListboxItem'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
-import { ALL_ISH } from '~/util/consts'
 
 type AttachEphemeralIpModalProps = {
   availableVersions: IpVersion[]
@@ -41,14 +38,12 @@ export const AttachEphemeralIpModal = ({
   onDismiss,
 }: AttachEphemeralIpModalProps) => {
   const { project, instance } = useInstanceSelector()
-  const { data: siloPools } = usePrefetchedQuery(
-    q(api.ipPoolList, { query: { limit: ALL_ISH } })
-  )
+  const unicastPools = useSiloUnicastPools()
 
   // Only show unicast pools for the IP versions that still have open slots
   const compatibleUnicastPools = useMemo(
-    () => siloPools.items.filter(isUnicastPool).filter(poolHasIpVersion(availableVersions)),
-    [siloPools, availableVersions]
+    () => unicastPools.filter(poolHasIpVersion(availableVersions)),
+    [unicastPools, availableVersions]
   )
 
   const defaultPool = useMemo(() => {

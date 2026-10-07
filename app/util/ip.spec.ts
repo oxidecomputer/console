@@ -8,7 +8,7 @@
 
 import { describe, expect, test } from 'vitest'
 
-import type { ExternalIp, IpVersion, UnicastIpPool } from '~/api'
+import type { ExternalIp, IpVersion, SiloIpPool } from '~/api'
 
 import {
   getEphemeralIpSlots,
@@ -18,7 +18,7 @@ import {
   validateVpcIpv6Prefix,
 } from './ip'
 
-const makePool = (ipVersion: IpVersion, name = `pool-${ipVersion}`): UnicastIpPool => ({
+const makePool = (ipVersion: IpVersion, name = `pool-${ipVersion}`): SiloIpPool => ({
   id: `id-${name}`,
   name,
   description: '',

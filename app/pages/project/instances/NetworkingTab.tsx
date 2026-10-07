@@ -15,12 +15,13 @@ import { match } from 'ts-pattern'
 import {
   api,
   instanceCan,
-  isUnicastPool,
   q,
   qErrorsAllowed,
   queryClient,
+  siloUnicastPoolsQ,
   useApiMutation,
   usePrefetchedQuery,
+  useSiloUnicastPools,
   type ExternalIp,
   type ExternalSubnet,
   type InstanceNetworkInterface,
@@ -161,25 +162,23 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     queryClient.fetchQuery(q(api.instanceView, { path: { instance }, query: { project } })),
     // Fetch IP Pools and preload into RQ cache so fetches by ID in
     // IpPoolCell and AttachFloatingIpModal can be mostly instant
-    queryClient
-      .fetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
-      .then((pools) => {
-        for (const pool of pools.items) {
-          // both IpPoolCell and the fetch in the modal use errors-allowed
-          // versions to avoid blowing up in the unlikely event of an error
-          const { queryKey } = qErrorsAllowed(
-            api.ipPoolView,
-            { path: { pool: pool.id } },
-            {
-              errorsExpected: {
-                explanation: 'the referenced IP pool may have been deleted.',
-                statusCode: 404,
-              },
-            }
-          )
-          queryClient.setQueryData(queryKey, { type: 'success', data: pool })
-        }
-      }),
+    queryClient.fetchQuery(siloUnicastPoolsQ).then((pools) => {
+      for (const pool of pools.items) {
+        // both IpPoolCell and the fetch in the modal use errors-allowed
+        // versions to avoid blowing up in the unlikely event of an error
+        const { queryKey } = qErrorsAllowed(
+          api.ipPoolView,
+          { path: { pool: pool.id } },
+          {
+            errorsExpected: {
+              explanation: 'the referenced IP pool may have been deleted.',
+              statusCode: 404,
+            },
+          }
+        )
+        queryClient.setQueryData(queryKey, { type: 'success', data: pool })
+      }
+    }),
     // Fetch VPCs for the Add NIC form, and seed vpcView-by-id so the NIC
     // table's VPC cells (VpcNameFromId) render without a skeleton.
     queryClient
@@ -367,10 +366,7 @@ export default function NetworkingTab() {
     enabled: !!primaryVpcId,
   })
 
-  const { data: siloPools } = usePrefetchedQuery(
-    q(api.ipPoolList, { query: { limit: ALL_ISH } })
-  )
-  const unicastPools = useMemo(() => siloPools.items.filter(isUnicastPool), [siloPools])
+  const unicastPools = useSiloUnicastPools()
 
   // Determine compatible IP versions from the instance's primary NIC
   // External IPs route through the primary interface, so only its IP stack matters
