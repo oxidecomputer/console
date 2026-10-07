@@ -61,14 +61,25 @@ test('filters items and resets the search when dismissed', async () => {
   const screen = await render(<ActionMenuHarness />)
   const search = screen.getByPlaceholder('Search')
 
-  await search.fill('db1')
+  // Firefox CI sometimes fails to close the menu after the Escape below.
+  // One possible cause is how fill() enters text: in Firefox it emits IME
+  // composition events. Base UI ignores Escape while composing, then uses
+  // setTimeout(0) after compositionend to start accepting Escape again. If
+  // Escape arrives before that timer runs, it is discarded.
+  //
+  // We reproduced a version of this with the actual menu by keeping a page
+  // loading. Firefox delayed the timer until loading finished, so Escape was
+  // ignored. Typing the text instead of using fill() fixed that reproduction.
+  // But this setup doesn't match how Vitest works: it doesn't run the test
+  // until after the test iframe has finished loading.  So we're still not quite
+  // sure why this fails in CI or whether this change will fix it.
+  await userEvent.type(search, 'db1')
   await expect.element(screen.getByRole('option', { name: 'db1' })).toBeVisible()
   await expect
     .element(screen.getByRole('option', { name: 'New instance' }))
     .not.toBeInTheDocument()
 
-  // Target the input because global keyboard input can miss it in Firefox CI.
-  await userEvent.type(search, '{Escape}')
+  await userEvent.keyboard('{Escape}')
   await expect
     .element(screen.getByRole('dialog', { name: 'Quick actions' }))
     .not.toBeInTheDocument()
