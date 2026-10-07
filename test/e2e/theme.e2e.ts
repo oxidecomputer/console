@@ -53,24 +53,26 @@ test.describe('theme-init.js (pre-hydration)', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   })
 
-  test('system preference resolves to emulated color scheme', async ({ page }) => {
-    await seedTheme(page, 'system')
-    await page.emulateMedia({ colorScheme: 'light' })
-    await gotoBeforeHydration(page, '/projects')
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+  // One navigation per test: WebKit remembers the blocked entry for the life of
+  // the page and doesn't request it again, so a second requestfailed never comes
+  for (const colorScheme of ['light', 'dark'] as const) {
+    test(`system preference resolves to emulated ${colorScheme} scheme`, async ({
+      page,
+    }) => {
+      await seedTheme(page, 'system')
+      await page.emulateMedia({ colorScheme })
+      await gotoBeforeHydration(page, '/projects')
+      await expect(page.locator('html')).toHaveAttribute('data-theme', colorScheme)
+    })
+  }
 
-    await page.emulateMedia({ colorScheme: 'dark' })
-    await gotoBeforeHydration(page, '/projects')
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
-  })
-
-  test('forces dark on auth pages regardless of preference', async ({ page }) => {
-    await seedTheme(page, 'light')
-    for (const path of ['/login/default-silo/saml/mock-idp', '/device/verify']) {
+  for (const path of ['/login/default-silo/saml/mock-idp', '/device/verify']) {
+    test(`forces dark on ${path} regardless of preference`, async ({ page }) => {
+      await seedTheme(page, 'light')
       await gotoBeforeHydration(page, path)
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
-    }
-  })
+    })
+  }
 })
 
 test('Login and device pages force dark theme even when preference is light', async ({
