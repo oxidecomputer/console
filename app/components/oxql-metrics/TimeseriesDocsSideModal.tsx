@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useQuery } from '@tanstack/react-query'
+import type { ReactNode } from 'react'
 import * as R from 'remeda'
 
 import {
@@ -21,7 +22,8 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { targets, timeseries } from '~/api/__generated__/timeseries-metadata'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
-import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
+import { FormDivider } from '~/ui/lib/Divider'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { ALL_ISH } from '~/util/consts'
@@ -65,19 +67,29 @@ function getDocs(name: string, schemas: TimeseriesSchema[] | undefined): Timeser
   return { fields: [] }
 }
 
-function FieldList({ fields }: { fields: Field[] }) {
+const DocsList = ({ children }: { children: ReactNode }) => (
+  <ul className="bg-default border-default divide-secondary divide-y rounded-lg border">
+    {children}
+  </ul>
+)
+
+function DocsItem({
+  name,
+  type,
+  description,
+}: {
+  name: string
+  type?: string
+  description?: string
+}) {
   return (
-    <ul className="bg-default border-default divide-secondary divide-y rounded-lg border">
-      {fields.map((f) => (
-        <li key={f.name} className="flex flex-col gap-1 px-3 py-2.5">
-          <div className="flex items-baseline justify-between gap-4">
-            <span className="text-mono-code text-default">{f.name}</span>
-            <span className="text-sans-md text-tertiary">{f.fieldType}</span>
-          </div>
-          {f.description && <p className="text-sans-sm text-secondary">{f.description}</p>}
-        </li>
-      ))}
-    </ul>
+    <li className="flex flex-col gap-1 px-3 py-2.5">
+      <div className="flex items-center gap-2">
+        <span className="text-sans-md text-raise">{name}</span>
+        {type && <Badge>{type}</Badge>}
+      </div>
+      {description && <p className="text-sans-md text-secondary pr-12">{description}</p>}
+    </li>
   )
 }
 
@@ -161,30 +173,43 @@ export function TimeseriesDocsSideModal({
         <PropertiesTable.Row label="Unit">{docs.unit ?? '—'}</PropertiesTable.Row>
       </PropertiesTable>
       {docs.description?.metric && (
-        <div className="flex flex-col gap-2">
-          <h4 className="text-sans-semi-md text-raise">Description</h4>
-          <Description text={docs.description.metric} />
-        </div>
+        <>
+          <FormDivider />
+          <div className="flex flex-col gap-2">
+            <h4 className="text-mono-sm text-secondary">Description</h4>
+            <Description text={docs.description.metric} />
+          </div>
+        </>
       )}
-      <div className="flex flex-col items-start gap-2">
-        <h4 className="text-sans-semi-md text-raise">Target</h4>
-        <Badge color="neutral">
-          <span className="normal-case">{target}</span>
-        </Badge>
-        {docs.description?.target && (
-          <p className="text-sans-md text-secondary">{docs.description.target}</p>
-        )}
+      <FormDivider />
+      <div className="flex flex-col gap-2">
+        <h4 className="text-mono-sm text-secondary">Target</h4>
+        <DocsList>
+          <DocsItem name={target} description={docs.description?.target} />
+        </DocsList>
       </div>
       {docs.fields.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h4 className="text-sans-semi-md text-raise">Fields</h4>
-          <FieldList fields={R.sortBy(docs.fields, (f) => f.name)} />
-        </div>
+        <>
+          <FormDivider />
+          <div className="flex flex-col gap-2">
+            <h4 className="text-mono-sm text-secondary">Fields</h4>
+            <DocsList>
+              {R.sortBy(docs.fields, (f) => f.name).map((f) => (
+                <DocsItem
+                  key={f.name}
+                  name={f.name}
+                  type={f.fieldType}
+                  description={f.description}
+                />
+              ))}
+            </DocsList>
+          </div>
+        </>
       )}
       {docs.docsHref && (
-        <ModalLinks heading="Relevant docs">
-          <ModalLink to={docs.docsHref} label={docLinks.oxqlSchemas.linkText} />
-        </ModalLinks>
+        <SideModalFormDocs
+          docs={[{ href: docs.docsHref, linkText: docLinks.oxqlSchemas.linkText }]}
+        />
       )}
     </ReadOnlySideModalForm>
   )
