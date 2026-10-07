@@ -151,12 +151,13 @@ test('chart title opens timeseries docs', async ({ page }) => {
     .first()
     .click()
 
-  const modal = page.getByRole('dialog', { name: 'hardware_component:fan_speed' })
+  const modal = page.getByRole('dialog', { name: 'Timeseries details' })
   await expect(modal).toBeVisible()
   // read-only modal focuses its title instead of the docs link at the bottom
+  await expect(modal.getByRole('heading', { name: 'Timeseries details' })).toBeFocused()
   await expect(
     modal.getByRole('heading', { name: 'hardware_component:fan_speed' })
-  ).toBeFocused()
+  ).toBeVisible()
   // descriptions come from the snapshot, not the schema endpoint
   await expect(
     modal.getByText('A fan speed measurement, in rotations per minute')
@@ -183,8 +184,10 @@ test('joined chart title has docs for each timeseries', async ({ page }) => {
     .getByRole('button', { name: 'sled_data_link:bytes_received details' })
     .first()
     .click()
-  const received = page.getByRole('dialog', { name: 'sled_data_link:bytes_received' })
-  await expect(received).toBeVisible()
+  const received = page.getByRole('dialog', { name: 'Timeseries details' })
+  await expect(
+    received.getByRole('heading', { name: 'sled_data_link:bytes_received' })
+  ).toBeVisible()
   await expect(received.getByText('Number of bytes received on the link')).toBeVisible()
   await expect(received.getByText('Number of bytes sent on the link')).toBeHidden()
   await page.keyboard.press('Escape')
@@ -194,8 +197,10 @@ test('joined chart title has docs for each timeseries', async ({ page }) => {
     .getByRole('button', { name: 'sled_data_link:bytes_sent details' })
     .first()
     .click()
-  const sent = page.getByRole('dialog', { name: 'sled_data_link:bytes_sent' })
-  await expect(sent).toBeVisible()
+  const sent = page.getByRole('dialog', { name: 'Timeseries details' })
+  await expect(
+    sent.getByRole('heading', { name: 'sled_data_link:bytes_sent' })
+  ).toBeVisible()
   await expect(sent.getByText('Number of bytes sent on the link')).toBeVisible()
 })
 

@@ -156,11 +156,16 @@ export function TimeseriesDocsSideModal({
   return (
     <ReadOnlySideModalForm
       title="Timeseries details"
-      // the <wbr> lets long names wrap at the colon instead of mid-word
+      // the <wbr> lets long names wrap at the colon instead of mid-word. the
+      // span keeps it inline: as a direct flex child it would be blockified,
+      // which puts a space in the accessible name
       subtitle={
         <ResourceLabel>
-          <Monitoring16Icon /> {target}:<wbr />
-          {metric}
+          <Monitoring16Icon />
+          <span>
+            {target}:<wbr />
+            {metric}
+          </span>
         </ResourceLabel>
       }
       onDismiss={onDismiss}
