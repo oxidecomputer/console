@@ -85,7 +85,7 @@ export function getChartTheme(): ChartTheme {
     hoverPoint: v('--content-accent'),
     fill: withAlpha(v('--surface-accent-secondary'), 0.6),
     axisLine: v('--stroke-secondary'),
-    axisText: v('--content-quaternary'),
+    axisText: v('--content-tertiary'),
     lineColors: [
       '--color-green-800',
       '--color-blue-800',
