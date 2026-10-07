@@ -16,12 +16,14 @@ import {
   type TimeseriesSchema,
   type Units,
 } from '@oxide/api'
+import { Monitoring16Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { targets, timeseries } from '~/api/__generated__/timeseries-metadata'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { ResourceLabel } from '~/ui/lib/SideModal'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 
@@ -141,12 +143,13 @@ export function TimeseriesDocsSideModal({
   const [target, metric] = name.split(':')
   return (
     <ReadOnlySideModalForm
+      title="Timeseries details"
       // the <wbr> lets long names wrap at the colon instead of mid-word
-      title={
-        <span>
-          {target}:<wbr />
+      subtitle={
+        <ResourceLabel>
+          <Monitoring16Icon /> {target}:<wbr />
           {metric}
-        </span>
+        </ResourceLabel>
       }
       onDismiss={onDismiss}
       animate

@@ -137,7 +137,7 @@ export function SideModal({
   )
 }
 
-export const ResourceLabel = classed.h3`mt-2 flex items-center gap-1.5 text-sans-md text-accent`
+export const ResourceLabel = classed.h3`mt-1.5 flex items-center gap-1.5 text-sans-lg text-accent [&>svg]:text-accent-tertiary`
 
 SideModal.Body = ({ children }: { children?: ReactNode }) => (
   <div

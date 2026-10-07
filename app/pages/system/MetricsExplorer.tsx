@@ -620,18 +620,16 @@ function TimeseriesDocsButton({ name }: { name: string }) {
   const [showDocs, setShowDocs] = useState(false)
   return (
     <>
-      <Tooltip content="Timeseries details" placement="top">
-        <button
-          type="button"
-          // -mr-0.5 cancels the 2px padding around the 16px icon so the gap to
-          // the divider in a joined title looks the same on both sides
-          className="text-tertiary hover:text-default hover:bg-hover -mr-0.5 flex h-5 w-5 items-center justify-center rounded-md"
-          onClick={() => setShowDocs(true)}
-          aria-label={`${name} details`}
-        >
-          <Info16Icon />
-        </button>
-      </Tooltip>
+      <button
+        type="button"
+        // -mr-0.5 cancels the 2px padding around the icon so the gap to
+        // the divider in a joined title looks the same on both sides
+        className="text-quaternary hover:text-default hover:bg-hover -mr-0.5 flex h-5 w-5 items-center justify-center rounded-md"
+        onClick={() => setShowDocs(true)}
+        aria-label={`${name} details`}
+      >
+        <Info12Icon />
+      </button>
       {showDocs && (
         <TimeseriesDocsSideModal name={name} onDismiss={() => setShowDocs(false)} />
       )}
