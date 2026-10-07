@@ -104,7 +104,7 @@ export default function ProjectAccessPage() {
   const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
   const projectRows = useUserRows(projectPolicy.roleAssignments, 'project')
 
-  const rows = useMemo(() => {
+  const rows = useMemo((): UserRow[] => {
     return groupBy(siloRows.concat(projectRows), (u) => u.id)
       .map(([userId, userAssignments]) => {
         const { name, identityType } = userAssignments[0]
