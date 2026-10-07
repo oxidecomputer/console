@@ -722,33 +722,29 @@ function HeatmapCard({ display }: { display: Extract<ChartDisplay, { kind: 'heat
 }
 
 function ChartEntry({ display }: { display: ChartDisplay }) {
-  return (
-    <>
-      {match(display)
-        .with({ kind: 'empty' }, () => (
-          <ChartContainer>
-            <SkeletonMetric>
-              <div
-                className="absolute bottom-0 z-0 h-full w-full"
-                style={{
-                  background:
-                    'linear-gradient(90deg, transparent 0%, var(--surface-default) 33%, var(--surface-default) 66%, transparent 100%)',
-                }}
-              />
-              <div className="z-10">
-                <EmptyMessage
-                  title="No results"
-                  body="Query returned no data. Try adjusting the query or expanding the time range"
-                />
-              </div>
-            </SkeletonMetric>
-          </ChartContainer>
-        ))
-        .with({ kind: 'chart' }, (r) => <ChartCard display={r} />)
-        .with({ kind: 'heatmap' }, (r) => <HeatmapCard display={r} />)
-        .exhaustive()}
-    </>
-  )
+  return match(display)
+    .with({ kind: 'empty' }, () => (
+      <ChartContainer>
+        <SkeletonMetric>
+          <div
+            className="absolute bottom-0 z-0 h-full w-full"
+            style={{
+              background:
+                'linear-gradient(90deg, transparent 0%, var(--surface-default) 33%, var(--surface-default) 66%, transparent 100%)',
+            }}
+          />
+          <div className="z-10">
+            <EmptyMessage
+              title="No results"
+              body="Query returned no data. Try adjusting the query or expanding the time range"
+            />
+          </div>
+        </SkeletonMetric>
+      </ChartContainer>
+    ))
+    .with({ kind: 'chart' }, (r) => <ChartCard display={r} />)
+    .with({ kind: 'heatmap' }, (r) => <HeatmapCard display={r} />)
+    .exhaustive()
 }
 
 const copyText = (text: string, toastMessage: string) => {

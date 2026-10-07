@@ -1,4 +1,3 @@
-import { acceptCompletion } from '@codemirror/autocomplete'
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -6,6 +5,7 @@ import { acceptCompletion } from '@codemirror/autocomplete'
  *
  * Copyright Oxide Computer Company
  */
+import { acceptCompletion } from '@codemirror/autocomplete'
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands'
 import { bracketMatching } from '@codemirror/language'
 import {
