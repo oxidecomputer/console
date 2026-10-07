@@ -866,7 +866,17 @@ export default function MetricsExplorer() {
               params.set('query', body.query)
               return params
             },
-            { replace: true, preventScrollReset: true, state: { skipLoadingBar: true } }
+            {
+              replace: true,
+              preventScrollReset: true,
+              // Writing the URL is a nav, which reruns the layout loaders. If
+              // any of them refetches stale data (e.g., SystemLayout's current
+              // user, stale after 2s), the loading bar will show, and since
+              // this setSearchParams happen on query success, the loading bar
+              // starts after the query is already done, which looks silly.
+              // See RootLayout.
+              state: { skipLoadingBar: true },
+            }
           )
         },
       }
