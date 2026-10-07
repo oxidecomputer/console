@@ -118,6 +118,7 @@
     "oxlint": "^1.70.0",
     "oxlint-tsgolint": "^0.23.0",
     "patch-package": "^8.0.0",
+    "smol-toml": "^1.9.0",
     "tailwindcss": "^4.3.3",
     "type-fest": "^5.2.0",
     "typescript": "^7.0.2",
