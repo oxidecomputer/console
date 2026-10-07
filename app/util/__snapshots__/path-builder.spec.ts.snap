@@ -975,7 +975,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/support-bundles",
     },
   ],
-  "systemOxql (/system/metrics-explorer)": [
+  "systemMetricsExplorer (/system/metrics-explorer)": [
     {
       "label": "Metrics Explorer",
       "path": "/system/metrics-explorer",

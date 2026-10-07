@@ -63,7 +63,7 @@ export default function SystemLayout() {
       { value: 'Alerts', path: pb.alerts() },
       { value: 'System Update', path: pb.systemUpdate() },
       { value: 'Support Bundles', path: pb.supportBundles() },
-      { value: 'Metrics Explorer', path: pb.systemOxql() },
+      { value: 'Metrics Explorer', path: pb.systemMetricsExplorer() },
       { value: 'Audit Log', path: pb.auditLog() },
       { value: 'Fleet Access', path: pb.fleetAccess() },
     ]
@@ -119,7 +119,7 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.supportBundles()}>
             <Archive16Icon /> Support Bundles
           </NavLinkItem>
-          <NavLinkItem to={pb.systemOxql()}>
+          <NavLinkItem to={pb.systemMetricsExplorer()}>
             <Monitoring16Icon /> Metrics Explorer
           </NavLinkItem>
           <NavLinkItem to={pb.auditLog()}>

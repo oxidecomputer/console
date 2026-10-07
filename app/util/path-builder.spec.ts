@@ -125,7 +125,7 @@ test('path builder', () => {
         "supportBundle": "/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31",
         "supportBundles": "/system/support-bundles",
         "supportBundlesNew": "/system/support-bundles-new",
-        "systemOxql": "/system/metrics-explorer",
+        "systemMetricsExplorer": "/system/metrics-explorer",
         "systemUpdate": "/system/update",
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v/firewall-rules",
