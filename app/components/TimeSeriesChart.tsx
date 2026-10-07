@@ -231,11 +231,8 @@ export function TimeSeriesChart({
           y: false,
           // TODO: i like the drag and we should put it back in
           drag: { x: false },
-          points: {
-            size: 6,
-            // TODO: with multiline, pinning the focused point color doesn't make much sense anymore
-            fill: theme.hoverPoint,
-          },
+          // uPlot's default fill matches each dot to its series stroke
+          points: { size: 6 },
         },
         legend: { show: false },
         plugins: [tooltipPlugin],
