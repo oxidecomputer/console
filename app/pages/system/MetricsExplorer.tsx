@@ -422,15 +422,13 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
         }))
         .with('integer', 'double', 'boolean', 'string', () => ({
           kind: 'unaligned' as const,
-          charts: seriesList.map(
-            (series): LineChartData => ({
-              name,
-              description: <FieldsList fields={series.fields} />,
-              timestamps: toPosix(series.points.timestamps),
-              metricType: series.points.values[0].metricType,
-              data: narrowToNumbers(series.points.values[0].values),
-            })
-          ),
+          charts: seriesList.map((series): LineChartData => ({
+            name,
+            description: <FieldsList fields={series.fields} />,
+            timestamps: toPosix(series.points.timestamps),
+            metricType: series.points.values[0].metricType,
+            data: narrowToNumbers(series.points.values[0].values),
+          })),
         }))
         .exhaustive()
     })
@@ -567,52 +565,46 @@ const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
     const { startTime, endTime } = g
     return match(g)
       .with({ kind: 'distributions' }, ({ charts }) =>
-        charts.map(
-          (chart, i): ChartDisplay => ({
-            kind: 'heatmap',
-            key: `t${t}.${i}`,
-            name: chart.name,
-            description: chart.description,
-            ...trimHeatmap(trim, {
-              timestamps: chart.timestamps,
-              startTimes: chart.startTimes,
-              data: chart.data,
-            }),
-          })
-        )
+        charts.map((chart, i): ChartDisplay => ({
+          kind: 'heatmap',
+          key: `t${t}.${i}`,
+          name: chart.name,
+          description: chart.description,
+          ...trimHeatmap(trim, {
+            timestamps: chart.timestamps,
+            startTimes: chart.startTimes,
+            data: chart.data,
+          }),
+        }))
       )
       .with({ kind: 'unaligned' }, ({ charts }) =>
-        charts.map(
-          (chart, i): ChartDisplay => ({
-            kind: 'chart',
-            key: `t${t}.${i}`,
-            startTime,
-            endTime,
-            name: chart.name,
-            description: chart.description,
-            ...trimSeries(trim, {
-              timestamps: chart.timestamps,
-              data: [chart.data],
-            }),
-          })
-        )
+        charts.map((chart, i): ChartDisplay => ({
+          kind: 'chart',
+          key: `t${t}.${i}`,
+          startTime,
+          endTime,
+          name: chart.name,
+          description: chart.description,
+          ...trimSeries(trim, {
+            timestamps: chart.timestamps,
+            data: [chart.data],
+          }),
+        }))
       )
       .with({ kind: 'joined' }, { kind: 'aligned' }, ({ charts }) =>
-        charts.map(
-          (chart, i): ChartDisplay => ({
-            kind: 'chart',
-            key: `t${t}.${i}`,
-            startTime,
-            endTime,
-            name: chart.name,
-            description: chart.description,
-            seriesLabels: chart.data.map((l) => l.label),
-            ...trimSeries(trim, {
-              timestamps: chart.timestamps,
-              data: chart.data.map((d) => d.values),
-            }),
-          })
-        )
+        charts.map((chart, i): ChartDisplay => ({
+          kind: 'chart',
+          key: `t${t}.${i}`,
+          startTime,
+          endTime,
+          name: chart.name,
+          description: chart.description,
+          seriesLabels: chart.data.map((l) => l.label),
+          ...trimSeries(trim, {
+            timestamps: chart.timestamps,
+            data: chart.data.map((d) => d.values),
+          }),
+        }))
       )
       .exhaustive()
   })
