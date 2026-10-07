@@ -109,8 +109,8 @@ const setErrorRange = StateEffect.define<{ from: number; to: number } | null>()
 
 // Underline the position a server-side parse error points at. The error
 // message itself is shown below the editor, so no lint tooltip is needed.
-// A StateField (rather than a plain decoration facet) so the range remaps
-// when the user edits elsewhere in the doc.
+// The page clears the error on any edit, but that arrives as a separate
+// transaction, so the edit itself still maps the range to keep it in bounds.
 const errorRangeField = StateField.define<DecorationSet>({
   create: () => Decoration.none,
   update(deco, tr) {

@@ -439,8 +439,9 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
 
   return {
     ...chart,
-    // i figure any chart collection probably benefits from sharing their X-axis, even if they're
-    // rendered in sequence
+    // the collection's full time span, so every chart in it picks the same tick
+    // label format (time vs. date and time). These don't set the x range: each
+    // chart's x scale still fits its own data
     startTime: new Date(min ?? 0),
     endTime: new Date(max ?? 0),
   }
