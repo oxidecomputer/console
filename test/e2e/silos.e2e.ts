@@ -71,8 +71,6 @@ test('Create silo', async ({ page }) => {
   await expectRowVisible(table, {
     name: 'maze-war',
     'Identity mode': 'saml jit',
-    // not easy to assert this until we can calculate accessible name instead of text content
-    // discoverable: 'true',
   })
   await expect(page.getByText('Feb 28, 202312:00 AM')).toBeVisible()
 
@@ -84,9 +82,6 @@ test('Create silo', async ({ page }) => {
   // fill out form
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('other-silo')
   await page.getByRole('textbox', { name: 'Description' }).fill('definitely a silo')
-  const discoverable = page.getByRole('checkbox', { name: 'Discoverable' })
-  await expect(discoverable).toBeChecked()
-  await discoverable.click()
   await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeVisible()
   await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
   await page.getByRole('checkbox', { name: 'Grant fleet admin' }).click()
@@ -213,7 +208,6 @@ test('Create silo', async ({ page }) => {
     name: 'other-silo',
     description: 'definitely a silo',
     'Identity mode': 'saml jit',
-    // discoverable: 'false',
   })
   const otherSiloCell = page.getByRole('cell', { name: 'other-silo' })
   await expect(otherSiloCell).toBeVisible()

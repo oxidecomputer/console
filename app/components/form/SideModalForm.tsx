@@ -77,8 +77,11 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       ? `Update ${resourceName}`
       : submitLabel || title || `Create ${resourceName}`
 
-  // must be destructured up here to subscribe to changes. inlining
-  // form.formState.isDirty does not work
+  // formState is a proxy whose getters register a subscription, and RHF only
+  // re-renders for keys that were read during render. isDirty is used in the
+  // onDismiss callback below, so it has to be read up here first, or the
+  // callback would see a stale value. See the Rules section of the docs:
+  // https://react-hook-form.com/docs/useform/formstate
   const { isDirty, isSubmitting } = form.formState
   const [showNavGuard, setShowNavGuard] = useState(false)
 

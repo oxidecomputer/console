@@ -350,7 +350,7 @@ function AlertTab({
       ) : (
         // the fetch usually finishes before this tab is opened, so a blank
         // payload for the rest of the load is fine
-        alert && <AlertPayload payload={alert.alert} />
+        alert && <AlertPayload payload={alert.payload} />
       )}
     </div>
   )

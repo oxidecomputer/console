@@ -228,14 +228,28 @@ test.describe('Disk create', () => {
   /* eslint-enable playwright/expect-expect */
 })
 
-test('Distributed disk clamps size to max of 1023 GiB', async ({ page }) => {
+test('Distributed disk size max of 1023 GiB blocks submit', async ({ page }) => {
   await page.goto('/projects/mock-project/disks-new')
 
   // Wait for form to be hydrated by checking a field that renders after mount
   await expect(page.getByRole('radiogroup', { name: 'Block size' })).toBeVisible()
 
+  await page.getByRole('textbox', { name: 'Name' }).fill('big-disk')
   const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
-  await fillNumberInput(sizeInput, '2000', '1023')
+  await fillNumberInput(sizeInput, '2000')
+  await page.getByRole('button', { name: 'Create disk' }).click()
+
+  const dialog = page.getByRole('dialog', { name: 'Create disk' })
+  await expect(sizeInput).toHaveValue('2000')
+  await expect(dialog.getByText('Can be at most 1023 GiB')).toBeVisible()
+
+  await page.getByRole('radio', { name: 'Local' }).click()
+  await expect(dialog.getByText('Can be at most 1023 GiB')).toBeHidden()
+  await expect(sizeInput).toHaveValue('2000')
+
+  await page.getByRole('radio', { name: 'Distributed' }).click()
+  await expect(dialog.getByText('Can be at most 1023 GiB')).toBeVisible()
+  await expect(sizeInput).toHaveValue('2000')
 })
 
 test('Local disk has no max size limit', async ({ page }) => {
@@ -283,6 +297,42 @@ test('Create local disk with size > 1023 GiB', async ({ page }) => {
     name: 'big-local-disk',
     size: '1.95 TiB',
   })
+})
+
+test('Size error clears when switching to a smaller source', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks-new')
+  const dialog = page.getByRole('dialog', { name: 'Create disk' })
+  await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
+  const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
+  const createButton = page.getByRole('button', { name: 'Create disk' })
+
+  await page.getByRole('radio', { name: 'Snapshot' }).click()
+  await page.getByRole('button', { name: 'Source snapshot' }).click()
+  await page.getByRole('option', { name: 'snapshot-heavy' }).click()
+  await fillNumberInput(sizeInput, '5')
+  await createButton.click()
+  const snapshotError = dialog.getByText(
+    'Must be as large as selected snapshot (min. 20 GiB)'
+  )
+  await expect(snapshotError).toBeVisible()
+
+  // 5 GiB is plenty for the new snapshot, so the error should go away
+  await page.getByRole('button', { name: 'Source snapshot' }).click()
+  await page.getByRole('option', { name: /^snapshot-1 / }).click()
+  await expect(snapshotError).toBeHidden()
+
+  await page.getByRole('radio', { name: 'Image' }).click()
+  await page.getByRole('button', { name: 'Source image' }).click()
+  await page.getByRole('option', { name: 'image-4' }).click()
+  await fillNumberInput(sizeInput, '5')
+  await createButton.click()
+  const imageError = dialog.getByText('Must be as large as selected image (min. 7 GiB)')
+  await expect(imageError).toBeVisible()
+
+  // 5 GiB is plenty for the 4 GiB image
+  await page.getByRole('button', { name: 'Source image' }).click()
+  await page.getByRole('option', { name: 'image-1' }).click()
+  await expect(imageError).toBeHidden()
 })
 
 test('Create disk from snapshot with read-only', async ({ page }) => {

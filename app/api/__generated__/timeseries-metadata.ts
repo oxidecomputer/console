@@ -11,7 +11,7 @@
 
 import type { DatumType, FieldSchema, Units } from './Api'
 
-export const omicronVersion = '9d95e0cf4542d2bc776c40b69f97ba6e05cff199'
+export const omicronVersion = '7e18e523687767bb8c75070945ac398a5b89d9fd'
 
 type Field = Omit<FieldSchema, 'source'>
 

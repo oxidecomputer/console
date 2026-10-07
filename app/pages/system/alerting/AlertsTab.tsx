@@ -73,8 +73,8 @@ type AlertRowProps = {
 // referentially stable, so only the rows whose `selected` flips re-render.
 const AlertRow = memo(function AlertRow({ alert, selected, onSelect }: AlertRowProps) {
   // stable object identity so HighlightJSON's memo holds across re-renders
-  const payload = useMemo(() => snakeify(alert.alert), [alert])
-  const hasPayload = Object.keys(alert.alert).length > 0
+  const payload = useMemo(() => snakeify(alert.payload), [alert])
+  const hasPayload = Object.keys(alert.payload).length > 0
 
   return (
     // The row itself is the click target, like the audit log. Keyboard and
@@ -137,7 +137,7 @@ function AlertDetail({ alert, onDismiss }: { alert: Alert; onDismiss: () => void
           <DateTime date={alert.timeCreated} />
         </PropertiesTable.Row>
       </PropertiesTable>
-      <AlertPayload payload={alert.alert} />
+      <AlertPayload payload={alert.payload} />
     </ReadOnlySideModalForm>
   )
 }

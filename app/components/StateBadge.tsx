@@ -10,10 +10,13 @@ import cn from 'classnames'
 import {
   diskTransitioning,
   instanceTransitioning,
+  snapshotTransitioning,
+  supportBundleTransitioning,
   type DiskState,
   type DiskType,
   type InstanceState,
   type SnapshotState,
+  type SupportBundleState,
 } from '@oxide/api'
 import { Badge, type BadgeColor } from '@oxide/design-system/ui'
 
@@ -78,8 +81,30 @@ const SNAPSHOT_COLORS: Record<SnapshotState, BadgeColor> = {
 
 export const SnapshotStateBadge = (props: { state: SnapshotState; className?: string }) => (
   <Badge color={SNAPSHOT_COLORS[props.state]} className={cn(props.className, badgeClasses)}>
-    {props.state === 'creating' && (
+    {snapshotTransitioning(props.state) && (
       <Spinner size="sm" variant={SNAPSHOT_COLORS[props.state]} />
+    )}
+    {props.state}
+  </Badge>
+)
+
+const SUPPORT_BUNDLE_COLORS: Record<SupportBundleState, BadgeColor> = {
+  collecting: 'blue',
+  active: 'default',
+  destroying: 'neutral',
+  failed: 'destructive',
+}
+
+export const SupportBundleStateBadge = (props: {
+  state: SupportBundleState
+  className?: string
+}) => (
+  <Badge
+    color={SUPPORT_BUNDLE_COLORS[props.state]}
+    className={cn(props.className, badgeClasses)}
+  >
+    {supportBundleTransitioning(props.state) && (
+      <Spinner size="sm" variant={SUPPORT_BUNDLE_COLORS[props.state]} />
     )}
     {props.state}
   </Badge>

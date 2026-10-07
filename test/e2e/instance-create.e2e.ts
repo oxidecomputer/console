@@ -52,6 +52,9 @@ test('can create an instance', async ({ page }) => {
   const instanceName = 'my-instance'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await page.fill('textarea[name=description]', 'An instance... from space!')
+
+  // first preset is selected by default
+  await expect(page.getByRole('radio', { name: '1 CPU 8 gibibytes RAM' })).toBeChecked()
   await page.locator('.ox-radio-card').nth(3).click()
 
   await page.getByRole('textbox', { name: 'Disk name' }).fill('my-boot-disk')
@@ -104,7 +107,7 @@ test('can create an instance', async ({ page }) => {
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 
   await expect(page.getByRole('heading', { name: instanceName })).toBeVisible()
-  await expect(page.getByText('16 vCPUs')).toBeVisible()
+  await expect(page.getByText('8 vCPUs')).toBeVisible()
   await expect(page.getByText('64 GiB')).toBeVisible()
   await expect(page.getByText('from space')).toBeVisible()
 
@@ -189,16 +192,22 @@ test('duplicate instance name produces visible error', async ({ page }) => {
   await expect(page.getByText('Instance name already exists')).toBeVisible()
 })
 
-test('first preset is auto-selected in each tab', async ({ page }) => {
+test('switching image tabs sizes boot disk for the new tab', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
+  const diskSizeInput = page.getByRole('textbox', { name: 'Disk size (GiB)' })
 
-  await expect(page.getByRole('radio', { name: '2 CPU 8 gibibytes RAM' })).toBeChecked()
-  await page.getByRole('tab', { name: 'High CPU' }).click()
-  await expect(page.getByRole('radio', { name: '2 CPU 4 gibibytes RAM' })).toBeChecked()
-  await page.getByRole('tab', { name: 'High Memory' }).click()
-  await expect(page.getByRole('radio', { name: '2 CPU 16 gibibytes RAM' })).toBeChecked()
-  await page.getByRole('tab', { name: 'General Purpose' }).click()
-  await expect(page.getByRole('radio', { name: '2 CPU 8 gibibytes RAM' })).toBeChecked()
+  // 6 GiB image gets rounded up
+  await selectAProjectImage(page, 'image-3')
+  await expect(diskSizeInput).toHaveValue('10')
+
+  // 1 GiB image leaves the size alone, but we can now shrink it
+  await selectASiloImage(page, 'ubuntu-22-04')
+  await expect(diskSizeInput).toHaveValue('10')
+  await fillNumberInput(diskSizeInput, '2')
+
+  // back on the project tab, image-3 is still selected and 2 GiB is too small
+  await page.getByRole('tab', { name: 'Project images' }).click()
+  await expect(diskSizeInput).toHaveValue('10')
 })
 
 test('can create an instance with custom hardware', async ({ page }) => {
@@ -207,12 +216,6 @@ test('can create an instance with custom hardware', async ({ page }) => {
   const instanceName = 'my-custom-instance'
   await page.fill('input[name=name]', instanceName)
   await page.fill('textarea[name=description]', 'An instance... from space!')
-
-  // Click the other tabs to make sure the custom input works
-  // even when something has been previously selected
-  await page.getByRole('tab', { name: 'High CPU' }).click()
-  await page.getByRole('tab', { name: 'High Memory' }).click()
-  await page.getByText('64 GiB RAM').click()
 
   // Fill in custom specs
   await page.getByRole('tab', { name: 'Custom' }).click()
@@ -229,15 +232,17 @@ test('can create an instance with custom hardware', async ({ page }) => {
   // the disk size should bot have been changed from what was entered earlier
   await expect(diskSizeInput).toHaveValue('20')
 
-  // test disk size validation against image size
-  // the minimum on the number input will be the size of the image (6GiB),
-  // so manually entering a number less than that will be corrected
+  // test disk size validation against image size: the minimum is the size of
+  // the image (6 GiB), so a smaller number is not clamped but does block submit
   await diskSizeInput.fill('5')
-  await page.keyboard.press('Tab')
-  await expect(diskSizeInput).toHaveValue('6')
-
   const submitButton = page.getByRole('button', { name: 'Create instance' })
-  await submitButton.click() // submit to trigger validation
+  await submitButton.click()
+  await expect(diskSizeInput).toHaveValue('5')
+  await expect(page.getByRole('main').getByText('Must be at least 6 GiB')).toBeVisible()
+
+  await diskSizeInput.fill('20')
+  await expect(page.getByRole('main').getByText('Must be at least 6 GiB')).toBeHidden()
+  await submitButton.click()
 
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 

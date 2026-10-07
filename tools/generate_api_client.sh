@@ -22,8 +22,8 @@ HEADER=$(cat <<'EOF'
  *
  * Copyright Oxide Computer Company
  */
-
-EOF)
+EOF
+)
 
 LATEST_SPEC=$(curl "$SPEC_BASE/nexus-latest.json")
 
