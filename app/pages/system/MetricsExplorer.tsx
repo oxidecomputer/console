@@ -234,10 +234,18 @@ type ChartGroup =
   | { kind: 'aligned'; charts: Multiline[] }
   | { kind: 'joined'; charts: Multiline[] }
 
-const getFormattedFields = (t: Timeseries): string =>
-  Object.entries(t.fields)
+const getFormattedFields = (fields: Record<string, FieldValue>): string =>
+  Object.entries(fields)
     .map(([fieldName, x]) => `${camelToSnake(fieldName)}: ${x.value}`)
     .join(' / ')
+
+const sharedFields = (series: Timeseries[]): Record<string, FieldValue> => {
+  const [first, ...rest] = series
+  if (!first) return {}
+  return R.pickBy(first.fields, (field, name) =>
+    rest.every((s) => s.fields[name]?.value === field.value)
+  )
+}
 
 const DEFAULT_FIELDS_SHOWN = 10
 // long enough for names/serials
@@ -354,7 +362,7 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
           label:
             metricNames[i] ||
             // should be unreachable
-            `${getFormattedFields(series)} #${i + 1}`,
+            `${getFormattedFields(series.fields)} #${i + 1}`,
           values: narrowToNumbers(v.values),
         })),
       })),
@@ -364,21 +372,24 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
   const aligned = getAlignedTimestamps(timeseries)
   if (aligned.type === 'some') {
     const { timestamps } = aligned
+    const seriesList = timeseries.filter((s) => s.points.values.length > 0)
+    // Fields with the same value on every line go above the chart once, so
+    // each legend label only has what tells the lines apart
+    const shared = sharedFields(seriesList)
     return {
       kind: 'aligned',
       charts: [
         {
           name,
+          description: R.isEmpty(shared) ? undefined : <FieldsList fields={shared} />,
           timestamps,
-          data: timeseries
-            .filter((s) => s.points.values.length > 0)
-            .map((series) => ({
-              label: getFormattedFields(series),
-              values: leftPad(
-                narrowToNumbers(series.points.values[0].values),
-                timestamps.length
-              ),
-            })),
+          data: seriesList.map((series) => ({
+            label: getFormattedFields(R.omit(series.fields, Object.keys(shared))),
+            values: leftPad(
+              narrowToNumbers(series.points.values[0].values),
+              timestamps.length
+            ),
+          })),
         },
       ],
     }
@@ -583,7 +594,8 @@ const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
           ...timeRange,
           name: chart.name,
           description: chart.description,
-          seriesLabels: chart.data.map((l) => l.label),
+          // a lone line has no fields of its own to tell it apart, so no legend
+          seriesLabels: chart.data.length > 1 ? chart.data.map((l) => l.label) : undefined,
           ...trimSeries(trim, {
             timestamps: chart.timestamps,
             data: chart.data.map((d) => d.values),
