@@ -164,8 +164,6 @@ const fakeStartTimes = (timestamps: number[]): number[] => {
   return [timestamps[0] - interval, ...timestamps.slice(0, -1)]
 }
 
-type TimeseriesKind = 'joined' | 'aligned' | 'unaligned'
-
 /**
  * When aligning a series, the timestamps are all on the same grid, but values at the beginning may
  * be missing (e.g. [10,20,30] in one timestamp array, and [20,30] in another). As long as we can
@@ -230,13 +228,11 @@ type HeatmapChartData = Chart<(Distributiondouble | null)[]> & {
 }
 
 type ChartGroup =
-  | 'empty-timeseries'
-  | ({ startTime: Date; endTime: Date } & (
-      | { kind: 'unaligned'; charts: LineChartData[] }
-      | { kind: 'distributions'; charts: HeatmapChartData[] }
-      | { kind: 'aligned'; charts: Multiline[] }
-      | { kind: 'joined'; charts: Multiline[] }
-    ))
+  | { kind: 'empty' }
+  | { kind: 'unaligned'; charts: LineChartData[] }
+  | { kind: 'distributions'; charts: HeatmapChartData[] }
+  | { kind: 'aligned'; charts: Multiline[] }
+  | { kind: 'joined'; charts: Multiline[] }
 
 const getFormattedFields = (t: Timeseries): string =>
   Object.entries(t.fields)
@@ -339,47 +335,37 @@ const tableUnitLabels = (tableName: string): UnitLabels | undefined => {
 
 const tableToGroup = (table: OxqlTable): ChartGroup => {
   const { name, timeseries } = table
-  if (timeseries.length === 0) return 'empty-timeseries'
-  const kind:
-    | Exclude<TimeseriesKind, 'aligned'>
-    | { kind: 'aligned'; timestamps: number[] } =
-    // we expect all values arrays to be the same length, so if the first isn't longer than 1, we
-    // expect singletons across the board
-    timeseries[0]?.points.values.length > 1
-      ? ('joined' as const)
-      : match(getAlignedTimestamps(timeseries))
-          .with({ type: 'none' }, () => 'unaligned' as const)
-          .with({ type: 'some' }, ({ timestamps }) => ({
-            kind: 'aligned' as const,
-            timestamps,
-          }))
-          .exhaustive()
+  if (timeseries.length === 0) return { kind: 'empty' }
 
-  const chart = match(kind)
-    .with('joined', (kind) => {
-      const metricNames = retrieveMetricNames(name)
-
-      return {
-        kind,
-        // when joined, each timeseries is _also_ aligned, but we assume that users want to focus on
-        // cross-referencing between metrics, so we join the values within a given timeseries, going
-        // no further
-        charts: timeseries.map((series) => ({
-          name,
-          description: <FieldsList fields={series.fields} />,
-          timestamps: toPosix(series.points.timestamps),
-          data: series.points.values.map((v, i) => ({
-            label:
-              metricNames[i] ||
-              // should be unreachable
-              `${getFormattedFields(series)} #${i + 1}`,
-            values: narrowToNumbers(v.values),
-          })),
+  // we expect all values arrays to be the same length, so if the first isn't longer than 1, we
+  // expect singletons across the board
+  if (timeseries[0].points.values.length > 1) {
+    const metricNames = retrieveMetricNames(name)
+    return {
+      kind: 'joined',
+      // when joined, each timeseries is _also_ aligned, but we assume that users want to focus on
+      // cross-referencing between metrics, so we join the values within a given timeseries, going
+      // no further
+      charts: timeseries.map((series) => ({
+        name,
+        description: <FieldsList fields={series.fields} />,
+        timestamps: toPosix(series.points.timestamps),
+        data: series.points.values.map((v, i) => ({
+          label:
+            metricNames[i] ||
+            // should be unreachable
+            `${getFormattedFields(series)} #${i + 1}`,
+          values: narrowToNumbers(v.values),
         })),
-      }
-    })
-    .with({ kind: 'aligned' }, ({ kind, timestamps }) => ({
-      kind,
+      })),
+    }
+  }
+
+  const aligned = getAlignedTimestamps(timeseries)
+  if (aligned.type === 'some') {
+    const { timestamps } = aligned
+    return {
+      kind: 'aligned',
       charts: [
         {
           name,
@@ -395,56 +381,43 @@ const tableToGroup = (table: OxqlTable): ChartGroup => {
             })),
         },
       ],
-    }))
-    .with('unaligned', () => {
-      const seriesList = timeseries.filter((s) => s.points.values.length > 0)
-      // all schemas in a table are the same, so we can just check the first
-      // https://github.com/oxidecomputer/omicron/blob/3de7e909b196c07811025bbf41aaa8a35e6fa3cf/oximeter/oxql-types/src/table.rs#L280
-      const valueType = seriesList[0]?.points.values[0]?.values.type
-      // if no series had any values, there's nothing to chart
-      if (valueType === undefined) return { kind: 'unaligned' as const, charts: [] }
-
-      return match(valueType)
-        .with('integer_distribution', 'double_distribution', () => ({
-          kind: 'distributions' as const,
-          charts: seriesList.map((series): HeatmapChartData => {
-            const timestamps = toPosix(series.points.timestamps)
-            return {
-              name,
-              description: <FieldsList fields={series.fields} />,
-              timestamps,
-              metricType: series.points.values[0].metricType,
-              startTimes:
-                series.points.startTimes?.map(parseTs) ?? fakeStartTimes(timestamps),
-              data: narrowToDistributions(series.points.values[0].values),
-            }
-          }),
-        }))
-        .with('integer', 'double', 'boolean', 'string', () => ({
-          kind: 'unaligned' as const,
-          charts: seriesList.map((series): LineChartData => ({
-            name,
-            description: <FieldsList fields={series.fields} />,
-            timestamps: toPosix(series.points.timestamps),
-            metricType: series.points.values[0].metricType,
-            data: narrowToNumbers(series.points.values[0].values),
-          })),
-        }))
-        .exhaustive()
-    })
-    .exhaustive()
-  const timestamps = chart.charts.flatMap(({ timestamps }) => timestamps)
-  const min = R.firstBy(timestamps, (t) => t)
-  const max = R.firstBy(timestamps, (t) => -t)
-
-  return {
-    ...chart,
-    // the collection's full time span, so every chart in it picks the same tick
-    // label format (time vs. date and time). These don't set the x range: each
-    // chart's x scale still fits its own data
-    startTime: new Date(min ?? 0),
-    endTime: new Date(max ?? 0),
+    }
   }
+
+  const seriesList = timeseries.filter((s) => s.points.values.length > 0)
+  // all schemas in a table are the same, so we can just check the first
+  // https://github.com/oxidecomputer/omicron/blob/3de7e909b196c07811025bbf41aaa8a35e6fa3cf/oximeter/oxql-types/src/table.rs#L280
+  const valueType = seriesList[0]?.points.values[0]?.values.type
+  // if no series had any values, there's nothing to chart
+  if (valueType === undefined) return { kind: 'unaligned', charts: [] }
+
+  return match(valueType)
+    .returnType<ChartGroup>()
+    .with('integer_distribution', 'double_distribution', () => ({
+      kind: 'distributions',
+      charts: seriesList.map((series): HeatmapChartData => {
+        const timestamps = toPosix(series.points.timestamps)
+        return {
+          name,
+          description: <FieldsList fields={series.fields} />,
+          timestamps,
+          metricType: series.points.values[0].metricType,
+          startTimes: series.points.startTimes?.map(parseTs) ?? fakeStartTimes(timestamps),
+          data: narrowToDistributions(series.points.values[0].values),
+        }
+      }),
+    }))
+    .with('integer', 'double', 'boolean', 'string', () => ({
+      kind: 'unaligned',
+      charts: seriesList.map((series): LineChartData => ({
+        name,
+        description: <FieldsList fields={series.fields} />,
+        timestamps: toPosix(series.points.timestamps),
+        metricType: series.points.values[0].metricType,
+        data: narrowToNumbers(series.points.values[0].values),
+      })),
+    }))
+    .exhaustive()
 }
 
 // Drops (or keeps, without copying) the first sample of a series.
@@ -528,7 +501,7 @@ const queryHasCumulativeData = (
 // If the schemas haven't loaded, this is a decent heuristic
 const groupHasPointWorthDropping = (g: ChartGroup): boolean =>
   match(g)
-    .with('empty-timeseries', () => false)
+    .with({ kind: 'empty' }, () => false)
     // Aligned/joined tables may be derived from cumulatives, so we assume it's worth offering
     .with({ kind: 'joined' }, { kind: 'aligned' }, () => true)
     // Gauges are, by definition, not cumulative, so you'll never see a giant first point
@@ -560,13 +533,23 @@ type ChartDisplay = { key: string } & (
 )
 
 // Virtualization relies on a list of near-same-size items, so we flatten out all the groups
+// The table's full time span, so every chart in it picks the same tick label
+// format (time vs. date and time). This doesn't set the x range: each chart's x
+// scale still fits its own data
+const tableTimeRange = (charts: { timestamps: number[] }[]) => {
+  const timestamps = charts.flatMap((c) => c.timestamps)
+  const min = R.firstBy(timestamps, (t) => t)
+  const max = R.firstBy(timestamps, (t) => -t)
+  return { startTime: new Date(min ?? 0), endTime: new Date(max ?? 0) }
+}
+
 const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
-  groups.flatMap((g, t): ChartDisplay[] => {
-    if (g === 'empty-timeseries') return [{ kind: 'empty', key: `t${t}` }]
-    const { startTime, endTime } = g
-    return match(g)
+  groups.flatMap((g, t) =>
+    match(g)
+      .returnType<ChartDisplay[]>()
+      .with({ kind: 'empty' }, () => [{ kind: 'empty', key: `t${t}` }])
       .with({ kind: 'distributions' }, ({ charts }) =>
-        charts.map((chart, i): ChartDisplay => ({
+        charts.map((chart, i) => ({
           kind: 'heatmap',
           key: `t${t}.${i}`,
           name: chart.name,
@@ -578,12 +561,12 @@ const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
           }),
         }))
       )
-      .with({ kind: 'unaligned' }, ({ charts }) =>
-        charts.map((chart, i): ChartDisplay => ({
+      .with({ kind: 'unaligned' }, ({ charts }) => {
+        const timeRange = tableTimeRange(charts)
+        return charts.map((chart, i) => ({
           kind: 'chart',
           key: `t${t}.${i}`,
-          startTime,
-          endTime,
+          ...timeRange,
           name: chart.name,
           description: chart.description,
           ...trimSeries(trim, {
@@ -591,13 +574,13 @@ const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
             data: [chart.data],
           }),
         }))
-      )
-      .with({ kind: 'joined' }, { kind: 'aligned' }, ({ charts }) =>
-        charts.map((chart, i): ChartDisplay => ({
+      })
+      .with({ kind: 'joined' }, { kind: 'aligned' }, ({ charts }) => {
+        const timeRange = tableTimeRange(charts)
+        return charts.map((chart, i) => ({
           kind: 'chart',
           key: `t${t}.${i}`,
-          startTime,
-          endTime,
+          ...timeRange,
           name: chart.name,
           description: chart.description,
           seriesLabels: chart.data.map((l) => l.label),
@@ -606,9 +589,9 @@ const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
             data: chart.data.map((d) => d.values),
           }),
         }))
-      )
+      })
       .exhaustive()
-  })
+  )
 
 function TimeseriesDocsButton({ name }: { name: string }) {
   const [showDocs, setShowDocs] = useState(false)
