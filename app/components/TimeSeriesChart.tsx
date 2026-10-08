@@ -193,12 +193,6 @@ export function TimeSeriesChart({
   const chartOptions = useMemo(
     () =>
       ({
-        scales: {
-          x: {},
-          y: {
-            range: (_u, _min, max) => uPlot.rangeNum(0, max * 1.2, 0.1, true),
-          },
-        },
         series: [
           {},
           ...R.times(dataLength, (i) => ({
