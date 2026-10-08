@@ -17,7 +17,7 @@ import {
 } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useCurrentUser } from '~/hooks/use-current-user'
@@ -68,7 +68,8 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
     >
-      <ListboxField
+      <ComboboxField
+        placeholder="Select a user or group"
         name="identityId"
         items={actors.map(actorToItem)}
         label="User or group"

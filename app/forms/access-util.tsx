@@ -20,7 +20,7 @@ import {
 import { Badge } from '@oxide/design-system/ui'
 
 import { RadioFieldDyn } from '~/components/form/fields/RadioField'
-import { type ListboxItem } from '~/ui/lib/Listbox'
+import { type ComboboxItem } from '~/ui/lib/Combobox'
 import { Message } from '~/ui/lib/Message'
 import { Radio } from '~/ui/lib/Radio'
 import { docLinks } from '~/util/links'
@@ -59,7 +59,7 @@ const fleetRoleDescriptions: Record<FleetRole, string> = {
   viewer: 'View fleet-level resources',
 }
 
-export const actorToItem = (actor: Actor): ListboxItem => ({
+export const actorToItem = (actor: Actor): ComboboxItem => ({
   value: actor.id,
   label: (
     <>

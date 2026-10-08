@@ -16,7 +16,7 @@ import {
 } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -71,7 +71,8 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         onDismiss()
       }}
     >
-      <ListboxField
+      <ComboboxField
+        placeholder="Select a user or group"
         name="identityId"
         items={actors.map(actorToItem)}
         label="User or group"

@@ -56,7 +56,7 @@ test('Click through fleet access page', async ({ page }) => {
   await page.getByRole('button', { name: 'Add user or group' }).click()
   await expect(page.getByRole('heading', { name: /Add user or group/ })).toBeVisible()
 
-  await page.getByRole('button', { name: /User or group/ }).click()
+  await page.getByRole('combobox', { name: 'User or group' }).click()
   // users already assigned should not be in the list
   await expect(page.getByRole('option', { name: 'Hannah Arendt' })).toBeHidden()
   await expect(page.getByRole('option', { name: 'Jacob Klein' })).toBeVisible()
@@ -108,7 +108,7 @@ test('Add a group to fleet access', async ({ page }) => {
   await expect(page.getByRole('cell', { name: 'web-devs' })).toBeHidden()
 
   await page.getByRole('button', { name: 'Add user or group' }).click()
-  await page.getByRole('button', { name: /User or group/ }).click()
+  await page.getByRole('combobox', { name: 'User or group' }).click()
 
   // groups appear before users in the picker, with a "Group" badge
   await expect(page.getByRole('option', { name: /web-devs/ })).toBeVisible()

@@ -25,9 +25,12 @@ test('Silo Access page shows and edits silo role assignments', async ({ page }) 
   // add Jacob Klein as collaborator
   await page.getByRole('button', { name: 'Add user or group' }).click()
   await expect(page.getByRole('heading', { name: 'Add user or group' })).toBeVisible()
-  await page.getByRole('button', { name: 'User or group' }).click()
+  await page.getByRole('combobox', { name: 'User or group' }).click()
   // already-assigned identities aren't offered
   await expect(page.getByRole('option', { name: 'Hannah Arendt' })).toBeHidden()
+  // typing filters the options
+  await page.getByRole('combobox', { name: 'User or group' }).fill('jac')
+  await expect(page.getByRole('option', { name: 'Hans Jonas' })).toBeHidden()
   await page.getByRole('option', { name: 'Jacob Klein' }).click()
   await page.getByRole('radio', { name: /^Collaborator / }).click()
   await page.getByRole('button', { name: 'Assign role' }).click()
@@ -244,7 +247,7 @@ test('Assign role to a user with no direct role from the row action', async ({ p
 
   // Modal opens with the user already targeted (no listbox), and no role pre-selected
   await expect(page.getByRole('heading', { name: /Add silo role/ })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'User or group' })).toBeHidden()
+  await expect(page.getByRole('combobox', { name: 'User or group' })).toBeHidden()
   await expect(page.getByRole('dialog')).toContainText('Jacob Klein')
 
   await page.getByRole('radio', { name: /^Collaborator / }).click()
