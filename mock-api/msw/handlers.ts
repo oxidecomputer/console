@@ -45,6 +45,7 @@ import { GiB } from '~/util/units'
 import { alertClasses, PROBE_ALERT_ID } from '../alert'
 import { defaultSilo, toIdp } from '../silo'
 import { SUPPORT_BUNDLE_SIZE } from '../support-bundle'
+import { timeseriesSchemas } from '../timeseries-schema'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
 import { resendableAlerts, retryPendingDeliveries, validateSubscription } from './alert'
@@ -2230,6 +2231,10 @@ export const handlers = makeHandlers({
     await delay(1000)
     return handleOxqlMetrics(body)
   },
+  systemTimeseriesSchemaList({ cookies }) {
+    requireFleetViewer(cookies)
+    return { items: timeseriesSchemas }
+  },
   siloMetric: handleMetrics,
   systemUpdateRepositoryList: ({ cookies }) => {
     requireFleetViewer(cookies)
@@ -3118,7 +3123,6 @@ export const handlers = makeHandlers({
   systemNetworkingSettingsUpdate: NotImplemented,
   systemNetworkingSettingsView: NotImplemented,
   systemQuotasList: NotImplemented,
-  systemTimeseriesSchemaList: NotImplemented,
   systemUpdateRecoveryFinish: NotImplemented,
   systemUpdateRepositoryView: NotImplemented,
   systemUpdateTrustRootCreate: NotImplemented,

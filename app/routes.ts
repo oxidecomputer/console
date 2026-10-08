@@ -71,6 +71,7 @@ export default [
         ]),
         empty('issues'),
         route('utilization', 'pages/system/UtilizationPage.tsx'),
+        route('metrics-explorer', 'pages/system/MetricsExplorer.tsx'),
         route('inventory', 'pages/system/inventory/InventoryPage.tsx', [
           index('routes/inventory-index.tsx'),
           route('sleds', 'pages/system/inventory/SledsTab.tsx'),

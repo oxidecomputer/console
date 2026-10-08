@@ -592,17 +592,16 @@ export default function CreateInstanceForm() {
               description: values.description,
               memory: instance.memory * GiB,
               ncpus: instance.ncpus,
-              disks: values.otherDisks.map(
-                (d): InstanceDiskAttachment =>
-                  d.action === 'attach'
-                    ? { type: 'attach', name: d.name }
-                    : {
-                        type: 'create',
-                        name: d.name,
-                        description: d.description,
-                        size: d.size,
-                        diskBackend: d.diskBackend,
-                      }
+              disks: values.otherDisks.map((d): InstanceDiskAttachment =>
+                d.action === 'attach'
+                  ? { type: 'attach', name: d.name }
+                  : {
+                      type: 'create',
+                      name: d.name,
+                      description: d.description,
+                      size: d.size,
+                      diskBackend: d.diskBackend,
+                    }
               ),
               bootDisk,
               externalIps,

@@ -128,6 +128,7 @@ export const pb = {
   siloImage: (params: PP.SiloImage) => href('/images/:image', params),
 
   fleetAccess: () => href('/system/access'),
+  systemMetricsExplorer: () => href('/system/metrics-explorer'),
   systemUtilization: () => href('/system/utilization'),
 
   ipPools: () => href('/system/networking/ip-pools'),

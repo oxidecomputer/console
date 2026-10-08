@@ -38,6 +38,9 @@ for f in Api.ts msw-handlers.ts validate.ts; do
   mv "$GEN_DIR/$f.tmp" "$GEN_DIR/$f"
 done
 
+# skips fetching if already generated for this commit
+node tools/generate_timeseries_metadata.ts
+
 npm run fmt
 
 cat > $GEN_DIR/OMICRON_VERSION <<EOF
