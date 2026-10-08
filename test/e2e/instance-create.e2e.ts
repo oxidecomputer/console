@@ -192,6 +192,24 @@ test('duplicate instance name produces visible error', async ({ page }) => {
   await expect(page.getByText('Instance name already exists')).toBeVisible()
 })
 
+test('switching image tabs sizes boot disk for the new tab', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  const diskSizeInput = page.getByRole('textbox', { name: 'Disk size (GiB)' })
+
+  // 6 GiB image gets rounded up
+  await selectAProjectImage(page, 'image-3')
+  await expect(diskSizeInput).toHaveValue('10')
+
+  // 1 GiB image leaves the size alone, but we can now shrink it
+  await selectASiloImage(page, 'ubuntu-22-04')
+  await expect(diskSizeInput).toHaveValue('10')
+  await fillNumberInput(diskSizeInput, '2')
+
+  // back on the project tab, image-3 is still selected and 2 GiB is too small
+  await page.getByRole('tab', { name: 'Project images' }).click()
+  await expect(diskSizeInput).toHaveValue('10')
+})
+
 test('can create an instance with custom hardware', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 

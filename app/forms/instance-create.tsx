@@ -589,17 +589,16 @@ export default function CreateInstanceForm() {
               description: values.description,
               memory: instance.memory * GiB,
               ncpus: instance.ncpus,
-              disks: values.otherDisks.map(
-                (d): InstanceDiskAttachment =>
-                  d.action === 'attach'
-                    ? { type: 'attach', name: d.name }
-                    : {
-                        type: 'create',
-                        name: d.name,
-                        description: d.description,
-                        size: d.size,
-                        diskBackend: d.diskBackend,
-                      }
+              disks: values.otherDisks.map((d): InstanceDiskAttachment =>
+                d.action === 'attach'
+                  ? { type: 'attach', name: d.name }
+                  : {
+                      type: 'create',
+                      name: d.name,
+                      description: d.description,
+                      size: d.size,
+                      diskBackend: d.diskBackend,
+                    }
               ),
               bootDisk,
               externalIps,
@@ -703,9 +702,19 @@ export default function CreateInstanceForm() {
           // default to the project images tab if there are only project images
           defaultValue={defaultSource}
           onValueChange={(val) => {
-            setValue('bootDiskSourceType', val as BootDiskSourceType)
-            if (imageSizeGiB && imageSizeGiB > bootDiskSize) {
-              setValue('bootDiskSize', diskSizeNearest10(imageSizeGiB))
+            const sourceType = val as BootDiskSourceType
+            setValue('bootDiskSourceType', sourceType)
+            // size the disk for the image selected on the new tab, not the old one
+            const newImageId = match(sourceType)
+              .with('siloImage', () => siloImageSource)
+              .with('projectImage', () => projectImageSource)
+              .with('disk', () => undefined)
+              .exhaustive()
+            const newImage = allImages.find((i) => i.id === newImageId)
+            if (!newImage) return
+            const newImageSizeGiB = newImage.size / GiB
+            if (newImageSizeGiB > bootDiskSize) {
+              setValue('bootDiskSize', diskSizeNearest10(newImageSizeGiB))
             }
           }}
         >
