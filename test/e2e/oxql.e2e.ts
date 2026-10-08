@@ -1,0 +1,329 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+import { expect, test, type Page, type Locator } from '@playwright/test'
+
+import { oxqlQueries } from './oxql-queries'
+import { clipboardText, expectToast } from './utils'
+
+const runQuery = async (page: Page, query?: string) => {
+  if (query !== undefined) await page.getByRole('textbox').fill(query)
+  await page.getByRole('button', { name: 'Run query' }).click()
+
+  const loading = page.getByLabel('Chart loading')
+  await expect(loading).toBeVisible()
+  await expect(loading).toBeHidden()
+  await expect(page.getByRole('alert')).toBeHidden()
+}
+
+/**
+ * CodeMirror ignores Enter for `interactionDelay` (75ms) after the completion
+ * list opens, so a keypress the user made before seeing the tooltip can't
+ * accept an option.
+ */
+const acceptCompletion = async (page: Page) => {
+  await page.waitForTimeout(150)
+  await page.keyboard.press('Enter')
+}
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/system/metrics-explorer')
+  await expect(page.getByRole('heading', { name: 'Metrics Explorer' })).toBeVisible()
+})
+
+test('unaligned multi-table query renders a chart per series', async ({ page }) => {
+  await runQuery(page, oxqlQueries.unalignedTables)
+
+  // Unaligned queries get you a chart for every series in the result, splitting
+  // up tables (since each list of values isn't aligned with the others!)
+  await expect(page.getByRole('figure')).toHaveCount(4) // product of table count and fields-per-table
+  await expect(
+    page.getByRole('figure', { name: 'hardware_component:temperature' })
+  ).toHaveCount(2)
+  await expect(
+    page.getByRole('figure', { name: 'hardware_component:sensor_error_count' })
+  ).toHaveCount(2)
+})
+
+const getLegendText = async (locator: Locator): Promise<string[]> =>
+  locator.getByRole('listitem').allTextContents()
+
+test('aligned multi-table query renders a chart per table', async ({ page }) => {
+  await runQuery(page, oxqlQueries.bytesSentAndReceived)
+
+  const figures = page.getByRole('figure')
+  // Aligned tab
+  await expect(figures).toHaveCount(2) // number of tables in query
+  const first = figures.first()
+
+  // On aligned queries, there's one chart per table queried, and one line (and
+  // legend item) per field combination. The legend item depends on mock data,
+  // so we just snapshot
+  const firstLegendText = await getLegendText(first)
+  expect(firstLegendText).toEqual([
+    // depends on whatever mock data returns
+    'instance_id: 935499b3-fd96-432a-9c21-83a3dc1eece4',
+    'instance_id: b5946edc-5bed-4597-88ab-9a8beb9d32a4',
+  ])
+
+  const all = await figures.all()
+  for (let i = 1; i < all.length; i += 1) {
+    // Every chart should have the same sequence of fields, even if the actual
+    // combinations are dynamic
+    expect(await getLegendText(all[i])).toEqual(firstLegendText)
+  }
+})
+
+test('joined query renders a chart per instance with a legend line per metric', async ({
+  page,
+}) => {
+  await runQuery(page, oxqlQueries.multiJoinedTables)
+
+  const figures = page.getByRole('figure')
+  // Joined queries are an inversion of aligned queries: they have one chart per
+  // _field combination,_ and one line/legend item per table in the join
+  await expect(figures).toHaveCount(3) // depends on mock data
+  const first = figures.first()
+  await expect(first.getByRole('listitem')).toHaveText([
+    'sled_data_link:bytes_sent',
+    'sled_data_link:errors_sent',
+    'sled_data_link:bytes_received',
+    'sled_data_link:errors_received',
+  ])
+})
+
+test('"Drop first point" appears only for cumulative-derived charts', async ({ page }) => {
+  const dropFirst = page.getByLabel('Drop first data point')
+
+  // a plain gauge is never cumulative, so there's no giant first point to drop
+  await runQuery(page, oxqlQueries.basicTctl)
+  await expect(dropFirst).toBeHidden()
+
+  // joined/aligned tables may derive from cumulatives, so the option shows up
+  // TODO: if you know the schemas, you can check which tables are cumulative!
+  await runQuery(page, oxqlQueries.multiJoinedTables)
+  await expect(dropFirst).toBeChecked()
+
+  await dropFirst.uncheck()
+  await expect(page.getByRole('figure')).toHaveCount(3)
+})
+
+test('results list is virtualized', async ({ page }) => {
+  const getFirstRenderedIndex = () =>
+    page
+      .locator('[data-index]')
+      .first()
+      .evaluate((el) => Number(el.getAttribute('data-index')))
+
+  await runQuery(page, `{${Array(100).fill('get sled_data_link:bytes_sent').join(';')}}`)
+
+  const figures = page.getByRole('figure')
+  await expect(figures.first()).toBeVisible()
+  expect(await getFirstRenderedIndex()).toBe(0)
+  await expect.poll(() => figures.count()).toBeLessThan(20) // arbitrary, "not everything"
+
+  // double check we're actually virtualizing!
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+  await expect.poll(getFirstRenderedIndex).not.toBe(0)
+})
+
+test('picking an example populates the query and runs it', async ({ page }) => {
+  await page.getByRole('button', { name: 'Power shelf fan speeds' }).click()
+  // the editor is a contenteditable, so assert on text rather than value
+  await expect(page.getByRole('textbox')).toContainText('get hardware_component:fan_speed')
+
+  // the query runs automatically, no need to click "Run query"
+  const loading = page.getByLabel('Chart loading')
+  await expect(loading).toBeVisible()
+  await expect(loading).toBeHidden()
+  await expect(page.getByRole('figure').first()).toBeVisible()
+})
+
+test('chart title opens timeseries docs', async ({ page }) => {
+  await page.getByRole('button', { name: 'Power shelf fan speeds' }).click()
+  await page
+    .getByRole('button', { name: 'hardware_component:fan_speed details' })
+    .first()
+    .click()
+
+  const modal = page.getByRole('dialog', { name: 'Timeseries details' })
+  await expect(modal).toBeVisible()
+  // read-only modal focuses its title instead of the docs link at the bottom
+  await expect(modal.getByRole('heading', { name: 'Timeseries details' })).toBeFocused()
+  await expect(
+    modal.getByRole('heading', { name: 'hardware_component:fan_speed' })
+  ).toBeVisible()
+  // descriptions come from the snapshot, not the schema endpoint
+  await expect(
+    modal.getByText('A fan speed measurement, in rotations per minute')
+  ).toBeVisible()
+  await expect(modal.getByText('f32', { exact: true })).toBeVisible()
+  await expect(modal.getByText('rpm', { exact: true })).toBeVisible()
+  await expect(modal.getByText('hubris_archive_id')).toBeVisible()
+  await expect(modal.getByRole('link', { name: 'Timeseries schemas' })).toHaveAttribute(
+    'href',
+    'https://docs.oxide.computer/guides/metrics/timeseries-schemas#_hardware_componentfan_speed'
+  )
+})
+
+test('joined chart title has docs for each timeseries', async ({ page }) => {
+  await page.getByRole('button', { name: 'Bytes sent & received per sled' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'sled_data_link:bytes_sent' }).first()
+  ).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'sled_data_link:bytes_received' }).first()
+  ).toBeVisible()
+
+  await page
+    .getByRole('button', { name: 'sled_data_link:bytes_received details' })
+    .first()
+    .click()
+  const received = page.getByRole('dialog', { name: 'Timeseries details' })
+  await expect(
+    received.getByRole('heading', { name: 'sled_data_link:bytes_received' })
+  ).toBeVisible()
+  await expect(received.getByText('Number of bytes received on the link')).toBeVisible()
+  await expect(received.getByText('Number of bytes sent on the link')).toBeHidden()
+  await page.keyboard.press('Escape')
+  await expect(received).toBeHidden()
+
+  await page
+    .getByRole('button', { name: 'sled_data_link:bytes_sent details' })
+    .first()
+    .click()
+  const sent = page.getByRole('dialog', { name: 'Timeseries details' })
+  await expect(
+    sent.getByRole('heading', { name: 'sled_data_link:bytes_sent' })
+  ).toBeVisible()
+  await expect(sent.getByText('Number of bytes sent on the link')).toBeVisible()
+})
+
+test('editor completions walk from target to metric', async ({ page }) => {
+  const textbox = page.getByRole('textbox')
+  await textbox.click()
+  await page.keyboard.type('get hardware')
+
+  const options = page.getByRole('listbox').getByRole('option')
+  await expect(async () => {
+    // ctrl-space explicitly re-requests completions in case the schema list
+    // hadn't loaded when typing started
+    await page.keyboard.press('Control+Space')
+    await expect(options.first()).toBeVisible({ timeout: 1000 })
+  }).toPass()
+
+  // the first half of a name completes on its own, so this is the target, not
+  // hardware_component:fan_speed
+  await expect(options).toHaveText(['hardware_component4 metrics'])
+
+  // accept with the keyboard rather than clicking: the info tooltip can
+  // overlap the option and intercept pointer events
+  await acceptCompletion(page)
+  await expect(textbox).toContainText('get hardware_component:')
+
+  // accepting a target reopens the list on that target's metrics
+  await expect(options.getByText('fan_speed', { exact: true })).toBeVisible()
+  await page.keyboard.type('fan') // narrow until fan_speed is the top match
+  await acceptCompletion(page)
+  await expect(textbox).toContainText('get hardware_component:fan_speed')
+})
+
+test('results can be copied as JSON', async ({ page }) => {
+  await runQuery(page, oxqlQueries.basicTctl)
+
+  // result summary is visible
+  await expect(page.getByText('1 timeseries', { exact: true })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Results actions' }).click()
+  await page.getByRole('menuitem', { name: 'Copy as JSON' }).click()
+  await expectToast(page, 'Results copied as JSON')
+})
+
+test('copied JSON actually matches the response body', async ({ page, browserName }) => {
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip(
+    browserName === 'webkit',
+    'navigator.clipboard.readText() is forbidden in Safari.'
+  )
+
+  const response = page.waitForResponse('**/v1/system/timeseries/query')
+  // the most likely error here is a failure to restore snake case, so
+  // histograms are a decent test (they always include start_times)
+  await runQuery(page, oxqlQueries.bytesSentAndReceived)
+  const raw = await response.then((r) => r.json())
+
+  await page.getByRole('button', { name: 'Results actions' }).click()
+  await page.getByRole('menuitem', { name: 'Copy as JSON' }).click()
+
+  expect(JSON.stringify(JSON.parse(await clipboardText(page)))).toBe(JSON.stringify(raw))
+})
+
+test('a query the backend rejects surfaces an error instead of a chart', async ({
+  page,
+}) => {
+  const textbox = page.getByRole('textbox')
+  await textbox.fill('junk junk junk!')
+  await page.getByRole('button', { name: 'Run query' }).click()
+
+  // the server's parse error is shown below the editor, minus the caret
+  // line, which assumes a monospace terminal
+  const error = page.getByRole('alert')
+  await expect(error).toContainText('Error at 1:1')
+  await expect(error).toContainText('Expected: error at 1:1')
+  await expect(error).not.toContainText('^')
+  // and the editor border turns red
+  await expect(textbox).toHaveAttribute('aria-invalid', 'true')
+  await expect(page.getByRole('figure')).toHaveCount(0)
+})
+
+test('parse errors underline the offending spot in the editor', async ({ page }) => {
+  const textbox = page.getByRole('textbox')
+  await textbox.fill('get sled_data_link:bytes_sent | oops')
+  await page.getByRole('button', { name: 'Run query' }).click()
+
+  await expect(page.getByRole('alert')).toBeVisible()
+
+  // the error underline has no semantic representation, so target the class
+  const underlined = page.locator('.oxql-error-underline')
+  await expect(underlined).toHaveText('oops')
+  // guard against the mark existing but the CSS not applying
+  await expect(underlined).toHaveCSS('text-decoration-line', 'underline')
+
+  // editing the query invalidates the position, clearing the underline
+  await textbox.pressSequentially('x')
+  await expect(underlined).toBeHidden()
+})
+
+test('pages writes the query to the URL after a successful run', async ({ page }) => {
+  // a successful run writes the query to the URL
+  await runQuery(page, oxqlQueries.basicTctl)
+  await expect
+    .poll(() => new URL(page.url()).searchParams.get('query'))
+    .toBe(oxqlQueries.basicTctl)
+})
+
+test('page loads queries from the URL when set', async ({ page }) => {
+  await page.goto(`${page.url()}?query=${encodeURIComponent(oxqlQueries.basicTctl)}`)
+  // the editor is a contenteditable, so assert line by line rather than on value
+  const textbox = page.getByRole('textbox')
+  await expect(textbox).toContainText('get hardware_component:amd_cpu_tctl')
+  await expect(textbox).toContainText('| filter timestamp > @now() - 1m')
+})
+
+test('cursor sits at the start of the line when the query is empty', async ({ page }) => {
+  // CodeMirror draws its own cursor because Firefox puts the native caret in
+  // the wrong spot when the line contains nothing but the placeholder widget.
+  // The cursor has no semantic representation, so target the class.
+  await page.getByRole('textbox').click()
+  const cursor = await page.locator('.cm-cursor').boundingBox()
+  const placeholder = await page.locator('.cm-placeholder').boundingBox()
+
+  // the cursor sits where the placeholder text starts, give or take its own width
+  expect(Math.abs(cursor!.x - placeholder!.x)).toBeLessThan(2)
+  expect(Math.abs(cursor!.y - placeholder!.y)).toBeLessThan(1)
+})
