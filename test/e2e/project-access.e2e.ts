@@ -50,6 +50,7 @@ test('Project access shows and edits project role assignments', async ({ page })
   await page.getByRole('combobox', { name: 'User or group' }).click()
   // already-assigned identities aren't offered
   await expect(page.getByRole('option', { name: 'Jacob Klein' })).toBeHidden()
+  await page.getByRole('combobox', { name: 'User or group' }).fill('Simone de Beauvoir')
   await page.getByRole('option', { name: 'Simone de Beauvoir' }).click()
   await page.getByRole('radio', { name: /^Collaborator / }).click()
   await page.getByRole('button', { name: 'Assign role' }).click()
@@ -84,7 +85,7 @@ test('Project access shows and edits project role assignments', async ({ page })
   // effective (strongest) role first, the badge stays silo.admin with a +1 for
   // the added project role
   await page.getByRole('button', { name: 'Add user or group' }).click()
-  await page.getByRole('combobox', { name: 'User or group' }).click()
+  await page.getByRole('combobox', { name: 'User or group' }).fill('Hannah Arendt')
   await page.getByRole('option', { name: 'Hannah Arendt' }).click()
   await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.getByRole('button', { name: 'Assign role' }).click()

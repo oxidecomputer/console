@@ -63,6 +63,7 @@ test('Click through fleet access page', async ({ page }) => {
   await expect(page.getByRole('option', { name: 'Hans Jonas' })).toBeVisible()
   await expect(page.getByRole('option', { name: 'Simone de Beauvoir' })).toBeVisible()
 
+  await page.getByRole('combobox', { name: 'User or group' }).fill('Jacob Klein')
   await page.getByRole('option', { name: 'Jacob Klein' }).click()
   await page.getByRole('radio', { name: /^Collaborator / }).click()
   await page.getByRole('button', { name: 'Assign role' }).click()
