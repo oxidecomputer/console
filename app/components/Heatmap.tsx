@@ -323,17 +323,17 @@ export function Heatmap({
             top={hover.top}
             offset={[hover.leftRight, hover.topBottom]}
             timestamp={timestamps[hover.col]}
+            label={
+              <>
+                {formatterRef.current(bins[hover.row])}
+                {bins[hover.row + 1] === undefined
+                  ? `+`
+                  : `\u2013${formatterRef.current(bins[hover.row + 1])}`}
+                {unit && <span className="ml-1">{unit}</span>}
+              </>
+            }
           >
-            <div className="text-secondary">
-              {formatterRef.current(bins[hover.row])}
-              {bins[hover.row + 1] === undefined
-                ? `+`
-                : `\u2013${formatterRef.current(bins[hover.row + 1])}`}
-              {unit && <span className="text-secondary ml-1">{unit}</span>}
-            </div>
-            <div className="text-raise">
-              {(distributions[hover.col]?.counts[hover.row] ?? 0).toLocaleString()} samples
-            </div>
+            {(distributions[hover.col]?.counts[hover.row] ?? 0).toLocaleString()} samples
           </ChartTooltip>
         </>
       )}

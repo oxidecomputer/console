@@ -16,6 +16,9 @@ type ChartTooltipProps = {
   left: number
   top: number
   offset: [LeftRight, TopBottom]
+  /** What's being hovered, e.g. a series name or bin range */
+  label: ReactNode
+  /** The hovered value */
   children: ReactNode
 }
 
@@ -41,11 +44,12 @@ export function ChartTooltip({
   left,
   top,
   offset,
+  label,
   children,
 }: ChartTooltipProps) {
   return (
     <div
-      className="pointer-events-none absolute z-10 w-max"
+      className="pointer-events-none absolute z-10 w-max max-w-80"
       style={{
         left: left,
         top: top,
@@ -59,7 +63,8 @@ export function ChartTooltip({
         <div className="border-secondary border-b px-3 py-2 pr-6">
           {longDateTime(timestamp)}
         </div>
-        <div className="px-3 py-2">{children}</div>
+        <div className="border-secondary border-b px-3 py-2">{label}</div>
+        <div className="text-raise px-3 py-2">{children}</div>
       </div>
     </div>
   )

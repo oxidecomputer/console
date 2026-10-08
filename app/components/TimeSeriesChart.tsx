@@ -304,16 +304,14 @@ export function TimeSeriesChart({
           left={tooltip.left}
           top={tooltip.top}
           offset={[tooltip.leftRight, tooltip.topBottom]}
-        >
-          <div className="text-secondary">
-            {seriesLabels
+          label={
+            seriesLabels
               ? seriesLabel(title, tooltip.hoveredSeriesIndex, seriesLabels)
-              : title}
-          </div>
-          <div className="text-raise">
-            {hovered.value.toLocaleString()}
-            {unit && <span className="text-secondary ml-1">{unit}</span>}
-          </div>
+              : title
+          }
+        >
+          {hovered.value.toLocaleString()}
+          {unit && <span className="text-secondary ml-1">{unit}</span>}
         </ChartTooltip>
       )}
     </FramedChart>
