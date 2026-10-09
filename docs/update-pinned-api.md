@@ -3,7 +3,7 @@
 ## Instructions
 
 1. Update [`OMICRON_VERSION`](/OMICRON_VERSION) with new Omicron commit hash
-1. Update the generated API client by running `npm run gen-api`. This will automatically check out the omicron commit specified in `OMICRON_VERSION`. It also snapshots timeseries descriptions and units from omicron's oximeter schema files, which the API doesn't return. If you forget this step, a safety test in `app/api` will fail.
+1. Update the generated API client by running `npm run gen-api`. This will automatically check out the omicron commit specified in `OMICRON_VERSION`. It also snapshots timeseries descriptions and units from omicron's oximeter schema files, which the API doesn't return, and the paths Nexus serves the console on, which a test checks against the console's routes, and the Content-Security-Policy Nexus serves the console with, which the dev and preview servers use. If you forget this step, a safety test in `app/api` will fail.
 1. Run `npm run tsc` and fix any type errors introduced by changes to the generated code. New endpoints must be added to the handler map in `mock-api/msw/handlers.ts`; use `NotImplemented` unless the UI needs them.
 1. Commit and push to a branch
 

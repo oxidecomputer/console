@@ -24,7 +24,8 @@ import os from 'node:os'
 import path from 'node:path'
 
 import * as R from 'remeda'
-import { parse } from 'smol-toml'
+import { parse as parseToml } from 'smol-toml'
+import * as z from 'zod'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const GEN_DIR = path.join(ROOT, 'app/api/__generated__')
@@ -100,18 +101,26 @@ const TIMESERIES_FILE = 'timeseries-metadata.ts'
 const SCHEMA_DIR = 'oximeter/oximeter/schema'
 
 // fields are listed per version; we only care about the latest
-type Versioned = { versions: { fields: string[] }[] }
+const Versioned = z.object({
+  versions: z.array(z.object({ fields: z.array(z.string()) })).min(1),
+})
+type Versioned = z.infer<typeof Versioned>
 
-type SchemaToml = {
-  target: Versioned & { name: string; description: string }
-  metrics: (Versioned & {
-    name: string
-    description: string
-    units: string
-    datum_type: string
-  })[]
-  fields: Record<string, { type: string; description: string }>
-}
+// Units, datum types, and field types stay plain strings here because tsc
+// checks them against the API enums in the generated file
+const SchemaToml = z.object({
+  target: Versioned.extend({ name: z.string(), description: z.string() }),
+  metrics: z.array(
+    Versioned.extend({
+      name: z.string(),
+      description: z.string(),
+      units: z.string(),
+      datum_type: z.string(),
+    })
+  ),
+  fields: z.record(z.string(), z.object({ type: z.string(), description: z.string() })),
+})
+type SchemaToml = z.infer<typeof SchemaToml>
 
 /**
  * Snapshot timeseries descriptions and units from the oximeter schema TOML
@@ -140,19 +149,25 @@ async function generateTimeseriesMetadata() {
   const schemas = await Promise.all(
     tomlFiles.map(async (f) => {
       const text = await fetchOk(f.download_url).then((r) => r.text())
-      return {
-        file: path.basename(f.name, '.toml'),
-        ...(parse(text) as unknown as SchemaToml),
+      const result = SchemaToml.safeParse(parseToml(text))
+      if (!result.success) {
+        throw new Error(`Invalid schema in ${f.name}:\n${z.prettifyError(result.error)}`)
       }
+      return { file: path.basename(f.name, '.toml'), ...result.data }
     })
   )
 
-  const latestFields = (fields: SchemaToml['fields'], { versions }: Versioned) =>
-    versions[versions.length - 1].fields.map((name) => ({
-      name,
-      fieldType: fields[name].type,
-      description: fields[name].description,
-    }))
+  const latestFields = (
+    file: string,
+    fields: SchemaToml['fields'],
+    { versions }: Versioned
+  ) =>
+    versions[versions.length - 1].fields.map((name) => {
+      const field = fields[name]
+      if (!field)
+        throw new Error(`${file}.toml: field "${name}" is not defined in [fields]`)
+      return { name, fieldType: field.type, description: field.description }
+    })
 
   // Target fields are shared by every metric on the target, so they're stored
   // once per target instead of being repeated on each timeseries. Targets are
@@ -163,7 +178,7 @@ async function generateTimeseriesMetadata() {
     R.sortBy((s) => s.file),
     R.mapToObj(({ file, target, fields }) => [
       file,
-      { description: target.description, fields: latestFields(fields, target) },
+      { description: target.description, fields: latestFields(file, fields, target) },
     ])
   )
 
@@ -176,7 +191,7 @@ async function generateTimeseriesMetadata() {
         description: metric.description,
         units: metric.units,
         datumType: metric.datum_type,
-        fields: latestFields(fields, metric),
+        fields: latestFields(file, fields, metric),
       }))
     ),
     R.sortBy((t) => t.name),
@@ -217,11 +232,96 @@ export const timeseries: Partial<
 }
 
 //////////////////////////////
+// How Nexus serves the console
+//////////////////////////////
+
+const NEXUS_CONSOLE_FILE = 'nexus-console.ts'
+const CONSOLE_API_PATH = 'nexus/src/external_api/console_api.rs'
+const HANDLERS_PATH = 'nexus/src/external_api/http_entrypoints.rs'
+const ENDPOINTS_PATH = 'nexus/external-api/src/lib.rs'
+
+/**
+ * Snapshot from the Rust source:
+ *
+ * - The Content-Security-Policy header Nexus serves the console with, so dev
+ *   and preview servers can serve the console under the same policy.
+ * - The paths Nexus serves the console's index.html on. These endpoints are
+ *   unpublished, so they aren't in the OpenAPI spec. A test checks that every
+ *   console route is covered, so a new top-level route can't ship without
+ *   Nexus serving it.
+ */
+async function generateNexusConsole() {
+  const [consoleApi, handlers, endpoints] = await Promise.all([
+    fetchOmicronFile(CONSOLE_API_PATH),
+    fetchOmicronFile(HANDLERS_PATH),
+    fetchOmicronFile(ENDPOINTS_PATH),
+  ])
+
+  // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/src/external_api/console_api.rs#L323-L334
+  const cspLiteral = consoleApi.match(
+    /CONTENT_SECURITY_POLICY,\s*HeaderValue::from_static\(\s*"([^"]*)"/
+  )?.[1]
+  if (!cspLiteral) throw new Error(`Could not find CSP in ${CONSOLE_API_PATH}`)
+
+  // A Rust string continuation (backslash-newline) also skips the next line's
+  // leading whitespace. Any other escape means the source changed shape.
+  const csp = cspLiteral.replace(/\\\n\s*/g, '')
+  if (csp.includes('\\')) throw new Error(`Unexpected escape in CSP: ${csp}`)
+
+  // The handler impls are where we can tell which endpoints serve the console:
+  // they call one of these two functions.
+  // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/src/external_api/console_api.rs#L239
+  // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/src/external_api/console_api.rs#L428
+  const consoleHandlers = handlers
+    .split(/\basync fn /)
+    .slice(1)
+    .filter((chunk) =>
+      /\b(serve_console_index|console_index_or_login_redirect)\(/.test(chunk)
+    )
+    .map((chunk) => chunk.match(/^\w+/)![0]) // split point is always followed by a name
+
+  // The paths are in the endpoint attributes on the API trait. Paths contain
+  // braces, so match up to the attribute's closing `}]` without crossing one.
+  const endpointPaths = new Map(
+    Array.from(
+      endpoints.matchAll(/#\[endpoint\s*\{((?:(?!\}\])[\s\S])*)\}\]\s*async fn (\w+)/g),
+      ([, attrs, name]) => [name, attrs.match(/\bpath\s*=\s*"([^"]+)"/)?.[1]]
+    )
+  )
+
+  const routes = consoleHandlers.map((name) => {
+    const route = endpointPaths.get(name)
+    if (!route) throw new Error(`Could not find path for ${name} in ${ENDPOINTS_PATH}`)
+    return route
+  })
+  // guard against a source change that makes the extraction silently miss things
+  if (!routes.includes('/')) throw new Error(`Expected / in ${routes.join(', ')}`)
+  routes.sort()
+
+  writeGenerated(
+    NEXUS_CONSOLE_FILE,
+    `// generated by tools/gen_api.ts from the Nexus source in omicron.
+// do not update manually. see docs/update-pinned-api.md
+
+export const nexusCsp = ${JSON.stringify(csp)}
+
+/** Dropshot path templates that Nexus serves the console's index.html on */
+export const nexusConsoleRoutes = ${JSON.stringify(routes)}
+`
+  )
+
+  console.info(
+    `wrote Nexus CSP and ${routes.length} console routes to ${NEXUS_CONSOLE_FILE}`
+  )
+}
+
+//////////////////////////////
 // Run
 //////////////////////////////
 
 const apiVersion = await generateApiClient()
 await generateTimeseriesMetadata()
+await generateNexusConsole()
 
 execFileSync(path.join(BIN, 'oxfmt'), [GEN_DIR], { stdio: 'inherit' })
 

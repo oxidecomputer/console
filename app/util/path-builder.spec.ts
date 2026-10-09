@@ -5,10 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { matchRoutes } from 'react-router'
+import { matchRoutes, type RouteObject } from 'react-router'
 import * as R from 'remeda'
 import { expect, test } from 'vitest'
 
+import { nexusConsoleRoutes } from '~/api/__generated__/nexus-console'
 import { matchesToCrumbs } from '~/hooks/use-crumbs'
 import { routes } from '~/routes'
 
@@ -223,4 +224,97 @@ test('every page reachable by breadcrumb should have a self-referential breadcru
     if (last === undefined) expect.fail(`Found no breadcrumbs for ${path}`)
     expect(dropFinalSlash(path)).toEqual(dropFinalSlash(last.path))
   }
+})
+
+// Full path of every leaf route, with optional segments expanded both ways.
+// Only leaves are pages: a route with children renders at its own path only
+// through an index child, which is itself a leaf.
+function routePaths(routes: RouteObject[], parent = ''): string[] {
+  return routes.flatMap((route) => {
+    const full = route.path?.startsWith('/')
+      ? route.path
+      : [parent, route.path].filter(Boolean).join('/')
+    if (route.children) return routePaths(route.children, full)
+    return expandOptional(full.split('/').filter(Boolean)).map((s) => '/' + s.join('/'))
+  })
+}
+
+const expandOptional = (segments: string[]): string[][] =>
+  segments.reduce<string[][]>(
+    (acc, seg) =>
+      seg.endsWith('?')
+        ? [...acc, ...acc.map((prefix) => [...prefix, seg.slice(0, -1)])]
+        : acc.map((prefix) => [...prefix, seg]),
+    [[]]
+  )
+
+// Port of dropshot's lookup_route for a single template. Dropshot splits paths
+// on `/` and drops empty segments, then walks a trie: `{name}` matches one
+// segment and `{name:.*}` matches the rest, including nothing, so
+// /projects/{path:.*} serves /projects. Checking templates one at a time gives
+// the same answer as the trie because dropshot refuses to register a node with
+// both literal and variable children, so a path matches at most one route.
+// https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/router.rs#L438-L503
+// https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/router.rs#L254-L270
+function nexusServes(template: string, pathname: string) {
+  const want = template.split('/').filter(Boolean)
+  const have = pathname.split('/').filter(Boolean)
+  for (const [i, seg] of want.entries()) {
+    if (/^\{\w+:\.\*\}$/.test(seg)) return true
+    if (i >= have.length) return false
+    // a route param like :project only matches a Nexus param, not a literal
+    if (!/^\{\w+\}$/.test(seg) && seg !== have[i]) return false
+  }
+  return want.length === have.length
+}
+
+// The Nexus test below is only as good as nexusServes, so check that it matches
+// paths the same way dropshot does. These are the cases from dropshot's router
+// tests, plus the empty wildcard match, which dropshot doesn't test but the
+// console relies on for paths like /projects.
+// https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/router.rs#L1242-L1643
+test.each([
+  ['/', '/', true],
+  ['/', '//', true],
+  ['/foo', '/foo', true],
+  ['/foo', '/foo/', true],
+  ['/foo', '//foo//', true],
+  ['/foo', '/', false],
+  ['/not{a}variable', '/not{a}variable', true],
+  ['/not{a}variable', '/not{b}variable', false],
+  ['/projects/{project_id}', '/projects', false],
+  ['/projects/{project_id}', '/projects/', false],
+  ['/projects/{project_id}', '/projects/p12345', true],
+  ['/projects/{project_id}', '/projects/p12345/', true],
+  ['/projects/{project_id}', '/projects///p12345//', true],
+  ['/projects/{project_id}', '/projects/p12345/child', false],
+  [
+    '/projects/{project_id}/instances/{instance_id}/fwrules/{fwrule_id}/info',
+    '/projects/p1/instances/i2/fwrules/fw3/info',
+    true,
+  ],
+  ['/projects/{project_id}/instances', '/projects/instances', false],
+  ['/projects/{project_id}/instances', '/projects//instances', false],
+  ['/projects/{project_id}/instances', '/projects/foo/instances', true],
+  ['/console/{path:.*}', '/console/missiles/launch', true],
+  ['/console/{path:.*}', '/console', true],
+  ['/console/{path:.*}', '/', false],
+  // console route params only match Nexus params, not literals
+  ['/projects/{project_id}', '/projects/:project', true],
+  ['/projects/new', '/projects/:project', false],
+])('nexusServes(%s, %s) is %s', (template, pathname, expected) => {
+  expect(nexusServes(template, pathname)).toBe(expected)
+})
+
+// Nexus only serves index.html on paths it knows about, so a console route
+// outside them works on client-side navigation but 404s on reload or direct
+// link. If this fails, add an endpoint for the new path in omicron next to the
+// existing ones, then bump OMICRON_VERSION once it merges.
+// https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/external-api/src/lib.rs#L9206
+test('Nexus serves the console on every route', () => {
+  const unserved = R.unique(routePaths(routes))
+    // the catch-all is for unknown paths, which Nexus is right to 404
+    .filter((p) => !p.split('/').includes('*'))
+    .filter((p) => !nexusConsoleRoutes.some((t) => nexusServes(t, p)))
+  expect(unserved).toEqual([])
 })

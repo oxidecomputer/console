@@ -16,6 +16,7 @@ import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
 import { z } from 'zod/v4'
 
+import { nexusCsp } from './app/api/__generated__/nexus-console'
 import vercelConfig from './vercel.json'
 
 const ApiMode = z.enum(['msw', 'remote', 'nexus'])
@@ -78,19 +79,22 @@ const previewTags = [
   },
 ]
 
-// vercel config is source of truth for headers
+// Serve the CSP Nexus serves, snapshotted at the pinned omicron commit, so dev
+// and preview catch CSP violations. Other headers come from the vercel config.
 const vercelHeaders = vercelConfig.headers[0].headers
-const headers = Object.fromEntries(vercelHeaders.map((h) => [h.key, h.value]))
+const headers = {
+  ...Object.fromEntries(vercelHeaders.map((h) => [h.key, h.value])),
+  'content-security-policy': nexusCsp,
+}
 
 // This is only needed for local dev to avoid breaking Vite's script injection.
 // Rather than use unsafe-inline all the time, the nonce approach is much more
 // narrowly scoped and lets us make sure everything *else* works fine without
 // unsafe-inline.
 const cspNonce = randomBytes(8).toString('hex')
-const csp = headers['content-security-policy']
 const devHeaders = {
   ...headers,
-  'content-security-policy': `${csp}; script-src 'nonce-${cspNonce}' 'self'`,
+  'content-security-policy': `${nexusCsp}; script-src 'nonce-${cspNonce}' 'self'`,
 }
 
 // see https://vitejs.dev/config/
