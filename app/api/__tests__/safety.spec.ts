@@ -11,7 +11,9 @@ import path from 'path'
 
 import { expect, it } from 'vitest'
 
+import vercelConfig from '../../../vercel.json'
 import viteConfigFn from '../../../vite.config'
+import { nexusCsp } from '../__generated__/nexus-console'
 
 it('Generated API client version matches API version specified for deployment', () => {
   const generatedVersion = fs
@@ -55,6 +57,15 @@ it('vite build target matches tsconfig target', () => {
   // guard against an undefined === undefined pass if both are removed
   expect(tsconfig.compilerOptions.target).toMatch(/^es\d{4}$/)
   expect(viteConfig.build?.target).toEqual(tsconfig.compilerOptions.target)
+})
+
+// Vercel preview deploys should run under the same CSP as Nexus. If this fails
+// after a pin bump, copy the generated policy into vercel.json.
+it('vercel.json CSP matches Nexus', () => {
+  const vercelCsp = vercelConfig.headers[0].headers.find(
+    (h) => h.key === 'content-security-policy'
+  )?.value
+  expect(vercelCsp).toEqual(nexusCsp)
 })
 
 const grepFiles = (s: string) =>
@@ -110,9 +121,9 @@ const listFiles = (s: string) =>
   execSync(`git ls-files | grep "${s}"`).toString().trim().split('\n')
 
 // avoid accidentally making an e2e file in the wrong place
-it('e2e tests are only in test/e2e or test/visual', () => {
+it('e2e tests are only in test/e2e, test/preview, or test/visual', () => {
   for (const file of listFiles('\\.e2e\\.')) {
-    expect(file).toMatch(/^test\/(e2e|visual)/)
+    expect(file).toMatch(/^test\/(e2e|preview|visual)/)
   }
 })
 
