@@ -52,7 +52,9 @@ export function Layout({ children }: { children: ReactNode }) {
               data-domain={
                 process.env.VERCEL_ENV === 'production'
                   ? 'oxide-console-preview.vercel.app'
-                  : 'console-pr-preview.vercel.app'
+                  : // not a real domain. we're only using it to distinguish prod
+                    // from preview traffic in plausible
+                    'console-pr-preview.vercel.app'
               }
             />
             <meta property="og:image" content="/assets/og-preview-image.webp" />
