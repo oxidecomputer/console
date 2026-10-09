@@ -8,9 +8,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useRef } from 'react'
 
-import { api, q, synthesizeData, type ChartDatum, type SystemMetricName } from '@oxide/api'
+import { api, q, synthesizeData, type SystemMetricName } from '@oxide/api'
 
-import { ChartContainer, ChartHeader, TimeSeriesChart } from './TimeSeriesChart'
+import {
+  ChartContainer,
+  ChartHeader,
+  TimeSeriesChart,
+  toChartSeries,
+} from './TimeSeriesChart'
 
 // The difference between system metric and silo metric is
 //   1. different endpoints
@@ -66,17 +71,19 @@ export function SiloMetric({
     )
   )
 
-  const ref = useRef<ChartDatum[] | undefined>(undefined)
+  const ref = useRef(toChartSeries(undefined))
   const isFetching = inRange.isFetching || beforeStart.isFetching
-  const data = useMemo(() => {
+  const { values, timestamps } = useMemo(() => {
     // big old hack to avoid the graph flashing with weird data while either query is loading
     if (isFetching) return ref.current
-    ref.current = synthesizeData(
-      inRange.data?.items,
-      beforeStart.data?.items,
-      startTime,
-      endTime,
-      valueTransform
+    ref.current = toChartSeries(
+      synthesizeData(
+        inRange.data?.items,
+        beforeStart.data?.items,
+        startTime,
+        endTime,
+        valueTransform
+      )
     )
     return ref.current
   }, [inRange.data, beforeStart.data, startTime, endTime, valueTransform, isFetching])
@@ -88,7 +95,8 @@ export function SiloMetric({
     <ChartContainer>
       <ChartHeader title={title} label={`(${unit})`} />
       <TimeSeriesChart
-        data={data}
+        timestamps={timestamps}
+        data={values}
         title={title}
         interpolation="stepAfter"
         startTime={startTime}
@@ -135,17 +143,19 @@ export function SystemMetric({
     )
   )
 
-  const ref = useRef<ChartDatum[] | undefined>(undefined)
+  const ref = useRef(toChartSeries(undefined))
   const isFetching = inRange.isFetching || beforeStart.isFetching
-  const data = useMemo(() => {
+  const { values, timestamps } = useMemo(() => {
     // big old hack to avoid the graph flashing with weird data while either query is loading
     if (isFetching) return ref.current
-    ref.current = synthesizeData(
-      inRange.data?.items,
-      beforeStart.data?.items,
-      startTime,
-      endTime,
-      valueTransform
+    ref.current = toChartSeries(
+      synthesizeData(
+        inRange.data?.items,
+        beforeStart.data?.items,
+        startTime,
+        endTime,
+        valueTransform
+      )
     )
     return ref.current
   }, [inRange.data, beforeStart.data, startTime, endTime, valueTransform, isFetching])
@@ -157,7 +167,8 @@ export function SystemMetric({
     <ChartContainer>
       <ChartHeader title={title} label={`(${unit})`} />
       <TimeSeriesChart
-        data={data}
+        data={values}
+        timestamps={timestamps}
         title={title}
         interpolation="stepAfter"
         startTime={startTime}

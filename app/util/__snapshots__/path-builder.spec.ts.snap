@@ -987,6 +987,12 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/support-bundles",
     },
   ],
+  "systemMetricsExplorer (/system/metrics-explorer)": [
+    {
+      "label": "Metrics Explorer",
+      "path": "/system/metrics-explorer",
+    },
+  ],
   "systemUpdate (/system/update)": [
     {
       "label": "System Update",

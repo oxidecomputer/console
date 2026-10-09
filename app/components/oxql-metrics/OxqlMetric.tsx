@@ -25,7 +25,12 @@ import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { classed } from '~/util/classed'
 import { docLinks, links } from '~/util/links'
 
-import { ChartContainer, ChartHeader, TimeSeriesChart } from '../TimeSeriesChart'
+import {
+  ChartContainer,
+  ChartHeader,
+  TimeSeriesChart,
+  toChartSeries,
+} from '../TimeSeriesChart'
 import { HighlightedOxqlQuery, toOxqlStr } from './HighlightedOxqlQuery'
 import {
   composeOxqlData,
@@ -78,10 +83,14 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
     [metrics, errorMeansEmpty]
   )
 
-  const { data, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
-    if (unit === 'Bytes') return getBytesChartProps(chartData)
-    if (unit === 'Count') return getCountChartProps(chartData)
-    return getUtilizationChartProps(chartData, timeseriesCount)
+  const { values, timestamps, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
+    const { data, ...props } =
+      unit === 'Bytes'
+        ? getBytesChartProps(chartData)
+        : unit === 'Count'
+          ? getCountChartProps(chartData)
+          : getUtilizationChartProps(chartData, timeseriesCount)
+    return { ...props, ...toChartSeries(data) }
   }, [unit, chartData, timeseriesCount])
 
   const [modalOpen, setModalOpen] = useState(false)
@@ -111,7 +120,8 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
         startTime={startTime}
         endTime={endTime}
         unit={unitForSet}
-        data={data}
+        data={values}
+        timestamps={timestamps}
         yAxisTickFormatter={yAxisTickFormatter}
         hasError={hasError}
         // isLoading only covers first load --- future-proof against the reintroduction of interval refresh
