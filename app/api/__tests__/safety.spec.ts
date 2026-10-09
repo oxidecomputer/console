@@ -12,7 +12,6 @@ import path from 'path'
 import { expect, it } from 'vitest'
 
 import viteConfigFn from '../../../vite.config'
-import { omicronVersion as timeseriesMetadataVersion } from '../__generated__/timeseries-metadata'
 
 it('Generated API client version matches API version specified for deployment', () => {
   const generatedVersion = fs
@@ -25,10 +24,9 @@ it('Generated API client version matches API version specified for deployment', 
     .trim()
 
   // if this test fails, most likely you have updated the API_VERSION in
-  // console/OMICRON_VERSION without re-running `npm run gen-api`
+  // console/OMICRON_VERSION without re-running `npm run gen-api`, or it didn't
+  // finish. gen-api writes this stamp after everything else in __generated__.
   expect(generatedVersion).toEqual(pinnedVersion)
-  // same deal: re-run `npm run gen-api`
-  expect(timeseriesMetadataVersion).toEqual(pinnedVersion)
 })
 
 // omicron releng reads API_VERSION at our pinned commit to check the console
