@@ -17,7 +17,7 @@ import {
   type FloatingIp,
   type Instance,
 } from '~/api'
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { ItemLabel } from '~/ui/lib/ItemLabel'
@@ -106,7 +106,7 @@ export const AttachFloatingIpModal = ({
         content={`Instance ‘${instance.name}’ will be reachable at the selected IP address`}
       />
       <form>
-        <ListboxField
+        <ComboboxField
           control={form.control}
           name="floatingIp"
           label="Floating IP"

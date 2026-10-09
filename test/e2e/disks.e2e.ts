@@ -190,20 +190,20 @@ test.describe('Disk create', () => {
 
   test('from snapshot', async ({ page }) => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
-    await page.getByRole('button', { name: 'Source snapshot' }).click()
+    await page.getByRole('combobox', { name: 'Source snapshot' }).click()
     await page.getByRole('option', { name: 'delete-500' }).click()
   })
 
   // max-size snapshot required a fix
   test('from max-size snapshot', async ({ page }) => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
-    await page.getByRole('button', { name: 'Source snapshot' }).click()
+    await page.getByRole('combobox', { name: 'Source snapshot' }).click()
     await page.getByRole('option', { name: 'snapshot-max' }).click()
   })
 
   test('from image', async ({ page }) => {
     await page.getByRole('radio', { name: 'Image' }).click()
-    await page.getByRole('button', { name: 'Source image' }).click()
+    await page.getByRole('combobox', { name: 'Source image' }).click()
     await page.getByRole('option', { name: 'image-3' }).click()
   })
 
@@ -307,7 +307,7 @@ test('Size error clears when switching to a smaller source', async ({ page }) =>
   const createButton = page.getByRole('button', { name: 'Create disk' })
 
   await page.getByRole('radio', { name: 'Snapshot' }).click()
-  await page.getByRole('button', { name: 'Source snapshot' }).click()
+  await page.getByRole('combobox', { name: 'Source snapshot' }).click()
   await page.getByRole('option', { name: 'snapshot-heavy' }).click()
   await fillNumberInput(sizeInput, '5')
   await createButton.click()
@@ -317,12 +317,12 @@ test('Size error clears when switching to a smaller source', async ({ page }) =>
   await expect(snapshotError).toBeVisible()
 
   // 5 GiB is plenty for the new snapshot, so the error should go away
-  await page.getByRole('button', { name: 'Source snapshot' }).click()
+  await page.getByRole('combobox', { name: 'Source snapshot' }).click()
   await page.getByRole('option', { name: /^snapshot-1 / }).click()
   await expect(snapshotError).toBeHidden()
 
   await page.getByRole('radio', { name: 'Image' }).click()
-  await page.getByRole('button', { name: 'Source image' }).click()
+  await page.getByRole('combobox', { name: 'Source image' }).click()
   await page.getByRole('option', { name: 'image-4' }).click()
   await fillNumberInput(sizeInput, '5')
   await createButton.click()
@@ -330,7 +330,7 @@ test('Size error clears when switching to a smaller source', async ({ page }) =>
   await expect(imageError).toBeVisible()
 
   // 5 GiB is plenty for the 4 GiB image
-  await page.getByRole('button', { name: 'Source image' }).click()
+  await page.getByRole('combobox', { name: 'Source image' }).click()
   await page.getByRole('option', { name: 'image-1' }).click()
   await expect(imageError).toBeHidden()
 })
@@ -339,7 +339,7 @@ test('Create disk from snapshot with read-only', async ({ page }) => {
   await page.goto('/projects/mock-project/disks-new')
   await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
   await page.getByRole('radio', { name: 'Snapshot' }).click()
-  await page.getByRole('button', { name: 'Source snapshot' }).click()
+  await page.getByRole('combobox', { name: 'Source snapshot' }).click()
   await page.getByRole('option', { name: 'delete-500' }).click()
   await page.getByRole('checkbox', { name: 'Make disk read-only' }).check()
 
@@ -359,7 +359,7 @@ test('Create disk from image with read-only', async ({ page }) => {
   await page.goto('/projects/mock-project/disks-new')
   await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
   await page.getByRole('radio', { name: 'Image' }).click()
-  await page.getByRole('button', { name: 'Source image' }).click()
+  await page.getByRole('combobox', { name: 'Source image' }).click()
   await page.getByRole('option', { name: 'image-3' }).click()
   await page.getByRole('checkbox', { name: 'Make disk read-only' }).check()
 

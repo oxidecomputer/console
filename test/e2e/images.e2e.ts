@@ -70,10 +70,11 @@ test('can promote an image from silo', async ({ page }) => {
   // The image we want to promote isn't already there
   await expectNotVisible(page, ['role=cell[name="image-1"]'])
 
-  // Listboxes are visible
+  // Comboboxes are visible
   await expect(page.getByPlaceholder('Select a project')).toBeVisible()
-  // have to use a locator here because the disabled button needs to be handled differently
-  await expect(page.locator(`text="Select an image"`)).toBeDisabled()
+  const imageCombobox = page.getByRole('combobox', { name: 'Image', exact: true })
+  await expect(imageCombobox).toHaveAttribute('placeholder', 'Select an image')
+  await expect(imageCombobox).toBeDisabled()
 
   // Notice is visible
   await expect(page.getByText('visible to all projects')).toBeVisible()
@@ -82,7 +83,8 @@ test('can promote an image from silo', async ({ page }) => {
   await selectOption(page, 'Project', 'other-project')
 
   // Should have no items and dropdown should be disabled
-  await expect(page.locator(`text="No items"`)).toBeDisabled()
+  await expect(imageCombobox).toHaveAttribute('placeholder', 'No items')
+  await expect(imageCombobox).toBeDisabled()
 
   // Select the other project
   // this blurring should not be necessary, but it's blocking the test otherwise
@@ -91,9 +93,8 @@ test('can promote an image from silo', async ({ page }) => {
   await page.getByRole('option', { name: 'mock-project' }).click()
 
   // Select an image in that project
-  const imageListbox = page.getByRole('button', { name: 'Image', exact: true })
-  await expect(imageListbox).toBeEnabled()
-  await imageListbox.click()
+  await expect(imageCombobox).toBeEnabled()
+  await imageCombobox.click()
   await page.locator('role=option >> text="image-1"').click()
   await page.locator('role=button[name="Promote"]').click()
 

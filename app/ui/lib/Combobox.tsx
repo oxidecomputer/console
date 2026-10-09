@@ -112,6 +112,9 @@ export const Combobox = ({
   // selection being made. While editing, the input shows `query` instead of
   // the selected item's label, so the user can see what they're typing.
   const [isEditing, setIsEditing] = useState(false)
+  // an empty list has nothing to select, unless the user can type a custom value
+  const noItems = !isLoading && items.length === 0 && !allowArbitraryValues
+  const isDisabled = disabled || noItems
   const q = query.toLowerCase().replace(/\s+/g, '')
   const filteredItems = matchSorter(items, q, {
     keys: ['selectedLabel'],
@@ -205,7 +208,7 @@ export const Combobox = ({
         setIsEditing(false)
         if (!allowArbitraryValues) setQuery('')
       }}
-      disabled={disabled || isLoading}
+      disabled={isDisabled || isLoading}
       immediate
       virtual={{ options: virtualOptions, disabled: isNoMatch }}
     >
@@ -235,10 +238,10 @@ export const Combobox = ({
                 hasError
                   ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
                   : 'border-default focus-within:ring-accent-secondary hover:border-raise',
-                disabled
+                isDisabled
                   ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
                   : 'bg-default',
-                disabled && hasError && 'border-error-secondary!'
+                isDisabled && hasError && 'border-error-secondary!'
               )}
               // Putting the inputRef on the div makes it so the div can be focused by RHF when there's an error.
               // We want to focus on the div (rather than the input) so the combobox doesn't open automatically
@@ -281,11 +284,11 @@ export const Combobox = ({
                     onEnter?.(e)
                   }
                 }}
-                placeholder={placeholder}
-                disabled={disabled || isLoading}
+                placeholder={noItems ? 'No items' : placeholder}
+                disabled={isDisabled || isLoading}
                 className={cn(
                   `text-sans-md text-raise placeholder:text-tertiary h-10 w-full rounded-md border-none! px-3 py-2 outline-hidden!`,
-                  disabled
+                  isDisabled
                     ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
                     : 'bg-default',
                   hasError && 'focus-error'

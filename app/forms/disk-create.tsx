@@ -23,9 +23,9 @@ import {
 } from '@oxide/api'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
-import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
@@ -365,7 +365,7 @@ const DiskSourceField = ({
         )}
         {diskSource.type === 'image' && (
           <>
-            <ListboxField
+            <ComboboxField
               control={control}
               name="diskBackend.diskSource.imageId"
               label="Source image"
@@ -376,7 +376,9 @@ const DiskSourceField = ({
               // revalidate size against the new source's minimum
               deps="size"
               onChange={(id) => {
-                const image = images.find((i) => i.id === id)!
+                const image = images.find((i) => i.id === id)
+                // undefined when the user clears the field
+                if (!image) return
                 const imageSizeGiB = image.size / GiB
                 if (diskSizeField.value < imageSizeGiB) {
                   diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
@@ -425,7 +427,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) 
   const diskSizeField = useController({ control, name: 'size' }).field
 
   return (
-    <ListboxField
+    <ComboboxField
       control={control}
       name="diskBackend.diskSource.snapshotId"
       label="Source snapshot"
@@ -449,7 +451,9 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) 
       // revalidate size against the new source's minimum
       deps="size"
       onChange={(id) => {
-        const snapshot = snapshots.find((i) => i.id === id)! // if it's selected, it must be present
+        const snapshot = snapshots.find((i) => i.id === id)
+        // undefined when the user clears the field
+        if (!snapshot) return
         const snapshotSizeGiB = snapshot.size / GiB
         if (diskSizeField.value < snapshotSizeGiB) {
           diskSizeField.onChange(diskSizeNearest10(snapshotSizeGiB))

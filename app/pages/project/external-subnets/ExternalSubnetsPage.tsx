@@ -24,7 +24,7 @@ import {
 import { Subnet16Icon, Subnet24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
@@ -302,10 +302,14 @@ const AttachExternalSubnetModal = ({
           </>
         }
       />
-      <ListboxField
+      <ComboboxField
         control={form.control}
         name="instanceId"
-        items={instances.map((i) => ({ value: i.id, label: i.name }))}
+        items={instances.map((i) => ({
+          value: i.id,
+          label: i.name,
+          selectedLabel: i.name,
+        }))}
         label="Instance"
         required
         placeholder="Select an instance"

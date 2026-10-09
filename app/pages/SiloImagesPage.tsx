@@ -17,7 +17,6 @@ import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 import { DocsPopover } from '~/components/DocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
-import { ListboxField } from '~/components/form/fields/ListboxField'
 import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
 import { useQuickActions } from '~/hooks/use-quick-actions'
@@ -212,9 +211,10 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
         required
         control={form.control}
       />
-      <ListboxField
+      <ComboboxField
         control={form.control}
         name="image"
+        label="Image"
         placeholder="Select an image"
         items={imageItems}
         isLoading={images.isPending}

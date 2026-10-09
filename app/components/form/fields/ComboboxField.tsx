@@ -12,6 +12,7 @@ import {
   type FieldPath,
   type FieldPathValue,
   type FieldValues,
+  type RegisterOptions,
   type Validate,
 } from 'react-hook-form'
 
@@ -27,6 +28,8 @@ export type ComboboxFieldProps<
   control: Control<TFieldValues>
   onChange?: (value: string | null | undefined) => void
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
+  /** Other fields to re-validate when this one changes */
+  deps?: RegisterOptions<TFieldValues, TName>['deps']
 } & ComboboxBaseProps
 
 export function ComboboxField<
@@ -57,12 +60,13 @@ export function ComboboxField<
   items,
   transform,
   validate,
+  deps,
   ...props
 }: ComboboxFieldProps<TFieldValues, TName>) {
   const { field, fieldState } = useController({
     name,
     control,
-    rules: { required, validate },
+    rules: { required, validate, deps },
   })
   return (
     <div className="max-w-lg">
