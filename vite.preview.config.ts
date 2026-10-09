@@ -7,7 +7,7 @@
  */
 import { defineConfig } from 'vite'
 
-import vercelConfig from './vercel.json'
+import { nexusSecurityHeaders } from './app/api/__generated__/nexus-console'
 
 // Preview the deployable static files without the framework's prerender server.
 export default defineConfig({
@@ -15,8 +15,7 @@ export default defineConfig({
   // leaves the plugin out, so preview would otherwise serve Vite's default dist
   build: { outDir: 'build/client' },
   preview: {
-    headers: Object.fromEntries(
-      vercelConfig.headers[0].headers.map(({ key, value }) => [key, value])
-    ),
+    // serve the headers Nexus serves so test/preview catches CSP violations
+    headers: nexusSecurityHeaders,
   },
 })
