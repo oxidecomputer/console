@@ -24,7 +24,8 @@ import os from 'node:os'
 import path from 'node:path'
 
 import * as R from 'remeda'
-import { parse } from 'smol-toml'
+import { parse as parseToml } from 'smol-toml'
+import * as z from 'zod'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const GEN_DIR = path.join(ROOT, 'app/api/__generated__')
@@ -100,18 +101,26 @@ const TIMESERIES_FILE = 'timeseries-metadata.ts'
 const SCHEMA_DIR = 'oximeter/oximeter/schema'
 
 // fields are listed per version; we only care about the latest
-type Versioned = { versions: { fields: string[] }[] }
+const Versioned = z.object({
+  versions: z.array(z.object({ fields: z.array(z.string()) })).min(1),
+})
+type Versioned = z.infer<typeof Versioned>
 
-type SchemaToml = {
-  target: Versioned & { name: string; description: string }
-  metrics: (Versioned & {
-    name: string
-    description: string
-    units: string
-    datum_type: string
-  })[]
-  fields: Record<string, { type: string; description: string }>
-}
+// Units, datum types, and field types stay plain strings here because tsc
+// checks them against the API enums in the generated file
+const SchemaToml = z.object({
+  target: Versioned.extend({ name: z.string(), description: z.string() }),
+  metrics: z.array(
+    Versioned.extend({
+      name: z.string(),
+      description: z.string(),
+      units: z.string(),
+      datum_type: z.string(),
+    })
+  ),
+  fields: z.record(z.string(), z.object({ type: z.string(), description: z.string() })),
+})
+type SchemaToml = z.infer<typeof SchemaToml>
 
 /**
  * Snapshot timeseries descriptions and units from the oximeter schema TOML
@@ -140,19 +149,25 @@ async function generateTimeseriesMetadata() {
   const schemas = await Promise.all(
     tomlFiles.map(async (f) => {
       const text = await fetchOk(f.download_url).then((r) => r.text())
-      return {
-        file: path.basename(f.name, '.toml'),
-        ...(parse(text) as unknown as SchemaToml),
+      const result = SchemaToml.safeParse(parseToml(text))
+      if (!result.success) {
+        throw new Error(`Invalid schema in ${f.name}:\n${z.prettifyError(result.error)}`)
       }
+      return { file: path.basename(f.name, '.toml'), ...result.data }
     })
   )
 
-  const latestFields = (fields: SchemaToml['fields'], { versions }: Versioned) =>
-    versions[versions.length - 1].fields.map((name) => ({
-      name,
-      fieldType: fields[name].type,
-      description: fields[name].description,
-    }))
+  const latestFields = (
+    file: string,
+    fields: SchemaToml['fields'],
+    { versions }: Versioned
+  ) =>
+    versions[versions.length - 1].fields.map((name) => {
+      const field = fields[name]
+      if (!field)
+        throw new Error(`${file}.toml: field "${name}" is not defined in [fields]`)
+      return { name, fieldType: field.type, description: field.description }
+    })
 
   // Target fields are shared by every metric on the target, so they're stored
   // once per target instead of being repeated on each timeseries. Targets are
@@ -163,7 +178,7 @@ async function generateTimeseriesMetadata() {
     R.sortBy((s) => s.file),
     R.mapToObj(({ file, target, fields }) => [
       file,
-      { description: target.description, fields: latestFields(fields, target) },
+      { description: target.description, fields: latestFields(file, fields, target) },
     ])
   )
 
@@ -176,7 +191,7 @@ async function generateTimeseriesMetadata() {
         description: metric.description,
         units: metric.units,
         datumType: metric.datum_type,
-        fields: latestFields(fields, metric),
+        fields: latestFields(file, fields, metric),
       }))
     ),
     R.sortBy((t) => t.name),
