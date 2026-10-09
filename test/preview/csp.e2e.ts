@@ -7,7 +7,7 @@
  */
 import { expect, test, type Page } from '@playwright/test'
 
-import { nexusCsp } from '../../app/api/__generated__/nexus-console'
+import { nexusSecurityHeaders } from '../../app/api/__generated__/nexus-console'
 
 /** Collect page errors, console errors, and CSP violations */
 async function trackErrors(page: Page) {
@@ -30,7 +30,9 @@ test('Production build runs under the Nexus CSP', async ({ page }) => {
   try {
     const response = await page.goto('/projects/mock-project/instances')
     // make sure the test isn't passing because the server dropped the CSP
-    expect(response?.headers()['content-security-policy']).toBe(nexusCsp)
+    expect(response?.headers()['content-security-policy']).toBe(
+      nexusSecurityHeaders['content-security-policy']
+    )
 
     await expect(page.getByRole('heading', { name: 'Instances' })).toBeVisible()
     // client-side navigation only works if the app hydrated
