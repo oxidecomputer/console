@@ -13,7 +13,7 @@ import { expect, it } from 'vitest'
 
 import vercelConfig from '../../../vercel.json'
 import viteConfigFn from '../../../vite.config'
-import { nexusCsp } from '../__generated__/nexus-console'
+import { nexusSecurityHeaders } from '../__generated__/nexus-console'
 
 it('Generated API client version matches API version specified for deployment', () => {
   const generatedVersion = fs
@@ -59,13 +59,13 @@ it('vite build target matches tsconfig target', () => {
   expect(viteConfig.build?.target).toEqual(tsconfig.compilerOptions.target)
 })
 
-// Vercel preview deploys should run under the same CSP as Nexus. If this fails
-// after a pin bump, copy the generated policy into vercel.json.
-it('vercel.json CSP matches Nexus', () => {
-  const vercelCsp = vercelConfig.headers[0].headers.find(
-    (h) => h.key === 'content-security-policy'
-  )?.value
-  expect(vercelCsp).toEqual(nexusCsp)
+// Vercel preview deploys should run under the same security headers as Nexus.
+// If this fails after a pin bump, copy the generated headers into vercel.json.
+it('vercel.json security headers match Nexus', () => {
+  const vercelHeaders = vercelConfig.headers[0].headers
+  expect(Object.fromEntries(vercelHeaders.map((h) => [h.key, h.value]))).toEqual(
+    nexusSecurityHeaders
+  )
 })
 
 const grepFiles = (s: string) =>
