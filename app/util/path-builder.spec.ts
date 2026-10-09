@@ -5,10 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { matchRoutes } from 'react-router'
+import { matchRoutes, type RouteObject } from 'react-router'
 import * as R from 'remeda'
 import { expect, test } from 'vitest'
 
+import { nexusConsoleRoutes } from '~/api/__generated__/nexus-console'
 import { matchesToCrumbs } from '~/hooks/use-crumbs'
 import { routes } from '~/routes'
 
@@ -223,4 +224,54 @@ test('every page reachable by breadcrumb should have a self-referential breadcru
     if (last === undefined) expect.fail(`Found no breadcrumbs for ${path}`)
     expect(dropFinalSlash(path)).toEqual(dropFinalSlash(last.path))
   }
+})
+
+// Full path of every leaf route, with optional segments expanded both ways.
+// Only leaves are pages: a route with children renders at its own path only
+// through an index child, which is itself a leaf.
+function routePaths(routes: RouteObject[], parent = ''): string[] {
+  return routes.flatMap((route) => {
+    const full = route.path?.startsWith('/')
+      ? route.path
+      : [parent, route.path].filter(Boolean).join('/')
+    if (route.children) return routePaths(route.children, full)
+    return expandOptional(full.split('/').filter(Boolean)).map((s) => '/' + s.join('/'))
+  })
+}
+
+const expandOptional = (segments: string[]): string[][] =>
+  segments.reduce<string[][]>(
+    (acc, seg) =>
+      seg.endsWith('?')
+        ? [...acc, ...acc.map((prefix) => [...prefix, seg.slice(0, -1)])]
+        : acc.map((prefix) => [...prefix, seg]),
+    [[]]
+  )
+
+// Dropshot path matching: `{name}` matches one segment and `{name:.*}` matches
+// the rest, including nothing, so /projects/{path:.*} serves /projects.
+// https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/router.rs#L493-L503
+function nexusServes(template: string, pathname: string) {
+  const want = template.split('/').filter(Boolean)
+  const have = pathname.split('/').filter(Boolean)
+  for (const [i, seg] of want.entries()) {
+    if (/^\{\w+:\.\*\}$/.test(seg)) return true
+    if (i >= have.length) return false
+    // a route param like :project only matches a Nexus param, not a literal
+    if (!/^\{\w+\}$/.test(seg) && seg !== have[i]) return false
+  }
+  return want.length === have.length
+}
+
+// Nexus only serves index.html on paths it knows about, so a console route
+// outside them works on client-side navigation but 404s on reload or direct
+// link. If this fails, add an endpoint for the new path in omicron next to the
+// existing ones, then bump OMICRON_VERSION once it merges.
+// https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/external-api/src/lib.rs#L9206
+test('Nexus serves the console on every route', () => {
+  const unserved = R.unique(routePaths(routes))
+    // the catch-all is for unknown paths, which Nexus is right to 404
+    .filter((p) => !p.split('/').includes('*'))
+    .filter((p) => !nexusConsoleRoutes.some((t) => nexusServes(t, p)))
+  expect(unserved).toEqual([])
 })
