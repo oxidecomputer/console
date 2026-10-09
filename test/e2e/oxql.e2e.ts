@@ -98,19 +98,44 @@ test('joined query renders a chart per instance with a legend line per metric', 
 })
 
 test('"Drop first point" appears only for cumulative-derived charts', async ({ page }) => {
+  const settings = page.getByRole('button', { name: 'Chart settings' })
   const dropFirst = page.getByLabel('Drop first data point')
 
-  // a plain gauge is never cumulative, so there's no giant first point to drop
+  // a plain gauge is never cumulative, so there's no giant first point to drop.
+  // and since the only other option is about heatmaps, there should be no
+  // settings button
   await runQuery(page, oxqlQueries.basicTctl)
-  await expect(dropFirst).toBeHidden()
+  await expect(settings).toBeHidden()
 
   // joined/aligned tables may derive from cumulatives, so the option shows up
   // TODO: if you know the schemas, you can check which tables are cumulative!
   await runQuery(page, oxqlQueries.multiJoinedTables)
+  await settings.click()
   await expect(dropFirst).toBeChecked()
 
   await dropFirst.uncheck()
   await expect(page.getByRole('figure')).toHaveCount(3)
+})
+
+test('heatmap color scale appears only for distributions', async ({ page }) => {
+  const settings = page.getByRole('button', { name: 'Chart settings' })
+  const colorScale = page.getByRole('group', { name: 'Heatmap color scale' })
+
+  await runQuery(page, oxqlQueries.multiJoinedTables)
+  await settings.click()
+  await expect(page.getByLabel('Drop first data point')).toBeVisible()
+  await expect(colorScale).toBeHidden()
+  await page.keyboard.press('Escape')
+
+  await runQuery(page, oxqlQueries.diskLatency)
+  await settings.click()
+  const ranked = colorScale.getByRole('radio', { name: 'Ranked', exact: true })
+  const linear = colorScale.getByRole('radio', { name: 'Linear', exact: true })
+  await expect(ranked).toBeChecked()
+
+  await linear.check()
+  await expect(linear).toBeChecked()
+  await expect(ranked).not.toBeChecked()
 })
 
 test('results list is virtualized', async ({ page }) => {

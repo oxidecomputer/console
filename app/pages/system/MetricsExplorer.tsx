@@ -5,8 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
+import cn from 'classnames'
 import { Fragment, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useController, useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
@@ -34,11 +36,13 @@ import {
   Info12Icon,
   Monitoring16Icon,
   Monitoring24Icon,
+  Settings16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { timeseries as timeseriesMetadata } from '~/api/__generated__/timeseries-metadata'
 import { DocsPopover } from '~/components/DocsPopover'
-import { Heatmap, type SaturationStrategy } from '~/components/Heatmap'
+import { Heatmap, SampleColorStrip } from '~/components/Heatmap'
+import { allColorScales, type ColorScale } from '~/components/heatmap-color-scale'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import {
   errorMessageToSegments,
@@ -57,7 +61,7 @@ import {
 } from '~/components/TimeSeriesChart'
 import { useElementSize } from '~/hooks/use-element-size'
 import { addToast } from '~/stores/toast'
-import { Button } from '~/ui/lib/Button'
+import { Button, buttonStyle } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
@@ -540,7 +544,6 @@ type ChartDisplay = { key: string } & (
       description?: ReactNode
       timestamps: number[]
       startTimes: number[]
-      saturationStrategy: SaturationStrategy
       data: (Distributiondouble | null)[]
     }
 )
@@ -556,11 +559,7 @@ const tableTimeRange = (charts: { timestamps: number[] }[]) => {
   return { startTime: new Date(min ?? 0), endTime: new Date(max ?? 0) }
 }
 
-const toDisplays = (
-  groups: ChartGroup[],
-  trim: boolean,
-  saturationStrategy: SaturationStrategy
-): ChartDisplay[] =>
+const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
   groups.flatMap((g, t) =>
     match(g)
       .returnType<ChartDisplay[]>()
@@ -571,7 +570,6 @@ const toDisplays = (
           key: `t${t}.${i}`,
           name: chart.name,
           description: chart.description,
-          saturationStrategy,
           ...trimHeatmap(trim, {
             timestamps: chart.timestamps,
             startTimes: chart.startTimes,
@@ -706,7 +704,13 @@ function ChartCard({ display }: { display: Extract<ChartDisplay, { kind: 'chart'
   )
 }
 
-function HeatmapCard({ display }: { display: Extract<ChartDisplay, { kind: 'heatmap' }> }) {
+function HeatmapCard({
+  display,
+  colorScale,
+}: {
+  display: Extract<ChartDisplay, { kind: 'heatmap' }>
+  colorScale: ColorScale
+}) {
   const units = tableUnitLabels(display.name)
   return (
     <ChartContainer>
@@ -716,7 +720,7 @@ function HeatmapCard({ display }: { display: Extract<ChartDisplay, { kind: 'heat
         timestamps={display.timestamps}
         startTimes={display.startTimes}
         distributions={display.data}
-        saturationStrategy={display.saturationStrategy}
+        colorScale={colorScale}
         unit={units?.tooltip}
         yAxisLabel={units?.axis}
         yAxisTickFormatter={formatTick}
@@ -725,7 +729,13 @@ function HeatmapCard({ display }: { display: Extract<ChartDisplay, { kind: 'heat
   )
 }
 
-function ChartEntry({ display }: { display: ChartDisplay }) {
+function ChartEntry({
+  display,
+  heatmapColorScale,
+}: {
+  display: ChartDisplay
+  heatmapColorScale: ColorScale
+}) {
   return match(display)
     .with({ kind: 'empty' }, () => (
       <ChartContainer>
@@ -747,8 +757,106 @@ function ChartEntry({ display }: { display: ChartDisplay }) {
       </ChartContainer>
     ))
     .with({ kind: 'chart' }, (r) => <ChartCard display={r} />)
-    .with({ kind: 'heatmap' }, (r) => <HeatmapCard display={r} />)
+    .with({ kind: 'heatmap' }, (r) => (
+      <HeatmapCard display={r} colorScale={heatmapColorScale} />
+    ))
     .exhaustive()
+}
+
+type Setting<T> = { value: T; onChange: (value: T) => void } | 'irrelevant'
+
+type ChartSettingsProps = {
+  dropFirstPoint: Setting<boolean>
+  colorScale: Setting<ColorScale>
+}
+
+function ChartSettings({ dropFirstPoint, colorScale }: ChartSettingsProps) {
+  if (dropFirstPoint === 'irrelevant' && colorScale === 'irrelevant') return null
+
+  return (
+    <Popover>
+      <PopoverButton aria-label="Chart settings" className="headless-hide-focus rounded-md">
+        <div className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}>
+          <Settings16Icon aria-hidden className="shrink-0" />
+        </div>
+      </PopoverButton>
+      <PopoverPanel
+        className="popover-panel bg-raise light:bg-default shadow-menu z-10 w-80 rounded-lg py-4"
+        anchor={{ to: 'bottom end', gap: 12, padding: 16 }}
+      >
+        <h2 className="text-sans-semi-md text-raise px-4">Chart settings</h2>
+        <Divider className="mt-2" />
+        <div className="mt-4 flex flex-col gap-4 px-4">
+          {dropFirstPoint !== 'irrelevant' && (
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={dropFirstPoint.value}
+                onChange={(e) => dropFirstPoint.onChange(e.target.checked)}
+              >
+                Drop first data point
+              </Checkbox>
+              <TipIcon>
+                With deltas and cumulative counters, the initial point is a delta from the
+                earliest observed value. It's therefore typically much larger, and not worth
+                comparing to the rest of your data.
+              </TipIcon>
+            </div>
+          )}
+          {colorScale !== 'irrelevant' && (
+            <fieldset>
+              <legend className="text-sans-md text-default mb-2">
+                Heatmap color scale
+              </legend>
+              <div className="flex flex-col gap-2">
+                {allColorScales.map((value) => (
+                  <span key={value} className="inline-flex items-center gap-1.5">
+                    <Radio
+                      name="colorScale"
+                      value={value}
+                      checked={colorScale.value === value}
+                      onChange={() => colorScale.onChange(value)}
+                    >
+                      {match(value)
+                        .with('linear', () => 'Linear')
+                        .with('logarithmic', () => 'Logarithmic')
+                        .with('ranked', () => 'Ranked')
+                        .exhaustive()}
+                    </Radio>
+                    <TipIcon>
+                      <p className="mb-2">
+                        {match(value)
+                          .with('linear', () => (
+                            <>
+                              Shades each cell by its count as a fraction of the highest
+                              measured count.
+                            </>
+                          ))
+                          .with('logarithmic', () => (
+                            <>
+                              Compresses the shading scale at higher values, so smaller
+                              counts are easier to distinguish.
+                            </>
+                          ))
+                          .with('ranked', () => (
+                            <>
+                              Shades a cell by where its count ranks among all measured
+                              counts. Not a direct representation of magnitude, but helps
+                              emphasize patterns and outliers.
+                            </>
+                          ))
+                          .exhaustive()}
+                      </p>
+                      <SampleColorStrip colorScale={value} />
+                    </TipIcon>
+                  </span>
+                ))}
+              </div>
+            </fieldset>
+          )}
+        </div>
+      </PopoverPanel>
+    </Popover>
+  )
 }
 
 const copyText = (text: string, toastMessage: string) => {
@@ -855,7 +963,7 @@ export default function MetricsExplorer() {
   })
 
   const [dropFirstPoint, setDropFirstPoint] = useState(true)
-  const [saturationStrategy, setSaturationStrategy] = useState<SaturationStrategy>('ranked')
+  const [colorScale, setColorScale] = useState<ColorScale>('ranked')
 
   const onSubmit = (body: TimeseriesQuery) => {
     query.mutate(
@@ -903,9 +1011,12 @@ export default function MetricsExplorer() {
   const trim = dropFirstPoint && hasTrimmableCharts
 
   const charts = useMemo(
-    () => (chartGroups ? toDisplays(chartGroups, trim, saturationStrategy) : []),
-    [chartGroups, trim, saturationStrategy]
+    () => (chartGroups ? toDisplays(chartGroups, trim) : []),
+    [chartGroups, trim]
   )
+
+  // a query can return several tables, only some of which are distributions
+  const hasHeatmaps = charts.some((c) => c.kind === 'heatmap')
 
   // Since the whole window is the scroll container, the virtualizer needs to
   // know the offset from the top. By reacting to height changes in everything
@@ -1018,50 +1129,22 @@ export default function MetricsExplorer() {
         ))
         .with({ status: 'success' }, () => (
           <ResultsSection>
-            {hasTrimmableCharts && (
-              <div className="mb-2 flex items-center gap-2">
-                <Checkbox
-                  checked={dropFirstPoint}
-                  onChange={(e) => setDropFirstPoint(e.target.checked)}
-                >
-                  Drop first data point
-                </Checkbox>
-                <TipIcon>
-                  With deltas and cumulative counters, the initial point is a delta from the
-                  earliest observed value. It's therefore typically much larger, and not
-                  worth comparing to the rest of your data.
-                </TipIcon>
-              </div>
-            )}
-            {charts[0]?.kind === 'heatmap' && (
-              <div className="mt-2 mb-6 flex items-center gap-4">
-                <span>Heatmap coloring:</span>
-                <Radio
-                  name="saturationStrategy"
-                  value="ranked"
-                  checked={saturationStrategy === 'ranked'}
-                  onChange={() => setSaturationStrategy('ranked')}
-                >
-                  Ranked
-                </Radio>
-                <Radio
-                  name="saturationStrategy"
-                  value="logarithmic"
-                  checked={saturationStrategy === 'logarithmic'}
-                  onChange={() => setSaturationStrategy('logarithmic')}
-                >
-                  Logarithmic
-                </Radio>
-                <Radio
-                  name="saturationStrategy"
-                  value="linear"
-                  checked={saturationStrategy === 'linear'}
-                  onChange={() => setSaturationStrategy('linear')}
-                >
-                  Linear
-                </Radio>
-              </div>
-            )}
+            {/* By using a consistent height for this settings row, we don't
+            have to worry about the virtualizer's scroll margin underneath */}
+            <div className="mb-4 flex h-8 justify-end">
+              <ChartSettings
+                dropFirstPoint={
+                  hasTrimmableCharts
+                    ? { value: dropFirstPoint, onChange: setDropFirstPoint }
+                    : 'irrelevant'
+                }
+                colorScale={
+                  hasHeatmaps
+                    ? { value: colorScale, onChange: setColorScale }
+                    : 'irrelevant'
+                }
+              />
+            </div>
             <div
               ref={chartsRef}
               className="relative"
@@ -1075,7 +1158,7 @@ export default function MetricsExplorer() {
                   className="absolute top-0 left-0 w-full pb-4"
                   style={{ transform: `translateY(${item.start - scrollMargin}px)` }}
                 >
-                  <ChartEntry display={charts[item.index]} />
+                  <ChartEntry display={charts[item.index]} heatmapColorScale={colorScale} />
                 </div>
               ))}
             </div>
