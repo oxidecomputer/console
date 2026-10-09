@@ -18,7 +18,7 @@ export const nexusConsoleRoutes = [
   '/access',
   '/device/success',
   '/device/verify',
-  '/images',
+  '/images/{path:.*}',
   '/login/{silo_name}/local',
   '/login/{silo_name}/saml/{provider_name}',
   '/lookup/{path:.*}',
