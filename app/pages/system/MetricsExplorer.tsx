@@ -38,7 +38,7 @@ import {
 
 import { timeseries as timeseriesMetadata } from '~/api/__generated__/timeseries-metadata'
 import { DocsPopover } from '~/components/DocsPopover'
-import { Heatmap } from '~/components/Heatmap'
+import { Heatmap, type SaturationStrategy } from '~/components/Heatmap'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import {
   errorMessageToSegments,
@@ -67,6 +67,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { ErrorInlineCode } from '~/ui/lib/InlineCode'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { Radio } from '~/ui/lib/Radio'
 import { TextInputError } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
@@ -539,6 +540,7 @@ type ChartDisplay = { key: string } & (
       description?: ReactNode
       timestamps: number[]
       startTimes: number[]
+      saturationStrategy: SaturationStrategy
       data: (Distributiondouble | null)[]
     }
 )
@@ -554,7 +556,11 @@ const tableTimeRange = (charts: { timestamps: number[] }[]) => {
   return { startTime: new Date(min ?? 0), endTime: new Date(max ?? 0) }
 }
 
-const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
+const toDisplays = (
+  groups: ChartGroup[],
+  trim: boolean,
+  saturationStrategy: SaturationStrategy
+): ChartDisplay[] =>
   groups.flatMap((g, t) =>
     match(g)
       .returnType<ChartDisplay[]>()
@@ -565,6 +571,7 @@ const toDisplays = (groups: ChartGroup[], trim: boolean): ChartDisplay[] =>
           key: `t${t}.${i}`,
           name: chart.name,
           description: chart.description,
+          saturationStrategy,
           ...trimHeatmap(trim, {
             timestamps: chart.timestamps,
             startTimes: chart.startTimes,
@@ -709,6 +716,7 @@ function HeatmapCard({ display }: { display: Extract<ChartDisplay, { kind: 'heat
         timestamps={display.timestamps}
         startTimes={display.startTimes}
         distributions={display.data}
+        saturationStrategy={display.saturationStrategy}
         unit={units?.tooltip}
         yAxisLabel={units?.axis}
         yAxisTickFormatter={formatTick}
@@ -847,6 +855,7 @@ export default function MetricsExplorer() {
   })
 
   const [dropFirstPoint, setDropFirstPoint] = useState(true)
+  const [saturationStrategy, setSaturationStrategy] = useState<SaturationStrategy>('ranked')
 
   const onSubmit = (body: TimeseriesQuery) => {
     query.mutate(
@@ -894,8 +903,8 @@ export default function MetricsExplorer() {
   const trim = dropFirstPoint && hasTrimmableCharts
 
   const charts = useMemo(
-    () => (chartGroups ? toDisplays(chartGroups, trim) : []),
-    [chartGroups, trim]
+    () => (chartGroups ? toDisplays(chartGroups, trim, saturationStrategy) : []),
+    [chartGroups, trim, saturationStrategy]
   )
 
   // Since the whole window is the scroll container, the virtualizer needs to
@@ -1022,6 +1031,35 @@ export default function MetricsExplorer() {
                   earliest observed value. It's therefore typically much larger, and not
                   worth comparing to the rest of your data.
                 </TipIcon>
+              </div>
+            )}
+            {charts[0]?.kind === 'heatmap' && (
+              <div className="mt-2 mb-6 flex items-center gap-4">
+                <span>Heatmap coloring:</span>
+                <Radio
+                  name="saturationStrategy"
+                  value="ranked"
+                  checked={saturationStrategy === 'ranked'}
+                  onChange={() => setSaturationStrategy('ranked')}
+                >
+                  Ranked
+                </Radio>
+                <Radio
+                  name="saturationStrategy"
+                  value="logarithmic"
+                  checked={saturationStrategy === 'logarithmic'}
+                  onChange={() => setSaturationStrategy('logarithmic')}
+                >
+                  Logarithmic
+                </Radio>
+                <Radio
+                  name="saturationStrategy"
+                  value="linear"
+                  checked={saturationStrategy === 'linear'}
+                  onChange={() => setSaturationStrategy('linear')}
+                >
+                  Linear
+                </Radio>
               </div>
             )}
             <div

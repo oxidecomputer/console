@@ -7,6 +7,7 @@
  */
 import { useMemo, useState } from 'react'
 import * as R from 'remeda'
+import { match } from 'ts-pattern'
 import type uPlot from 'uplot'
 
 import { ChartTooltip, type TopBottom, type LeftRight } from '~/components/ChartTooltip'
@@ -46,10 +47,10 @@ const rampColor = ({ stops }: ColorRamp, t: number): string => {
   const lastIndex = stops.length - 1
   const progress = clamped * lastIndex
   const start = R.clamp(Math.floor(progress), { max: lastIndex - 1 })
-  const lerp = progress - start
+  const localT = progress - start
   const from = stops[start]
   const to = stops[start + 1]
-  return `color-mix(in oklch, ${from} ${(1 - lerp) * 100}%, ${to})`
+  return `color-mix(in oklch, ${from} ${(1 - localT) * 100}%, ${to})`
 }
 
 // grabbing style from the chart root instead of document body
@@ -63,16 +64,19 @@ const getColorRamp = (el: Element): ColorRamp => {
   }
 }
 
-// count -> ramp position. Doing a square root or a log makes for some different
-// smoothing. Nothing is truly intuitive, but linearly showing the fraction is
-// most easily compared to the legend at the bottom
-const rampT = (count: number, maxCount: number) => {
-  const fraction = count / maxCount
-  // TODO: pick!
-  return fraction
-  // return Math.log10(lerp(1, 10, fraction))
-  // return Math.sqrt(fraction)
-}
+const rampT =
+  (maxCount: number) =>
+  (count: number): number =>
+    count / maxCount
+const lerp = (min: number, max: number, t: number): number => min + t * (max - min)
+const rampTLog =
+  (maxCount: number) =>
+  (count: number): number =>
+    Math.log10(lerp(1, 10, count / maxCount))
+const rampRank =
+  (ranks: Map<number, number>) =>
+  (count: number): number =>
+    ranks.size <= 1 ? ranks.size : (ranks.get(count) || 0) / (ranks.size - 1)
 
 type Hover = {
   col: number
@@ -93,7 +97,10 @@ type HeatmapProps = {
   unit?: string
   /** Drawn rotated alongside the y-axis tick labels, e.g. a unit */
   yAxisLabel?: string
+  saturationStrategy?: SaturationStrategy
 }
+
+export type SaturationStrategy = 'linear' | 'logarithmic' | 'ranked'
 
 const defaultYAxisTickFormatter = (val: number) => val.toLocaleString()
 
@@ -105,6 +112,7 @@ export function Heatmap({
   yAxisTickFormatter = defaultYAxisTickFormatter,
   unit,
   yAxisLabel,
+  saturationStrategy = 'ranked',
 }: HeatmapProps) {
   const theme = useChartTheme()
   const [hover, setHover] = useState<Hover | null>(null)
@@ -118,10 +126,20 @@ export function Heatmap({
   const binCount = bins.length
   const colCount = distributions.length
 
-  const maxSampleCount = useMemo(
-    () => distributions.reduce((max, d) => (d ? Math.max(max, ...d.counts) : max), 0),
-    [distributions]
-  )
+  const { minSampleCount, maxSampleCount, ranks } = useMemo(() => {
+    const allCounts = R.sort(
+      R.unique(distributions.filter((d) => d !== null).flatMap((x) => x.counts)).filter(
+        (x) => x !== 0
+      ),
+      (a, b) => a - b
+    )
+
+    return {
+      minSampleCount: R.first(allCounts) || 0,
+      maxSampleCount: R.last(allCounts) || 0,
+      ranks: new Map(allCounts.map((n, i) => [n, i])),
+    }
+  }, [distributions])
 
   // uPlot's time scale wants seconds; metrics timestamps are milliseconds
   const rightEdges = useMemo(() => timestamps.map((t) => t / 1000), [timestamps])
@@ -129,8 +147,14 @@ export function Heatmap({
 
   // uPlot doesn't actually have heatmap support, but we can use its position
   // functions to make this (somewhat) easy
-  const drawCells = useMemo(
-    () => (u: uPlot) => {
+  const drawCells = useMemo(() => {
+    const progressToMax: (count: number) => number = match(saturationStrategy)
+      .with('linear', () => rampT(maxSampleCount))
+      .with('logarithmic', () => rampTLog(maxSampleCount))
+      .with('ranked', () => rampRank(ranks))
+      .exhaustive()
+
+    return (u: uPlot) => {
       if (binCount === 0 || colCount === 0) return
       const colorRamp = getColorRamp(u.root)
       const ctx = u.ctx
@@ -149,7 +173,7 @@ export function Heatmap({
 
           const topEdge = u.valToPos(rowIndex + 1, 'y', true)
           const bottomEdge = u.valToPos(rowIndex, 'y', true)
-          ctx.fillStyle = rampColor(colorRamp, rampT(count, maxSampleCount))
+          ctx.fillStyle = rampColor(colorRamp, progressToMax(count))
           ctx.fillRect(
             leftEdge - CELL_OVERFLOW,
             topEdge - CELL_OVERFLOW,
@@ -159,9 +183,17 @@ export function Heatmap({
         })
       })
       ctx.restore()
-    },
-    [distributions, leftEdges, rightEdges, colCount, binCount, maxSampleCount]
-  )
+    }
+  }, [
+    distributions,
+    leftEdges,
+    rightEdges,
+    colCount,
+    binCount,
+    saturationStrategy,
+    maxSampleCount,
+    ranks,
+  ])
 
   const tooltipPlugin = useMemo<uPlot.Plugin>(
     () => ({
@@ -307,7 +339,17 @@ export function Heatmap({
       chartOptions={chartOptions}
       data={data}
       uRef={uRef}
-      legend={<HeatmapLegend maxSampleCount={maxSampleCount} axisText={theme.axisText} />}
+      legend={
+        <HeatmapLegend
+          minSampleCount={match(saturationStrategy)
+            .with('ranked', () => minSampleCount)
+            .with('linear', () => 0)
+            .with('logarithmic', () => 1)
+            .exhaustive()}
+          maxSampleCount={maxSampleCount}
+          axisText={theme.axisText}
+        />
+      }
     >
       {hover && (
         <>
@@ -342,16 +384,18 @@ export function Heatmap({
 }
 
 function HeatmapLegend({
+  minSampleCount,
   maxSampleCount,
   axisText,
 }: {
+  minSampleCount: number
   maxSampleCount: number
   axisText: string
 }) {
   return (
     <div className="mt-3 flex items-center gap-2 pl-5">
       <span className="text-mono-xs" style={{ color: axisText }}>
-        0
+        {minSampleCount.toLocaleString()}
       </span>
       <div
         className="h-3 w-32 rounded-sm"
