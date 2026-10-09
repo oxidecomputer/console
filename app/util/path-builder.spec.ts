@@ -248,9 +248,14 @@ const expandOptional = (segments: string[]): string[][] =>
     [[]]
   )
 
-// Dropshot path matching: `{name}` matches one segment and `{name:.*}` matches
-// the rest, including nothing, so /projects/{path:.*} serves /projects.
-// https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/router.rs#L493-L503
+// Port of dropshot's lookup_route for a single template. Dropshot splits paths
+// on `/` and drops empty segments, then walks a trie: `{name}` matches one
+// segment and `{name:.*}` matches the rest, including nothing, so
+// /projects/{path:.*} serves /projects. Checking templates one at a time gives
+// the same answer as the trie because dropshot refuses to register a node with
+// both literal and variable children, so a path matches at most one route.
+// https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/router.rs#L438-L503
+// https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/router.rs#L254-L270
 function nexusServes(template: string, pathname: string) {
   const want = template.split('/').filter(Boolean)
   const have = pathname.split('/').filter(Boolean)
@@ -262,6 +267,44 @@ function nexusServes(template: string, pathname: string) {
   }
   return want.length === have.length
 }
+
+// The Nexus test below is only as good as nexusServes, so check that it matches
+// paths the same way dropshot does. These are the cases from dropshot's router
+// tests, plus the empty wildcard match, which dropshot doesn't test but the
+// console relies on for paths like /projects.
+// https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/router.rs#L1242-L1643
+test.each([
+  ['/', '/', true],
+  ['/', '//', true],
+  ['/foo', '/foo', true],
+  ['/foo', '/foo/', true],
+  ['/foo', '//foo//', true],
+  ['/foo', '/', false],
+  ['/not{a}variable', '/not{a}variable', true],
+  ['/not{a}variable', '/not{b}variable', false],
+  ['/projects/{project_id}', '/projects', false],
+  ['/projects/{project_id}', '/projects/', false],
+  ['/projects/{project_id}', '/projects/p12345', true],
+  ['/projects/{project_id}', '/projects/p12345/', true],
+  ['/projects/{project_id}', '/projects///p12345//', true],
+  ['/projects/{project_id}', '/projects/p12345/child', false],
+  [
+    '/projects/{project_id}/instances/{instance_id}/fwrules/{fwrule_id}/info',
+    '/projects/p1/instances/i2/fwrules/fw3/info',
+    true,
+  ],
+  ['/projects/{project_id}/instances', '/projects/instances', false],
+  ['/projects/{project_id}/instances', '/projects//instances', false],
+  ['/projects/{project_id}/instances', '/projects/foo/instances', true],
+  ['/console/{path:.*}', '/console/missiles/launch', true],
+  ['/console/{path:.*}', '/console', true],
+  ['/console/{path:.*}', '/', false],
+  // console route params only match Nexus params, not literals
+  ['/projects/{project_id}', '/projects/:project', true],
+  ['/projects/new', '/projects/:project', false],
+])('nexusServes(%s, %s) is %s', (template, pathname, expected) => {
+  expect(nexusServes(template, pathname)).toBe(expected)
+})
 
 // Nexus only serves index.html on paths it knows about, so a console route
 // outside them works on client-side navigation but 404s on reload or direct
