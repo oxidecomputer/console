@@ -36,7 +36,7 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "openapi-gen-ts": "openapi-gen-ts",
-    "gen-api": "./tools/generate_api_client.sh",
+    "gen-api": "node tools/gen_api.ts",
     "gen-api-latest": "./tools/gen_api_latest.sh",
     "postinstall": "patch-package",
     "prepare": "husky"
