@@ -66,6 +66,7 @@ export type ComboboxBaseProps = {
    * type in new values that aren't in the list [default is `false`]
    */
   allowArbitraryValues?: boolean
+  renderArbitraryLabel?: (value: string) => ReactNode
   /**
    * Pass in `onInputChange` when an event should be triggered when the user types in the field;
    * This is distinct from `onChange` which is triggered when the user selects an item from the list.
@@ -103,6 +104,7 @@ export const Combobox = ({
   onEnter,
   onInputChange,
   allowArbitraryValues = false,
+  renderArbitraryLabel,
   hideOptionalTag,
   inputRef,
   transform,
@@ -146,7 +148,9 @@ export const Combobox = ({
   ) {
     filteredItems.push({
       value: query,
-      label: (
+      label: renderArbitraryLabel ? (
+        renderArbitraryLabel(query)
+      ) : (
         <>
           <span className="text-default">Custom:</span> {query}
         </>

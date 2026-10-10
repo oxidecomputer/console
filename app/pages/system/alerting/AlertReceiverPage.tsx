@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -24,7 +23,7 @@ import {
 import { Webhooks24Icon } from '@oxide/design-system/icons/react'
 import { Button } from '@oxide/design-system/ui'
 
-import { isGlobPattern, isSubscribableClass, subscriptionRegex } from '~/api/util'
+import { isGlobPattern, subscriptionRegex } from '~/api/util'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { validateSubscription } from '~/components/form/fields/SubscriptionsField'
@@ -34,6 +33,7 @@ import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { SubscriptionMatchPreview } from '~/components/SubscriptionMatchPreview'
+import { toClassComboboxItem, useAlertClasses } from '~/hooks/use-alert-classes'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getAlertReceiverSelector, useAlertReceiverSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
@@ -43,18 +43,15 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
-import { type ComboboxItem } from '~/ui/lib/Combobox'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { InlineCode } from '~/ui/lib/InlineCode'
-import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { HintLink } from '~/ui/lib/TextInput'
-import { ALL_ISH } from '~/util/consts'
 import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -226,19 +223,6 @@ function SubscriptionsCard() {
   )
 }
 
-// Combobox item showing the alert class name with its description underneath.
-const toClassComboboxItem = ({
-  name,
-  description,
-}: {
-  name: string
-  description: string
-}): ComboboxItem => ({
-  value: name,
-  selectedLabel: name,
-  label: <ItemLabel name={name}>{description}</ItemLabel>,
-})
-
 function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
   const receiverSelector = useAlertReceiverSelector()
   const { data: receiver } = usePrefetchedQuery(receiverView(receiverSelector))
@@ -246,16 +230,14 @@ function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
   const { control } = form
   const subscription = useWatch({ control, name: 'subscription' })
 
-  const classes = useQuery(q(api.alertClassList, { query: { limit: ALL_ISH } }))
-  const subscribable = (classes.data?.items || []).filter(isSubscribableClass)
-  // undefined while loading so an exact class isn't rejected as unknown before
-  // the list arrives
-  const classNames = classes.data ? new Set(subscribable.map((c) => c.name)) : undefined
+  const { data, isPending, classes } = useAlertClasses()
 
   // leave out classes the receiver already gets, whether subscribed exactly or
   // covered by one of its globs, same as the create form's picker
-  const globs = receiver.subscriptions.filter(isGlobPattern).map(subscriptionRegex)
-  const classItems = subscribable
+  const globs = receiver.subscriptions
+    .filter(isGlobPattern)
+    .flatMap((g) => subscriptionRegex(g) ?? [])
+  const classItems = [...(classes?.values() ?? [])]
     .filter((c) => !receiver.subscriptions.includes(c.name))
     .filter((c) => !globs.some((re) => re.test(c.name)))
     .map(toClassComboboxItem)
@@ -298,12 +280,12 @@ function AddSubscriptionModal({ onDismiss }: { onDismiss: () => void }) {
         label="Subscription"
         placeholder="Enter alert pattern"
         items={classItems}
-        isLoading={classes.isPending}
+        isLoading={isPending}
         allowArbitraryValues
         required
-        validate={(value) => validateSubscription(value, classNames)}
+        validate={validateSubscription(classes)}
       />
-      <SubscriptionMatchPreview data={classes.data} pattern={subscription} />
+      <SubscriptionMatchPreview data={data} pattern={subscription} />
     </ModalForm>
   )
 }
