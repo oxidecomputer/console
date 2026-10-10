@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet } from 'react-router'
 
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -23,17 +24,19 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 
+import type { Route } from './+types/SiloIdpsTab'
+
 const EmptyState = () => (
   <EmptyMessage icon={<Cloud24Icon />} title="No identity providers" />
 )
 
 const colHelper = createColumnHelper<IdentityProvider>()
 
-export const siloIdpList = (silo: string) =>
+const siloIdpList = (silo: string) =>
   getListQFn(api.siloIdentityProviderList, { query: { silo } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { silo } = getSiloSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { silo } = params
   await queryClient.prefetchQuery(siloIdpList(silo).optionsFn())
   return null
 }

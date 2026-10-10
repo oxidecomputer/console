@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, useApiMutation } from '@oxide/api'
 
@@ -18,10 +19,12 @@ import {
   type RouteFormValues,
 } from '~/forms/vpc-router-route-common'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
+import { useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
+
+import type { Route } from './+types/vpc-router-route-create'
 
 const defaultValues: RouteFormValues = {
   name: '',
@@ -32,8 +35,8 @@ const defaultValues: RouteFormValues = {
 
 export const handle = titleCrumb('New Route')
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, vpc } = getVpcRouterSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc } = params
   await Promise.all([
     queryClient.prefetchQuery(
       q(api.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })

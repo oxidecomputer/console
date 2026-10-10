@@ -1,7 +1,7 @@
 {
   "installCommand": "npm install --global npm@12 && npm install",
-  "buildCommand": "API_MODE=msw npm run build && cp mockServiceWorker.js dist/ && npx patch-package --reverse",
-  "outputDirectory": "dist",
+  "buildCommand": "API_MODE=msw npm run build && cp mockServiceWorker.js build/client/ && npx patch-package --reverse",
+  "outputDirectory": "build/client",
   "headers": [
     {
       "source": "/(.*)",

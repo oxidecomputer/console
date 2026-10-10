@@ -12,6 +12,8 @@
   npm run dev
   ```
 
+- `npm run build` renders `index.html` through a temporary local preview server, so it needs to bind a localhost port. If you're running in a sandbox that blocks local port binding, the build fails at the prerender step with `listen EPERM`; run it outside the sandbox.
+
 # React & TypeScript conventions
 
 - Use `useEffect` as a last resort. Try to find a non-effect version first; see https://react.dev/learn/you-might-not-need-an-effect.md for the hard cases.
@@ -83,8 +85,8 @@
 
 # Routing
 
-- Add routes in `app/routes.tsx`, using `lazy(() => import(...).then(convert))` so loaders become `clientLoader` and components stay tree-shakeable.
-- Export navigation helpers via `pb` in `app/util/path-builder.ts`; every new route should get a path-builder entry and appear in `app/util/path-builder.spec.ts`'s snapshot.
+- Add routes in `app/routes.ts` with React Router framework route helpers. Route files export a default component, `clientLoader`, and `handle` as needed. Use the local `empty()` helper for outlet-only routes; breadcrumb-bearing routes need a module exporting `handle`. Keep ordinary helper functions out of route exports so Fast Refresh can accept them.
+- Export navigation helpers via `pb` in `app/util/path-builder.ts`, using typed `href()` calls. Every new route should get a path-builder entry and appear in `app/util/path-builder.spec.ts`'s snapshot.
 - Breadcrumbs come from route `handle.crumb`; use `makeCrumb`/`titleCrumb` and provide a `path` when the parent route redirects (`app/hooks/use-crumbs.ts`). Use `titleCrumb` for side modal forms that should appear in page title but not nav breadcrumbs (check `Crumb.titleOnly` flag).
 - When adding tabs or redirects, wire the canonical link in the path builder (e.g., point to the default tab) and update the sidebar/quick actions as needed.
 - For tabs synced with the URL, use `QueryParamTabs` (`app/components/QueryParamTabs.tsx`).
@@ -119,7 +121,8 @@
 
 # Route params & loaders
 
-- Wrap `useParams` with the provided selectors (`useProjectSelector`, `useInstanceSelector`, etc.) so required params throw during dev and produce memoized results safe for dependency arrays (`app/hooks/use-params.ts`).
+- In route modules, use generated `Route.ClientLoaderArgs` and `Route.ComponentProps` from `./+types/<module>` for typed params. Shared components can keep the selector hooks (`useProjectSelector`, `useInstanceSelector`, etc.) for scoped params and memoized objects. Run `npm run tsc` to regenerate route types after changing the route config.
+- In loaders, destructure the params you need (`const { project, vpc } = params`) rather than passing `params` through. It also holds params from child routes, which TypeScript won't flag as extra keys, and a query builder that forwards its argument as the API query would add them to the request and the cache key, so the component's query misses the prefetch.
 - Prefer `queryClient.fetchQuery` inside `clientLoader` blocks when the page needs data up front, and throw `trigger404` on real misses so the error boundary renders Not Found.
 
 # UI components & styling

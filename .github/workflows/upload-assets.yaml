@@ -23,14 +23,14 @@ jobs:
       - name: Build for Nexus
         run: SHA=${{ github.sha }} npm run build
       - name: Gzip individual files (keep originals)
-        run: ls dist/assets/*.{js,css,map} | xargs gzip --keep
+        run: ls build/client/assets/*.{js,css,map} | xargs gzip --keep
       - name: add console_version file
-        run: echo ${{ github.sha }} > dist/VERSION
+        run: echo ${{ github.sha }} > build/client/VERSION
       - name: add API_VERSION file
-        run: cp app/api/__generated__/API_VERSION dist/API_VERSION
+        run: cp app/api/__generated__/API_VERSION build/client/API_VERSION
       - run: mkdir -p releases/console
       - name: Make <sha>.tar.gz
-        run: tar czf releases/console/${{ github.sha }}.tar.gz --directory=dist .
+        run: tar czf releases/console/${{ github.sha }}.tar.gz --directory=build/client .
       - name: Write sha256sum to file
         run: sha256sum releases/console/${{ github.sha }}.tar.gz | awk '{print $1}' > releases/console/${{ github.sha }}.sha256.txt
       - name: Upload files to GCP bucket

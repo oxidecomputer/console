@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet } from 'react-router'
 
 import { api, getListQFn, queryClient, useApiMutation, type VpcSubnet } from '@oxide/api'
 
@@ -27,12 +28,14 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/VpcSubnetsTab'
+
 const colHelper = createColumnHelper<VpcSubnet>()
 
 const subnetList = (params: PP.Vpc) => getListQFn(api.vpcSubnetList, { query: params })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, vpc } = getVpcSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc } = params
   await queryClient.prefetchQuery(subnetList({ project, vpc }).optionsFn())
   return null
 }

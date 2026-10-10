@@ -5,35 +5,28 @@
  *
  * Copyright Oxide Computer Company
  */
+import { href } from 'react-router'
+
 import type * as PP from './path-params.ts'
 
-// these are used as the basis for many routes but are not themselves routes we
-// ever want to link to. so we use this to build the routes but pb.project() is
-// different (includes /instances)
-const projectBase = ({ project }: PP.Project) => `${pb.projects()}/${project}`
-const instanceBase = ({ project, instance }: PP.Instance) =>
-  `${pb.instances({ project })}/${instance}`
-const vpcBase = ({ project, vpc }: PP.Vpc) => `${pb.vpcs({ project })}/${vpc}`
-
-export const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
-  `${instanceBase({ project, instance })}/metrics`
-export const inventoryBase = () => '/system/inventory'
-export const alertingBase = () => '/system/alerting'
-const siloBase = ({ silo }: PP.Silo) => `/system/silos/${silo}`
+export const instanceMetricsBase = (params: PP.Instance) =>
+  href('/projects/:project/instances/:instance/metrics', params)
+export const inventoryBase = () => href('/system/inventory')
+export const alertingBase = () => href('/system/alerting')
 
 export const pb = {
-  projects: () => `/projects`,
-  projectsNew: () => `/projects-new`,
-  project: (params: PP.Project) => `${projectBase(params)}/instances`,
-  projectEdit: (params: PP.Project) => `${projectBase(params)}/edit`,
+  projects: () => href('/projects'),
+  projectsNew: () => href('/projects-new'),
+  project: (params: PP.Project) => href('/projects/:project/instances', params),
+  projectEdit: (params: PP.Project) => href('/projects/:project/edit', params),
 
-  projectAccess: (params: PP.Project) => `${projectBase(params)}/access`,
-  projectImages: (params: PP.Project) => `${projectBase(params)}/images`,
-  projectImagesNew: (params: PP.Project) => `${projectBase(params)}/images-new`,
-  projectImage: (params: PP.Image) => `${pb.projectImages(params)}/${params.image}`,
+  projectAccess: (params: PP.Project) => href('/projects/:project/access', params),
+  projectImages: (params: PP.Project) => href('/projects/:project/images', params),
+  projectImagesNew: (params: PP.Project) => href('/projects/:project/images-new', params),
+  projectImage: (params: PP.Image) => href('/projects/:project/images/:image', params),
 
-  instances: (params: PP.Project) => `${projectBase(params)}/instances`,
-  instancesNew: (params: PP.Project) => `${projectBase(params)}/instances-new`,
+  instances: (params: PP.Project) => href('/projects/:project/instances', params),
+  instancesNew: (params: PP.Project) => href('/projects/:project/instances-new', params),
 
   /**
    * This route exists as a direct link to the default tab of the instance page. Unfortunately
@@ -44,131 +37,156 @@ export const pb = {
    */
   instance: (params: PP.Instance) => pb.instanceStorage(params),
 
-  instanceCpuMetrics: (params: PP.Instance) => `${instanceMetricsBase(params)}/cpu`,
-  instanceDiskMetrics: (params: PP.Instance) => `${instanceMetricsBase(params)}/disk`,
-  instanceNetworkMetrics: (params: PP.Instance) => `${instanceMetricsBase(params)}/network`,
-  instanceStorage: (params: PP.Instance) => `${instanceBase(params)}/storage`,
-  instanceConnect: (params: PP.Instance) => `${instanceBase(params)}/connect`,
-  instanceNetworking: (params: PP.Instance) => `${instanceBase(params)}/networking`,
-  serialConsole: (params: PP.Instance) => `${instanceBase(params)}/serial-console`,
-  instanceSettings: (params: PP.Instance) => `${instanceBase(params)}/settings`,
+  instanceCpuMetrics: (params: PP.Instance) =>
+    href('/projects/:project/instances/:instance/metrics/cpu', params),
+  instanceDiskMetrics: (params: PP.Instance) =>
+    href('/projects/:project/instances/:instance/metrics/disk', params),
+  instanceNetworkMetrics: (params: PP.Instance) =>
+    href('/projects/:project/instances/:instance/metrics/network', params),
+  instanceStorage: (params: PP.Instance) =>
+    href('/projects/:project/instances/:instance/storage', params),
+  instanceConnect: (params: PP.Instance) =>
+    href('/projects/:project/instances/:instance/connect', params),
+  instanceNetworking: (params: PP.Instance) =>
+    href('/projects/:project/instances/:instance/networking', params),
+  serialConsole: (params: PP.Instance) =>
+    href('/projects/:project/instances/:instance/serial-console', params),
+  instanceSettings: (params: PP.Instance) =>
+    href('/projects/:project/instances/:instance/settings', params),
 
-  disksNew: (params: PP.Project) => `${projectBase(params)}/disks-new`,
-  disks: (params: PP.Project) => `${projectBase(params)}/disks`,
-  disk: (params: PP.Disk) => `${pb.disks(params)}/${params.disk}`,
+  disksNew: (params: PP.Project) => href('/projects/:project/disks-new', params),
+  disks: (params: PP.Project) => href('/projects/:project/disks', params),
+  disk: (params: PP.Disk) => href('/projects/:project/disks/:disk', params),
 
-  snapshotsNew: (params: PP.Project) => `${projectBase(params)}/snapshots-new`,
-  snapshots: (params: PP.Project) => `${projectBase(params)}/snapshots`,
+  snapshotsNew: (params: PP.Project) => href('/projects/:project/snapshots-new', params),
+  snapshots: (params: PP.Project) => href('/projects/:project/snapshots', params),
   snapshotImagesNew: (params: PP.Snapshot) =>
-    `${projectBase(params)}/snapshots/${params.snapshot}/images-new`,
+    href('/projects/:project/snapshots/:snapshot/images-new', params),
 
-  vpcsNew: (params: PP.Project) => `${projectBase(params)}/vpcs-new`,
-  vpcs: (params: PP.Project) => `${projectBase(params)}/vpcs`,
+  vpcsNew: (params: PP.Project) => href('/projects/:project/vpcs-new', params),
+  vpcs: (params: PP.Project) => href('/projects/:project/vpcs', params),
 
   // same deal as instance detail: go straight to first tab
   vpc: (params: PP.Vpc) => pb.vpcFirewallRules(params),
-  vpcEdit: (params: PP.Vpc) => `${vpcBase(params)}/edit`,
+  vpcEdit: (params: PP.Vpc) => href('/projects/:project/vpcs/:vpc/edit', params),
 
-  vpcFirewallRules: (params: PP.Vpc) => `${vpcBase(params)}/firewall-rules`,
-  vpcFirewallRulesNew: (params: PP.Vpc) => `${vpcBase(params)}/firewall-rules-new`,
+  vpcFirewallRules: (params: PP.Vpc) =>
+    href('/projects/:project/vpcs/:vpc/firewall-rules', params),
+  vpcFirewallRulesNew: ({ project, vpc }: PP.Vpc) =>
+    href('/projects/:project/vpcs/:vpc/firewall-rules-new/:rule?', { project, vpc }),
   vpcFirewallRuleClone: (params: PP.FirewallRule) =>
-    `${pb.vpcFirewallRulesNew(params)}/${params.rule}`,
+    href('/projects/:project/vpcs/:vpc/firewall-rules-new/:rule?', params),
   vpcFirewallRuleEdit: (params: PP.FirewallRule) =>
-    `${pb.vpcFirewallRules(params)}/${params.rule}/edit`,
-  vpcRouters: (params: PP.Vpc) => `${vpcBase(params)}/routers`,
-  vpcRoutersNew: (params: PP.Vpc) => `${vpcBase(params)}/routers-new`,
-  vpcRouter: (params: PP.VpcRouter) => `${pb.vpcRouters(params)}/${params.router}`,
-  vpcRouterEdit: (params: PP.VpcRouter) => `${pb.vpcRouter(params)}/edit`,
+    href('/projects/:project/vpcs/:vpc/firewall-rules/:rule/edit', params),
+  vpcRouters: (params: PP.Vpc) => href('/projects/:project/vpcs/:vpc/routers', params),
+  vpcRoutersNew: (params: PP.Vpc) =>
+    href('/projects/:project/vpcs/:vpc/routers-new', params),
+  vpcRouter: (params: PP.VpcRouter) =>
+    href('/projects/:project/vpcs/:vpc/routers/:router', params),
+  vpcRouterEdit: (params: PP.VpcRouter) =>
+    href('/projects/:project/vpcs/:vpc/routers/:router/edit', params),
   vpcRouterRouteEdit: (params: PP.VpcRouterRoute) =>
-    `${pb.vpcRouter(params)}/routes/${params.route}/edit`,
-  vpcRouterRoutesNew: (params: PP.VpcRouter) => `${pb.vpcRouter(params)}/routes-new`,
+    href('/projects/:project/vpcs/:vpc/routers/:router/routes/:route/edit', params),
+  vpcRouterRoutesNew: (params: PP.VpcRouter) =>
+    href('/projects/:project/vpcs/:vpc/routers/:router/routes-new', params),
 
-  vpcSubnets: (params: PP.Vpc) => `${vpcBase(params)}/subnets`,
-  vpcSubnetsNew: (params: PP.Vpc) => `${vpcBase(params)}/subnets-new`,
+  vpcSubnets: (params: PP.Vpc) => href('/projects/:project/vpcs/:vpc/subnets', params),
+  vpcSubnetsNew: (params: PP.Vpc) =>
+    href('/projects/:project/vpcs/:vpc/subnets-new', params),
   vpcSubnetsEdit: (params: PP.VpcSubnet) =>
-    `${pb.vpcSubnets(params)}/${params.subnet}/edit`,
+    href('/projects/:project/vpcs/:vpc/subnets/:subnet/edit', params),
 
-  vpcInternetGateways: (params: PP.Vpc) => `${vpcBase(params)}/internet-gateways`,
+  vpcInternetGateways: (params: PP.Vpc) =>
+    href('/projects/:project/vpcs/:vpc/internet-gateways', params),
   vpcInternetGateway: (params: PP.VpcInternetGateway) =>
-    `${pb.vpcInternetGateways(params)}/${params.gateway}`,
+    href('/projects/:project/vpcs/:vpc/internet-gateways/:gateway', params),
   // vpcInternetGatewaysNew: (params: Vpc) => `${vpcBase(params)}/internet-gateways-new`,
   //
-  externalSubnets: (params: PP.Project) => `${projectBase(params)}/external-subnets`,
-  externalSubnetsNew: (params: PP.Project) => `${projectBase(params)}/external-subnets-new`,
+  externalSubnets: (params: PP.Project) =>
+    href('/projects/:project/external-subnets', params),
+  externalSubnetsNew: (params: PP.Project) =>
+    href('/projects/:project/external-subnets-new', params),
   externalSubnetEdit: (params: PP.ExternalSubnet) =>
-    `${pb.externalSubnets(params)}/${params.externalSubnet}/edit`,
+    href('/projects/:project/external-subnets/:externalSubnet/edit', params),
 
-  floatingIps: (params: PP.Project) => `${projectBase(params)}/floating-ips`,
-  floatingIpsNew: (params: PP.Project) => `${projectBase(params)}/floating-ips-new`,
+  floatingIps: (params: PP.Project) => href('/projects/:project/floating-ips', params),
+  floatingIpsNew: (params: PP.Project) =>
+    href('/projects/:project/floating-ips-new', params),
   floatingIpEdit: (params: PP.FloatingIp) =>
-    `${pb.floatingIps(params)}/${params.floatingIp}/edit`,
+    href('/projects/:project/floating-ips/:floatingIp/edit', params),
 
-  affinity: (params: PP.Project) => `${projectBase(params)}/affinity`,
-  affinityNew: (params: PP.Project) => `${projectBase(params)}/affinity-new`,
+  affinity: (params: PP.Project) => href('/projects/:project/affinity', params),
+  affinityNew: (params: PP.Project) => href('/projects/:project/affinity-new', params),
   antiAffinityGroup: (params: PP.AntiAffinityGroup) =>
-    `${pb.affinity(params)}/${params.antiAffinityGroup}`,
+    href('/projects/:project/affinity/:antiAffinityGroup', params),
   antiAffinityGroupEdit: (params: PP.AntiAffinityGroup) =>
-    `${pb.antiAffinityGroup(params)}/edit`,
+    href('/projects/:project/affinity/:antiAffinityGroup/edit', params),
 
-  siloUtilization: () => '/utilization',
-  siloAccess: () => '/access',
-  siloImages: () => '/images',
-  siloImage: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}`,
+  siloUtilization: () => href('/utilization'),
+  siloAccess: () => href('/access'),
+  siloImages: () => href('/images'),
+  siloImage: (params: PP.SiloImage) => href('/images/:image', params),
 
-  fleetAccess: () => '/system/access',
-  systemMetricsExplorer: () => '/system/metrics-explorer',
-  systemUtilization: () => '/system/utilization',
+  fleetAccess: () => href('/system/access'),
+  systemMetricsExplorer: () => href('/system/metrics-explorer'),
+  systemUtilization: () => href('/system/utilization'),
 
-  ipPools: () => '/system/networking/ip-pools',
-  ipPoolsNew: () => '/system/networking/ip-pools-new',
-  ipPool: (params: PP.IpPool) => `${pb.ipPools()}/${params.pool}`,
-  ipPoolEdit: (params: PP.IpPool) => `${pb.ipPool(params)}/edit`,
-  ipPoolRangeAdd: (params: PP.IpPool) => `${pb.ipPool(params)}/ranges-add`,
+  ipPools: () => href('/system/networking/ip-pools'),
+  ipPoolsNew: () => href('/system/networking/ip-pools-new'),
+  ipPool: (params: PP.IpPool) => href('/system/networking/ip-pools/:pool', params),
+  ipPoolEdit: (params: PP.IpPool) => href('/system/networking/ip-pools/:pool/edit', params),
+  ipPoolRangeAdd: (params: PP.IpPool) =>
+    href('/system/networking/ip-pools/:pool/ranges-add', params),
 
-  subnetPools: () => '/system/networking/subnet-pools',
-  subnetPoolsNew: () => '/system/networking/subnet-pools-new',
-  subnetPool: (params: PP.SubnetPool) => `${pb.subnetPools()}/${params.subnetPool}`,
-  subnetPoolEdit: (params: PP.SubnetPool) => `${pb.subnetPool(params)}/edit`,
-  subnetPoolMemberAdd: (params: PP.SubnetPool) => `${pb.subnetPool(params)}/members-add`,
+  subnetPools: () => href('/system/networking/subnet-pools'),
+  subnetPoolsNew: () => href('/system/networking/subnet-pools-new'),
+  subnetPool: (params: PP.SubnetPool) =>
+    href('/system/networking/subnet-pools/:subnetPool', params),
+  subnetPoolEdit: (params: PP.SubnetPool) =>
+    href('/system/networking/subnet-pools/:subnetPool/edit', params),
+  subnetPoolMemberAdd: (params: PP.SubnetPool) =>
+    href('/system/networking/subnet-pools/:subnetPool/members-add', params),
 
-  alerts: () => `${alertingBase()}/alerts`,
-  alertReceivers: () => `${alertingBase()}/receivers`,
-  alertReceiversNew: () => `${alertingBase()}/receivers-new`,
-  alertReceiver: (params: PP.AlertReceiver) => `${pb.alertReceivers()}/${params.receiver}`,
-  alertReceiverEdit: (params: PP.AlertReceiver) => `${pb.alertReceiver(params)}/edit`,
+  alerts: () => href('/system/alerting/alerts'),
+  alertReceivers: () => href('/system/alerting/receivers'),
+  alertReceiversNew: () => href('/system/alerting/receivers-new'),
+  alertReceiver: (params: PP.AlertReceiver) =>
+    href('/system/alerting/receivers/:receiver', params),
+  alertReceiverEdit: (params: PP.AlertReceiver) =>
+    href('/system/alerting/receivers/:receiver/edit', params),
 
-  sledInventory: () => `${inventoryBase()}/sleds`,
-  diskInventory: () => `${inventoryBase()}/disks`,
-  sledInstances: ({ sledId }: PP.Sled) => `${pb.sledInventory()}/${sledId}/instances`,
+  sledInventory: () => href('/system/inventory/sleds'),
+  diskInventory: () => href('/system/inventory/disks'),
+  sledInstances: (params: PP.Sled) =>
+    href('/system/inventory/sleds/:sledId/instances', params),
 
-  silos: () => '/system/silos',
-  silosNew: () => '/system/silos-new',
+  silos: () => href('/system/silos'),
+  silosNew: () => href('/system/silos-new'),
   // canonical route for silo is first tab
   silo: (params: PP.Silo) => pb.siloIdps(params),
-  siloIdps: (params: PP.Silo) => `${siloBase(params)}/idps`,
-  siloIdpsNew: (params: PP.Silo) => `${siloBase(params)}/idps-new`,
-  siloIpPools: (params: PP.Silo) => `${siloBase(params)}/ip-pools`,
-  siloSubnetPools: (params: PP.Silo) => `${siloBase(params)}/subnet-pools`,
-  siloQuotas: (params: PP.Silo) => `${siloBase(params)}/quotas`,
-  siloFleetRoles: (params: PP.Silo) => `${siloBase(params)}/fleet-roles`,
-  siloScim: (params: PP.Silo) => `${siloBase(params)}/scim`,
+  siloIdps: (params: PP.Silo) => href('/system/silos/:silo/idps', params),
+  siloIdpsNew: (params: PP.Silo) => href('/system/silos/:silo/idps-new', params),
+  siloIpPools: (params: PP.Silo) => href('/system/silos/:silo/ip-pools', params),
+  siloSubnetPools: (params: PP.Silo) => href('/system/silos/:silo/subnet-pools', params),
+  siloQuotas: (params: PP.Silo) => href('/system/silos/:silo/quotas', params),
+  siloFleetRoles: (params: PP.Silo) => href('/system/silos/:silo/fleet-roles', params),
+  siloScim: (params: PP.Silo) => href('/system/silos/:silo/scim', params),
   samlIdp: (params: PP.IdentityProvider) =>
-    `${siloBase(params)}/idps/saml/${params.provider}`,
+    href('/system/silos/:silo/idps/saml/:provider', params),
 
-  systemUpdate: () => '/system/update',
+  systemUpdate: () => href('/system/update'),
 
-  supportBundles: () => '/system/support-bundles',
-  supportBundlesNew: () => '/system/support-bundles-new',
-  supportBundle: (params: PP.SupportBundle) => `${pb.supportBundles()}/${params.bundleId}`,
-  auditLog: () => '/system/audit-log',
+  supportBundles: () => href('/system/support-bundles'),
+  supportBundlesNew: () => href('/system/support-bundles-new'),
+  supportBundle: (params: PP.SupportBundle) =>
+    href('/system/support-bundles/:bundleId', params),
+  auditLog: () => href('/system/audit-log'),
 
-  profile: () => '/settings/profile',
-  sshKeys: () => '/settings/ssh-keys',
-  sshKeysNew: () => '/settings/ssh-keys-new',
-  sshKeyEdit: (params: PP.SshKey) => `/settings/ssh-keys/${params.sshKey}/edit`,
-  accessTokens: () => '/settings/access-tokens',
+  profile: () => href('/settings/profile'),
+  sshKeys: () => href('/settings/ssh-keys'),
+  sshKeysNew: () => href('/settings/ssh-keys-new'),
+  sshKeyEdit: (params: PP.SshKey) => href('/settings/ssh-keys/:sshKey/edit', params),
+  accessTokens: () => href('/settings/access-tokens'),
 
-  deviceSuccess: () => '/device/success',
+  deviceSuccess: () => href('/device/success'),
 }
-
-// export const jelly = 'just kidding'

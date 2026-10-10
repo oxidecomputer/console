@@ -7,14 +7,14 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
 import { Gateway16Icon } from '@oxide/design-system/icons/react'
 
 import { api, q, queryClient, usePrefetchedQuery } from '~/api'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
+import { useInternetGatewaySelector } from '~/hooks/use-params'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -27,6 +27,7 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/internet-gateway-edit'
 import {
   gatewayIpAddressList,
   gatewayIpPoolList,
@@ -66,8 +67,8 @@ function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
   ))
 }
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, vpc, gateway } = getInternetGatewaySelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc, gateway } = params
   await Promise.all([
     queryClient.prefetchQuery(
       q(api.internetGatewayView, {

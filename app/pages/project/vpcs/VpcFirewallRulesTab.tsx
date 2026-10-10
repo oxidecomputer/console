@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 import * as R from 'remeda'
 
 import {
@@ -21,7 +22,7 @@ import {
 
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { ProtocolBadge } from '~/components/ProtocolBadge'
-import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
+import { useVpcSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { EnabledCell } from '~/table/cells/EnabledCell'
@@ -37,6 +38,8 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 import { getProtocolKey } from '~/util/protocol'
 import { titleCase } from '~/util/str'
+
+import type { Route } from './+types/VpcFirewallRulesTab'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
 
@@ -105,8 +108,8 @@ const staticColumns = [
 
 const rulesView = (query: PP.Vpc) => q(api.vpcFirewallRulesView, { query })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, vpc } = getVpcSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc } = params
   await queryClient.prefetchQuery(rulesView({ project, vpc }))
   return null
 }

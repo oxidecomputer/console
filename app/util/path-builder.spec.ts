@@ -5,15 +5,31 @@
  *
  * Copyright Oxide Computer Company
  */
-import { matchRoutes, type RouteObject } from 'react-router'
+import type { RouteConfigEntry } from '@react-router/dev/routes'
+import { matchRoutes, type href, type RouteObject } from 'react-router'
 import * as R from 'remeda'
-import { expect, test } from 'vitest'
+import { expect, expectTypeOf, test } from 'vitest'
 
 import { nexusConsoleRoutes } from '~/api/__generated__/nexus-console'
-import { matchesToCrumbs } from '~/hooks/use-crumbs'
-import { routes } from '~/routes'
+import { matchesToCrumbs, type Crumb } from '~/hooks/use-crumbs'
+import routeConfig from '~/routes'
 
 import { pb } from './path-builder'
+
+const modules = import.meta.glob<{ handle?: Crumb }>(
+  '../{pages,layouts,forms,routes}/**/*.tsx'
+)
+
+// Exercise the real framework config and module handles without starting a browser router.
+function toRoutes(entries: RouteConfigEntry[]): RouteObject[] {
+  return entries.map(({ id, file, path, index, children }) => {
+    const lazy = async () => ({ handle: (await modules[`../${file}`]()).handle })
+    return index
+      ? { id, path, index: true, lazy }
+      : { id, path, lazy, children: children && toRoutes(children) }
+  })
+}
+const routes = toRoutes(routeConfig)
 
 // params can be the same for all of them because they only use what they need
 const params = {
@@ -156,12 +172,7 @@ test('path builder', () => {
 const getMatches = (pathname: string) =>
   Promise.all(
     matchRoutes(routes, pathname)!.map(async (m) => {
-      // lazy can also be an object as of RR 7.5, but we never use it that way
       const lazy = typeof m.route.lazy === 'function' ? m.route.lazy : undefined
-      // As we convert route modules to RR framework mode with lazy imports,
-      // more and more of the routes will have their handles defined inside the
-      // route module. We need to call the lazy function to import the module
-      // contents and fill out the route object with it.
       const route = { ...m.route, ...(await lazy?.()) }
       return {
         pathname: m.pathname,
@@ -224,6 +235,15 @@ test('every page reachable by breadcrumb should have a self-referential breadcru
     if (last === undefined) expect.fail(`Found no breadcrumbs for ${path}`)
     expect(dropFinalSlash(path)).toEqual(dropFinalSlash(last.path))
   }
+})
+
+// These assertions fail typechecking if route type generation stops being included.
+test('generated route types check paths and required params', () => {
+  expectTypeOf<typeof href<'/projects/:project/edit'>>().parameters.toExtend<
+    ['/projects/:project/edit', { project: string }]
+  >()
+  // @ts-expect-error This path is not registered in the route config.
+  expectTypeOf<typeof href<'/not-a-console-route'>>()
 })
 
 // Full path of every leaf route, with optional segments expanded both ways.
