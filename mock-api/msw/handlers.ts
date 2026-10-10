@@ -100,6 +100,7 @@ export const handlers = makeHandlers({
   loginLocal: ({ body: { password } }) => (password === 'bad' ? 401 : 200),
   groupList: (params) => paginated(params.query, db.userGroups),
   groupView: (params) => lookupById(db.userGroups, params.path.groupId),
+  userView: (params) => lookupById(db.users, params.path.userId),
   projectList: ({ query, cookies }) => {
     // this is used to test for the IdP misconfig situation where the user has
     // no role on the silo (see error-pages.e2e.ts). requireRole checks for _at
@@ -3134,5 +3135,4 @@ export const handlers = makeHandlers({
   userLogout: NotImplemented,
   userSessionList: NotImplemented,
   userTokenList: NotImplemented,
-  userView: NotImplemented,
 })

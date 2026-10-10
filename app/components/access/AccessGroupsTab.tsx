@@ -7,6 +7,7 @@
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
+import { Outlet } from 'react-router'
 import * as R from 'remeda'
 
 import {
@@ -26,7 +27,7 @@ import { Badge } from '@oxide/design-system/ui'
 import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { ButtonCell } from '~/table/cells/LinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { MemberCountCell } from '~/table/cells/MemberCountCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -35,8 +36,8 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
+import { pb } from '~/util/path-builder'
 
-import { GroupMembersSideModal } from './GroupMembersSideModal'
 import { roleActions } from './roleActions'
 import { useCanEditSiloPolicy } from './use-can-edit-policy'
 
@@ -61,7 +62,6 @@ const GroupEmptyState = () => (
 type EditingState = { group: Group; defaultRole: RoleKey | undefined }
 
 export function AccessGroupsTab() {
-  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
   const [editingGroup, setEditingGroup] = useState<EditingState | null>(null)
 
   const { data: groups } = usePrefetchedQuery(groupListAll)
@@ -102,9 +102,9 @@ export function AccessGroupsTab() {
       colHelper.accessor('displayName', {
         header: 'Name',
         cell: (info) => (
-          <ButtonCell onClick={() => setSelectedGroup(info.row.original)}>
+          <LinkCell to={pb.siloGroup({ groupId: info.row.original.id })}>
             {info.getValue()}
-          </ButtonCell>
+          </LinkCell>
         ),
       }),
       roleCol,
@@ -160,13 +160,7 @@ export function AccessGroupsTab() {
           defaultValues={{ roleName: editingGroup.defaultRole }}
         />
       )}
-      {selectedGroup && (
-        <GroupMembersSideModal
-          group={selectedGroup}
-          onDismiss={() => setSelectedGroup(null)}
-          siloPolicy={siloPolicy}
-        />
-      )}
+      <Outlet />
     </>
   )
 }

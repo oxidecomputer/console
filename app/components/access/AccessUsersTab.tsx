@@ -7,6 +7,7 @@
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
+import { Outlet } from 'react-router'
 import * as R from 'remeda'
 
 import {
@@ -31,7 +32,7 @@ import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { ButtonCell } from '~/table/cells/LinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
@@ -40,10 +41,10 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
+import { pb } from '~/util/path-builder'
 
 import { roleActions } from './roleActions'
 import { useCanEditSiloPolicy } from './use-can-edit-policy'
-import { UserDetailsSideModal } from './UserDetailsSideModal'
 
 // The API only sorts users by id, so fetch the full set and sort by name
 // client-side. ALL_ISH is the practical ceiling; a silo with more users than
@@ -53,6 +54,15 @@ const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 const policyView = q(api.policyView, {})
 
 const colHelper = createColumnHelper<User>()
+
+const nameCol = colHelper.accessor('displayName', {
+  header: 'Name',
+  cell: (info) => (
+    <LinkCell to={pb.siloUser({ userId: info.row.original.id })}>
+      {info.getValue()}
+    </LinkCell>
+  ),
+})
 
 const timeCreatedCol = colHelper.accessor('timeCreated', Columns.timeCreated)
 
@@ -69,7 +79,6 @@ const EmptyState = () => (
 type EditingState = { user: User; defaultRole: RoleKey | undefined }
 
 export function AccessUsersTab() {
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [editingUser, setEditingUser] = useState<EditingState | null>(null)
 
   const { data: users } = usePrefetchedQuery(userListAll)
@@ -143,19 +152,7 @@ export function AccessUsersTab() {
   )
 
   const staticColumns = useMemo(
-    () => [
-      colHelper.accessor('displayName', {
-        header: 'Name',
-        cell: (info) => (
-          <ButtonCell onClick={() => setSelectedUser(info.row.original)}>
-            {info.getValue()}
-          </ButtonCell>
-        ),
-      }),
-      roleCol,
-      groupsCol,
-      timeCreatedCol,
-    ],
+    () => [nameCol, roleCol, groupsCol, timeCreatedCol],
     [roleCol, groupsCol]
   )
 
@@ -209,14 +206,7 @@ export function AccessUsersTab() {
           defaultValues={{ roleName: editingUser.defaultRole }}
         />
       )}
-      {selectedUser && (
-        <UserDetailsSideModal
-          user={selectedUser}
-          onDismiss={() => setSelectedUser(null)}
-          siloPolicy={siloPolicy}
-          userGroups={groupsByUserId.get(selectedUser.id) ?? []}
-        />
-      )}
+      <Outlet />
     </>
   )
 }

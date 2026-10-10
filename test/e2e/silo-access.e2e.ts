@@ -172,7 +172,8 @@ test('User details side modal shows assigned + via-group roles and group list', 
   await page.goto('/users')
 
   // Open Hannah's details
-  await page.getByRole('button', { name: 'Hannah Arendt' }).click()
+  await page.getByRole('link', { name: 'Hannah Arendt' }).click()
+  await expect(page).toHaveURL(/\/users\/[0-9a-f-]+$/)
   const modal = page.getByRole('dialog')
   await expect(modal).toBeVisible()
   await expect(modal.getByText('Hannah Arendt')).toBeVisible()
@@ -188,12 +189,42 @@ test('User details side modal shows assigned + via-group roles and group list', 
 
   await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
   await expect(modal).toBeHidden()
+  await expect(page).toHaveURL(/\/users$/)
 
   // Hans Jonas inherits silo.collaborator via real-estate-devs
-  await page.getByRole('button', { name: 'Hans Jonas' }).click()
+  await page.getByRole('link', { name: 'Hans Jonas' }).click()
   await expect(modal).toBeVisible()
   const viaRow = modal.getByRole('row').filter({ hasText: 'silo.collaborator' })
   await expect(viaRow).toContainText('via real-estate-devs')
+})
+
+test('User and group detail URLs open the side modal directly', async ({ page }) => {
+  await page.goto('/users')
+  await page.getByRole('link', { name: 'Hannah Arendt' }).click()
+  await expect(page.getByRole('dialog')).toContainText('Hannah Arendt')
+
+  // reload lands on the same user's modal over the Users tab
+  await page.reload()
+  await expect(page.getByRole('dialog')).toContainText('Hannah Arendt')
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+  await expect(page).toHaveURL(/\/users$/)
+  await expect(page.getByRole('tab', { name: 'Users', selected: true })).toBeVisible()
+
+  await page.goto('/groups')
+  await page.getByRole('link', { name: 'real-estate-devs' }).click()
+  await expect(page.getByRole('dialog')).toContainText('real-estate-devs')
+  await page.reload()
+  await expect(page.getByRole('dialog')).toContainText('real-estate-devs')
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+  await expect(page).toHaveURL(/\/groups$/)
+  await expect(page.getByRole('tab', { name: 'Groups', selected: true })).toBeVisible()
+})
+
+test('Unknown user or group ID shows Not Found', async ({ page }) => {
+  await page.goto('/users/7e5a4f1c-2b3d-4e6f-8a9b-0c1d2e3f4a5b')
+  await expect(page.getByText('Page not found')).toBeVisible()
+  await page.goto('/groups/7e5a4f1c-2b3d-4e6f-8a9b-0c1d2e3f4a5b')
+  await expect(page.getByText('Page not found')).toBeVisible()
 })
 
 test('Change and remove a user role from the Users tab', async ({ page }) => {
@@ -297,7 +328,8 @@ test('Groups tab shows roles and member counts; modal lists members', async ({ p
   await expectRowVisible(table, { Name: 'web-devs', Role: '—', Users: '1' })
 
   // Open the real-estate-devs group modal
-  await page.getByRole('button', { name: 'real-estate-devs' }).click()
+  await page.getByRole('link', { name: 'real-estate-devs' }).click()
+  await expect(page).toHaveURL(/\/groups\/[0-9a-f-]+$/)
   const modal = page.getByRole('dialog')
   await expect(modal).toBeVisible()
   await expect(modal.getByText('silo.collaborator')).toBeVisible()

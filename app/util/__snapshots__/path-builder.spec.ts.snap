@@ -701,6 +701,12 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/silos/s/fleet-roles",
     },
   ],
+  "siloGroup (/groups/c2e7b1d4-8f3a-4c6e-b9d1-0a5f7e3c2b8d)": [
+    {
+      "label": "Users & Groups",
+      "path": "/users",
+    },
+  ],
   "siloGroups (/groups)": [
     {
       "label": "Users & Groups",
@@ -801,6 +807,12 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Subnet Pools",
       "path": "/system/silos/s/subnet-pools",
+    },
+  ],
+  "siloUser (/users/a9d4e8f2-3c1b-4f7a-9e2d-6b8c0f1a2d3e)": [
+    {
+      "label": "Users & Groups",
+      "path": "/users",
     },
   ],
   "siloUsers (/users)": [
