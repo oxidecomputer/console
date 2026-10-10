@@ -112,6 +112,10 @@ export const pb = {
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
+  siloUsers: () => '/users',
+  siloUser: ({ userId }: PP.SiloUser) => `${pb.siloUsers()}/${userId}`,
+  siloGroups: () => '/groups',
+  siloGroup: ({ groupId }: PP.SiloGroup) => `${pb.siloGroups()}/${groupId}`,
   siloImages: () => '/images',
   siloImage: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}`,
 

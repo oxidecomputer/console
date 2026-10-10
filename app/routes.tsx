@@ -383,6 +383,21 @@ export const routes = createRoutesFromElements(
         </Route>
 
         <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)} />
+        {/* Users and Groups are sibling routes sharing one "Users & Groups" page */}
+        <Route lazy={() => import('./pages/SiloUsersGroupsPage').then(convert)}>
+          <Route path="users" lazy={() => import('./pages/SiloUsersTab').then(convert)}>
+            <Route
+              path=":userId"
+              lazy={() => import('./pages/SiloUserDetail').then(convert)}
+            />
+          </Route>
+          <Route path="groups" lazy={() => import('./pages/SiloGroupsTab').then(convert)}>
+            <Route
+              path=":groupId"
+              lazy={() => import('./pages/SiloGroupDetail').then(convert)}
+            />
+          </Route>
+        </Route>
       </Route>
 
       {/* PROJECT */}

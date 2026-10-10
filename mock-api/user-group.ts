@@ -35,7 +35,8 @@ export const userGroup3: Json<Group> = {
   time_modified: new Date(2021, 3, 1).toISOString(),
 }
 
-export const userGroups = [userGroup1, userGroup2, userGroup3]
+// ordered by display_name
+export const userGroups = [userGroup3, userGroup2, userGroup1]
 
 type GroupMembership = {
   userId: string
@@ -54,5 +55,9 @@ export const groupMemberships: GroupMembership[] = [
   {
     userId: user5.id,
     groupId: userGroup3.id,
+  },
+  {
+    userId: user1.id,
+    groupId: userGroup2.id,
   },
 ]

@@ -23,6 +23,7 @@ export const nexusConsoleRoutes = [
   '/access',
   '/device/success',
   '/device/verify',
+  '/groups/{path:.*}',
   '/images/{path:.*}',
   '/login/{silo_name}/local',
   '/login/{silo_name}/saml/{provider_name}',
@@ -31,5 +32,6 @@ export const nexusConsoleRoutes = [
   '/projects/{path:.*}',
   '/settings/{path:.*}',
   '/system/{path:.*}',
+  '/users/{path:.*}',
   '/utilization',
 ]

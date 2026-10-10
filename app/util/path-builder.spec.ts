@@ -41,6 +41,8 @@ const params = {
   router: 'r',
   route: 'rr',
   receiver: 'rc',
+  userId: 'a9d4e8f2-3c1b-4f7a-9e2d-6b8c0f1a2d3e',
+  groupId: 'c2e7b1d4-8f3a-4c6e-b9d1-0a5f7e3c2b8d',
 }
 
 test('path builder', () => {
@@ -99,6 +101,8 @@ test('path builder', () => {
         "silo": "/system/silos/s/idps",
         "siloAccess": "/access",
         "siloFleetRoles": "/system/silos/s/fleet-roles",
+        "siloGroup": "/groups/c2e7b1d4-8f3a-4c6e-b9d1-0a5f7e3c2b8d",
+        "siloGroups": "/groups",
         "siloIdps": "/system/silos/s/idps",
         "siloIdpsNew": "/system/silos/s/idps-new",
         "siloImage": "/images/im",
@@ -107,6 +111,8 @@ test('path builder', () => {
         "siloQuotas": "/system/silos/s/quotas",
         "siloScim": "/system/silos/s/scim",
         "siloSubnetPools": "/system/silos/s/subnet-pools",
+        "siloUser": "/users/a9d4e8f2-3c1b-4f7a-9e2d-6b8c0f1a2d3e",
+        "siloUsers": "/users",
         "siloUtilization": "/utilization",
         "silos": "/system/silos",
         "silosNew": "/system/silos-new",

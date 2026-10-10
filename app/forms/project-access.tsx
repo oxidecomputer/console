@@ -16,7 +16,7 @@ import {
 } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -40,7 +40,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
   const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
-      // We don't have the name of the user or group, so we'll just have a generic message
+      // We don't have the name of the user or group, so use a generic message
       addToast({ content: 'Role assigned' })
       onDismiss()
     },
@@ -66,9 +66,13 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
       }}
       loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        updatePolicy.reset() // clear API error state so it doesn't persist on next open
+        onDismiss()
+      }}
     >
-      <ListboxField
+      <ComboboxField
+        placeholder="Select a user or group"
         name="identityId"
         items={actors.map(actorToItem)}
         label="User or group"
@@ -90,11 +94,11 @@ export function ProjectAccessEditUserSideModal({
   defaultValues,
 }: EditRoleModalProps) {
   const { project } = useProjectSelector()
+  const isAssigning = !defaultValues.roleName
 
   const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
-      addToast({ content: 'Role updated' })
       onDismiss()
     },
   })
@@ -104,15 +108,16 @@ export function ProjectAccessEditUserSideModal({
   return (
     <SideModalForm
       form={form}
-      formType="edit"
+      formType={isAssigning ? 'create' : 'edit'}
       resourceName="role"
-      title="Edit role"
+      title={isAssigning ? 'Add project role' : 'Edit project role'}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {name}
         </ResourceLabel>
       }
       onSubmit={({ roleName }) => {
+        if (!roleName) return
         updatePolicy.mutate({
           path: { project },
           body: updateRole({ identityId, identityType, roleName }, policy),
@@ -120,7 +125,10 @@ export function ProjectAccessEditUserSideModal({
       }}
       loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        updatePolicy.reset() // clear API error state so it doesn't persist on next open
+        onDismiss()
+      }}
     >
       <RoleRadioField name="roleName" control={form.control} scope="Project" />
       <SideModalFormDocs docs={[docLinks.access]} />
