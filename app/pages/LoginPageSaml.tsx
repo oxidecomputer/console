@@ -18,7 +18,7 @@ export default function LoginPageSaml() {
   const { silo, provider } = useIdpSelector()
 
   const redirect_uri = searchParams.get('redirect_uri')?.trim()
-  const query = redirect_uri ? `?redirect_uri=${redirect_uri}` : ''
+  const query = redirect_uri ? `?redirect_uri=${encodeURIComponent(redirect_uri)}` : ''
 
   return (
     <>
