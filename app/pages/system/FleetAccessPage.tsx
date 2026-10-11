@@ -26,7 +26,6 @@ import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { roleActions } from '~/components/access/roleActions'
-import { useCanEditFleetPolicy } from '~/components/access/use-can-edit-policy'
 import { DocsPopover } from '~/components/DocsPopover'
 import {
   FleetAccessAddUserSideModal,
@@ -106,7 +105,6 @@ export default function FleetAccessPage() {
   const navigate = useNavigate()
   const { me } = useCurrentUser()
   const { data: fleetPolicy } = usePrefetchedQuery(systemPolicyView)
-  const canEditRoles = useCanEditFleetPolicy(fleetPolicy)
   const { data: users } = usePrefetchedQuery(userList)
   const { data: groups } = usePrefetchedQuery(groupList)
   const { data: silos } = usePrefetchedQuery(siloList)
@@ -232,7 +230,10 @@ export default function FleetAccessPage() {
             },
           ])
           .with({ kind: 'assignment' }, (row) => {
-            const actions = roleActions('fleet', canEditRoles)
+            // Fleet admin can come from a silo's mapped_fleet_roles, which the
+            // client can't cheaply determine, so leave actions enabled and let
+            // the API reject unauthorized changes
+            const actions = roleActions('fleet', true)
             return [
               actions.change(() => setEditingUserRow(row)),
               actions.remove({
@@ -246,7 +247,7 @@ export default function FleetAccessPage() {
           .exhaustive()
       ),
     ],
-    [canEditRoles, fleetPolicy, updatePolicy, me, navigate]
+    [fleetPolicy, updatePolicy, me, navigate]
   )
 
   useQuickActions(

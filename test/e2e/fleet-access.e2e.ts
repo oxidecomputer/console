@@ -141,35 +141,26 @@ test('Self-removal warning on delete', async ({ page }) => {
   await page.getByRole('button', { name: 'Cancel' }).click()
 })
 
-test('Fleet viewer cannot change or remove fleet roles', async ({ browser }) => {
-  // Jane Austen is only a fleet viewer, so she can load the page but lacks
-  // `modify` on the fleet policy (only fleet admins can). Both row actions
-  // should be disabled with an explanation.
+test('Fleet viewer sees an error when changing fleet roles', async ({ browser }) => {
+  // Jane Austen is only a fleet viewer, so she lacks `modify` on the fleet
+  // policy. The actions stay enabled because fleet admin can also come from a
+  // silo's mapped_fleet_roles, which the client can't see, so the API rejects
+  // the change and the form shows the error.
   const page = await getPageAsUser(browser, 'Jane Austen')
   await page.goto('/system/access')
 
-  const table = page.getByRole('table')
   await expect(page.getByRole('heading', { name: /Fleet Access/ })).toBeVisible()
-  await expectRowVisible(table, { Name: 'Hannah Arendt', 'Fleet role': 'fleet.admin' })
 
-  await table
+  await page
     .getByRole('row', { name: 'Hannah Arendt', exact: false })
     .getByRole('button', { name: 'Row actions' })
     .click()
+  await page.getByRole('menuitem', { name: 'Change fleet role' }).click()
 
-  const changeRole = page.getByRole('menuitem', { name: 'Change fleet role' })
-  await expect(changeRole).toBeDisabled()
-  await changeRole.hover()
-  await expect(page.getByRole('tooltip')).toHaveText(
-    "You don't have permission to change fleet roles"
-  )
-
-  const removeRole = page.getByRole('menuitem', { name: 'Remove fleet role' })
-  await expect(removeRole).toBeDisabled()
-  await removeRole.hover()
-  await expect(page.getByRole('tooltip')).toHaveText(
-    "You don't have permission to remove fleet roles"
-  )
+  const dialog = page.getByRole('dialog', { name: 'Edit fleet role' })
+  await dialog.getByRole('radio', { name: /^Viewer / }).click()
+  await dialog.getByRole('button', { name: 'Update role' }).click()
+  await expect(dialog.getByText('Action not authorized')).toBeVisible()
 })
 
 test('Cross-silo user shows UUID with tooltip', async ({ page }) => {

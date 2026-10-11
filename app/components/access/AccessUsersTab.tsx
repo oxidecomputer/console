@@ -93,7 +93,7 @@ export function AccessUsersTab() {
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const roleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
 
-  const canEdit = useCanEditSiloPolicy(siloPolicy)
+  const canEdit = useCanEditSiloPolicy()
   const { me } = useCurrentUser()
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
