@@ -13,6 +13,7 @@ import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 import { AccessRolesTable } from '~/components/access/AccessRolesTable'
 import { DocsPopover } from '~/components/DocsPopover'
 import {
+  invalidateSiloPolicy,
   SiloAccessAddUserSideModal,
   SiloAccessEditUserSideModal,
 } from '~/forms/silo-access'
@@ -52,7 +53,7 @@ export default function SiloAccessPage() {
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
+      invalidateSiloPolicy()
       addToast({ content: 'Access removed' })
     },
   })

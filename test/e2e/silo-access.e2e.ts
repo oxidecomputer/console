@@ -424,4 +424,11 @@ test('Removing your own admin role requires confirmation', async ({ page }) => {
 
   await expect(editForm).toBeHidden()
   await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.viewer' })
+
+  // no longer a silo admin, so role actions are disabled without a navigation
+  await page
+    .getByRole('row', { name: 'Hannah Arendt' })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await expect(page.getByRole('menuitem', { name: 'Change silo role' })).toBeDisabled()
 })

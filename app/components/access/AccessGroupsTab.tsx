@@ -14,7 +14,6 @@ import {
   api,
   deleteRole,
   q,
-  queryClient,
   rolesByIdFromPolicy,
   useApiMutation,
   usePrefetchedQuery,
@@ -24,7 +23,7 @@ import {
 import { PersonGroup24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
+import { invalidateSiloPolicy, SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
@@ -77,7 +76,7 @@ export function AccessGroupsTab() {
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
+      invalidateSiloPolicy()
       addToast({ content: 'Role removed' })
     },
   })

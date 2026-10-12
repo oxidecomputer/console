@@ -34,12 +34,21 @@ import {
   type EditRoleModalProps,
 } from './access-util'
 
+/**
+ * Silo policy changes can change the current user's `siloAdmin` on /v1/me,
+ * which gates role actions, so refresh both.
+ */
+export function invalidateSiloPolicy() {
+  queryClient.invalidateEndpoint('policyView')
+  queryClient.invalidateEndpoint('currentUserView')
+}
+
 export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const actors = useActorsNotInPolicy(policy)
 
   const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
+      invalidateSiloPolicy()
       onDismiss()
     },
   })
@@ -97,7 +106,7 @@ export function SiloAccessEditUserSideModal({
   const myDirectRole = rolesByIdFromPolicy(policy).get(me.id)
   const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
+      invalidateSiloPolicy()
       onDismiss()
     },
   })

@@ -14,7 +14,6 @@ import {
   api,
   deleteRole,
   q,
-  queryClient,
   rolesByIdFromPolicy,
   sortRoleEntries,
   useApiMutation,
@@ -28,7 +27,7 @@ import { Person24Icon, PersonGroup16Icon } from '@oxide/design-system/icons/reac
 import { Badge } from '@oxide/design-system/ui'
 
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
+import { invalidateSiloPolicy, SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
@@ -98,7 +97,7 @@ export function AccessUsersTab() {
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
+      invalidateSiloPolicy()
       addToast({ content: 'Role removed' })
     },
   })
