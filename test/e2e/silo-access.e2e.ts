@@ -18,9 +18,13 @@ test('Silo Access page shows and edits silo role assignments', async ({ page }) 
   await expectRowVisible(table, {
     Name: 'real-estate-devs',
     Type: 'Group',
-    Role: 'silo.collaborator',
+    'Assigned role': 'silo.collaborator',
   })
-  await expectRowVisible(table, { Name: 'Hannah Arendt', Type: 'User', Role: 'silo.admin' })
+  await expectRowVisible(table, {
+    Name: 'Hannah Arendt',
+    Type: 'User',
+    'Assigned role': 'silo.admin',
+  })
 
   // add Jacob Klein as collaborator
   await page.getByRole('button', { name: 'Add user or group' }).click()
@@ -37,7 +41,7 @@ test('Silo Access page shows and edits silo role assignments', async ({ page }) 
   await expectRowVisible(table, {
     Name: 'Jacob Klein',
     Type: 'User',
-    Role: 'silo.collaborator',
+    'Assigned role': 'silo.collaborator',
   })
 
   // change Jacob's role to viewer
@@ -50,7 +54,7 @@ test('Silo Access page shows and edits silo role assignments', async ({ page }) 
   await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
   await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.getByRole('button', { name: 'Update role' }).click()
-  await expectRowVisible(table, { Name: 'Jacob Klein', Role: 'silo.viewer' })
+  await expectRowVisible(table, { Name: 'Jacob Klein', 'Assigned role': 'silo.viewer' })
 
   // remove Jacob's role
   const jacobRow = page.getByRole('row', { name: 'Jacob Klein', exact: false })
@@ -416,14 +420,14 @@ test('Removing your own admin role requires confirmation', async ({ page }) => {
   await expect(confirmModal).toBeHidden()
   await expect(editForm).toBeVisible()
   await editForm.getByRole('button', { name: 'Cancel' }).click()
-  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.admin' })
+  await expectRowVisible(table, { Name: 'Hannah Arendt', 'Assigned role': 'silo.admin' })
 
   // this time, confirm
   await openEditForm()
   await confirmModal.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(editForm).toBeHidden()
-  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.viewer' })
+  await expectRowVisible(table, { Name: 'Hannah Arendt', 'Assigned role': 'silo.viewer' })
 
   // no longer a silo admin, so role actions are disabled without a navigation
   await page

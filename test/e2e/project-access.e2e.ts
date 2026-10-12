@@ -18,26 +18,30 @@ test('Project access shows and edits project role assignments', async ({ page })
   // identities with a direct silo or project role appear; the effective role is
   // the strongest across silo and project
   const table = page.getByRole('table')
-  await expectRowVisible(table, { Name: 'Hannah Arendt', Type: 'User', Role: 'silo.admin' })
+  await expectRowVisible(table, {
+    Name: 'Hannah Arendt',
+    Type: 'User',
+    'Assigned role': 'silo.admin',
+  })
   await expectRowVisible(table, {
     Name: 'Jacob Klein',
     Type: 'User',
-    Role: 'project.collaborator',
+    'Assigned role': 'project.collaborator',
   })
   await expectRowVisible(table, {
     Name: 'Herbert Marcuse',
     Type: 'User',
-    Role: 'project.limited_collaborator',
+    'Assigned role': 'project.limited_collaborator',
   })
   await expectRowVisible(table, {
     Name: 'real-estate-devs',
     Type: 'Group',
-    Role: 'silo.collaborator',
+    'Assigned role': 'silo.collaborator',
   })
   await expectRowVisible(table, {
     Name: 'kernel-devs',
     Type: 'Group',
-    Role: 'project.viewer',
+    'Assigned role': 'project.viewer',
   })
 
   // identities with only an inherited (via-group) role or no role don't appear
@@ -57,7 +61,7 @@ test('Project access shows and edits project role assignments', async ({ page })
   await expectRowVisible(table, {
     Name: 'Simone de Beauvoir',
     Type: 'User',
-    Role: 'project.collaborator',
+    'Assigned role': 'project.collaborator',
   })
 
   // change Simone's role from collaborator to viewer
@@ -70,7 +74,10 @@ test('Project access shows and edits project role assignments', async ({ page })
   await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
   await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.getByRole('button', { name: 'Update role' }).click()
-  await expectRowVisible(table, { Name: user4.display_name, Role: 'project.viewer' })
+  await expectRowVisible(table, {
+    Name: user4.display_name,
+    'Assigned role': 'project.viewer',
+  })
 
   // remove Jacob's project role
   const jacobRow = page.getByRole('row', { name: user3.display_name, exact: false })
@@ -92,7 +99,7 @@ test('Project access shows and edits project role assignments', async ({ page })
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
     Type: 'User',
-    Role: 'silo.admin+1',
+    'Assigned role': 'silo.admin+1',
   })
 })
 
@@ -124,7 +131,7 @@ test('Inherited-only row offers Add project role, not a disabled Change', async 
   await page.getByRole('button', { name: 'Add project role' }).click()
 
   // effective role is still silo.admin, with a +1 badge for the new project role
-  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.admin+1' })
+  await expectRowVisible(table, { Name: 'Hannah Arendt', 'Assigned role': 'silo.admin+1' })
 })
 
 test('Non-admin cannot change or remove project roles', async ({ browser }) => {

@@ -183,18 +183,16 @@ export function AccessRolesTable({
         cell: (info) => identityTypeLabel[info.getValue()],
       }),
       colHelper.accessor('roleBadges', {
-        header: () =>
-          multiScope ? (
-            <span className="inline-flex items-center">
-              Role
-              <TipIcon className="ml-2">
-                A user or group&apos;s effective role is the strongest role across the silo
-                and this project
-              </TipIcon>
-            </span>
-          ) : (
-            'Role'
-          ),
+        header: () => (
+          <span className="inline-flex items-center">
+            Assigned role
+            <TipIcon className="ml-2">
+              {multiScope
+                ? 'Roles assigned directly in the silo or this project. Click a name to see roles inherited through groups.'
+                : 'Roles assigned directly in this silo. Click a name to see roles inherited through groups.'}
+            </TipIcon>
+          </span>
+        ),
         cell: (info) => (
           <ListPlusCell tooltipTitle="Other roles">
             {info.getValue().map(({ scope, roleName }) => (
