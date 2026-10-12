@@ -7,10 +7,13 @@
  */
 import { useQuery } from '@tanstack/react-query'
 
-import { api, q } from '~/api'
-import { ALL_ISH } from '~/util/consts'
+import { groupMemberList } from '~/api'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
 
 export function MemberCountCell({ groupId }: { groupId: string }) {
-  const { data } = useQuery(q(api.userList, { query: { group: groupId, limit: ALL_ISH } }))
-  return data ? <>{data.items.length}</> : null
+  // The loader prefetches member lists without awaiting them, so they may not
+  // be in cache at render time
+  const { data } = useQuery(groupMemberList({ groupId }))
+  if (!data) return <SkeletonCell />
+  return <>{data.items.length}</>
 }

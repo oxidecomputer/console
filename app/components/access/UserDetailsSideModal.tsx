@@ -17,7 +17,8 @@ import { IdentityListTable, RoleAssignmentsTable } from './DetailTables'
 type Props = {
   user: User
   onDismiss: () => void
-  userGroups: Group[]
+  /** Undefined while group memberships are loading */
+  userGroups: Group[] | undefined
   siloPolicy: Policy
   projectPolicy?: Policy
 }
@@ -29,7 +30,8 @@ export function UserDetailsSideModal({
   siloPolicy,
   projectPolicy,
 }: Props) {
-  const roleEntries = userScopedRoleEntries(user.id, userGroups, siloPolicy, projectPolicy)
+  const roleEntries =
+    userGroups && userScopedRoleEntries(user.id, userGroups, siloPolicy, projectPolicy)
 
   return (
     <ReadOnlySideModalForm

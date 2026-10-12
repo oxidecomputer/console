@@ -7,7 +7,14 @@
  */
 import { useState } from 'react'
 
-import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
+import {
+  api,
+  groupMemberList,
+  q,
+  queryClient,
+  useApiMutation,
+  usePrefetchedQuery,
+} from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
 import { AccessRolesTable } from '~/components/access/AccessRolesTable'
@@ -34,9 +41,7 @@ export async function clientLoader() {
   const groups = await queryClient.fetchQuery(groupList)
   // Fire per-group member prefetches but don't await them: they back the user
   // details modal's group list and fill in as they resolve.
-  groups.items.forEach((g) =>
-    queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
-  )
+  groups.items.forEach((g) => queryClient.prefetchQuery(groupMemberList({ groupId: g.id })))
   await Promise.all([
     queryClient.prefetchQuery(policyView),
     queryClient.prefetchQuery(userList),

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { api, q, queryClient } from '@oxide/api'
+import { api, groupMemberList, q, queryClient } from '@oxide/api'
 import { PersonGroup16Icon, PersonGroup24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -32,9 +32,7 @@ export async function clientLoader() {
   // via useQuery/useQueries (not usePrefetchedQuery), so member counts and the
   // per-user group lists fill in as they resolve instead of blocking the page
   // on one request per group.
-  groups.items.forEach((g) =>
-    queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
-  )
+  groups.items.forEach((g) => queryClient.prefetchQuery(groupMemberList({ groupId: g.id })))
   await Promise.all([
     queryClient.prefetchQuery(policyView),
     queryClient.prefetchQuery(userListAll),

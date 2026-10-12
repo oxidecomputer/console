@@ -30,7 +30,7 @@ import { ListPlusCell } from '~/components/ListPlusCell'
 import { invalidateSiloPolicy, SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { addToast } from '~/stores/toast'
-import { EmptyCell } from '~/table/cells/EmptyCell'
+import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -108,6 +108,7 @@ export function AccessUsersTab() {
         id: 'role',
         header: 'Role',
         cell: ({ row }) => {
+          if (!groupsByUserId) return <SkeletonCell />
           const userGroups = groupsByUserId.get(row.original.id) ?? []
           // strongest assignment is the effective role; any others are shown in
           // the user detail side modal, reached by clicking the name
@@ -137,6 +138,7 @@ export function AccessUsersTab() {
         id: 'groups',
         header: 'Groups',
         cell: ({ row }) => {
+          if (!groupsByUserId) return <SkeletonCell />
           const userGroups = groupsByUserId.get(row.original.id) ?? []
           return (
             <ListPlusCell tooltipTitle="Groups">
@@ -157,7 +159,8 @@ export function AccessUsersTab() {
 
   const makeActions = useCallback(
     (user: User): MenuAction[] => {
-      const userGroups = groupsByUserId.get(user.id) ?? []
+      // menus open on click, by which point memberships have almost always loaded
+      const userGroups = groupsByUserId?.get(user.id) ?? []
       const directRole = roleById.get(user.id)
       const entries = sortRoleEntries(
         userScopedRoleEntries(user.id, userGroups, siloPolicy)

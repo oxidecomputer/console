@@ -10,6 +10,7 @@ import type { LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
+  groupMemberList,
   q,
   queryClient,
   useApiMutation,
@@ -44,9 +45,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const groups = await queryClient.fetchQuery(groupListAll)
   // Fire per-group member prefetches but don't await them: they back the user
   // details modal's group list and fill in as they resolve.
-  groups.items.forEach((g) =>
-    queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
-  )
+  groups.items.forEach((g) => queryClient.prefetchQuery(groupMemberList({ groupId: g.id })))
   await Promise.all([
     queryClient.prefetchQuery(policyView),
     queryClient.prefetchQuery(projectPolicyView(selector)),

@@ -265,7 +265,7 @@ export function AccessRolesTable({
           onDismiss={() => setSelectedUser(null)}
           siloPolicy={siloPolicy}
           projectPolicy={projectPolicy}
-          userGroups={groupsByUserId.get(selectedUser.id) ?? []}
+          userGroups={groupsByUserId && (groupsByUserId.get(selectedUser.id) ?? [])}
         />
       )}
       {selectedGroup && (

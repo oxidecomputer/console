@@ -7,13 +7,12 @@
  */
 import { useQuery } from '@tanstack/react-query'
 
-import { api, q, userScopedRoleEntries, type Group, type Policy } from '@oxide/api'
+import { groupMemberList, userScopedRoleEntries, type Group, type Policy } from '@oxide/api'
 import { PersonGroup16Icon } from '@oxide/design-system/icons/react'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
-import { ALL_ISH } from '~/util/consts'
 
 import { IdentityListTable, RoleAssignmentsTable } from './DetailTables'
 
@@ -30,8 +29,8 @@ export function GroupMembersSideModal({
   siloPolicy,
   projectPolicy,
 }: Props) {
-  const { data } = useQuery(q(api.userList, { query: { group: group.id, limit: ALL_ISH } }))
-  const members = data?.items ?? []
+  // not awaited by every loader that leads here, so it may still be loading
+  const { data: members } = useQuery(groupMemberList({ groupId: group.id }))
 
   // groups never inherit, so passing no groups yields the group's direct roles
   const roleEntries = userScopedRoleEntries(group.id, [], siloPolicy, projectPolicy)
@@ -57,7 +56,7 @@ export function GroupMembersSideModal({
       <div className="mt-6">
         <IdentityListTable
           label="Members"
-          items={members}
+          items={members?.items}
           emptyText="This group has no members"
         />
       </div>

@@ -42,7 +42,7 @@ export default function SiloUserDetail() {
       user={user}
       onDismiss={() => navigate(pb.siloUsers())}
       siloPolicy={siloPolicy}
-      userGroups={groupsByUserId.get(user.id) ?? []}
+      userGroups={groupsByUserId && (groupsByUserId.get(user.id) ?? [])}
     />
   )
 }

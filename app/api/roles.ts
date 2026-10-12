@@ -16,6 +16,7 @@ import { useMemo } from 'react'
 import * as R from 'remeda'
 
 import { ALL_ISH } from '~/util/consts'
+import type * as PP from '~/util/path-params'
 
 import type {
   FleetRole,
@@ -215,12 +216,22 @@ export const sortRoleEntries = (entries: ScopedRoleEntry[]) =>
   R.sortBy(entries, (e) => roleOrder[e.roleName])
 
 /**
+ * Members of a group. Shared so loaders and readers use the same query key.
+ * Loaders prefetch this per group without awaiting, so readers use `useQuery`
+ * and handle the pending state.
+ */
+export const groupMemberList = ({ groupId }: PP.SiloGroup) =>
+  q(api.userList, { query: { group: groupId, limit: ALL_ISH } })
+
+/**
  * Builds a map from user ID to the list of groups that user belongs to,
  * firing one query per group to fetch members. Shared between user tabs.
+ * Undefined until every group's members have loaded, since a partial map would
+ * make users look like they have fewer groups (and roles) than they do.
  */
-export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> {
+export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> | undefined {
   const groupMemberPages = useQueries({
-    queries: groups.map((g) => q(api.userList, { query: { group: g.id, limit: ALL_ISH } })),
+    queries: groups.map((g) => groupMemberList({ groupId: g.id })),
     // useQueries returns a new array each render; combine structurally shares
     // the selected data so the Map only changes with groups or memberships
     combine: (results) => results.map((result) => result.data),
@@ -228,14 +239,15 @@ export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> {
 
   return useMemo(() => {
     const map = new Map<string, Group[]>()
-    groups.forEach((group, i) => {
-      const members = groupMemberPages[i]?.items ?? []
-      members.forEach((member) => {
+    for (const [i, group] of groups.entries()) {
+      const page = groupMemberPages[i]
+      if (!page) return undefined
+      for (const member of page.items) {
         const existing = map.get(member.id)
         if (existing) existing.push(group)
         else map.set(member.id, [group])
-      })
-    })
+      }
+    }
     return map
   }, [groups, groupMemberPages])
 }

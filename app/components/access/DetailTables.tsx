@@ -8,6 +8,7 @@
 import { sortRoleEntries, type ScopedRoleEntry } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
+import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { RowActions } from '~/table/columns/action-col'
 import { Table } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'
@@ -15,10 +16,15 @@ import { roleColor } from '~/util/access'
 /**
  * Role/Source table shared by the user and group detail side modals. Entries
  * come from `userScopedRoleEntries` (groups pass an empty groups list, so their
- * entries are all direct). Sorted strongest-first.
+ * entries are all direct). Sorted strongest-first. `entries` is undefined while
+ * group memberships are still loading.
  */
-export function RoleAssignmentsTable({ entries }: { entries: ScopedRoleEntry[] }) {
-  const sorted = sortRoleEntries(entries)
+export function RoleAssignmentsTable({
+  entries,
+}: {
+  entries: ScopedRoleEntry[] | undefined
+}) {
+  const sorted = entries && sortRoleEntries(entries)
   return (
     <table className="ox-table text-sans-md w-full border-separate">
       <Table.Header>
@@ -28,7 +34,9 @@ export function RoleAssignmentsTable({ entries }: { entries: ScopedRoleEntry[] }
         </Table.HeaderRow>
       </Table.Header>
       <Table.Body>
-        {sorted.length === 0 ? (
+        {!sorted ? (
+          <LoadingRow colSpan={2} />
+        ) : sorted.length === 0 ? (
           <Table.Row>
             <Table.Cell colSpan={2} className="text-secondary">
               No roles assigned
@@ -64,7 +72,8 @@ export function IdentityListTable({
   emptyText,
 }: {
   label: string
-  items: { id: string; displayName: string }[]
+  /** Undefined while loading */
+  items: { id: string; displayName: string }[] | undefined
   emptyText: string
 }) {
   return (
@@ -76,7 +85,9 @@ export function IdentityListTable({
         </Table.HeaderRow>
       </Table.Header>
       <Table.Body>
-        {items.length === 0 ? (
+        {!items ? (
+          <LoadingRow colSpan={2} />
+        ) : items.length === 0 ? (
           <Table.Row>
             <Table.Cell colSpan={2} className="text-secondary">
               {emptyText}
@@ -96,3 +107,11 @@ export function IdentityListTable({
     </table>
   )
 }
+
+const LoadingRow = ({ colSpan }: { colSpan: number }) => (
+  <Table.Row>
+    <Table.Cell colSpan={colSpan}>
+      <SkeletonCell />
+    </Table.Cell>
+  </Table.Row>
+)
