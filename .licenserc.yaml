@@ -14,8 +14,7 @@ header:
     - '**/*.{ts,tsx,css,html,js,sh}'
 
   paths-ignore:
-    - 'build'
-    - '.react-router'
+    - 'dist'
     - '**/*.md'
     - 'LICENSE'
     - 'OMICRON_VERSION'

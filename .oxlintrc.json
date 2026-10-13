@@ -159,5 +159,5 @@
       }
     }
   ],
-  "ignorePatterns": ["build/", ".react-router/", "node_modules/", ".claude/"]
+  "ignorePatterns": ["dist/", "build/", ".react-router/", "node_modules/", ".claude/"]
 }
