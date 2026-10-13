@@ -19,6 +19,6 @@
     "types": ["node", "vite/client", "vitest/importMeta"],
     "rootDirs": [".", "./.react-router/types"]
   },
-  "exclude": ["tools/deno", "build", "dist"],
+  "exclude": ["tools/deno", "build"],
   "include": ["**/*", ".react-router/types/**/*"]
 }
