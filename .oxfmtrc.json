@@ -20,7 +20,6 @@
   },
   "experimentalSortPackageJson": false,
   "ignorePatterns": [
-    "dist/**",
     "build/**",
     ".react-router/**",
     "coverage/**",
