@@ -324,7 +324,7 @@ export default function AlertsTab() {
 
   return (
     <>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-2 flex justify-end">
         <FilterPopover
           isFetching={isFiltering}
           resetFieldValues={{ alertClassSearch: '' }}
