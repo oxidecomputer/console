@@ -1,4 +1,4 @@
-#! /usr/bin/env -S deno run --allow-run --allow-net --allow-read --allow-write --allow-env
+#! /usr/bin/env node
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -7,8 +7,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import $ from 'jsr:@david/dax@0.41.0'
-import { parseArgs } from 'jsr:@std/cli@0.224.7'
+import { parseArgs } from 'node:util'
+
+import $ from 'dax'
 
 // This script will not work unless you have the following helpful bits in your SSH config:
 //
@@ -28,16 +29,16 @@ import { parseArgs } from 'jsr:@std/cli@0.224.7'
 const USAGE = `
 Usage:
 
-  tools/deno/dogfood-deploy.ts <console commit hash>
+  tools/deploy-dogfood.ts <console commit hash>
 `.trim()
 
-const args = parseArgs(Deno.args)
-const consoleRevision = args._[0]
+const { positionals } = parseArgs({ allowPositionals: true, strict: false })
+const consoleRevision = positionals[0]
 
 if (!consoleRevision) {
   console.error('Error: Console commit hash is required\n')
   console.info(USAGE)
-  Deno.exit(1)
+  process.exit(1)
 }
 
 const isTag = (await $`git cat-file -t ${consoleRevision}`.noThrow().text()) === 'tag'
@@ -69,7 +70,7 @@ console.info(`Done downloading.\n`)
 const go = await $.confirm(`Deploy console to gimlets ${JSON.stringify(gimletNums)}?`)
 if (!go) {
   console.info('Deploy aborted')
-  Deno.exit()
+  process.exit()
 }
 
 async function deploy(num: string) {

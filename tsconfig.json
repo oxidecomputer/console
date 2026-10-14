@@ -17,6 +17,5 @@
     "skipLibCheck": true,
     "target": "es2024",
     "types": ["node", "vite/client", "vitest/importMeta"]
-  },
-  "exclude": ["tools/deno"]
+  }
 }
