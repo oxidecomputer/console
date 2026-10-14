@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -30,7 +30,7 @@ import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
+import { useVpcRouterSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
@@ -48,6 +48,8 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/RouterPage'
+
 export const handle = makeCrumb((p) => p.router!)
 
 const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
@@ -55,8 +57,9 @@ const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
 
 const routeList = (query: PP.VpcRouter) => getListQFn(api.vpcRouterRouteList, { query })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const routerSelector = getVpcRouterSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc, router } = params
+  const routerSelector = { project, vpc, router }
   await Promise.all([
     queryClient.prefetchQuery(routerView(routerSelector)),
     queryClient.prefetchQuery(routeList(routerSelector).optionsFn()),

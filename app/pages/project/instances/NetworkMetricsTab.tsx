@@ -7,7 +7,6 @@
  */
 
 import { useMemo, useState } from 'react'
-import { type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
@@ -24,16 +23,17 @@ import {
   MetricRow,
   OxqlMetric,
 } from '~/components/oxql-metrics/OxqlMetric'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { useInstanceSelector } from '~/hooks/use-params'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
 
+import type { Route } from './+types/NetworkMetricsTab'
 import { useMetricsContext } from './common'
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, instance } = params
   await queryClient.prefetchQuery(
     q(api.instanceNetworkInterfaceList, {
       query: { project, instance, limit: ALL_ISH },

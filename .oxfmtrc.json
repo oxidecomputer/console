@@ -19,5 +19,12 @@
     ]
   },
   "experimentalSortPackageJson": false,
-  "ignorePatterns": ["dist/**", "coverage/**", "templates/**", "mockServiceWorker.js"]
+  "ignorePatterns": [
+    "dist/**",
+    "build/**",
+    ".react-router/**",
+    "coverage/**",
+    "templates/**",
+    "mockServiceWorker.js"
+  ]
 }

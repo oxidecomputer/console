@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -23,7 +24,7 @@ import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getExternalSubnetSelector, useExternalSubnetSelector } from '~/hooks/use-params'
+import { useExternalSubnetSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { SubnetPoolCell } from '~/table/cells/SubnetPoolCell'
@@ -33,15 +34,19 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/external-subnet-edit'
+
 const externalSubnetView = ({ project, externalSubnet }: PP.ExternalSubnet) =>
   q(api.externalSubnetView, {
     path: { externalSubnet },
     query: { project },
   })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getExternalSubnetSelector(params)
-  const subnet = await queryClient.fetchQuery(externalSubnetView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, externalSubnet } = params
+  const subnet = await queryClient.fetchQuery(
+    externalSubnetView({ project, externalSubnet })
+  )
   await Promise.all([
     queryClient.prefetchQuery(
       // subnet pool cell uses errors allowed, so we have to do that here to match

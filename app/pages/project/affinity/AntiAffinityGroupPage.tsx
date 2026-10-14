@@ -8,7 +8,7 @@
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -52,6 +52,8 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
+import type { Route } from './+types/AntiAffinityGroupPage'
+
 export const handle = makeCrumb(
   (p) => p.antiAffinityGroup!,
   (p) => pb.antiAffinityGroup(getAntiAffinityGroupSelector(p))
@@ -59,8 +61,8 @@ export const handle = makeCrumb(
 
 const colHelper = createColumnHelper<AntiAffinityGroupMember>()
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { antiAffinityGroup, project } = getAntiAffinityGroupSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { antiAffinityGroup, project } = params
   await Promise.all([
     queryClient.prefetchQuery(antiAffinityGroupView({ antiAffinityGroup, project })),
     queryClient.prefetchQuery(antiAffinityGroupMemberList({ antiAffinityGroup, project })),

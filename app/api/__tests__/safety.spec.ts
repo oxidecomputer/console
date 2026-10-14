@@ -98,7 +98,7 @@ it('mock-api is only referenced in test files', () => {
       "AGENTS.md",
       "README.md",
       "app/api/__tests__/client.browser.spec.ts",
-      "app/main.tsx",
+      "app/entry.client.tsx",
       "app/msw-mock-api.ts",
       "docs/mock-api-differences.md",
       "docs/update-pinned-api.md",

@@ -5,10 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo, useRef, useState } from 'react'
-import { type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
@@ -24,7 +24,7 @@ import { Instances24Icon } from '@oxide/design-system/icons/react'
 import { instanceTransitioning } from '~/api/util'
 import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { RefreshButton } from '~/components/RefreshButton'
-import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { ExternalIpsCell } from '~/table/cells/ExternalIpsCell'
 import { InstanceStateCell } from '~/table/cells/InstanceStateCell'
@@ -44,6 +44,7 @@ import { toLocaleTimeString } from '~/util/date'
 import { pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
 
+import type { Route } from './+types/InstancesPage'
 import { useMakeInstanceActions } from './actions'
 import { ResizeInstanceModal } from './InstancePage'
 
@@ -66,8 +67,8 @@ const instanceList = (
   options?: Pick<UseQueryOptions<InstanceResultsPage, ApiError>, 'refetchInterval'>
 ) => getListQFn(api.instanceList, { query: { project } }, options)
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   const instances = await queryClient.fetchQuery(instanceList(project).optionsFn())
   // Warm the external IP cache for each instance in parallel as the route
   // loads. This doesn't add requests: ExternalIpsCell would issue the same

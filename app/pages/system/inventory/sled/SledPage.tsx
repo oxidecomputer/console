@@ -5,27 +5,27 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { requireSledParams, useSledParams } from '~/hooks/use-params'
+import { useSledParams } from '~/hooks/use-params'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/SledPage'
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './SledBadges'
 
 const sledView = ({ sledId }: PP.Sled) => q(api.sledView, { path: { sledId } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = requireSledParams(params)
-  await queryClient.fetchQuery(sledView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { sledId } = params
+  await queryClient.fetchQuery(sledView({ sledId }))
   return null
 }
 export const handle = makeCrumb(

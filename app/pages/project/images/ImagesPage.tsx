@@ -5,10 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet } from 'react-router'
 
 import { api, getListQFn, q, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
@@ -36,6 +37,8 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/ImagesPage'
+
 const EmptyState = () => (
   <EmptyMessage
     icon={<Images24Icon />}
@@ -50,8 +53,8 @@ const colHelper = createColumnHelper<Image>()
 
 const imageList = (query: PP.Project) => getListQFn(api.imageList, { query })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   await queryClient.prefetchQuery(imageList({ project }).optionsFn())
   return null
 }
