@@ -5,14 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { $ } from 'jsr:@david/dax@0.41.0'
+import $ from 'dax'
 
 export async function pickPr(repo: string): Promise<number> {
   if (!$.commandExistsSync('gh')) throw new Error('Need gh (GitHub CLI)')
   if (!$.commandExistsSync('fzf')) throw new Error('Need fzf to pick a PR')
 
-  const selection = await $`gh pr list --repo ${repo} --limit 100
-      --json number,title,updatedAt,author
+  const selection = await $`gh pr list --repo ${repo} --limit 100 \
+      --json number,title,updatedAt,author \
       --template '{{range .}}{{tablerow .number .title .author.name (timeago .updatedAt)}}{{end}}'`
     .pipe($`fzf --height 25% --reverse`)
     .text()

@@ -1,4 +1,4 @@
-#! /usr/bin/env -S deno run --allow-run --allow-net --allow-read --allow-write=/tmp --allow-env
+#! /usr/bin/env node
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -7,9 +7,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Command, ValidationError } from 'jsr:@cliffy/command@1.0.0'
-import { $ } from 'jsr:@david/dax@0.41.0'
-import { exists } from 'jsr:@std/fs@1.0'
+import { existsSync } from 'node:fs'
+import { mkdir, writeFile } from 'node:fs/promises'
+
+import { Command, Option } from '@commander-js/extra-typings'
+import $ from 'dax'
 
 import { isJjRepository, pickPr, resolveLocalCommit } from './common.ts'
 
@@ -122,7 +124,7 @@ const remoteSource: Source = {
 /** Read schemas from the git repo in the current directory (run from an omicron checkout) */
 async function createLocalSource(): Promise<Source> {
   if (!$.commandExistsSync('git')) throw new Error('--local requires git')
-  const repoRoot = Deno.cwd()
+  const repoRoot = process.cwd()
   // jj's working copy is always a commit, so in a jj repo @ is the natural
   // default and reflects in-progress (even uncommitted) work. Plain git uses HEAD.
   const isJj = await isJjRepository(repoRoot)
@@ -243,8 +245,6 @@ async function resolveTarget(
 
   // Two refs: compare latest schema on each
   if (ref2 !== undefined) {
-    if (ref1 === undefined)
-      throw new ValidationError('Provide a base ref when passing two refs')
     const [baseRef, headRef] = await Promise.all([
       source.resolveCommit(norm(ref1)),
       source.resolveCommit(norm(ref2)),
@@ -297,11 +297,11 @@ async function ensureSchema(
 ) {
   const dir = `/tmp/api-diff/${commit}/${specFilename}`
   const schemaPath = `${dir}/spec.json`
-  if (force || !(await exists(schemaPath))) {
-    await $`mkdir -p ${dir}`
+  if (force || !existsSync(schemaPath)) {
+    await mkdir(dir, { recursive: true })
     console.error(`Loading ${specFilename}...`)
     const content = await source.readSpec(commit, specFilename)
-    await Deno.writeTextFile(schemaPath, content)
+    await writeFile(schemaPath, content)
   }
   return schemaPath
 }
@@ -315,15 +315,15 @@ const OXFMT_CONFIG = '/tmp/api-diff/oxfmt.json'
  */
 async function ensureClientTools() {
   await $`npx --yes --package @oxide/openapi-gen-ts@latest --package oxfmt true`
-  await $`mkdir -p /tmp/api-diff`
+  await mkdir('/tmp/api-diff', { recursive: true })
   // an explicit (empty) config silences oxfmt's "No config found" warning
-  await Deno.writeTextFile(OXFMT_CONFIG, '{}\n')
+  await writeFile(OXFMT_CONFIG, '{}\n')
 }
 
 async function ensureClient(schemaPath: string, force: boolean) {
   const dir = schemaPath.replace(/\/spec\.json$/, '')
   const clientPath = `${dir}/Api.ts`
-  if (force || !(await exists(clientPath))) {
+  if (force || !existsSync(clientPath)) {
     console.error(`Generating client...`)
     await $`npx --yes @oxide/openapi-gen-ts@latest ${schemaPath} ${dir}`
     await $`npx --yes oxfmt -c ${OXFMT_CONFIG} ${dir}`
@@ -345,7 +345,7 @@ async function runDiff(
   const filename = base.endsWith('spec.json') ? 'spec.json' : 'Api.ts'
   // prefer delta if it exists and output is a terminal, otherwise use diff
   // https://dandavison.github.io/delta/
-  const useDelta = $.commandExistsSync('delta') && Deno.stdout.isTerminal()
+  const useDelta = $.commandExistsSync('delta') && process.stdout.isTTY
 
   // use -L to set labels, extracting version from spec filename (e.g., nexus-2026010300.0.0-7599dd.json)
   const getVersion = (spec: string) =>
@@ -359,9 +359,10 @@ async function runDiff(
 
 await new Command()
   .name('api-diff')
-  .description(
-    `Display changes to API client or schema caused by a given Omicron PR.
-
+  .description('Display changes to API client or schema caused by a given Omicron PR.')
+  .addHelpText(
+    'after',
+    `
 Arguments:
   No args          Interactive PR picker (or, with --local, the default ref)
   <ref>            PR number, commit SHA, branch, or tag
@@ -376,32 +377,29 @@ the current schema (nexus-latest) at each commit:
 Refs are git revisions (jj revsets in a jj repo). PR numbers are not available.
 
 Dependencies:
-  - Deno
+  - Node.js
   - GitHub CLI (gh), or git in the current directory with --local
   - Optional: delta diff pager https://dandavison.github.io/delta/
   - Optional: fzf for PR picker https://github.com/junegunn/fzf`
   )
-  .helpOption('-h, --help', 'Show help')
   .option('--local', 'Read schemas from the repo in the current directory')
   .option('--force', 'Redo everything even if cached')
-  .type('format', ({ value }) => {
-    if (value !== 'ts' && value !== 'schema') {
-      throw new ValidationError(`Invalid format: '${value}'. Must be 'ts' or 'schema'`)
-    }
-    return value
-  })
-  .option('-f, --format <format:format>', "Output format: 'ts' or 'schema'", {
-    default: 'ts' as const,
-  })
-  .arguments('[ref1:string] [ref2:string]')
-  .action(async (options, ref?: string, ref2?: string) => {
+  .addOption(
+    new Option('-f, --format <format>', 'Output format')
+      .choices(['ts', 'schema'] as const)
+      .default('ts' as const)
+  )
+  .argument('[ref1]')
+  .argument('[ref2]')
+  .showHelpAfterError()
+  .action(async (ref, ref2, options) => {
     try {
       const local = options.local ?? false
+      const force = options.force ?? false
       if (!local && !$.commandExistsSync('gh')) throw new Error('Need gh (GitHub CLI)')
       const source = local ? await createLocalSource() : remoteSource
 
       const target = await resolveTarget(source, local, ref, ref2)
-      const force = options.force ?? false
 
       const [baseSchema, headSchema] = await Promise.all([
         ensureSchema(source, target.baseCommit, target.baseSchema, force),
@@ -420,7 +418,7 @@ Dependencies:
       }
     } catch (e) {
       console.error(`error: ${e instanceof Error ? e.message : String(e)}`)
-      Deno.exit(1)
+      process.exit(1)
     }
   })
-  .parse(Deno.args)
+  .parseAsync()

@@ -97,6 +97,7 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@commander-js/extra-typings": "^15.0.0",
     "@mswjs/http-middleware": "^0.10.3",
     "@oxide/openapi-gen-ts": "~0.16.0",
     "@playwright/test": "^1.61.0",
@@ -113,6 +114,8 @@
     "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/browser-playwright": "^5.0.3",
+    "commander": "^15.0.0",
+    "dax": "^0.50.1",
     "eslint-plugin-playwright": "^2.10.4",
     "eslint-plugin-react-hook-form": "^0.3.1",
     "husky": "^9.1.7",
