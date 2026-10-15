@@ -2502,6 +2502,38 @@ export const handlers = makeHandlers({
   },
 
   // SCIM token endpoints
+  siloCertificateList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    const silo = lookup.silo({ silo: query.silo })
+    const certs = db.certificates
+      .filter((c) => c.siloId === silo.id)
+      .map(({ siloId: _siloId, ...cert }) => cert)
+    return paginated(query, certs)
+  },
+  siloCertificateCreate({ query, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const silo = lookup.silo({ silo: query.silo })
+    errIfExists(
+      db.certificates.filter((c) => c.siloId === silo.id),
+      { name: body.name },
+      'certificate'
+    )
+    const { key: _key, ...rest } = body
+    const newCert: Json<Api.Certificate> = { id: uuid(), ...getTimestamps(), ...rest }
+    db.certificates.push({ ...newCert, siloId: silo.id })
+    return json(newCert, { status: 201 })
+  },
+  siloCertificateView({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const { siloId: _siloId, ...cert } = lookup.siloCertificate({ ...path, ...query })
+    return cert
+  },
+  siloCertificateDelete({ path, query, cookies }) {
+    requireFleetAdmin(cookies)
+    const cert = lookup.siloCertificate({ ...path, ...query })
+    db.certificates = db.certificates.filter((c) => c.id !== cert.id)
+    return 204
+  },
   scimTokenList({ query, cookies }) {
     const silo = lookup.silo({ silo: query.silo })
     requireFleetAdminOrSiloAdmin(cookies, silo.id)
@@ -3036,10 +3068,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  siloCertificateCreate: NotImplemented,
-  siloCertificateDelete: NotImplemented,
-  siloCertificateList: NotImplemented,
-  siloCertificateView: NotImplemented,
   instanceMulticastGroupJoin: NotImplemented,
   instanceMulticastGroupLeave: NotImplemented,
   instanceMulticastGroupList: NotImplemented,

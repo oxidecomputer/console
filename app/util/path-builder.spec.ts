@@ -114,6 +114,7 @@ test('path builder', () => {
         "serialConsole": "/projects/p/instances/i/serial-console",
         "silo": "/system/silos/s/idps",
         "siloAccess": "/access",
+        "siloCertificates": "/system/silos/s/certificates",
         "siloFleetRoles": "/system/silos/s/fleet-roles",
         "siloIdps": "/system/silos/s/idps",
         "siloIdpsNew": "/system/silos/s/idps-new",

@@ -586,3 +586,40 @@ test('Quotas tab', async ({ page }) => {
   await expectRowVisible(table, { Resource: 'Memory', Quota: '50 GiB' })
   await expectRowVisible(table, { Resource: 'Storage', Quota: '7168 GiB' })
 })
+
+test('Silo certificates tab', async ({ page }) => {
+  await page.goto('/system/silos/maze-war/certificates')
+  const table = page.getByRole('table')
+  await expectRowVisible(table, {
+    name: 'maze-war-cert',
+    Domains: 'maze-war.sys.oxide-dev.test*.maze-war.sys.oxide-dev.test',
+  })
+
+  // add
+  await page.getByRole('button', { name: 'Add certificate' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Add TLS certificate' })
+  await dialog.getByRole('textbox', { name: 'Name' }).fill('new-cert')
+  await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page.getByLabel('Key'), 'small')
+  await page.getByRole('button', { name: 'Add Certificate' }).click()
+  await expect(dialog).toBeHidden()
+  await closeToast(page)
+  await expectRowVisible(table, { name: 'new-cert' })
+
+  // no last-cert warning while other certs remain
+  const confirm = page.getByRole('dialog', { name: 'Delete certificate' })
+  const lastCertWarning = confirm.getByText('This is the only certificate')
+  for (const name of ['maze-war-cert-old', 'new-cert']) {
+    await clickRowAction(page, name, 'Delete')
+    await expect(lastCertWarning).toBeHidden()
+    await confirm.getByRole('button', { name: 'Confirm' }).click()
+    await expect(page.getByRole('cell', { name, exact: true })).toBeHidden()
+    await closeToast(page)
+  }
+
+  // warning on the last one
+  await clickRowAction(page, 'maze-war-cert', 'Delete')
+  await expect(lastCertWarning).toBeVisible()
+  await confirm.getByRole('button', { name: 'Confirm' }).click()
+  await expect(page.getByText('No certificates')).toBeVisible()
+})

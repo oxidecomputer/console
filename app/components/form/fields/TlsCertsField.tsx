@@ -11,7 +11,7 @@ import { useState } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 import type { Merge } from 'type-fest'
 
-import type { CertificateCreate } from '@oxide/api'
+import type { ApiError, CertificateCreate } from '@oxide/api'
 import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 import { getDelegatedDomain } from '~/forms/idp/util'
@@ -117,9 +117,18 @@ type AddCertModalProps = {
   onSubmit: (values: CertFormValues) => void
   allNames: string[]
   siloName: string
+  loading?: boolean
+  submitError?: ApiError | null
 }
 
-const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalProps) => {
+export const AddCertModal = ({
+  onDismiss,
+  onSubmit,
+  allNames,
+  siloName,
+  loading,
+  submitError,
+}: AddCertModalProps) => {
   const { watch, control, handleSubmit } = useForm<CertFormValues>({ defaultValues })
 
   const file = watch('cert')
@@ -157,6 +166,13 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
               domain={getDelegatedDomain(window.location)}
             />
             <FileField id="key-input" name="key" label="Key" required control={control} />
+            {submitError && (
+              <Message
+                variant="error"
+                title="Could not add certificate"
+                content={submitError.message}
+              />
+            )}
           </Modal.Section>
         </form>
       </Modal.Body>
@@ -164,6 +180,7 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
         actionText="Add Certificate"
+        actionLoading={loading}
       />
     </Modal>
   )

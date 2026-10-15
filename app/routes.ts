@@ -67,6 +67,7 @@ export default [
             route('quotas', 'pages/system/silos/SiloQuotasTab.tsx'),
             route('fleet-roles', 'pages/system/silos/SiloFleetRolesTab.tsx'),
             route('scim', 'pages/system/silos/SiloScimTab.tsx'),
+            route('certificates', 'pages/system/silos/SiloCertificatesTab.tsx'),
           ]),
         ]),
         empty('issues'),

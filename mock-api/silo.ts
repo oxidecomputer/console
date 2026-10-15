@@ -8,6 +8,7 @@
 import * as R from 'remeda'
 
 import type {
+  Certificate,
   IdentityProvider,
   SamlIdentityProvider,
   ScimClientBearerToken,
@@ -229,6 +230,47 @@ export const scimTokens: DbScimToken[] = [
     id: 'b2c3d4e5-f6a7-4901-bcde-f12345678901',
     time_created: new Date(2025, 8, 20).toISOString(),
     time_expires: null,
+    siloId: defaultSilo.id,
+  },
+]
+
+// Self-signed, valid until 2036, SANs maze-war.sys.oxide-dev.test and wildcard
+const mazeWarCertPem = `-----BEGIN CERTIFICATE-----
+MIIByDCCAW2gAwIBAgIUKuBoCIKd3mtVnA3Cxk3gfP9hrSAwCgYIKoZIzj0EAwIw
+JjEkMCIGA1UEAwwbbWF6ZS13YXIuc3lzLm94aWRlLWRldi50ZXN0MB4XDTI2MTAx
+NTE2MjQzNFoXDTM2MTAxMjE2MjQzNFowJjEkMCIGA1UEAwwbbWF6ZS13YXIuc3lz
+Lm94aWRlLWRldi50ZXN0MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAElkR9qjM7
+EsZrI8vafuzmk/j7u/5lAaRekCnwHCOPMBUhPUmycy+3O8T75mu0SEFeFUxglRK1
+JIFsYRaGKp5OkKN5MHcwHQYDVR0OBBYEFGKTDcfMv8KXyb5+lTf17rMuYPdsMA8G
+A1UdEwEB/wQFMAMBAf8wRQYDVR0RBD4wPIIbbWF6ZS13YXIuc3lzLm94aWRlLWRl
+di50ZXN0gh0qLm1hemUtd2FyLnN5cy5veGlkZS1kZXYudGVzdDAKBggqhkjOPQQD
+AgNJADBGAiEAqeST0LMSYOw662qNZq6/Kx3JZtQ0W4nMRnrvjNCmvRwCIQDRoJVx
+2OpJKp/Tjo+Y2TudNIefL7OPPGgtdlA6nYBraA==
+-----END CERTIFICATE-----
+`
+
+// Certificates are stored with siloId for filtering, like SCIM tokens
+type DbCertificate = Json<Certificate> & { siloId: string }
+
+export const certificates: DbCertificate[] = [
+  {
+    id: '7d36cbfc-9dba-4600-9816-323a22b4c719',
+    name: 'maze-war-cert',
+    description: 'Wildcard cert for the maze-war silo',
+    cert: mazeWarCertPem,
+    service: 'external_api',
+    time_created: new Date(2025, 8, 15).toISOString(),
+    time_modified: new Date(2025, 8, 15).toISOString(),
+    siloId: defaultSilo.id,
+  },
+  {
+    id: 'b80d698f-4c8c-4394-892b-476541667f3a',
+    name: 'maze-war-cert-old',
+    description: '',
+    cert: mazeWarCertPem,
+    service: 'external_api',
+    time_created: new Date(2024, 2, 1).toISOString(),
+    time_modified: new Date(2024, 2, 1).toISOString(),
     siloId: defaultSilo.id,
   },
 ]
