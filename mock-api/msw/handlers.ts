@@ -33,6 +33,8 @@ import {
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import {
   instanceCan,
+  isGlobPattern,
+  isSubscribableClass,
   MAX_BUNDLE_COMMENT_BYTES,
   OXQL_GROUP_BY_ERROR,
   subscriptionRegex,
@@ -2464,7 +2466,28 @@ export const handlers = makeHandlers({
       final = final.filter((alert) => new Date(alert.time_created) >= startTime)
     if (endTime) final = final.filter((alert) => new Date(alert.time_created) <= endTime)
     if (alertClass) {
+      // Nexus parses the param as a subscription, which 400s on probe,
+      // malformed values, and unrecognized exact classes
+      // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/db-model/src/alert_subscription.rs#L62-L98
+      if (alertClass === 'probe')
+        throw invalidRequest(
+          `unsupported value for "alert_class": the 'probe' alert class is a synthetic alert used only for webhook liveness probes, and is not included in alert lists and cannot be subscribed to`
+        )
       const matcher = subscriptionRegex(alertClass)
+      if (
+        !matcher ||
+        (!isGlobPattern(alertClass) && !alertClasses.some((c) => c.name === alertClass))
+      ) {
+        throw invalidRequest(`'${alertClass}' is not a valid alert class`)
+      }
+      // a well-formed glob matching no classes is a 404
+      // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/db-queries/src/db/datastore/alert.rs#L261-L272
+      if (!alertClasses.filter(isSubscribableClass).some((c) => matcher.test(c.name))) {
+        throw notFoundErr(
+          `alert class glob '${alertClass}' does not match any existing alert classes`
+        )
+      }
+
       final = final.filter((alert) => matcher.test(alert.class))
     }
 
@@ -2935,7 +2958,7 @@ export const handlers = makeHandlers({
     // the real API rejects resends of alerts the receiver is no longer subscribed to
     // https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/src/app/alert.rs#L439-L449
     const subscribed = receiver.subscriptions.some((s) =>
-      subscriptionRegex(s).test(delivery.alert_class)
+      subscriptionRegex(s)?.test(delivery.alert_class)
     )
     if (!subscribed) {
       throw invalidRequest(
