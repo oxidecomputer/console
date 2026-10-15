@@ -270,7 +270,6 @@ export default function AlertsTab() {
         <EmptyMessage
           icon={<Notifications24Icon />}
           title="No matching alerts"
-          body="No alerts match your filters."
           buttonText="Reset filters"
           onClick={() => applyFilter('')}
         />
