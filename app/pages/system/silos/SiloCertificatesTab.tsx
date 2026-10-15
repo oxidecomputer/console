@@ -33,6 +33,7 @@ import { useQueryTable } from '~/table/QueryTable'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Message } from '~/ui/lib/Message'
 import { ALL_ISH } from '~/util/consts'
 
 import type { Route } from './+types/SiloCertificatesTab'
@@ -142,9 +143,17 @@ export default function SiloCertificatesTab() {
           // Nexus allows deleting a silo's last cert, which breaks TLS for the
           // silo. Drop this warning once the API prevents it.
           // https://github.com/oxidecomputer/omicron/issues/11272
-          extraContent: isLastCert
-            ? 'This is the only certificate for this silo. Without it, the silo will not be reachable over HTTPS.'
-            : undefined,
+          // TODO: like the user and group delete discussed in the users and
+          // groups PR, deleting the last cert probably wants a typed
+          // confirmation (enter the cert or silo name) rather than a plain
+          // confirm button.
+          extraContent: isLastCert ? (
+            <Message
+              variant="notice"
+              title="Last certificate"
+              content="This is the only certificate for this silo. Without it, the silo will not be reachable over HTTPS."
+            />
+          ) : undefined,
         }),
       },
     ],
