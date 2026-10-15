@@ -7,7 +7,7 @@
  */
 
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Outlet } from 'react-router'
 
 import {
@@ -27,6 +27,7 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -86,8 +87,10 @@ function DomainsCell({ cert }: { cert: string }) {
 }
 
 const colHelper = createColumnHelper<Certificate>()
-const staticCols = [
-  colHelper.accessor('name', {}),
+const makeStaticCols = (silo: string) => [
+  colHelper.accessor('name', {
+    cell: makeLinkCell((certificate) => pb.siloCertificate({ silo, certificate })),
+  }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('cert', {
     id: 'domains',
@@ -147,6 +150,7 @@ export default function SiloCertificatesTab() {
     [deleteCert, isLastCert]
   )
 
+  const staticCols = useMemo(() => makeStaticCols(silo), [silo])
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
     query: siloCertsQuery(silo),

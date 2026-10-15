@@ -70,6 +70,7 @@ export default [
             layout('pages/system/silos/SiloCertificatesTab.tsx', [
               empty('certificates'),
               route('certificates-new', 'forms/silo-certificate-create.tsx'),
+              route('certificates/:certificate', 'forms/silo-certificate-view.tsx'),
             ]),
           ]),
         ]),

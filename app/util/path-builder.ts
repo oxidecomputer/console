@@ -174,6 +174,8 @@ export const pb = {
   siloCertificates: (params: PP.Silo) => href('/system/silos/:silo/certificates', params),
   siloCertificatesNew: (params: PP.Silo) =>
     href('/system/silos/:silo/certificates-new', params),
+  siloCertificate: (params: PP.SiloCertificate) =>
+    href('/system/silos/:silo/certificates/:certificate', params),
   samlIdp: (params: PP.IdentityProvider) =>
     href('/system/silos/:silo/idps/saml/:provider', params),
 

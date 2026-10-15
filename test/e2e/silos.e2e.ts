@@ -624,3 +624,21 @@ test('Silo certificates tab', async ({ page }) => {
   await confirm.getByRole('button', { name: 'Confirm' }).click()
   await expect(page.getByText('No certificates')).toBeVisible()
 })
+
+test('Silo certificate detail', async ({ page }) => {
+  await page.goto('/system/silos/maze-war/certificates')
+  await page.getByRole('link', { name: 'maze-war-cert-old' }).click()
+  await expect(page).toHaveURL('/system/silos/maze-war/certificates/maze-war-cert-old')
+
+  const modal = page.getByRole('dialog', { name: 'Certificate details' })
+  await expect(
+    modal.getByText('CN=Oxide Dev Intermediate CA, O=Oxide Dev').first()
+  ).toBeVisible()
+  await expect(modal.getByText('Chain (2 certificates)')).toBeVisible()
+  await expect(modal.getByText('Root: CN=Oxide Dev Intermediate CA')).toBeVisible()
+  await expect(modal.getByText('ECDSA P-256')).toBeVisible()
+
+  await modal.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+  await expect(modal).toBeHidden()
+  await expect(page).toHaveURL('/system/silos/maze-war/certificates')
+})

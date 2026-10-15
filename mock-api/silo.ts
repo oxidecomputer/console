@@ -249,6 +249,31 @@ AgNJADBGAiEAqeST0LMSYOw662qNZq6/Kx3JZtQ0W4nMRnrvjNCmvRwCIQDRoJVx
 -----END CERTIFICATE-----
 `
 
+// Leaf for maze-war signed by a dev intermediate CA, plus that CA: a 2-cert chain
+const mazeWarChainPem = `-----BEGIN CERTIFICATE-----
+MIIBizCCATCgAwIBAgIUBLNKr97uHQSxU4DmN0OAmdobgjowCgYIKoZIzj0EAwIw
+ODEiMCAGA1UEAwwZT3hpZGUgRGV2IEludGVybWVkaWF0ZSBDQTESMBAGA1UECgwJ
+T3hpZGUgRGV2MB4XDTI2MTAxNTE3MDIyMloXDTI3MTAxNTE3MDIyMlowJjEkMCIG
+A1UEAwwbbWF6ZS13YXIuc3lzLm94aWRlLWRldi50ZXN0MFkwEwYHKoZIzj0CAQYI
+KoZIzj0DAQcDQgAEwleCvLkvbawUFLkfs4gDnZjkGFjkiqEfh5D6txDRabHTo1Dh
+iReD1QyHrxCifWGeJVpax6QNgy5kvXa6EDtTyqMqMCgwJgYDVR0RBB8wHYIbbWF6
+ZS13YXIuc3lzLm94aWRlLWRldi50ZXN0MAoGCCqGSM49BAMCA0kAMEYCIQCxt0LO
++aInVDyqhu/ouzR7UTIH79C/ZDrjgqdrITJ8yAIhAJye0aVuucWVccgT12NwlMO+
+pMcun4jbGzsIPY2dIN1d
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+MIIBpTCCAUqgAwIBAgIUeEbRcrHC07isMhWvXyO9wBaAfBYwCgYIKoZIzj0EAwIw
+ODEiMCAGA1UEAwwZT3hpZGUgRGV2IEludGVybWVkaWF0ZSBDQTESMBAGA1UECgwJ
+T3hpZGUgRGV2MB4XDTI2MTAxNTE3MDIyMloXDTM2MTAxMjE3MDIyMlowODEiMCAG
+A1UEAwwZT3hpZGUgRGV2IEludGVybWVkaWF0ZSBDQTESMBAGA1UECgwJT3hpZGUg
+RGV2MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEf/H1fKMcaNvv3yb7dIE6X2kN
+Y9IjlWLSltDwPBpVonqgcPrzEYAJZKfFYCFSzlohOwv0s1UOUOSX9Yw9Pu+ndaMy
+MDAwHQYDVR0OBBYEFCpQ9OXUG3w8Gr7wuRMH/AHSofBaMA8GA1UdEwEB/wQFMAMB
+Af8wCgYIKoZIzj0EAwIDSQAwRgIhAMvumMM4u7MjY5cpmzB6DnxYCTxbDxdXdd7b
+jt9sXNefAiEAmZLjluRWCzQK3lJ+9fZR2FE8k9MAU1Hj3EVQ1nhGBFk=
+-----END CERTIFICATE-----
+`
+
 // Certificates are stored with siloId for filtering, like SCIM tokens
 type DbCertificate = Json<Certificate> & { siloId: string }
 
@@ -267,7 +292,7 @@ export const certificates: DbCertificate[] = [
     id: 'b80d698f-4c8c-4394-892b-476541667f3a',
     name: 'maze-war-cert-old',
     description: '',
-    cert: mazeWarCertPem,
+    cert: mazeWarChainPem,
     service: 'external_api',
     time_created: new Date(2024, 2, 1).toISOString(),
     time_modified: new Date(2024, 2, 1).toISOString(),
