@@ -47,7 +47,6 @@ import { defaultSilo, toIdp } from '../silo'
 import { SUPPORT_BUNDLE_SIZE } from '../support-bundle'
 import { timeseriesSchemas } from '../timeseries-schema'
 import { getTimestamps } from '../util'
-import { defaultFirewallRules } from '../vpc'
 import { resendableAlerts, retryPendingDeliveries, validateSubscription } from './alert'
 import {
   db,
@@ -60,6 +59,7 @@ import {
 } from './db'
 import {
   alreadyExistsErr,
+  createVpc,
   currentUser,
   errIfExists,
   errIfInvalidDiskSize,
@@ -90,40 +90,6 @@ import {
 // the snake-cased objects coming straight from the API before the generated
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
-
-/** Shared by `vpcCreate` and `projectCreate`, which can create a default VPC */
-function createVpc(projectId: string, body: Json<Api.VpcCreate>) {
-  const { defaults, ...rest } = body
-  const newVpc: Json<Api.Vpc> = {
-    id: uuid(),
-    project_id: projectId,
-    system_router_id: uuid(),
-    ...rest,
-    // API is supposed to generate one if none provided. close enough
-    ipv6_prefix: body.ipv6_prefix || 'fd2d:4569:88b2::/64',
-    ...getTimestamps(),
-  }
-  db.vpcs.push(newVpc)
-
-  // omitting `defaults` creates all of them. otherwise only the ones listed
-  if (!defaults || defaults.subnet) {
-    const newSubnet: Json<Api.VpcSubnet> = {
-      id: uuid(),
-      name: 'default',
-      vpc_id: newVpc.id,
-      ipv6_block: 'fd2d:4569:88b1::/64',
-      description: '',
-      ipv4_block: '',
-      ...getTimestamps(),
-    }
-    db.vpcSubnets.push(newSubnet)
-  }
-
-  // populate default firewall rules, which are always created
-  db.vpcFirewallRules.push(...defaultFirewallRules(newVpc.id))
-
-  return newVpc
-}
 
 export const handlers = makeHandlers({
   logout: () => 204,
@@ -161,13 +127,12 @@ export const handlers = makeHandlers({
     db.projects.push(newProject)
 
     // omitting `defaults` creates all of them. otherwise only the ones listed
-    const vpcSelection = defaults ? defaults.vpc : { type: 'all' as const }
-    if (vpcSelection) {
+    if (!defaults || defaults.vpc) {
       createVpc(newProject.id, {
         name: 'default',
         dns_name: 'default',
         description: 'Default VPC',
-        defaults: vpcSelection.type === 'all' ? undefined : vpcSelection.defaults,
+        defaults: defaults?.vpc?.type === 'explicit' ? defaults.vpc.defaults : undefined,
       })
     }
 

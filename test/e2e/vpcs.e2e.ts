@@ -129,29 +129,35 @@ test('whitespace-only IPv6 prefix is omitted on VPC create', async ({ page }) =>
   await expect(page.getByRole('heading', { name: 'vpc-generated-v6' })).toBeVisible()
 })
 
-test('can create VPC with and without default subnet', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs')
+test('creates default subnet on VPC create by default', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs-new')
 
   const dialog = page.getByRole('dialog', { name: 'Create VPC' })
-  const createVpc = async (name: string, createDefaultSubnet: boolean) => {
-    await page.getByRole('link', { name: 'New VPC' }).click()
-    await dialog.getByRole('textbox', { name: 'Name', exact: true }).fill(name)
-    await dialog.getByRole('textbox', { name: 'DNS name' }).fill(name)
-    const checkbox = dialog.getByRole('checkbox', { name: 'Create default subnet' })
-    await expect(checkbox).toBeChecked()
-    await checkbox.setChecked(createDefaultSubnet)
-    await dialog.getByRole('button', { name: 'Create VPC' }).click()
-    await expect(dialog).toBeHidden()
-    await expect(page.getByRole('heading', { name })).toBeVisible()
-    await page.getByRole('tab', { name: 'VPC Subnets' }).click()
-  }
+  await dialog.getByRole('textbox', { name: 'Name', exact: true }).fill('vpc-with-subnet')
+  await dialog.getByRole('textbox', { name: 'DNS name' }).fill('vpc-with-subnet')
+  await expect(
+    dialog.getByRole('checkbox', { name: 'Create default subnet' })
+  ).toBeChecked()
+  await dialog.getByRole('button', { name: 'Create VPC' }).click()
 
-  await createVpc('vpc-with-subnet', true)
+  await expect(page.getByRole('heading', { name: 'vpc-with-subnet' })).toBeVisible()
+  await page.getByRole('tab', { name: 'VPC Subnets' }).click()
   await expectRowVisible(page.getByRole('table'), { name: 'default' })
+})
 
-  // client-side nav back to the list to keep the mock db state
-  await page.getByRole('link', { name: 'VPCs' }).first().click()
-  await createVpc('vpc-without-subnet', false)
+test('can skip creating the default subnet', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs-new')
+
+  const dialog = page.getByRole('dialog', { name: 'Create VPC' })
+  await dialog
+    .getByRole('textbox', { name: 'Name', exact: true })
+    .fill('vpc-without-subnet')
+  await dialog.getByRole('textbox', { name: 'DNS name' }).fill('vpc-without-subnet')
+  await dialog.getByRole('checkbox', { name: 'Create default subnet' }).uncheck()
+  await dialog.getByRole('button', { name: 'Create VPC' }).click()
+
+  await expect(page.getByRole('heading', { name: 'vpc-without-subnet' })).toBeVisible()
+  await page.getByRole('tab', { name: 'VPC Subnets' }).click()
   await expect(page.getByText('No VPC subnets')).toBeVisible()
 })
 

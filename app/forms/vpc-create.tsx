@@ -19,6 +19,7 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { Message } from '~/ui/lib/Message'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { validateVpcIpv6Prefix } from '~/util/ip'
 import { docLinks } from '~/util/links'
@@ -72,10 +73,7 @@ export default function CreateVpcSideModalForm() {
         const body: VpcCreate = {
           ...rest,
           ipv6Prefix: ipv6Prefix.trim() || undefined,
-          // omitting `defaults` creates all of them. `{}` creates none, including
-          // any VPC defaults the API adds later, so if `VpcCreateDefaults` gains a
-          // field besides `subnet`, unchecking "Create default subnet" will skip
-          // it too and this form will need updating
+          // omitting `defaults` creates all of them. `{}` also skips any the API adds later
           defaults: createDefaultSubnet ? undefined : {},
         }
         createVpc.mutate({ query: projectSelector, body })
@@ -98,12 +96,16 @@ export default function CreateVpcSideModalForm() {
           return validateVpcIpv6Prefix(prefix)
         }}
       />
-      <CheckboxField name="createDefaultSubnet" control={form.control}>
-        Create default subnet
-        <span className="text-sans-sm text-tertiary mt-1 block">
-          A subnet is required for instances to attach to this VPC
-        </span>
-      </CheckboxField>
+      <div className="space-y-2">
+        <CheckboxField name="createDefaultSubnet" control={form.control}>
+          Create default subnet
+        </CheckboxField>
+        <Message
+          variant="info"
+          className="max-w-lg"
+          content="This VPC will require a subnet for instances to attach to it."
+        />
+      </div>
       <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )

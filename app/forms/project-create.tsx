@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { api, q, queryClient, useApiMutation } from '@oxide/api'
+import { api, q, queryClient, useApiMutation, type ProjectCreate } from '@oxide/api'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -21,9 +21,7 @@ import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-type ProjectCreateFormValues = {
-  name: string
-  description: string
+type ProjectCreateFormValues = Omit<ProjectCreate, 'defaults'> & {
   createDefaultVpc: boolean
 }
 
@@ -62,12 +60,14 @@ export default function ProjectCreateSideModalForm() {
       resourceName="project"
       onDismiss={onDismiss}
       onSubmit={({ name, description, createDefaultVpc }) => {
-        // omitting `defaults` creates all of them. `{}` creates none, including
-        // any project defaults the API adds later, so if `ProjectCreateDefaults`
-        // gains a field besides `vpc`, unchecking "Create default VPC" will skip
-        // it too and this form will need updating
-        const defaults = createDefaultVpc ? undefined : {}
-        createProject.mutate({ body: { name, description, defaults } })
+        createProject.mutate({
+          body: {
+            name,
+            description,
+            // omitting `defaults` creates all of them. `{}` also skips any the API adds later
+            defaults: createDefaultVpc ? undefined : {},
+          },
+        })
       }}
       loading={createProject.isPending || createProject.isSuccess}
       submitError={createProject.error}
