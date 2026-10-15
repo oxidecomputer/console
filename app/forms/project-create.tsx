@@ -8,8 +8,9 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { api, q, queryClient, useApiMutation, type ProjectCreate } from '@oxide/api'
+import { api, q, queryClient, useApiMutation } from '@oxide/api'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -20,9 +21,16 @@ import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: ProjectCreate = {
+type ProjectCreateFormValues = {
+  name: string
+  description: string
+  createDefaultVpc: boolean
+}
+
+const defaultValues: ProjectCreateFormValues = {
   name: '',
   description: '',
+  createDefaultVpc: true,
 }
 
 export const handle = titleCrumb('New project')
@@ -53,14 +61,22 @@ export default function ProjectCreateSideModalForm() {
       formType="create"
       resourceName="project"
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) => {
-        createProject.mutate({ body: { name, description } })
+      onSubmit={({ name, description, createDefaultVpc }) => {
+        // omitting `defaults` creates all of them. `{}` creates none, including
+        // any project defaults the API adds later, so if `ProjectCreateDefaults`
+        // gains a field besides `vpc`, unchecking "Create default VPC" will skip
+        // it too and this form will need updating
+        const defaults = createDefaultVpc ? undefined : {}
+        createProject.mutate({ body: { name, description, defaults } })
       }}
       loading={createProject.isPending || createProject.isSuccess}
       submitError={createProject.error}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <CheckboxField name="createDefaultVpc" control={form.control}>
+        Create default VPC
+      </CheckboxField>
       <SideModalFormDocs docs={[docLinks.projects]} />
     </SideModalForm>
   )

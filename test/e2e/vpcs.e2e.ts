@@ -129,6 +129,32 @@ test('whitespace-only IPv6 prefix is omitted on VPC create', async ({ page }) =>
   await expect(page.getByRole('heading', { name: 'vpc-generated-v6' })).toBeVisible()
 })
 
+test('can create VPC with and without default subnet', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs')
+
+  const dialog = page.getByRole('dialog', { name: 'Create VPC' })
+  const createVpc = async (name: string, createDefaultSubnet: boolean) => {
+    await page.getByRole('link', { name: 'New VPC' }).click()
+    await dialog.getByRole('textbox', { name: 'Name', exact: true }).fill(name)
+    await dialog.getByRole('textbox', { name: 'DNS name' }).fill(name)
+    const checkbox = dialog.getByRole('checkbox', { name: 'Create default subnet' })
+    await expect(checkbox).toBeChecked()
+    await checkbox.setChecked(createDefaultSubnet)
+    await dialog.getByRole('button', { name: 'Create VPC' }).click()
+    await expect(dialog).toBeHidden()
+    await expect(page.getByRole('heading', { name })).toBeVisible()
+    await page.getByRole('tab', { name: 'VPC Subnets' }).click()
+  }
+
+  await createVpc('vpc-with-subnet', true)
+  await expectRowVisible(page.getByRole('table'), { name: 'default' })
+
+  // client-side nav back to the list to keep the mock db state
+  await page.getByRole('link', { name: 'VPCs' }).first().click()
+  await createVpc('vpc-without-subnet', false)
+  await expect(page.getByText('No VPC subnets')).toBeVisible()
+})
+
 test('can create and delete subnet', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/default')
   await page.getByRole('tab', { name: 'VPC Subnets' }).click()
