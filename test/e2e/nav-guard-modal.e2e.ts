@@ -28,8 +28,9 @@ test('navigating away from SideModal form triggers nav guard', async ({ page }) 
 
   // now open the modal
   await page.getByRole('link', { name: 'New Floating IP' }).click()
-  await expectObscured(somethingOnPage) // it's covered by overlay
+  // The click can finish before the route's loader and lazy module are ready.
   await expect(formModal).toBeVisible()
+  await expectObscured(somethingOnPage) // it's covered by overlay
   await formModal.getByRole('textbox', { name: 'Name' }).fill('my-floating-ip')
 
   // form is now dirty, so clicking away should trigger the nav guard

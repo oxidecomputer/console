@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { validateMember } from './subnet-pool-member-add'
+import { validateMember } from './subnet-pool-member-validation'
 
 const validate = (values: Parameters<typeof validateMember>[1]) =>
   validateMember('v4', values)

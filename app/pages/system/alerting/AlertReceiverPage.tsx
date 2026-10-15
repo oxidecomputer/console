@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 import * as R from 'remeda'
 
 import {
@@ -35,7 +35,7 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { SubscriptionMatchPreview } from '~/components/SubscriptionMatchPreview'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { getAlertReceiverSelector, useAlertReceiverSelector } from '~/hooks/use-params'
+import { useAlertReceiverSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -59,14 +59,15 @@ import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/AlertReceiverPage'
 import { DeliveriesTab, deliveryList } from './AlertReceiverDeliveries'
 import { TestingTab } from './AlertReceiverTesting'
 
 const receiverView = ({ receiver }: PP.AlertReceiver) =>
   q(api.alertReceiverView, { path: { receiver } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { receiver } = getAlertReceiverSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { receiver } = params
   await Promise.all([
     queryClient.prefetchQuery(receiverView({ receiver })),
     queryClient.prefetchQuery(deliveryList(receiver).optionsFn()),

@@ -5,17 +5,20 @@
  *
  * Copyright Oxide Computer Company
  */
-import { redirect, type LoaderFunctionArgs } from 'react-router'
+
+import { redirect } from 'react-router'
 
 import { api, q, queryClient } from '@oxide/api'
 
 import { trigger404 } from '~/components/ErrorBoundary'
 import { pb } from '~/util/path-builder'
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
+import type { Route } from './+types/InstanceLookup'
+
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   try {
     const instance = await queryClient.fetchQuery(
-      q(api.instanceView, { path: { instance: params.instance! } })
+      q(api.instanceView, { path: { instance: params.instance } })
     )
     const project = await queryClient.fetchQuery(
       q(api.projectView, { path: { project: instance.projectId } })

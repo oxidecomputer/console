@@ -1,4 +1,4 @@
-#! /usr/bin/env -S deno run --allow-run=gh,git,mktemp --allow-net --allow-read --allow-write --allow-env
+#! /usr/bin/env node
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -7,11 +7,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Command } from 'jsr:@cliffy/command@1.0.0'
-import { Confirm, Input } from 'jsr:@cliffy/prompt@1.0.0'
-import $ from 'jsr:@david/dax@0.41.0'
-import { existsSync } from 'jsr:@std/fs@1.0'
-import * as path from 'jsr:@std/path@1.1.6'
+import { existsSync } from 'node:fs'
+import { writeFile } from 'node:fs/promises'
+import path from 'node:path'
+
+import { Command } from '@commander-js/extra-typings'
+import $ from 'dax'
 
 const OMICRON_DIR = path.resolve('../omicron')
 const GH_MISSING = 'GitHub CLI not found. Please install it and try again.'
@@ -70,7 +71,7 @@ Running 'gh run watch ${workflowId}' to watch the current upload action.
 `
     )
     await $`gh run watch ${workflowId}`
-    return Deno.exit(1)
+    return process.exit(1)
   }
 
   return (await shaResp.text()).trim()
@@ -97,21 +98,18 @@ async function makeOmicronPR(
   {
     // create git worktree for latest main in temp dir. `using` ensures this gets
     // cleaned up at the end of the block
-    // tools/deno is excluded from tsconfig so oxlint lacks types and wrongly
-    // flags `await makeOmicronWorktree()` as not async-disposable
-    // eslint-disable-next-line @typescript-eslint/await-thenable
     await using worktree = await makeOmicronWorktree()
 
     const newSha2 = await fetchTarballSha(consoleCommit)
     const newVersionFile = `COMMIT="${consoleCommit}"\nSHA2="${newSha2}"\n`
 
     const versionFileAbsPath = path.resolve(worktree.dir, 'tools/console_version')
-    await Deno.writeTextFile(versionFileAbsPath, newVersionFile)
+    await writeFile(versionFileAbsPath, newVersionFile)
     console.info('Updated ', versionFileAbsPath)
 
     // cd to omicron, pull main, create new branch, commit changes, push, PR it, go back to
     // main, delete branch
-    Deno.chdir(worktree.dir)
+    process.chdir(worktree.dir)
     await $`git checkout -b ${branchName}`
     console.info('Created branch', branchName)
 
@@ -134,17 +132,13 @@ async function makeOmicronPR(
     await $`gh pr merge ${prNum} --auto --squash`
     console.info('PR set to auto-merge when CI passes')
 
-    // change dir back to omicron before worktree cleanup because Deno gets
-    // confused later when it tries to do anything while still in the deleted dir
-    Deno.chdir(OMICRON_DIR)
+    // change dir back to omicron before worktree cleanup so we're not left
+    // running in a deleted dir
+    process.chdir(OMICRON_DIR)
   }
 
   // worktree has been cleaned up, so branch delete is allowed
   await $`git branch -D ${branchName}`.cwd(OMICRON_DIR)
-}
-
-if (!existsSync(OMICRON_DIR)) {
-  throw new Error(`Omicron repo not found at ${OMICRON_DIR}`)
 }
 
 await new Command()
@@ -158,8 +152,12 @@ Requirements:
   - GitHub CLI installed
   - Omicron is a sibling dir to console`
   )
-  .argument('[commit:string]', 'Console commit (default: main)', { default: 'main' })
-  .action(async (_options, commitIsh) => {
+  .argument('[commit]', 'Console commit', 'main')
+  .action(async (commitIsh) => {
+    if (!existsSync(OMICRON_DIR)) {
+      throw new Error(`Omicron repo not found at ${OMICRON_DIR}`)
+    }
+
     // Ensure local main matches the remote so we don't bump to a stale commit
     if (commitIsh === 'main') {
       const localMain = await $`git rev-parse main`.text()
@@ -184,23 +182,25 @@ Requirements:
 
     console.info(`\n${changesLink}\n\n${commits}\n`)
 
-    const message = (await Input.prompt({ message: 'Description? (enter to skip)' })).trim()
+    const message = (
+      await $.prompt('Description? (enter to skip)', { noClear: true })
+    ).trim()
     const prTitle = 'Bump web console' + (message ? ` (${message})` : '')
     console.info(`\nPR title: ${prTitle}\n`)
 
-    const go = await Confirm.prompt({ message: 'Make Omicron PR?' })
+    const go = await $.confirm('Make Omicron PR?', { default: false, noClear: true })
     if (!go) return
 
     if (!$.commandExistsSync('gh')) throw new Error(GH_MISSING)
 
-    const consoleDir = Deno.cwd() // save it so we can change back
+    const consoleDir = process.cwd() // save it so we can change back
 
     await makeOmicronPR(newConsoleCommit, prTitle, changesLink, commits)
 
     // bump omicron tag in console to current commit
-    Deno.chdir(consoleDir)
+    process.chdir(consoleDir)
     console.info('Bumping omicron tag in console')
     await $`git tag -f -a omicron -m 'pinned commit on omicron main' ${commitIsh}`
     await $`git push -f origin tag omicron`
   })
-  .parse(Deno.args)
+  .parseAsync()

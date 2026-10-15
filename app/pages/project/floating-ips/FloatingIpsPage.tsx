@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import {
   api,
@@ -49,6 +50,8 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
+import type { Route } from './+types/FloatingIpsPage'
+
 const EmptyState = () => (
   <EmptyMessage
     icon={<IpGlobal24Icon />}
@@ -67,8 +70,8 @@ export const handle = makeCrumb('Floating IPs', (p) =>
   pb.floatingIps(getProjectSelector(p))
 )
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   await Promise.all([
     queryClient.fetchQuery(fipList(project).optionsFn()),
     queryClient.fetchQuery(instanceList(project).optionsFn()),

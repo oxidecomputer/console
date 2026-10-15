@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 import * as R from 'remeda'
 
 import {
@@ -22,21 +23,19 @@ import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import {
-  getAntiAffinityGroupSelector,
-  useAntiAffinityGroupSelector,
-} from '~/hooks/use-params'
+import { useAntiAffinityGroupSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
+import type { Route } from './+types/anti-affinity-group-edit'
 import { antiAffinityGroupView } from './affinity-util'
 
 export const handle = titleCrumb('New anti-affinity group')
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, antiAffinityGroup } = getAntiAffinityGroupSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, antiAffinityGroup } = params
   await queryClient.prefetchQuery(antiAffinityGroupView({ project, antiAffinityGroup }))
   return null
 }

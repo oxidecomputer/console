@@ -20,62 +20,59 @@ async function seedTheme(page: Page, theme: string) {
 }
 
 /**
- * Block the app entry so React never boots. This isolates theme-init.js,
- * letting us test the pre-hydration theme. The #root empty check in tests
- * ensures this block is still working.
+ * Block the hydration entry to isolate theme-init.js. Wait for the aborted
+ * request so renaming the entry can't silently turn this into a hydrated test.
  */
-async function blockReact(page: Page) {
-  await page.route('**/app/main.tsx*', (route) => route.abort('blockedbyclient'))
+async function gotoBeforeHydration(page: Page, path: string) {
+  await page.route('**/app/entry.client.tsx*', (route) => route.abort('blockedbyclient'), {
+    times: 1,
+  })
+  await Promise.all([
+    page.waitForEvent('requestfailed', {
+      predicate: (request) => new URL(request.url()).pathname === '/app/entry.client.tsx',
+    }),
+    page.goto(path, { waitUntil: 'domcontentloaded' }),
+  ])
 }
 
 test.describe('theme-init.js (pre-hydration)', () => {
   test('defaults to dark with no stored preference', async ({ page }) => {
-    await blockReact(page)
-    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
-    await expect(page.locator('#root')).toBeEmpty()
+    await gotoBeforeHydration(page, '/projects')
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   })
 
   test('respects stored light preference', async ({ page }) => {
     await seedTheme(page, 'light')
-    await blockReact(page)
-    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
-    await expect(page.locator('#root')).toBeEmpty()
+    await gotoBeforeHydration(page, '/projects')
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
   })
 
   test('respects stored dark preference', async ({ page }) => {
     await seedTheme(page, 'dark')
-    await blockReact(page)
-    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
-    await expect(page.locator('#root')).toBeEmpty()
+    await gotoBeforeHydration(page, '/projects')
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   })
 
-  test('system preference resolves to emulated color scheme', async ({ page }) => {
-    await seedTheme(page, 'system')
-    await blockReact(page)
+  // One navigation per test: WebKit remembers the blocked entry for the life of
+  // the page and doesn't request it again, so a second requestfailed never comes
+  for (const colorScheme of ['light', 'dark'] as const) {
+    test(`system preference resolves to emulated ${colorScheme} scheme`, async ({
+      page,
+    }) => {
+      await seedTheme(page, 'system')
+      await page.emulateMedia({ colorScheme })
+      await gotoBeforeHydration(page, '/projects')
+      await expect(page.locator('html')).toHaveAttribute('data-theme', colorScheme)
+    })
+  }
 
-    await page.emulateMedia({ colorScheme: 'light' })
-    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
-    await expect(page.locator('#root')).toBeEmpty()
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
-
-    await page.emulateMedia({ colorScheme: 'dark' })
-    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
-  })
-
-  test('forces dark on auth pages regardless of preference', async ({ page }) => {
-    await seedTheme(page, 'light')
-    await blockReact(page)
-
-    for (const path of ['/login/default-silo/saml/mock-idp', '/device/verify']) {
-      await page.goto(path, { waitUntil: 'domcontentloaded' })
-      await expect(page.locator('#root')).toBeEmpty()
+  for (const path of ['/login/default-silo/saml/mock-idp', '/device/verify']) {
+    test(`forces dark on ${path} regardless of preference`, async ({ page }) => {
+      await seedTheme(page, 'light')
+      await gotoBeforeHydration(page, path)
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
-    }
-  })
+    })
+  }
 })
 
 test('Login and device pages force dark theme even when preference is light', async ({

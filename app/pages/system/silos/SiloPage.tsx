@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type LoaderFunctionArgs } from 'react-router'
 
 import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
 
@@ -19,8 +18,10 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { silo } = getSiloSelector(params)
+import type { Route } from './+types/SiloPage'
+
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { silo } = params
   await queryClient.prefetchQuery(q(api.siloView, { path: { silo } }))
   return null
 }

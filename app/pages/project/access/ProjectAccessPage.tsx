@@ -5,8 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
@@ -25,7 +25,7 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
-import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { addToast } from '~/stores/toast'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -33,14 +33,16 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/ProjectAccessPage'
+
 const policyView = q(api.policyView, {})
 const projectPolicyView = ({ project }: PP.Project) =>
   q(api.projectPolicyView, { path: { project } })
 const userListAll = q(api.userList, { query: { limit: ALL_ISH } })
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   // groups must resolve before fanning out per-group member fetches
   const groups = await queryClient.fetchQuery(groupListAll)
   // Fire per-group member prefetches but don't await them: they back the user
@@ -48,7 +50,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   groups.items.forEach((g) => queryClient.prefetchQuery(groupMemberList({ groupId: g.id })))
   await Promise.all([
     queryClient.prefetchQuery(policyView),
-    queryClient.prefetchQuery(projectPolicyView(selector)),
+    queryClient.prefetchQuery(projectPolicyView({ project })),
     queryClient.prefetchQuery(userListAll),
   ])
   return null

@@ -114,6 +114,10 @@
         "app/pages/**/*",
         "app/layouts/**/*",
         "app/forms/**/*",
+        "app/routes/**/*",
+        "app/routes.ts",
+        "app/root.tsx",
+        "app/entry.server.tsx",
         "*.config.ts",
         "*.config.mjs",
         "test/e2e/compact-reporter.ts"
@@ -125,6 +129,7 @@
     {
       "files": [
         "**/*.spec.ts",
+        "app/entry.server.tsx",
         "**/*.config.ts",
         "**/*.config.mjs",
         "tools/**/*",
@@ -154,5 +159,5 @@
       }
     }
   ],
-  "ignorePatterns": ["dist/", "node_modules/", ".claude/"]
+  "ignorePatterns": ["dist/", "build/", ".react-router/", "node_modules/", ".claude/"]
 }

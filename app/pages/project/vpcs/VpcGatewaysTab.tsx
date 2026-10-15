@@ -9,10 +9,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet } from 'react-router'
 
 import { api, getListQFn, queryClient, type InternetGateway } from '~/api'
-import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
+import { useVpcSelector } from '~/hooks/use-params'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
 import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
@@ -25,6 +25,7 @@ import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/VpcGatewaysTab'
 import {
   gatewayIpAddressList,
   gatewayIpPoolList,
@@ -62,8 +63,8 @@ const GatewayRoutes = ({ project, vpc, gateway }: PP.VpcInternetGateway) => {
 
 const colHelper = createColumnHelper<InternetGateway>()
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, vpc } = getVpcSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc } = params
   const [gateways, routers] = await Promise.all([
     queryClient.fetchQuery(gatewayList({ project, vpc }).optionsFn()),
     queryClient.fetchQuery(routerList({ project, vpc }).optionsFn()),

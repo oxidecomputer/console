@@ -5,25 +5,28 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, useGroupsByUserId, usePrefetchedQuery } from '@oxide/api'
 
 import { UserDetailsSideModal } from '~/components/access/UserDetailsSideModal'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getSiloUserSelector, useSiloUserSelector } from '~/hooks/use-params'
+import { useSiloUserSelector } from '~/hooks/use-params'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+import type { Route } from './+types/SiloUserDetail'
 
 const userView = ({ userId }: PP.SiloUser) => q(api.userView, { path: { userId } })
 // prefetched by the parent Users & Groups loader
 const policyView = q(api.policyView, {})
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { userId } = params
   // fetchQuery throws on a bad ID so the error boundary renders Not Found
-  await queryClient.fetchQuery(userView(getSiloUserSelector(params)))
+  await queryClient.fetchQuery(userView({ userId }))
   return null
 }
 
