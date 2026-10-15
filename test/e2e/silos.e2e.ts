@@ -596,12 +596,13 @@ test('Silo certificates tab', async ({ page }) => {
   })
 
   // add
-  await page.getByRole('button', { name: 'Add certificate' }).click()
+  await page.getByRole('link', { name: 'Add certificate' }).click()
+  await expect(page).toHaveURL('/system/silos/maze-war/certificates-new')
   const dialog = page.getByRole('dialog', { name: 'Add TLS certificate' })
   await dialog.getByRole('textbox', { name: 'Name' }).fill('new-cert')
-  await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
-  await chooseFile(page.getByLabel('Key'), 'small')
-  await page.getByRole('button', { name: 'Add Certificate' }).click()
+  await chooseFile(dialog.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(dialog.getByLabel('Key'), 'small')
+  await dialog.getByRole('button', { name: 'Add certificate' }).click()
   await expect(dialog).toBeHidden()
   await closeToast(page)
   await expectRowVisible(table, { name: 'new-cert' })

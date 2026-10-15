@@ -8,10 +8,10 @@
 import { SubjectAlternativeNameExtension, X509Certificate } from '@peculiar/x509'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { useController, useForm, type Control } from 'react-hook-form'
+import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import type { Merge } from 'type-fest'
 
-import type { ApiError, CertificateCreate } from '@oxide/api'
+import type { CertificateCreate } from '@oxide/api'
 import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 import { getDelegatedDomain } from '~/forms/idp/util'
@@ -104,7 +104,7 @@ export type CertFormValues = Merge<
   { key: File | null; cert: File | null } // swap strings for Files
 >
 
-const defaultValues: CertFormValues = {
+export const certDefaultValues: CertFormValues = {
   description: '',
   name: '',
   service: 'external_api',
@@ -117,25 +117,11 @@ type AddCertModalProps = {
   onSubmit: (values: CertFormValues) => void
   allNames: string[]
   siloName: string
-  loading?: boolean
-  submitError?: ApiError | null
 }
 
-export const AddCertModal = ({
-  onDismiss,
-  onSubmit,
-  allNames,
-  siloName,
-  loading,
-  submitError,
-}: AddCertModalProps) => {
-  const { watch, control, handleSubmit } = useForm<CertFormValues>({ defaultValues })
-
-  const file = watch('cert')
-
-  const { data: certValidation } = useQuery({
-    queryKey: ['validateCert', ...(file ? [file.name, file.size, file.lastModified] : [])],
-    queryFn: file ? () => file.text().then(parseCertificate) : skipToken,
+const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalProps) => {
+  const { control, handleSubmit } = useForm<CertFormValues>({
+    defaultValues: certDefaultValues,
   })
 
   return (
@@ -143,36 +129,7 @@ export const AddCertModal = ({
       <Modal.Body>
         <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
           <Modal.Section>
-            <NameField
-              name="name"
-              control={control}
-              validate={(name) =>
-                allNames.includes(name)
-                  ? 'A certificate with this name already exists'
-                  : undefined
-              }
-            />
-            <DescriptionField name="description" control={control} />
-            <FileField
-              id="cert-input"
-              name="cert"
-              label="Cert"
-              required
-              control={control}
-            />
-            <CertDomainNotice
-              validation={certValidation}
-              siloName={siloName}
-              domain={getDelegatedDomain(window.location)}
-            />
-            <FileField id="key-input" name="key" label="Key" required control={control} />
-            {submitError && (
-              <Message
-                variant="error"
-                title="Could not add certificate"
-                content={submitError.message}
-              />
-            )}
+            <CertFields control={control} allNames={allNames} siloName={siloName} />
           </Modal.Section>
         </form>
       </Modal.Body>
@@ -180,9 +137,48 @@ export const AddCertModal = ({
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
         actionText="Add Certificate"
-        actionLoading={loading}
       />
     </Modal>
+  )
+}
+
+/** Shared by the silo create form's cert modal and the silo cert create form */
+export function CertFields({
+  control,
+  allNames,
+  siloName,
+}: {
+  control: Control<CertFormValues>
+  allNames: string[]
+  siloName: string
+}) {
+  const file = useWatch({ control, name: 'cert' })
+
+  const { data: certValidation } = useQuery({
+    queryKey: ['validateCert', ...(file ? [file.name, file.size, file.lastModified] : [])],
+    queryFn: file ? () => file.text().then(parseCertificate) : skipToken,
+  })
+
+  return (
+    <>
+      <NameField
+        name="name"
+        control={control}
+        validate={(name) =>
+          allNames.includes(name)
+            ? 'A certificate with this name already exists'
+            : undefined
+        }
+      />
+      <DescriptionField name="description" control={control} />
+      <FileField id="cert-input" name="cert" label="Cert" required control={control} />
+      <CertDomainNotice
+        validation={certValidation}
+        siloName={siloName}
+        domain={getDelegatedDomain(window.location)}
+      />
+      <FileField id="key-input" name="key" label="Key" required control={control} />
+    </>
   )
 }
 

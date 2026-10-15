@@ -115,6 +115,7 @@ test('path builder', () => {
         "silo": "/system/silos/s/idps",
         "siloAccess": "/access",
         "siloCertificates": "/system/silos/s/certificates",
+        "siloCertificatesNew": "/system/silos/s/certificates-new",
         "siloFleetRoles": "/system/silos/s/fleet-roles",
         "siloIdps": "/system/silos/s/idps",
         "siloIdpsNew": "/system/silos/s/idps-new",

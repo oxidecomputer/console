@@ -7,12 +7,12 @@
  */
 
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
+import { Outlet } from 'react-router'
 
 import {
   api,
   getListQFn,
-  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -21,20 +21,21 @@ import {
 import { Key24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { AddCertModal, parseCertificate } from '~/components/form/fields/TlsCertsField'
+import { parseCertificate } from '~/components/form/fields/TlsCertsField'
 import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { useSiloSelector } from '~/hooks/use-params'
+import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { CreateButton } from '~/ui/lib/CreateButton'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { ALL_ISH } from '~/util/consts'
+import { pb } from '~/util/path-builder'
 
 import type { Route } from './+types/SiloCertificatesTab'
 
@@ -55,7 +56,9 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   return null
 }
 
-export const handle = makeCrumb('Certificates')
+export const handle = makeCrumb('Certificates', (params) =>
+  pb.siloCertificates(getSiloSelector(params))
+)
 
 // The API only returns the PEM, so pull domains and expiry out client-side
 function ExpiresCell({ cert }: { cert: string }) {
@@ -100,11 +103,7 @@ const staticCols = [
 ]
 
 export default function SiloCertificatesTab() {
-  const siloSelector = useSiloSelector()
-  const { silo } = siloSelector
-  // prefetched by the parent SiloPage loader
-  const { data: siloData } = usePrefetchedQuery(q(api.siloView, { path: siloSelector }))
-  const [showCreate, setShowCreate] = useState(false)
+  const { silo } = useSiloSelector()
   const { data: allCerts } = usePrefetchedQuery(allSiloCertsQuery(silo).optionsFn())
   const isLastCert = allCerts.items.length === 1
 
@@ -116,18 +115,6 @@ export default function SiloCertificatesTab() {
           Certificate <HL>{variables.path.certificate}</HL> deleted
         </>
       )
-    },
-  })
-
-  const createCert = useApiMutation(api.siloCertificateCreate, {
-    onSuccess(cert) {
-      queryClient.invalidateEndpoint('siloCertificateList')
-      addToast(
-        <>
-          Certificate <HL>{cert.name}</HL> added
-        </>
-      )
-      setShowCreate(false)
     },
   })
 
@@ -170,39 +157,18 @@ export default function SiloCertificatesTab() {
         title="No certificates"
         body="Add a TLS certificate to see it here"
         buttonText="Add certificate"
-        onClick={() => setShowCreate(true)}
+        buttonTo={pb.siloCertificatesNew({ silo })}
       />
     ),
   })
 
-  const allNames = allCerts.items.map((c) => c.name)
-
   return (
     <>
       <div className="mb-3 flex justify-end">
-        <CreateButton onClick={() => setShowCreate(true)}>Add certificate</CreateButton>
+        <CreateLink to={pb.siloCertificatesNew({ silo })}>Add certificate</CreateLink>
       </div>
       {table}
-      {showCreate && (
-        <AddCertModal
-          onDismiss={() => {
-            createCert.reset()
-            setShowCreate(false)
-          }}
-          onSubmit={async ({ cert, key, ...rest }) => {
-            // required fields, always present if form validation passed
-            if (!cert || !key) return
-            createCert.mutate({
-              query: { silo },
-              body: { ...rest, cert: await cert.text(), key: await key.text() },
-            })
-          }}
-          allNames={allNames}
-          siloName={siloData.name}
-          loading={createCert.isPending}
-          submitError={createCert.error}
-        />
-      )}
+      <Outlet />
     </>
   )
 }
