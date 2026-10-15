@@ -67,6 +67,11 @@ export default [
             route('quotas', 'pages/system/silos/SiloQuotasTab.tsx'),
             route('fleet-roles', 'pages/system/silos/SiloFleetRolesTab.tsx'),
             route('scim', 'pages/system/silos/SiloScimTab.tsx'),
+            layout('pages/system/silos/SiloCertificatesTab.tsx', [
+              empty('certificates'),
+              route('certificates-new', 'forms/silo-certificate-create.tsx'),
+              route('certificates/:certificate', 'forms/silo-certificate-view.tsx'),
+            ]),
           ]),
         ]),
         empty('issues'),
