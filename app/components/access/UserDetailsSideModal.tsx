@@ -5,7 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import { userScopedRoleEntries, type Group, type Policy, type User } from '@oxide/api'
+import {
+  userScopedRoleEntries,
+  type Group,
+  type Loadable,
+  type Policy,
+  type User,
+} from '@oxide/api'
 import { Person16Icon } from '@oxide/design-system/icons/react'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
@@ -17,8 +23,7 @@ import { IdentityListTable, RoleAssignmentsTable } from './DetailTables'
 type Props = {
   user: User
   onDismiss: () => void
-  /** Undefined while group memberships are loading */
-  userGroups: Group[] | undefined
+  userGroups: Loadable<Group[]>
   siloPolicy: Policy
   projectPolicy?: Policy
 }
@@ -31,7 +36,12 @@ export function UserDetailsSideModal({
   projectPolicy,
 }: Props) {
   const roleEntries =
-    userGroups && userScopedRoleEntries(user.id, userGroups, siloPolicy, projectPolicy)
+    userGroups.status === 'success'
+      ? {
+          status: userGroups.status,
+          data: userScopedRoleEntries(user.id, userGroups.data, siloPolicy, projectPolicy),
+        }
+      : userGroups
 
   return (
     <ReadOnlySideModalForm

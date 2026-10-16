@@ -7,7 +7,14 @@
  */
 import { useQuery } from '@tanstack/react-query'
 
-import { groupMemberList, userScopedRoleEntries, type Group, type Policy } from '@oxide/api'
+import {
+  groupMemberList,
+  userScopedRoleEntries,
+  type Group,
+  type Loadable,
+  type Policy,
+  type User,
+} from '@oxide/api'
 import { PersonGroup16Icon } from '@oxide/design-system/icons/react'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
@@ -30,10 +37,17 @@ export function GroupMembersSideModal({
   projectPolicy,
 }: Props) {
   // not awaited by every loader that leads here, so it may still be loading
-  const { data: members } = useQuery(groupMemberList({ groupId: group.id }))
+  const membersQuery = useQuery(groupMemberList({ groupId: group.id }))
+  const members: Loadable<User[]> =
+    membersQuery.status === 'success'
+      ? { status: 'success', data: membersQuery.data.items }
+      : { status: membersQuery.status }
 
   // groups never inherit, so passing no groups yields the group's direct roles
-  const roleEntries = userScopedRoleEntries(group.id, [], siloPolicy, projectPolicy)
+  const roleEntries = {
+    status: 'success',
+    data: userScopedRoleEntries(group.id, [], siloPolicy, projectPolicy),
+  } as const
 
   return (
     <ReadOnlySideModalForm
@@ -56,7 +70,7 @@ export function GroupMembersSideModal({
       <div className="mt-6">
         <IdentityListTable
           label="Members"
-          items={members?.items}
+          items={members}
           emptyText="This group has no members"
         />
       </div>

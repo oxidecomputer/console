@@ -9,10 +9,12 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import { useCallback, useMemo, useState } from 'react'
 import { Outlet } from 'react-router'
 import * as R from 'remeda'
+import { match } from 'ts-pattern'
 
 import {
   api,
   deleteRole,
+  groupsOfUser,
   q,
   rolesByIdFromPolicy,
   sortRoleEntries,
@@ -30,7 +32,7 @@ import { ListPlusCell } from '~/components/ListPlusCell'
 import { invalidateSiloPolicy, SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { addToast } from '~/stores/toast'
-import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
+import { EmptyCell, ErrorCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -107,27 +109,34 @@ export function AccessUsersTab() {
       colHelper.display({
         id: 'role',
         header: 'Role',
-        cell: ({ row }) => {
-          if (!groupsByUserId) return <SkeletonCell />
-          const userGroups = groupsByUserId.get(row.original.id) ?? []
-          // strongest assignment is the effective role; any others are shown in
-          // the user detail side modal, reached by clicking the name
-          const effective = sortRoleEntries(
-            userScopedRoleEntries(row.original.id, userGroups, siloPolicy)
-          ).at(0)
-          if (!effective) return <EmptyCell />
-          return (
-            <div className="flex items-center gap-2">
-              <Badge color={roleColor[effective.roleName]}>silo.{effective.roleName}</Badge>
-              {/* call out when the effective role is inherited rather than direct */}
-              {effective.source.type === 'group' && (
-                <TipIcon icon={<PersonGroup16Icon className="text-quaternary h-3 w-3" />}>
-                  via {effective.source.group.displayName}
-                </TipIcon>
-              )}
-            </div>
-          )
-        },
+        cell: ({ row }) =>
+          match(groupsOfUser(groupsByUserId, row.original.id))
+            .with({ status: 'pending' }, () => <SkeletonCell />)
+            .with({ status: 'error' }, () => <ErrorCell />)
+            .with({ status: 'success' }, ({ data: userGroups }) => {
+              // strongest assignment is the effective role; any others are
+              // shown in the user detail side modal, reached by clicking the name
+              const effective = sortRoleEntries(
+                userScopedRoleEntries(row.original.id, userGroups, siloPolicy)
+              ).at(0)
+              if (!effective) return <EmptyCell />
+              return (
+                <div className="flex items-center gap-2">
+                  <Badge color={roleColor[effective.roleName]}>
+                    silo.{effective.roleName}
+                  </Badge>
+                  {/* call out when the effective role is inherited rather than direct */}
+                  {effective.source.type === 'group' && (
+                    <TipIcon
+                      icon={<PersonGroup16Icon className="text-quaternary h-3 w-3" />}
+                    >
+                      via {effective.source.group.displayName}
+                    </TipIcon>
+                  )}
+                </div>
+              )
+            })
+            .exhaustive(),
       }),
     [groupsByUserId, siloPolicy]
   )
@@ -137,17 +146,18 @@ export function AccessUsersTab() {
       colHelper.display({
         id: 'groups',
         header: 'Groups',
-        cell: ({ row }) => {
-          if (!groupsByUserId) return <SkeletonCell />
-          const userGroups = groupsByUserId.get(row.original.id) ?? []
-          return (
-            <ListPlusCell tooltipTitle="Groups">
-              {userGroups.map((g) => (
-                <span key={g.id}>{g.displayName}</span>
-              ))}
-            </ListPlusCell>
-          )
-        },
+        cell: ({ row }) =>
+          match(groupsOfUser(groupsByUserId, row.original.id))
+            .with({ status: 'pending' }, () => <SkeletonCell />)
+            .with({ status: 'error' }, () => <ErrorCell />)
+            .with({ status: 'success' }, ({ data: userGroups }) => (
+              <ListPlusCell tooltipTitle="Groups">
+                {userGroups.map((g) => (
+                  <span key={g.id}>{g.displayName}</span>
+                ))}
+              </ListPlusCell>
+            ))
+            .exhaustive(),
       }),
     [groupsByUserId]
   )
@@ -159,8 +169,10 @@ export function AccessUsersTab() {
 
   const makeActions = useCallback(
     (user: User): MenuAction[] => {
-      // menus open on click, by which point memberships have almost always loaded
-      const userGroups = groupsByUserId?.get(user.id) ?? []
+      // menus open on click, by which point memberships have almost always
+      // loaded. If they haven't (or failed), only direct roles drive the actions.
+      const groupsState = groupsOfUser(groupsByUserId, user.id)
+      const userGroups = groupsState.status === 'success' ? groupsState.data : []
       const directRole = roleById.get(user.id)
       const entries = sortRoleEntries(
         userScopedRoleEntries(user.id, userGroups, siloPolicy)

@@ -7,7 +7,14 @@
  */
 import { useNavigate } from 'react-router'
 
-import { api, q, queryClient, useGroupsByUserId, usePrefetchedQuery } from '@oxide/api'
+import {
+  api,
+  groupsOfUser,
+  q,
+  queryClient,
+  useGroupsByUserId,
+  usePrefetchedQuery,
+} from '@oxide/api'
 
 import { UserDetailsSideModal } from '~/components/access/UserDetailsSideModal'
 import { titleCrumb } from '~/hooks/use-crumbs'
@@ -45,7 +52,7 @@ export default function SiloUserDetail() {
       user={user}
       onDismiss={() => navigate(pb.siloUsers())}
       siloPolicy={siloPolicy}
-      userGroups={groupsByUserId && (groupsByUserId.get(user.id) ?? [])}
+      userGroups={groupsOfUser(groupsByUserId, user.id)}
     />
   )
 }

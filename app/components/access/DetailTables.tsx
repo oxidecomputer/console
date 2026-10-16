@@ -5,7 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { sortRoleEntries, type ScopedRoleEntry } from '@oxide/api'
+import { match } from 'ts-pattern'
+
+import { sortRoleEntries, type Loadable, type ScopedRoleEntry } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
 import { SkeletonCell } from '~/table/cells/EmptyCell'
@@ -16,15 +18,14 @@ import { roleColor } from '~/util/access'
 /**
  * Role/Source table shared by the user and group detail side modals. Entries
  * come from `userScopedRoleEntries` (groups pass an empty groups list, so their
- * entries are all direct). Sorted strongest-first. `entries` is undefined while
- * group memberships are still loading.
+ * entries are all direct). Sorted strongest-first. A user's entries depend on
+ * group memberships, so they can be pending or failed.
  */
 export function RoleAssignmentsTable({
   entries,
 }: {
-  entries: ScopedRoleEntry[] | undefined
+  entries: Loadable<ScopedRoleEntry[]>
 }) {
-  const sorted = entries && sortRoleEntries(entries)
   return (
     <table className="ox-table text-sans-md w-full border-separate">
       <Table.Header>
@@ -34,29 +35,33 @@ export function RoleAssignmentsTable({
         </Table.HeaderRow>
       </Table.Header>
       <Table.Body>
-        {!sorted ? (
-          <LoadingRow colSpan={2} />
-        ) : sorted.length === 0 ? (
-          <Table.Row>
-            <Table.Cell colSpan={2} className="text-secondary">
-              No roles assigned
-            </Table.Cell>
-          </Table.Row>
-        ) : (
-          sorted.map(({ roleName, scope, source }, i) => (
-            <Table.Row key={i}>
-              <Table.Cell>
-                <Badge color={roleColor[roleName]}>
-                  {scope}.{roleName}
-                </Badge>
-              </Table.Cell>
-              <Table.Cell>
-                {source.type === 'direct' && 'Assigned'}
-                {source.type === 'group' && `via ${source.group.displayName}`}
-              </Table.Cell>
-            </Table.Row>
+        {match(entries)
+          .with({ status: 'pending' }, () => <LoadingRow colSpan={2} />)
+          .with({ status: 'error' }, () => (
+            <MessageRow colSpan={2} error>
+              Could not load group memberships
+            </MessageRow>
           ))
-        )}
+          .with({ status: 'success' }, ({ data }) =>
+            data.length === 0 ? (
+              <MessageRow colSpan={2}>No roles assigned</MessageRow>
+            ) : (
+              sortRoleEntries(data).map(({ roleName, scope, source }, i) => (
+                <Table.Row key={i}>
+                  <Table.Cell>
+                    <Badge color={roleColor[roleName]}>
+                      {scope}.{roleName}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>
+                    {source.type === 'direct' && 'Assigned'}
+                    {source.type === 'group' && `via ${source.group.displayName}`}
+                  </Table.Cell>
+                </Table.Row>
+              ))
+            )
+          )
+          .exhaustive()}
       </Table.Body>
     </table>
   )
@@ -72,8 +77,7 @@ export function IdentityListTable({
   emptyText,
 }: {
   label: string
-  /** Undefined while loading */
-  items: { id: string; displayName: string }[] | undefined
+  items: Loadable<{ id: string; displayName: string }[]>
   emptyText: string
 }) {
   return (
@@ -85,24 +89,28 @@ export function IdentityListTable({
         </Table.HeaderRow>
       </Table.Header>
       <Table.Body>
-        {!items ? (
-          <LoadingRow colSpan={2} />
-        ) : items.length === 0 ? (
-          <Table.Row>
-            <Table.Cell colSpan={2} className="text-secondary">
-              {emptyText}
-            </Table.Cell>
-          </Table.Row>
-        ) : (
-          items.map((item) => (
-            <Table.Row key={item.id}>
-              <Table.Cell>{item.displayName}</Table.Cell>
-              <Table.Cell className="action-col w-10 *:p-0">
-                <RowActions id={item.id} />
-              </Table.Cell>
-            </Table.Row>
+        {match(items)
+          .with({ status: 'pending' }, () => <LoadingRow colSpan={2} />)
+          .with({ status: 'error' }, () => (
+            <MessageRow colSpan={2} error>
+              Could not load {label.toLowerCase()}
+            </MessageRow>
           ))
-        )}
+          .with({ status: 'success' }, ({ data }) =>
+            data.length === 0 ? (
+              <MessageRow colSpan={2}>{emptyText}</MessageRow>
+            ) : (
+              data.map((item) => (
+                <Table.Row key={item.id}>
+                  <Table.Cell>{item.displayName}</Table.Cell>
+                  <Table.Cell className="action-col w-10 *:p-0">
+                    <RowActions id={item.id} />
+                  </Table.Cell>
+                </Table.Row>
+              ))
+            )
+          )
+          .exhaustive()}
       </Table.Body>
     </table>
   )
@@ -112,6 +120,22 @@ const LoadingRow = ({ colSpan }: { colSpan: number }) => (
   <Table.Row>
     <Table.Cell colSpan={colSpan}>
       <SkeletonCell />
+    </Table.Cell>
+  </Table.Row>
+)
+
+const MessageRow = ({
+  colSpan,
+  error,
+  children,
+}: {
+  colSpan: number
+  error?: boolean
+  children: React.ReactNode
+}) => (
+  <Table.Row>
+    <Table.Cell colSpan={colSpan} className={error ? 'text-error' : 'text-secondary'}>
+      {children}
     </Table.Cell>
   </Table.Row>
 )

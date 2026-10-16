@@ -223,31 +223,54 @@ export const sortRoleEntries = (entries: ScopedRoleEntry[]) =>
 export const groupMemberList = ({ groupId }: PP.SiloGroup) =>
   q(api.userList, { query: { group: groupId, limit: ALL_ISH } })
 
+/** Async state of data derived from one or more queries. */
+export type Loadable<T> =
+  | { status: 'pending' }
+  | { status: 'error' }
+  | { status: 'success'; data: T }
+
 /**
  * Builds a map from user ID to the list of groups that user belongs to,
  * firing one query per group to fetch members. Shared between user tabs.
- * Undefined until every group's members have loaded, since a partial map would
- * make users look like they have fewer groups (and roles) than they do.
+ * Pending until every group's members have loaded, since a partial map would
+ * make users look like they have fewer groups (and roles) than they do. For
+ * the same reason, one failed member fetch makes the whole map an error.
+ * Queries don't retry, so without the error state a single failure would
+ * leave callers loading forever.
  */
-export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> | undefined {
-  const groupMemberPages = useQueries({
+export function useGroupsByUserId(groups: Group[]): Loadable<Map<string, Group[]>> {
+  const { isError, pages } = useQueries({
     queries: groups.map((g) => groupMemberList({ groupId: g.id })),
     // useQueries returns a new array each render; combine structurally shares
     // the selected data so the Map only changes with groups or memberships
-    combine: (results) => results.map((result) => result.data),
+    combine: (results) => ({
+      isError: results.some((result) => result.isError),
+      pages: results.map((result) => result.data),
+    }),
   })
 
   return useMemo(() => {
+    if (isError) return { status: 'error' }
     const map = new Map<string, Group[]>()
     for (const [i, group] of groups.entries()) {
-      const page = groupMemberPages[i]
-      if (!page) return undefined
+      const page = pages[i]
+      if (!page) return { status: 'pending' }
       for (const member of page.items) {
         const existing = map.get(member.id)
         if (existing) existing.push(group)
         else map.set(member.id, [group])
       }
     }
-    return map
-  }, [groups, groupMemberPages])
+    return { status: 'success', data: map }
+  }, [groups, isError, pages])
+}
+
+/** One user's groups out of the `useGroupsByUserId` result. */
+export function groupsOfUser(
+  groupsByUserId: Loadable<Map<string, Group[]>>,
+  userId: string
+): Loadable<Group[]> {
+  return groupsByUserId.status === 'success'
+    ? { status: 'success', data: groupsByUserId.data.get(userId) ?? [] }
+    : groupsByUserId
 }

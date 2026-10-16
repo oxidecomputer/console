@@ -12,6 +12,7 @@ import {
   api,
   byGroupThenName,
   deleteRole,
+  groupsOfUser,
   q,
   roleOrder,
   rolesByIdFromPolicy,
@@ -263,7 +264,7 @@ export function AccessRolesTable({
           onDismiss={() => setSelectedUser(null)}
           siloPolicy={siloPolicy}
           projectPolicy={projectPolicy}
-          userGroups={groupsByUserId && (groupsByUserId.get(selectedUser.id) ?? [])}
+          userGroups={groupsOfUser(groupsByUserId, selectedUser.id)}
         />
       )}
       {selectedGroup && (
