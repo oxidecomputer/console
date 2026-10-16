@@ -124,6 +124,10 @@ export const pb = {
 
   siloUtilization: () => href('/utilization'),
   siloAccess: () => href('/access'),
+  siloUsers: () => href('/users'),
+  siloUser: (params: PP.SiloUser) => href('/users/:userId', params),
+  siloGroups: () => href('/groups'),
+  siloGroup: (params: PP.SiloGroup) => href('/groups/:groupId', params),
   siloImages: () => href('/images'),
   siloImage: (params: PP.SiloImage) => href('/images/:image', params),
 

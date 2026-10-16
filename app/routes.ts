@@ -150,6 +150,15 @@ export default [
           route('projects/:project/edit', 'forms/project-edit.tsx'),
         ]),
         route('access', 'pages/SiloAccessPage.tsx'),
+        // Users and Groups are sibling routes sharing one "Users & Groups" page
+        layout('pages/SiloUsersGroupsPage.tsx', [
+          route('users', 'pages/SiloUsersTab.tsx', [
+            route(':userId', 'pages/SiloUserDetail.tsx'),
+          ]),
+          route('groups', 'pages/SiloGroupsTab.tsx', [
+            route(':groupId', 'pages/SiloGroupDetail.tsx'),
+          ]),
+        ]),
       ]),
       route('projects', 'routes/projects.tsx', [
         route(':project', 'layouts/SerialConsoleLayout.tsx', [
