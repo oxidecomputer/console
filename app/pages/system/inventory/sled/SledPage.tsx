@@ -9,9 +9,11 @@
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
+import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { useSledParams } from '~/hooks/use-params'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
@@ -28,6 +30,12 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   await queryClient.fetchQuery(sledView({ sledId }))
   return null
 }
+const refreshData = () =>
+  Promise.all([
+    queryClient.invalidateEndpoint('sledView'),
+    queryClient.invalidateEndpoint('sledInstanceList'), // instances tab
+  ])
+
 export const handle = makeCrumb(
   (p) => truncate(p.sledId!, 12, 'middle'),
   (p) => pb.sledInstances({ sledId: p.sledId! })
@@ -41,6 +49,7 @@ export default function SledPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Servers24Icon />}>Sled</PageTitle>
+        <RefreshButton onClick={refreshData} />
       </PageHeader>
 
       <PropertiesTable columns={2} className="-mt-8 mb-8">
@@ -71,6 +80,11 @@ export default function SledPage() {
           label="usable physical ram"
           bytes={sled.usablePhysicalRam}
         />
+        <PropertiesTable.Row label="slot">
+          {/* 0 is a valid slot, hence ?? instead of || */}
+          <span className="text-default">{sled.slot ?? <EmptyCell />}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.DateRow label="Created" date={sled.timeCreated} />
       </PropertiesTable>
 
       <RouteTabs fullWidth>

@@ -10,6 +10,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { api, getListQFn, queryClient, type Sled } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -36,6 +37,9 @@ const staticCols = [
       </LinkCell>
     ),
   }),
+  // last observed location, so null when a sled was just inserted. 0 is a
+  // valid slot, hence ?? instead of ||
+  colHelper.accessor('slot', { cell: (info) => info.getValue() ?? <EmptyCell /> }),
   // TODO: colHelper.accessor('baseboard.serviceAddress', { header: 'service address' }),
   colHelper.group({
     id: 'baseboard',
