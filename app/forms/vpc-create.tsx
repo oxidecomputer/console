@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, useApiMutation, type VpcCreate } from '@oxide/api'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
@@ -18,6 +19,7 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { Message } from '~/ui/lib/Message'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { validateVpcIpv6Prefix } from '~/util/ip'
 import { docLinks } from '~/util/links'
@@ -28,8 +30,7 @@ type VpcCreateFormValues = {
   description: string
   dnsName: string
   ipv6Prefix: string
-  // defaults will go here once we support it in the UI. for now, omitting means
-  // all defaults
+  createDefaultSubnet: boolean
 }
 
 const defaultValues: VpcCreateFormValues = {
@@ -37,6 +38,7 @@ const defaultValues: VpcCreateFormValues = {
   description: '',
   dnsName: '',
   ipv6Prefix: '',
+  createDefaultSubnet: true,
 }
 
 export const handle = titleCrumb('New VPC')
@@ -61,15 +63,20 @@ export default function CreateVpcSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
+  const createDefaultSubnet = form.watch('createDefaultSubnet')
 
   return (
     <SideModalForm
       form={form}
       formType="create"
       resourceName="VPC"
-      onSubmit={({ ipv6Prefix, ...rest }) => {
-        // omitting `defaults` means create all defaults, i.e., the original behavior
-        const body: VpcCreate = { ...rest, ipv6Prefix: ipv6Prefix.trim() || undefined }
+      onSubmit={({ ipv6Prefix, createDefaultSubnet, ...rest }) => {
+        const body: VpcCreate = {
+          ...rest,
+          ipv6Prefix: ipv6Prefix.trim() || undefined,
+          // omitting `defaults` creates all of them. `{}` also skips any the API adds later
+          defaults: createDefaultSubnet ? undefined : {},
+        }
         createVpc.mutate({ query: projectSelector, body })
       }}
       onDismiss={() => navigate(pb.vpcs(projectSelector))}
@@ -90,6 +97,18 @@ export default function CreateVpcSideModalForm() {
           return validateVpcIpv6Prefix(prefix)
         }}
       />
+      <div className="space-y-2">
+        <CheckboxField name="createDefaultSubnet" control={form.control}>
+          Create default subnet
+        </CheckboxField>
+        {!createDefaultSubnet && (
+          <Message
+            variant="info"
+            className="max-w-lg"
+            content="An instance can only attach to a VPC with a subnet"
+          />
+        )}
+      </div>
       <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )

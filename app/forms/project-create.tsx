@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, useApiMutation, type ProjectCreate } from '@oxide/api'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -20,9 +21,14 @@ import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: ProjectCreate = {
+type ProjectCreateFormValues = Omit<ProjectCreate, 'defaults'> & {
+  createDefaultVpc: boolean
+}
+
+const defaultValues: ProjectCreateFormValues = {
   name: '',
   description: '',
+  createDefaultVpc: true,
 }
 
 export const handle = titleCrumb('New project')
@@ -53,14 +59,24 @@ export default function ProjectCreateSideModalForm() {
       formType="create"
       resourceName="project"
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) => {
-        createProject.mutate({ body: { name, description } })
+      onSubmit={({ name, description, createDefaultVpc }) => {
+        createProject.mutate({
+          body: {
+            name,
+            description,
+            // omitting `defaults` creates all of them. `{}` also skips any the API adds later
+            defaults: createDefaultVpc ? undefined : {},
+          },
+        })
       }}
       loading={createProject.isPending || createProject.isSuccess}
       submitError={createProject.error}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <CheckboxField name="createDefaultVpc" control={form.control}>
+        Create default VPC
+      </CheckboxField>
       <SideModalFormDocs docs={[docLinks.projects]} />
     </SideModalForm>
   )

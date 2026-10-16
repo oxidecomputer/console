@@ -129,6 +129,38 @@ test('whitespace-only IPv6 prefix is omitted on VPC create', async ({ page }) =>
   await expect(page.getByRole('heading', { name: 'vpc-generated-v6' })).toBeVisible()
 })
 
+test('creates default subnet on VPC create by default', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs-new')
+
+  const dialog = page.getByRole('dialog', { name: 'Create VPC' })
+  await dialog.getByRole('textbox', { name: 'Name', exact: true }).fill('vpc-with-subnet')
+  await dialog.getByRole('textbox', { name: 'DNS name' }).fill('vpc-with-subnet')
+  await expect(
+    dialog.getByRole('checkbox', { name: 'Create default subnet' })
+  ).toBeChecked()
+  await dialog.getByRole('button', { name: 'Create VPC' }).click()
+
+  await expect(page.getByRole('heading', { name: 'vpc-with-subnet' })).toBeVisible()
+  await page.getByRole('tab', { name: 'VPC Subnets' }).click()
+  await expectRowVisible(page.getByRole('table'), { name: 'default' })
+})
+
+test('can skip creating the default subnet', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs-new')
+
+  const dialog = page.getByRole('dialog', { name: 'Create VPC' })
+  await dialog
+    .getByRole('textbox', { name: 'Name', exact: true })
+    .fill('vpc-without-subnet')
+  await dialog.getByRole('textbox', { name: 'DNS name' }).fill('vpc-without-subnet')
+  await dialog.getByRole('checkbox', { name: 'Create default subnet' }).uncheck()
+  await dialog.getByRole('button', { name: 'Create VPC' }).click()
+
+  await expect(page.getByRole('heading', { name: 'vpc-without-subnet' })).toBeVisible()
+  await page.getByRole('tab', { name: 'VPC Subnets' }).click()
+  await expect(page.getByText('No VPC subnets')).toBeVisible()
+})
+
 test('can create and delete subnet', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/default')
   await page.getByRole('tab', { name: 'VPC Subnets' }).click()
