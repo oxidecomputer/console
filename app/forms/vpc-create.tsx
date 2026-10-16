@@ -63,6 +63,7 @@ export default function CreateVpcSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
+  const createDefaultSubnet = form.watch('createDefaultSubnet')
 
   return (
     <SideModalForm
@@ -100,11 +101,13 @@ export default function CreateVpcSideModalForm() {
         <CheckboxField name="createDefaultSubnet" control={form.control}>
           Create default subnet
         </CheckboxField>
-        <Message
-          variant="info"
-          className="max-w-lg"
-          content="This VPC will require a subnet for instances to attach to it."
-        />
+        {!createDefaultSubnet && (
+          <Message
+            variant="info"
+            className="max-w-lg"
+            content="An instance can only attach to a VPC with a subnet"
+          />
+        )}
       </div>
       <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
