@@ -146,3 +146,4 @@
 - Check `app/util/*` for string formatting, date handling, IP parsing, etc. Check `types/util.d.ts` for type helpers.
 - Use `validateName` for resource names, `validateDescription` for descriptions, `validateIp`/`validateIpNet` for IPs.
 - Role helpers live in `app/api/roles.ts`.
+- test
