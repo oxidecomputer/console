@@ -147,11 +147,26 @@ describe('getEffectiveRole', () => {
 })
 
 test('byGroupThenName sorts as expected', () => {
-  const a = { identityType: 'silo_group' as const, name: 'a' }
-  const b = { identityType: 'silo_group' as const, name: 'b' }
-  const c = { identityType: 'silo_user' as const, name: 'c' }
-  const d = { identityType: 'silo_user' as const, name: 'd' }
-  const e = { identityType: 'silo_user' as const, name: 'e' }
+  const a = {
+    identityType: 'silo_group' as const,
+    name: { kind: 'real' as const, name: 'a' },
+  }
+  const b = {
+    identityType: 'silo_group' as const,
+    name: { kind: 'real' as const, name: 'b' },
+  }
+  const c = {
+    identityType: 'silo_user' as const,
+    name: { kind: 'real' as const, name: 'a' },
+  }
+  const d = {
+    identityType: 'silo_user' as const,
+    name: { kind: 'stranger' as const, id: 'aa' },
+  }
+  const e = {
+    identityType: 'silo_user' as const,
+    name: { kind: 'built-in' as const },
+  }
 
   expect([c, e, b, d, a].sort(byGroupThenName)).toEqual([a, b, c, d, e])
 })
