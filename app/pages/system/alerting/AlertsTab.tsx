@@ -9,12 +9,7 @@
 import cn from 'classnames'
 import { memo, useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
-import {
-  useLocation,
-  useNavigation,
-  useSearchParams,
-  type LoaderFunctionArgs,
-} from 'react-router'
+import { useLocation, useNavigation, useSearchParams } from 'react-router'
 
 import {
   api,
@@ -52,6 +47,8 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
 import { roleDiv } from '~/util/classed'
 
+import type { Route } from './+types/AlertsTab'
+
 export const handle = { crumb: 'Alerts' }
 
 const alertList = (options: Omit<AlertListQueryParams, 'sortBy'> = {}) =>
@@ -73,7 +70,7 @@ const getAlertClassFilter = (
     : unsafe
 }
 
-export async function clientLoader({ request }: LoaderFunctionArgs) {
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   // Nexus rejects filters that don't match some existing alert class, so we
   // need to prefetch the list of alert classes to safely apply filters.
   const classes = alertClassMap(await queryClient.fetchQuery(alertClassListQuery))
