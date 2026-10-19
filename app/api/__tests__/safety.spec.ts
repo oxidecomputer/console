@@ -88,7 +88,6 @@ it('mock-api is only referenced in test files', () => {
       "test/e2e/inventory.e2e.ts",
       "test/e2e/ip-pool-silo-config.e2e.ts",
       "test/e2e/profile.e2e.ts",
-      "test/e2e/project-access.e2e.ts",
       "tsconfig.json",
     ]
   `)

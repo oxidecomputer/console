@@ -11,20 +11,16 @@ import { Outlet } from 'react-router'
 import * as R from 'remeda'
 
 import {
-  api,
-  deleteRole,
-  q,
   rolesByIdFromPolicy,
-  useApiMutation,
+  sortRoleEntries,
   usePrefetchedQuery,
+  userScopedRoleEntries,
   type Group,
   type RoleKey,
 } from '@oxide/api'
 import { PersonGroup24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { invalidateSiloPolicy, SiloAccessEditUserSideModal } from '~/forms/silo-access'
-import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { MemberCountCell } from '~/table/cells/MemberCountCell'
@@ -34,19 +30,20 @@ import { Table } from '~/table/Table'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'
-import { ALL_ISH } from '~/util/consts'
-import { pb } from '~/util/path-builder'
 
-import { roleActions } from './roleActions'
-import { useCanEditSiloPolicy } from './use-can-edit-policy'
-
-// The API only sorts groups by id, so fetch the full set and sort by name
-// client-side. ALL_ISH is the practical ceiling; a silo with more groups than
-// that would have its tail dropped in (arbitrary) id order.
-const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
-const policyView = q(api.policyView, {})
+import { groupListAll, type PolicyScope } from './policy-scope'
+import { identityRoleActions } from './roleActions'
+import { useCanEditPolicy } from './use-can-edit-policy'
 
 const colHelper = createColumnHelper<Group>()
+
+const memberCountCol = colHelper.display({
+  id: 'memberCount',
+  header: 'Users',
+  cell: ({ row }) => <MemberCountCell groupId={row.original.id} />,
+})
+
+const timeCreatedCol = colHelper.accessor('timeCreated', Columns.timeCreated)
 
 const GroupEmptyState = () => (
   <TableEmptyBox>
@@ -60,7 +57,9 @@ const GroupEmptyState = () => (
 
 type EditingState = { group: Group; defaultRole: RoleKey | undefined }
 
-export function AccessGroupsTab() {
+export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
+  const { managedScope, siloPolicy, projectPolicy, managedPolicy, EditModal } = scope
+  const { removeRole, groupPath } = scope
   const [editingGroup, setEditingGroup] = useState<EditingState | null>(null)
 
   const { data: groups } = usePrefetchedQuery(groupListAll)
@@ -69,31 +68,16 @@ export function AccessGroupsTab() {
     [groups]
   )
 
-  const { data: siloPolicy } = usePrefetchedQuery(policyView)
-  const roleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
+  const managedRoleById = useMemo(() => rolesByIdFromPolicy(managedPolicy), [managedPolicy])
 
-  const canEdit = useCanEditSiloPolicy()
+  const canEdit = useCanEditPolicy(siloPolicy, projectPolicy)
 
-  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
-    onSuccess: () => {
-      invalidateSiloPolicy()
-      addToast({ content: 'Role removed' })
-    },
-  })
-
-  const roleCol = useMemo(
-    () =>
-      colHelper.display({
-        id: 'role',
-        header: 'Role',
-        cell: ({ row }) => {
-          // groups can't be in other groups, so their only silo role is a direct one
-          const role = roleById.get(row.original.id)
-          if (!role) return <EmptyCell />
-          return <Badge color={roleColor[role]}>silo.{role}</Badge>
-        },
-      }),
-    [roleById]
+  // groups can't be in other groups, so passing no groups yields only the
+  // group's direct roles in each scope
+  const effectiveRole = useCallback(
+    (group: Group) =>
+      sortRoleEntries(userScopedRoleEntries(group.id, [], siloPolicy, projectPolicy)).at(0),
+    [siloPolicy, projectPolicy]
   )
 
   const staticColumns = useMemo(
@@ -101,40 +85,40 @@ export function AccessGroupsTab() {
       colHelper.accessor('displayName', {
         header: 'Name',
         cell: (info) => (
-          <LinkCell to={pb.siloGroup({ groupId: info.row.original.id })}>
-            {info.getValue()}
-          </LinkCell>
+          <LinkCell to={groupPath(info.row.original.id)}>{info.getValue()}</LinkCell>
         ),
       }),
-      roleCol,
       colHelper.display({
-        id: 'memberCount',
-        header: 'Users',
-        cell: ({ row }) => <MemberCountCell groupId={row.original.id} />,
+        id: 'role',
+        header: 'Role',
+        cell: ({ row }) => {
+          const effective = effectiveRole(row.original)
+          if (!effective) return <EmptyCell />
+          return (
+            <Badge color={roleColor[effective.roleName]}>
+              {effective.scope}.{effective.roleName}
+            </Badge>
+          )
+        },
       }),
-      colHelper.accessor('timeCreated', Columns.timeCreated),
+      memberCountCol,
+      timeCreatedCol,
     ],
-    [roleCol]
+    [groupPath, effectiveRole]
   )
 
   const makeActions = useCallback(
-    (group: Group): MenuAction[] => {
-      const directRole = roleById.get(group.id)
-      const actions = roleActions('silo', canEdit)
-      // Groups do not inherit silo roles, so no direct role means no role at all.
-      if (!directRole) {
-        return [actions.add(() => setEditingGroup({ group, defaultRole: undefined }))]
-      }
-      return [
-        actions.change(() => setEditingGroup({ group, defaultRole: directRole })),
-        actions.remove({
-          name: group.displayName,
-          directRole,
-          doRemove: () => updatePolicy({ body: deleteRole(group.id, siloPolicy) }),
-        }),
-      ]
-    },
-    [roleById, siloPolicy, updatePolicy, canEdit]
+    (group: Group): MenuAction[] =>
+      identityRoleActions({
+        scope: managedScope,
+        canEdit,
+        name: group.displayName,
+        directRole: managedRoleById.get(group.id),
+        effective: effectiveRole(group),
+        onEdit: (defaultRole) => setEditingGroup({ group, defaultRole }),
+        doRemove: () => removeRole(group.id),
+      }),
+    [managedScope, canEdit, managedRoleById, effectiveRole, removeRole]
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
@@ -150,9 +134,9 @@ export function AccessGroupsTab() {
     <>
       {sortedGroups.length === 0 ? <GroupEmptyState /> : <Table table={table} />}
       {editingGroup && (
-        <SiloAccessEditUserSideModal
+        <EditModal
           onDismiss={() => setEditingGroup(null)}
-          policy={siloPolicy}
+          policy={managedPolicy}
           name={editingGroup.group.displayName}
           identityId={editingGroup.group.id}
           identityType="silo_group"

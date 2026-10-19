@@ -107,9 +107,13 @@ test('path builder', () => {
         "project": "/projects/p/instances",
         "projectAccess": "/projects/p/access",
         "projectEdit": "/projects/p/edit",
+        "projectGroup": "/projects/p/access/groups/c2e7b1d4-8f3a-4c6e-b9d1-0a5f7e3c2b8d",
+        "projectGroups": "/projects/p/access/groups",
         "projectImage": "/projects/p/images/im",
         "projectImages": "/projects/p/images",
         "projectImagesNew": "/projects/p/images-new",
+        "projectUser": "/projects/p/access/users/a9d4e8f2-3c1b-4f7a-9e2d-6b8c0f1a2d3e",
+        "projectUsers": "/projects/p/access/users",
         "projects": "/projects",
         "projectsNew": "/projects-new",
         "samlIdp": "/system/silos/s/idps/saml/pr",
@@ -117,8 +121,8 @@ test('path builder', () => {
         "silo": "/system/silos/s/idps",
         "siloAccess": "/access",
         "siloFleetRoles": "/system/silos/s/fleet-roles",
-        "siloGroup": "/groups/c2e7b1d4-8f3a-4c6e-b9d1-0a5f7e3c2b8d",
-        "siloGroups": "/groups",
+        "siloGroup": "/access/groups/c2e7b1d4-8f3a-4c6e-b9d1-0a5f7e3c2b8d",
+        "siloGroups": "/access/groups",
         "siloIdps": "/system/silos/s/idps",
         "siloIdpsNew": "/system/silos/s/idps-new",
         "siloImage": "/images/im",
@@ -127,8 +131,8 @@ test('path builder', () => {
         "siloQuotas": "/system/silos/s/quotas",
         "siloScim": "/system/silos/s/scim",
         "siloSubnetPools": "/system/silos/s/subnet-pools",
-        "siloUser": "/users/a9d4e8f2-3c1b-4f7a-9e2d-6b8c0f1a2d3e",
-        "siloUsers": "/users",
+        "siloUser": "/access/users/a9d4e8f2-3c1b-4f7a-9e2d-6b8c0f1a2d3e",
+        "siloUsers": "/access/users",
         "siloUtilization": "/utilization",
         "silos": "/system/silos",
         "silosNew": "/system/silos-new",
@@ -193,6 +197,7 @@ test('breadcrumbs', () => {
     .map(([key]) => key)
   expect(zeroCrumbKeys).toMatchInlineSnapshot(`
     [
+      "siloAccess (/access)",
       "deviceSuccess (/device/success)",
     ]
   `)

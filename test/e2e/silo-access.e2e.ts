@@ -7,69 +7,12 @@
  */
 import { expect, expectRowVisible, getPageAsUser, test } from './utils'
 
-test('Silo Access page shows and edits silo role assignments', async ({ page }) => {
-  await page.goto('/')
-  await page.getByRole('link', { name: 'Silo Access' }).click()
-  await expect(page).toHaveURL(/\/access$/)
-  await expect(page.getByRole('heading', { name: 'Silo Access' })).toBeVisible()
-
-  // only identities with a direct silo role appear
-  const table = page.getByRole('table')
-  await expectRowVisible(table, {
-    Name: 'real-estate-devs',
-    Type: 'Group',
-    'Assigned role': 'silo.collaborator',
-  })
-  await expectRowVisible(table, {
-    Name: 'Hannah Arendt',
-    Type: 'User',
-    'Assigned role': 'silo.admin',
-  })
-
-  // add Jacob Klein as collaborator
-  await page.getByRole('button', { name: 'Add user or group' }).click()
-  await expect(page.getByRole('heading', { name: 'Add user or group' })).toBeVisible()
-  await page.getByRole('combobox', { name: 'User or group' }).click()
-  // already-assigned identities aren't offered
-  await expect(page.getByRole('option', { name: 'Hannah Arendt' })).toBeHidden()
-  // typing filters the options
-  await page.getByRole('combobox', { name: 'User or group' }).fill('jac')
-  await expect(page.getByRole('option', { name: 'Hans Jonas' })).toBeHidden()
-  await page.getByRole('option', { name: 'Jacob Klein' }).click()
-  await page.getByRole('radio', { name: /^Collaborator / }).click()
-  await page.getByRole('button', { name: 'Assign role' }).click()
-  await expectRowVisible(table, {
-    Name: 'Jacob Klein',
-    Type: 'User',
-    'Assigned role': 'silo.collaborator',
-  })
-
-  // change Jacob's role to viewer
-  await table
-    .getByRole('row', { name: 'Jacob Klein', exact: false })
-    .getByRole('button', { name: 'Row actions' })
-    .click()
-  await page.getByRole('menuitem', { name: 'Change silo role' }).click()
-  await expect(page.getByRole('heading', { name: 'Edit silo role' })).toBeVisible()
-  await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
-  await page.getByRole('radio', { name: /^Viewer / }).click()
-  await page.getByRole('button', { name: 'Update role' }).click()
-  await expectRowVisible(table, { Name: 'Jacob Klein', 'Assigned role': 'silo.viewer' })
-
-  // remove Jacob's role
-  const jacobRow = page.getByRole('row', { name: 'Jacob Klein', exact: false })
-  await jacobRow.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Remove silo role' }).click()
-  await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(jacobRow).toBeHidden()
-})
-
 test('Non-admin cannot change or remove silo roles', async ({ browser }) => {
   // Hans Jonas is only a silo collaborator (via the real-estate-devs group), so
   // he lacks `modify` on the silo and can't edit role assignments. Both row
   // actions should be disabled with an explanation.
   const page = await getPageAsUser(browser, 'Hans Jonas')
-  await page.goto('/access')
+  await page.goto('/access/users')
 
   await expect(page.getByRole('heading', { name: 'Silo Access' })).toBeVisible()
 
@@ -93,43 +36,13 @@ test('Non-admin cannot change or remove silo roles', async ({ browser }) => {
   )
 })
 
-test('Silo Access user details side modal', async ({ page }) => {
-  await page.goto('/access')
-
-  // clicking a user opens their details
-  await page.getByRole('button', { name: 'Hannah Arendt' }).click()
-  const modal = page.getByRole('dialog')
-  await expect(modal).toBeVisible()
-  await expect(modal.getByText('Hannah Arendt')).toBeVisible()
-
-  // direct silo.admin assignment
-  const roleRow = modal.getByRole('row').filter({ hasText: 'silo.admin' })
-  await expect(roleRow).toContainText('Assigned')
-
-  // group memberships
-  await expect(modal.getByRole('cell', { name: 'kernel-devs', exact: true })).toBeVisible()
-  await expect(modal.getByRole('cell', { name: 'web-devs', exact: true })).toBeVisible()
-})
-
-test('Silo Access group members side modal', async ({ page }) => {
-  await page.goto('/access')
-
-  // clicking a group opens its members and roles
-  await page.getByRole('button', { name: 'real-estate-devs' }).click()
-  const modal = page.getByRole('dialog')
-  await expect(modal).toBeVisible()
-  await expect(modal.getByText('silo.collaborator')).toBeVisible()
-  await expect(modal.getByRole('cell', { name: 'Hans Jonas' })).toBeVisible()
-  await expect(modal.getByRole('cell', { name: 'Jane Austen' })).toBeVisible()
-})
-
-test('Users & Groups page lands on Users tab; shows direct + via-group silo roles', async ({
+test('Silo Access page lands on Users tab; shows direct + via-group silo roles', async ({
   page,
 }) => {
   await page.goto('/')
-  await page.getByRole('link', { name: 'Users & Groups' }).click()
-  await expect(page).toHaveURL(/\/users$/)
-  await expect(page.getByRole('heading', { name: 'Users & Groups' })).toBeVisible()
+  await page.getByRole('link', { name: 'Silo Access' }).click()
+  await expect(page).toHaveURL(/\/access\/users$/)
+  await expect(page.getByRole('heading', { name: 'Silo Access' })).toBeVisible()
 
   const table = page.getByRole('table')
 
@@ -167,17 +80,17 @@ test('Users & Groups page lands on Users tab; shows direct + via-group silo role
 
   // Groups tab comes second
   await page.getByRole('tab', { name: 'Groups' }).click()
-  await expect(page).toHaveURL(/\/groups$/)
+  await expect(page).toHaveURL(/\/access\/groups$/)
 })
 
 test('User details side modal shows assigned + via-group roles and group list', async ({
   page,
 }) => {
-  await page.goto('/users')
+  await page.goto('/access/users')
 
   // Open Hannah's details
   await page.getByRole('link', { name: 'Hannah Arendt' }).click()
-  await expect(page).toHaveURL(/\/users\/[0-9a-f-]+$/)
+  await expect(page).toHaveURL(/\/access\/users\/[0-9a-f-]+$/)
   const modal = page.getByRole('dialog')
   await expect(modal).toBeVisible()
   await expect(modal.getByText('Hannah Arendt')).toBeVisible()
@@ -193,7 +106,7 @@ test('User details side modal shows assigned + via-group roles and group list', 
 
   await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
   await expect(modal).toBeHidden()
-  await expect(page).toHaveURL(/\/users$/)
+  await expect(page).toHaveURL(/\/access\/users$/)
 
   // Hans Jonas inherits silo.collaborator via real-estate-devs
   await page.getByRole('link', { name: 'Hans Jonas' }).click()
@@ -203,7 +116,7 @@ test('User details side modal shows assigned + via-group roles and group list', 
 })
 
 test('User and group detail URLs open the side modal directly', async ({ page }) => {
-  await page.goto('/users')
+  await page.goto('/access/users')
   await page.getByRole('link', { name: 'Hannah Arendt' }).click()
   await expect(page.getByRole('dialog')).toContainText('Hannah Arendt')
 
@@ -212,28 +125,28 @@ test('User and group detail URLs open the side modal directly', async ({ page })
   await page.goto(page.url())
   await expect(page.getByRole('dialog')).toContainText('Hannah Arendt')
   await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
-  await expect(page).toHaveURL(/\/users$/)
+  await expect(page).toHaveURL(/\/access\/users$/)
   await expect(page.getByRole('tab', { name: 'Users', selected: true })).toBeVisible()
 
-  await page.goto('/groups')
+  await page.goto('/access/groups')
   await page.getByRole('link', { name: 'real-estate-devs' }).click()
   await expect(page.getByRole('dialog')).toContainText('real-estate-devs')
   await page.goto(page.url())
   await expect(page.getByRole('dialog')).toContainText('real-estate-devs')
   await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
-  await expect(page).toHaveURL(/\/groups$/)
+  await expect(page).toHaveURL(/\/access\/groups$/)
   await expect(page.getByRole('tab', { name: 'Groups', selected: true })).toBeVisible()
 })
 
 test('Unknown user or group ID shows Not Found', async ({ page }) => {
-  await page.goto('/users/7e5a4f1c-2b3d-4e6f-8a9b-0c1d2e3f4a5b')
+  await page.goto('/access/users/7e5a4f1c-2b3d-4e6f-8a9b-0c1d2e3f4a5b')
   await expect(page.getByText('Page not found')).toBeVisible()
-  await page.goto('/groups/7e5a4f1c-2b3d-4e6f-8a9b-0c1d2e3f4a5b')
+  await page.goto('/access/groups/7e5a4f1c-2b3d-4e6f-8a9b-0c1d2e3f4a5b')
   await expect(page.getByText('Page not found')).toBeVisible()
 })
 
 test('Change and remove a user role from the Users tab', async ({ page }) => {
-  await page.goto('/users')
+  await page.goto('/access/users')
   const table = page.getByRole('table')
 
   // Act on Jacob rather than the current user (Hannah, silo admin): demoting or
@@ -268,7 +181,7 @@ test('Change and remove a user role from the Users tab', async ({ page }) => {
 })
 
 test('Assign role to a user with no direct role from the row action', async ({ page }) => {
-  await page.goto('/users')
+  await page.goto('/access/users')
   const table = page.getByRole('table')
 
   // Jacob Klein has no direct or inherited role
@@ -296,7 +209,7 @@ test('Assign role to a user with no direct role from the row action', async ({ p
 })
 
 test('Inherited-only role shows Add/Remove with Remove disabled', async ({ page }) => {
-  await page.goto('/users')
+  await page.goto('/access/users')
   const table = page.getByRole('table')
 
   // Hans Jonas has no direct silo role but inherits silo.collaborator via
@@ -317,10 +230,10 @@ test('Inherited-only role shows Add/Remove with Remove disabled', async ({ page 
 })
 
 test('Groups tab shows roles and member counts; modal lists members', async ({ page }) => {
-  await page.goto('/users')
+  await page.goto('/access/users')
 
   await page.getByRole('tab', { name: 'Groups' }).click()
-  await expect(page).toHaveURL(/\/groups$/)
+  await expect(page).toHaveURL(/\/access\/groups$/)
 
   const table = page.getByRole('table')
 
@@ -334,7 +247,7 @@ test('Groups tab shows roles and member counts; modal lists members', async ({ p
 
   // Open the real-estate-devs group modal
   await page.getByRole('link', { name: 'real-estate-devs' }).click()
-  await expect(page).toHaveURL(/\/groups\/[0-9a-f-]+$/)
+  await expect(page).toHaveURL(/\/access\/groups\/[0-9a-f-]+$/)
   const modal = page.getByRole('dialog')
   await expect(modal).toBeVisible()
   await expect(modal.getByText('silo.collaborator')).toBeVisible()
@@ -343,7 +256,7 @@ test('Groups tab shows roles and member counts; modal lists members', async ({ p
 })
 
 test('Change and remove a group role from the Groups tab', async ({ page }) => {
-  await page.goto('/groups')
+  await page.goto('/access/groups')
   const table = page.getByRole('table')
 
   // real-estate-devs has silo.collaborator; change to viewer
@@ -374,7 +287,7 @@ test('Change and remove a group role from the Groups tab', async ({ page }) => {
 test('Assign a role to a group with no direct role from the row action', async ({
   page,
 }) => {
-  await page.goto('/groups')
+  await page.goto('/access/groups')
   const table = page.getByRole('table')
 
   // kernel-devs has no direct silo role
@@ -395,7 +308,7 @@ test('Assign a role to a group with no direct role from the row action', async (
 // changing your own role away from admin requires confirmation because you
 // may not be able to undo it
 test('Removing your own admin role requires confirmation', async ({ page }) => {
-  await page.goto('/access')
+  await page.goto('/access/users')
 
   const table = page.getByRole('table')
 
@@ -420,14 +333,14 @@ test('Removing your own admin role requires confirmation', async ({ page }) => {
   await expect(confirmModal).toBeHidden()
   await expect(editForm).toBeVisible()
   await editForm.getByRole('button', { name: 'Cancel' }).click()
-  await expectRowVisible(table, { Name: 'Hannah Arendt', 'Assigned role': 'silo.admin' })
+  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.admin' })
 
   // this time, confirm
   await openEditForm()
   await confirmModal.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(editForm).toBeHidden()
-  await expectRowVisible(table, { Name: 'Hannah Arendt', 'Assigned role': 'silo.viewer' })
+  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.viewer' })
 
   // no longer a silo admin, so role actions are disabled without a navigation
   await page
@@ -435,4 +348,10 @@ test('Removing your own admin role requires confirmation', async ({ page }) => {
     .getByRole('button', { name: 'Row actions' })
     .click()
   await expect(page.getByRole('menuitem', { name: 'Change silo role' })).toBeDisabled()
+})
+
+test('Silo Access root redirects to the Users tab', async ({ page }) => {
+  await page.goto('/access')
+  await expect(page).toHaveURL(/\/access\/users$/)
+  await expect(page.getByRole('heading', { name: 'Silo Access' })).toBeVisible()
 })

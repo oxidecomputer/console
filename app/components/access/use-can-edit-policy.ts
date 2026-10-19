@@ -43,8 +43,3 @@ export function useCanEditPolicy(siloPolicy: Policy, projectPolicy?: Policy): bo
     siloRole === 'collaborator'
   )
 }
-
-/** Silo modify, per `siloAdmin` on /v1/me. See `useCanEditPolicy`. */
-export function useCanEditSiloPolicy(): boolean {
-  return useCurrentUser().me.siloAdmin
-}

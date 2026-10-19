@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type AccessScope, type RoleKey } from '@oxide/api'
+import { type AccessScope, type RoleKey, type ScopedRoleEntry } from '@oxide/api'
 
 import { HL } from '~/components/HL'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -82,4 +82,51 @@ export const roleActions = (scope: RoleScope, canEdit: boolean) => {
       }
     },
   }
+}
+
+/**
+ * Row actions for a user or group on a Users or Groups tab. Add or change acts
+ * on the identity's direct role in the managed scope. Remove is offered
+ * whenever the identity has any role, but is disabled when that role comes
+ * from elsewhere (a group, or the silo on a project page).
+ */
+export function identityRoleActions({
+  scope,
+  canEdit,
+  name,
+  directRole,
+  effective,
+  isSelf,
+  onEdit,
+  doRemove,
+}: {
+  scope: AccessScope
+  canEdit: boolean
+  name: string
+  /** Direct role in the managed scope */
+  directRole: RoleKey | undefined
+  /** Strongest role from any source, if any */
+  effective: ScopedRoleEntry | undefined
+  isSelf?: boolean
+  onEdit: (defaultRole: RoleKey | undefined) => void
+  doRemove: () => Promise<unknown>
+}): MenuAction[] {
+  const actions = roleActions(scope, canEdit)
+  const editAction = directRole
+    ? actions.change(() => onEdit(directRole))
+    : actions.add(() => onEdit(undefined))
+  if (!effective) return [editAction]
+  return [
+    editAction,
+    actions.remove({
+      name,
+      directRole,
+      isSelf,
+      inheritedReason:
+        effective.source.type === 'group'
+          ? 'Role is inherited from a group and cannot be changed here.'
+          : 'This role comes from the silo policy',
+      doRemove,
+    }),
+  ]
 }

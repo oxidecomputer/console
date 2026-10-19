@@ -26,16 +26,6 @@ import { Radio } from '~/ui/lib/Radio'
 import { docLinks } from '~/util/links'
 import { capitalize } from '~/util/str'
 
-type AddUserValues = {
-  identityId: string
-  roleName: RoleKey
-}
-
-export const defaultValues: AddUserValues = {
-  identityId: '',
-  roleName: 'viewer',
-}
-
 // Role descriptions for project-level roles
 const projectRoleDescriptions: Record<RoleKey, string> = {
   admin: 'Control all aspects of the project',

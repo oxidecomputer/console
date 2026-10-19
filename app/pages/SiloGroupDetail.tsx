@@ -18,7 +18,7 @@ import type * as PP from '~/util/path-params'
 import type { Route } from './+types/SiloGroupDetail'
 
 const groupView = ({ groupId }: PP.SiloGroup) => q(api.groupView, { path: { groupId } })
-// prefetched by the parent Users & Groups loader
+// prefetched by the parent Access loader
 const policyView = q(api.policyView, {})
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {

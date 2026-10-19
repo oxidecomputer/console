@@ -26,7 +26,7 @@ import type * as PP from '~/util/path-params'
 import type { Route } from './+types/SiloUserDetail'
 
 const userView = ({ userId }: PP.SiloUser) => q(api.userView, { path: { userId } })
-// prefetched by the parent Users & Groups loader
+// prefetched by the parent Access loader
 const policyView = q(api.policyView, {})
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 

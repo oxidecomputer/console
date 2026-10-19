@@ -123,9 +123,6 @@ type NavLinkProps = {
   disabled?: boolean
   // Only for cases where we want to spoof the path and pretend 'isActive'
   activePrefix?: string
-  // Override the computed active state. Needed when one nav item represents a
-  // section spanning multiple sibling paths (e.g. Users & Groups → /users, /groups)
-  isActive?: boolean
 }
 
 export const NavLinkItem = ({
@@ -134,14 +131,12 @@ export const NavLinkItem = ({
   end,
   disabled,
   activePrefix,
-  isActive: isActiveOverride,
 }: NavLinkProps) => {
   // If the current page is the create form for this NavLinkItem's resource, highlight the NavLink in the sidebar
   const currentPathIsCreateForm = useLocation().pathname.startsWith(`${to}-new`)
   // We aren't using NavLink, as we need to occasionally use an activePrefix to create an active state for matching root paths
   // so we also recreate the isActive logic here
-  const computedActive = useIsActivePath({ to: activePrefix || to, end })
-  const isActive = isActiveOverride ?? computedActive
+  const isActive = useIsActivePath({ to: activePrefix || to, end })
   return (
     <li>
       <Link

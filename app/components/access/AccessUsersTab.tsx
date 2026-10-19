@@ -12,13 +12,9 @@ import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
 import {
-  api,
-  deleteRole,
   groupsOfUser,
-  q,
   rolesByIdFromPolicy,
   sortRoleEntries,
-  useApiMutation,
   useGroupsByUserId,
   usePrefetchedQuery,
   userScopedRoleEntries,
@@ -29,9 +25,7 @@ import { Person24Icon, PersonGroup16Icon } from '@oxide/design-system/icons/reac
 import { Badge } from '@oxide/design-system/ui'
 
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { invalidateSiloPolicy, SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
-import { addToast } from '~/stores/toast'
 import { EmptyCell, ErrorCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -41,29 +35,12 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
-import { ALL_ISH } from '~/util/consts'
-import { pb } from '~/util/path-builder'
 
-import { roleActions } from './roleActions'
-import { useCanEditSiloPolicy } from './use-can-edit-policy'
-
-// The API only sorts users by id, so fetch the full set and sort by name
-// client-side. ALL_ISH is the practical ceiling; a silo with more users than
-// that would have its tail dropped in (arbitrary) id order.
-const userListAll = q(api.userList, { query: { limit: ALL_ISH } })
-const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
-const policyView = q(api.policyView, {})
+import { groupListAll, userListAll, type PolicyScope } from './policy-scope'
+import { identityRoleActions } from './roleActions'
+import { useCanEditPolicy } from './use-can-edit-policy'
 
 const colHelper = createColumnHelper<User>()
-
-const nameCol = colHelper.accessor('displayName', {
-  header: 'Name',
-  cell: (info) => (
-    <LinkCell to={pb.siloUser({ userId: info.row.original.id })}>
-      {info.getValue()}
-    </LinkCell>
-  ),
-})
 
 const timeCreatedCol = colHelper.accessor('timeCreated', Columns.timeCreated)
 
@@ -79,7 +56,9 @@ const EmptyState = () => (
 
 type EditingState = { user: User; defaultRole: RoleKey | undefined }
 
-export function AccessUsersTab() {
+export function AccessUsersTab({ scope }: { scope: PolicyScope }) {
+  const { managedScope, siloPolicy, projectPolicy, managedPolicy, EditModal } = scope
+  const { removeRole, userPath } = scope
   const [editingUser, setEditingUser] = useState<EditingState | null>(null)
 
   const { data: users } = usePrefetchedQuery(userListAll)
@@ -91,18 +70,21 @@ export function AccessUsersTab() {
   const { data: groups } = usePrefetchedQuery(groupListAll)
   const groupsByUserId = useGroupsByUserId(groups.items)
 
-  const { data: siloPolicy } = usePrefetchedQuery(policyView)
-  const roleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
+  const managedRoleById = useMemo(() => rolesByIdFromPolicy(managedPolicy), [managedPolicy])
 
-  const canEdit = useCanEditSiloPolicy()
+  const canEdit = useCanEditPolicy(siloPolicy, projectPolicy)
   const { me } = useCurrentUser()
 
-  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
-    onSuccess: () => {
-      invalidateSiloPolicy()
-      addToast({ content: 'Role removed' })
-    },
-  })
+  const nameCol = useMemo(
+    () =>
+      colHelper.accessor('displayName', {
+        header: 'Name',
+        cell: (info) => (
+          <LinkCell to={userPath(info.row.original.id)}>{info.getValue()}</LinkCell>
+        ),
+      }),
+    [userPath]
+  )
 
   const roleCol = useMemo(
     () =>
@@ -117,13 +99,18 @@ export function AccessUsersTab() {
               // strongest assignment is the effective role; any others are
               // shown in the user detail side modal, reached by clicking the name
               const effective = sortRoleEntries(
-                userScopedRoleEntries(row.original.id, userGroups, siloPolicy)
+                userScopedRoleEntries(
+                  row.original.id,
+                  userGroups,
+                  siloPolicy,
+                  projectPolicy
+                )
               ).at(0)
               if (!effective) return <EmptyCell />
               return (
                 <div className="flex items-center gap-2">
                   <Badge color={roleColor[effective.roleName]}>
-                    silo.{effective.roleName}
+                    {effective.scope}.{effective.roleName}
                   </Badge>
                   {/* call out when the effective role is inherited rather than direct */}
                   {effective.source.type === 'group' && (
@@ -138,7 +125,7 @@ export function AccessUsersTab() {
             })
             .exhaustive(),
       }),
-    [groupsByUserId, siloPolicy]
+    [groupsByUserId, siloPolicy, projectPolicy]
   )
 
   const groupsCol = useMemo(
@@ -164,7 +151,7 @@ export function AccessUsersTab() {
 
   const staticColumns = useMemo(
     () => [nameCol, roleCol, groupsCol, timeCreatedCol],
-    [roleCol, groupsCol]
+    [nameCol, roleCol, groupsCol]
   )
 
   const makeActions = useCallback(
@@ -173,29 +160,30 @@ export function AccessUsersTab() {
       // loaded. If they haven't (or failed), only direct roles drive the actions.
       const groupsState = groupsOfUser(groupsByUserId, user.id)
       const userGroups = groupsState.status === 'success' ? groupsState.data : []
-      const directRole = roleById.get(user.id)
-      const entries = sortRoleEntries(
-        userScopedRoleEntries(user.id, userGroups, siloPolicy)
-      )
-      const effectiveRole = entries[0]?.roleName
-      const actions = roleActions('silo', canEdit)
-      const editAction = directRole
-        ? actions.change(() => setEditingUser({ user, defaultRole: directRole }))
-        : actions.add(() => setEditingUser({ user, defaultRole: undefined }))
-      // No role at all, either direct or inherited.
-      if (!effectiveRole) return [editAction]
-      return [
-        editAction,
-        actions.remove({
-          name: user.displayName,
-          directRole,
-          isSelf: user.id === me.id,
-          inheritedReason: 'Role is inherited from a group and cannot be changed here.',
-          doRemove: () => updatePolicy({ body: deleteRole(user.id, siloPolicy) }),
-        }),
-      ]
+      const effective = sortRoleEntries(
+        userScopedRoleEntries(user.id, userGroups, siloPolicy, projectPolicy)
+      ).at(0)
+      return identityRoleActions({
+        scope: managedScope,
+        canEdit,
+        name: user.displayName,
+        directRole: managedRoleById.get(user.id),
+        effective,
+        isSelf: user.id === me.id,
+        onEdit: (defaultRole) => setEditingUser({ user, defaultRole }),
+        doRemove: () => removeRole(user.id),
+      })
     },
-    [roleById, siloPolicy, updatePolicy, groupsByUserId, canEdit, me]
+    [
+      groupsByUserId,
+      siloPolicy,
+      projectPolicy,
+      managedScope,
+      canEdit,
+      managedRoleById,
+      me,
+      removeRole,
+    ]
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
@@ -211,9 +199,9 @@ export function AccessUsersTab() {
     <>
       {sortedUsers.length === 0 ? <EmptyState /> : <Table table={table} />}
       {editingUser && (
-        <SiloAccessEditUserSideModal
+        <EditModal
           onDismiss={() => setEditingUser(null)}
-          policy={siloPolicy}
+          policy={managedPolicy}
           name={editingUser.user.displayName}
           identityId={editingUser.user.id}
           identityType="silo_user"

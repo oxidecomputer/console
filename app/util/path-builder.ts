@@ -21,6 +21,12 @@ export const pb = {
   projectEdit: (params: PP.Project) => href('/projects/:project/edit', params),
 
   projectAccess: (params: PP.Project) => href('/projects/:project/access', params),
+  projectUsers: (params: PP.Project) => href('/projects/:project/access/users', params),
+  projectUser: (params: PP.Project & PP.SiloUser) =>
+    href('/projects/:project/access/users/:userId', params),
+  projectGroups: (params: PP.Project) => href('/projects/:project/access/groups', params),
+  projectGroup: (params: PP.Project & PP.SiloGroup) =>
+    href('/projects/:project/access/groups/:groupId', params),
   projectImages: (params: PP.Project) => href('/projects/:project/images', params),
   projectImagesNew: (params: PP.Project) => href('/projects/:project/images-new', params),
   projectImage: (params: PP.Image) => href('/projects/:project/images/:image', params),
@@ -124,10 +130,10 @@ export const pb = {
 
   siloUtilization: () => href('/utilization'),
   siloAccess: () => href('/access'),
-  siloUsers: () => href('/users'),
-  siloUser: (params: PP.SiloUser) => href('/users/:userId', params),
-  siloGroups: () => href('/groups'),
-  siloGroup: (params: PP.SiloGroup) => href('/groups/:groupId', params),
+  siloUsers: () => href('/access/users'),
+  siloUser: (params: PP.SiloUser) => href('/access/users/:userId', params),
+  siloGroups: () => href('/access/groups'),
+  siloGroup: (params: PP.SiloGroup) => href('/access/groups/:groupId', params),
   siloImages: () => href('/images'),
   siloImage: (params: PP.SiloImage) => href('/images/:image', params),
 

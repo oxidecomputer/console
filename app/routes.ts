@@ -149,13 +149,13 @@ export default [
           route('projects-new', 'forms/project-create.tsx'),
           route('projects/:project/edit', 'forms/project-edit.tsx'),
         ]),
-        route('access', 'pages/SiloAccessPage.tsx'),
-        // Users and Groups are sibling routes sharing one "Users & Groups" page
+        route('access', 'routes/silo-access-redirect.tsx'),
+        // Users and Groups are sibling tabs sharing one Access page
         layout('pages/SiloUsersGroupsPage.tsx', [
-          route('users', 'pages/SiloUsersTab.tsx', [
+          route('access/users', 'pages/SiloUsersTab.tsx', [
             route(':userId', 'pages/SiloUserDetail.tsx'),
           ]),
-          route('groups', 'pages/SiloGroupsTab.tsx', [
+          route('access/groups', 'pages/SiloGroupsTab.tsx', [
             route(':groupId', 'pages/SiloGroupDetail.tsx'),
           ]),
         ]),
@@ -269,7 +269,16 @@ export default [
               id: 'projects/project/images/image/edit',
             }),
           ]),
-          route('access', 'pages/project/access/ProjectAccessPage.tsx'),
+          route('access', 'routes/project-access-redirect.tsx'),
+          // Users and Groups are sibling tabs sharing one Access page
+          layout('pages/project/access/ProjectUsersGroupsPage.tsx', [
+            route('access/users', 'pages/project/access/ProjectUsersTab.tsx', [
+              route(':userId', 'pages/project/access/ProjectUserDetail.tsx'),
+            ]),
+            route('access/groups', 'pages/project/access/ProjectGroupsTab.tsx', [
+              route(':groupId', 'pages/project/access/ProjectGroupDetail.tsx'),
+            ]),
+          ]),
           layout('routes/affinity-create.tsx', [
             route('affinity-new', 'forms/anti-affinity-group-create.tsx'),
           ]),

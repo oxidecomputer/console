@@ -6,8 +6,11 @@
  * Copyright Oxide Computer Company
  */
 import { AccessUsersTab } from '~/components/access/AccessUsersTab'
+import { useSiloPolicyScope } from '~/components/access/policy-scope'
 import { titleCrumb } from '~/hooks/use-crumbs'
 
 export const handle = titleCrumb('Users')
 
-export default AccessUsersTab
+export default function SiloUsersTab() {
+  return <AccessUsersTab scope={useSiloPolicyScope()} />
+}
