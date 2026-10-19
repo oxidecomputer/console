@@ -71,10 +71,12 @@ export const isSubscribableClass = (c: { name: string }) => c.name !== PROBE_ALE
 
 /**
  * Convert an alert subscription to a regex matching the class names it covers:
- * a `*` segment matches exactly one segment, `**` matches one or more.
+ * a `*` segment matches exactly one segment, `**` matches one or more. An
+ * invalid input returns `null`.
  * https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/db-model/src/alert_subscription.rs
  */
-export function subscriptionRegex(subscription: string) {
+export function subscriptionRegex(subscription: string): RegExp | null {
+  if (!ALERT_SUBSCRIPTION_REGEX.test(subscription)) return null
   const pattern = subscription
     .split('.')
     .map((seg) => (seg === '**' ? '.+' : seg === '*' ? '[^.]+' : seg))
