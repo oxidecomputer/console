@@ -41,20 +41,26 @@ function ComboboxHarness({
   comboboxItems = items,
   initialValue = '',
   allowArbitraryValues = false,
+  onEnter,
 }: {
   comboboxItems?: ComboboxItem[]
   initialValue?: string
   allowArbitraryValues?: boolean
+  onEnter?: () => void
 }) {
   const [selectedItemValue, setSelectedItemValue] = useState(initialValue)
   const [parentEscapes, setParentEscapes] = useState(0)
+  const [submits, setSubmits] = useState(0)
 
   return (
     // The parent key handler models the modal form's Escape listener.
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <form
       aria-label="Parent form"
-      onSubmit={(event) => event.preventDefault()}
+      onSubmit={(event) => {
+        event.preventDefault()
+        setSubmits((count) => count + 1)
+      }}
       onKeyDown={(event) => {
         if (event.key === 'Escape') setParentEscapes((count) => count + 1)
       }}
@@ -70,9 +76,12 @@ function ComboboxHarness({
         onChange={setSelectedItemValue}
         onInputChange={allowArbitraryValues ? setSelectedItemValue : undefined}
         allowArbitraryValues={allowArbitraryValues}
+        onEnter={onEnter}
       />
+      <button type="submit">Submit</button>
       <output>Selected: {selectedItemValue || '(empty)'}</output>
       <output>Parent escapes: {parentEscapes}</output>
+      <output>Submits: {submits}</output>
     </form>
   )
 }
@@ -195,6 +204,36 @@ test('Enter commits the highlighted option instead of the arbitrary query', asyn
 
   await expect.element(combobox).toHaveValue('mock-vpc')
   await expect.element(screen.getByText('Selected: mock-vpc')).toBeVisible()
+})
+
+test('Enter selects while open, then submits the form once closed', async () => {
+  const screen = await render(<ComboboxHarness />)
+  const combobox = screen.getByRole('combobox', { name: 'Disk name' })
+
+  await commands.clickComboboxButton('Disk name')
+  await expect.element(combobox).toHaveAttribute('aria-expanded', 'true')
+  await commands.pressComboboxKey('Disk name', 'Home')
+  await commands.pressComboboxKey('Disk name', 'Enter')
+  await expect.element(screen.getByText('Selected: disk-3')).toBeVisible()
+  await expect.element(screen.getByText('Submits: 0')).toBeVisible()
+
+  await commands.pressComboboxKey('Disk name', 'Enter')
+  await expect.element(screen.getByText('Submits: 1')).toBeVisible()
+})
+
+test('onEnter replaces form submission when closed', async () => {
+  const onEnter = vi.fn()
+  const screen = await render(<ComboboxHarness onEnter={onEnter} />)
+
+  await commands.clickComboboxButton('Disk name')
+  await commands.pressComboboxKey('Disk name', 'Home')
+  await commands.pressComboboxKey('Disk name', 'Enter')
+  await expect.element(screen.getByText('Selected: disk-3')).toBeVisible()
+  expect(onEnter).not.toHaveBeenCalled()
+
+  await commands.pressComboboxKey('Disk name', 'Enter')
+  await expect.poll(() => onEnter.mock.calls.length).toBe(1)
+  await expect.element(screen.getByText('Submits: 0')).toBeVisible()
 })
 
 test('Escape closes the options before propagating to the parent', async () => {

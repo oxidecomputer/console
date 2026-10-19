@@ -639,3 +639,22 @@ test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
   await page.getByRole('option', { name: 'ICMPv4', exact: true }).click()
   await expect(page.getByRole('combobox', { name: 'ICMPv4 type' })).toHaveValue('')
 })
+
+test('enter in the ICMP type field adds a protocol filter', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/default/firewall-rules-new')
+
+  await page.getByRole('button', { name: 'Protocol filters' }).click()
+  await page.getByRole('option', { name: 'ICMPv4', exact: true }).click()
+
+  const v4Type = page.getByRole('combobox', { name: 'ICMPv4 type' })
+  await fillAndSelectComboboxOption(v4Type, page, '8', '8 - Echo Request')
+  await v4Type.press('Enter')
+
+  await expectRowVisible(page.getByRole('table', { name: 'Protocol filters' }), {
+    Protocol: 'ICMPv4',
+    Type: '8',
+  })
+
+  // the form itself should not have been submitted
+  await expect(page.getByRole('dialog', { name: 'Add firewall rule' })).toBeVisible()
+})

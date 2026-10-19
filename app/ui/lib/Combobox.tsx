@@ -73,7 +73,11 @@ export type ComboboxBaseProps = {
    * For example, if a form value should be set when the user types, use `onInputChange`.
    */
   onInputChange?: (value: string) => void
-  /** Fires whenever the Enter key is pressed while Combobox input has focus */
+  /**
+   * Fires whenever the Enter key is pressed while Combobox input has focus and
+   * the dropdown is closed. Additionally, it prevents default, so when set it
+   * will disable form submission on Enter press.
+   */
   onEnter?: (event: React.KeyboardEvent<HTMLInputElement>) => void
   /**
    * Optional function to transform the value entered into the input as the user types.
@@ -278,11 +282,12 @@ export const Combobox = ({
                 }}
                 onKeyDown={(e) => {
                   // When the dropdown is open, Enter should select the
-                  // highlighted option (HUI handles this). When closed,
-                  // Enter should submit the subform via onEnter.
-                  if (e.key === 'Enter' && !isOpenRef.current) {
+                  // highlighted option (HUI handles this). When closed, Enter
+                  // should either fire the onEnter handler or, implicitly,
+                  // submit the form it's within.
+                  if (e.key === 'Enter' && !isOpenRef.current && onEnter) {
                     e.preventDefault()
-                    onEnter?.(e)
+                    onEnter(e)
                   }
                 }}
                 placeholder={placeholder}
