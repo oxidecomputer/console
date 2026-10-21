@@ -17,6 +17,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
+import { Message } from '~/ui/lib/Message'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -52,6 +53,7 @@ export default function ProjectCreateSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
+  const createDefaultVpc = form.watch('createDefaultVpc')
 
   return (
     <SideModalForm
@@ -64,8 +66,9 @@ export default function ProjectCreateSideModalForm() {
           body: {
             name,
             description,
-            // omitting `defaults` creates all of them. `{}` also skips any the API adds later
-            defaults: createDefaultVpc ? undefined : {},
+            defaults: createDefaultVpc
+              ? { vpc: { type: 'explicit', defaults: { subnet: {} } } }
+              : {},
           },
         })
       }}
@@ -74,9 +77,18 @@ export default function ProjectCreateSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <CheckboxField name="createDefaultVpc" control={form.control}>
-        Create default VPC
-      </CheckboxField>
+      <div className="space-y-2">
+        <CheckboxField name="createDefaultVpc" control={form.control}>
+          Create default VPC and subnet
+        </CheckboxField>
+        {!createDefaultVpc && (
+          <Message
+            variant="info"
+            className="max-w-lg"
+            content="An instance can only attach to a VPC with a subnet"
+          />
+        )}
+      </div>
       <SideModalFormDocs docs={[docLinks.projects]} />
     </SideModalForm>
   )

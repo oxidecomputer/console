@@ -74,8 +74,7 @@ export default function CreateVpcSideModalForm() {
         const body: VpcCreate = {
           ...rest,
           ipv6Prefix: ipv6Prefix.trim() || undefined,
-          // omitting `defaults` creates all of them. `{}` also skips any the API adds later
-          defaults: createDefaultSubnet ? undefined : {},
+          defaults: createDefaultSubnet ? { subnet: {} } : {},
         }
         createVpc.mutate({ query: projectSelector, body })
       }}

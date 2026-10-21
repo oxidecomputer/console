@@ -31,7 +31,9 @@ test.describe('Project create', () => {
 
   test('creates default VPC by default', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Name' }).fill('mock-project-2')
-    await expect(page.getByRole('checkbox', { name: 'Create default VPC' })).toBeChecked()
+    await expect(
+      page.getByRole('checkbox', { name: 'Create default VPC and subnet' })
+    ).toBeChecked()
     await page.getByRole('button', { name: 'Create project' }).click()
     await expect(page).toHaveURL('/projects/mock-project-2/instances')
 
@@ -42,7 +44,7 @@ test.describe('Project create', () => {
 
   test('can skip creating the default VPC', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Name' }).fill('mock-project-2')
-    await page.getByRole('checkbox', { name: 'Create default VPC' }).uncheck()
+    await page.getByRole('checkbox', { name: 'Create default VPC and subnet' }).uncheck()
     await page.getByRole('button', { name: 'Create project' }).click()
     await expect(page).toHaveURL('/projects/mock-project-2/instances')
 
