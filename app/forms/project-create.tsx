@@ -7,8 +7,16 @@
  */
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
+import type { RequiredDeep } from 'type-fest'
 
-import { api, q, queryClient, useApiMutation, type ProjectCreate } from '@oxide/api'
+import {
+  api,
+  q,
+  queryClient,
+  useApiMutation,
+  type ProjectCreate,
+  type ProjectCreateDefaults,
+} from '@oxide/api'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -66,8 +74,12 @@ export default function ProjectCreateSideModalForm() {
           body: {
             name,
             description,
+            // RequiredDeep will make tsc fail if an API bump adds a new
+            // default resource, so we can decide how to handle it
             defaults: createDefaultVpc
-              ? { vpc: { type: 'explicit', defaults: { subnet: {} } } }
+              ? ({
+                  vpc: { type: 'explicit', defaults: { subnet: {} } },
+                } satisfies RequiredDeep<ProjectCreateDefaults>)
               : {},
           },
         })

@@ -7,8 +7,16 @@
  */
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
+import type { RequiredDeep } from 'type-fest'
 
-import { api, q, queryClient, useApiMutation, type VpcCreate } from '@oxide/api'
+import {
+  api,
+  q,
+  queryClient,
+  useApiMutation,
+  type VpcCreate,
+  type VpcCreateDefaults,
+} from '@oxide/api'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -74,7 +82,11 @@ export default function CreateVpcSideModalForm() {
         const body: VpcCreate = {
           ...rest,
           ipv6Prefix: ipv6Prefix.trim() || undefined,
-          defaults: createDefaultSubnet ? { subnet: {} } : {},
+          // RequiredDeep will make tsc fail if an API bump adds a new
+          // default resource, so we can decide how to handle it
+          defaults: createDefaultSubnet
+            ? ({ subnet: {} } satisfies RequiredDeep<VpcCreateDefaults>)
+            : {},
         }
         createVpc.mutate({ query: projectSelector, body })
       }}
