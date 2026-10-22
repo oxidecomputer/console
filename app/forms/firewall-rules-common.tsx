@@ -35,6 +35,7 @@ import { NameField, validateName } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
+import { Subform } from '~/components/form/Subform'
 import { useVpcSelector } from '~/hooks/use-params'
 import {
   ProtocolCell,
@@ -48,7 +49,6 @@ import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { SideModal } from '~/ui/lib/SideModal'
 import { TextInputHint } from '~/ui/lib/TextInput'
-import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
@@ -172,59 +172,54 @@ const TargetAndHostFilterSubform = ({
       <SideModal.Heading>{nounTitle}</SideModal.Heading>
 
       <Message variant="info" content={messageContent} />
-      <ListboxField
-        name="type"
-        label={`${capitalize(sectionType)} type`}
-        control={subformControl}
-        items={targetHostTypeItems}
-        onChange={onTypeChange}
-        hideOptionalTag
-      />
-      {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
-      {valueType === 'vpc' || valueType === 'subnet' || valueType === 'instance' ? (
-        <ComboboxField
-          disabled={subform.formState.isSubmitting}
-          name="value"
-          {...getFilterValueProps(valueType)}
-          description="Select an option or enter a custom value"
+      <Subform onSubmit={submitSubform} className="space-y-6">
+        <ListboxField
+          name="type"
+          label={`${capitalize(sectionType)} type`}
           control={subformControl}
-          onEnter={submitSubform}
-          items={items}
-          allowArbitraryValues
+          items={targetHostTypeItems}
+          onChange={onTypeChange}
           hideOptionalTag
-          validate={(value) =>
-            // required: false arg is desirable because otherwise if you put in
-            // a bad name and submit, causing it to revalidate onChange, then
-            // clear the field you're left with a BS "Target name is required"
-            // error message
-            validateName(value, `${capitalize(sectionType)} name`, false)
-          }
         />
-      ) : (
-        <TextField
-          name="value"
-          {...getFilterValueProps(valueType)}
-          control={subformControl}
-          disabled={subform.formState.isSubmitting}
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              submitSubform(e)
+        {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
+        {valueType === 'vpc' || valueType === 'subnet' || valueType === 'instance' ? (
+          <ComboboxField
+            disabled={subform.formState.isSubmitting}
+            name="value"
+            {...getFilterValueProps(valueType)}
+            description="Select an option or enter a custom value"
+            control={subformControl}
+            items={items}
+            allowArbitraryValues
+            hideOptionalTag
+            validate={(value) =>
+              // required: false arg is desirable because otherwise if you put in
+              // a bad name and submit, causing it to revalidate onChange, then
+              // clear the field you're left with a BS "Target name is required"
+              // error message
+              validateName(value, `${capitalize(sectionType)} name`, false)
             }
-          }}
-          validate={(value) =>
-            (valueType === 'ip' && validateIp(value)) ||
-            (valueType === 'ip_net' && validateIpNet(value)) ||
-            undefined
-          }
+          />
+        ) : (
+          <TextField
+            name="value"
+            {...getFilterValueProps(valueType)}
+            control={subformControl}
+            disabled={subform.formState.isSubmitting}
+            validate={(value) =>
+              (valueType === 'ip' && validateIp(value)) ||
+              (valueType === 'ip_net' && validateIpNet(value)) ||
+              undefined
+            }
+          />
+        )}
+        <ClearAndAddButtons
+          addButtonCopy={`Add ${noun}`}
+          disabled={!value}
+          onClear={() => subform.reset()}
+          onSubmit={submitSubform}
         />
-      )}
-      <ClearAndAddButtons
-        addButtonCopy={`Add ${noun}`}
-        disabled={!value}
-        onClear={() => subform.reset()}
-        onSubmit={submitSubform}
-      />
+      </Subform>
       <MiniTable
         className="mb-4"
         ariaLabel={nounTitle}
@@ -465,7 +460,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
 
   return (
     <>
-      <div className="space-y-3">
+      <Subform onSubmit={submitProtocol} className="space-y-3">
         <div className="space-y-5">
           <ListboxField
             name="protocolType"
@@ -515,12 +510,6 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
                   placeholder=""
                   validate={icmpCodeValidation}
                   transform={normalizeDashes}
-                  onKeyDown={(e) => {
-                    if (e.key === KEYS.enter) {
-                      e.preventDefault() // prevent full form submission
-                      submitProtocol(e)
-                    }
-                  }}
                 />
               )}
             </>
@@ -533,7 +522,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
           onClear={() => protocolForm.reset()}
           onSubmit={submitProtocol}
         />
-      </div>
+      </Subform>
 
       {protocols.value.length > 0 && (
         <MiniTable
@@ -677,7 +666,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         }
       />
 
-      <div className="flex flex-col gap-3">
+      <Subform onSubmit={submitPortRange} className="flex flex-col gap-3">
         {/* We have to blow this up instead of using TextField to get better
             text styling on the label */}
         <div className="mt-2">
@@ -692,12 +681,6 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
             name="portRange"
             required
             control={portRangeForm.control}
-            onKeyDown={(e) => {
-              if (e.key === KEYS.enter) {
-                e.preventDefault() // prevent full form submission
-                submitPortRange(e)
-              }
-            }}
             validate={(value) => {
               if (!parsePortRange(value)) return 'Not a valid port range'
               if (ports.value.includes(value.trim())) return 'Port range already added'
@@ -710,7 +693,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           onClear={() => portRangeForm.reset()}
           onSubmit={submitPortRange}
         />
-      </div>
+      </Subform>
       {ports.value.length > 0 && (
         <MiniTable
           className="mb-4"
