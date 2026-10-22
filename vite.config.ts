@@ -79,6 +79,9 @@ export default defineConfig(({ mode }) => ({
     // minify: false, // uncomment for debugging
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
     assetsInlineLimit: 0,
+    // the metrics explorer route chunk is ~600 kB. It's lazy loaded, so it
+    // only costs anything on that page
+    chunkSizeWarningLimit: 700,
   },
   environments: {
     ssr: {
