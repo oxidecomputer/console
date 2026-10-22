@@ -16,7 +16,7 @@ import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
 import { z } from 'zod/v4'
 
-import { nexusSecurityHeaders } from './app/api/__generated__/nexus-console'
+import { nexusSecurityHeaders } from './app/api/__generated__/nexus-console.ts'
 
 const ApiMode = z.enum(['msw', 'remote', 'nexus'])
 
@@ -94,7 +94,7 @@ export default defineConfig(({ mode }) => ({
     'process.env.VERCEL_ENV': JSON.stringify(process.env.VERCEL_ENV),
     'process.env.THEME_INIT_HASH': JSON.stringify(
       createHash('sha256')
-        .update(readFileSync(resolve(__dirname, 'public/assets/theme-init.js')))
+        .update(readFileSync(resolve(import.meta.dirname, 'public/assets/theme-init.js')))
         .digest('hex')
         .slice(0, 8)
     ),
