@@ -29,6 +29,29 @@ test.describe('Project create', () => {
     await expect(page).toHaveURL('/projects/mock-project-2/instances')
   })
 
+  test('creates default VPC by default', async ({ page }) => {
+    await page.getByRole('textbox', { name: 'Name' }).fill('mock-project-2')
+    await expect(
+      page.getByRole('checkbox', { name: 'Create default VPC and subnet' })
+    ).toBeChecked()
+    await page.getByRole('button', { name: 'Create project' }).click()
+    await expect(page).toHaveURL('/projects/mock-project-2/instances')
+
+    // client-side nav to keep the mock db state
+    await page.getByRole('link', { name: 'VPCs' }).click()
+    await expect(page.getByRole('cell', { name: 'default' }).first()).toBeVisible()
+  })
+
+  test('can skip creating the default VPC', async ({ page }) => {
+    await page.getByRole('textbox', { name: 'Name' }).fill('mock-project-2')
+    await page.getByRole('checkbox', { name: 'Create default VPC and subnet' }).uncheck()
+    await page.getByRole('button', { name: 'Create project' }).click()
+    await expect(page).toHaveURL('/projects/mock-project-2/instances')
+
+    await page.getByRole('link', { name: 'VPCs' }).click()
+    await expect(page.getByText('No VPCs')).toBeVisible()
+  })
+
   test('clicking the scrim dismisses the side modal', async ({ page }) => {
     const dialog = page.getByRole('dialog', { name: /Create project/ })
     await expect(dialog).toBeVisible()
