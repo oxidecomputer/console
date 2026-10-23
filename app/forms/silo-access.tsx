@@ -10,13 +10,14 @@ import { useForm } from 'react-hook-form'
 import {
   api,
   queryClient,
+  rolesByIdFromPolicy,
   updateRole,
   useActorsNotInPolicy,
   useApiMutation,
 } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useCurrentUser } from '~/hooks/use-current-user'
@@ -33,12 +34,21 @@ import {
   type EditRoleModalProps,
 } from './access-util'
 
+/**
+ * Silo policy changes can change the current user's `siloAdmin` on /v1/me,
+ * which gates role actions, so refresh both.
+ */
+export function invalidateSiloPolicy() {
+  queryClient.invalidateEndpoint('policyView')
+  queryClient.invalidateEndpoint('currentUserView')
+}
+
 export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const actors = useActorsNotInPolicy(policy)
 
   const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
+      invalidateSiloPolicy()
       onDismiss()
     },
   })
@@ -57,7 +67,6 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         onDismiss()
       }}
       onSubmit={({ identityId, roleName }) => {
-        // TODO: DRY logic
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 
@@ -68,7 +77,8 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
     >
-      <ListboxField
+      <ComboboxField
+        placeholder="Select a user or group"
         name="identityId"
         items={actors.map(actorToItem)}
         label="User or group"
@@ -89,10 +99,14 @@ export function SiloAccessEditUserSideModal({
   policy,
   defaultValues,
 }: EditRoleModalProps) {
+  const isAssigning = !defaultValues.roleName
   const { me } = useCurrentUser()
+  // the direct assignment, which is what an update actually replaces —
+  // defaultValues.roleName may be a role inherited from a group
+  const myDirectRole = rolesByIdFromPolicy(policy).get(me.id)
   const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
+      invalidateSiloPolicy()
       onDismiss()
     },
   })
@@ -101,24 +115,21 @@ export function SiloAccessEditUserSideModal({
   return (
     <SideModalForm
       form={form}
-      formType="edit"
+      formType={isAssigning ? 'create' : 'edit'}
       resourceName="role"
-      title="Edit role"
+      title={isAssigning ? 'Add silo role' : 'Edit silo role'}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {name}
         </ResourceLabel>
       }
       onSubmit={({ roleName }) => {
+        if (!roleName) return
         const body = updateRole({ identityId, identityType, roleName }, policy)
         // Only silo admins can edit the policy, so an admin who removes their
         // own admin role may not be able to undo the change. "May" because
         // they could still be an admin through a group.
-        if (
-          identityId === me.id &&
-          defaultValues.roleName === 'admin' &&
-          roleName !== 'admin'
-        ) {
+        if (identityId === me.id && myDirectRole === 'admin' && roleName !== 'admin') {
           confirmAction({
             actionType: 'danger',
             doAction: () => updatePolicy.mutateAsync({ body }),
