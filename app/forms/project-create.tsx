@@ -25,8 +25,8 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
-import { Message } from '~/ui/lib/Message'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -61,7 +61,6 @@ export default function ProjectCreateSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
-  const createDefaultVpc = form.watch('createDefaultVpc')
 
   return (
     <SideModalForm
@@ -89,18 +88,15 @@ export default function ProjectCreateSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <div className="space-y-2">
+      <span className="inline-flex items-center gap-1.5">
         <CheckboxField name="createDefaultVpc" control={form.control}>
           Create default VPC and subnet
         </CheckboxField>
-        {!createDefaultVpc && (
-          <Message
-            variant="info"
-            className="max-w-lg"
-            content="An instance can only attach to a VPC with a subnet"
-          />
-        )}
-      </div>
+        <TipIcon>
+          Instances created with default networking attach to the default VPC and subnet.
+          Without a VPC, instances in this project can’t have network interfaces.
+        </TipIcon>
+      </span>
       <SideModalFormDocs docs={[docLinks.projects]} />
     </SideModalForm>
   )

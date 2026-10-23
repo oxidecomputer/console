@@ -27,8 +27,8 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Message } from '~/ui/lib/Message'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { validateVpcIpv6Prefix } from '~/util/ip'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -71,7 +71,6 @@ export default function CreateVpcSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
-  const createDefaultSubnet = form.watch('createDefaultSubnet')
 
   return (
     <SideModalForm
@@ -108,18 +107,17 @@ export default function CreateVpcSideModalForm() {
           return validateVpcIpv6Prefix(prefix)
         }}
       />
-      <div className="space-y-2">
+      <span className="inline-flex items-center gap-1.5">
         <CheckboxField name="createDefaultSubnet" control={form.control}>
           Create default subnet
         </CheckboxField>
-        {!createDefaultSubnet && (
-          <Message
-            variant="info"
-            className="max-w-lg"
-            content="An instance can only attach to a VPC with a subnet"
-          />
-        )}
-      </div>
+        <TipIcon>
+          <p>
+            An instance can only attach to a VPC with a subnet.
+            <br />A subnet can be added later.
+          </p>
+        </TipIcon>
+      </span>
       <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )
