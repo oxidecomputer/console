@@ -95,9 +95,10 @@ test('Webhook receiver create', async ({ page }) => {
   await expect(main.getByText('Must be at most 512 characters')).toBeVisible()
   await page.getByRole('textbox', { name: 'Endpoint URL' }).fill('https://ci.example.com')
 
-  // add a secret; it lands in the mini table
-  await page.getByRole('textbox', { name: 'Secret' }).fill('super-secret')
-  await page.getByRole('button', { name: 'Add secret' }).click()
+  // add a secret with Enter; it lands in the mini table without submitting
+  const secretInput = page.getByRole('textbox', { name: 'Secret' })
+  await secretInput.fill('super-secret')
+  await secretInput.press('Enter')
   await expect(
     page
       .getByRole('table', { name: 'Secrets' })
@@ -667,13 +668,14 @@ const alertListFilteringBasics = async (page: Page) => {
 }
 
 test('Alert list filtering by class', async ({ page }) => {
-  const { table, filterButton, input, applyButton } = await alertListFilteringBasics(page)
+  const { table, filterButton, input } = await alertListFilteringBasics(page)
 
   // typed glob previews how many classes it matches
   await filterButton.click()
   await input.fill('**.remove')
   await page.getByRole('option', { name: /Matches 3 alert classes/ }).click()
-  await applyButton.click()
+  // Enter in the closed combobox applies the filter
+  await input.press('Enter')
 
   // filter is applied and reflected in the URL
   await expect(page).toHaveURL(/subscription=\*\*\.remove/)
