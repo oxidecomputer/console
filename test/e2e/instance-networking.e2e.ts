@@ -376,8 +376,8 @@ test('Edit network interface - Transit IPs', async ({ page }) => {
   await transitIpField.fill('192.168.0.0/16')
   await expect(errorMessage).toBeHidden()
 
-  // Submit and assert it's in the table
-  await addTransitIpButton.click()
+  // Enter adds it to the table without submitting the outer form
+  await transitIpField.press('Enter')
   await expect(transitIpField).toHaveValue('')
   await expectRowVisible(transitIpsTable, { 'Transit IPs': '192.168.0.0/16' })
 
@@ -389,17 +389,24 @@ test('Edit network interface - Transit IPs', async ({ page }) => {
   await addTransitIpButton.click()
   await expect(dupeError).toBeVisible()
 
+  // the Add button works too
+  await transitIpField.fill('10.0.0.0/8')
+  await addTransitIpButton.click()
+  await expect(transitIpField).toHaveValue('')
+  await expectRowVisible(transitIpsTable, { 'Transit IPs': '10.0.0.0/8' })
+
   // Submit the form
   await modal.getByRole('button', { name: 'Update network interface' }).click()
 
   // Assert the transit IP is in the NICs table
-  // The NIC now has 3 transit IPs: 172.30.0.0/22 (v4), 192.168.0.0/16 (v4), and ::/64 (v6)
+  // The NIC now has 4 transit IPs: 172.30.0.0/22 (v4), 192.168.0.0/16 (v4),
+  // 10.0.0.0/8 (v4), and ::/64 (v6)
   const nicTable = page.getByRole('table', { name: 'Network interfaces' })
-  await expectRowVisible(nicTable, { 'Transit IPs': '172.30.0.0/22+2' })
+  await expectRowVisible(nicTable, { 'Transit IPs': '172.30.0.0/22+3' })
 
-  await page.getByText('+2').hover()
+  await page.getByText('+3').hover()
   await expect(
-    page.getByRole('tooltip', { name: 'Other transit IPs 192.168.0.0/16 ::/64' })
+    page.getByRole('tooltip', { name: 'Other transit IPs 192.168.0.0/16 10.0.0.0/8 ::/64' })
   ).toBeVisible()
 })
 
