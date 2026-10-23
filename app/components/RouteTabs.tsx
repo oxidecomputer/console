@@ -38,6 +38,22 @@ const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
   }
 }
 
+function RouteTabList({
+  className,
+  children,
+}: {
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    // Keyboard nav is handled on the tablist; individual tabs take focus.
+    // oxlint-disable-next-line jsx-a11y/interactive-supports-focus
+    <div role="tablist" className={className} onKeyDown={selectTab}>
+      {children}
+    </div>
+  )
+}
+
 export interface RouteTabsProps {
   children: ReactNode
   fullWidth?: boolean
@@ -54,23 +70,24 @@ export function RouteTabs({
   tabListClassName,
 }: RouteTabsProps) {
   /* TODO: Add aria-describedby for active tab */
+  const tabList = (
+    <RouteTabList
+      className={cn(sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list', tabListClassName)}
+    >
+      {children}
+    </RouteTabList>
+  )
+
   return (
     <div
       className={cn(sideTabs ? 'ox-side-tabs flex' : 'ox-tabs', {
         'full-width': !sideTabs && fullWidth,
       })}
     >
-      {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
-      <div
-        role="tablist"
-        className={cn(sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list', tabListClassName)}
-        onKeyDown={selectTab}
-      >
-        {children}
-      </div>
+      {sideTabs ? tabList : <div className="ox-tabs-list-wrap">{tabList}</div>}
 
       <div
-        className={cn('ox-tabs-panel @container', { 'ml-5 grow': sideTabs })}
+        className={cn('ox-tabs-panel @container', { 'grow 1000:ml-5': sideTabs })}
         role="tabpanel"
         tabIndex={0}
       >

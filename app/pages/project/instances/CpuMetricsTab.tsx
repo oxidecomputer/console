@@ -62,9 +62,9 @@ export default function CpuMetricsTab() {
   return (
     <>
       <MetricHeader>
-        <div className="flex gap-2">
+        <div className="max-1000:w-full flex gap-2">
           <Listbox
-            className="w-52"
+            className="max-1000:w-full w-52"
             aria-label="Choose state"
             name="disk-name"
             selected={selectedState}

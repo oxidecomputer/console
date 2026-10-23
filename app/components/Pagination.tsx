@@ -17,7 +17,7 @@ const Tunnel = tunnel()
 export function Pagination(props: UIPaginationProps) {
   return (
     <Tunnel.In>
-      <UIPagination className="gutter h-14 py-5" {...props} />
+      <UIPagination className="gutter py-4" {...props} />
     </Tunnel.In>
   )
 }
