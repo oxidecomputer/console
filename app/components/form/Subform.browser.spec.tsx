@@ -7,7 +7,7 @@
  */
 import { useState } from 'react'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
-import { render } from 'vitest-browser-react'
+import { render, type RenderResult } from 'vitest-browser-react'
 import { commands, userEvent } from 'vitest/browser'
 
 import { Combobox, toComboboxItems } from '~/ui/lib/Combobox'
@@ -25,6 +25,21 @@ afterEach(() => {
 })
 
 const items = toComboboxItems([{ name: 'disk-3' }, { name: 'disk-4' }])
+
+// Filling alone doesn't reliably leave the first option highlighted (Firefox
+// CI pressed Enter with nothing active), so open the list and Home to it
+// explicitly, like Combobox.browser.spec.tsx does
+async function highlightFirstOption(screen: RenderResult, label: string) {
+  const combobox = screen.getByRole('combobox', { name: label })
+  await combobox.fill('disk')
+  await commands.pressComboboxKey(label, 'ArrowDown')
+  const option = screen.getByRole('option', { name: 'disk-3' })
+  await expect.element(option).toBeVisible()
+  await commands.pressComboboxKey(label, 'Home')
+  await expect
+    .element(combobox)
+    .toHaveAttribute('aria-activedescendant', option.element().id)
+}
 
 function Harness() {
   const [inner, setInner] = useState('')
@@ -72,7 +87,7 @@ function Harness() {
 test('Enter selects while open, then submits the subform once closed', async () => {
   const screen = await render(<Harness />)
 
-  await screen.getByRole('combobox', { name: 'Inner disk' }).fill('disk')
+  await highlightFirstOption(screen, 'Inner disk')
   await commands.pressComboboxKey('Inner disk', 'Enter')
   await expect.element(screen.getByText('Inner: disk-3')).toBeVisible()
   await expect.element(screen.getByText('Subform submits: 0')).toBeVisible()
@@ -107,7 +122,7 @@ test('Enter on a button in the subform activates the button only', async () => {
 test('outside a subform, Enter in a closed combobox submits the form', async () => {
   const screen = await render(<Harness />)
 
-  await screen.getByRole('combobox', { name: 'Outer disk' }).fill('disk')
+  await highlightFirstOption(screen, 'Outer disk')
   await commands.pressComboboxKey('Outer disk', 'Enter')
   await expect.element(screen.getByText('Outer: disk-3')).toBeVisible()
   await expect.element(screen.getByText('Form submits: 0')).toBeVisible()
