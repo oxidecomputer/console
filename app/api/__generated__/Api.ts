@@ -6857,6 +6857,33 @@ export interface AuditLogListQueryParams {
   startTime?: Date
 }
 
+export interface SiloCertificateListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  silo?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SiloCertificateCreateQueryParams {
+  silo: NameOrId
+}
+
+export interface SiloCertificateViewPathParams {
+  certificate: NameOrId
+}
+
+export interface SiloCertificateViewQueryParams {
+  silo?: NameOrId
+}
+
+export interface SiloCertificateDeletePathParams {
+  certificate: NameOrId
+}
+
+export interface SiloCertificateDeleteQueryParams {
+  silo?: NameOrId
+}
+
 export interface PhysicalDiskDisableAdoptionPathParams {
   physicalDiskAdoptionReqId: string
 }
@@ -7738,7 +7765,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026091500.0.0'
+  apiVersion = '2026101500.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -8393,7 +8420,7 @@ export class Api {
       })
     },
     /**
-     * List certificates for external endpoints
+     * List TLS certificates in current silo
      */
     certificateList: (
       { query = {} }: { query?: CertificateListQueryParams },
@@ -8407,7 +8434,7 @@ export class Api {
       })
     },
     /**
-     * Create system-wide x.509 certificate
+     * Create TLS certificate in current silo
      */
     certificateCreate: (
       { body }: { body: CertificateCreate },
@@ -8421,7 +8448,7 @@ export class Api {
       })
     },
     /**
-     * Fetch certificate
+     * Fetch TLS certificate in current silo
      */
     certificateView: (
       { path }: { path: CertificateViewPathParams },
@@ -8434,7 +8461,7 @@ export class Api {
       })
     },
     /**
-     * Delete certificate
+     * Delete TLS certificate in current silo
      */
     certificateDelete: (
       { path }: { path: CertificateDeletePathParams },
@@ -10093,6 +10120,72 @@ export class Api {
       return this.request<AuditLogEntryResultsPage>({
         path: `/v1/system/audit-log`,
         method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List TLS certificates in silo
+     */
+    siloCertificateList: (
+      { query = {} }: { query?: SiloCertificateListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<CertificateResultsPage>({
+        path: `/v1/system/certificates`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create TLS certificate in silo
+     */
+    siloCertificateCreate: (
+      { query, body }: { query: SiloCertificateCreateQueryParams; body: CertificateCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Certificate>({
+        path: `/v1/system/certificates`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch TLS certificate in silo
+     */
+    siloCertificateView: (
+      {
+        path,
+        query = {},
+      }: { path: SiloCertificateViewPathParams; query?: SiloCertificateViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Certificate>({
+        path: `/v1/system/certificates/${path.certificate}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete TLS certificate in silo
+     */
+    siloCertificateDelete: (
+      {
+        path,
+        query = {},
+      }: {
+        path: SiloCertificateDeletePathParams
+        query?: SiloCertificateDeleteQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/certificates/${path.certificate}`,
+        method: 'DELETE',
         query,
         ...params,
       })
