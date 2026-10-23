@@ -92,10 +92,7 @@ export default function ProjectCreateSideModalForm() {
         <CheckboxField name="createDefaultVpc" control={form.control}>
           Create default VPC and subnet
         </CheckboxField>
-        <TipIcon>
-          Instances created with default networking attach to the default VPC and subnet.
-          Without a VPC, instances in this project can’t have network interfaces.
-        </TipIcon>
+        <TipIcon>An instance can only attach to a VPC with a subnet.</TipIcon>
       </span>
       <SideModalFormDocs docs={[docLinks.projects]} />
     </SideModalForm>
