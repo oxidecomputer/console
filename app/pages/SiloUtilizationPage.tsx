@@ -12,9 +12,9 @@ import { useMemo, useState } from 'react'
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
-import { CapacityBars } from '~/components/CapacityBars'
 import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
+import { QuotaTiles } from '~/components/QuotaTile'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { SiloMetric } from '~/components/SystemMetric'
 import { useCurrentUser } from '~/hooks/use-current-user'
@@ -88,10 +88,11 @@ export default function SiloUtilizationPage() {
         />
       </PageHeader>
 
-      <CapacityBars
+      <QuotaTiles
         provisioned={utilization.provisioned}
         allocated={utilization.capacity}
-        allocatedLabel="Quota"
+        showBar
+        storageUnit="TiB"
       />
 
       <Divider className="my-8" />
