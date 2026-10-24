@@ -24,6 +24,7 @@ test('Sled inventory page', async ({ page }) => {
   // grouping, hence the slightly weird column names
   await expectRowVisible(sledsTable, {
     id: expect.stringContaining(sleds[0].id),
+    slot: '14',
     'serial number': sleds[0].baseboard.serial,
     Kind: 'In service',
     'Provision policy': 'Provisionable',
@@ -45,6 +46,7 @@ test('Sled inventory page', async ({ page }) => {
   })
   await expectRowVisible(sledsTable, {
     id: expect.stringContaining(sleds[3].id),
+    slot: '—',
     'serial number': sleds[3].baseboard.serial,
     Kind: 'Expunged',
     'Provision policy': '—',
@@ -56,6 +58,7 @@ test('Sled inventory page', async ({ page }) => {
 
   await expectVisible(page, ['role=heading[name*="Sled"]'])
   await expect(page.getByText('serialBRM02222869')).toBeVisible()
+  await expect(page.getByText('slot14')).toBeVisible()
 
   const instancesTab = page.getByRole('tab', { name: 'Instances' })
   await expect(instancesTab).toBeVisible()

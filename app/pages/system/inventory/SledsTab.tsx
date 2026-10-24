@@ -10,6 +10,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { api, getListQFn, queryClient, type Sled } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -29,6 +30,15 @@ export const handle = { crumb: 'Sleds' }
 
 const colHelper = createColumnHelper<Sled>()
 const staticCols = [
+  // last observed location, so null when a sled was just inserted.
+  // 0 is a valid slot, hence ?? instead of ||.
+  colHelper.accessor('slot', {
+    cell: (info) => (
+      <div className="w-[2.5ch] text-right tabular-nums">
+        {info.getValue() ?? <EmptyCell />}
+      </div>
+    ),
+  }),
   colHelper.accessor('id', {
     cell: (info) => (
       <LinkCell to={pb.sledInstances({ sledId: info.getValue() })}>
