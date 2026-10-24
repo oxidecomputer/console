@@ -53,19 +53,11 @@ test('Sled inventory page', async ({ page }) => {
     state: 'decommissioned',
   })
 
-  await page.getByRole('button', { name: 'Refresh data' }).click()
-  await expectRowVisible(sledsTable, {
-    id: expect.stringContaining(sleds[0].id),
-    slot: '14',
-  })
-
   // Visit the sled detail page of the first sled
   await sledsTable.getByRole('link').first().click()
 
   await expectVisible(page, ['role=heading[name*="Sled"]'])
   await expect(page.getByText('serialBRM02222869')).toBeVisible()
-  await expect(page.getByText('slot14')).toBeVisible()
-  await page.getByRole('button', { name: 'Refresh data' }).click()
   await expect(page.getByText('slot14')).toBeVisible()
 
   const instancesTab = page.getByRole('tab', { name: 'Instances' })

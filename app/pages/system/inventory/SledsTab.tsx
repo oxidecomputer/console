@@ -30,6 +30,15 @@ export const handle = { crumb: 'Sleds' }
 
 const colHelper = createColumnHelper<Sled>()
 const staticCols = [
+  // last observed location, so null when a sled was just inserted.
+  // 0 is a valid slot, hence ?? instead of ||.
+  colHelper.accessor('slot', {
+    cell: (info) => (
+      <div className="w-[2.5ch] text-right tabular-nums">
+        {info.getValue() ?? <EmptyCell />}
+      </div>
+    ),
+  }),
   colHelper.accessor('id', {
     cell: (info) => (
       <LinkCell to={pb.sledInstances({ sledId: info.getValue() })}>
@@ -37,9 +46,6 @@ const staticCols = [
       </LinkCell>
     ),
   }),
-  // last observed location, so null when a sled was just inserted. 0 is a
-  // valid slot, hence ?? instead of ||
-  colHelper.accessor('slot', { cell: (info) => info.getValue() ?? <EmptyCell /> }),
   // TODO: colHelper.accessor('baseboard.serviceAddress', { header: 'service address' }),
   colHelper.group({
     id: 'baseboard',

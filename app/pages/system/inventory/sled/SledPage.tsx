@@ -9,7 +9,6 @@
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
-import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { useSledParams } from '~/hooks/use-params'
@@ -30,12 +29,6 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   await queryClient.fetchQuery(sledView({ sledId }))
   return null
 }
-const refreshData = () =>
-  Promise.all([
-    queryClient.invalidateEndpoint('sledView'),
-    queryClient.invalidateEndpoint('sledInstanceList'), // instances tab
-  ])
-
 export const handle = makeCrumb(
   (p) => truncate(p.sledId!, 12, 'middle'),
   (p) => pb.sledInstances({ sledId: p.sledId! })
@@ -49,7 +42,6 @@ export default function SledPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Servers24Icon />}>Sled</PageTitle>
-        <RefreshButton onClick={refreshData} />
       </PageHeader>
 
       <PropertiesTable columns={2} className="-mt-8 mb-8">
