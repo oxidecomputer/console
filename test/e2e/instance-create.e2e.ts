@@ -1217,12 +1217,16 @@ test('custom network interface works without a default VPC', async ({ page }) =>
   const tooltip = page.getByRole('tooltip')
 
   await defaultTip.hover()
-  await expect(tooltip).toHaveText('Default networking requires a VPC named default')
+  await expect(tooltip).toHaveText(
+    'Default networking requires a VPC and subnet named default'
+  )
 
   await page.mouse.move(0, 0)
   await expect(tooltip).toBeHidden()
   await defaultTip.focus()
-  await expect(tooltip).toHaveText('Default networking requires a VPC named default')
+  await expect(tooltip).toHaveText(
+    'Default networking requires a VPC and subnet named default'
+  )
 
   await expect(noneRadio).toBeEnabled()
   await expect(noneRadio).toBeChecked()

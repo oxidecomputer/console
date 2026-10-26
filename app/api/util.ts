@@ -25,7 +25,6 @@ import type {
   Sled,
   SnapshotState,
   SupportBundleState,
-  Vpc,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
@@ -131,9 +130,6 @@ export const utf8ByteLength = (s: string) => new TextEncoder().encode(s).length
  * https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/src/app/sagas/instance_create.rs#L739-L773
  */
 export const DEFAULT_VPC_NAME = 'default'
-
-export const hasDefaultVpc = (vpcs: Vpc[]) =>
-  vpcs.some((vpc) => vpc.name === DEFAULT_VPC_NAME)
 
 type PortRange = [number, number]
 
