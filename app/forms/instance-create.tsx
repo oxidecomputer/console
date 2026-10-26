@@ -15,15 +15,16 @@ import type { SetRequired } from 'type-fest'
 
 import {
   api,
+  DEFAULT_VPC_NAME,
   diskCan,
   genName,
-  hasDefaultVpc,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   isUnicastPool,
   MAX_DISK_SIZE_GiB,
   poolHasIpVersion,
   q,
+  qErrorsAllowed,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -234,6 +235,21 @@ const baseDefaultValues: InstanceCreateInput = {
   floatingIps: [],
 }
 
+// We disable the default_* NIC types in the form if either
+// the default VPC or default subnet is missing.
+// (Both use the name `default`).
+const defaultSubnetView = (project: string) =>
+  qErrorsAllowed(
+    api.vpcSubnetView,
+    { path: { subnet: DEFAULT_VPC_NAME }, query: { project, vpc: DEFAULT_VPC_NAME } },
+    {
+      errorsExpected: {
+        explanation: 'the project may not have a default VPC and subnet.',
+        statusCode: 404,
+      },
+    }
+  )
+
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const { project } = params
   await Promise.all([
@@ -247,6 +263,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
       q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
     ),
     queryClient.prefetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(defaultSubnetView(project)),
   ])
   return null
 }
@@ -421,13 +438,15 @@ export default function CreateInstanceForm() {
   const { data: vpcs } = usePrefetchedQuery(
     q(api.vpcList, { query: { project, limit: ALL_ISH } })
   )
+  const { data: defaultSubnet } = usePrefetchedQuery(defaultSubnetView(project))
+  const defaultNetworkingAvailable = defaultSubnet.type === 'success'
 
   // Determine default network interface type:
-  // - If a default VPC exists: default to dual-stack (API default, works with both IPv4 and IPv6 subnets)
+  // - If a default VPC and subnet exist: default to dual-stack (API default, works with both IPv4 and IPv6 subnets)
   // - Otherwise: default to 'none' (user must create a VPC first or use custom NICs)
   // Note: Decoupled from external IP pool configuration, as NIC IP stack and external IPs are separate concerns
   const defaultNetworkInterfaceType: InstanceNetworkInterfaceAttachment['type'] =
-    hasDefaultVpc(vpcs.items) ? 'default_dual_stack' : 'none'
+    defaultNetworkingAvailable ? 'default_dual_stack' : 'none'
 
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
@@ -840,6 +859,7 @@ export default function CreateInstanceForm() {
           isSubmitting={isSubmitting}
           unicastPools={unicastPools}
           vpcs={vpcs.items}
+          defaultNetworkingAvailable={defaultNetworkingAvailable}
         />
         <FormDivider />
         <Form.Heading id="advanced">Advanced</Form.Heading>
@@ -879,11 +899,13 @@ const NetworkingSection = ({
   isSubmitting,
   unicastPools,
   vpcs,
+  defaultNetworkingAvailable,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
   unicastPools: UnicastIpPool[]
   vpcs: Vpc[]
+  defaultNetworkingAvailable: boolean
 }) => {
   const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })
   const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
@@ -966,7 +988,12 @@ const NetworkingSection = ({
       {vpcMessage && (
         <Message className="mb-4 max-w-lg" variant="notice" content={vpcMessage} />
       )}
-      <NetworkInterfaceField control={control} disabled={isSubmitting} vpcs={vpcs} />
+      <NetworkInterfaceField
+        control={control}
+        disabled={isSubmitting}
+        vpcs={vpcs}
+        defaultNetworkingAvailable={defaultNetworkingAvailable}
+      />
 
       <div className="flex flex-1 flex-col gap-4">
         <h2 className="text-sans-md flex items-center">
