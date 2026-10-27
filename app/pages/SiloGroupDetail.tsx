@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router'
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 
 import { GroupMembersSideModal } from '~/components/access/GroupMembersSideModal'
+import { useSiloPolicyScope } from '~/components/access/policy-scope'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useSiloGroupSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
@@ -18,8 +19,6 @@ import type * as PP from '~/util/path-params'
 import type { Route } from './+types/SiloGroupDetail'
 
 const groupView = ({ groupId }: PP.SiloGroup) => q(api.groupView, { path: { groupId } })
-// prefetched by the parent Access loader
-const policyView = q(api.policyView, {})
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const { groupId } = params
@@ -34,13 +33,13 @@ export default function SiloGroupDetail() {
   const selector = useSiloGroupSelector()
   const navigate = useNavigate()
   const { data: group } = usePrefetchedQuery(groupView(selector))
-  const { data: siloPolicy } = usePrefetchedQuery(policyView)
+  const scope = useSiloPolicyScope()
 
   return (
     <GroupMembersSideModal
       group={group}
       onDismiss={() => navigate(pb.siloGroups())}
-      siloPolicy={siloPolicy}
+      scope={scope}
     />
   )
 }

@@ -5,21 +5,26 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useState } from 'react'
 import type { Control, FieldPath, FieldValues } from 'react-hook-form'
 import * as R from 'remeda'
 
 import {
   allRoles,
   fleetRoles,
+  rolesByIdFromPolicy,
   type Actor,
   type FleetRole,
   type IdentityType,
   type Policy,
   type RoleKey,
 } from '@oxide/api'
+import { Access16Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { RadioFieldDyn } from '~/components/form/fields/RadioField'
+import { TypeToConfirmField, typeToConfirmReason } from '~/components/TypeToConfirmField'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { type ComboboxItem } from '~/ui/lib/Combobox'
 import { Message } from '~/ui/lib/Message'
 import { Radio } from '~/ui/lib/Radio'
@@ -75,6 +80,70 @@ export type EditRoleModalProps<Role extends RoleKey = RoleKey> = AddRoleModalPro
   identityType: IdentityType
   defaultValues: { roleName?: Role }
 }
+
+/** Names the user or group whose role a role modal edits, since the modal title doesn't */
+export const RoleModalIdentity = ({ name }: { name?: string }) =>
+  name ? (
+    <div className="text-sans-lg text-accent [&>svg]:text-accent-tertiary flex items-center gap-1.5">
+      <Access16Icon /> {name}
+    </div>
+  ) : null
+
+/**
+ * Admin is the only role that grants permission to edit a scope's roles, so a
+ * user changing their own direct admin role to another role could lose that
+ * permission. In that case the edit form asks them to type their name first.
+ */
+export function useOwnAdminDemotion<Role extends RoleKey>({
+  policy,
+  identityId,
+  name,
+  roleName,
+}: {
+  policy: Policy<Role>
+  identityId: string
+  name?: string
+  /** Role currently selected in the form */
+  roleName: Role | undefined
+}) {
+  const { me } = useCurrentUser()
+  const [typedText, setTypedText] = useState('')
+  const isDemotingSelf =
+    identityId === me.id &&
+    rolesByIdFromPolicy(policy).get(me.id) === 'admin' &&
+    roleName !== 'admin'
+  const confirmText = name || 'change my own role'
+  return {
+    isDemotingSelf,
+    confirmText,
+    typedText,
+    setTypedText,
+    submitDisabled: isDemotingSelf
+      ? typeToConfirmReason(confirmText, typedText)
+      : undefined,
+  }
+}
+
+export const OwnAdminDemotionConfirm = ({
+  scope,
+  demotion,
+}: {
+  scope: 'fleet' | 'silo' | 'project'
+  demotion: ReturnType<typeof useOwnAdminDemotion>
+}) =>
+  demotion.isDemotingSelf ? (
+    <>
+      <Message
+        variant="error"
+        content={`This could remove your ability to manage ${scope} roles.`}
+      />
+      <TypeToConfirmField
+        confirmText={demotion.confirmText}
+        value={demotion.typedText}
+        onChange={demotion.setTypedText}
+      />
+    </>
+  ) : null
 
 const AccessDocs = () => (
   <a href={docLinks.access.href} target="_blank" rel="noreferrer">

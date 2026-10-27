@@ -9,9 +9,9 @@ import { redirect } from 'react-router'
 
 import { pb } from '~/util/path-builder'
 
-// /access has no content of its own; land on the Users tab
+// /access has no content of its own; land on the Groups tab
 export function clientLoader() {
-  return redirect(pb.siloUsers())
+  return redirect(pb.siloGroups())
 }
 
 export default function SiloAccessRedirect() {

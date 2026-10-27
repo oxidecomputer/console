@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
 import {
   api,
@@ -25,7 +25,9 @@ import { docLinks } from '~/util/links'
 
 import {
   actorToItem,
+  OwnAdminDemotionConfirm,
   RoleRadioField,
+  useOwnAdminDemotion,
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
@@ -98,6 +100,8 @@ export function FleetAccessEditUserSideModal({
     },
   })
   const form = useForm({ defaultValues })
+  const roleName = useWatch({ control: form.control, name: 'roleName' })
+  const demotion = useOwnAdminDemotion({ policy, identityId, name, roleName })
 
   return (
     <SideModalForm
@@ -105,6 +109,7 @@ export function FleetAccessEditUserSideModal({
       formType="edit"
       resourceName="role"
       title="Edit fleet role"
+      submitDisabled={demotion.submitDisabled}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {name}
@@ -124,6 +129,7 @@ export function FleetAccessEditUserSideModal({
       }}
     >
       <RoleRadioField name="roleName" control={form.control} scope="Fleet" />
+      <OwnAdminDemotionConfirm scope="fleet" demotion={demotion} />
       <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )

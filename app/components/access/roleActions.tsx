@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type AccessScope, type RoleKey, type ScopedRoleEntry } from '@oxide/api'
+import { type AccessScope, type RoleKey } from '@oxide/api'
 
 import { HL } from '~/components/HL'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { type MenuAction } from '~/table/columns/action-col'
+import { Message } from '~/ui/lib/Message'
 import { capitalize } from '~/util/str'
 
 /** Scopes whose role assignments are editable from a row action. */
@@ -24,20 +25,29 @@ const roleActionLabel = (scope: RoleScope, verb: RoleVerb) =>
 const noRolePermissionReason = (scope: RoleScope, verb: RoleVerb) =>
   `You don't have permission to ${verb} ${scope} roles`
 
+/** Disabled reason for a silo role shown on a project page */
+export const siloPolicyReason = 'This role comes from the silo policy'
+
 /**
  * Builds consistently labeled actions for one scope. Callers choose add versus
  * change because the meaning of direct and inherited roles varies by surface.
  */
 export const roleActions = (scope: RoleScope, canEdit: boolean) => {
-  const edit = (verb: Exclude<RoleVerb, 'remove'>, onActivate: () => void): MenuAction => ({
+  const edit = (
+    verb: Exclude<RoleVerb, 'remove'>,
+    onActivate: () => void,
+    disabledReason?: string
+  ): MenuAction => ({
     label: roleActionLabel(scope, verb),
     onActivate,
-    disabled: !canEdit && noRolePermissionReason(scope, verb),
+    disabled: !canEdit ? noRolePermissionReason(scope, verb) : disabledReason,
   })
 
   return {
     add: (onActivate: () => void) => edit('add', onActivate),
-    change: (onActivate: () => void) => edit('change', onActivate),
+    /** `disabledReason` applies only when the user otherwise has permission */
+    change: (onActivate: () => void, disabledReason?: string) =>
+      edit('change', onActivate, disabledReason),
 
     /** A destructive remove action with standard confirmation copy. */
     remove({
@@ -64,6 +74,9 @@ export const roleActions = (scope: RoleScope, canEdit: boolean) => {
           ? inheritedReason
           : undefined
 
+      // only admin grants permission to edit roles in the scope it's removed from
+      const isRemovingOwnAdmin = isSelf && directRole === 'admin'
+
       return {
         // Match RowActions' Delete behavior: destructive styling only while enabled.
         label: roleActionLabel(scope, 'remove'),
@@ -76,57 +89,17 @@ export const roleActions = (scope: RoleScope, canEdit: boolean) => {
             </span>
           ),
           resourceKind: 'role assignment',
-          extraContent: isSelf ? `This will remove your own ${scope} access.` : undefined,
+          // "could" because the same access may also come from a group
+          extraContent: isRemovingOwnAdmin ? (
+            <Message
+              variant="error"
+              content={`This could remove your own ${scope} access.`}
+            />
+          ) : undefined,
+          confirmText: isRemovingOwnAdmin ? name || 'delete my own role' : undefined,
         }),
         disabled,
       }
     },
   }
-}
-
-/**
- * Row actions for a user or group on a Users or Groups tab. Add or change acts
- * on the identity's direct role in the managed scope. Remove is offered
- * whenever the identity has any role, but is disabled when that role comes
- * from elsewhere (a group, or the silo on a project page).
- */
-export function identityRoleActions({
-  scope,
-  canEdit,
-  name,
-  directRole,
-  effective,
-  isSelf,
-  onEdit,
-  doRemove,
-}: {
-  scope: AccessScope
-  canEdit: boolean
-  name: string
-  /** Direct role in the managed scope */
-  directRole: RoleKey | undefined
-  /** Strongest role from any source, if any */
-  effective: ScopedRoleEntry | undefined
-  isSelf?: boolean
-  onEdit: (defaultRole: RoleKey | undefined) => void
-  doRemove: () => Promise<unknown>
-}): MenuAction[] {
-  const actions = roleActions(scope, canEdit)
-  const editAction = directRole
-    ? actions.change(() => onEdit(directRole))
-    : actions.add(() => onEdit(undefined))
-  if (!effective) return [editAction]
-  return [
-    editAction,
-    actions.remove({
-      name,
-      directRole,
-      isSelf,
-      inheritedReason:
-        effective.source.type === 'group'
-          ? 'Role is inherited from a group and cannot be changed here.'
-          : 'This role comes from the silo policy',
-      doRemove,
-    }),
-  ]
 }

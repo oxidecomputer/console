@@ -36,8 +36,8 @@ export function UsersGroupsLayout({
         />
       </PageHeader>
       <RouteTabs fullWidth>
-        <Tab to={usersPath}>Users</Tab>
         <Tab to={groupsPath}>Groups</Tab>
+        <Tab to={usersPath}>Users</Tab>
       </RouteTabs>
     </>
   )

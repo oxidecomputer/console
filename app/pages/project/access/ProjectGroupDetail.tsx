@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router'
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 
 import { GroupMembersSideModal } from '~/components/access/GroupMembersSideModal'
-import { projectPolicyView, siloPolicyView } from '~/components/access/policy-scope'
+import { useProjectPolicyScope } from '~/components/access/policy-scope'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector, useSiloGroupSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
@@ -35,15 +35,13 @@ export default function ProjectGroupDetail() {
   const groupSelector = useSiloGroupSelector()
   const navigate = useNavigate()
   const { data: group } = usePrefetchedQuery(groupView(groupSelector))
-  const { data: siloPolicy } = usePrefetchedQuery(siloPolicyView)
-  const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
+  const scope = useProjectPolicyScope()
 
   return (
     <GroupMembersSideModal
       group={group}
       onDismiss={() => navigate(pb.projectGroups(projectSelector))}
-      siloPolicy={siloPolicy}
-      projectPolicy={projectPolicy}
+      scope={scope}
     />
   )
 }

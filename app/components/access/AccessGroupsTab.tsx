@@ -6,17 +6,15 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Outlet } from 'react-router'
 import * as R from 'remeda'
 
 import {
-  rolesByIdFromPolicy,
   sortRoleEntries,
   usePrefetchedQuery,
   userScopedRoleEntries,
   type Group,
-  type RoleKey,
 } from '@oxide/api'
 import { PersonGroup24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -24,7 +22,6 @@ import { Badge } from '@oxide/design-system/ui'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { MemberCountCell } from '~/table/cells/MemberCountCell'
-import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -32,8 +29,6 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'
 
 import { groupListAll, type PolicyScope } from './policy-scope'
-import { identityRoleActions } from './roleActions'
-import { useCanEditPolicy } from './use-can-edit-policy'
 
 const colHelper = createColumnHelper<Group>()
 
@@ -55,22 +50,14 @@ const GroupEmptyState = () => (
   </TableEmptyBox>
 )
 
-type EditingState = { group: Group; defaultRole: RoleKey | undefined }
-
 export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
-  const { managedScope, siloPolicy, projectPolicy, managedPolicy, EditModal } = scope
-  const { removeRole, groupPath } = scope
-  const [editingGroup, setEditingGroup] = useState<EditingState | null>(null)
+  const { siloPolicy, projectPolicy, groupPath } = scope
 
   const { data: groups } = usePrefetchedQuery(groupListAll)
   const sortedGroups = useMemo(
     () => R.sortBy(groups.items, (g) => g.displayName.toLowerCase()),
     [groups]
   )
-
-  const managedRoleById = useMemo(() => rolesByIdFromPolicy(managedPolicy), [managedPolicy])
-
-  const canEdit = useCanEditPolicy(siloPolicy, projectPolicy)
 
   // groups can't be in other groups, so passing no groups yields only the
   // group's direct roles in each scope
@@ -80,7 +67,7 @@ export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
     [siloPolicy, projectPolicy]
   )
 
-  const staticColumns = useMemo(
+  const columns = useMemo(
     () => [
       colHelper.accessor('displayName', {
         header: 'Name',
@@ -107,22 +94,6 @@ export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
     [groupPath, effectiveRole]
   )
 
-  const makeActions = useCallback(
-    (group: Group): MenuAction[] =>
-      identityRoleActions({
-        scope: managedScope,
-        canEdit,
-        name: group.displayName,
-        directRole: managedRoleById.get(group.id),
-        effective: effectiveRole(group),
-        onEdit: (defaultRole) => setEditingGroup({ group, defaultRole }),
-        doRemove: () => removeRole(group.id),
-      }),
-    [managedScope, canEdit, managedRoleById, effectiveRole, removeRole]
-  )
-
-  const columns = useColsWithActions(staticColumns, makeActions)
-
   const table = useReactTable({
     columns,
     data: sortedGroups,
@@ -133,16 +104,6 @@ export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
   return (
     <>
       {sortedGroups.length === 0 ? <GroupEmptyState /> : <Table table={table} />}
-      {editingGroup && (
-        <EditModal
-          onDismiss={() => setEditingGroup(null)}
-          policy={managedPolicy}
-          name={editingGroup.group.displayName}
-          identityId={editingGroup.group.id}
-          identityType="silo_group"
-          defaultValues={{ roleName: editingGroup.defaultRole }}
-        />
-      )}
       <Outlet />
     </>
   )

@@ -17,7 +17,7 @@ export async function clientLoader() {
   return null
 }
 
-export const handle = makeCrumb('Silo Access', pb.siloUsers())
+export const handle = makeCrumb('Silo Access', pb.siloGroups())
 
 export default function SiloUsersGroupsPage() {
   return (

@@ -135,7 +135,16 @@ test('Self-removal warning on delete', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Remove fleet role' }).click()
 
   // confirm dialog should show the self-removal warning
-  await expect(page.getByText('This will remove your own fleet access.')).toBeVisible()
+  await expect(page.getByText('This could remove your own fleet access.')).toBeVisible()
+
+  // confirming requires typing your own name
+  const dialog = page.getByRole('dialog', { name: 'Delete role assignment' })
+  const confirm = dialog.getByRole('button', { name: 'Confirm' })
+  await expect(confirm).toBeDisabled()
+  await dialog.getByRole('textbox').fill('Hannah')
+  await expect(confirm).toBeDisabled()
+  await dialog.getByRole('textbox').fill('Hannah Arendt')
+  await expect(confirm).toBeEnabled()
 
   // cancel instead of confirming
   await page.getByRole('button', { name: 'Cancel' }).click()

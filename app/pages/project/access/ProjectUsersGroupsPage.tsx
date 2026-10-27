@@ -22,7 +22,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 }
 
 export const handle = makeCrumb('Project Access', (p) =>
-  pb.projectUsers(getProjectSelector(p))
+  pb.projectGroups(getProjectSelector(p))
 )
 
 export default function ProjectUsersGroupsPage() {

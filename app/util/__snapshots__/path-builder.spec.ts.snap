@@ -584,7 +584,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Project Access",
-      "path": "/projects/p/access/users",
+      "path": "/projects/p/access/groups",
     },
   ],
   "projectGroups (/projects/p/access/groups)": [
@@ -598,7 +598,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Project Access",
-      "path": "/projects/p/access/users",
+      "path": "/projects/p/access/groups",
     },
   ],
   "projectImage (/projects/p/images/im)": [
@@ -654,7 +654,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Project Access",
-      "path": "/projects/p/access/users",
+      "path": "/projects/p/access/groups",
     },
   ],
   "projectUsers (/projects/p/access/users)": [
@@ -668,7 +668,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "Project Access",
-      "path": "/projects/p/access/users",
+      "path": "/projects/p/access/groups",
     },
   ],
   "projects (/projects)": [
@@ -751,13 +751,13 @@ exports[`breadcrumbs 2`] = `
   "siloGroup (/access/groups/c2e7b1d4-8f3a-4c6e-b9d1-0a5f7e3c2b8d)": [
     {
       "label": "Silo Access",
-      "path": "/access/users",
+      "path": "/access/groups",
     },
   ],
   "siloGroups (/access/groups)": [
     {
       "label": "Silo Access",
-      "path": "/access/users",
+      "path": "/access/groups",
     },
   ],
   "siloIdps (/system/silos/s/idps)": [
@@ -859,13 +859,13 @@ exports[`breadcrumbs 2`] = `
   "siloUser (/access/users/a9d4e8f2-3c1b-4f7a-9e2d-6b8c0f1a2d3e)": [
     {
       "label": "Silo Access",
-      "path": "/access/users",
+      "path": "/access/groups",
     },
   ],
   "siloUsers (/access/users)": [
     {
       "label": "Silo Access",
-      "path": "/access/users",
+      "path": "/access/groups",
     },
   ],
   "siloUtilization (/utilization)": [

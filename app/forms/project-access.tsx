@@ -5,20 +5,22 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
 import { api, queryClient, updateRole, useApiMutation } from '@oxide/api'
-import { Access16Icon } from '@oxide/design-system/icons/react'
 
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ModalForm } from '~/components/form/ModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
-import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
-import { ResourceLabel } from '~/ui/lib/SideModal'
-import { docLinks } from '~/util/links'
 
-import { RoleRadioField, type EditRoleModalProps } from './access-util'
+import {
+  OwnAdminDemotionConfirm,
+  RoleModalIdentity,
+  RoleRadioField,
+  useOwnAdminDemotion,
+  type EditRoleModalProps,
+} from './access-util'
 
-export function ProjectAccessEditUserSideModal({
+export function ProjectAccessEditRoleModal({
   onDismiss,
   name,
   identityId,
@@ -37,18 +39,15 @@ export function ProjectAccessEditUserSideModal({
   })
 
   const form = useForm({ defaultValues })
+  const roleName = useWatch({ control: form.control, name: 'roleName' })
+  const demotion = useOwnAdminDemotion({ policy, identityId, name, roleName })
 
   return (
-    <SideModalForm
+    <ModalForm
       form={form}
-      formType={isAssigning ? 'create' : 'edit'}
-      resourceName="role"
       title={isAssigning ? 'Add project role' : 'Edit project role'}
-      subtitle={
-        <ResourceLabel>
-          <Access16Icon /> {name}
-        </ResourceLabel>
-      }
+      submitLabel={isAssigning ? 'Add project role' : 'Update role'}
+      submitDisabled={demotion.submitDisabled}
       onSubmit={({ roleName }) => {
         if (!roleName) return
         updatePolicy.mutate({
@@ -63,8 +62,9 @@ export function ProjectAccessEditUserSideModal({
         onDismiss()
       }}
     >
+      <RoleModalIdentity name={name} />
       <RoleRadioField name="roleName" control={form.control} scope="Project" />
-      <SideModalFormDocs docs={[docLinks.access]} />
-    </SideModalForm>
+      <OwnAdminDemotionConfirm scope="project" demotion={demotion} />
+    </ModalForm>
   )
 }

@@ -27,10 +27,12 @@ type DeleteConfig = {
    * the error toast title ("Could not delete X"). */
   resourceKind: string
   extraContent?: React.ReactNode
+  /** If present, the user must type this text before confirming */
+  confirmText?: string
 }
 
 export const confirmDelete =
-  ({ doDelete, label, resourceKind, extraContent }: DeleteConfig) =>
+  ({ doDelete, label, resourceKind, extraContent, confirmText }: DeleteConfig) =>
   () => {
     const displayLabel = typeof label === 'string' ? <HL>{label}</HL> : label
     useConfirmAction.setState({
@@ -39,12 +41,14 @@ export const confirmDelete =
         modalContent: (
           <div className="space-y-2">
             <p>Are you sure you want to delete {displayLabel}?</p>
-            {extraContent ? <p>{extraContent}</p> : null}
+            {/* elements like Message can't go inside a p */}
+            {typeof extraContent === 'string' ? <p>{extraContent}</p> : extraContent}
           </div>
         ),
         errorTitle: `Could not delete ${resourceKind}`,
         modalTitle: `Delete ${resourceKind}`,
         actionType: 'danger',
+        confirmText,
       },
     })
   }

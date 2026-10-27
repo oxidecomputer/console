@@ -20,11 +20,12 @@ import {
 } from '@oxide/api'
 
 import { type EditRoleModalProps } from '~/forms/access-util'
-import { ProjectAccessEditUserSideModal } from '~/forms/project-access'
-import { invalidateSiloPolicy, SiloAccessEditUserSideModal } from '~/forms/silo-access'
+import { ProjectAccessEditRoleModal } from '~/forms/project-access'
+import { invalidateSiloPolicy, SiloAccessEditRoleModal } from '~/forms/silo-access'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -73,6 +74,8 @@ export type PolicyScope = {
   removeRole: (identityId: string) => Promise<unknown>
   userPath: (userId: string) => string
   groupPath: (groupId: string) => string
+  /** Docs on the managed scope's roles */
+  rolesDocLink: { href: string; linkText: string }
 }
 
 const siloUserPath = (userId: string) => pb.siloUser({ userId })
@@ -94,10 +97,11 @@ export function useSiloPolicyScope(): PolicyScope {
     managedScope: 'silo',
     siloPolicy,
     managedPolicy: siloPolicy,
-    EditModal: SiloAccessEditUserSideModal,
+    EditModal: SiloAccessEditRoleModal,
     removeRole,
     userPath: siloUserPath,
     groupPath: siloGroupPath,
+    rolesDocLink: docLinks.siloRoles,
   }
 }
 
@@ -129,9 +133,10 @@ export function useProjectPolicyScope(): PolicyScope {
     siloPolicy,
     projectPolicy,
     managedPolicy: projectPolicy,
-    EditModal: ProjectAccessEditUserSideModal,
+    EditModal: ProjectAccessEditRoleModal,
     removeRole,
     userPath,
     groupPath,
+    rolesDocLink: docLinks.projectRoles,
   }
 }

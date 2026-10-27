@@ -12,9 +12,9 @@ import { pb } from '~/util/path-builder'
 
 import type { Route } from './+types/project-access-redirect'
 
-// /access has no content of its own; land on the Users tab
+// /access has no content of its own; land on the Groups tab
 export function clientLoader({ params }: Route.ClientLoaderArgs) {
-  return redirect(pb.projectUsers(getProjectSelector(params)))
+  return redirect(pb.projectGroups(getProjectSelector(params)))
 }
 
 export default function ProjectAccessRedirect() {

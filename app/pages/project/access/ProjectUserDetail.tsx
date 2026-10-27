@@ -16,11 +16,7 @@ import {
   usePrefetchedQuery,
 } from '@oxide/api'
 
-import {
-  groupListAll,
-  projectPolicyView,
-  siloPolicyView,
-} from '~/components/access/policy-scope'
+import { groupListAll, useProjectPolicyScope } from '~/components/access/policy-scope'
 import { UserDetailsSideModal } from '~/components/access/UserDetailsSideModal'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector, useSiloUserSelector } from '~/hooks/use-params'
@@ -46,8 +42,7 @@ export default function ProjectUserDetail() {
   const userSelector = useSiloUserSelector()
   const navigate = useNavigate()
   const { data: user } = usePrefetchedQuery(userView(userSelector))
-  const { data: siloPolicy } = usePrefetchedQuery(siloPolicyView)
-  const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
+  const scope = useProjectPolicyScope()
   const { data: groups } = usePrefetchedQuery(groupListAll)
   const groupsByUserId = useGroupsByUserId(groups.items)
 
@@ -55,8 +50,7 @@ export default function ProjectUserDetail() {
     <UserDetailsSideModal
       user={user}
       onDismiss={() => navigate(pb.projectUsers(projectSelector))}
-      siloPolicy={siloPolicy}
-      projectPolicy={projectPolicy}
+      scope={scope}
       userGroups={groupsOfUser(groupsByUserId, user.id)}
     />
   )
