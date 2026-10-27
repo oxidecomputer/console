@@ -1080,23 +1080,24 @@ const NetworkingSection = ({
           <Modal.Body>
             <Modal.Section>
               <Message variant="info" content={selectedFloatingIpMessage} />
-              <form>
-                <Listbox
-                  name="floatingIp"
-                  items={availableFloatingIps.map((i) => ({
-                    value: i.name,
-                    label: <FloatingIpLabel ip={i} />,
-                    selectedLabel: `${i.name} (${i.ip})`,
-                  }))}
-                  label="Floating IP"
-                  onChange={(name) => {
-                    setSelectedFloatingIp(availableFloatingIps.find((i) => i.name === name))
-                  }}
-                  required
-                  placeholder="Select a floating IP"
-                  selected={selectedFloatingIp?.name || ''}
-                />
-              </form>
+              {/* No <form> here: this modal is inside the instance create form in
+                  the React tree, so a submit event would bubble through the portal
+                  and submit the whole instance create form */}
+              <Listbox
+                name="floatingIp"
+                items={availableFloatingIps.map((i) => ({
+                  value: i.name,
+                  label: <FloatingIpLabel ip={i} />,
+                  selectedLabel: `${i.name} (${i.ip})`,
+                }))}
+                label="Floating IP"
+                onChange={(name) => {
+                  setSelectedFloatingIp(availableFloatingIps.find((i) => i.name === name))
+                }}
+                required
+                placeholder="Select a floating IP"
+                selected={selectedFloatingIp?.name || ''}
+              />
             </Modal.Section>
           </Modal.Body>
           <Modal.Footer
