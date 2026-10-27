@@ -77,9 +77,9 @@ import { pluralize } from '~/util/str'
 
 const exampleItems: { label: string; value: string }[] = [
   {
-    label: 'Power shelf fan speeds',
+    label: 'Sled fan speeds',
     value: `get hardware_component:fan_speed
-  | filter chassis_kind == 'power'
+  | filter chassis_kind == 'sled'
   | filter timestamp > @now() - 1m`,
   },
   {
