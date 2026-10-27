@@ -10,8 +10,6 @@ import { match } from 'ts-pattern'
 
 export type ColorScale = 'linear' | 'logarithmic' | 'ranked'
 
-export const allColorScales: ColorScale[] = ['linear', 'logarithmic', 'ranked']
-
 const scaleLinear =
   (maxCount: number) =>
   (count: number): number =>

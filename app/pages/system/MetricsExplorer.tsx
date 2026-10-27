@@ -42,7 +42,7 @@ import {
 import { timeseries as timeseriesMetadata } from '~/api/__generated__/timeseries-metadata'
 import { DocsPopover } from '~/components/DocsPopover'
 import { Heatmap, SampleColorStrip } from '~/components/Heatmap'
-import { allColorScales, type ColorScale } from '~/components/heatmap-color-scale'
+import { type ColorScale } from '~/components/heatmap-color-scale'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import {
   errorMessageToSegments,
@@ -770,9 +770,25 @@ type ChartSettingsProps = {
   colorScale: Setting<ColorScale>
 }
 
-function ChartSettings({ dropFirstPoint, colorScale }: ChartSettingsProps) {
-  if (dropFirstPoint === 'irrelevant' && colorScale === 'irrelevant') return null
+const colorScaleInfo = {
+  linear: {
+    label: 'Linear',
+    description:
+      'Shades each cell by its count as a fraction of the highest measured count.',
+  },
+  logarithmic: {
+    label: 'Logarithmic',
+    description:
+      "Shades each cell by its count's order of magnitude, so 1, 10, and 100 are evenly spaced.",
+  },
+  ranked: {
+    label: 'Ranked',
+    description:
+      'Shades a cell by where its count ranks among all measured counts. Not a direct representation of magnitude, but helps emphasize patterns and outliers.',
+  },
+} satisfies Record<ColorScale, { label: string; description: string }>
 
+function ChartSettings({ dropFirstPoint, colorScale }: ChartSettingsProps) {
   return (
     <Popover>
       <PopoverButton aria-label="Chart settings" className="headless-hide-focus rounded-md">
@@ -808,7 +824,7 @@ function ChartSettings({ dropFirstPoint, colorScale }: ChartSettingsProps) {
                 Heatmap color scale
               </legend>
               <div className="flex flex-col gap-2">
-                {allColorScales.map((value) => (
+                {R.entries(colorScaleInfo).map(([value, { label, description }]) => (
                   <span key={value} className="inline-flex items-center gap-1.5">
                     <Radio
                       name="colorScale"
@@ -816,36 +832,10 @@ function ChartSettings({ dropFirstPoint, colorScale }: ChartSettingsProps) {
                       checked={colorScale.value === value}
                       onChange={() => colorScale.onChange(value)}
                     >
-                      {match(value)
-                        .with('linear', () => 'Linear')
-                        .with('logarithmic', () => 'Logarithmic')
-                        .with('ranked', () => 'Ranked')
-                        .exhaustive()}
+                      {label}
                     </Radio>
                     <TipIcon>
-                      <p className="mb-2">
-                        {match(value)
-                          .with('linear', () => (
-                            <>
-                              Shades each cell by its count as a fraction of the highest
-                              measured count.
-                            </>
-                          ))
-                          .with('logarithmic', () => (
-                            <>
-                              Shades each cell by its count's order of magnitude, so 1, 10,
-                              and 100 are evenly spaced.
-                            </>
-                          ))
-                          .with('ranked', () => (
-                            <>
-                              Shades a cell by where its count ranks among all measured
-                              counts. Not a direct representation of magnitude, but helps
-                              emphasize patterns and outliers.
-                            </>
-                          ))
-                          .exhaustive()}
-                      </p>
+                      <p className="mb-2">{description}</p>
                       <SampleColorStrip colorScale={value} />
                     </TipIcon>
                   </span>
@@ -1017,6 +1007,7 @@ export default function MetricsExplorer() {
 
   // a query can return several tables, only some of which are distributions
   const hasHeatmaps = charts.some((c) => c.kind === 'heatmap')
+  const hasSettings = hasTrimmableCharts || hasHeatmaps
 
   // Since the whole window is the scroll container, the virtualizer needs to
   // know the offset from the top. By reacting to height changes in everything
@@ -1028,7 +1019,7 @@ export default function MetricsExplorer() {
     if (chartsRef.current) {
       setScrollMargin(chartsRef.current.getBoundingClientRect().top + window.scrollY)
     }
-  }, [preChartsSize?.height, charts.length])
+  }, [preChartsSize?.height, charts.length, hasSettings])
 
   const virtualizer = useWindowVirtualizer({
     count: charts.length,
@@ -1129,22 +1120,22 @@ export default function MetricsExplorer() {
         ))
         .with({ status: 'success' }, () => (
           <ResultsSection>
-            {/* By using a consistent height for this settings row, we don't
-            have to worry about the virtualizer's scroll margin underneath */}
-            <div className="mb-4 flex h-8 justify-end">
-              <ChartSettings
-                dropFirstPoint={
-                  hasTrimmableCharts
-                    ? { value: dropFirstPoint, onChange: setDropFirstPoint }
-                    : 'irrelevant'
-                }
-                colorScale={
-                  hasHeatmaps
-                    ? { value: colorScale, onChange: setColorScale }
-                    : 'irrelevant'
-                }
-              />
-            </div>
+            {hasSettings && (
+              <div className="mb-4 flex justify-end">
+                <ChartSettings
+                  dropFirstPoint={
+                    hasTrimmableCharts
+                      ? { value: dropFirstPoint, onChange: setDropFirstPoint }
+                      : 'irrelevant'
+                  }
+                  colorScale={
+                    hasHeatmaps
+                      ? { value: colorScale, onChange: setColorScale }
+                      : 'irrelevant'
+                  }
+                />
+              </div>
+            )}
             <div
               ref={chartsRef}
               className="relative"

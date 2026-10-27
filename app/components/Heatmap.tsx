@@ -125,8 +125,9 @@ export function Heatmap({
     return (u: uPlot) => {
       if (binCount === 0 || colCount === 0) return
 
-      // grabbing style from the nearest available element, since a canvas can't
-      // resolve CSS variables
+      // since a canvas can't resolve CSS variables, we simulate it by reading
+      // the ramp colors off the element furthest down the tree (the chart's
+      // root element)
       const style = getComputedStyle(u.root)
       const colorRamp = {
         stops: RAMP_STOPS.map(
