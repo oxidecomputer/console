@@ -133,7 +133,7 @@ test('results list is virtualized', async ({ page }) => {
 })
 
 test('picking an example populates the query and runs it', async ({ page }) => {
-  await page.getByRole('button', { name: 'Power shelf fan speeds' }).click()
+  await page.getByRole('button', { name: 'Sled fan speeds' }).click()
   // the editor is a contenteditable, so assert on text rather than value
   await expect(page.getByRole('textbox')).toContainText('get hardware_component:fan_speed')
 
@@ -145,7 +145,7 @@ test('picking an example populates the query and runs it', async ({ page }) => {
 })
 
 test('chart title opens timeseries docs', async ({ page }) => {
-  await page.getByRole('button', { name: 'Power shelf fan speeds' }).click()
+  await page.getByRole('button', { name: 'Sled fan speeds' }).click()
   await page
     .getByRole('button', { name: 'hardware_component:fan_speed details' })
     .first()
