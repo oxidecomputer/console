@@ -316,15 +316,17 @@ export function Heatmap({
       data={data}
       uRef={uRef}
       legend={
-        <HeatmapLegend
-          minSampleCount={match(colorScale)
-            .with('ranked', () => sampleCountMetadata.minSampleCount)
-            .with('linear', () => 0)
-            .with('logarithmic', () => 1)
-            .exhaustive()}
-          maxSampleCount={sampleCountMetadata.maxSampleCount}
-          axisText={theme.axisText}
-        />
+        sampleCountMetadata.ranks.size > 0 && (
+          <HeatmapLegend
+            minSampleCount={match(colorScale)
+              .with('ranked', () => sampleCountMetadata.minSampleCount)
+              .with('linear', () => 0)
+              .with('logarithmic', () => 1)
+              .exhaustive()}
+            maxSampleCount={sampleCountMetadata.maxSampleCount}
+            axisText={theme.axisText}
+          />
+        )
       }
     >
       {hover && (
@@ -370,15 +372,26 @@ function HeatmapLegend({
 }) {
   return (
     <div className="mt-3 flex items-center gap-2 pl-5">
-      <span className="text-mono-xs" style={{ color: axisText }}>
-        {minSampleCount.toLocaleString()}
-      </span>
-      <div
-        className="h-3 w-32 rounded-sm"
-        style={{
-          backgroundImage: `linear-gradient(in oklch to right, ${CSS_VAR_RAMP.stops.join(', ')})`,
-        }}
-      ></div>
+      {minSampleCount === maxSampleCount ? (
+        <div
+          className="h-3 w-3 rounded-sm"
+          style={{
+            backgroundColor: R.last(CSS_VAR_RAMP.stops),
+          }}
+        ></div>
+      ) : (
+        <>
+          <span className="text-mono-xs" style={{ color: axisText }}>
+            {minSampleCount.toLocaleString()}
+          </span>
+          <div
+            className="h-3 w-32 rounded-sm"
+            style={{
+              backgroundImage: `linear-gradient(in oklch to right, ${CSS_VAR_RAMP.stops.join(', ')})`,
+            }}
+          ></div>
+        </>
+      )}
       <span className="text-mono-xs" style={{ color: axisText }}>
         {maxSampleCount.toLocaleString()}
       </span>
