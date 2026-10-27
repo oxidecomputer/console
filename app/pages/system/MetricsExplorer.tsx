@@ -833,8 +833,8 @@ function ChartSettings({ dropFirstPoint, colorScale }: ChartSettingsProps) {
                           ))
                           .with('logarithmic', () => (
                             <>
-                              Compresses the shading scale at higher values, so smaller
-                              counts are easier to distinguish.
+                              Shades each cell by its count's order of magnitude, so 1, 10,
+                              and 100 are evenly spaced.
                             </>
                           ))
                           .with('ranked', () => (

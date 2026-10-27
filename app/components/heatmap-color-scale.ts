@@ -16,15 +16,17 @@ const scaleLinear =
   (maxCount: number) =>
   (count: number): number =>
     count / maxCount
-const lerp = (min: number, max: number, t: number): number => min + t * (max - min)
-const scaleLog =
-  (maxCount: number) =>
-  (count: number): number =>
-    Math.log10(lerp(1, 10, count / maxCount))
+const scaleLog = (maxCount: number) =>
+  maxCount <= 1
+    ? // if the max is 1, a logarithmic scaling function is undefined. but
+      // since 1 is then the only valid value, in a charting context it makes
+      // sense to treat that as a scale of 100%
+      R.constant(1)
+    : (count: number): number => Math.log(count) / Math.log(maxCount)
 const scaleRank = (ranks: Map<number, number>) =>
   ranks.size <= 1
     ? R.constant(1)
-    : (count: number) => (ranks.get(count) ?? 0) / (ranks.size - 1)
+    : (count: number): number => (ranks.get(count) ?? 0) / (ranks.size - 1)
 
 export type SampleCountMetadata = {
   minSampleCount: number
@@ -45,7 +47,11 @@ export const getSampleCountMetadata = (counts: number[]): SampleCountMetadata =>
   }
 }
 
-/** Maps a sample count to a position on the color ramp, from 0 to 1 */
+/**
+ * Maps a sample count to a position for a color ramp, from 0 to 1.
+ * Expects that the count given to the final scaling function is a nonzero
+ * natural number.
+ */
 export const getScalingFunction = (
   metadata: SampleCountMetadata,
   colorScale: ColorScale
