@@ -55,7 +55,6 @@ import {
   DisksTableField,
   type DiskTableItem,
 } from '~/components/form/fields/DisksTableField'
-import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -63,6 +62,7 @@ import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterface
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioFieldDyn } from '~/components/form/fields/RadioField'
 import { SshKeysField } from '~/components/form/fields/SshKeysField'
+import { TextFieldInner } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
@@ -73,13 +73,16 @@ import { Button } from '~/ui/lib/Button'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { FileInput } from '~/ui/lib/FileInput'
 import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { MiniTable } from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { RadioCard } from '~/ui/lib/Radio'
+import { Radio, RadioCard } from '~/ui/lib/Radio'
+import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
 import { HintLink, TextInputHint } from '~/ui/lib/TextInput'
@@ -150,7 +153,10 @@ export type InstanceCreateInput = Assign<
     diskSource: string
     bootDiskReadOnly: boolean
 
-    userData: File | null
+    // userDataSource picks which of the two fields below gets submitted
+    userDataSource: 'text' | 'file'
+    userDataText: string
+    userDataFile: File | null
     // ssh keys are always specified. we do not need the undefined case
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
     // Ephemeral IP fields (dual stack support)
@@ -227,7 +233,9 @@ const baseDefaultValues: InstanceCreateInput = {
 
   start: true,
 
-  userData: null,
+  userDataSource: 'text',
+  userDataText: '',
+  userDataFile: null,
   ephemeralIpv4: false,
   ephemeralIpv4Pool: '',
   ephemeralIpv6: false,
@@ -599,9 +607,16 @@ export default function CreateInstanceForm() {
             externalIps.push({ type: 'floating', floatingIp })
           }
 
-          const userData = values.userData
-            ? await readBlobAsBase64(values.userData)
-            : undefined
+          const userData = await match(values.userDataSource)
+            .with('text', () =>
+              values.userDataText.trim()
+                ? readBlobAsBase64(new Blob([values.userDataText]))
+                : undefined
+            )
+            .with('file', () =>
+              values.userDataFile ? readBlobAsBase64(values.userDataFile) : undefined
+            )
+            .exhaustive()
 
           await createInstance.mutateAsync({
             query: { project },
@@ -863,14 +878,7 @@ export default function CreateInstanceForm() {
         />
         <FormDivider />
         <Form.Heading id="advanced">Advanced</Form.Heading>
-        <FileField
-          id="user-data-input"
-          description={<UserDataDescription />}
-          name="userData"
-          label="User Data"
-          control={control}
-          disabled={isSubmitting}
-        />
+        <UserDataField control={control} disabled={isSubmitting} />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending || createInstance.isSuccess}>
             Create instance
@@ -1142,3 +1150,71 @@ const UserDataDescription = () => (
     image supports it. Maximum size 32 KiB.
   </>
 )
+
+/**
+ * User data can be pasted as text or uploaded as a file. A file is still useful
+ * for content that isn't plain text, like gzipped cloud-init config. Both inputs
+ * stay mounted (just hidden) so switching back and forth doesn't lose anything,
+ * which matters for the file input because it tracks its own selected file.
+ */
+const UserDataField = ({
+  control,
+  disabled,
+}: {
+  control: Control<InstanceCreateInput>
+  disabled: boolean
+}) => {
+  const sourceField = useController({ control, name: 'userDataSource' })
+  const {
+    field: { value: _, ...fileField },
+  } = useController({ control, name: 'userDataFile' })
+  const source = sourceField.field.value
+  return (
+    <div className="max-w-lg">
+      <div className="mb-4">
+        <FieldLabel id="user-data-label" htmlFor={`user-data-${source}`} optional>
+          User data
+        </FieldLabel>
+        <TextInputHint id="user-data-help-text">
+          <UserDataDescription />
+        </TextInputHint>
+      </div>
+      <RadioGroup
+        name="userDataSource"
+        className="mb-4"
+        // oxlint-disable-next-line jsx-a11y/aria-proptypes -- https://github.com/oxc-project/oxc/issues/17465
+        aria-labelledby="user-data-label"
+        defaultChecked={source}
+        onChange={(e) => sourceField.field.onChange(e.target.value)}
+        disabled={disabled}
+      >
+        <Radio value="text">Paste text</Radio>
+        <Radio value="file">Upload file</Radio>
+      </RadioGroup>
+      <div hidden={source !== 'text'}>
+        <TextFieldInner
+          id="user-data-text"
+          as="textarea"
+          rows={8}
+          name="userDataText"
+          label="User data"
+          // oxlint-disable-next-line jsx-a11y/aria-proptypes -- https://github.com/oxc-project/oxc/issues/17465
+          aria-labelledby="user-data-label user-data-help-text"
+          // user data is usually YAML or a script, where indentation matters
+          fieldClassName="text-mono-code!"
+          control={control}
+          disabled={disabled}
+        />
+      </div>
+      <div hidden={source !== 'file'}>
+        <FileInput
+          id="user-data-file"
+          // oxlint-disable-next-line jsx-a11y/aria-proptypes -- https://github.com/oxc-project/oxc/issues/17465
+          aria-labelledby="user-data-label user-data-help-text"
+          disabled={disabled}
+          {...fileField}
+        />
+      </div>
+    </div>
+  )
+}

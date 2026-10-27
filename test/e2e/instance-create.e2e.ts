@@ -89,7 +89,15 @@ test('can create an instance', async ({ page }) => {
   await expect(v6PoolDropdown).toContainText('ip-pool-2')
 
   await expect(page.getByRole('radiogroup', { name: 'Network interface' })).toBeVisible()
-  await expect(page.getByLabel('User data')).toBeVisible()
+  // user data defaults to pasted text, and switching to file upload and back
+  // keeps what was typed
+  const userData = page.getByRole('textbox', { name: 'User data' })
+  await userData.fill('#cloud-config\npackages:\n  - nginx\n')
+  await page.getByRole('radio', { name: 'Upload file' }).click()
+  await expect(userData).toBeHidden()
+  await expect(page.getByText('Drop a file or click to browse')).toBeVisible()
+  await page.getByRole('radio', { name: 'Paste text' }).click()
+  await expect(userData).toHaveValue('#cloud-config\npackages:\n  - nginx\n')
 
   await page.getByRole('button', { name: 'Create instance' }).click()
 
