@@ -24,10 +24,10 @@ import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 
-import { IdentityListTable, RoleAssignmentsTable } from './DetailTables'
+import { EffectiveRole, IdentityListTable, RoleAssignmentsTable } from './DetailTables'
 import { type PolicyScope } from './policy-scope'
 import { roleActions, siloPolicyReason } from './roleActions'
-import { useCanEditPolicy } from './use-can-edit-policy'
+import { canEditScope, useCanEditPolicy } from './use-can-edit-policy'
 
 type Props = {
   user: User
@@ -58,6 +58,18 @@ export function UserDetailsSideModal({ user, onDismiss, userGroups, scope }: Pro
     roleEntries.status === 'success' &&
     roleEntries.data.some((e) => e.scope === managedScope && e.source.type === 'direct')
 
+  // whether the user could still edit this scope's roles without their direct
+  // role in it, e.g., a silo admin removing or lowering their own project admin
+  // role. Only matters when the user is the current user.
+  const keepsEditAccess =
+    roleEntries.status === 'success' &&
+    canEditScope(
+      roleEntries.data.filter(
+        (e) => !(e.scope === managedScope && e.source.type === 'direct')
+      ),
+      managedScope
+    )
+
   const makeActions = ({
     roleName,
     scope: entryScope,
@@ -85,6 +97,7 @@ export function UserDetailsSideModal({ user, onDismiss, userGroups, scope }: Pro
         name: user.displayName,
         directRole: roleName,
         isSelf: user.id === me.id,
+        keepsEditAccess,
         doRemove: () => removeRole(user.id),
       }),
     ]
@@ -104,6 +117,9 @@ export function UserDetailsSideModal({ user, onDismiss, userGroups, scope }: Pro
       <PropertiesTable>
         <PropertiesTable.IdRow id={user.id} />
         <PropertiesTable.DateRow label="Created" date={user.timeCreated} />
+        <PropertiesTable.Row label="Effective role">
+          <EffectiveRole entries={roleEntries} />
+        </PropertiesTable.Row>
       </PropertiesTable>
       <div className="mt-6">
         <RoleAssignmentsTable
@@ -135,6 +151,7 @@ export function UserDetailsSideModal({ user, onDismiss, userGroups, scope }: Pro
           identityId={user.id}
           identityType="silo_user"
           defaultValues={{ roleName: editing.defaultRole }}
+          keepsEditAccess={keepsEditAccess}
         />
       )}
     </ReadOnlySideModalForm>

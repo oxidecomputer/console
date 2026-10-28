@@ -27,6 +27,7 @@ export function ProjectAccessEditRoleModal({
   identityType,
   policy,
   defaultValues,
+  keepsEditAccess,
 }: EditRoleModalProps) {
   const { project } = useProjectSelector()
   const isAssigning = !defaultValues.roleName
@@ -40,7 +41,13 @@ export function ProjectAccessEditRoleModal({
 
   const form = useForm({ defaultValues })
   const roleName = useWatch({ control: form.control, name: 'roleName' })
-  const demotion = useOwnAdminDemotion({ policy, identityId, name, roleName })
+  const demotion = useOwnAdminDemotion({
+    policy,
+    identityId,
+    name,
+    roleName,
+    keepsEditAccess,
+  })
 
   return (
     <ModalForm

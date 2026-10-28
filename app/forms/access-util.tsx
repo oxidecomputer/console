@@ -79,6 +79,12 @@ export type EditRoleModalProps<Role extends RoleKey = RoleKey> = AddRoleModalPro
   identityId: string
   identityType: IdentityType
   defaultValues: { roleName?: Role }
+  /**
+   * Whether the current user would still be able to edit this scope's roles
+   * through their other roles if their own direct role were lowered. Skips the
+   * self-demotion confirmation when true.
+   */
+  keepsEditAccess?: boolean
 }
 
 /** Names the user or group whose role a role modal edits, since the modal title doesn't */
@@ -92,26 +98,30 @@ export const RoleModalIdentity = ({ name }: { name?: string }) =>
 /**
  * Admin is the only role that grants permission to edit a scope's roles, so a
  * user changing their own direct admin role to another role could lose that
- * permission. In that case the edit form asks them to type their name first.
+ * permission, unless another of their roles grants it. If it could, the edit
+ * form asks them to type their name first.
  */
 export function useOwnAdminDemotion<Role extends RoleKey>({
   policy,
   identityId,
   name,
   roleName,
+  keepsEditAccess = false,
 }: {
   policy: Policy<Role>
   identityId: string
   name?: string
   /** Role currently selected in the form */
   roleName: Role | undefined
+  keepsEditAccess?: boolean
 }) {
   const { me } = useCurrentUser()
   const [typedText, setTypedText] = useState('')
   const isDemotingSelf =
     identityId === me.id &&
     rolesByIdFromPolicy(policy).get(me.id) === 'admin' &&
-    roleName !== 'admin'
+    roleName !== 'admin' &&
+    !keepsEditAccess
   const confirmText = name || 'change my own role'
   return {
     isDemotingSelf,

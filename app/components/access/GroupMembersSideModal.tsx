@@ -26,7 +26,7 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { docLinks } from '~/util/links'
 
-import { IdentityListTable, RoleAssignmentsTable } from './DetailTables'
+import { EffectiveRole, IdentityListTable, RoleAssignmentsTable } from './DetailTables'
 import { type PolicyScope } from './policy-scope'
 import { roleActions, siloPolicyReason } from './roleActions'
 import { useCanEditPolicy } from './use-can-edit-policy'
@@ -97,6 +97,9 @@ export function GroupMembersSideModal({ group, onDismiss, scope }: Props) {
       <PropertiesTable>
         <PropertiesTable.IdRow id={group.id} />
         <PropertiesTable.DateRow label="Created" date={group.timeCreated} />
+        <PropertiesTable.Row label="Effective role">
+          <EffectiveRole entries={roleEntries} />
+        </PropertiesTable.Row>
       </PropertiesTable>
       <div className="mt-6">
         <RoleAssignmentsTable

@@ -69,23 +69,23 @@ test('Add, change, and remove a project role from the user details side modal', 
   await expect(addModal).toContainText('Simone de Beauvoir')
   await addModal.getByRole('radio', { name: /^Collaborator / }).click()
   await addModal.getByRole('button', { name: 'Add project role' }).click()
-  const assignedRow = sideModal.getByRole('row').filter({ hasText: 'Assigned' })
-  await expect(assignedRow).toContainText('project.collaborator')
+  const directRow = sideModal.getByRole('row').filter({ hasText: 'Direct' })
+  await expect(directRow).toContainText('project.collaborator')
 
-  await assignedRow.getByRole('button', { name: 'Row actions' }).click()
+  await directRow.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Change project role' }).click()
   const editModal = page.getByRole('dialog', { name: 'Edit project role' })
   await expect(editModal.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
   await editModal.getByRole('radio', { name: /^Viewer / }).click()
   await editModal.getByRole('button', { name: 'Update role' }).click()
-  await expect(assignedRow).toContainText('project.viewer')
+  await expect(directRow).toContainText('project.viewer')
 
   // the Users table reflects the change once the side modal closes
   await closeSideModal(page)
   await expectRowVisible(table, { Name: 'Simone de Beauvoir', Role: 'project.viewer' })
 
   await page.getByRole('link', { name: 'Simone de Beauvoir' }).click()
-  await assignedRow.getByRole('button', { name: 'Row actions' }).click()
+  await directRow.getByRole('button', { name: 'Row actions' }).click()
   const removeRole = page.getByRole('menuitem', { name: 'Remove project role' })
   await expect(removeRole).toHaveClass(/destructive/)
   await removeRole.click()
@@ -170,7 +170,7 @@ test('User details side modal offers role actions by scope and source', async ({
   const projectRow = sideModal
     .getByRole('row')
     .filter({ hasText: 'project.' })
-    .filter({ hasText: 'Assigned' })
+    .filter({ hasText: 'Direct' })
   await expect(projectRow).toContainText('project.viewer')
   await projectRow.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Change project role' }).click()
@@ -182,10 +182,12 @@ test('User details side modal offers role actions by scope and source', async ({
 
   await projectRow.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Remove project role' }).click()
-  // removing your own admin role requires typing your name
-  const confirmDialog = page.getByRole('dialog', { name: 'Delete role assignment' })
-  await expect(confirmDialog).toContainText('This could remove your own project access.')
-  await confirmDialog.getByRole('textbox').fill('Hannah Arendt')
+  // Hannah's silo admin role still lets her manage project roles, so removing
+  // her own project admin role skips the warning and the name field
+  const confirmDialog = page.getByRole('dialog', { name: 'Remove role assignment' })
+  await expect(confirmDialog).toBeVisible()
+  await expect(confirmDialog).not.toContainText('remove your own')
+  await expect(confirmDialog.getByRole('textbox')).toBeHidden()
   await confirmDialog.getByRole('button', { name: 'Confirm' }).click()
   await expect(projectRow).toBeHidden()
   await expect(sideModal).toBeVisible()
@@ -261,10 +263,10 @@ test('Removing your own non-admin role skips the self-removal warning', async ({
   const projectRow = sideModal
     .getByRole('row')
     .filter({ hasText: 'project.' })
-    .filter({ hasText: 'Assigned' })
+    .filter({ hasText: 'Direct' })
   await projectRow.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Remove project role' }).click()
-  const confirmDialog = page.getByRole('dialog', { name: 'Delete role assignment' })
+  const confirmDialog = page.getByRole('dialog', { name: 'Remove role assignment' })
   await expect(confirmDialog).toBeVisible()
   await expect(confirmDialog).not.toContainText('remove your own')
   await expect(confirmDialog.getByRole('textbox')).toBeHidden()
@@ -275,6 +277,42 @@ test('Removing your own non-admin role skips the self-removal warning', async ({
   // the stronger silo role stays effective throughout
   await closeSideModal(page)
   await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.admin' })
+})
+
+test('Lowering your own admin role skips the warning if you keep edit access', async ({
+  page,
+}) => {
+  await page.goto(usersUrl)
+
+  // Hannah is the current user and a silo admin; give her project admin too
+  await page.getByRole('link', { name: 'Hannah Arendt' }).click()
+  const sideModal = page.getByRole('dialog', { name: 'User' })
+  await sideModal
+    .getByRole('row')
+    .filter({ hasText: 'No project role assigned' })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: 'Add project role' }).click()
+  const addModal = page.getByRole('dialog', { name: 'Add project role' })
+  await addModal.getByRole('radio', { name: /^Admin / }).click()
+  await addModal.getByRole('button', { name: 'Add project role' }).click()
+  await expect(addModal).toBeHidden()
+
+  // her silo admin role still lets her manage project roles, so lowering her
+  // project admin role needs no extra confirmation
+  const projectRow = sideModal
+    .getByRole('row')
+    .filter({ hasText: 'project.' })
+    .filter({ hasText: 'Direct' })
+  await projectRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Change project role' }).click()
+  const editModal = page.getByRole('dialog', { name: 'Edit project role' })
+  await editModal.getByRole('radio', { name: /^Viewer / }).click()
+  await expect(editModal).not.toContainText('remove your ability')
+  await expect(editModal.getByRole('textbox')).toBeHidden()
+  await editModal.getByRole('button', { name: 'Update role' }).click()
+  await expect(editModal).toBeHidden()
+  await expect(projectRow).toContainText('project.viewer')
 })
 
 test('Non-admin cannot change or remove project roles', async ({ browser }) => {
@@ -289,7 +327,7 @@ test('Non-admin cannot change or remove project roles', async ({ browser }) => {
   await page
     .getByRole('dialog', { name: 'User' })
     .getByRole('row')
-    .filter({ hasText: 'Assigned' })
+    .filter({ hasText: 'Direct' })
     .getByRole('button', { name: 'Row actions' })
     .click()
 
@@ -316,8 +354,12 @@ test('Project user details side modal shows silo and project roles', async ({ pa
   const modal = page.getByRole('dialog')
   await expect(modal).toBeVisible()
 
+  // the silo admin role outranks her project role from kernel-devs
+  await expect(modal.getByLabel('Properties table')).toContainText(
+    'Effective rolesilo.admin'
+  )
   await expect(modal.getByRole('row').filter({ hasText: 'silo.admin' })).toContainText(
-    'Assigned'
+    'Direct'
   )
   await expect(modal.getByRole('row').filter({ hasText: 'project.viewer' })).toContainText(
     'via kernel-devs'
@@ -366,7 +408,9 @@ test('Project Groups tab shows and edits group roles', async ({ page }) => {
   await page.getByRole('link', { name: 'real-estate-devs' }).click()
   await expect(page).toHaveURL(/\/projects\/mock-project\/access\/groups\/[0-9a-f-]+$/)
   const modal = page.getByRole('dialog')
-  await expect(modal.getByText('silo.collaborator')).toBeVisible()
+  await expect(
+    modal.getByRole('row').filter({ hasText: 'silo.collaborator' })
+  ).toBeVisible()
   await expect(modal.getByRole('cell', { name: 'Hans Jonas' })).toBeVisible()
   await expect(modal.getByRole('cell', { name: 'Jane Austen' })).toBeVisible()
   await closeSideModal(page)

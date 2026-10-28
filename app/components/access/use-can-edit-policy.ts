@@ -10,6 +10,7 @@ import {
   userScopedRoleEntries,
   type AccessScope,
   type Policy,
+  type ScopedRoleEntry,
 } from '@oxide/api'
 
 import { useCurrentUser } from '~/hooks/use-current-user'
@@ -34,9 +35,19 @@ export function useCanEditPolicy(siloPolicy: Policy, projectPolicy?: Policy): bo
   const { me, myGroups } = useCurrentUser()
   if (!projectPolicy) return me.siloAdmin
   const entries = userScopedRoleEntries(me.id, myGroups.items, siloPolicy, projectPolicy)
-  const roleInScope = (scope: AccessScope) =>
-    getEffectiveRole(entries.filter((e) => e.scope === scope).map((e) => e.roleName))
+  return canEditScope(entries, 'project')
+}
+
+/**
+ * Whether these role entries alone grant permission to edit the scope's roles.
+ * For the silo this misses fleet-derived permission (see above), so it can
+ * return false for a user who can in fact edit.
+ */
+export function canEditScope(entries: ScopedRoleEntry[], scope: AccessScope): boolean {
+  const roleInScope = (s: AccessScope) =>
+    getEffectiveRole(entries.filter((e) => e.scope === s).map((e) => e.roleName))
   const siloRole = roleInScope('silo')
+  if (scope === 'silo') return siloRole === 'admin'
   return (
     roleInScope('project') === 'admin' ||
     siloRole === 'admin' ||

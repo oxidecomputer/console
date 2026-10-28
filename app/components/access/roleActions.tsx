@@ -8,7 +8,7 @@
 import { type AccessScope, type RoleKey } from '@oxide/api'
 
 import { HL } from '~/components/HL'
-import { confirmDelete } from '~/stores/confirm-delete'
+import { confirmAction } from '~/stores/confirm-action'
 import { type MenuAction } from '~/table/columns/action-col'
 import { Message } from '~/ui/lib/Message'
 import { capitalize } from '~/util/str'
@@ -54,6 +54,7 @@ export const roleActions = (scope: RoleScope, canEdit: boolean) => {
       name,
       directRole,
       isSelf = false,
+      keepsEditAccess = false,
       inheritedReason,
       doRemove,
     }: {
@@ -61,6 +62,12 @@ export const roleActions = (scope: RoleScope, canEdit: boolean) => {
       /** Direct assignment to remove, absent when the displayed role is inherited. */
       directRole: RoleKey | undefined
       isSelf?: boolean
+      /**
+       * Whether the current user would still be able to edit this scope's
+       * roles through their other roles, in which case removing their own
+       * admin role needs no extra confirmation
+       */
+      keepsEditAccess?: boolean
       /** Explains where an inherited role must be removed instead. */
       inheritedReason?: string
       doRemove: () => Promise<unknown>
@@ -75,29 +82,35 @@ export const roleActions = (scope: RoleScope, canEdit: boolean) => {
           : undefined
 
       // only admin grants permission to edit roles in the scope it's removed from
-      const isRemovingOwnAdmin = isSelf && directRole === 'admin'
+      const isRemovingOwnAdmin = isSelf && directRole === 'admin' && !keepsEditAccess
 
       return {
         // Match RowActions' Delete behavior: destructive styling only while enabled.
         label: roleActionLabel(scope, 'remove'),
         className: disabled ? undefined : 'destructive',
-        onActivate: confirmDelete({
-          doDelete: doRemove,
-          label: (
-            <span>
-              the <HL>{directRole}</HL> role for <HL>{name}</HL>
-            </span>
-          ),
-          resourceKind: 'role assignment',
-          // "could" because the same access may also come from a group
-          extraContent: isRemovingOwnAdmin ? (
-            <Message
-              variant="error"
-              content={`This could remove your own ${scope} access.`}
-            />
-          ) : undefined,
-          confirmText: isRemovingOwnAdmin ? name || 'delete my own role' : undefined,
-        }),
+        onActivate: () =>
+          confirmAction({
+            doAction: doRemove,
+            modalTitle: 'Remove role assignment',
+            modalContent: (
+              <div className="space-y-2">
+                <p>
+                  Are you sure you want to remove the <HL>{directRole}</HL> role for{' '}
+                  <HL>{name}</HL>?
+                </p>
+                {/* "could" because the same access may also come from a group */}
+                {isRemovingOwnAdmin && (
+                  <Message
+                    variant="error"
+                    content={`This could remove your own ${scope} access.`}
+                  />
+                )}
+              </div>
+            ),
+            errorTitle: 'Could not remove role assignment',
+            actionType: 'danger',
+            confirmText: isRemovingOwnAdmin ? name || 'delete my own role' : undefined,
+          }),
         disabled,
       }
     },

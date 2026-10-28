@@ -35,6 +35,7 @@ export function SiloAccessEditRoleModal({
   identityType,
   policy,
   defaultValues,
+  keepsEditAccess,
 }: EditRoleModalProps) {
   const isAssigning = !defaultValues.roleName
   const updatePolicy = useApiMutation(api.policyUpdate, {
@@ -45,7 +46,13 @@ export function SiloAccessEditRoleModal({
   })
   const form = useForm({ defaultValues })
   const roleName = useWatch({ control: form.control, name: 'roleName' })
-  const demotion = useOwnAdminDemotion({ policy, identityId, name, roleName })
+  const demotion = useOwnAdminDemotion({
+    policy,
+    identityId,
+    name,
+    roleName,
+    keepsEditAccess,
+  })
 
   return (
     <ModalForm
