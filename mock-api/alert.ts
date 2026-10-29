@@ -73,6 +73,20 @@ export const alertClasses: Json<AlertClass>[] = [
   { name: 'system.update.start', description: 'A system software update has started' },
   { name: 'system.update.complete', description: 'A system software update has completed' },
   { name: 'system.update.fail', description: 'A system software update has failed' },
+  // Problem lifecycle classes per RFD 699 §7.3.1, for the problem
+  // classes in the problem fixtures. Also not in Omicron yet.
+  ...[
+    'hardware.disk',
+    'hardware.power_shelf',
+    'hardware.sled',
+    'system',
+    'virtual.disk.distributed',
+  ].flatMap((problemClass) =>
+    (['detected', 'updated', 'resolved'] as const).map((event) => ({
+      name: `active_problem.${event}.${problemClass}`,
+      description: `A problem of class ${problemClass} has been ${event}`,
+    }))
+  ),
 ]
 
 export const receiverWebhook1: Json<AlertReceiver> = {

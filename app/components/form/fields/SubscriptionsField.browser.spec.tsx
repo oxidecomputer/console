@@ -67,12 +67,12 @@ test('opens the dropdown and shows glob matches and broader near misses', async 
   const { input, listbox, option } = await renderField()
   await input.click()
   await expect.element(listbox.getByText('All classes')).toBeVisible()
-  await expect.element(listbox.getByText('Showing 16')).toBeVisible()
+  await expect.element(listbox.getByText('Showing 31')).toBeVisible()
   await expect.element(option('probe')).not.toBeInTheDocument()
 
   await input.fill('hardware.*.fault')
   await expect.element(listbox.getByText('Matching “hardware.*.fault”')).toBeVisible()
-  await expect.element(listbox.getByText('Showing 4 of 16')).toBeVisible()
+  await expect.element(listbox.getByText('Showing 4 of 31')).toBeVisible()
   await expect
     .element(option('hardware.disk.fault').getByText('hardware.*.fault', { exact: true }))
     .toBeVisible()
@@ -141,13 +141,13 @@ test.each([
 
 test('picks multiple classes without clearing the filter and unpicks a selected row', async () => {
   const { input, listbox, option, chipRemove, values } = await renderField()
-  await input.fill('update')
-  await expect.element(listbox.getByText('Showing 3 of 16')).toBeVisible()
+  await input.fill('system.update')
+  await expect.element(listbox.getByText('Showing 3 of 31')).toBeVisible()
   await option('system.update.start').click()
   await option('system.update.complete').click()
   await expect.element(chipRemove('system.update.start')).toBeVisible()
   await expect.element(chipRemove('system.update.complete')).toBeVisible()
-  await expect.element(input).toHaveValue('update')
+  await expect.element(input).toHaveValue('system.update')
   await expect.element(listbox).toBeVisible()
   await expect
     .element(values)
@@ -167,7 +167,7 @@ test('clears an empty search and keeps the dropdown visible for an incomplete gl
   await expect.element(listbox.getByText('All classes')).toBeVisible()
 
   await input.fill('*.')
-  await expect.element(listbox.getByText('Showing 16 of 16')).toBeVisible()
+  await expect.element(listbox.getByText('Showing 31 of 31')).toBeVisible()
 })
 
 test('Backspace arms the last chip before removing it', async () => {
