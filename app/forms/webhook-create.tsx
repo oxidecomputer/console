@@ -23,7 +23,7 @@ import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
-import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { HintLink } from '~/ui/lib/TextInput'
 import { links } from '~/util/links'
@@ -74,7 +74,13 @@ function SecretsField({ control }: { control: Control<WebhookCreateFormValues> }
 
   return (
     <>
-      <Subform onSubmit={submitSubform} className="flex max-w-lg flex-col gap-3">
+      <Subform
+        onSubmit={submitSubform}
+        onClear={() => subform.reset()}
+        addButtonLabel="Add secret"
+        disabled={!secret}
+        className="max-w-lg"
+      >
         <TextField
           control={subform.control}
           name="secret"
@@ -86,12 +92,6 @@ function SecretsField({ control }: { control: Control<WebhookCreateFormValues> }
             </>
           }
           required
-        />
-        <ClearAndAddButtons
-          addButtonCopy="Add secret"
-          disabled={!secret}
-          onClear={() => subform.reset()}
-          onSubmit={submitSubform}
         />
       </Subform>
       <MiniTable

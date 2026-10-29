@@ -46,7 +46,6 @@ function Harness() {
   const [outer, setOuter] = useState('')
   const [formSubmits, setFormSubmits] = useState(0)
   const [subformSubmits, setSubformSubmits] = useState(0)
-  const [clicks, setClicks] = useState(0)
 
   return (
     <form
@@ -62,7 +61,12 @@ function Harness() {
         selectedItemValue={outer}
         onChange={setOuter}
       />
-      <Subform onSubmit={() => setSubformSubmits((count) => count + 1)}>
+      <Subform
+        onSubmit={() => setSubformSubmits((count) => count + 1)}
+        onClear={() => {}}
+        addButtonLabel="Add"
+        disabled={false}
+      >
         <Combobox
           items={items}
           label="Inner disk"
@@ -70,16 +74,12 @@ function Harness() {
           onChange={setInner}
         />
         <input aria-label="Port" />
-        <button type="button" onClick={() => setClicks((count) => count + 1)}>
-          Add
-        </button>
       </Subform>
       <button type="submit">Submit</button>
       <output>Inner: {inner || '(empty)'}</output>
       <output>Outer: {outer || '(empty)'}</output>
       <output>Form submits: {formSubmits}</output>
       <output>Subform submits: {subformSubmits}</output>
-      <output>Add clicks: {clicks}</output>
     </form>
   )
 }
@@ -106,7 +106,7 @@ test('Enter in a text input submits the subform', async () => {
   await expect.element(screen.getByText('Form submits: 0')).toBeVisible()
 })
 
-test('Enter on a button in the subform activates the button only', async () => {
+test('Enter on the Add button submits the subform once', async () => {
   const screen = await render(<Harness />)
 
   const button = screen.getByRole('button', { name: 'Add' })
@@ -114,8 +114,7 @@ test('Enter on a button in the subform activates the button only', async () => {
   button.element().focus()
   await expect.element(button).toHaveFocus()
   await userEvent.keyboard('{Enter}')
-  await expect.element(screen.getByText('Add clicks: 1')).toBeVisible()
-  await expect.element(screen.getByText('Subform submits: 0')).toBeVisible()
+  await expect.element(screen.getByText('Subform submits: 1')).toBeVisible()
   await expect.element(screen.getByText('Form submits: 0')).toBeVisible()
 })
 

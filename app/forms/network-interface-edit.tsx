@@ -31,7 +31,7 @@ import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
-import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { HintLink, TextInputHint } from '~/ui/lib/TextInput'
@@ -143,8 +143,13 @@ export function EditNetworkInterfaceForm({
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
 
-      <Subform onSubmit={submitTransitIp} className="flex flex-col gap-3">
-        {/* We have to blow this up instead of using TextField for better layout control of field and ClearAndAddButtons */}
+      <Subform
+        onSubmit={submitTransitIp}
+        onClear={() => transitIpsForm.reset()}
+        addButtonLabel="Add Transit IP"
+        disabled={!transitIpValue}
+      >
+        {/* We have to blow this up instead of using TextField for better layout control of field and Clear/Add buttons */}
         <div>
           <FieldLabel id="transitIp-label" htmlFor="transitIp" optional>
             Transit IPs
@@ -175,12 +180,6 @@ export function EditNetworkInterfaceForm({
             placeholder={`An IP network, e.g., ${exampleIPs}`}
           />
         </div>
-        <ClearAndAddButtons
-          addButtonCopy="Add Transit IP"
-          disabled={!transitIpValue}
-          onClear={() => transitIpsForm.reset()}
-          onSubmit={submitTransitIp}
-        />
       </Subform>
       <MiniTable
         className="mb-4"
