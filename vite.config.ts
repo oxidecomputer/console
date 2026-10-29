@@ -142,6 +142,9 @@ export default defineConfig(({ mode }) => ({
   server: {
     port: 4000,
     headers: devHeaders,
+    // agent notes under .claude can be HTML, and any HTML change in the root
+    // triggers a full page reload
+    watch: { ignored: ['**/.claude/**'] },
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {
