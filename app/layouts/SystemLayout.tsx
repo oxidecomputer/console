@@ -14,6 +14,7 @@ import {
   Cloud16Icon,
   Monitoring16Icon,
   IpGlobal16Icon,
+  Issues16Icon,
   Logs16Icon,
   Metrics16Icon,
   Notifications16Icon,
@@ -59,6 +60,7 @@ export default function SystemLayout() {
       { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
       { value: 'Subnet Pools', path: pb.subnetPools() },
+      { value: 'Problems', path: pb.problems() },
       { value: 'Alerting', path: pb.alertReceivers() },
       { value: 'Alerts', path: pb.alerts() },
       { value: 'System Update', path: pb.systemUpdate() },
@@ -95,9 +97,6 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.silos()}>
             <Cloud16Icon /> Silos
           </NavLinkItem>
-          {/* <NavLinkItem to={pb.systemIssues()} disabled>
-            <Instances16Icon /> Issues
-          </NavLinkItem> */}
           <NavLinkItem to={pb.systemUtilization()}>
             <Metrics16Icon /> Utilization
           </NavLinkItem>
@@ -109,6 +108,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.subnetPools()}>
             <Subnet16Icon /> Subnet Pools
+          </NavLinkItem>
+          <NavLinkItem to={pb.problems()}>
+            <Issues16Icon /> Problems
           </NavLinkItem>
           <NavLinkItem to={pb.alertReceivers()} activePrefix={alertingBase()}>
             <Notifications16Icon /> Alerting

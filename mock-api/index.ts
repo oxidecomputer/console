@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+export * from './problem'
 export * from './affinity-group'
 export * from './alert'
 export * from './audit-log'

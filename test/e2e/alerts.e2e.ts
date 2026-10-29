@@ -299,7 +299,7 @@ test('Add subscription modal previews the classes a glob matches', async ({ page
   // ** matches every class except the synthetic probe class, which can't be
   // subscribed to
   await input.fill('**')
-  await expect(preview).toHaveText(/^Matches 14 alert classes:/)
+  await expect(preview).toHaveText(/^Matches 16 alert classes:/)
   await expect(preview).not.toContainText('probe')
 
   // a well-formed glob matching nothing says so rather than rendering an
