@@ -97,7 +97,14 @@ test('joined query renders a chart per instance with a legend line per metric', 
   ])
 })
 
-test('"Drop first point" appears only for cumulative-derived charts', async ({ page }) => {
+// Chart contents have no semantic representation, but we can compare canvas
+// snapshots within a run.
+const chartImage = (canvas: Locator) =>
+  canvas.evaluate((el: HTMLCanvasElement) => el.toDataURL())
+
+test('"Drop first point" appears for cumulative-derived charts and updates them', async ({
+  page,
+}) => {
   const settings = page.getByRole('button', { name: 'Chart settings' })
   const dropFirst = page.getByLabel('Drop first data point')
 
@@ -110,14 +117,26 @@ test('"Drop first point" appears only for cumulative-derived charts', async ({ p
   // joined/aligned tables may derive from cumulatives, so the option shows up
   // TODO: if you know the schemas, you can check which tables are cumulative!
   await runQuery(page, oxqlQueries.multiJoinedTables)
+
+  const canvas = page
+    .getByRole('figure', { name: 'sled_data_link:bytes_sent,sled_data_link:errors_sent' })
+    .first()
+    .locator('canvas')
+  await expect(canvas).toBeVisible()
+  const firstDroppedImage = await chartImage(canvas)
   await settings.click()
   await expect(dropFirst).toBeChecked()
 
   await dropFirst.uncheck()
-  await expect(page.getByRole('figure')).toHaveCount(3)
+  expect(await chartImage(canvas)).not.toEqual(firstDroppedImage)
+
+  await dropFirst.check()
+  expect(await chartImage(canvas)).toEqual(firstDroppedImage)
 })
 
-test('heatmap color scale appears only for distributions', async ({ page }) => {
+test('heatmap color scale appears for distributions and updates the chart', async ({
+  page,
+}) => {
   const settings = page.getByRole('button', { name: 'Chart settings' })
   const colorScale = page.getByRole('group', { name: 'Heatmap color scale' })
 
@@ -131,11 +150,29 @@ test('heatmap color scale appears only for distributions', async ({ page }) => {
   await settings.click()
   const ranked = colorScale.getByRole('radio', { name: 'Ranked', exact: true })
   const linear = colorScale.getByRole('radio', { name: 'Linear', exact: true })
+  const logarithmic = colorScale.getByRole('radio', { name: 'Logarithmic', exact: true })
   await expect(ranked).toBeChecked()
 
+  const chart = page.getByRole('figure', { name: 'virtual_disk:io_latency' }).first()
+  const canvas = chart.locator('canvas')
+  await expect(canvas).toBeVisible()
+
+  const rankedImage = await chartImage(canvas)
+  await expect(chart.getByText('1', { exact: true })).toBeVisible()
+
   await linear.check()
-  await expect(linear).toBeChecked()
-  await expect(ranked).not.toBeChecked()
+  const linearImage = await chartImage(canvas)
+  expect(linearImage).not.toEqual(rankedImage)
+  await expect(chart.getByText('0', { exact: true })).toBeVisible()
+
+  await logarithmic.check()
+  const logarithmicImage = await chartImage(canvas)
+  expect(logarithmicImage).not.toEqual(rankedImage)
+  expect(logarithmicImage).not.toEqual(linearImage)
+  await expect(chart.getByText('1', { exact: true })).toBeVisible()
+
+  await ranked.check()
+  expect(await chartImage(canvas)).toEqual(rankedImage)
 })
 
 test('results list is virtualized', async ({ page }) => {
