@@ -5,114 +5,58 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
-import {
-  api,
-  queryClient,
-  updateRole,
-  useActorsNotInPolicy,
-  useApiMutation,
-} from '@oxide/api'
-import { Access16Icon } from '@oxide/design-system/icons/react'
+import { api, queryClient, updateRole, useApiMutation } from '@oxide/api'
 
-import { ListboxField } from '~/components/form/fields/ListboxField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ModalForm } from '~/components/form/ModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
-import { addToast } from '~/stores/toast'
-import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
-import { ResourceLabel } from '~/ui/lib/SideModal'
-import { docLinks } from '~/util/links'
 
 import {
-  actorToItem,
-  defaultValues,
+  OwnAdminDemotionConfirm,
+  RoleModalIdentity,
   RoleRadioField,
-  type AddRoleModalProps,
+  useOwnAdminDemotion,
   type EditRoleModalProps,
 } from './access-util'
 
-export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
-  const { project } = useProjectSelector()
-
-  const actors = useActorsNotInPolicy(policy)
-
-  const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
-    onSuccess: () => {
-      queryClient.invalidateEndpoint('projectPolicyView')
-      // We don't have the name of the user or group, so we'll just have a generic message
-      addToast({ content: 'Role assigned' })
-      onDismiss()
-    },
-  })
-
-  const form = useForm({ defaultValues })
-
-  return (
-    <SideModalForm
-      title="Add user or group"
-      resourceName="role"
-      form={form}
-      formType="create"
-      submitLabel="Assign role"
-      onSubmit={({ identityId, roleName }) => {
-        // actor is guaranteed to be in the list because it came from there
-        const identityType = actors.find((a) => a.id === identityId)!.identityType
-
-        updatePolicy.mutate({
-          path: { project },
-          body: updateRole({ identityId, identityType, roleName }, policy),
-        })
-      }}
-      loading={updatePolicy.isPending || updatePolicy.isSuccess}
-      submitError={updatePolicy.error}
-      onDismiss={onDismiss}
-    >
-      <ListboxField
-        name="identityId"
-        items={actors.map(actorToItem)}
-        label="User or group"
-        required
-        control={form.control}
-      />
-      <RoleRadioField name="roleName" control={form.control} scope="Project" />
-      <SideModalFormDocs docs={[docLinks.access]} />
-    </SideModalForm>
-  )
-}
-
-export function ProjectAccessEditUserSideModal({
+export function ProjectAccessEditRoleModal({
   onDismiss,
   name,
   identityId,
   identityType,
   policy,
   defaultValues,
+  keepsEditAccess,
 }: EditRoleModalProps) {
   const { project } = useProjectSelector()
+  const isAssigning = !defaultValues.roleName
 
   const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
-      addToast({ content: 'Role updated' })
       onDismiss()
     },
   })
 
   const form = useForm({ defaultValues })
+  const roleName = useWatch({ control: form.control, name: 'roleName' })
+  const demotion = useOwnAdminDemotion({
+    policy,
+    identityId,
+    name,
+    roleName,
+    keepsEditAccess,
+  })
 
   return (
-    <SideModalForm
+    <ModalForm
       form={form}
-      formType="edit"
-      resourceName="role"
-      title="Edit role"
-      subtitle={
-        <ResourceLabel>
-          <Access16Icon /> {name}
-        </ResourceLabel>
-      }
+      title={isAssigning ? 'Add project role' : 'Edit project role'}
+      submitLabel={isAssigning ? 'Add project role' : 'Update role'}
+      submitDisabled={demotion.submitDisabled}
       onSubmit={({ roleName }) => {
+        if (!roleName) return
         updatePolicy.mutate({
           path: { project },
           body: updateRole({ identityId, identityType, roleName }, policy),
@@ -120,10 +64,14 @@ export function ProjectAccessEditUserSideModal({
       }}
       loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        updatePolicy.reset() // clear API error state so it doesn't persist on next open
+        onDismiss()
+      }}
     >
+      <RoleModalIdentity name={name} />
       <RoleRadioField name="roleName" control={form.control} scope="Project" />
-      <SideModalFormDocs docs={[docLinks.access]} />
-    </SideModalForm>
+      <OwnAdminDemotionConfirm scope="project" demotion={demotion} />
+    </ModalForm>
   )
 }

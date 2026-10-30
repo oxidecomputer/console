@@ -5,136 +5,66 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
+
+import { api, queryClient, updateRole, useApiMutation } from '@oxide/api'
+
+import { ModalForm } from '~/components/form/ModalForm'
 
 import {
-  api,
-  queryClient,
-  updateRole,
-  useActorsNotInPolicy,
-  useApiMutation,
-} from '@oxide/api'
-import { Access16Icon } from '@oxide/design-system/icons/react'
-
-import { ListboxField } from '~/components/form/fields/ListboxField'
-import { SideModalForm } from '~/components/form/SideModalForm'
-import { HL } from '~/components/HL'
-import { useCurrentUser } from '~/hooks/use-current-user'
-import { confirmAction } from '~/stores/confirm-action'
-import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
-import { ResourceLabel } from '~/ui/lib/SideModal'
-import { docLinks } from '~/util/links'
-
-import {
-  actorToItem,
-  defaultValues,
+  OwnAdminDemotionConfirm,
+  RoleModalIdentity,
   RoleRadioField,
-  type AddRoleModalProps,
+  useOwnAdminDemotion,
   type EditRoleModalProps,
 } from './access-util'
 
-export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
-  const actors = useActorsNotInPolicy(policy)
-
-  const updatePolicy = useApiMutation(api.policyUpdate, {
-    onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
-      onDismiss()
-    },
-  })
-
-  const form = useForm({ defaultValues })
-
-  return (
-    <SideModalForm
-      form={form}
-      formType="create"
-      resourceName="role"
-      title="Add user or group"
-      submitLabel="Assign role"
-      onDismiss={() => {
-        updatePolicy.reset() // clear API error state so it doesn't persist on next open
-        onDismiss()
-      }}
-      onSubmit={({ identityId, roleName }) => {
-        // TODO: DRY logic
-        // actor is guaranteed to be in the list because it came from there
-        const identityType = actors.find((a) => a.id === identityId)!.identityType
-
-        updatePolicy.mutate({
-          body: updateRole({ identityId, identityType, roleName }, policy),
-        })
-      }}
-      loading={updatePolicy.isPending || updatePolicy.isSuccess}
-      submitError={updatePolicy.error}
-    >
-      <ListboxField
-        name="identityId"
-        items={actors.map(actorToItem)}
-        label="User or group"
-        required
-        control={form.control}
-      />
-      <RoleRadioField name="roleName" control={form.control} scope="Silo" />
-      <SideModalFormDocs docs={[docLinks.access]} />
-    </SideModalForm>
-  )
+/**
+ * Silo policy changes can change the current user's `siloAdmin` on /v1/me,
+ * which gates role actions, so refresh both.
+ */
+export function invalidateSiloPolicy() {
+  queryClient.invalidateEndpoint('policyView')
+  queryClient.invalidateEndpoint('currentUserView')
 }
 
-export function SiloAccessEditUserSideModal({
+export function SiloAccessEditRoleModal({
   onDismiss,
   name,
   identityId,
   identityType,
   policy,
   defaultValues,
+  keepsEditAccess,
 }: EditRoleModalProps) {
-  const { me } = useCurrentUser()
+  const isAssigning = !defaultValues.roleName
   const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
+      invalidateSiloPolicy()
       onDismiss()
     },
   })
   const form = useForm({ defaultValues })
+  const roleName = useWatch({ control: form.control, name: 'roleName' })
+  const demotion = useOwnAdminDemotion({
+    policy,
+    identityId,
+    name,
+    roleName,
+    keepsEditAccess,
+  })
 
   return (
-    <SideModalForm
+    <ModalForm
       form={form}
-      formType="edit"
-      resourceName="role"
-      title="Edit role"
-      subtitle={
-        <ResourceLabel>
-          <Access16Icon /> {name}
-        </ResourceLabel>
-      }
+      title={isAssigning ? 'Add silo role' : 'Edit silo role'}
+      submitLabel={isAssigning ? 'Add silo role' : 'Update role'}
+      submitDisabled={demotion.submitDisabled}
       onSubmit={({ roleName }) => {
-        const body = updateRole({ identityId, identityType, roleName }, policy)
-        // Only silo admins can edit the policy, so an admin who removes their
-        // own admin role may not be able to undo the change. "May" because
-        // they could still be an admin through a group.
-        if (
-          identityId === me.id &&
-          defaultValues.roleName === 'admin' &&
-          roleName !== 'admin'
-        ) {
-          confirmAction({
-            actionType: 'danger',
-            doAction: () => updatePolicy.mutateAsync({ body }),
-            modalTitle: 'Remove your own admin role',
-            modalContent: (
-              <p>
-                You are removing the <HL>admin</HL> role from your own account. You may lose
-                the ability to manage access to this silo, including restoring your own
-                role. Are you sure?
-              </p>
-            ),
-            errorTitle: 'Could not update role',
-          })
-          return
-        }
-        updatePolicy.mutate({ body })
+        if (!roleName) return
+        updatePolicy.mutate({
+          body: updateRole({ identityId, identityType, roleName }, policy),
+        })
       }}
       loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
@@ -143,8 +73,9 @@ export function SiloAccessEditUserSideModal({
         onDismiss()
       }}
     >
+      <RoleModalIdentity name={name} />
       <RoleRadioField name="roleName" control={form.control} scope="Silo" />
-      <SideModalFormDocs docs={[docLinks.access]} />
-    </SideModalForm>
+      <OwnAdminDemotionConfirm scope="silo" demotion={demotion} />
+    </ModalForm>
   )
 }

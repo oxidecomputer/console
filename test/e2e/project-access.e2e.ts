@@ -5,114 +5,420 @@
  *
  * Copyright Oxide Computer Company
  */
-import { user3, user4 } from '@oxide/api-mocks'
+import { expect, expectRowVisible, getPageAsUser, test, type Page } from './utils'
 
-import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
+const usersUrl = '/projects/mock-project/access/users'
+const groupsUrl = '/projects/mock-project/access/groups'
 
-test('Click through project access page', async ({ page }) => {
+const closeSideModal = (page: Page) =>
+  page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+
+test('Project Users tab shows effective roles across silo, project, and groups', async ({
+  page,
+}) => {
   await page.goto('/projects/mock-project')
-  await page.click('role=link[name*="Access"]')
+  await page.getByRole('link', { name: 'Project Access' }).click()
+  await expect(page).toHaveURL(/\/projects\/mock-project\/access\/groups$/)
+  await expect(page.getByRole('heading', { name: 'Project Access' })).toBeVisible()
+  await page.getByRole('tab', { name: 'Users' }).click()
+  await expect(page).toHaveURL(/\/projects\/mock-project\/access\/users$/)
 
-  // we see groups and users 1, 3, 6 but not users 2, 4, 5
-  await expectVisible(page, ['role=heading[name*="Access"]'])
-  const table = page.locator('table')
+  const table = page.getByRole('table')
+
+  // the strongest role from any scope or group is shown, labeled with its scope
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
-    Type: 'User',
     Role: 'silo.admin',
+    Groups: 'kernel-devs+1',
   })
-  await expectRowVisible(table, {
-    Name: 'Jacob Klein',
-    Type: 'User',
-    Role: 'project.collaborator',
-  })
+  await expectRowVisible(table, { Name: 'Jacob Klein', Role: 'project.collaborator' })
   await expectRowVisible(table, {
     Name: 'Herbert Marcuse',
-    Type: 'User',
     Role: 'project.limited_collaborator',
   })
   await expectRowVisible(table, {
-    Name: 'real-estate-devs',
-    Type: 'Group',
+    Name: 'Hans Jonas',
     Role: 'silo.collaborator',
+    Groups: 'real-estate-devs',
   })
-  await expectRowVisible(table, {
-    Name: 'kernel-devs',
-    Type: 'Group',
-    Role: 'project.viewer',
-  })
+  // every silo user is listed, including those with no access
+  await expectRowVisible(table, { Name: 'Simone de Beauvoir', Role: '—', Groups: '—' })
 
-  await expectNotVisible(page, [
-    `role=cell[name="Hans Jonas"]`,
-    `role=cell[name="Simone de Beauvoir"]`,
-  ])
+  // inherited role names its source group
+  const hansRow = table.getByRole('row', { name: 'Hans Jonas', exact: false })
+  await hansRow.getByRole('button', { name: 'Tip' }).hover()
+  await expect(page.getByRole('tooltip')).toContainText('via real-estate-devs')
+})
 
-  // Add user 4 as collab
-  await page.click('role=button[name="Add user or group"]')
-  await expectVisible(page, ['role=heading[name*="Add user or group"]'])
+test('Add, change, and remove a project role from the user details side modal', async ({
+  page,
+}) => {
+  await page.goto(usersUrl)
+  const table = page.getByRole('table')
 
-  await page.click('role=button[name*="User or group"]')
-  // only users not already on the project should be visible
-  await expectNotVisible(page, [
-    'role=option[name="Jacob Klein"]',
-    'role=option[name="Herbert Marcuse"]',
-  ])
+  await page.getByRole('link', { name: 'Simone de Beauvoir' }).click()
+  const sideModal = page.getByRole('dialog', { name: 'User' })
 
-  await expectVisible(page, [
-    'role=option[name="Hannah Arendt"]',
-    'role=option[name="Hans Jonas"]',
-    'role=option[name="Simone de Beauvoir"]',
-  ])
+  // Simone has no role anywhere, so only Add is offered
+  const emptyRow = sideModal.getByRole('row').filter({ hasText: 'No roles assigned' })
+  await emptyRow.getByRole('button', { name: 'Row actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Change project role' })).toBeHidden()
+  await expect(page.getByRole('menuitem', { name: 'Remove project role' })).toBeHidden()
+  await page.getByRole('menuitem', { name: 'Add project role' }).click()
+  const addModal = page.getByRole('dialog', { name: 'Add project role' })
+  await expect(addModal).toContainText('Simone de Beauvoir')
+  await addModal.getByRole('radio', { name: /^Collaborator / }).click()
+  await addModal.getByRole('button', { name: 'Add project role' }).click()
+  const directRow = sideModal.getByRole('row').filter({ hasText: 'Direct' })
+  await expect(directRow).toContainText('project.collaborator')
 
-  await page.click('role=option[name="Simone de Beauvoir"]')
-  await page.getByRole('radio', { name: /^Collaborator / }).click()
-  await page.click('role=button[name="Assign role"]')
+  await directRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Change project role' }).click()
+  const editModal = page.getByRole('dialog', { name: 'Edit project role' })
+  await expect(editModal.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
+  await editModal.getByRole('radio', { name: /^Viewer / }).click()
+  await editModal.getByRole('button', { name: 'Update role' }).click()
+  await expect(directRow).toContainText('project.viewer')
 
-  // User 4 shows up in the table
-  await expectRowVisible(table, {
-    Name: 'Simone de Beauvoir',
-    Type: 'User',
-    Role: 'project.collaborator',
-  })
+  // the Users table reflects the change once the side modal closes
+  await closeSideModal(page)
+  await expectRowVisible(table, { Name: 'Simone de Beauvoir', Role: 'project.viewer' })
 
-  // now change user 4 role from collab to viewer
-  await page
-    .locator('role=row', { hasText: user4.display_name })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Change role"]')
-
-  await expectVisible(page, ['role=heading[name*="Edit role"]'])
-
-  // Verify Collaborator is currently selected
-  await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
-
-  // Select Viewer role
-  await page.getByRole('radio', { name: /^Viewer / }).click()
-  await page.click('role=button[name="Update role"]')
-
-  await expectRowVisible(table, { Name: user4.display_name, Role: 'project.viewer' })
-
-  // now delete user 3. has to be 3 or 4 because they're the only ones that come
-  // from the project policy
-  const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })
-  await expect(user3Row).toBeVisible()
-  await user3Row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('link', { name: 'Simone de Beauvoir' }).click()
+  await directRow.getByRole('button', { name: 'Row actions' }).click()
+  const removeRole = page.getByRole('menuitem', { name: 'Remove project role' })
+  await expect(removeRole).toHaveClass(/destructive/)
+  await removeRole.click()
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(user3Row).toBeHidden()
+  await expect(emptyRow).toBeVisible()
+  await closeSideModal(page)
+  await expectRowVisible(table, { Name: 'Simone de Beauvoir', Role: '—' })
+})
 
-  // now add a project role to user 1, who currently only has silo role
-  await page.click('role=button[name="Add user or group"]')
-  await page.click('role=button[name*="User or group"]')
-  await page.click('role=option[name="Hannah Arendt"]')
-  // Select Viewer role
-  await page.getByRole('radio', { name: /^Viewer / }).click()
-  await page.click('role=button[name="Assign role"]')
-  // because we only show the "effective" role, we should still see the silo admin role, but should now have an additional count value
+test('Roles from the silo or a group cannot be edited on the project page', async ({
+  page,
+}) => {
+  await page.goto(usersUrl)
+
+  // Hannah has a direct silo role
+  await page.getByRole('link', { name: 'Hannah Arendt' }).click()
+  const sideModal = page.getByRole('dialog', { name: 'User' })
+  const siloRow = sideModal.getByRole('row').filter({ hasText: 'silo.admin' })
+  await siloRow.getByRole('button', { name: 'Row actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Change silo role' })).toBeDisabled()
+  const removeSilo = page.getByRole('menuitem', { name: 'Remove silo role' })
+  await expect(removeSilo).toBeDisabled()
+  await expect(removeSilo).not.toHaveClass(/destructive/)
+  await removeSilo.hover()
+  await expect(page.getByRole('tooltip')).toHaveText('This role comes from the silo policy')
+  await page.keyboard.press('Escape')
+
+  // a direct project role can still be added, from a row below the others
+  const missingRow = sideModal
+    .getByRole('row')
+    .filter({ hasText: 'No project role assigned' })
+  await expect(sideModal.getByRole('table').first().getByRole('row').last()).toContainText(
+    'No project role assigned'
+  )
+  await missingRow.getByRole('button', { name: 'Row actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Add project role' })).toBeEnabled()
+  await page.keyboard.press('Escape')
+  await closeSideModal(page)
+
+  // Hans's only role comes from a group
+  await page.getByRole('link', { name: 'Hans Jonas' }).click()
+  const viaRow = sideModal.getByRole('row').filter({ hasText: 'via real-estate-devs' })
+  await viaRow.getByRole('button', { name: 'Row actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'View group' })).toBeVisible()
+  await expect(page.getByRole('menuitem', { name: 'Remove project role' })).toBeHidden()
+  await page.keyboard.press('Escape')
+  await missingRow.getByRole('button', { name: 'Row actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Add project role' })).toBeEnabled()
+})
+
+test('User details side modal offers role actions by scope and source', async ({
+  page,
+}) => {
+  await page.goto(usersUrl)
+  await page.getByRole('link', { name: 'Hannah Arendt' }).click()
+  const sideModal = page.getByRole('dialog', { name: 'User' })
+  await expect(sideModal.getByRole('link', { name: 'Project Roles' })).toHaveAttribute(
+    'href',
+    'https://docs.oxide.computer/guides/configuring-access#_project'
+  )
+
+  // a direct silo role can't be removed from the project page
+  const siloRow = sideModal.getByRole('row').filter({ hasText: 'silo.admin' })
+  await siloRow.getByRole('button', { name: 'Row actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Change silo role' })).toBeDisabled()
+  const removeSilo = page.getByRole('menuitem', { name: 'Remove silo role' })
+  await expect(removeSilo).toBeDisabled()
+  await page.keyboard.press('Escape')
+
+  // give Hannah a direct project role
+  const missingRow = sideModal
+    .getByRole('row')
+    .filter({ hasText: 'No project role assigned' })
+  await missingRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Add project role' }).click()
+  const addModal = page.getByRole('dialog', { name: 'Add project role' })
+  await addModal.getByRole('radio', { name: /^Viewer / }).click()
+  await addModal.getByRole('button', { name: 'Add project role' }).click()
+  await expect(addModal).toBeHidden()
+  await expect(missingRow).toBeHidden()
+
+  const projectRow = sideModal
+    .getByRole('row')
+    .filter({ hasText: 'project.' })
+    .filter({ hasText: 'Direct' })
+  await expect(projectRow).toContainText('project.viewer')
+  await projectRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Change project role' }).click()
+  const editModal = page.getByRole('dialog', { name: 'Edit project role' })
+  await editModal.getByRole('radio', { name: /^Admin / }).click()
+  await editModal.getByRole('button', { name: 'Update role' }).click()
+  await expect(editModal).toBeHidden()
+  await expect(projectRow).toContainText('project.admin')
+
+  await projectRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Remove project role' }).click()
+  // Hannah's silo admin role still lets her manage project roles, so removing
+  // her own project admin role skips the warning and the name field
+  const confirmDialog = page.getByRole('dialog', { name: 'Remove role assignment' })
+  await expect(confirmDialog).toBeVisible()
+  await expect(confirmDialog).not.toContainText('remove your own')
+  await expect(confirmDialog.getByRole('textbox')).toBeHidden()
+  await confirmDialog.getByRole('button', { name: 'Confirm' }).click()
+  await expect(projectRow).toBeHidden()
+  await expect(sideModal).toBeVisible()
+
+  // group memberships link to their group details
+  await sideModal
+    .getByRole('row')
+    .filter({ has: page.getByRole('cell', { name: 'kernel-devs', exact: true }) })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: 'View group' }).click()
+  await expect(page).toHaveURL(/\/projects\/mock-project\/access\/groups\/[0-9a-f-]+$/)
+  await expect(page.getByRole('dialog', { name: 'Group' })).toContainText('kernel-devs')
+})
+
+test('Add a project role from the group details side modal', async ({ page }) => {
+  await page.goto(groupsUrl)
+
+  // web-devs has no role anywhere, so the empty row offers Add
+  await page.getByRole('link', { name: 'web-devs' }).click()
+  const sideModal = page.getByRole('dialog', { name: 'Group' })
+  const emptyRow = sideModal.getByRole('row').filter({ hasText: 'No roles assigned' })
+  await emptyRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Add project role' }).click()
+  const addModal = page.getByRole('dialog', { name: 'Add project role' })
+  await addModal.getByRole('radio', { name: /^Viewer / }).click()
+  await addModal.getByRole('button', { name: 'Add project role' }).click()
+  await expect(addModal).toBeHidden()
+  await expect(
+    sideModal.getByRole('row').filter({ hasText: 'project.viewer' })
+  ).toBeVisible()
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+
+  // real-estate-devs has only a silo role, which can't be edited here
+  await page.getByRole('link', { name: 'real-estate-devs' }).click()
+  const siloRow = sideModal.getByRole('row').filter({ hasText: 'silo.collaborator' })
+  await siloRow.getByRole('button', { name: 'Row actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Change silo role' })).toBeDisabled()
+  await expect(page.getByRole('menuitem', { name: 'Remove silo role' })).toBeDisabled()
+  await expect(page.getByRole('menuitem', { name: 'Add project role' })).toBeHidden()
+  await page.keyboard.press('Escape')
+
+  // a row below it offers to add a project role
+  await sideModal
+    .getByRole('row')
+    .filter({ hasText: 'No project role assigned' })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: 'Add project role' }).click()
+  await expect(page.getByRole('dialog', { name: 'Add project role' })).toBeVisible()
+})
+
+test('Removing your own non-admin role skips the self-removal warning', async ({
+  page,
+}) => {
+  await page.goto(usersUrl)
+  const table = page.getByRole('table')
+
+  // Hannah is the current user; give her a project viewer role, then remove it
+  await page.getByRole('link', { name: 'Hannah Arendt' }).click()
+  const sideModal = page.getByRole('dialog', { name: 'User' })
+  await sideModal
+    .getByRole('row')
+    .filter({ hasText: 'No project role assigned' })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: 'Add project role' }).click()
+  const addModal = page.getByRole('dialog', { name: 'Add project role' })
+  await addModal.getByRole('radio', { name: /^Viewer / }).click()
+  await addModal.getByRole('button', { name: 'Add project role' }).click()
+  await expect(addModal).toBeHidden()
+
+  const projectRow = sideModal
+    .getByRole('row')
+    .filter({ hasText: 'project.' })
+    .filter({ hasText: 'Direct' })
+  await projectRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Remove project role' }).click()
+  const confirmDialog = page.getByRole('dialog', { name: 'Remove role assignment' })
+  await expect(confirmDialog).toBeVisible()
+  await expect(confirmDialog).not.toContainText('remove your own')
+  await expect(confirmDialog.getByRole('textbox')).toBeHidden()
+  await confirmDialog.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmDialog).toBeHidden()
+  await expect(projectRow).toBeHidden()
+
+  // the stronger silo role stays effective throughout
+  await closeSideModal(page)
+  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.admin' })
+})
+
+test('Lowering your own admin role skips the warning if you keep edit access', async ({
+  page,
+}) => {
+  await page.goto(usersUrl)
+
+  // Hannah is the current user and a silo admin; give her project admin too
+  await page.getByRole('link', { name: 'Hannah Arendt' }).click()
+  const sideModal = page.getByRole('dialog', { name: 'User' })
+  await sideModal
+    .getByRole('row')
+    .filter({ hasText: 'No project role assigned' })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: 'Add project role' }).click()
+  const addModal = page.getByRole('dialog', { name: 'Add project role' })
+  await addModal.getByRole('radio', { name: /^Admin / }).click()
+  await addModal.getByRole('button', { name: 'Add project role' }).click()
+  await expect(addModal).toBeHidden()
+
+  // her silo admin role still lets her manage project roles, so lowering her
+  // project admin role needs no extra confirmation
+  const projectRow = sideModal
+    .getByRole('row')
+    .filter({ hasText: 'project.' })
+    .filter({ hasText: 'Direct' })
+  await projectRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Change project role' }).click()
+  const editModal = page.getByRole('dialog', { name: 'Edit project role' })
+  await editModal.getByRole('radio', { name: /^Viewer / }).click()
+  await expect(editModal).not.toContainText('remove your ability')
+  await expect(editModal.getByRole('textbox')).toBeHidden()
+  await editModal.getByRole('button', { name: 'Update role' }).click()
+  await expect(editModal).toBeHidden()
+  await expect(projectRow).toContainText('project.viewer')
+})
+
+test('Non-admin cannot change or remove project roles', async ({ browser }) => {
+  // Jacob Klein is only a project collaborator (not project admin or silo
+  // collaborator/admin), so he lacks `modify` on the project and can't edit role
+  // assignments. Both side modal actions should be disabled with an explanation.
+  const page = await getPageAsUser(browser, 'Jacob Klein')
+  await page.goto(usersUrl)
+  await expect(page.getByRole('heading', { name: 'Project Access' })).toBeVisible()
+
+  await page.getByRole('link', { name: 'Herbert Marcuse' }).click()
+  await page
+    .getByRole('dialog', { name: 'User' })
+    .getByRole('row')
+    .filter({ hasText: 'Direct' })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+
+  const changeRole = page.getByRole('menuitem', { name: 'Change project role' })
+  await expect(changeRole).toBeDisabled()
+  await changeRole.hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    "You don't have permission to change project roles"
+  )
+
+  const removeRole = page.getByRole('menuitem', { name: 'Remove project role' })
+  await expect(removeRole).toBeDisabled()
+  await removeRole.hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    "You don't have permission to remove project roles"
+  )
+})
+
+test('Project user details side modal shows silo and project roles', async ({ page }) => {
+  await page.goto(usersUrl)
+
+  await page.getByRole('link', { name: 'Hannah Arendt' }).click()
+  await expect(page).toHaveURL(/\/projects\/mock-project\/access\/users\/[0-9a-f-]+$/)
+  const modal = page.getByRole('dialog')
+  await expect(modal).toBeVisible()
+
+  // the silo admin role outranks her project role from kernel-devs
+  await expect(modal.getByLabel('Properties table')).toContainText(
+    'Effective rolesilo.admin'
+  )
+  await expect(modal.getByRole('row').filter({ hasText: 'silo.admin' })).toContainText(
+    'Direct'
+  )
+  await expect(modal.getByRole('row').filter({ hasText: 'project.viewer' })).toContainText(
+    'via kernel-devs'
+  )
+  // exact, since a role row also reads "via kernel-devs"
+  await expect(modal.getByRole('cell', { name: 'kernel-devs', exact: true })).toBeVisible()
+  await expect(modal.getByRole('cell', { name: 'web-devs', exact: true })).toBeVisible()
+
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+  await expect(modal).toBeHidden()
+  await expect(page).toHaveURL(/\/projects\/mock-project\/access\/users$/)
+})
+
+test('Project Groups tab shows and edits group roles', async ({ page }) => {
+  await page.goto(usersUrl)
+  await page.getByRole('tab', { name: 'Groups' }).click()
+  await expect(page).toHaveURL(/\/projects\/mock-project\/access\/groups$/)
+
+  const table = page.getByRole('table')
   await expectRowVisible(table, {
-    Name: 'Hannah Arendt',
-    Type: 'User',
-    Role: 'silo.admin+1',
+    Name: 'real-estate-devs',
+    Role: 'silo.collaborator',
+    Users: '2',
   })
+  await expectRowVisible(table, { Name: 'kernel-devs', Role: 'project.viewer', Users: '1' })
+  await expectRowVisible(table, { Name: 'web-devs', Role: '—', Users: '1' })
+
+  // change kernel-devs' direct project role
+  await page.getByRole('link', { name: 'kernel-devs' }).click()
+  await page
+    .getByRole('dialog', { name: 'Group' })
+    .getByRole('row')
+    .filter({ hasText: 'project.viewer' })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: 'Change project role' }).click()
+  const editModal = page.getByRole('dialog', { name: 'Edit project role' })
+  await expect(editModal.getByRole('radio', { name: /^Viewer / })).toBeChecked()
+  await editModal.getByRole('radio', { name: /^Collaborator / }).click()
+  await editModal.getByRole('button', { name: 'Update role' }).click()
+  await expect(editModal).toBeHidden()
+  await closeSideModal(page)
+  await expectRowVisible(table, { Name: 'kernel-devs', Role: 'project.collaborator' })
+
+  // group detail modal
+  await page.getByRole('link', { name: 'real-estate-devs' }).click()
+  await expect(page).toHaveURL(/\/projects\/mock-project\/access\/groups\/[0-9a-f-]+$/)
+  const modal = page.getByRole('dialog')
+  await expect(
+    modal.getByRole('row').filter({ hasText: 'silo.collaborator' })
+  ).toBeVisible()
+  await expect(modal.getByRole('cell', { name: 'Hans Jonas' })).toBeVisible()
+  await expect(modal.getByRole('cell', { name: 'Jane Austen' })).toBeVisible()
+  await closeSideModal(page)
+  await expect(page).toHaveURL(new RegExp(`${groupsUrl}$`))
+})
+
+test('Project Access root redirects to the Groups tab', async ({ page }) => {
+  await page.goto('/projects/mock-project/access')
+  await expect(page).toHaveURL(/\/projects\/mock-project\/access\/groups$/)
+  await expect(page.getByRole('heading', { name: 'Project Access' })).toBeVisible()
 })
