@@ -9,6 +9,8 @@
 export const oxqlQueries = {
   basicTctl: `get hardware_component:amd_cpu_tctl
   | filter timestamp > @now() - 1m`,
+  diskLatency: `get virtual_disk:io_latency
+  | filter timestamp > @now() - 1m`,
   unalignedTables: `{
   get hardware_component:temperature;
   get hardware_component:sensor_error_count
