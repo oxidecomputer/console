@@ -22,6 +22,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextFieldInner } from '~/components/form/fields/TextField'
 import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { Subform } from '~/components/form/Subform'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -30,11 +31,10 @@ import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
-import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { HintLink, TextInputHint } from '~/ui/lib/TextInput'
-import { KEYS } from '~/ui/util/keys'
 import { parseIpNet, validateIpNet } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
 
@@ -143,8 +143,13 @@ export function EditNetworkInterfaceForm({
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
 
-      <div className="flex flex-col gap-3">
-        {/* We have to blow this up instead of using TextField for better layout control of field and ClearAndAddButtons */}
+      <Subform
+        onSubmit={submitTransitIp}
+        onClear={() => transitIpsForm.reset()}
+        addButtonLabel="Add Transit IP"
+        disabled={!transitIpValue}
+      >
+        {/* We have to blow this up instead of using TextField for better layout control of field and Clear/Add buttons */}
         <div>
           <FieldLabel id="transitIp-label" htmlFor="transitIp" optional>
             Transit IPs
@@ -157,12 +162,6 @@ export function EditNetworkInterfaceForm({
             id="transitIp"
             name="transitIp"
             control={transitIpsForm.control}
-            onKeyDown={(e) => {
-              if (e.key === KEYS.enter) {
-                e.preventDefault() // prevent full form submission
-                submitTransitIp()
-              }
-            }}
             validate={(value) => {
               const error = validateIpNet(value)
               if (error) return error
@@ -181,13 +180,7 @@ export function EditNetworkInterfaceForm({
             placeholder={`An IP network, e.g., ${exampleIPs}`}
           />
         </div>
-        <ClearAndAddButtons
-          addButtonCopy="Add Transit IP"
-          disabled={!transitIpValue}
-          onClear={() => transitIpsForm.reset()}
-          onSubmit={submitTransitIp}
-        />
-      </div>
+      </Subform>
       <MiniTable
         className="mb-4"
         ariaLabel="Transit IPs"
