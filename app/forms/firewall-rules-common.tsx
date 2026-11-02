@@ -35,6 +35,7 @@ import { NameField, validateName } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
+import { Subform } from '~/components/form/Subform'
 import { useVpcSelector } from '~/hooks/use-params'
 import {
   ProtocolCell,
@@ -45,10 +46,9 @@ import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
-import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { SideModal } from '~/ui/lib/SideModal'
 import { TextInputHint } from '~/ui/lib/TextInput'
-import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
@@ -172,59 +172,53 @@ const TargetAndHostFilterSubform = ({
       <SideModal.Heading>{nounTitle}</SideModal.Heading>
 
       <Message variant="info" content={messageContent} />
-      <ListboxField
-        name="type"
-        label={`${capitalize(sectionType)} type`}
-        control={subformControl}
-        items={targetHostTypeItems}
-        onChange={onTypeChange}
-        hideOptionalTag
-      />
-      {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
-      {valueType === 'vpc' || valueType === 'subnet' || valueType === 'instance' ? (
-        <ComboboxField
-          disabled={subform.formState.isSubmitting}
-          name="value"
-          {...getFilterValueProps(valueType)}
-          description="Select an option or enter a custom value"
-          control={subformControl}
-          onEnter={submitSubform}
-          items={items}
-          allowArbitraryValues
-          hideOptionalTag
-          validate={(value) =>
-            // required: false arg is desirable because otherwise if you put in
-            // a bad name and submit, causing it to revalidate onChange, then
-            // clear the field you're left with a BS "Target name is required"
-            // error message
-            validateName(value, `${capitalize(sectionType)} name`, false)
-          }
-        />
-      ) : (
-        <TextField
-          name="value"
-          {...getFilterValueProps(valueType)}
-          control={subformControl}
-          disabled={subform.formState.isSubmitting}
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              submitSubform(e)
-            }
-          }}
-          validate={(value) =>
-            (valueType === 'ip' && validateIp(value)) ||
-            (valueType === 'ip_net' && validateIpNet(value)) ||
-            undefined
-          }
-        />
-      )}
-      <ClearAndAddButtons
-        addButtonCopy={`Add ${noun}`}
-        disabled={!value}
-        onClear={() => subform.reset()}
+      <Subform
         onSubmit={submitSubform}
-      />
+        onClear={() => subform.reset()}
+        addButtonLabel={`Add ${noun}`}
+        disabled={!value}
+      >
+        <ListboxField
+          name="type"
+          label={`${capitalize(sectionType)} type`}
+          control={subformControl}
+          items={targetHostTypeItems}
+          onChange={onTypeChange}
+          hideOptionalTag
+        />
+        {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
+        {valueType === 'vpc' || valueType === 'subnet' || valueType === 'instance' ? (
+          <ComboboxField
+            disabled={subform.formState.isSubmitting}
+            name="value"
+            {...getFilterValueProps(valueType)}
+            description="Select an option or enter a custom value"
+            control={subformControl}
+            items={items}
+            allowArbitraryValues
+            hideOptionalTag
+            validate={(value) =>
+              // required: false arg is desirable because otherwise if you put in
+              // a bad name and submit, causing it to revalidate onChange, then
+              // clear the field you're left with a BS "Target name is required"
+              // error message
+              validateName(value, `${capitalize(sectionType)} name`, false)
+            }
+          />
+        ) : (
+          <TextField
+            name="value"
+            {...getFilterValueProps(valueType)}
+            control={subformControl}
+            disabled={subform.formState.isSubmitting}
+            validate={(value) =>
+              (valueType === 'ip' && validateIp(value)) ||
+              (valueType === 'ip_net' && validateIpNet(value)) ||
+              undefined
+            }
+          />
+        )}
+      </Subform>
       <MiniTable
         className="mb-4"
         ariaLabel={nounTitle}
@@ -465,75 +459,65 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
 
   return (
     <>
-      <div className="space-y-3">
-        <div className="space-y-5">
-          <ListboxField
-            name="protocolType"
-            label="Protocol filters"
-            hideOptionalTag
-            control={protocolForm.control}
-            placeholder=""
-            items={protocolTypeItems}
-            // ICMPv4 and ICMPv6 type numbers mean different things, so clear the
-            // selected ICMP type/code when switching protocol. Also clear errors:
-            // setValue doesn't revalidate, so a stale type error would otherwise
-            // linger on the now-empty field.
-            onChange={() => {
-              protocolForm.setValue('icmpType', '')
-              protocolForm.setValue('icmpCode', '')
-              protocolForm.clearErrors(['icmpType', 'icmpCode'])
-            }}
-          />
-
-          {(selectedProtocolType === 'icmp' || selectedProtocolType === 'icmp6') && (
-            <>
-              <ComboboxField
-                label={`${PROTOCOL_LABELS[selectedProtocolType]} type`}
-                name="icmpType"
-                control={protocolForm.control}
-                description="Leave blank to match any type"
-                placeholder=""
-                allowArbitraryValues
-                items={icmpTypeItems[selectedProtocolType]}
-                validate={(value) => {
-                  const result = parseIcmpType(value)
-                  if (!result.success) return result.message
-                }}
-              />
-
-              {selectedIcmpType !== undefined && selectedIcmpType !== '' && (
-                <TextField
-                  label={`${PROTOCOL_LABELS[selectedProtocolType]} code`}
-                  name="icmpCode"
-                  control={protocolForm.control}
-                  description={
-                    <>
-                      Enter a code (0) or range (e.g., 1&ndash;3). Leave blank for all
-                      traffic of type {selectedIcmpType}.
-                    </>
-                  }
-                  placeholder=""
-                  validate={icmpCodeValidation}
-                  transform={normalizeDashes}
-                  onKeyDown={(e) => {
-                    if (e.key === KEYS.enter) {
-                      e.preventDefault() // prevent full form submission
-                      submitProtocol(e)
-                    }
-                  }}
-                />
-              )}
-            </>
-          )}
-        </div>
-
-        <ClearAndAddButtons
-          addButtonCopy="Add protocol filter"
-          disabled={!selectedProtocolType}
-          onClear={() => protocolForm.reset()}
-          onSubmit={submitProtocol}
+      <Subform
+        onSubmit={submitProtocol}
+        onClear={() => protocolForm.reset()}
+        addButtonLabel="Add protocol filter"
+        disabled={!selectedProtocolType}
+      >
+        <ListboxField
+          name="protocolType"
+          label="Protocol filters"
+          hideOptionalTag
+          control={protocolForm.control}
+          placeholder=""
+          items={protocolTypeItems}
+          // ICMPv4 and ICMPv6 type numbers mean different things, so clear the
+          // selected ICMP type/code when switching protocol. Also clear errors:
+          // setValue doesn't revalidate, so a stale type error would otherwise
+          // linger on the now-empty field.
+          onChange={() => {
+            protocolForm.setValue('icmpType', '')
+            protocolForm.setValue('icmpCode', '')
+            protocolForm.clearErrors(['icmpType', 'icmpCode'])
+          }}
         />
-      </div>
+
+        {(selectedProtocolType === 'icmp' || selectedProtocolType === 'icmp6') && (
+          <>
+            <ComboboxField
+              label={`${PROTOCOL_LABELS[selectedProtocolType]} type`}
+              name="icmpType"
+              control={protocolForm.control}
+              description="Leave blank to match any type"
+              placeholder=""
+              allowArbitraryValues
+              items={icmpTypeItems[selectedProtocolType]}
+              validate={(value) => {
+                const result = parseIcmpType(value)
+                if (!result.success) return result.message
+              }}
+            />
+
+            {selectedIcmpType !== undefined && selectedIcmpType !== '' && (
+              <TextField
+                label={`${PROTOCOL_LABELS[selectedProtocolType]} code`}
+                name="icmpCode"
+                control={protocolForm.control}
+                description={
+                  <>
+                    Enter a code (0) or range (e.g., 1&ndash;3). Leave blank for all traffic
+                    of type {selectedIcmpType}.
+                  </>
+                }
+                placeholder=""
+                validate={icmpCodeValidation}
+                transform={normalizeDashes}
+              />
+            )}
+          </>
+        )}
+      </Subform>
 
       {protocols.value.length > 0 && (
         <MiniTable
@@ -677,7 +661,12 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         }
       />
 
-      <div className="flex flex-col gap-3">
+      <Subform
+        onSubmit={submitPortRange}
+        onClear={() => portRangeForm.reset()}
+        addButtonLabel="Add port filter"
+        disabled={!portValue}
+      >
         {/* We have to blow this up instead of using TextField to get better
             text styling on the label */}
         <div className="mt-2">
@@ -692,25 +681,13 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
             name="portRange"
             required
             control={portRangeForm.control}
-            onKeyDown={(e) => {
-              if (e.key === KEYS.enter) {
-                e.preventDefault() // prevent full form submission
-                submitPortRange(e)
-              }
-            }}
             validate={(value) => {
               if (!parsePortRange(value)) return 'Not a valid port range'
               if (ports.value.includes(value.trim())) return 'Port range already added'
             }}
           />
         </div>
-        <ClearAndAddButtons
-          addButtonCopy="Add port filter"
-          disabled={!portValue}
-          onClear={() => portRangeForm.reset()}
-          onSubmit={submitPortRange}
-        />
-      </div>
+      </Subform>
       {ports.value.length > 0 && (
         <MiniTable
           className="mb-4"

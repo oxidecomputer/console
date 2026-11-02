@@ -1378,3 +1378,13 @@ test('can create instance with read-only boot disk', async ({ page }) => {
   const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
   await expect(bootDiskTable.getByText('read only')).toBeVisible()
 })
+
+test('Enter in the boot disk image picker creates the instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('enter-instance')
+  await selectAProjectImage(page, 'image-3')
+
+  // the picker closes on selection, so Enter submits the whole form
+  await page.getByPlaceholder('Select a project image', { exact: true }).press('Enter')
+  await expect(page).toHaveURL('/projects/mock-project/instances/enter-instance/storage')
+})

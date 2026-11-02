@@ -15,7 +15,7 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from 'react'
+import { useEffect, useId, useState, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -73,8 +73,6 @@ export type ComboboxBaseProps = {
    * For example, if a form value should be set when the user types, use `onInputChange`.
    */
   onInputChange?: (value: string) => void
-  /** Fires whenever the Enter key is pressed while Combobox input has focus */
-  onEnter?: (event: React.KeyboardEvent<HTMLInputElement>) => void
   /**
    * Optional function to transform the value entered into the input as the user types.
    */
@@ -101,7 +99,6 @@ export const Combobox = ({
   disabled,
   isLoading,
   onChange,
-  onEnter,
   onInputChange,
   allowArbitraryValues = false,
   renderArbitraryLabel,
@@ -180,17 +177,6 @@ export const Combobox = ({
 
   const zIndex = usePopoverZIndex()
   const id = useId()
-  // Tracks whether the dropdown is open so the onKeyDown handler can
-  // distinguish Enter-to-select (dropdown open, let HUI handle it) from
-  // Enter-to-submit (dropdown closed, fire onEnter). We use a ref instead
-  // of HUI's `open` render prop because our handler runs before HUI's
-  // (useRender merges user props first) and the render prop can be stale.
-  // The ref stays current because onClose sets it synchronously during
-  // HUI's own keydown handler. With the stale render prop, the handler
-  // could see the combobox as closed one keydown too late, firing onEnter
-  // instead of letting HUI select — hard to notice manually but caused
-  // consistent e2e flakes in Firefox.
-  const isOpenRef = useRef(false)
   return (
     <HCombobox
       // items are re-created each render, so compare by value field
@@ -202,7 +188,6 @@ export const Combobox = ({
         onChange(item?.value ?? '')
       }}
       onClose={() => {
-        isOpenRef.current = false
         // A window or tab switch also closes the combobox. Keep the active query
         // in that case so it is still visible when the user returns.
         if (!document.hasFocus()) return
@@ -213,143 +198,126 @@ export const Combobox = ({
       immediate
       virtual={{ options: virtualOptions, disabled: isNoMatch }}
     >
-      {({ open }) => {
-        // Sync open state to ref on render (handles the opening side)
-        if (open) isOpenRef.current = true
-        return (
-          <div>
-            {label && (
-              // TODO: FieldLabel needs a real ID
-              <div className="mb-2">
-                <FieldLabel
-                  id={`${id}-label`}
-                  htmlFor={`${id}-input`}
-                  optional={!required && !hideOptionalTag}
-                >
-                  {label}
-                </FieldLabel>
-                {description && (
-                  <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
-                )}
-              </div>
-            )}
-            <div
-              className={cn(
-                `bg-default flex rounded-md border focus-within:ring-2`,
-                hasError
-                  ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
-                  : 'border-default focus-within:ring-accent-secondary hover:border-raise',
-                disabled
-                  ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
-                  : 'bg-default',
-                disabled && hasError && 'border-error-secondary!'
-              )}
-              // Putting the inputRef on the div makes it so the div can be focused by RHF when there's an error.
-              // We want to focus on the div (rather than the input) so the combobox doesn't open automatically
-              // and obscure the error message.
-              ref={inputRef}
-              // tabIndex=-1 is necessary to make the div focusable
-              tabIndex={-1}
+      <div>
+        {label && (
+          // TODO: FieldLabel needs a real ID
+          <div className="mb-2">
+            <FieldLabel
+              id={`${id}-label`}
+              htmlFor={`${id}-input`}
+              optional={!required && !hideOptionalTag}
             >
-              <ComboboxInput
-                id={`${id}-input`}
-                // While the user is editing, show the query so they can see what they
-                // typed. Otherwise, show the selected item's display value (or the query
-                // if nothing is selected yet). On blur the dropdown closes, isEditing
-                // flips to false, and the input reverts to the selection — preserving it.
-                // We use `value` instead of HUI's `displayValue` so the input value can
-                // be normalized via the onChange event.
-                value={
-                  isEditing
-                    ? query
-                    : selectedItemValue
-                      ? allowArbitraryValues
-                        ? selectedItemValue
-                        : (selectedItem?.selectedLabel ?? '')
-                      : query
-                }
-                onChange={(event) => {
-                  const value = transform
-                    ? transform(event.target.value)
-                    : event.target.value
-                  setIsEditing(true)
-                  setQuery(value)
-                  onInputChange?.(value)
-                }}
-                onKeyDown={(e) => {
-                  // When the dropdown is open, Enter should select the
-                  // highlighted option (HUI handles this). When closed,
-                  // Enter should submit the subform via onEnter.
-                  if (e.key === 'Enter' && !isOpenRef.current) {
-                    e.preventDefault()
-                    onEnter?.(e)
-                  }
-                }}
-                placeholder={placeholder}
-                disabled={disabled || isLoading}
-                className={cn(
-                  `text-sans-md text-raise placeholder:text-tertiary h-10 w-full rounded-md border-none! px-3 py-2 outline-hidden!`,
-                  disabled
-                    ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
-                    : 'bg-default',
-                  hasError && 'focus-error'
-                )}
-              />
-              {items.length > 0 && (
-                <ComboboxButton
-                  className={cn(
-                    'relative flex items-center px-3 before:absolute before:inset-y-1.5 before:left-0 before:w-px before:content-[""] before:bg-(--stroke-secondary)',
-                    disabled ? 'bg-disabled cursor-not-allowed' : 'bg-default'
-                  )}
-                  aria-hidden
-                >
-                  <SelectArrows6Icon title="Select" className="text-secondary w-2" />
-                </ComboboxButton>
-              )}
-            </div>
-            {(items.length > 0 || allowArbitraryValues) && virtualOptions.length > 0 && (
-              <ComboboxOptions
-                anchor="bottom start"
-                // 13px gap is presumably because it's measured from inside the outline or something
-                className={`ox-menu shadow-menu-inset pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border [--anchor-gap:13px]`}
-                style={{ minHeight }}
-                modal={false}
-              >
-                {({ option }: { option: ComboboxItem }) => {
-                  const noMatch = option === NO_MATCH_ITEM
-                  return (
-                    <ComboboxOption
-                      value={option}
-                      disabled={noMatch}
-                      className="border-secondary relative w-full border-b last:border-0"
-                    >
-                      {({ focus, selected }) => (
-                        // This *could* be done with data-[focus] and data-[selected] instead, but
-                        // it would be a lot more verbose. those can only be used with TW classes,
-                        // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
-                        // of those rules one by one. Better to rely on the shared classes.
-                        <div
-                          className={cn('ox-menu-item', {
-                            // suppress when the user is actively typing the selected
-                            // value (e.g. the synthesized "Custom: <query>" row in
-                            // arbitrary-values mode) so the row doesn't read as
-                            // committed mid-keystroke
-                            'is-selected': selected && query !== option.value && !noMatch,
-                            'is-highlighted': focus && !noMatch,
-                            'text-disabled!': noMatch,
-                          })}
-                        >
-                          {option.label}
-                        </div>
-                      )}
-                    </ComboboxOption>
-                  )
-                }}
-              </ComboboxOptions>
+              {label}
+            </FieldLabel>
+            {description && (
+              <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
             )}
           </div>
-        )
-      }}
+        )}
+        <div
+          className={cn(
+            `bg-default flex rounded-md border focus-within:ring-2`,
+            hasError
+              ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
+              : 'border-default focus-within:ring-accent-secondary hover:border-raise',
+            disabled
+              ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
+              : 'bg-default',
+            disabled && hasError && 'border-error-secondary!'
+          )}
+          // Putting the inputRef on the div makes it so the div can be focused by RHF when there's an error.
+          // We want to focus on the div (rather than the input) so the combobox doesn't open automatically
+          // and obscure the error message.
+          ref={inputRef}
+          // tabIndex=-1 is necessary to make the div focusable
+          tabIndex={-1}
+        >
+          <ComboboxInput
+            id={`${id}-input`}
+            // While the user is editing, show the query so they can see what they
+            // typed. Otherwise, show the selected item's display value (or the query
+            // if nothing is selected yet). On blur the dropdown closes, isEditing
+            // flips to false, and the input reverts to the selection — preserving it.
+            // We use `value` instead of HUI's `displayValue` so the input value can
+            // be normalized via the onChange event.
+            value={
+              isEditing
+                ? query
+                : selectedItemValue
+                  ? allowArbitraryValues
+                    ? selectedItemValue
+                    : (selectedItem?.selectedLabel ?? '')
+                  : query
+            }
+            onChange={(event) => {
+              const value = transform ? transform(event.target.value) : event.target.value
+              setIsEditing(true)
+              setQuery(value)
+              onInputChange?.(value)
+            }}
+            placeholder={placeholder}
+            disabled={disabled || isLoading}
+            className={cn(
+              `text-sans-md text-raise placeholder:text-tertiary h-10 w-full rounded-md border-none! px-3 py-2 outline-hidden!`,
+              disabled
+                ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
+                : 'bg-default',
+              hasError && 'focus-error'
+            )}
+          />
+          {items.length > 0 && (
+            <ComboboxButton
+              className={cn(
+                'relative flex items-center px-3 before:absolute before:inset-y-1.5 before:left-0 before:w-px before:content-[""] before:bg-(--stroke-secondary)',
+                disabled ? 'bg-disabled cursor-not-allowed' : 'bg-default'
+              )}
+              aria-hidden
+            >
+              <SelectArrows6Icon title="Select" className="text-secondary w-2" />
+            </ComboboxButton>
+          )}
+        </div>
+        {(items.length > 0 || allowArbitraryValues) && virtualOptions.length > 0 && (
+          <ComboboxOptions
+            anchor="bottom start"
+            // 13px gap is presumably because it's measured from inside the outline or something
+            className={`ox-menu shadow-menu-inset pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border [--anchor-gap:13px]`}
+            style={{ minHeight }}
+            modal={false}
+          >
+            {({ option }: { option: ComboboxItem }) => {
+              const noMatch = option === NO_MATCH_ITEM
+              return (
+                <ComboboxOption
+                  value={option}
+                  disabled={noMatch}
+                  className="border-secondary relative w-full border-b last:border-0"
+                >
+                  {({ focus, selected }) => (
+                    // This *could* be done with data-[focus] and data-[selected] instead, but
+                    // it would be a lot more verbose. those can only be used with TW classes,
+                    // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
+                    // of those rules one by one. Better to rely on the shared classes.
+                    <div
+                      className={cn('ox-menu-item', {
+                        // suppress when the user is actively typing the selected
+                        // value (e.g. the synthesized "Custom: <query>" row in
+                        // arbitrary-values mode) so the row doesn't read as
+                        // committed mid-keystroke
+                        'is-selected': selected && query !== option.value && !noMatch,
+                        'is-highlighted': focus && !noMatch,
+                        'text-disabled!': noMatch,
+                      })}
+                    >
+                      {option.label}
+                    </div>
+                  )}
+                </ComboboxOption>
+              )
+            }}
+          </ComboboxOptions>
+        )}
+      </div>
     </HCombobox>
   )
 }

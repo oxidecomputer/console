@@ -18,7 +18,8 @@
 
 .ox-form,
 .ox-form .ox-tabs-panel,
-.ox-form .ox-accordion-content {
+.ox-form .ox-accordion-content,
+.ox-form .ox-subform {
   @apply space-y-6;
 }
 
