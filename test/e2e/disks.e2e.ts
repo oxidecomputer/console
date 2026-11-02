@@ -184,7 +184,7 @@ test('Cancel import from import_ready', async ({ page }) => {
   await expectToast(page, `Import canceled for ${diskImportReadyName}`)
   await expectRowVisible(table, { name: diskImportReadyName, state: 'detached' })
   await clickRowActions(page, diskImportReadyName)
-  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeVisible()
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeEnabled()
 })
 
 test('Cancel import from importing_from_bulk_writes', async ({ page }) => {
@@ -207,7 +207,7 @@ test('Cancel import from importing_from_bulk_writes', async ({ page }) => {
   await expectToast(page, `Import canceled for ${diskImportingName}`)
   await expectRowVisible(table, { name: diskImportingName, state: 'detached' })
   await clickRowActions(page, diskImportingName)
-  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeVisible()
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeEnabled()
 })
 
 test('Cancel import from importing_from_bulk_writes shows error and refreshes state when finalize fails', async ({

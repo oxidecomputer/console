@@ -10,7 +10,6 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet } from 'react-router'
-import { match } from 'ts-pattern'
 
 import {
   api,
@@ -130,6 +129,45 @@ export default function DisksPage() {
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
+      ...(diskCan.finalizeImport(disk) || diskCan.stopImport(disk)
+        ? [
+            {
+              label: 'Cancel import',
+              onActivate() {
+                confirmAction({
+                  doAction: async () => {
+                    if (diskCan.stopImport(disk)) {
+                      await stopBulkWriteImport({
+                        path: { disk: disk.name },
+                        query: { project },
+                      })
+                    }
+
+                    await finalize({
+                      path: { disk: disk.name },
+                      query: { project },
+                      body: {},
+                    })
+
+                    addToast(
+                      <>
+                        Import canceled for <HL>{disk.name}</HL>
+                      </>
+                    )
+                  },
+                  modalTitle: 'Cancel import',
+                  modalContent: (
+                    <p>
+                      Are you sure you want to cancel import for <HL>{disk.name}</HL>?
+                    </p>
+                  ),
+                  errorTitle: 'Failed to cancel import',
+                  actionType: 'danger',
+                })
+              },
+            },
+          ]
+        : []),
       {
         label: 'Snapshot',
         onActivate() {
@@ -146,46 +184,6 @@ export default function DisksPage() {
         },
         disabled: snapshotDisabledReason(disk),
       },
-      ...match(disk.state.state)
-        .returnType<MenuAction[]>()
-        .with('import_ready', 'importing_from_bulk_writes', () => [
-          {
-            label: 'Cancel import',
-            onActivate() {
-              confirmAction({
-                doAction: async () => {
-                  if (disk.state.state === 'importing_from_bulk_writes') {
-                    await stopBulkWriteImport({
-                      path: { disk: disk.name },
-                      query: { project },
-                    })
-                  }
-
-                  await finalize({
-                    path: { disk: disk.name },
-                    query: { project },
-                    body: {},
-                  })
-
-                  addToast(
-                    <>
-                      Import canceled for <HL>{disk.name}</HL>
-                    </>
-                  )
-                },
-                modalTitle: 'Cancel import',
-                modalContent: (
-                  <p>
-                    Are you sure you want to cancel import for <HL>{disk.name}</HL>?
-                  </p>
-                ),
-                errorTitle: 'Failed to cancel import',
-                actionType: 'danger',
-              })
-            },
-          },
-        ])
-        .otherwise(() => []),
       {
         label: 'Delete',
         onActivate: confirmDelete({
