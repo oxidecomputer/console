@@ -763,7 +763,7 @@ function ChartEntry({
     .exhaustive()
 }
 
-type Setting<T> = { value: T; onChange: (value: T) => void } | 'irrelevant'
+type Setting<T> = { value: T; onChange: (value: T) => void } | undefined
 
 type ChartSettingsProps = {
   dropFirstPoint: Setting<boolean>
@@ -803,7 +803,7 @@ function ChartSettings({ dropFirstPoint, colorScale }: ChartSettingsProps) {
         <h2 className="text-sans-semi-md text-raise px-4">Chart settings</h2>
         <Divider className="mt-2" />
         <div className="mt-4 flex flex-col gap-4 px-4">
-          {dropFirstPoint !== 'irrelevant' && (
+          {dropFirstPoint && (
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={dropFirstPoint.value}
@@ -818,7 +818,7 @@ function ChartSettings({ dropFirstPoint, colorScale }: ChartSettingsProps) {
               </TipIcon>
             </div>
           )}
-          {colorScale !== 'irrelevant' && (
+          {colorScale && (
             <fieldset>
               <legend className="text-sans-md text-default mb-2">
                 Heatmap color scale
@@ -1126,12 +1126,10 @@ export default function MetricsExplorer() {
                   dropFirstPoint={
                     hasTrimmableCharts
                       ? { value: dropFirstPoint, onChange: setDropFirstPoint }
-                      : 'irrelevant'
+                      : undefined
                   }
                   colorScale={
-                    hasHeatmaps
-                      ? { value: colorScale, onChange: setColorScale }
-                      : 'irrelevant'
+                    hasHeatmaps ? { value: colorScale, onChange: setColorScale } : undefined
                   }
                 />
               </div>
