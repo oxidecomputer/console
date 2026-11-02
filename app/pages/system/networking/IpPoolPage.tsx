@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useId, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Outlet, useNavigate } from 'react-router'
 
@@ -484,6 +484,7 @@ const toSiloComboboxItem = ({ name, description }: Silo): ComboboxItem => ({
 })
 
 function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
+  const formId = useId()
   const { pool } = useIpPoolSelector()
   const { data: poolData } = usePrefetchedQuery(ipPoolView({ pool }))
   const { control, handleSubmit } = useForm({ defaultValues })
@@ -545,6 +546,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
       <Modal.Body>
         <Modal.Section>
           <form
+            id={formId}
             autoComplete="off"
             onSubmit={(e) => {
               e.stopPropagation()
@@ -580,7 +582,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
       </Modal.Body>
       <Modal.Footer
         onDismiss={onDismiss}
-        onAction={handleSubmit(onSubmit)}
+        formId={formId}
         actionLoading={isPending}
         actionText="Link"
       />
