@@ -172,7 +172,11 @@ export default function DisksPage() {
                   )
                 },
                 modalTitle: 'Cancel import',
-                modalContent: `Are you sure you want to cancel import for ${disk.name}?`,
+                modalContent: (
+                  <p>
+                    Are you sure you want to cancel import for <HL>{disk.name}</HL>?
+                  </p>
+                ),
                 errorTitle: 'Failed to cancel import',
                 actionType: 'danger',
               })
