@@ -5,7 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { FLEET_ID, type IdentityType, type RoleKey } from '@oxide/api'
+import {
+  FLEET_ID,
+  USER_TEST_PRIVILEGED_ID,
+  type IdentityType,
+  type RoleKey,
+} from '@oxide/api'
 
 import { project, projectAdorno, projectAnscombe, projectKosman } from './project'
 import { defaultSilo, myriadSilo, noPoolsSilo, pelerinesSilo, thraxSilo } from './silo'
@@ -72,6 +77,13 @@ export const roleAssignments: DbRoleAssignment[] = [
     identity_id: crossSiloGroupId,
     identity_type: 'silo_group',
     role_name: 'viewer',
+  },
+  {
+    resource_type: 'fleet',
+    resource_id: FLEET_ID,
+    identity_id: USER_TEST_PRIVILEGED_ID,
+    identity_type: 'silo_user',
+    role_name: 'admin',
   },
   {
     resource_type: 'silo',
