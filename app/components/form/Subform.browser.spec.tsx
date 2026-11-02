@@ -26,16 +26,16 @@ afterEach(() => {
 
 const items = toComboboxItems([{ name: 'disk-3' }, { name: 'disk-4' }])
 
-// Filling alone doesn't reliably leave the first option highlighted (Firefox
-// CI pressed Enter with nothing active), so open the list and Home to it
-// explicitly, like Combobox.browser.spec.tsx does
+// Type with real key presses rather than `fill`. In Firefox, Playwright's fill
+// inserts the text as an IME composition, and Headless UI ignores Enter until
+// two animation frames after compositionend (so the Enter that commits an IME
+// composition doesn't also select an option). The following Enter often comes
+// sooner than that, falls through, and submits the form.
 async function highlightFirstOption(screen: RenderResult, label: string) {
   const combobox = screen.getByRole('combobox', { name: label })
-  await combobox.fill('disk')
-  await commands.pressComboboxKey(label, 'ArrowDown')
+  await userEvent.type(combobox, 'disk')
   const option = screen.getByRole('option', { name: 'disk-3' })
   await expect.element(option).toBeVisible()
-  await commands.pressComboboxKey(label, 'Home')
   await expect
     .element(combobox)
     .toHaveAttribute('aria-activedescendant', option.element().id)

@@ -179,7 +179,9 @@ test('Enter commits the highlighted option instead of the arbitrary query', asyn
   )
   const combobox = screen.getByRole('combobox', { name: 'Disk name' })
 
-  await combobox.fill('mock')
+  // Type rather than fill: in Firefox, fill is an IME composition, and Headless
+  // UI ignores Enter for two frames after one ends
+  await userEvent.type(combobox, 'mock')
   await commands.pressComboboxKey('Disk name', 'ArrowDown')
   const listedOption = screen.getByRole('option', { name: 'mock-vpc' })
   await expect.element(listedOption).toBeVisible()
