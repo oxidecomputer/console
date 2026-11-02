@@ -88,6 +88,11 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 
 const colHelper = createColumnHelper<Disk>()
 
+const invalidateDiskListAndView = () => {
+  queryClient.invalidateEndpoint('diskList')
+  queryClient.invalidateEndpoint('diskView')
+}
+
 export default function DisksPage() {
   const { project } = useProjectSelector()
 
@@ -116,15 +121,16 @@ export default function DisksPage() {
     },
   })
 
+  // the states that allow these actions are both temporary, so a failure is
+  // most likely to be due to a state change from afar. for that reason it's
+  // worth invalidating on failures as well as successes
   const { mutateAsync: finalize } = useApiMutation(api.diskFinalizeImport, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('diskList')
-    },
+    onSuccess: invalidateDiskListAndView,
+    onError: invalidateDiskListAndView,
   })
   const { mutateAsync: stopBulkWriteImport } = useApiMutation(api.diskBulkWriteImportStop, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('diskList')
-    },
+    onSuccess: invalidateDiskListAndView,
+    onError: invalidateDiskListAndView,
   })
 
   const makeActions = useCallback(
