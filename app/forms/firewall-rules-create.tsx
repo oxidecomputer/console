@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 
 import {
   api,
@@ -21,11 +22,12 @@ import {
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
+import { useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
+import type { Route } from './+types/firewall-rules-create'
 import { CommonFields } from './firewall-rules-common'
 import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
@@ -59,8 +61,8 @@ const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({
   hosts: rule.filters.hosts || [],
 })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, vpc } = getVpcSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc } = params
   await Promise.all([
     queryClient.prefetchQuery(q(api.vpcFirewallRulesView, { query: { project, vpc } })),
     queryClient.prefetchQuery(q(api.instanceList, { query: { project, limit: ALL_ISH } })),

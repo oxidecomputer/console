@@ -104,6 +104,17 @@ export function displayBigNum(
 }
 
 /**
+ * Short y-axis tick labels like 1.25K. Compact notation rounds to 2
+ * significant digits by default, which turns ticks like 1.25K into 1.3K.
+ */
+export function formatTick(num: number, locale?: string) {
+  return Intl.NumberFormat(locale, {
+    notation: 'compact',
+    maximumSignificantDigits: 3,
+  }).format(num)
+}
+
+/**
  * Calculate disk size based on image or snapshot size. We round up to the
  * nearest 10, but also cap it at the max disk size so that, for example, a 1023
  * GiB image doesn't produce a 1030 GiB disk, which is not valid.

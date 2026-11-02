@@ -13,19 +13,23 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Children, useMemo, useState, type ReactNode } from 'react'
-import type { LoaderFunctionArgs } from 'react-router'
 
-import { api, OXQL_GROUP_BY_ERROR, q, queryClient } from '@oxide/api'
+import { api, OXQL_GROUP_BY_ERROR, q } from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { getInstanceSelector, useProjectSelector } from '~/hooks/use-params'
+import { useProjectSelector } from '~/hooks/use-params'
 import { LearnMore } from '~/ui/lib/CardBlock'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { classed } from '~/util/classed'
 import { docLinks, links } from '~/util/links'
 
-import { ChartContainer, ChartHeader, TimeSeriesChart } from '../TimeSeriesChart'
+import {
+  ChartContainer,
+  ChartHeader,
+  TimeSeriesChart,
+  toChartSeries,
+} from '../TimeSeriesChart'
 import { HighlightedOxqlQuery, toOxqlStr } from './HighlightedOxqlQuery'
 import {
   composeOxqlData,
@@ -34,14 +38,6 @@ import {
   getUtilizationChartProps,
   type OxqlQuery,
 } from './util'
-
-export async function loader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
-  await queryClient.prefetchQuery(
-    q(api.instanceView, { path: { instance }, query: { project } })
-  )
-  return null
-}
 
 export type OxqlMetricProps = OxqlQuery & {
   title: string
@@ -78,10 +74,14 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
     [metrics, errorMeansEmpty]
   )
 
-  const { data, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
-    if (unit === 'Bytes') return getBytesChartProps(chartData)
-    if (unit === 'Count') return getCountChartProps(chartData)
-    return getUtilizationChartProps(chartData, timeseriesCount)
+  const { values, timestamps, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
+    const { data, ...props } =
+      unit === 'Bytes'
+        ? getBytesChartProps(chartData)
+        : unit === 'Count'
+          ? getCountChartProps(chartData)
+          : getUtilizationChartProps(chartData, timeseriesCount)
+    return { ...props, ...toChartSeries(data) }
   }, [unit, chartData, timeseriesCount])
 
   const [modalOpen, setModalOpen] = useState(false)
@@ -111,7 +111,8 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
         startTime={startTime}
         endTime={endTime}
         unit={unitForSet}
-        data={data}
+        data={values}
+        timestamps={timestamps}
         yAxisTickFormatter={yAxisTickFormatter}
         hasError={hasError}
         // isLoading only covers first load --- future-proof against the reintroduction of interval refresh

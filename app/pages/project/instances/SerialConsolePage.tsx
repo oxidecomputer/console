@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import cn from 'classnames'
 import { useEffect, useRef, useState } from 'react'
-import { Link, type LoaderFunctionArgs } from 'react-router'
+import { Link } from 'react-router'
 
 import {
   api,
@@ -24,10 +25,12 @@ import { Badge, type BadgeColor } from '@oxide/design-system/ui'
 import { EquivalentCliCommand } from '~/components/CopyCode'
 import { InstanceStateBadge } from '~/components/StateBadge'
 import { Terminal } from '~/components/Terminal'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { useInstanceSelector } from '~/hooks/use-params'
 import { Spinner } from '~/ui/lib/Spinner'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+import type { Route } from './+types/SerialConsolePage'
 
 type WsState = 'connecting' | 'open' | 'closed' | 'error'
 
@@ -45,8 +48,8 @@ const statusMessage: Record<WsState, string> = {
   error: 'error',
 }
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, instance } = params
   await queryClient.prefetchQuery(
     q(api.instanceView, { path: { instance }, query: { project } })
   )

@@ -76,7 +76,8 @@ function LoadingBar() {
 
   // only used for checking the loading state from inside the timeout callback
   const loadingRef = useRef(false)
-  loadingRef.current = navigation.state === 'loading'
+  loadingRef.current =
+    navigation.state === 'loading' && navigation.location.state?.skipLoadingBar !== true
 
   useEffect(() => {
     const loading = navigation.state === 'loading'

@@ -34,15 +34,27 @@ import {
 } from '@oxide/api'
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
-import type { OxqlNetworkMetricName, OxqlVcpuState } from '~/components/oxql-metrics/util'
+import type { OxqlMetricName, OxqlVcpuState } from '~/components/oxql-metrics/util'
 import { parseIp } from '~/util/ip'
 import { Rando } from '~/util/rando'
 import { GiB, TiB } from '~/util/units'
 
 import type { DbRoleAssignmentResourceType } from '..'
-import { SENTINEL_FLAT_INSTANCE_ID, SENTINEL_SLOPE_INSTANCE_ID } from '../instance'
+import {
+  instances,
+  SENTINEL_FLAT_INSTANCE_ID,
+  SENTINEL_SLOPE_INSTANCE_ID,
+} from '../instance'
 import { genI64Data } from '../metrics'
-import { getMockOxqlInstanceData } from '../oxql-metrics'
+import {
+  pointsFrom,
+  fixedTimestamps,
+  getJitteredTimestamps,
+  timeseriesFrom,
+  resultFrom,
+  getMockValues,
+  getHistoPoints,
+} from '../oxql-metrics'
 import { db, lookupById } from './db'
 
 interface PaginateOptions {
@@ -573,8 +585,35 @@ export function updateDesc(
   }
 }
 
-// The metric name is the second word in the query string
-const getMetricNameFromQuery = (query: string) => query.split(' ')[1]
+type Alignment = 'unaligned' | 'aligned' | 'joined'
+type OxqlVibe = {
+  firstTable: OxqlMetricName
+  moreTables: OxqlMetricName[]
+  alignment: Alignment
+}
+
+// This is a very approximate image of the incoming query. Just enough to
+// determine whether the caller is looking for something more complex than a
+// single table, but not actually matching the exact expected shape.
+const getVibe = (query: string): OxqlVibe => {
+  const [firstTable, ...moreTables] = [...query.matchAll(/get ([a-z_]+:[a-z_]+)/g)].map(
+    (m) => m[1] as OxqlMetricName
+  )
+  // a query with no `get` can't parse, and the caret goes at the very start
+  if (!firstTable) throw fmtOxqlParseError(query, 0, 'one of "get", "{"')
+
+  const alignment = query.match(/\bjoin\b/)
+    ? 'joined'
+    : query.match(/\balign\b/)
+      ? 'aligned'
+      : 'unaligned'
+
+  return {
+    firstTable,
+    moreTables,
+    alignment,
+  }
+}
 
 // The state value is the string in quotes after 'state == ' in the query string
 // It might not be present in the string
@@ -596,23 +635,126 @@ const invertUtilization = (percent: number): number => (percent * 5 * 1e9) / 100
 const SENTINEL_CONSTANT_RAW_VALUE = invertUtilization(12345) // 12,345%
 const sentinelSlopeRawValue = (i: number) => invertUtilization((i + 1) * 1000) // (i + 1) * 1000%
 
-export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryResult> {
-  const metricName = getMetricNameFromQuery(query) as OxqlNetworkMetricName
-  const stateValue = getCpuStateFromQuery(query)
-  const data = getMockOxqlInstanceData(metricName, stateValue)
+const timestampsFor = (alignment: Alignment, seed: number): string[] =>
+  match(alignment)
+    // Unaligned tables may _incidentally_ have aligned timestamps, but it's highly unlikely.
+    .with('unaligned', () => getJitteredTimestamps(seed))
+    .with('aligned', 'joined', () => fixedTimestamps)
+    .exhaustive()
 
-  // Sentinel instances: replace the series with synthetic data — flat (constant)
-  // or a slope that increases with time — so tests can assert on plotted values.
-  const instanceId = getInstanceIdFromQuery(query)
-  const points = data.tables[0].timeseries[0].points
-  const series = points.values[0].values.values
-  if (instanceId === SENTINEL_FLAT_INSTANCE_ID) {
-    points.values[0].values.values = series.map(() => SENTINEL_CONSTANT_RAW_VALUE)
-  } else if (instanceId === SENTINEL_SLOPE_INSTANCE_ID) {
-    points.values[0].values.values = series.map((_, i) => sentinelSlopeRawValue(i))
+function getMultipleTables(vibe: OxqlVibe) {
+  const tables = [vibe.firstTable, ...vibe.moreTables]
+
+  return match(vibe.alignment)
+    .with('joined', () =>
+      resultFrom([
+        {
+          name: tables.join(','),
+          timeseries: R.times(3, (n) =>
+            timeseriesFrom(
+              instances[n].id,
+              // joined tables have each metric's values "joined" into the values array
+              pointsFrom(
+                timestampsFor(vibe.alignment, n),
+                tables.map((t, index) => getMockValues(t, index + tables.length * n))
+              )
+            )
+          ),
+        },
+      ])
+    )
+    .with('aligned', 'unaligned', () =>
+      resultFrom(
+        tables.map((name) => ({
+          name,
+          timeseries: R.times(2, (n) =>
+            timeseriesFrom(
+              instances[n].id,
+              pointsFrom(timestampsFor(vibe.alignment, n), [getMockValues(name, n)])
+            )
+          ),
+        }))
+      )
+    )
+    .exhaustive()
+}
+
+/**
+ * Faithful port of omicron's `fmt_parse_error` so the mock's OxQL parse errors
+ * look exactly like real ones: an `Error at <line>:<column>` header with a
+ * context excerpt, a caret line pointing at the failure, and an `Expected:`
+ * line (whose peg Display repeats the position). Thrown as a string so the
+ * handler wrapper turns it into a 400 like Nexus's `invalid_request`.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/oximeter/db/src/oxql/mod.rs
+ */
+export function fmtOxqlParseError(source: string, offset: number, expected: string) {
+  const before = source.slice(0, offset)
+  const line = before.split('\n').length
+  const column = offset - before.lastIndexOf('\n')
+  let out = `Error at ${line}:${column}`
+  const context = 24
+  const start = Math.max(0, offset - context)
+  const end = Math.min(source.length, offset + context)
+  const prefixLen = out.length + 2
+  out += `: .. ${source.slice(start, end)} ..\n`
+  const leftPad = offset - start + 3 + prefixLen
+  const rightPad = end - offset + 3 + prefixLen
+  out += `${' '.repeat(leftPad)}^${' '.repeat(rightPad)}\n`
+  out += `Expected: error at ${line}:${column}: expected ${expected}\n`
+  return out
+}
+
+const histogramTables = new Set([
+  'virtual_disk:io_latency',
+  'virtual_disk:io_size',
+  'http_service:request_latency_histogram',
+  'oximeter_collector:database_queue_depth',
+])
+
+export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryResult> {
+  // Sentinel for exercising the console's parse error handling: `oops`
+  // anywhere in a query fails with a realistic parse error pointing at it
+  const oops = query.indexOf('oops')
+  if (oops !== -1) {
+    throw fmtOxqlParseError(
+      query,
+      oops,
+      'one of "align", "filter", "first", "get", "group_by", "join", "last"'
+    )
   }
 
-  return data
+  const vibe = getVibe(query)
+
+  if (histogramTables.has(vibe.firstTable))
+    return resultFrom([
+      {
+        name: vibe.firstTable,
+        timeseries: [timeseriesFrom(instances[0].id, getHistoPoints())],
+      },
+    ])
+
+  if (vibe.moreTables.length > 0) return getMultipleTables(vibe)
+
+  const stateValue = getCpuStateFromQuery(query)
+  const instanceId = getInstanceIdFromQuery(query)
+
+  const timestamps = timestampsFor(vibe.alignment, 0)
+
+  const values = match(instanceId)
+    .with(SENTINEL_FLAT_INSTANCE_ID, () =>
+      timestamps.map(() => SENTINEL_CONSTANT_RAW_VALUE)
+    )
+    .with(SENTINEL_SLOPE_INSTANCE_ID, () =>
+      timestamps.map((_, i) => sentinelSlopeRawValue(i))
+    )
+    .otherwise(() => getMockValues(vibe.firstTable, 0, stateValue))
+
+  return resultFrom([
+    {
+      name: vibe.firstTable,
+      timeseries: [timeseriesFrom(instances[0].id, pointsFrom(timestamps, [values]))],
+    },
+  ])
 }
 
 export function randomHex(length: number) {

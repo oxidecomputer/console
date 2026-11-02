@@ -35,11 +35,11 @@ Note that this includes a `npm install` to make sure dependencies are up to date
 
 ### Set `console.static_dir` and copy files there (if necessary)
 
-The build output lands in the `dist` directory. Now all you need to do is make `console.static_dir` in the Nexus config point to a directory containing these files.
+The build output lands in the `build/client` directory. Now all you need to do is make `console.static_dir` in the Nexus config point to a directory containing these files.
 
-If you're using the example Nexus config, `static_dir` is set there to `out/console-assets` (treated as relative to CWD), so that's a reasonable default location for the files. Another option is to point Nexus directly at `dist` so you don't even have to copy them. Nexus accepts both absolute and relative paths.
+If you're using the example Nexus config, `static_dir` is set there to `out/console-assets` (treated as relative to CWD), so that's a reasonable default location for the files. Another option is to point Nexus directly at `build/client` so you don't even have to copy them. Nexus accepts both absolute and relative paths.
 
-Whatever the directory is, the files need to be at top level, just like they are in `dist`:
+Whatever the directory is, the files need to be at top level, just like they are in `build/client`:
 
 ```
 <static_dir>
@@ -66,7 +66,7 @@ static_dir = "out/console-assets"
 I would run `npm run build` in `console` and then use the following command to copy the files over:
 
 ```bash
-cp -R dist/ ../omicron/out/console-assets
+cp -R build/client/ ../omicron/out/console-assets
 ```
 
-The `/` after `dist` is there on purpose — if the target directory already exists, if I leave off the `/` it will copy `dist` into the target with its contents inside rather than the copying only the contents.
+The `/` after `build/client` is there on purpose — if the target directory already exists, if I leave off the `/` it will copy `client` into the target with its contents inside rather than the copying only the contents.

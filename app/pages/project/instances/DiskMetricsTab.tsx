@@ -7,7 +7,6 @@
  */
 
 import { useMemo, useState } from 'react'
-import { type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
@@ -26,15 +25,16 @@ import {
   OxqlMetric,
 } from '~/components/oxql-metrics/OxqlMetric'
 import type { OxqlQuery } from '~/components/oxql-metrics/util'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { useInstanceSelector } from '~/hooks/use-params'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
+import type { Route } from './+types/DiskMetricsTab'
 import { useMetricsContext } from './common'
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, instance } = params
   await queryClient.prefetchQuery(
     q(api.instanceDiskList, { path: { instance }, query: { project } })
   )

@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet } from 'react-router'
 
 import {
   api,
@@ -25,7 +25,7 @@ import { Badge } from '@oxide/design-system/ui'
 import { AffinityDocsPopover, AffinityPolicyHeader } from '~/components/AffinityDocsPopover'
 import { HL } from '~/components/HL'
 import { antiAffinityGroupList, antiAffinityGroupMemberList } from '~/forms/affinity-util'
-import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -40,8 +40,10 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+import type { Route } from './+types/AffinityPage'
+
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   const groups = await queryClient.fetchQuery(antiAffinityGroupList({ project }))
   // Warm the cache for each group's member count in parallel as the route loads,
   // but don't block render on them: the count cells read with useQuery and show a

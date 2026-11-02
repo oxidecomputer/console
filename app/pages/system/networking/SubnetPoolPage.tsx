@@ -8,9 +8,9 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useId, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import {
   api,
@@ -34,7 +34,7 @@ import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { getSubnetPoolSelector, useSubnetPoolSelector } from '~/hooks/use-params'
+import { useSubnetPoolSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import {
   ReplacedDefaultNote,
@@ -66,6 +66,8 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 import { capitalize } from '~/util/str'
 
+import type { Route } from './+types/SubnetPoolPage'
+
 const subnetPoolView = ({ subnetPool }: PP.SubnetPool) =>
   q(api.systemSubnetPoolView, { path: { pool: subnetPool } })
 const subnetPoolSiloList = ({ subnetPool }: PP.SubnetPool) =>
@@ -79,8 +81,9 @@ const subnetPoolUtilizationView = ({ subnetPool }: PP.SubnetPool) =>
 const siloSubnetPoolList = (silo: string) =>
   q(api.siloSubnetPoolList, { path: { silo }, query: { limit: ALL_ISH } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getSubnetPoolSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { subnetPool } = params
+  const selector = { subnetPool }
   await Promise.all([
     queryClient.prefetchQuery(subnetPoolView(selector)),
     queryClient.fetchQuery(subnetPoolSiloList(selector).optionsFn()).then((links) => {
@@ -466,6 +469,7 @@ const toSiloComboboxItem = ({ name, description }: Silo): ComboboxItem => ({
 })
 
 function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
+  const formId = useId()
   const poolSelector = useSubnetPoolSelector()
   const { subnetPool } = poolSelector
   const { data: poolData } = usePrefetchedQuery(subnetPoolView(poolSelector))
@@ -527,6 +531,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
       <Modal.Body>
         <Modal.Section>
           <form
+            id={formId}
             autoComplete="off"
             onSubmit={(e) => {
               e.stopPropagation()
@@ -562,7 +567,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
       </Modal.Body>
       <Modal.Footer
         onDismiss={onDismiss}
-        onAction={handleSubmit(onSubmit)}
+        formId={formId}
         actionLoading={isPending}
         actionText="Link"
       />

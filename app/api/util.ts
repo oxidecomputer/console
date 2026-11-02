@@ -23,7 +23,8 @@ import type {
   SiloIpPool,
   SiloUtilization,
   Sled,
-  Vpc,
+  SnapshotState,
+  SupportBundleState,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
@@ -69,10 +70,12 @@ export const isSubscribableClass = (c: { name: string }) => c.name !== PROBE_ALE
 
 /**
  * Convert an alert subscription to a regex matching the class names it covers:
- * a `*` segment matches exactly one segment, `**` matches one or more.
+ * a `*` segment matches exactly one segment, `**` matches one or more. An
+ * invalid input returns `null`.
  * https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/db-model/src/alert_subscription.rs
  */
-export function subscriptionRegex(subscription: string) {
+export function subscriptionRegex(subscription: string): RegExp | null {
+  if (!ALERT_SUBSCRIPTION_REGEX.test(subscription)) return null
   const pattern = subscription
     .split('.')
     .map((seg) => (seg === '**' ? '.+' : seg === '*' ? '[^.]+' : seg))
@@ -111,6 +114,14 @@ export const MIN_DISK_SIZE_GiB = 1
  */
 export const MAX_DISK_SIZE_GiB = 1023
 
+// the API only enforces this on update, but apply it at create time too so
+// the comment doesn't become uneditable later
+// https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/support_bundle.rs#L736-L742
+export const MAX_BUNDLE_COMMENT_BYTES = 4096
+
+/** Nexus limits by UTF-8 byte length, not JS string length */
+export const utf8ByteLength = (s: string) => new TextEncoder().encode(s).length
+
 /**
  * The `default_*` network interface attachment types resolve a VPC and VPC
  * subnet both named literally 'default', so they fail with a 404 if that VPC
@@ -119,9 +130,6 @@ export const MAX_DISK_SIZE_GiB = 1023
  * https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/src/app/sagas/instance_create.rs#L739-L773
  */
 export const DEFAULT_VPC_NAME = 'default'
-
-export const hasDefaultVpc = (vpcs: Vpc[]) =>
-  vpcs.some((vpc) => vpc.name === DEFAULT_VPC_NAME)
 
 type PortRange = [number, number]
 
@@ -250,14 +258,15 @@ export const instanceCan = R.mapValues(instanceActions, (states: InstanceState[]
   return test
 })
 
+/**
+ * States the instance is expected to leave on its own, so the UI should poll
+ * and show a spinner. Exhaustive match so new states have to be classified.
+ */
 export function instanceTransitioning(runState: InstanceState) {
-  return (
-    runState === 'creating' ||
-    runState === 'starting' ||
-    runState === 'rebooting' ||
-    runState === 'migrating' ||
-    runState === 'stopping'
-  )
+  return match(runState)
+    .with('creating', 'starting', 'rebooting', 'migrating', 'stopping', () => true)
+    .with('running', 'stopped', 'repairing', 'failed', 'destroyed', () => false)
+    .exhaustive()
 }
 
 /**
@@ -315,13 +324,42 @@ const canSnapshot = (d: SnapshotDisk) => {
 }
 canSnapshot.states = snapshotStates
 
+/** See {@link instanceTransitioning} */
 export function diskTransitioning(diskState: DiskState['state']) {
-  return (
-    diskState === 'attaching' ||
-    diskState === 'creating' ||
-    diskState === 'detaching' ||
-    diskState === 'finalizing'
-  )
+  return match(diskState)
+    .with('attaching', 'creating', 'detaching', 'finalizing', () => true)
+    .with(
+      'attached',
+      'detached',
+      'destroyed',
+      'faulted',
+      'maintenance',
+      'import_ready',
+      'importing_from_url',
+      'importing_from_bulk_writes',
+      () => false
+    )
+    .exhaustive()
+}
+
+/** See {@link instanceTransitioning} */
+export function snapshotTransitioning(state: SnapshotState) {
+  return match(state)
+    .with('creating', () => true)
+    .with('ready', 'faulted', 'destroyed', () => false)
+    .exhaustive()
+}
+
+/**
+ * See {@link instanceTransitioning}. 'active' and 'failed' are terminal, and
+ * 'destroying' resolves by the bundle record going away.
+ * https://github.com/oxidecomputer/omicron/blob/6db4c7e/nexus/db-model/src/support_bundle.rs#L53-L66
+ */
+export function supportBundleTransitioning(state: SupportBundleState) {
+  return match(state)
+    .with('collecting', 'destroying', () => true)
+    .with('active', 'failed', () => false)
+    .exhaustive()
 }
 
 export const diskCan = {

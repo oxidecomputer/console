@@ -5,20 +5,22 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { createColumnHelper } from '@tanstack/react-table'
-import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import { api, getListQFn, queryClient, type SledInstance } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { InstanceStateBadge } from '~/components/StateBadge'
-import { requireSledParams, useSledParams } from '~/hooks/use-params'
+import { useSledParams } from '~/hooks/use-params'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+
+import type { Route } from './+types/SledInstancesTab'
 
 const sledInstanceList = (sledId: string) =>
   getListQFn(api.sledInstanceList, { path: { sledId } })
@@ -33,8 +35,8 @@ const EmptyState = () => {
   )
 }
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { sledId } = requireSledParams(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { sledId } = params
   await queryClient.prefetchQuery(sledInstanceList(sledId).optionsFn())
   return null
 }

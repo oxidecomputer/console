@@ -31,4 +31,5 @@ export type AffinityGroup = Required<Sel.AffinityGroup>
 export type AntiAffinityGroup = Required<Sel.AntiAffinityGroup>
 export type SubnetPool = Required<Sel.SubnetPool>
 export type AlertReceiver = Required<Sel.AlertReceiver>
+export type SupportBundle = Required<Sel.SupportBundle>
 export type Disk = Required<Sel.Disk>

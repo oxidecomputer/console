@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 import * as R from 'remeda'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
@@ -17,21 +18,22 @@ import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getSubnetPoolSelector, useSubnetPoolSelector } from '~/hooks/use-params'
+import { useSubnetPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/subnet-pool-edit'
 import { SubnetPoolVisibilityMessage } from './subnet-pool-create'
 
 const subnetPoolView = ({ subnetPool }: PP.SubnetPool) =>
   q(api.systemSubnetPoolView, { path: { pool: subnetPool } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getSubnetPoolSelector(params)
-  await queryClient.prefetchQuery(subnetPoolView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { subnetPool } = params
+  await queryClient.prefetchQuery(subnetPoolView({ subnetPool }))
   return null
 }
 

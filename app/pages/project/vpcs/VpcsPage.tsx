@@ -5,10 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import { api, getListQFn, q, queryClient, useApiMutation, type Vpc } from '@oxide/api'
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
@@ -33,6 +34,8 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+import type { Route } from './+types/VpcsPage'
 
 const vpcList = (project: string) => getListQFn(api.vpcList, { query: { project } })
 
@@ -67,8 +70,8 @@ const colHelper = createColumnHelper<Vpc>()
 
 // just as in the vpcList call for the quick actions menu, include limit to make
 // sure it matches the call in the QueryTable
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   await queryClient.prefetchQuery(vpcList(project).optionsFn())
   return null
 }

@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
@@ -16,19 +16,20 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getAlertReceiverSelector, useAlertReceiverSelector } from '~/hooks/use-params'
+import { useAlertReceiverSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-import { validateEndpoint } from './webhook-create'
+import type { Route } from './+types/webhook-edit'
+import { validateEndpoint } from './webhook-validation'
 
 const receiverView = ({ receiver }: PP.AlertReceiver) =>
   q(api.alertReceiverView, { path: { receiver } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getAlertReceiverSelector(params)
-  await queryClient.prefetchQuery(receiverView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { receiver } = params
+  await queryClient.prefetchQuery(receiverView({ receiver }))
   return null
 }
 

@@ -41,7 +41,10 @@ export const Truncate = ({
   const [truncated, setTruncated] = useState(false)
 
   // Middle truncation has to be computed up front in order to render at all,
-  // and recomputed whenever the container resizes
+  // and recomputed whenever the container resizes or a web font finishes
+  // loading. Canvas measures with fallback font metrics until the real font
+  // is ready, and the swap doesn't necessarily resize the container, so the
+  // observer alone would leave a stale truncation based on the fallback font.
   useLayoutEffect(() => {
     const el = ref.current
     if (position !== 'middle' || !el) return
@@ -55,7 +58,11 @@ export const Truncate = ({
     update()
     const observer = new ResizeObserver(update)
     observer.observe(el)
-    return () => observer.disconnect()
+    document.fonts.addEventListener('loadingdone', update)
+    return () => {
+      observer.disconnect()
+      document.fonts.removeEventListener('loadingdone', update)
+    }
   }, [text, position])
 
   // For end truncation, CSS does the actual truncating and the only decision

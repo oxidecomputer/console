@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
@@ -17,15 +18,17 @@ import { TextField } from '~/components/form/fields/TextField'
 import { FormMetadata } from '~/components/form/FormMetadata'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
+import { useIdpSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { silo, provider } = getIdpSelector(params)
+import type { Route } from './+types/edit'
+
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { silo, provider } = params
   await queryClient.prefetchQuery(
     q(api.samlIdentityProviderView, { path: { provider }, query: { silo } })
   )

@@ -9,14 +9,14 @@ import { createHash, randomBytes } from 'crypto'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
+import { reactRouter } from '@react-router/dev/vite'
 import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
-import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
 import { z } from 'zod/v4'
 
-import vercelConfig from './vercel.json'
+import { nexusSecurityHeaders } from './app/api/__generated__/nexus-console.ts'
 
 const ApiMode = z.enum(['msw', 'remote', 'nexus'])
 
@@ -28,7 +28,7 @@ function bail(msg: string): never {
 const apiModeResult = ApiMode.default('nexus').safeParse(process.env.API_MODE)
 if (!apiModeResult.success) {
   const options = ApiMode.options.join(', ')
-  bail(`Error: API_MODE must be one of: [${options}]. If unset, default is "msw".`)
+  bail(`Error: API_MODE must be one of: [${options}]. If unset, default is "nexus".`)
 }
 /**
  * What API are we talking to? Only relevant in development mode.
@@ -45,56 +45,28 @@ if (apiMode === 'remote' && !process.env.EXT_HOST) {
 
 const EXT_HOST = process.env.EXT_HOST
 
-const previewTags = [
-  {
-    injectTo: 'head' as const,
-    tag: 'script',
-    attrs: {
-      'data-domain':
-        process.env.VERCEL_ENV === 'production'
-          ? 'oxide-console-preview.vercel.app'
-          : // not a real domain. we're only using it to distinguish prod
-            // from preview traffic in plausible
-            'console-pr-preview.vercel.app',
-      defer: true,
-      src: '/viewscript.js',
-    },
-  },
-  {
-    injectTo: 'head' as const,
-    tag: 'meta',
-    attrs: {
-      property: 'og:image',
-      content: '/assets/og-preview-image.webp',
-    },
-  },
-  {
-    injectTo: 'head' as const,
-    tag: 'meta',
-    attrs: {
-      property: 'og:description',
-      content: 'Preview of the Oxide web console with in-browser mock API',
-    },
-  },
-]
-
-// vercel config is source of truth for headers
-const vercelHeaders = vercelConfig.headers[0].headers
-const headers = Object.fromEntries(vercelHeaders.map((h) => [h.key, h.value]))
-
-// This is only needed for local dev to avoid breaking Vite's script injection.
+// Serve the headers Nexus serves, snapshotted at the pinned omicron commit, so
+// dev catches CSP violations. The nonce is only needed for local dev to avoid
+// breaking Vite's script injection.
 // Rather than use unsafe-inline all the time, the nonce approach is much more
 // narrowly scoped and lets us make sure everything *else* works fine without
 // unsafe-inline.
 const cspNonce = randomBytes(8).toString('hex')
-const csp = headers['content-security-policy']
 const devHeaders = {
-  ...headers,
-  'content-security-policy': `${csp}; script-src 'nonce-${cspNonce}' 'self'`,
+  ...nexusSecurityHeaders,
+  'content-security-policy': `${nexusSecurityHeaders['content-security-policy']}; script-src 'nonce-${cspNonce}' 'self'`,
 }
 
 // see https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  optimizeDeps: {
+    entries: [
+      'app/root.tsx',
+      'app/entry.client.tsx',
+      'app/{pages,forms,layouts}/**/*.tsx',
+      '!app/**/*.spec.{ts,tsx}',
+    ],
+  },
   build: {
     // Must match `target` in tsconfig.json: tsc only checks against lib types
     // and nothing polyfills missing APIs, so the browser floor and the type
@@ -102,14 +74,33 @@ export default defineConfig(({ mode }) => ({
     // with full ES2024 support. We pin it because the default
     // (baseline-widely-available) drifts across Vite versions.
     target: 'es2024',
-    outDir: resolve(__dirname, 'dist'),
     emptyOutDir: true,
     sourcemap: true,
     // minify: false, // uncomment for debugging
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
     assetsInlineLimit: 0,
+    // the metrics explorer route chunk is ~600 kB. It's lazy loaded, so it
+    // only costs anything on that page
+    chunkSizeWarningLimit: 700,
+  },
+  environments: {
+    ssr: {
+      define: {
+        'process.env.CSP_NONCE': JSON.stringify(
+          mode === 'production' ? undefined : cspNonce
+        ),
+      },
+    },
   },
   define: {
+    'process.env.VERCEL': JSON.stringify(!!process.env.VERCEL),
+    'process.env.VERCEL_ENV': JSON.stringify(process.env.VERCEL_ENV),
+    'process.env.THEME_INIT_HASH': JSON.stringify(
+      createHash('sha256')
+        .update(readFileSync(resolve(import.meta.dirname, 'public/assets/theme-init.js')))
+        .digest('hex')
+        .slice(0, 8)
+    ),
     'process.env.MSW': JSON.stringify(apiMode === 'msw'),
     // we don't want to have to look at this banner all day
     'process.env.MSW_BANNER': JSON.stringify(apiMode === 'msw' && mode === 'production'),
@@ -120,33 +111,28 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     tailwindcss(),
-    {
-      name: 'inject-html-tags',
-      transformIndexHtml: () => (process.env.VERCEL ? previewTags : []),
-    },
-    {
-      // Inject theme-init.js as a classic (non-module) render-blocking script
-      // so it sets data-theme before first paint. It lives in public/assets/
-      // so it passes CSP default-src 'self' and is served by the /assets/*
-      // route in Nexus. We inject it here rather than putting it in index.html
-      // because Vite tries to bundle any <script src> it finds there. Content
-      // hash query param handles cache-busting since public/ files aren't
-      // fingerprinted by Vite.
-      name: 'theme-init',
-      transformIndexHtml() {
-        const content = readFileSync(resolve(__dirname, 'public/assets/theme-init.js'))
-        const hash = createHash('sha256').update(content).digest('hex').slice(0, 8)
-        return [
-          {
-            injectTo: 'head-prepend',
-            tag: 'script',
-            attrs: { src: `/assets/theme-init.js?v=${hash}` },
-          },
-        ]
+    !process.env.VITEST && reactRouter(),
+    apiMode === 'remote' && basicSsl(),
+    apiMode === 'msw' && {
+      // The console downloads support bundles with an <a download> navigation.
+      // MSW's service worker bypasses navigation requests (see
+      // app/util/support-bundle.ts), so the request would otherwise hit the
+      // /v1 proxy and fail. Serve an empty zip so the download works in the
+      // mock dev server and in e2e tests. Only GET: the HEAD the detail modal
+      // uses for size goes through MSW as a normal fetch.
+      name: 'mock-support-bundle-download',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          const isDownload =
+            req.method === 'GET' &&
+            /^\/v1\/system\/support-bundles\/[^/]+\/download$/.test(req.url || '')
+          if (!isDownload) return next()
+          res.writeHead(200, { 'Content-Type': 'application/zip' })
+          // end-of-central-directory record: the smallest valid (empty) zip
+          res.end(Buffer.from('504b0506' + '00'.repeat(18), 'hex'))
+        })
       },
     },
-    react(),
-    apiMode === 'remote' && basicSsl(),
   ],
   html: {
     // don't include a placeholder nonce in production.
@@ -156,6 +142,9 @@ export default defineConfig(({ mode }) => ({
   server: {
     port: 4000,
     headers: devHeaders,
+    // agent notes under .claude can be HTML, and any HTML change in the root
+    // triggers a full page reload
+    watch: { ignored: ['**/.claude/**'] },
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {
@@ -165,7 +154,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   resolve: { tsconfigPaths: true },
-  preview: { headers },
   test: {
     name: 'unit',
     fsModuleCache: true,

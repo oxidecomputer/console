@@ -69,6 +69,18 @@ async function streamBootLog(socket: WebSocket, text: string) {
 }
 
 export async function startMockAPI() {
+  // Specifically in Playwright's Firefox build, a page reload will cause a page
+  // to lack a service worker controller. MSW's fallback for this is to reload
+  // the page; you can guess the problem with that. Removing any existing
+  // workers will convince MSW to instead continue and register a new one.
+  //
+  // Context:
+  // https://github.com/mswjs/msw/blob/v2.7.5/src/browser/setupWorker/start/utils/getWorkerInstance.ts#L20-L27
+  if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
+    const registrations = await navigator.serviceWorker.getRegistrations()
+    await Promise.all(registrations.map((r) => r.unregister()))
+  }
+
   // dynamic imports to make extremely sure none of this code ends up in the prod bundle
   const { z } = await import('zod/v4')
   // Configure Zod before importing the handlers, which create schemas during module evaluation.

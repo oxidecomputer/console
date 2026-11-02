@@ -8,7 +8,7 @@
 import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { api, queryClient, useApiMutation, WEBHOOK_ENDPOINT_MAX_LENGTH } from '@oxide/api'
+import { api, queryClient, useApiMutation } from '@oxide/api'
 import { Webhooks24Icon } from '@oxide/design-system/icons/react'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -18,37 +18,18 @@ import { SubscriptionsField } from '~/components/form/fields/SubscriptionsField'
 import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
+import { Subform } from '~/components/form/Subform'
 import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
-import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { HintLink } from '~/ui/lib/TextInput'
-import { KEYS } from '~/ui/util/keys'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-export const validateEndpoint = (value: string) => {
-  // Omicron deserializes the endpoint as a URL.
-  // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/types/versions/src/initial/alert.rs#L385-L391
-  let url: URL
-  try {
-    url = new URL(value)
-  } catch {
-    return 'Must be a valid URL, including the scheme (e.g., https://)'
-  }
-  // Reject schemes that Omicron's HTTP client would refuse at delivery time.
-  // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/src/app/external_client.rs#L992-L1008
-  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-    return 'Must be an HTTP or HTTPS URL'
-  }
-  // The limit comes from the database column, not API validation.
-  // https://github.com/oxidecomputer/omicron/blob/17e6fee/schema/crdb/dbinit.sql#L7384-L7385
-  if (value.length > WEBHOOK_ENDPOINT_MAX_LENGTH) {
-    return `Must be at most ${WEBHOOK_ENDPOINT_MAX_LENGTH} characters`
-  }
-}
+import { validateEndpoint } from './webhook-validation'
 
 export type WebhookCreateFormValues = {
   name: string
@@ -93,7 +74,13 @@ function SecretsField({ control }: { control: Control<WebhookCreateFormValues> }
 
   return (
     <>
-      <div className="flex max-w-lg flex-col gap-3">
+      <Subform
+        onSubmit={submitSubform}
+        onClear={() => subform.reset()}
+        addButtonLabel="Add secret"
+        disabled={!secret}
+        className="max-w-lg"
+      >
         <TextField
           control={subform.control}
           name="secret"
@@ -105,20 +92,8 @@ function SecretsField({ control }: { control: Control<WebhookCreateFormValues> }
             </>
           }
           required
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              submitSubform(e)
-            }
-          }}
         />
-        <ClearAndAddButtons
-          addButtonCopy="Add secret"
-          disabled={!secret}
-          onClear={() => subform.reset()}
-          onSubmit={submitSubform}
-        />
-      </div>
+      </Subform>
       <MiniTable
         className="max-w-lg"
         ariaLabel="Secrets"

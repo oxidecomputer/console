@@ -3940,7 +3940,6 @@ export const SiloCreate = z.preprocess(
   z.object({
     adminGroupName: z.string().nullable().optional(),
     description: z.string(),
-    discoverable: SafeBoolean,
     identityMode: SiloIdentityMode,
     mappedFleetRoles: z.record(z.string(), FleetRole.array().refine(...uniqueItems)),
     name: Name,

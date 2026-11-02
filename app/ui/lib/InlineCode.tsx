@@ -9,3 +9,4 @@
 import { classed } from '~/util/classed'
 
 export const InlineCode = classed.code`whitespace-nowrap rounded-sm px-[3px] py-px text-mono-sm normal-case! bg-raise border border-secondary mx-px`
+export const ErrorInlineCode = classed.code`inline-code font-mono whitespace-nowrap`

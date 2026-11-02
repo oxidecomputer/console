@@ -5,14 +5,31 @@
  *
  * Copyright Oxide Computer Company
  */
-import { matchRoutes } from 'react-router'
+import type { RouteConfigEntry } from '@react-router/dev/routes'
+import { matchRoutes, type href, type RouteObject } from 'react-router'
 import * as R from 'remeda'
-import { expect, test } from 'vitest'
+import { expect, expectTypeOf, test } from 'vitest'
 
+import { nexusConsoleRoutes } from '~/api/__generated__/nexus-console'
 import { matchesToCrumbs } from '~/hooks/use-crumbs'
-import { routes } from '~/routes'
+import routeConfig from '~/routes'
 
 import { pb } from './path-builder'
+
+// Turn the real framework route config into route objects carrying each
+// module's handle, which is what useMatches sees in the browser.
+async function toRoutes(entries: RouteConfigEntry[]): Promise<RouteObject[]> {
+  return Promise.all(
+    entries.map(async ({ file, path, index, children }) => {
+      // file is relative to the app directory
+      const { handle } = await import(/* @vite-ignore */ `~/${file}`)
+      return index
+        ? { path, index: true, handle }
+        : { path, handle, children: children && (await toRoutes(children)) }
+    })
+  )
+}
+const routes = await toRoutes(routeConfig)
 
 // params can be the same for all of them because they only use what they need
 const params = {
@@ -28,6 +45,7 @@ const params = {
   version: 'vs',
   provider: 'pr',
   sledId: '5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0',
+  bundleId: 'ccdac005-66a8-4921-9e8b-30531c359c31',
   image: 'im',
   disk: 'd',
   sshKey: 'ss',
@@ -121,6 +139,10 @@ test('path builder', () => {
         "subnetPoolMemberAdd": "/system/networking/subnet-pools/sp/members-add",
         "subnetPools": "/system/networking/subnet-pools",
         "subnetPoolsNew": "/system/networking/subnet-pools-new",
+        "supportBundle": "/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31",
+        "supportBundles": "/system/support-bundles",
+        "supportBundlesNew": "/system/support-bundles-new",
+        "systemMetricsExplorer": "/system/metrics-explorer",
         "systemUpdate": "/system/update",
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v/firewall-rules",
@@ -146,41 +168,19 @@ test('path builder', () => {
     `)
 })
 
-// matchRoutes returns something slightly different from UIMatch
-const getMatches = (pathname: string) =>
-  Promise.all(
-    matchRoutes(routes, pathname)!.map(async (m) => {
-      // lazy can also be an object as of RR 7.5, but we never use it that way
-      const lazy = typeof m.route.lazy === 'function' ? m.route.lazy : undefined
-      // As we convert route modules to RR framework mode with lazy imports,
-      // more and more of the routes will have their handles defined inside the
-      // route module. We need to call the lazy function to import the module
-      // contents and fill out the route object with it.
-      const route = { ...m.route, ...(await lazy?.()) }
-      return {
-        pathname: m.pathname,
-        params: m.params,
-        handle: route.handle,
-        // not used
-        id: '',
-        data: undefined,
-        loaderData: undefined,
-      }
-    })
-  )
+// matchRoutes can't return null because the * route matches every path
+const navCrumbs = (pathname: string) =>
+  matchesToCrumbs(
+    matchRoutes(routes, pathname)!.map((m) => ({ ...m, handle: m.route.handle }))
+  ).filter(({ titleOnly }) => !titleOnly)
 
 // run every route in the path builder through the crumbs logic
-test('breadcrumbs', async () => {
-  const pairs = await Promise.all(
-    Object.entries(pb).map(async ([key, fn]) => {
-      const pathname = fn(params)
-      const matches = await getMatches(pathname)
-      const crumbs = matchesToCrumbs(matches)
-        .filter(({ titleOnly }) => !titleOnly)
-        .map(R.omit(['titleOnly']))
-      return [`${key} (${pathname})`, crumbs] as const
-    })
-  )
+test('breadcrumbs', () => {
+  const pairs = Object.entries(pb).map(([key, fn]) => {
+    const pathname = fn(params)
+    const crumbs = navCrumbs(pathname).map(R.omit(['titleOnly']))
+    return [`${key} (${pathname})`, crumbs] as const
+  })
 
   const zeroCrumbKeys = pairs
     .filter(([_, crumbs]) => crumbs.length === 0)
@@ -197,25 +197,124 @@ test('breadcrumbs', async () => {
 // Some pages don't have self-referential breadcrumbs (like /instances-new). But
 // these pages also aren't _targeted_ by breadcrumbs! Any page that's targeted
 // by a breadcrumb should be able to point to itself.
-test('every page reachable by breadcrumb should have a self-referential breadcrumb', async () => {
+test('every page reachable by breadcrumb should have a self-referential breadcrumb', () => {
   // as far as react router is concerned, /blah and /blah/ are equivalent
   const dropFinalSlash = (p: string) => p.replace(/\/$/, '')
 
-  const allCrumbs = await Promise.all(
-    Object.values(pb).map(async (fn) => {
-      const pathname = fn(params)
-      const matches = await getMatches(pathname)
-      return matchesToCrumbs(matches).filter(({ titleOnly }) => !titleOnly)
-    })
+  const allPaths = new Set(
+    Object.values(pb).flatMap((fn) => navCrumbs(fn(params)).map(({ path }) => path))
   )
-  const allPaths = new Set(allCrumbs.flat().map(({ path }) => path))
 
   for (const path of allPaths) {
-    const crumbs = matchesToCrumbs(await getMatches(path)).filter(
-      ({ titleOnly }) => !titleOnly
-    )
-    const last = R.last(crumbs)
+    const last = R.last(navCrumbs(path))
     if (last === undefined) expect.fail(`Found no breadcrumbs for ${path}`)
     expect(dropFinalSlash(path)).toEqual(dropFinalSlash(last.path))
   }
+})
+
+// These assertions fail typechecking if route type generation stops being included.
+test('generated route types check paths and required params', () => {
+  expectTypeOf<typeof href<'/projects/:project/edit'>>().parameters.toExtend<
+    ['/projects/:project/edit', { project: string }]
+  >()
+  // @ts-expect-error This path is not registered in the route config.
+  expectTypeOf<typeof href<'/not-a-console-route'>>()
+})
+
+// Every leaf route with its full path. Only leaves are pages: a route with
+// children renders at its own path only through an index child, which is
+// itself a leaf.
+function leafRoutes(
+  routes: RouteObject[],
+  parent = ''
+): { route: RouteObject; path: string }[] {
+  return routes.flatMap((route) => {
+    const path = [parent, route.path].filter(Boolean).join('/')
+    return route.children ? leafRoutes(route.children, path) : [{ route, path: '/' + path }]
+  })
+}
+
+// Expand each optional segment both ways
+const expandOptional = (path: string): string[] =>
+  path
+    .split('/')
+    .filter(Boolean)
+    .reduce<string[][]>(
+      (acc, seg) =>
+        seg.endsWith('?')
+          ? [...acc, ...acc.map((prefix) => [...prefix, seg.slice(0, -1)])]
+          : acc.map((prefix) => [...prefix, seg]),
+      [[]]
+    )
+    .map((segments) => '/' + segments.join('/'))
+
+// Port of dropshot's lookup_route for a single template. Dropshot splits paths
+// on `/` and drops empty segments, then walks a trie: `{name}` matches one
+// segment and `{name:.*}` matches the rest, including nothing, so
+// /projects/{path:.*} serves /projects. Checking templates one at a time gives
+// the same answer as the trie because dropshot refuses to register a node with
+// both literal and variable children, so a path matches at most one route.
+// https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/router.rs#L438-L503
+// https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/router.rs#L254-L270
+function nexusServes(template: string, pathname: string) {
+  const want = template.split('/').filter(Boolean)
+  const have = pathname.split('/').filter(Boolean)
+  for (const [i, seg] of want.entries()) {
+    if (/^\{\w+:\.\*\}$/.test(seg)) return true
+    if (i >= have.length) return false
+    // a route param like :project only matches a Nexus param, not a literal
+    if (!/^\{\w+\}$/.test(seg) && seg !== have[i]) return false
+  }
+  return want.length === have.length
+}
+
+// The Nexus test below is only as good as nexusServes, so check that it matches
+// paths the same way dropshot does. These are the cases from dropshot's router
+// tests, plus the empty wildcard match, which dropshot doesn't test but the
+// console relies on for paths like /projects.
+// https://github.com/oxidecomputer/dropshot/blob/4ff9cb3/dropshot/src/router.rs#L1242-L1643
+test.each([
+  ['/', '/', true],
+  ['/', '//', true],
+  ['/foo', '/foo', true],
+  ['/foo', '/foo/', true],
+  ['/foo', '//foo//', true],
+  ['/foo', '/', false],
+  ['/not{a}variable', '/not{a}variable', true],
+  ['/not{a}variable', '/not{b}variable', false],
+  ['/projects/{project_id}', '/projects', false],
+  ['/projects/{project_id}', '/projects/', false],
+  ['/projects/{project_id}', '/projects/p12345', true],
+  ['/projects/{project_id}', '/projects/p12345/', true],
+  ['/projects/{project_id}', '/projects///p12345//', true],
+  ['/projects/{project_id}', '/projects/p12345/child', false],
+  [
+    '/projects/{project_id}/instances/{instance_id}/fwrules/{fwrule_id}/info',
+    '/projects/p1/instances/i2/fwrules/fw3/info',
+    true,
+  ],
+  ['/projects/{project_id}/instances', '/projects/instances', false],
+  ['/projects/{project_id}/instances', '/projects//instances', false],
+  ['/projects/{project_id}/instances', '/projects/foo/instances', true],
+  ['/console/{path:.*}', '/console/missiles/launch', true],
+  ['/console/{path:.*}', '/console', true],
+  ['/console/{path:.*}', '/', false],
+  // console route params only match Nexus params, not literals
+  ['/projects/{project_id}', '/projects/:project', true],
+  ['/projects/new', '/projects/:project', false],
+])('nexusServes(%s, %s) is %s', (template, pathname, expected) => {
+  expect(nexusServes(template, pathname)).toBe(expected)
+})
+
+// Nexus only serves index.html on paths it knows about, so a console route
+// outside them works on client-side navigation but 404s on reload or direct
+// link. If this fails, add an endpoint for the new path in omicron next to the
+// existing ones, then bump OMICRON_VERSION once it merges.
+// https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/external-api/src/lib.rs#L9206
+test('Nexus serves the console on every route', () => {
+  const unserved = R.unique(leafRoutes(routes).flatMap(({ path }) => expandOptional(path)))
+    // the catch-all is for unknown paths, which Nexus is right to 404
+    .filter((p) => !p.split('/').includes('*'))
+    .filter((p) => !nexusConsoleRoutes.some((t) => nexusServes(t, p)))
+  expect(unserved).toEqual([])
 })

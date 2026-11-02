@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { addHours } from 'date-fns'
-import { delay } from 'msw'
+import { delay, HttpResponse } from 'msw'
 import * as R from 'remeda'
 import { lt as semverLessThan, rcompare as semverRCompare } from 'semver'
 import { match } from 'ts-pattern'
@@ -15,8 +15,8 @@ import { validate as isUuid, v4 as uuid } from 'uuid'
 import {
   DEFAULT_VPC_NAME,
   diskCan,
-  fleetRoles,
   FLEET_ID,
+  fleetRoles,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   INSTANCE_MIN_RAM_GiB,
@@ -31,13 +31,23 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { instanceCan, OXQL_GROUP_BY_ERROR, subscriptionRegex } from '~/api/util'
+import {
+  instanceCan,
+  isGlobPattern,
+  isSubscribableClass,
+  MAX_BUNDLE_COMMENT_BYTES,
+  OXQL_GROUP_BY_ERROR,
+  subscriptionRegex,
+  utf8ByteLength,
+} from '~/api/util'
 import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { alertClasses, PROBE_ALERT_ID } from '../alert'
 import { defaultSilo, toIdp } from '../silo'
+import { SUPPORT_BUNDLE_SIZE } from '../support-bundle'
+import { timeseriesSchemas } from '../timeseries-schema'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
 import { resendableAlerts, retryPendingDeliveries, validateSubscription } from './alert'
@@ -1941,6 +1951,11 @@ export const handlers = makeHandlers({
       id: uuid(),
       ...getTimestamps(),
       ...body,
+      // discoverable was removed from SiloCreate, but it's still on the Silo
+      // view. Silo creation through the API hardcodes discoverable: true in
+      // the DB model
+      // https://github.com/oxidecomputer/omicron/blob/71f52a3/nexus/db-queries/src/db/datastore/silo.rs#L164
+      discoverable: true,
       mapped_fleet_roles: body.mapped_fleet_roles || {},
     }
     db.silos.push(newSilo)
@@ -2045,6 +2060,102 @@ export const handlers = makeHandlers({
     return paginated(query, db.users)
   },
 
+  supportBundleList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    const bundles =
+      query.sortBy === 'time_and_id_descending'
+        ? R.sortBy(
+            db.supportBundles,
+            [(b) => b.time_created, 'desc'],
+            [(b) => b.id, 'desc']
+          )
+        : db.supportBundles
+    return paginated(query, bundles)
+  },
+  supportBundleView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookupById(db.supportBundles, path.bundleId)
+  },
+  supportBundleCreate({ body, cookies }) {
+    requireFleetAdmin(cookies)
+
+    // sentinel for testing the one-bundle-per-external-disk policy error
+    // https://github.com/oxidecomputer/omicron/blob/99249b4/nexus/db-queries/src/db/datastore/support_bundle.rs#L47-L49
+    if (body.user_comment === 'no space') {
+      throw json(
+        {
+          error_code: 'InsufficientCapacity',
+          message:
+            "Insufficient capacity: Current policy limits support bundle creation to 'one per external disk', and no disks are available. You must delete old support bundles before new ones can be created",
+        },
+        { status: 507 }
+      )
+    }
+
+    const newBundle: Json<Api.SupportBundleInfo> = {
+      id: uuid(),
+      reason_for_creation: 'Created by external API',
+      state: 'collecting',
+      time_created: new Date().toISOString(),
+      user_comment: body.user_comment,
+    }
+    db.supportBundles.push(newBundle)
+
+    // simulate collection finishing, with a sentinel to exercise failure
+    setTimeout(() => {
+      if (body.user_comment === 'fail collection') {
+        newBundle.state = 'failed'
+        newBundle.reason_for_failure = 'Bundle collection failed'
+      } else {
+        newBundle.state = 'active'
+      }
+    }, 3000)
+
+    return json(newBundle, { status: 201 })
+  },
+  supportBundleUpdate({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+    if (body.user_comment && utf8ByteLength(body.user_comment) > MAX_BUNDLE_COMMENT_BYTES) {
+      throw invalidRequest(`User comment cannot exceed ${MAX_BUNDLE_COMMENT_BYTES} bytes`)
+    }
+    bundle.user_comment = body.user_comment
+    return bundle
+  },
+  supportBundleDelete({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+
+    // a failed bundle's storage is already reclaimed, so it's deleted
+    // immediately. otherwise the bundle sits in state 'destroying' until a
+    // background task frees its storage, which we simulate with a timeout
+    if (bundle.state === 'failed') {
+      db.supportBundles = db.supportBundles.filter((b) => b.id !== bundle.id)
+    } else {
+      bundle.state = 'destroying'
+      setTimeout(() => {
+        db.supportBundles = db.supportBundles.filter((b) => b.id !== bundle.id)
+      }, 3000)
+    }
+
+    return 204
+  },
+  // the generated handler type only allows status code returns for binary
+  // endpoints, but the dispatcher passes Response instances through untouched
+  // @ts-expect-error
+  supportBundleHead({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const bundle = lookupById(db.supportBundles, path.bundleId)
+    if (bundle.state !== 'active') {
+      throw invalidRequest('Cannot download bundle in non-active state')
+    }
+    return new HttpResponse(null, {
+      headers: {
+        'Content-Type': 'application/zip',
+        'Content-Length': SUPPORT_BUNDLE_SIZE.toString(),
+      },
+    })
+  },
   switchList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
     return paginated(query, db.switches)
@@ -2123,6 +2234,10 @@ export const handlers = makeHandlers({
     // timeseries queries are slower than most other queries
     await delay(1000)
     return handleOxqlMetrics(body)
+  },
+  systemTimeseriesSchemaList({ cookies }) {
+    requireFleetViewer(cookies)
+    return { items: timeseriesSchemas }
   },
   siloMetric: handleMetrics,
   systemUpdateRepositoryList: ({ cookies }) => {
@@ -2353,7 +2468,28 @@ export const handlers = makeHandlers({
       final = final.filter((alert) => new Date(alert.time_created) >= startTime)
     if (endTime) final = final.filter((alert) => new Date(alert.time_created) <= endTime)
     if (alertClass) {
+      // Nexus parses the param as a subscription, which 400s on probe,
+      // malformed values, and unrecognized exact classes
+      // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/db-model/src/alert_subscription.rs#L62-L98
+      if (alertClass === 'probe')
+        throw invalidRequest(
+          `unsupported value for "alert_class": the 'probe' alert class is a synthetic alert used only for webhook liveness probes, and is not included in alert lists and cannot be subscribed to`
+        )
       const matcher = subscriptionRegex(alertClass)
+      if (
+        !matcher ||
+        (!isGlobPattern(alertClass) && !alertClasses.some((c) => c.name === alertClass))
+      ) {
+        throw invalidRequest(`'${alertClass}' is not a valid alert class`)
+      }
+      // a well-formed glob matching no classes is a 404
+      // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/db-queries/src/db/datastore/alert.rs#L261-L272
+      if (!alertClasses.filter(isSubscribableClass).some((c) => matcher.test(c.name))) {
+        throw notFoundErr(
+          `alert class glob '${alertClass}' does not match any existing alert classes`
+        )
+      }
+
       final = final.filter((alert) => matcher.test(alert.class))
     }
 
@@ -2824,7 +2960,7 @@ export const handlers = makeHandlers({
     // the real API rejects resends of alerts the receiver is no longer subscribed to
     // https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/src/app/alert.rs#L439-L449
     const subscribed = receiver.subscriptions.some((s) =>
-      subscriptionRegex(s).test(delivery.alert_class)
+      subscriptionRegex(s)?.test(delivery.alert_class)
     )
     if (!subscribed) {
       throw invalidRequest(
@@ -3000,22 +3136,18 @@ export const handlers = makeHandlers({
   siloUserList: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
-  supportBundleCreate: NotImplemented,
-  supportBundleDelete: NotImplemented,
+  // unreachable in the mock: the console downloads bundles with an <a download>
+  // navigation, which MSW's service worker can't intercept. The dev server
+  // handles it instead (see vite.config.ts and app/util/support-bundle.ts)
   supportBundleDownload: NotImplemented,
   supportBundleDownloadFile: NotImplemented,
-  supportBundleHead: NotImplemented,
   supportBundleHeadFile: NotImplemented,
   supportBundleIndex: NotImplemented,
-  supportBundleList: NotImplemented,
-  supportBundleUpdate: NotImplemented,
-  supportBundleView: NotImplemented,
   switchView: NotImplemented,
   systemIpPoolAssign: NotImplemented,
   systemNetworkingSettingsUpdate: NotImplemented,
   systemNetworkingSettingsView: NotImplemented,
   systemQuotasList: NotImplemented,
-  systemTimeseriesSchemaList: NotImplemented,
   systemUpdateRecoveryFinish: NotImplemented,
   systemUpdateRepositoryView: NotImplemented,
   systemUpdateTrustRootCreate: NotImplemented,
