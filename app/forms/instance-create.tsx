@@ -1183,7 +1183,6 @@ const UserDataField = ({
       <RadioGroup
         name="userDataSource"
         className="mb-4"
-        // oxlint-disable-next-line jsx-a11y/aria-proptypes -- https://github.com/oxc-project/oxc/issues/17465
         aria-labelledby="user-data-label"
         defaultChecked={source}
         onChange={(e) => sourceField.field.onChange(e.target.value)}
@@ -1199,7 +1198,6 @@ const UserDataField = ({
           rows={8}
           name="userDataText"
           label="User data"
-          // oxlint-disable-next-line jsx-a11y/aria-proptypes -- https://github.com/oxc-project/oxc/issues/17465
           aria-labelledby="user-data-label user-data-help-text"
           // user data is usually YAML or a script, where indentation matters
           fieldClassName="text-mono-code!"
@@ -1210,7 +1208,6 @@ const UserDataField = ({
       <div hidden={source !== 'file'}>
         <FileInput
           id="user-data-file"
-          // oxlint-disable-next-line jsx-a11y/aria-proptypes -- https://github.com/oxc-project/oxc/issues/17465
           aria-labelledby="user-data-label user-data-help-text"
           disabled={disabled}
           {...fileField}

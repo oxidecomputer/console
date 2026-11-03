@@ -80,7 +80,6 @@ export function RadioField<
       </div>
       <RadioGroup
         defaultChecked={field.value}
-        // oxlint-disable-next-line jsx-a11y/aria-proptypes -- https://github.com/oxc-project/oxc/issues/17465
         aria-labelledby={`${id}-label`}
         onChange={(e) =>
           parseValue ? field.onChange(parseValue(e.target.value)) : field.onChange(e)
