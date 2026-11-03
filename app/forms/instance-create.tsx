@@ -232,7 +232,7 @@ const baseDefaultValues: InstanceCreateInput = {
 
   start: true,
 
-  userDataSource: 'text',
+  userDataSource: 'file',
   userDataText: '',
   userDataFile: null,
   ephemeralIpv4: false,
@@ -1161,8 +1161,8 @@ const UserDataField = ({
         onChange={(e) => sourceField.field.onChange(e.target.value)}
         disabled={disabled}
       >
-        <Radio value="text">Paste text</Radio>
         <Radio value="file">Upload file</Radio>
+        <Radio value="text">Paste text</Radio>
       </RadioGroup>
       <div hidden={source !== 'text'}>
         <TextFieldInner
