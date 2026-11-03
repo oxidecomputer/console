@@ -134,78 +134,85 @@ export default function DisksPage() {
   })
 
   const makeActions = useCallback(
-    (disk: Disk): MenuAction[] => [
-      ...(diskCan.finalizeImport(disk) || diskCan.stopImport(disk)
-        ? [
-            {
-              label: 'Cancel import',
-              onActivate() {
-                confirmAction({
-                  doAction: async () => {
-                    if (diskCan.stopImport(disk)) {
-                      await stopBulkWriteImport({
+    (disk: Disk): MenuAction[] => {
+      const canCancelImport = diskCan.finalizeImport(disk) || diskCan.stopImport(disk)
+
+      return [
+        ...(canCancelImport
+          ? [
+              {
+                label: 'Cancel import',
+                onActivate() {
+                  confirmAction({
+                    doAction: async () => {
+                      if (diskCan.stopImport(disk)) {
+                        await stopBulkWriteImport({
+                          path: { disk: disk.name },
+                          query: { project },
+                        })
+                      }
+
+                      await finalize({
                         path: { disk: disk.name },
                         query: { project },
+                        body: {},
                       })
-                    }
 
-                    await finalize({
-                      path: { disk: disk.name },
-                      query: { project },
-                      body: {},
-                    })
-
-                    addToast(
-                      <>
-                        Import canceled for <HL>{disk.name}</HL>
-                      </>
-                    )
-                  },
-                  modalTitle: 'Cancel import',
-                  modalContent: (
-                    <p>
-                      Are you sure you want to cancel import for <HL>{disk.name}</HL>?
-                    </p>
-                  ),
-                  errorTitle: 'Failed to cancel import',
-                  actionType: 'danger',
-                })
+                      addToast(
+                        <>
+                          Import canceled for <HL>{disk.name}</HL>
+                        </>
+                      )
+                    },
+                    modalTitle: 'Cancel import',
+                    modalContent: (
+                      <p>
+                        Are you sure you want to cancel import for <HL>{disk.name}</HL>?
+                        This will leave it in the <HL>detached</HL> state.
+                      </p>
+                    ),
+                    errorTitle: 'Failed to cancel import',
+                    actionType: 'danger',
+                  })
+                },
               },
-            },
-          ]
-        : []),
-      {
-        label: 'Snapshot',
-        onActivate() {
-          // prettier-ignore
-          addToast(<>Creating snapshot of disk <HL>{disk.name}</HL></>)
-          createSnapshot({
-            query: { project },
-            body: {
-              name: genName(disk.name),
-              disk: disk.name,
-              description: '',
-            },
-          })
+            ]
+          : []),
+        {
+          label: 'Snapshot',
+          onActivate() {
+            // prettier-ignore
+            addToast(<>Creating snapshot of disk <HL>{disk.name}</HL></>)
+            createSnapshot({
+              query: { project },
+              body: {
+                name: genName(disk.name),
+                disk: disk.name,
+                description: '',
+              },
+            })
+          },
+          disabled: snapshotDisabledReason(disk),
         },
-        disabled: snapshotDisabledReason(disk),
-      },
-      {
-        label: 'Delete',
-        onActivate: confirmDelete({
-          doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
-          label: disk.name,
-          resourceKind: 'disk',
-        }),
-        disabled:
-          !diskCan.delete(disk) &&
-          (disk.state.state === 'attached' ? (
-            'Disk must be detached before it can be deleted'
-          ) : (
-            <>Only disks in state {fancifyStates(diskCan.delete.states)} can be deleted</>
-          )),
-      },
-    ],
+        {
+          label: 'Delete',
+          onActivate: confirmDelete({
+            doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
+            label: disk.name,
+            resourceKind: 'disk',
+          }),
+          disabled:
+            !diskCan.delete(disk) &&
+            (disk.state.state === 'attached' ? (
+              'Disk must be detached before it can be deleted'
+            ) : canCancelImport ? (
+              'Import must be canceled before the disk can be deleted'
+            ) : (
+              <>Only disks in state {fancifyStates(diskCan.delete.states)} can be deleted</>
+            )),
+        },
+      ]
+    },
     [createSnapshot, deleteDisk, stopBulkWriteImport, finalize, project]
   )
 
