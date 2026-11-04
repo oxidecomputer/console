@@ -221,11 +221,11 @@ test('Create silo', async ({ page }) => {
   ])
   await expect(page.getByText('Silo viewerFleet viewer')).toBeHidden()
 
-  // now go check the quotas in its entry in the utilization table
+  // now go check the quotas in its Quotas tab
   await page.getByRole('tab', { name: 'Quotas' }).click()
-  await expectRowVisible(table, { Resource: 'CPU', Quota: '30 vCPUs' })
-  await expectRowVisible(table, { Resource: 'Memory', Quota: '58 GiB' })
-  await expectRowVisible(table, { Resource: 'Storage', Quota: '735 GiB' })
+  await expect(page.getByRole('region', { name: 'CPU' })).toContainText('30 vCPUs')
+  await expect(page.getByRole('region', { name: 'Memory' })).toContainText('58 GiB')
+  await expect(page.getByRole('region', { name: 'Storage' })).toContainText('735 GiB')
 
   // Go back to the silos list page to delete the silo using breadcrumbs
   await page
@@ -541,22 +541,15 @@ test('Quotas tab', async ({ page }) => {
   await page.goto('/system/silos/maze-war')
   await page.getByRole('tab', { name: 'Quotas' }).click()
 
-  const table = page.getByRole('table')
-  await expectRowVisible(table, {
-    Resource: 'CPU',
-    Provisioned: '30 vCPUs',
-    Quota: '50 vCPUs',
-  })
-  await expectRowVisible(table, {
-    Resource: 'Memory',
-    Provisioned: '234 GiB',
-    Quota: '300 GiB',
-  })
-  await expectRowVisible(table, {
-    Resource: 'Storage',
-    Provisioned: '4403.2 GiB',
-    Quota: '7168 GiB',
-  })
+  const cpu = page.getByRole('region', { name: 'CPU' })
+  const memory = page.getByRole('region', { name: 'Memory' })
+  const storage = page.getByRole('region', { name: 'Storage' })
+  await expect(cpu).toContainText('50 vCPUs')
+  await expect(cpu).toContainText('Provisioned30Available20')
+  await expect(memory).toContainText('300 GiB')
+  await expect(memory).toContainText('Provisioned234Available66')
+  await expect(storage).toContainText('7,168 GiB')
+  await expect(storage).toContainText('Provisioned4,403.2Available2,764.8')
 
   const sideModal = page.getByRole('dialog', { name: 'Edit quotas' })
   const edit = page.getByRole('button', { name: 'Edit quotas' })
@@ -566,23 +559,24 @@ test('Quotas tab', async ({ page }) => {
   await expect(sideModal).toBeVisible()
 
   // test validation on empty field
-  const memory = page.getByRole('textbox', { name: 'Memory' })
-  await memory.clear()
+  const memoryInput = sideModal.getByRole('textbox', { name: 'Memory' })
+  await memoryInput.clear()
   await submit.click()
-  await expect(sideModal.getByText('Memory is required')).toBeVisible()
+  await expect(sideModal.getByText('Memory quota is required')).toBeVisible()
 
   // try to type in a negative number HAHA YOU CAN'T
-  await memory.fill('-5')
-  await expect(memory).toHaveValue('')
+  await memoryInput.fill('-5')
+  await expect(memoryInput).toHaveValue('')
 
   // only change one
-  await memory.fill('50')
+  await memoryInput.fill('50')
   await submit.click()
 
   await expect(sideModal).toBeHidden()
 
   // only one changes, the others stay the same
-  await expectRowVisible(table, { Resource: 'CPU', Quota: '50 vCPUs' })
-  await expectRowVisible(table, { Resource: 'Memory', Quota: '50 GiB' })
-  await expectRowVisible(table, { Resource: 'Storage', Quota: '7168 GiB' })
+  await expect(cpu).toContainText('50 vCPUs')
+  // quota now below provisioned
+  await expect(memory).toContainText('Over quota184')
+  await expect(storage).toContainText('7,168 GiB')
 })

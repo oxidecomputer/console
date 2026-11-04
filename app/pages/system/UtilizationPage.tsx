@@ -20,10 +20,10 @@ import {
 } from '@oxide/api'
 import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
-import { CapacityBars } from '~/components/CapacityBars'
 import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { QuotaTiles } from '~/components/QuotaTile'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { SystemMetric } from '~/components/SystemMetric'
 import { EditQuotasSideModalForm } from '~/forms/silo-quotas-edit'
@@ -74,10 +74,11 @@ export default function SystemUtilizationPage() {
         />
       </PageHeader>
 
-      <CapacityBars
+      <QuotaTiles
         allocated={totalAllocated}
         provisioned={totalProvisioned}
-        allocatedLabel="Quota (Total)"
+        showBar
+        storageUnit="TiB"
       />
       <QueryParamTabs defaultValue="summary" className="full-width mt-8">
         <Tabs.List>
