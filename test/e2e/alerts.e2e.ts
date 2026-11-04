@@ -299,7 +299,7 @@ test('Add subscription modal previews the classes a glob matches', async ({ page
   // ** matches every class except the synthetic probe class, which can't be
   // subscribed to
   await input.fill('**')
-  await expect(preview).toHaveText(/^Matches 14 alert classes:/)
+  await expect(preview).toHaveText(/^Matches 31 alert classes:/)
   await expect(preview).not.toContainText('probe')
 
   // a well-formed glob matching nothing says so rather than rendering an
@@ -679,12 +679,12 @@ test('Alert list filtering by class', async ({ page }) => {
 
   // filter is applied and reflected in the URL
   await expect(page).toHaveURL(/subscription=\*\*\.remove/)
-  await expect(table.getByRole('row')).toHaveCount(3) // header + 2 remove alerts
+  await expect(table.getByRole('row')).toHaveCount(4) // header + 3 remove alerts
   await expectRowVisible(table, { Class: 'hardware.power_shelf.psu.remove' })
 
   // filter is still applied after refresh
   await page.reload()
-  await expect(table.getByRole('row')).toHaveCount(3)
+  await expect(table.getByRole('row')).toHaveCount(4)
 })
 
 test('Alert list filter resetting', async ({ page }) => {
@@ -695,7 +695,7 @@ test('Alert list filter resetting', async ({ page }) => {
   await input.fill('**.remove')
   await page.getByRole('option', { name: /Matches 3 alert classes/ }).click()
   await applyButton.click()
-  await expect(table.getByRole('row')).toHaveCount(3) // header + 2 remove alerts
+  await expect(table.getByRole('row')).toHaveCount(4) // header + 3 remove alerts
 
   // Reset clears the applied filter and URL
   await filterButton.click()

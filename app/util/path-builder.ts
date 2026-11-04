@@ -180,6 +180,9 @@ export const pb = {
   supportBundlesNew: () => href('/system/support-bundles-new'),
   supportBundle: (params: PP.SupportBundle) =>
     href('/system/support-bundles/:bundleId', params),
+  problems: () => href('/system/problems'),
+  problem: (params: PP.Problem) => href('/system/problems/:problemId', params),
+
   auditLog: () => href('/system/audit-log'),
 
   profile: () => href('/settings/profile'),

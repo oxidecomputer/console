@@ -533,6 +533,22 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/networking/ip-pools",
     },
   ],
+  "problem (/system/problems/ddafcbf2-4997-488a-996f-89bbfb452d68)": [
+    {
+      "label": "Problems",
+      "path": "/system/problems",
+    },
+    {
+      "label": "ddafcb…452d68",
+      "path": "/system/problems/ddafcbf2-4997-488a-996f-89bbfb452d68",
+    },
+  ],
+  "problems (/system/problems)": [
+    {
+      "label": "Problems",
+      "path": "/system/problems",
+    },
+  ],
   "profile (/settings/profile)": [
     {
       "label": "Settings",

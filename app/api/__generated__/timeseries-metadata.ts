@@ -426,6 +426,18 @@ export const targets: Partial<Record<string, { description: string; fields: Fiel
       },
     ],
   },
+  'silo-quota': {
+    description: 'Silo quota capacity and provisioned resources',
+    fields: [
+      {
+        name: 'nexus_id',
+        fieldType: 'uuid',
+        description:
+          'ID of the Nexus reporting the sample. We emit quota metrics from each Nexus, so aggregate over Nexus instances by mean or max, but not sum, to avoid double-counting.',
+      },
+      { name: 'silo_id', fieldType: 'uuid', description: 'ID of the silo' },
+    ],
+  },
   'sled-cpu': {
     description: 'CPU metrics for a compute sled',
     fields: [
@@ -1933,6 +1945,48 @@ export const timeseries: Partial<
         description: 'Port of the metric producer instance',
       },
     ],
+  },
+  'silo_quota:cpu_capacity': {
+    target: 'silo-quota',
+    description: 'Quota capacity for provisioned vCPUs',
+    units: 'count',
+    datumType: 'u64',
+    fields: [],
+  },
+  'silo_quota:cpu_provisioned': {
+    target: 'silo-quota',
+    description: 'Provisioned vCPUs charged against the quota',
+    units: 'count',
+    datumType: 'u64',
+    fields: [],
+  },
+  'silo_quota:memory_capacity': {
+    target: 'silo-quota',
+    description: 'Quota capacity for provisioned memory',
+    units: 'bytes',
+    datumType: 'u64',
+    fields: [],
+  },
+  'silo_quota:memory_provisioned': {
+    target: 'silo-quota',
+    description: 'Provisioned memory charged against the quota',
+    units: 'bytes',
+    datumType: 'u64',
+    fields: [],
+  },
+  'silo_quota:virtual_storage_capacity': {
+    target: 'silo-quota',
+    description: 'Quota capacity for provisioned virtual disk and snapshot storage',
+    units: 'bytes',
+    datumType: 'u64',
+    fields: [],
+  },
+  'silo_quota:virtual_storage_provisioned': {
+    target: 'silo-quota',
+    description: 'Provisioned virtual disk and snapshot storage charged against the quota',
+    units: 'bytes',
+    datumType: 'u64',
+    fields: [],
   },
   'sled_cpu:cpu_nsec': {
     target: 'sled-cpu',

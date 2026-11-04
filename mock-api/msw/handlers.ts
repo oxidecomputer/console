@@ -33,8 +33,6 @@ import {
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import {
   instanceCan,
-  isGlobPattern,
-  isSubscribableClass,
   MAX_BUNDLE_COMMENT_BYTES,
   OXQL_GROUP_BY_ERROR,
   subscriptionRegex,
@@ -50,7 +48,12 @@ import { SUPPORT_BUNDLE_SIZE } from '../support-bundle'
 import { timeseriesSchemas } from '../timeseries-schema'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
-import { resendableAlerts, retryPendingDeliveries, validateSubscription } from './alert'
+import {
+  filterAlerts,
+  resendableAlerts,
+  retryPendingDeliveries,
+  validateSubscription,
+} from './alert'
 import {
   db,
   getIpFromPool,
@@ -2058,6 +2061,82 @@ export const handlers = makeHandlers({
     return paginated(query, db.users)
   },
 
+  problemList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    const problems = db.problems.filter((p) => !query.state || p.state === query.state)
+    const order = query.sortBy === 'time_and_id_descending' ? 'desc' : 'asc'
+    const sorted = R.sortBy(problems, [(p) => p.time_created, order], [(p) => p.id, order])
+    return paginated(query, sorted)
+  },
+  problemView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookupById(db.problems, path.problemId)
+  },
+  problemImpactList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const problem = lookupById(db.problems, path.problemId)
+    // impacts have no ID of their own, so paginate by the resource's
+    const impacts = db.problemImpacts
+      .filter((i) => i.problem_id === problem.id)
+      .map((impact) => ({ ...impact, id: impact.resource.id }))
+    const page = paginated(
+      query,
+      R.sortBy(impacts, (i) => i.id)
+    )
+    return { ...page, items: page.items.map(({ id: _, ...impact }) => impact) }
+  },
+  problemCausesList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const problem = lookupById(db.problems, path.problemId)
+    const causes = db.problemRelations
+      .filter((r) => r.consequence_id === problem.id)
+      .map((r) => ({
+        id: r.cause_id,
+        reason: r.reason,
+        revision_added: r.consequence_revision_added,
+      }))
+    return paginated(
+      query,
+      R.sortBy(causes, (c) => c.id)
+    )
+  },
+  problemConsequencesList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const problem = lookupById(db.problems, path.problemId)
+    const consequences = db.problemRelations
+      .filter((r) => r.cause_id === problem.id)
+      .map((r) => ({
+        id: r.consequence_id,
+        reason: r.reason,
+        revision_added: r.cause_revision_added,
+      }))
+    return paginated(
+      query,
+      R.sortBy(consequences, (c) => c.id)
+    )
+  },
+  problemAlertList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const problem = lookupById(db.problems, path.problemId)
+    const alertIds = new Set(
+      db.problemAlertIds.filter((a) => a.problem_id === problem.id).map((a) => a.alert_id)
+    )
+    const alerts = db.alerts.filter((a) => alertIds.has(a.id))
+    return paginated(query, filterAlerts(alerts, query))
+  },
+  problemSupportBundlesList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const problem = lookupById(db.problems, path.problemId)
+    const bundleIds = db.problemSupportBundles
+      .filter((b) => b.problem_id === problem.id)
+      .map((b) => b.bundle_id)
+    // deleting a bundle detaches it from the problem
+    const bundles = db.supportBundles.filter((b) => bundleIds.includes(b.id))
+    const order = query.sortBy === 'time_and_id_descending' ? 'desc' : 'asc'
+    const sorted = R.sortBy(bundles, [(b) => b.time_created, order], [(b) => b.id, order])
+    return paginated(query, sorted)
+  },
+
   supportBundleList({ query, cookies }) {
     requireFleetViewer(cookies)
     const bundles =
@@ -2459,49 +2538,7 @@ export const handlers = makeHandlers({
   },
   alertList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
-    const { startTime, endTime, alertClass } = query
-    let final = db.alerts.filter((d) => d.class !== 'probe')
-
-    if (startTime)
-      final = final.filter((alert) => new Date(alert.time_created) >= startTime)
-    if (endTime) final = final.filter((alert) => new Date(alert.time_created) <= endTime)
-    if (alertClass) {
-      // Nexus parses the param as a subscription, which 400s on probe,
-      // malformed values, and unrecognized exact classes
-      // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/db-model/src/alert_subscription.rs#L62-L98
-      if (alertClass === 'probe')
-        throw invalidRequest(
-          `unsupported value for "alert_class": the 'probe' alert class is a synthetic alert used only for webhook liveness probes, and is not included in alert lists and cannot be subscribed to`
-        )
-      const matcher = subscriptionRegex(alertClass)
-      if (
-        !matcher ||
-        (!isGlobPattern(alertClass) && !alertClasses.some((c) => c.name === alertClass))
-      ) {
-        throw invalidRequest(`'${alertClass}' is not a valid alert class`)
-      }
-      // a well-formed glob matching no classes is a 404
-      // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/db-queries/src/db/datastore/alert.rs#L261-L272
-      if (!alertClasses.filter(isSubscribableClass).some((c) => matcher.test(c.name))) {
-        throw notFoundErr(
-          `alert class glob '${alertClass}' does not match any existing alert classes`
-        )
-      }
-
-      final = final.filter((alert) => matcher.test(alert.class))
-    }
-
-    final = match(query.sortBy)
-      .with(undefined, () => final)
-      .with('time_and_id_descending', () =>
-        R.reverse(R.sortBy(final, ({ time_created, id }) => `${time_created}|${id}`))
-      )
-      .with('time_and_id_ascending', () =>
-        R.sortBy(final, ({ time_created, id }) => `${time_created}|${id}`)
-      )
-      .exhaustive()
-
-    return paginated(query, final)
+    return paginated(query, filterAlerts(db.alerts, query))
   },
   alertView({ path, cookies }) {
     requireFleetViewer(cookies)
@@ -3129,6 +3166,10 @@ export const handlers = makeHandlers({
   rackMembershipAddSleds: NotImplemented,
   rackMembershipStatus: NotImplemented,
   rackView: NotImplemented,
+  siloCertificateCreate: NotImplemented,
+  siloCertificateDelete: NotImplemented,
+  siloCertificateList: NotImplemented,
+  siloCertificateView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,

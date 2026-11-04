@@ -12,6 +12,7 @@ import {
   instanceTransitioning,
   snapshotTransitioning,
   supportBundleTransitioning,
+  type ProblemState,
   type DiskState,
   type DiskType,
   type InstanceState,
@@ -106,6 +107,17 @@ export const SupportBundleStateBadge = (props: {
     {supportBundleTransitioning(props.state) && (
       <Spinner size="sm" variant={SUPPORT_BUNDLE_COLORS[props.state]} />
     )}
+    {props.state}
+  </Badge>
+)
+
+const PROBLEM_COLORS: Record<ProblemState, BadgeColor> = {
+  active: 'notice',
+  resolved: 'neutral',
+}
+
+export const ProblemStateBadge = (props: { state: ProblemState; className?: string }) => (
+  <Badge color={PROBLEM_COLORS[props.state]} className={props.className}>
     {props.state}
   </Badge>
 )

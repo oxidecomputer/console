@@ -627,6 +627,11 @@ type DiskBulkImport = {
 }
 
 const initDb = {
+  problems: [...mock.problems],
+  problemAlertIds: [...mock.problemAlertIds],
+  problemImpacts: [...mock.problemImpacts],
+  problemRelations: [...mock.problemRelations],
+  problemSupportBundles: [...mock.problemSupportBundles],
   affinityGroups: [...mock.affinityGroups],
   alertDeliveries: [...mock.alertDeliveries],
   alertReceivers: [...mock.alertReceivers],

@@ -6,14 +6,21 @@
  * Copyright Oxide Computer Company
  */
 import * as R from 'remeda'
+import { match } from 'ts-pattern'
 
 import type { ApiTypes as Api } from '@oxide/api'
 
 import type { Json } from '~/api/__generated__/msw-handlers'
-import { ALERT_SUBSCRIPTION_REGEX, isGlobPattern, PROBE_ALERT_CLASS } from '~/api/util'
+import {
+  ALERT_SUBSCRIPTION_REGEX,
+  isGlobPattern,
+  isSubscribableClass,
+  PROBE_ALERT_CLASS,
+  subscriptionRegex,
+} from '~/api/util'
 
 import { alertClasses } from '../alert'
-import { db } from './db'
+import { db, notFoundErr } from './db'
 import { invalidRequest } from './util'
 
 /**
@@ -38,6 +45,56 @@ export function validateSubscription(subscription: string) {
     const known = alertClasses.map((c) => c.name).join(', ')
     throw invalidRequest(`unsupported value for "alert_class": expected one of [${known}]`)
   }
+}
+
+/**
+ * Filtering and sorting shared by the alert list and a problem's alert
+ * list, which take the same `AlertListParams` in Nexus.
+ */
+export function filterAlerts(
+  alerts: Json<Api.Alert>[],
+  query: Pick<Api.AlertListQueryParams, 'startTime' | 'endTime' | 'alertClass' | 'sortBy'>
+) {
+  const { startTime, endTime, alertClass } = query
+  let final = alerts.filter((d) => d.class !== 'probe')
+
+  if (startTime) final = final.filter((alert) => new Date(alert.time_created) >= startTime)
+  if (endTime) final = final.filter((alert) => new Date(alert.time_created) <= endTime)
+  if (alertClass) {
+    // Nexus parses the param as a subscription, which 400s on probe,
+    // malformed values, and unrecognized exact classes
+    // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/db-model/src/alert_subscription.rs#L62-L98
+    if (alertClass === 'probe')
+      throw invalidRequest(
+        `unsupported value for "alert_class": the 'probe' alert class is a synthetic alert used only for webhook liveness probes, and is not included in alert lists and cannot be subscribed to`
+      )
+    const matcher = subscriptionRegex(alertClass)
+    if (
+      !matcher ||
+      (!isGlobPattern(alertClass) && !alertClasses.some((c) => c.name === alertClass))
+    ) {
+      throw invalidRequest(`'${alertClass}' is not a valid alert class`)
+    }
+    // a well-formed glob matching no classes is a 404
+    // https://github.com/oxidecomputer/omicron/blob/7e18e52/nexus/db-queries/src/db/datastore/alert.rs#L261-L272
+    if (!alertClasses.filter(isSubscribableClass).some((c) => matcher.test(c.name))) {
+      throw notFoundErr(
+        `alert class glob '${alertClass}' does not match any existing alert classes`
+      )
+    }
+
+    final = final.filter((alert) => matcher.test(alert.class))
+  }
+
+  return match(query.sortBy)
+    .with(undefined, () => final)
+    .with('time_and_id_descending', () =>
+      R.reverse(R.sortBy(final, ({ time_created, id }) => `${time_created}|${id}`))
+    )
+    .with('time_and_id_ascending', () =>
+      R.sortBy(final, ({ time_created, id }) => `${time_created}|${id}`)
+    )
+    .exhaustive()
 }
 
 /** How long a pending delivery waits before its next attempt */
