@@ -422,3 +422,21 @@ test('Project Access root redirects to the Groups tab', async ({ page }) => {
   await expect(page).toHaveURL(/\/projects\/mock-project\/access\/groups$/)
   await expect(page.getByRole('heading', { name: 'Project Access' })).toBeVisible()
 })
+
+test('Show policy modal lists raw project role assignments', async ({ page }) => {
+  await page.goto(groupsUrl)
+  await page.getByRole('button', { name: 'Show policy' }).click()
+
+  const dialog = page.getByRole('dialog', { name: 'Project policy' })
+  await expect(dialog).toBeVisible()
+  const table = dialog.getByRole('table')
+
+  await expectRowVisible(table, { Actor: 'kernel-devs', Role: 'project.viewer' })
+  await expectRowVisible(table, { Actor: 'Jacob Klein', Role: 'project.collaborator' })
+  await expectRowVisible(table, {
+    Actor: 'Herbert Marcuse',
+    Role: 'project.limited_collaborator',
+  })
+  // silo roles are not part of the project policy
+  await expect(table.getByRole('row')).toHaveCount(4)
+})

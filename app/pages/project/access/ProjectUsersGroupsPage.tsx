@@ -5,7 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { prefetchUsersAndGroups } from '~/components/access/policy-scope'
+import { usePrefetchedQuery } from '@oxide/api'
+
+import { prefetchUsersAndGroups, projectPolicyView } from '~/components/access/policy-scope'
 import { UsersGroupsLayout } from '~/components/access/UsersGroupsLayout'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
@@ -27,9 +29,12 @@ export const handle = makeCrumb('Project Access', (p) =>
 
 export default function ProjectUsersGroupsPage() {
   const projectSelector = useProjectSelector()
+  const { data: policy } = usePrefetchedQuery(projectPolicyView(projectSelector))
   return (
     <UsersGroupsLayout
       title="Project Access"
+      scope="project"
+      policy={policy}
       usersPath={pb.projectUsers(projectSelector)}
       groupsPath={pb.projectGroups(projectSelector)}
       summary="Users and groups come from the silo's identity provider. Project roles determine who can view, edit, or administer this project. Silo roles apply to every project in the silo, and a user's effective role is the strongest of their own roles and those of their groups."

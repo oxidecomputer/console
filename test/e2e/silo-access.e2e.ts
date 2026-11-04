@@ -463,3 +463,22 @@ test('Silo Access root redirects to the Groups tab', async ({ page }) => {
   await expect(page).toHaveURL(/\/access\/groups$/)
   await expect(page.getByRole('heading', { name: 'Silo Access' })).toBeVisible()
 })
+
+test('Show policy modal lists raw silo role assignments', async ({ page }) => {
+  await page.goto('/access/groups')
+  await page.getByRole('button', { name: 'Show policy' }).click()
+
+  const dialog = page.getByRole('dialog', { name: 'Silo policy' })
+  await expect(dialog).toBeVisible()
+  const table = dialog.getByRole('table')
+
+  // groups first, then users, each by name
+  await expectRowVisible(table, { Actor: 'real-estate-devs', Role: 'silo.collaborator' })
+  await expectRowVisible(table, { Actor: 'Hannah Arendt', Role: 'silo.admin' })
+  await expectRowVisible(table, { Actor: 'Jane Austen', Role: 'silo.viewer' })
+  // only direct assignments: Hans Jonas is a silo collaborator via a group
+  await expect(table.getByRole('row')).toHaveCount(4)
+
+  await dialog.getByRole('button', { name: 'Close' }).click()
+  await expect(dialog).toBeHidden()
+})
