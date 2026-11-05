@@ -12,6 +12,7 @@ import { Servers24Icon } from '@oxide/design-system/icons/react'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { useSledParams } from '~/hooks/use-params'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
@@ -71,6 +72,11 @@ export default function SledPage() {
           label="usable physical ram"
           bytes={sled.usablePhysicalRam}
         />
+        <PropertiesTable.Row label="slot">
+          {/* 0 is a valid slot, hence ?? instead of || */}
+          <span className="text-default">{sled.slot ?? <EmptyCell />}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.DateRow label="Created" date={sled.timeCreated} />
       </PropertiesTable>
 
       <RouteTabs fullWidth>
