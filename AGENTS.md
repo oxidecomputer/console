@@ -77,6 +77,7 @@
 # Mock API work
 
 - Only implement what is necessary to exercise the UI; keep the db seeded via `mock-api/msw/db.ts`.
+- Before writing a mock handler, read the Nexus code behind the endpoint (the handler in `nexus/src/external_api/http_entrypoints.rs` and the app-layer function it calls) at the pinned `OMICRON_VERSION` rather than guessing from the OpenAPI types. Optional query params often aren't defaulted the way they look: e.g., a parent selector may be required when the child is given by name and rejected when it's given by ID. Link the Nexus source in a comment where the mock mirrors a non-obvious rule.
 - Store API response objects in the mock tables when possible so state persists across calls.
 - Enforce role checks with `requireFleetViewer`/`requireFleetCollab`/`requireFleetAdmin`, and return realistic errors (e.g. downgrade guard in `systemUpdateStatus`).
 - All UUIDs in `mock-api/` must be valid RFC 4122 (a safety test enforces this). Use `uuidgen` to generate them—do not hand-write UUIDs.

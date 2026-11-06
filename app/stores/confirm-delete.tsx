@@ -39,7 +39,8 @@ export const confirmDelete =
         modalContent: (
           <div className="space-y-2">
             <p>Are you sure you want to delete {displayLabel}?</p>
-            {extraContent ? <p>{extraContent}</p> : null}
+            {/* strings get a paragraph, elements like a Message render as-is */}
+            {typeof extraContent === 'string' ? <p>{extraContent}</p> : extraContent}
           </div>
         ),
         errorTitle: `Could not delete ${resourceKind}`,
