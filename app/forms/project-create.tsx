@@ -7,9 +7,18 @@
  */
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
+import type { RequiredDeep } from 'type-fest'
 
-import { api, q, queryClient, useApiMutation, type ProjectCreate } from '@oxide/api'
+import {
+  api,
+  q,
+  queryClient,
+  useApiMutation,
+  type ProjectCreate,
+  type ProjectCreateDefaults,
+} from '@oxide/api'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -17,12 +26,18 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: ProjectCreate = {
+type ProjectCreateFormValues = Omit<ProjectCreate, 'defaults'> & {
+  createDefaultVpc: boolean
+}
+
+const defaultValues: ProjectCreateFormValues = {
   name: '',
   description: '',
+  createDefaultVpc: true,
 }
 
 export const handle = titleCrumb('New project')
@@ -53,14 +68,32 @@ export default function ProjectCreateSideModalForm() {
       formType="create"
       resourceName="project"
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) => {
-        createProject.mutate({ body: { name, description } })
+      onSubmit={({ name, description, createDefaultVpc }) => {
+        createProject.mutate({
+          body: {
+            name,
+            description,
+            // RequiredDeep will make tsc fail if an API bump adds a new
+            // default resource, so we can decide how to handle it
+            defaults: createDefaultVpc
+              ? ({
+                  vpc: { type: 'explicit', defaults: { subnet: {} } },
+                } satisfies RequiredDeep<ProjectCreateDefaults>)
+              : {},
+          },
+        })
       }}
       loading={createProject.isPending || createProject.isSuccess}
       submitError={createProject.error}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <span className="inline-flex items-center gap-1.5">
+        <CheckboxField name="createDefaultVpc" control={form.control}>
+          Create default VPC and subnet
+        </CheckboxField>
+        <TipIcon>An instance can only attach to a VPC with a subnet.</TipIcon>
+      </span>
       <SideModalFormDocs docs={[docLinks.projects]} />
     </SideModalForm>
   )
