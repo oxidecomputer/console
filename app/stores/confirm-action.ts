@@ -17,6 +17,8 @@ type ActionConfig = {
   /** Title of error toast */
   errorTitle: string
   actionType: 'primary' | 'danger'
+  /** If present, the user must type this text before confirming */
+  confirmText?: string
 }
 
 type ConfirmActionStore = {

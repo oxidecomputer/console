@@ -124,6 +124,10 @@ test.describe('System utilization', () => {
       if (name === 'all-zeros') continue
       await clickRowAction(page, name, 'Delete')
       await confirm.click()
+      // The open modal hides the table from the accessibility tree, so the
+      // link check alone would pass before the delete lands. The list refetch
+      // would then shift rows under the next row's menu as we click it.
+      await expect(page.getByRole('dialog')).toBeHidden()
       await expect(table.getByRole('link', { name })).toBeHidden()
     }
 

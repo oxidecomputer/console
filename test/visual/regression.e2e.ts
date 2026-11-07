@@ -60,7 +60,7 @@ const pages = [
     heading: 'Image details',
     exact: true,
   },
-  { name: 'silo access', url: '/access', heading: 'Silo Access' },
+  { name: 'silo users', url: '/access/users', heading: 'Silo Access' },
 
   // Project - Instances
   { name: 'instances list', url: `${p}/instances`, heading: 'Instances' },
@@ -111,7 +111,7 @@ const pages = [
   { name: 'external subnets', url: `${p}/external-subnets`, heading: 'External Subnets' },
 
   // Project - Other
-  { name: 'project access', url: `${p}/access`, heading: 'Project Access' },
+  { name: 'project users', url: `${p}/access/users`, heading: 'Project Access' },
   { name: 'affinity groups', url: `${p}/affinity`, heading: 'Affinity Groups' },
   {
     name: 'anti-affinity group detail',

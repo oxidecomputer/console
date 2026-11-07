@@ -10,4 +10,6 @@ import { classed } from '~/util/classed'
 
 export const EmptyCell = () => <span className="text-sans-md text-quaternary">&mdash;</span>
 
+export const ErrorCell = () => <span className="text-sans-md text-error">Error</span>
+
 export const SkeletonCell = classed.div`h-4 w-12 rounded-md bg-tertiary motion-safe:animate-pulse`
