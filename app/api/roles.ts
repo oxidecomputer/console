@@ -219,9 +219,19 @@ export const sortRoleEntries = (entries: ScopedRoleEntry[]) =>
  * Members of a group. Shared so loaders and readers use the same query key.
  * Loaders prefetch this per group without awaiting, so readers use `useQuery`
  * and handle the pending state.
+ *
+ * Long staleTime: the Users tab and the user detail route both observe every
+ * group's list, so the default 2s would refetch all of them on every detail
+ * open. Membership only changes in the IdP (JIT or SCIM), never from a console
+ * action, so there is nothing to invalidate on. Matches the current user's
+ * group list in AuthenticatedLayout.
  */
 export const groupMemberList = ({ groupId }: PP.SiloGroup) =>
-  q(api.userList, { query: { group: groupId, limit: ALL_ISH } })
+  q(
+    api.userList,
+    { query: { group: groupId, limit: ALL_ISH } },
+    { staleTime: 60000 }
+  )
 
 /** Async state of data derived from one or more queries. */
 export type Loadable<T> =

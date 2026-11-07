@@ -38,8 +38,6 @@ test('Project Users tab shows effective roles across silo, project, and groups',
     Name: 'Herbert Marcuse',
     Role: 'project.limited_collaborator',
   })
-  // deleted user: name can't be resolved, so the ID is shown
-  await expectRowVisible(table, { Actor: deletedSiloUserId, Role: 'project.viewer' })
   await expectRowVisible(table, {
     Name: 'Hans Jonas',
     Role: 'silo.collaborator',
@@ -441,6 +439,8 @@ test('Show policy modal lists raw project role assignments', async ({ page }) =>
     Actor: 'Herbert Marcuse',
     Role: 'project.limited_collaborator',
   })
+  // deleted user: name can't be resolved, so the ID is shown
+  await expectRowVisible(table, { Actor: deletedSiloUserId, Role: 'project.viewer' })
   // silo roles are not part of the project policy
   await expect(table.getByRole('row')).toHaveCount(5)
 })
