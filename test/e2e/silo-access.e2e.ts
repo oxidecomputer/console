@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { deletedSiloUserId } from '@oxide/api-mocks'
+
 import { expect, expectRowVisible, getPageAsUser, test } from './utils'
 
 test('Non-admin cannot change or remove silo roles', async ({ browser }) => {
@@ -476,9 +478,46 @@ test('Show policy modal lists raw silo role assignments', async ({ page }) => {
   await expectRowVisible(table, { Actor: 'real-estate-devs', Role: 'silo.collaborator' })
   await expectRowVisible(table, { Actor: 'Hannah Arendt', Role: 'silo.admin' })
   await expectRowVisible(table, { Actor: 'Jane Austen', Role: 'silo.viewer' })
+  // a deleted user's assignment outlives them, so it falls back to the ID
+  await expectRowVisible(table, { Actor: deletedSiloUserId, Role: 'silo.viewer' })
   // only direct assignments: Hans Jonas is a silo collaborator via a group
-  await expect(table.getByRole('row')).toHaveCount(4)
+  await expect(table.getByRole('row')).toHaveCount(5)
+
+  // resolved identities are managed from the tabs, so they get no row actions
+  await expect(table.getByRole('button', { name: 'Row actions' })).toHaveCount(1)
 
   await dialog.getByRole('button', { name: 'Close' }).click()
   await expect(dialog).toBeHidden()
+})
+
+test('Show policy modal removes an unresolved role assignment', async ({ page }) => {
+  await page.goto('/access/users')
+  // the deleted user never shows up in the tabs
+  await expect(page.getByRole('cell', { name: deletedSiloUserId })).toBeHidden()
+
+  await page.getByRole('button', { name: 'Show policy' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Silo policy' })
+  const row = dialog.getByRole('row').filter({ hasText: deletedSiloUserId })
+
+  await row.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Remove silo role' }).click()
+  const confirmDialog = page.getByRole('dialog', { name: 'Remove role assignment' })
+  await expect(confirmDialog).toContainText(
+    `Are you sure you want to remove the viewer role for ${deletedSiloUserId}?`
+  )
+  await confirmDialog.getByRole('button', { name: 'Confirm' }).click()
+
+  await expect(row).toBeHidden()
+  await expect(dialog.getByRole('table').getByRole('row')).toHaveCount(4)
+})
+
+test('Show policy modal disables removal for non-admins', async ({ browser }) => {
+  const page = await getPageAsUser(browser, 'Jane Austen')
+  await page.goto('/access/users')
+  await page.getByRole('button', { name: 'Show policy' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Silo policy' })
+  const row = dialog.getByRole('row').filter({ hasText: deletedSiloUserId })
+
+  await row.getByRole('button', { name: 'Row actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Remove silo role' })).toBeDisabled()
 })

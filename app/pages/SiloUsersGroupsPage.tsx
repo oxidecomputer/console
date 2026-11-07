@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
-import { usePrefetchedQuery } from '@oxide/api'
-
-import { prefetchUsersAndGroups, siloPolicyView } from '~/components/access/policy-scope'
+import {
+  prefetchUsersAndGroups,
+  useSiloPolicyScope,
+} from '~/components/access/policy-scope'
 import { UsersGroupsLayout } from '~/components/access/UsersGroupsLayout'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { pb } from '~/util/path-builder'
@@ -22,12 +23,10 @@ export async function clientLoader() {
 export const handle = makeCrumb('Silo Access', pb.siloGroups())
 
 export default function SiloUsersGroupsPage() {
-  const { data: policy } = usePrefetchedQuery(siloPolicyView)
   return (
     <UsersGroupsLayout
       title="Silo Access"
-      scope="silo"
-      policy={policy}
+      policyScope={useSiloPolicyScope()}
       usersPath={pb.siloUsers()}
       groupsPath={pb.siloGroups()}
       summary="Users and groups come from the silo's identity provider. Assign silo and project roles to control what they can view, edit, or administer."

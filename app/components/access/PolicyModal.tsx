@@ -7,22 +7,20 @@
  */
 import { useMemo } from 'react'
 
-import {
-  byGroupThenName,
-  usePrefetchedQuery,
-  type AccessScope,
-  type Policy,
-} from '@oxide/api'
+import { byGroupThenName, usePrefetchedQuery } from '@oxide/api'
 import { Person16Icon, PersonGroup16Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import { RowActions } from '~/table/columns/action-col'
 import { Modal } from '~/ui/lib/Modal'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 import { roleDiv } from '~/util/classed'
 import { capitalize } from '~/util/str'
 
-import { groupListAll, userListAll } from './policy-scope'
+import { groupListAll, userListAll, type PolicyScope } from './policy-scope'
+import { roleActions } from './roleActions'
+import { useCanEditPolicy } from './use-can-edit-policy'
 
 // Log-style list like the Alerts tab: rows with only a bottom border, so divs
 // with explicit table roles rather than table elements. A grid with subgrid
@@ -48,23 +46,34 @@ const Cell = roleDiv('cell', '')
  * Groups tabs, nothing is merged or collapsed here, so this is the policy
  * exactly as the API holds it, including any duplicate assignments for the
  * same identity. The identity lists are prefetched by the Access page loader.
+ *
+ * Assignments whose identity can't be resolved never appear in the Users and
+ * Groups tabs, so this is the only place they can be removed.
  */
 export function PolicyModal({
-  scope,
-  policy,
+  policyScope,
   onDismiss,
 }: {
-  scope: AccessScope
-  policy: Policy
+  policyScope: PolicyScope
   onDismiss: () => void
 }) {
+  const {
+    managedScope: scope,
+    managedPolicy: policy,
+    siloPolicy,
+    projectPolicy,
+    removeRole,
+  } = policyScope
+  const canEdit = useCanEditPolicy(siloPolicy, projectPolicy)
   const { data: users } = usePrefetchedQuery(userListAll)
   const { data: groups } = usePrefetchedQuery(groupListAll)
 
   const rows = useMemo(() => {
     // Identity types never share IDs, so one map covers both. An ID can go
-    // unresolved if the identity was deleted from the IdP after the assignment
-    // was made, in which case we fall back to showing the ID.
+    // unresolved if the identity was deleted after the assignment was made
+    // (local IdP user deletion leaves role assignments behind), if it falls
+    // past the ALL_ISH cap on the lists, or if the policy was written through
+    // the API with an ID from outside the silo. We fall back to showing the ID.
     const nameById = new Map(
       [...users.items, ...groups.items].map((i) => [i.id, i.displayName])
     )
@@ -104,9 +113,8 @@ export function PolicyModal({
                       <>
                         <span className="truncate">{row.identityId}</span>
                         <TipIcon>
-                          Can't resolve name because the{' '}
-                          {row.identityType === 'silo_user' ? 'user' : 'group'} is no longer
-                          in this silo
+                          Can't find this{' '}
+                          {row.identityType === 'silo_user' ? 'user' : 'group'} in the silo
                         </TipIcon>
                       </>
                     )}
@@ -116,6 +124,21 @@ export function PolicyModal({
                       {scope}.{row.roleName}
                     </Badge>
                   </Cell>
+                  {/* resolved identities are managed from the Users and Groups tabs */}
+                  {!row.name && (
+                    <Cell className="h-full w-6 justify-self-end">
+                      <RowActions
+                        id={row.identityId}
+                        actions={[
+                          roleActions(scope, canEdit).remove({
+                            name: row.identityId,
+                            directRole: row.roleName,
+                            doRemove: () => removeRole(row.identityId),
+                          }),
+                        ]}
+                      />
+                    </Cell>
+                  )}
                 </Row>
               ))
             )}

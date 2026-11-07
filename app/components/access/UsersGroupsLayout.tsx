@@ -7,7 +7,6 @@
  */
 import { useState } from 'react'
 
-import { type AccessScope, type Policy } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -16,21 +15,20 @@ import { Button } from '~/ui/lib/Button'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 
+import { type PolicyScope } from './policy-scope'
 import { PolicyModal } from './PolicyModal'
 
 /** Header and Users/Groups tabs shared by the silo and project pages */
 export function UsersGroupsLayout({
   title,
-  scope,
-  policy,
+  policyScope,
   usersPath,
   groupsPath,
   summary,
 }: {
   title: string
   /** The policy this page manages, shown raw in the Show policy modal */
-  scope: AccessScope
-  policy: Policy
+  policyScope: PolicyScope
   usersPath: string
   groupsPath: string
   summary: string
@@ -57,7 +55,7 @@ export function UsersGroupsLayout({
         <Tab to={usersPath}>Users</Tab>
       </RouteTabs>
       {policyOpen && (
-        <PolicyModal scope={scope} policy={policy} onDismiss={() => setPolicyOpen(false)} />
+        <PolicyModal policyScope={policyScope} onDismiss={() => setPolicyOpen(false)} />
       )}
     </>
   )

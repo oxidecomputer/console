@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { deletedSiloUserId } from '@oxide/api-mocks'
+
 import { expect, expectRowVisible, getPageAsUser, test, type Page } from './utils'
 
 const usersUrl = '/projects/mock-project/access/users'
@@ -36,6 +38,8 @@ test('Project Users tab shows effective roles across silo, project, and groups',
     Name: 'Herbert Marcuse',
     Role: 'project.limited_collaborator',
   })
+  // deleted user: name can't be resolved, so the ID is shown
+  await expectRowVisible(table, { Actor: deletedSiloUserId, Role: 'project.viewer' })
   await expectRowVisible(table, {
     Name: 'Hans Jonas',
     Role: 'silo.collaborator',
@@ -438,5 +442,5 @@ test('Show policy modal lists raw project role assignments', async ({ page }) =>
     Role: 'project.limited_collaborator',
   })
   // silo roles are not part of the project policy
-  await expect(table.getByRole('row')).toHaveCount(4)
+  await expect(table.getByRole('row')).toHaveCount(5)
 })
