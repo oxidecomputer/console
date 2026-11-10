@@ -92,7 +92,6 @@
     "uplot": "^1.6.32",
     "uplot-react": "^1.2.4",
     "use-debounce": "^10.0.4",
-    "uuid": "^14.0.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.3"
   },
@@ -110,7 +109,6 @@
     "@types/react-dom": "^19.2.2",
     "@types/react-is": "^19.2.0",
     "@types/semver": "^7.7.1",
-    "@types/uuid": "^10.0.0",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/browser-playwright": "^5.0.3",

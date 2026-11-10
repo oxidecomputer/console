@@ -6,8 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { v4 as uuid } from 'uuid'
-
 import type { AuditLogEntry } from '@oxide/api'
 
 import { Rando } from '~/util/rando'
@@ -78,7 +76,7 @@ const mockSourceIps = [
   '198.51.100.42',
 ]
 
-const mockRequestIds = Array.from({ length: 20 }, () => uuid())
+const mockRequestIds = Array.from({ length: 20 }, () => crypto.randomUUID())
 
 // Use seeded random for consistent states across runs
 const rando = new Rando(0)
@@ -94,7 +92,7 @@ function generateAuditLogEntry(index: number): Json<AuditLogEntry> {
   completedTime.setMilliseconds(rando.next() * 300 + completedTime.getMilliseconds()) // deterministic random durations
 
   return {
-    id: uuid(),
+    id: crypto.randomUUID(),
     auth_method: mockAuthMethod[index % mockAuthMethod.length],
     actor: {
       kind: 'silo_user',
@@ -121,7 +119,7 @@ function generateAuditLogEntry(index: number): Json<AuditLogEntry> {
 export const auditLog: Json<AuditLogEntry[]> = [
   // Recent successful operations
   {
-    id: uuid(),
+    id: crypto.randomUUID(),
     auth_method: 'session_cookie',
     actor: {
       kind: 'silo_user',
@@ -137,7 +135,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
     source_ip: '192.168.1.100',
   },
   {
-    id: uuid(),
+    id: crypto.randomUUID(),
     auth_method: 'access_token',
     actor: {
       kind: 'silo_user',
@@ -155,7 +153,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
   },
   // Failed operations
   {
-    id: uuid(),
+    id: crypto.randomUUID(),
     auth_method: 'session_cookie',
     actor: {
       kind: 'silo_user',
@@ -177,7 +175,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
     source_ip: '172.16.0.25',
   },
   {
-    id: uuid(),
+    id: crypto.randomUUID(),
     auth_method: null,
     actor: { kind: 'unauthenticated' },
     result: {
@@ -195,7 +193,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
   },
   // More historical entries
   {
-    id: uuid(),
+    id: crypto.randomUUID(),
     auth_method: 'session_cookie',
     actor: {
       kind: 'silo_user',
