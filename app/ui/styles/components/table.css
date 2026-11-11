@@ -370,7 +370,7 @@ clip the selected-row border.
 }
 
 .simplebar-scrollbar:before {
-  background-color: rgba(255, 255, 255, 0.28);
+  background-color: var(--content-quaternary);
   left: 0 !important;
   top: 0 !important;
   right: 0 !important;
@@ -378,7 +378,7 @@ clip the selected-row border.
 }
 
 .simplebar-hover.simplebar-scrollbar:before {
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: var(--content-tertiary);
 }
 
 .simplebar-track.simplebar-horizontal {
