@@ -94,7 +94,6 @@
   },
   "devDependencies": {
     "@commander-js/extra-typings": "^15.0.0",
-    "@mswjs/http-middleware": "^0.10.3",
     "@oxide/openapi-gen-ts": "~0.16.0",
     "@playwright/test": "^1.61.0",
     "@react-router/dev": "^8.3.1",
