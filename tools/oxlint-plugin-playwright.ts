@@ -39,17 +39,15 @@ function dottedName(node: CallExpression['callee']): string | undefined {
   return object && `${object}.${node.property.name}`
 }
 
-// test.step() etc. take callbacks too, but they aren't tests
+// test.step(), test.slow(), etc. take callbacks too, but they aren't tests
 const TESTS = new Set([
   'test',
   'test.only',
   'test.skip',
   'test.fixme',
   'test.fail',
-  'test.slow',
+  'test.fail.only',
 ])
-// beforeAll and afterAll run once, so they don't check each test
-const EACH_HOOKS = new Set(['test.beforeEach', 'test.afterEach'])
 // covers variants like test.describe.serial
 const isDescribe = (name: string) =>
   name === 'test.describe' || name.startsWith('test.describe.')
@@ -57,52 +55,59 @@ const isDescribe = (name: string) =>
 const expectExpect: Rule = {
   meta: { type: 'problem', messages: { noAssertions: 'Test has no assertions' } },
   create(context) {
-    // A scope is the file or a test.describe() callback. Its beforeEach and
-    // afterEach hooks apply to every test in it, including nested describes,
-    // and can come after the tests, so whether an unasserted test is covered
-    // is only known once the scope has been fully visited.
+    // A scope is the file or a test.describe() callback. Its afterEach hooks
+    // apply to every test in it, including nested describes, and can come
+    // after the tests, so whether an unasserted test is covered is only known
+    // once the scope has been fully visited. (beforeEach runs before the test
+    // body and often just waits for the page to load, so it doesn't count.)
     type Scope = {
       node?: CallExpression
-      hooksAssert: boolean
+      afterEachAsserts: boolean
       unasserted: CallExpression[]
     }
-    const file: Scope = { hooksAssert: false, unasserted: [] }
+    const file: Scope = { afterEachAsserts: false, unasserted: [] }
     const describes: Scope[] = []
     const innermost = () => describes.at(-1) ?? file
-    // the test or hook callback we're in
-    let body: { node: CallExpression; isHook: boolean; asserted: boolean } | undefined
+    // the test or afterEach callback we're in
+    let body: { node: CallExpression; isAfterEach: boolean; asserted: boolean } | undefined
 
     return {
       CallExpression(node) {
         const name = dottedName(node.callee)
         if (!name) return
+        if (body) {
+          // any call starting with expect counts as an assertion, which covers
+          // expect(), expect.poll(), and helpers like expectRowVisible()
+          if (name.startsWith('expect')) body.asserted = true
+          return
+        }
         const fn = node.arguments.at(-1)
         const hasCallback =
           fn?.type === 'ArrowFunctionExpression' || fn?.type === 'FunctionExpression'
-        if (hasCallback && isDescribe(name)) {
-          describes.push({ node, hooksAssert: false, unasserted: [] })
-        } else if (hasCallback && (TESTS.has(name) || EACH_HOOKS.has(name))) {
-          body = { node, isHook: EACH_HOOKS.has(name), asserted: false }
-        } else if (body && name.startsWith('expect')) {
-          // any call starting with expect counts as an assertion, which covers
-          // expect(), expect.poll(), and helpers like expectRowVisible()
-          body.asserted = true
+        if (!hasCallback) return
+        if (isDescribe(name)) {
+          describes.push({ node, afterEachAsserts: false, unasserted: [] })
+        } else if (name === 'test.afterEach') {
+          body = { node, isAfterEach: true, asserted: false }
+        } else if (TESTS.has(name) && node.arguments.length >= 2) {
+          // >= 2 excludes 1-arg condition modifiers like test.skip(({ browserName }) => ...)
+          body = { node, isAfterEach: false, asserted: false }
         }
       },
       'CallExpression:exit'(node) {
         const scope = innermost()
         if (node === body?.node) {
-          if (body.isHook) scope.hooksAssert ||= body.asserted
+          if (body.isAfterEach) scope.afterEachAsserts ||= body.asserted
           else if (!body.asserted) scope.unasserted.push(node)
           body = undefined
         } else if (node === scope.node) {
           describes.pop()
-          // hooks in an enclosing scope may still cover these
-          if (!scope.hooksAssert) innermost().unasserted.push(...scope.unasserted)
+          // afterEach in an enclosing scope may still cover these
+          if (!scope.afterEachAsserts) innermost().unasserted.push(...scope.unasserted)
         }
       },
       'Program:exit'() {
-        if (file.hooksAssert) return
+        if (file.afterEachAsserts) return
         for (const node of file.unasserted) {
           context.report({ node: node.callee, messageId: 'noAssertions' })
         }
@@ -132,9 +137,14 @@ const noPageRoute: Rule = {
     },
   },
   create: (context) => ({
-    CallExpression(node) {
-      if (dottedName(node.callee)?.endsWith('.route')) {
-        context.report({ node: node.callee, messageId: 'pageRoute' })
+    CallExpression({ callee }) {
+      if (
+        callee.type === 'MemberExpression' &&
+        !callee.computed &&
+        callee.property.type === 'Identifier' &&
+        callee.property.name === 'route'
+      ) {
+        context.report({ node: callee, messageId: 'pageRoute' })
       }
     },
   }),

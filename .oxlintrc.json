@@ -138,7 +138,7 @@
       }
     },
     {
-      "files": ["test/e2e/**/*.ts"],
+      "files": ["test/e2e/**/*.ts", "test/**/*.e2e.ts"],
       "rules": {
         // catch unawaited Playwright calls
         "@typescript-eslint/no-floating-promises": "error",
