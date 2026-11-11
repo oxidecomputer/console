@@ -84,7 +84,6 @@
     "shiki": "^4.5.0",
     "simplebar-react": "^3.2.6",
     "ts-pattern": "^5.8.0",
-    "tunnel-rat": "^0.1.2",
     "uplot": "^1.6.32",
     "uplot-react": "^1.2.4",
     "use-debounce": "^10.0.4",

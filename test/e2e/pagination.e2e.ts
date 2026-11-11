@@ -69,3 +69,27 @@ test('pagination', async ({ page }) => {
   await nextButton.click()
   await expect(spinner).toBeHidden({ timeout: 10 }) // no spinner, cached page
 })
+
+// Pagination and full-page form buttons are portaled into the same footer
+// element, which is replaced when the layout changes
+test('footer content follows navigation', async ({ page }) => {
+  const pagination = page.getByRole('navigation', { name: 'Pagination' })
+  const submit = page.getByRole('button', { name: 'Create instance' })
+
+  await page.goto('/projects')
+  await expect(pagination).toBeVisible()
+
+  // silo layout to project layout
+  await page.getByRole('link', { name: 'mock-project' }).click()
+  await expect(page.getByRole('heading', { name: 'Instances' })).toBeVisible()
+  await expect(pagination).toBeVisible()
+
+  await page.getByRole('link', { name: 'New Instance' }).click()
+  await expect(submit).toBeVisible()
+  await expect(pagination).toBeHidden()
+
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await expect(page.getByRole('heading', { name: 'Instances' })).toBeVisible()
+  await expect(pagination).toBeVisible()
+  await expect(submit).toBeHidden()
+})
