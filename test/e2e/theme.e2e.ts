@@ -24,6 +24,7 @@ async function seedTheme(page: Page, theme: string) {
  * request so renaming the entry can't silently turn this into a hydrated test.
  */
 async function gotoBeforeHydration(page: Page, path: string) {
+  // oxlint-disable-next-line playwright/no-page-route -- blocks a script, not an API call
   await page.route('**/app/entry.client.tsx*', (route) => route.abort('blockedbyclient'), {
     times: 1,
   })
