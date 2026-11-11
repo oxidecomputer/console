@@ -328,7 +328,6 @@ export async function addTlsCert(page: Page) {
  * drops real console output there and only returns React profiling entries.
  */
 export async function expectConsoleMessage(page: Page, msg: string, type?: string) {
-  // eslint-disable-next-line playwright/no-conditional-in-test
   if (test.info().project.name === 'firefox') return
   const messages = await page.consoleMessages()
   const match = messages.find((m) => m.text().includes(msg))
@@ -338,7 +337,6 @@ export async function expectConsoleMessage(page: Page, msg: string, type?: strin
 
 /** Assert that no console message matching `msg` was logged. Skips on Firefox. */
 export async function expectNoConsoleMessage(page: Page, msg: string) {
-  // eslint-disable-next-line playwright/no-conditional-in-test
   if (test.info().project.name === 'firefox') return
   const messages = await page.consoleMessages()
   const match = messages.find((m) => m.text().includes(msg))

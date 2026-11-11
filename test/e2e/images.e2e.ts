@@ -122,7 +122,6 @@ test('can promote an image from project', async ({ page }) => {
 })
 
 test('can copy an image ID to clipboard', async ({ page, browserName }) => {
-  // eslint-disable-next-line playwright/no-skipped-test
   test.skip(
     browserName === 'webkit',
     'navigator.clipboard.readText() is forbidden in Safari.'

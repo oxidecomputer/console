@@ -1,10 +1,7 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "jsPlugins": [
-    {
-      "name": "playwright",
-      "specifier": "eslint-plugin-playwright"
-    },
+    "./tools/oxlint-plugin-playwright.ts",
     {
       "name": "react-hook-form",
       "specifier": "eslint-plugin-react-hook-form"
@@ -120,7 +117,8 @@
         "app/entry.server.tsx",
         "*.config.ts",
         "*.config.mjs",
-        "test/e2e/compact-reporter.ts"
+        "test/e2e/compact-reporter.ts",
+        "tools/oxlint-plugin-playwright.ts"
       ],
       "rules": {
         "import/no-default-export": "off"
@@ -140,22 +138,13 @@
       }
     },
     {
-      // catch unawaited Playwright calls in e2e tests
-      "files": ["test/e2e/**/*.ts"],
+      "files": ["test/e2e/**/*.ts", "test/**/*.e2e.ts"],
       "rules": {
+        // catch unawaited Playwright calls
         "@typescript-eslint/no-floating-promises": "error",
-        "playwright/expect-expect": [
-          "warn",
-          {
-            "assertFunctionNames": [
-              "expectVisible",
-              "expectRowVisible",
-              "expectOptions",
-              "expectRowMenuStaysOpen"
-            ]
-          }
-        ],
-        "playwright/no-force-option": "off"
+        "playwright/expect-expect": "error",
+        "playwright/no-focused-test": "error",
+        "playwright/no-page-route": "error"
       }
     }
   ],
