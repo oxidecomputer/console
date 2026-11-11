@@ -113,7 +113,7 @@
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^6.0.2",
-    "@vitest/browser-playwright": "^5.0.3",
+    "@vitest/browser-playwright": "^5.1.0",
     "commander": "^15.0.0",
     "dax": "^0.50.1",
     "eslint-plugin-playwright": "^2.10.4",
@@ -131,7 +131,7 @@
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
     "vite-node": "^6.0.0",
-    "vitest": "^5.0.3",
+    "vitest": "^5.1.0",
     "vitest-browser-react": "^2.3.0"
   },
   "msw": {
