@@ -61,10 +61,12 @@ const staticCols = [
     header: 'Policy',
     columns: [
       colHelper.accessor('policy', {
+        id: 'policyKind',
         header: 'Kind',
         cell: (info) => <SledKindBadge policy={info.getValue()} />,
       }),
       colHelper.accessor('policy', {
+        id: 'provisionPolicy',
         header: 'Provision policy',
         cell: (info) => <ProvisionPolicyBadge policy={info.getValue()} />,
       }),
