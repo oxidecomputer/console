@@ -120,18 +120,15 @@ test('Auto restart popover, policy never', async ({ page }) => {
 })
 
 test('Auto restart popover, cooled, policy never, cooled', async ({ page }) => {
-  await page.goto('/projects/other-project/instances/failed-cooled-restart-never')
+  await page.goto('/projects/other-project/instances/failed-cooled-restart-never/settings')
 
   // check popover
   const indicator = page.getByRole('button', { name: 'Auto-restart status' })
   await indicator.click()
   await expect(page.getByText('Auto RestartDisabled')).toBeVisible()
   await expect(page.getByText('PolicyNever')).toBeVisible()
-  await expect(page.getByText('Cooldown')).toBeHidden()
+  await expect(page.getByText('Cooldown', { exact: true })).toBeHidden()
   await expect(page.getByText('instance will not automatically restart')).toBeVisible()
-
-  // go to settings tab
-  await page.getByRole('link', { name: 'never', exact: true }).click()
 
   await expect(page.getByText(/Cooldown expiration.+, 202\d.+/)).toBeVisible()
   await expect(page.getByText('restarting soon')).toBeHidden()
