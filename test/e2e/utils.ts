@@ -324,7 +324,12 @@ export async function expectScrollTop(page: Page, expected: number) {
 }
 
 export async function scrollTo(page: Page, to: number) {
-  await page.evaluate((to) => window.scrollTo(0, to), to)
+  await page.evaluate(async (to) => {
+    // If a web font finishes loading after the scroll, the text above the
+    // viewport reflows and scroll anchoring shifts scrollY by a few pixels
+    await document.fonts.ready
+    window.scrollTo(0, to)
+  }, to)
 }
 
 export async function addTlsCert(page: Page) {
