@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useId, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
 import {
@@ -271,6 +271,7 @@ type LinkPoolFormValues = {
 const defaultValues: LinkPoolFormValues = { pool: undefined, isDefault: false }
 
 function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
+  const formId = useId()
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
@@ -319,6 +320,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
       <Modal.Body>
         <Modal.Section>
           <form
+            id={formId}
             autoComplete="off"
             onSubmit={(e) => {
               e.stopPropagation()
@@ -356,7 +358,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
       </Modal.Body>
       <Modal.Footer
         onDismiss={onDismiss}
-        onAction={handleSubmit(onSubmit)}
+        formId={formId}
         actionText="Link"
         actionLoading={isPending}
       />

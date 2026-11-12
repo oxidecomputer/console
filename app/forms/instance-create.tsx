@@ -15,15 +15,16 @@ import type { SetRequired } from 'type-fest'
 
 import {
   api,
+  DEFAULT_VPC_NAME,
   diskCan,
   genName,
-  hasDefaultVpc,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   isUnicastPool,
   MAX_DISK_SIZE_GiB,
   poolHasIpVersion,
   q,
+  qErrorsAllowed,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -54,7 +55,6 @@ import {
   DisksTableField,
   type DiskTableItem,
 } from '~/components/form/fields/DisksTableField'
-import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -62,6 +62,7 @@ import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterface
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioFieldDyn } from '~/components/form/fields/RadioField'
 import { SshKeysField } from '~/components/form/fields/SshKeysField'
+import { TextFieldInner } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
@@ -72,13 +73,16 @@ import { Button } from '~/ui/lib/Button'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { FileInput } from '~/ui/lib/FileInput'
 import { ItemLabel } from '~/ui/lib/ItemLabel'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { MiniTable } from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { RadioCard } from '~/ui/lib/Radio'
+import { Radio, RadioCard } from '~/ui/lib/Radio'
+import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
 import { HintLink, TextInputHint } from '~/ui/lib/TextInput'
@@ -149,7 +153,10 @@ export type InstanceCreateInput = Assign<
     diskSource: string
     bootDiskReadOnly: boolean
 
-    userData: File | null
+    // userDataSource picks which of the two fields below gets submitted
+    userDataSource: 'text' | 'file'
+    userDataText: string
+    userDataFile: File | null
     // ssh keys are always specified. we do not need the undefined case
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
     // Ephemeral IP fields (dual stack support)
@@ -226,13 +233,30 @@ const baseDefaultValues: InstanceCreateInput = {
 
   start: true,
 
-  userData: null,
+  userDataSource: 'file',
+  userDataText: '',
+  userDataFile: null,
   ephemeralIpv4: false,
   ephemeralIpv4Pool: '',
   ephemeralIpv6: false,
   ephemeralIpv6Pool: '',
   floatingIps: [],
 }
+
+// We disable the default_* NIC types in the form if either
+// the default VPC or default subnet is missing.
+// (Both use the name `default`).
+const defaultSubnetView = (project: string) =>
+  qErrorsAllowed(
+    api.vpcSubnetView,
+    { path: { subnet: DEFAULT_VPC_NAME }, query: { project, vpc: DEFAULT_VPC_NAME } },
+    {
+      errorsExpected: {
+        explanation: 'the project may not have a default VPC and subnet.',
+        statusCode: 404,
+      },
+    }
+  )
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const { project } = params
@@ -247,6 +271,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
       q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
     ),
     queryClient.prefetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(defaultSubnetView(project)),
   ])
   return null
 }
@@ -421,13 +446,15 @@ export default function CreateInstanceForm() {
   const { data: vpcs } = usePrefetchedQuery(
     q(api.vpcList, { query: { project, limit: ALL_ISH } })
   )
+  const { data: defaultSubnet } = usePrefetchedQuery(defaultSubnetView(project))
+  const defaultNetworkingAvailable = defaultSubnet.type === 'success'
 
   // Determine default network interface type:
-  // - If a default VPC exists: default to dual-stack (API default, works with both IPv4 and IPv6 subnets)
+  // - If a default VPC and subnet exist: default to dual-stack (API default, works with both IPv4 and IPv6 subnets)
   // - Otherwise: default to 'none' (user must create a VPC first or use custom NICs)
   // Note: Decoupled from external IP pool configuration, as NIC IP stack and external IPs are separate concerns
   const defaultNetworkInterfaceType: InstanceNetworkInterfaceAttachment['type'] =
-    hasDefaultVpc(vpcs.items) ? 'default_dual_stack' : 'none'
+    defaultNetworkingAvailable ? 'default_dual_stack' : 'none'
 
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
@@ -580,9 +607,16 @@ export default function CreateInstanceForm() {
             externalIps.push({ type: 'floating', floatingIp })
           }
 
-          const userData = values.userData
-            ? await readBlobAsBase64(values.userData)
-            : undefined
+          const userData = await match(values.userDataSource)
+            .with('text', () =>
+              values.userDataText.trim()
+                ? readBlobAsBase64(new Blob([values.userDataText]))
+                : undefined
+            )
+            .with('file', () =>
+              values.userDataFile ? readBlobAsBase64(values.userDataFile) : undefined
+            )
+            .exhaustive()
 
           await createInstance.mutateAsync({
             query: { project },
@@ -840,17 +874,11 @@ export default function CreateInstanceForm() {
           isSubmitting={isSubmitting}
           unicastPools={unicastPools}
           vpcs={vpcs.items}
+          defaultNetworkingAvailable={defaultNetworkingAvailable}
         />
         <FormDivider />
         <Form.Heading id="advanced">Advanced</Form.Heading>
-        <FileField
-          id="user-data-input"
-          description={<UserDataDescription />}
-          name="userData"
-          label="User Data"
-          control={control}
-          disabled={isSubmitting}
-        />
+        <UserDataField control={control} disabled={isSubmitting} />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending || createInstance.isSuccess}>
             Create instance
@@ -879,11 +907,13 @@ const NetworkingSection = ({
   isSubmitting,
   unicastPools,
   vpcs,
+  defaultNetworkingAvailable,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
   unicastPools: UnicastIpPool[]
   vpcs: Vpc[]
+  defaultNetworkingAvailable: boolean
 }) => {
   const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })
   const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
@@ -966,7 +996,12 @@ const NetworkingSection = ({
       {vpcMessage && (
         <Message className="mb-4 max-w-lg" variant="notice" content={vpcMessage} />
       )}
-      <NetworkInterfaceField control={control} disabled={isSubmitting} vpcs={vpcs} />
+      <NetworkInterfaceField
+        control={control}
+        disabled={isSubmitting}
+        vpcs={vpcs}
+        defaultNetworkingAvailable={defaultNetworkingAvailable}
+      />
 
       <div className="flex flex-1 flex-col gap-4">
         <h2 className="text-sans-md flex items-center">
@@ -1053,23 +1088,24 @@ const NetworkingSection = ({
           <Modal.Body>
             <Modal.Section>
               <Message variant="info" content={selectedFloatingIpMessage} />
-              <form>
-                <Listbox
-                  name="floatingIp"
-                  items={availableFloatingIps.map((i) => ({
-                    value: i.name,
-                    label: <FloatingIpLabel ip={i} />,
-                    selectedLabel: `${i.name} (${i.ip})`,
-                  }))}
-                  label="Floating IP"
-                  onChange={(name) => {
-                    setSelectedFloatingIp(availableFloatingIps.find((i) => i.name === name))
-                  }}
-                  required
-                  placeholder="Select a floating IP"
-                  selected={selectedFloatingIp?.name || ''}
-                />
-              </form>
+              {/* No <form> here: this modal is inside the instance create form in
+                  the React tree, so a submit event would bubble through the portal
+                  and submit the whole instance create form */}
+              <Listbox
+                name="floatingIp"
+                items={availableFloatingIps.map((i) => ({
+                  value: i.name,
+                  label: <FloatingIpLabel ip={i} />,
+                  selectedLabel: `${i.name} (${i.ip})`,
+                }))}
+                label="Floating IP"
+                onChange={(name) => {
+                  setSelectedFloatingIp(availableFloatingIps.find((i) => i.name === name))
+                }}
+                required
+                placeholder="Select a floating IP"
+                selected={selectedFloatingIp?.name || ''}
+              />
             </Modal.Section>
           </Modal.Body>
           <Modal.Footer
@@ -1115,3 +1151,68 @@ const UserDataDescription = () => (
     image supports it. Maximum size 32 KiB.
   </>
 )
+
+/**
+ * User data can be pasted as text or uploaded as a file. A file is still useful
+ * for content that isn't plain text, like gzipped cloud-init config. Both inputs
+ * stay mounted (just hidden) so switching back and forth doesn't lose anything,
+ * which matters for the file input because it tracks its own selected file.
+ */
+const UserDataField = ({
+  control,
+  disabled,
+}: {
+  control: Control<InstanceCreateInput>
+  disabled: boolean
+}) => {
+  const sourceField = useController({ control, name: 'userDataSource' })
+  const {
+    field: { value: _, ...fileField },
+  } = useController({ control, name: 'userDataFile' })
+  const source = sourceField.field.value
+  return (
+    <div className="max-w-lg">
+      <div className="mb-4">
+        <FieldLabel id="user-data-label" htmlFor={`user-data-${source}`} optional>
+          User data
+        </FieldLabel>
+        <TextInputHint id="user-data-help-text">
+          <UserDataDescription />
+        </TextInputHint>
+      </div>
+      <RadioGroup
+        name="userDataSource"
+        className="mb-4"
+        aria-labelledby="user-data-label"
+        defaultChecked={source}
+        onChange={(e) => sourceField.field.onChange(e.target.value)}
+        disabled={disabled}
+      >
+        <Radio value="file">Upload file</Radio>
+        <Radio value="text">Paste text</Radio>
+      </RadioGroup>
+      <div hidden={source !== 'text'}>
+        <TextFieldInner
+          id="user-data-text"
+          as="textarea"
+          rows={8}
+          name="userDataText"
+          label="User data"
+          aria-labelledby="user-data-label user-data-help-text"
+          // user data is usually YAML or a script, where indentation matters
+          fieldClassName="text-mono-code!"
+          control={control}
+          disabled={disabled}
+        />
+      </div>
+      <div hidden={source !== 'file'}>
+        <FileInput
+          id="user-data-file"
+          aria-labelledby="user-data-label user-data-help-text"
+          disabled={disabled}
+          {...fileField}
+        />
+      </div>
+    </div>
+  )
+}

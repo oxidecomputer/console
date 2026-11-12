@@ -12,7 +12,6 @@ import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import { roleDiv } from '~/util/classed'
 
-import { Button } from './Button'
 import { EmptyMessage } from './EmptyMessage'
 import { Tooltip } from './Tooltip'
 
@@ -102,33 +101,6 @@ const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) 
       <Error16Icon aria-hidden focusable="false" />
     </button>
   </RemoveCellWrapper>
-)
-
-type ClearAndAddButtonsProps = {
-  addButtonCopy: string
-  disabled: boolean
-  onClear: () => void
-  onSubmit: () => void
-}
-
-/**
- * A set of buttons used with embedded sub-forms to add items to MiniTables,
- * like in the firewall rules and NIC edit forms.
- */
-export const ClearAndAddButtons = ({
-  addButtonCopy,
-  disabled,
-  onClear,
-  onSubmit,
-}: ClearAndAddButtonsProps) => (
-  <div className="flex justify-end gap-2.5">
-    <Button variant="ghost" size="sm" onClick={onClear} disabled={disabled}>
-      Clear
-    </Button>
-    <Button size="sm" onClick={onSubmit} disabled={disabled}>
-      {addButtonCopy}
-    </Button>
-  </div>
 )
 
 type Column<T> = {

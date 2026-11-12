@@ -115,7 +115,7 @@
 # Layout & accessibility
 
 - Build pages inside the shared `PageContainer`/`ContentPane` (`app/layouts/helpers.tsx`).
-- Surface page-level buttons and pagination via the `PageActions` and `Pagination` tunnels from `tunnel-rat`; anything rendered through `.In` lands in `.Target` automatically.
+- To put page-level buttons or pagination in the sticky footer at the bottom of `ContentPane`, wrap them in `PageFooter` (`app/components/PageFooter.tsx`), which portals its children there. `FullPageForm` actions and the `Pagination` component already do this.
 - For global loading states, reuse `PageSkeleton`—it keeps the MSW banner and grid layout stable, and `skipPaths` lets you opt-out for routes with custom layouts (`app/components/PageSkeleton.tsx`).
 - Enforce accessibility at the type level: use `AriaLabel` type from `app/ui/util/aria.ts` which requires exactly one of `aria-label` or `aria-labelledby` on custom interactive components.
 

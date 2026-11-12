@@ -11,6 +11,11 @@ import { externalizeSpaScripts } from './tools/externalize-spa-scripts'
 
 export default {
   ssr: false,
+  // Splitting (on by default in v8) emits a separate clientLoader chunk per
+  // route so the loader can start before the component downloads. Few of our
+  // loaders can be split, and the rest leave dead placeholder chunks, so it
+  // mostly adds files.
+  splitRouteModules: false,
   routeDiscovery: { mode: 'initial' },
   async buildEnd({ reactRouterConfig }) {
     await externalizeSpaScripts(`${reactRouterConfig.buildDirectory}/client`)

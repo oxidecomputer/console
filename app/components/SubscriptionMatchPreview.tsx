@@ -7,12 +7,7 @@
  */
 import type { AlertClassResultsPage } from '@oxide/api'
 
-import {
-  ALERT_SUBSCRIPTION_REGEX,
-  isGlobPattern,
-  isSubscribableClass,
-  subscriptionRegex,
-} from '~/api/util'
+import { isGlobPattern, isSubscribableClass, subscriptionRegex } from '~/api/util'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
 
 /**
@@ -28,11 +23,8 @@ export function SubscriptionMatchPreview({
   data: AlertClassResultsPage | undefined
   pattern: string
 }) {
-  // validate before subscriptionRegex, which assumes a well-formed subscription
-  const isValidGlob = isGlobPattern(pattern) && ALERT_SUBSCRIPTION_REGEX.test(pattern)
-  if (!isValidGlob || !data) return null
-
-  const re = subscriptionRegex(pattern)
+  const re = isGlobPattern(pattern) ? subscriptionRegex(pattern) : null
+  if (!re || !data) return null
   // the probe class can't be subscribed to, so don't count it as a match
   const classes = data.items.filter(isSubscribableClass).filter((c) => re.test(c.name))
 

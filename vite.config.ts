@@ -16,7 +16,7 @@ import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
 import { z } from 'zod/v4'
 
-import { nexusSecurityHeaders } from './app/api/__generated__/nexus-console'
+import { nexusSecurityHeaders } from './app/api/__generated__/nexus-console.ts'
 
 const ApiMode = z.enum(['msw', 'remote', 'nexus'])
 
@@ -79,6 +79,9 @@ export default defineConfig(({ mode }) => ({
     // minify: false, // uncomment for debugging
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
     assetsInlineLimit: 0,
+    // the metrics explorer route chunk is ~600 kB. It's lazy loaded, so it
+    // only costs anything on that page
+    chunkSizeWarningLimit: 700,
   },
   environments: {
     ssr: {
@@ -94,7 +97,7 @@ export default defineConfig(({ mode }) => ({
     'process.env.VERCEL_ENV': JSON.stringify(process.env.VERCEL_ENV),
     'process.env.THEME_INIT_HASH': JSON.stringify(
       createHash('sha256')
-        .update(readFileSync(resolve(__dirname, 'public/assets/theme-init.js')))
+        .update(readFileSync(resolve(import.meta.dirname, 'public/assets/theme-init.js')))
         .digest('hex')
         .slice(0, 8)
     ),
@@ -139,6 +142,9 @@ export default defineConfig(({ mode }) => ({
   server: {
     port: 4000,
     headers: devHeaders,
+    // agent notes under .claude can be HTML, and any HTML change in the root
+    // triggers a full page reload
+    watch: { ignored: ['**/.claude/**'] },
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {

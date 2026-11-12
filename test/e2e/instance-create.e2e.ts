@@ -89,7 +89,17 @@ test('can create an instance', async ({ page }) => {
   await expect(v6PoolDropdown).toContainText('ip-pool-2')
 
   await expect(page.getByRole('radiogroup', { name: 'Network interface' })).toBeVisible()
-  await expect(page.getByLabel('User data')).toBeVisible()
+
+  await expect(page.getByText('Drop a file or click to browse')).toBeVisible()
+  await page.getByRole('radio', { name: 'Paste text' }).click()
+  const userData = page.getByRole('textbox', { name: 'User data' })
+  await userData.fill('#cloud-config\npackages:\n  - nginx\n')
+  // switching to file upload and back keeps what was typed
+  await page.getByRole('radio', { name: 'Upload file' }).click()
+  await expect(userData).toBeHidden()
+  await expect(page.getByText('Drop a file or click to browse')).toBeVisible()
+  await page.getByRole('radio', { name: 'Paste text' }).click()
+  await expect(userData).toHaveValue('#cloud-config\npackages:\n  - nginx\n')
 
   await page.getByRole('button', { name: 'Create instance' }).click()
 
@@ -1217,12 +1227,16 @@ test('custom network interface works without a default VPC', async ({ page }) =>
   const tooltip = page.getByRole('tooltip')
 
   await defaultTip.hover()
-  await expect(tooltip).toHaveText('Default networking requires a VPC named default')
+  await expect(tooltip).toHaveText(
+    'Default networking requires a VPC and subnet named default'
+  )
 
   await page.mouse.move(0, 0)
   await expect(tooltip).toBeHidden()
   await defaultTip.focus()
-  await expect(tooltip).toHaveText('Default networking requires a VPC named default')
+  await expect(tooltip).toHaveText(
+    'Default networking requires a VPC and subnet named default'
+  )
 
   await expect(noneRadio).toBeEnabled()
   await expect(noneRadio).toBeChecked()
@@ -1373,4 +1387,14 @@ test('can create instance with read-only boot disk', async ({ page }) => {
   // Verify boot disk shows read-only badge
   const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
   await expect(bootDiskTable.getByText('read only')).toBeVisible()
+})
+
+test('Enter in the boot disk image picker creates the instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('enter-instance')
+  await selectAProjectImage(page, 'image-3')
+
+  // the picker closes on selection, so Enter submits the whole form
+  await page.getByPlaceholder('Select a project image', { exact: true }).press('Enter')
+  await expect(page).toHaveURL('/projects/mock-project/instances/enter-instance/storage')
 })

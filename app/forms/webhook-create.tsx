@@ -18,14 +18,14 @@ import { SubscriptionsField } from '~/components/form/fields/SubscriptionsField'
 import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
+import { Subform } from '~/components/form/Subform'
 import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
-import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { HintLink } from '~/ui/lib/TextInput'
-import { KEYS } from '~/ui/util/keys'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -74,7 +74,13 @@ function SecretsField({ control }: { control: Control<WebhookCreateFormValues> }
 
   return (
     <>
-      <div className="flex max-w-lg flex-col gap-3">
+      <Subform
+        onSubmit={submitSubform}
+        onClear={() => subform.reset()}
+        addButtonLabel="Add secret"
+        disabled={!secret}
+        className="max-w-lg"
+      >
         <TextField
           control={subform.control}
           name="secret"
@@ -86,20 +92,8 @@ function SecretsField({ control }: { control: Control<WebhookCreateFormValues> }
             </>
           }
           required
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              submitSubform(e)
-            }
-          }}
         />
-        <ClearAndAddButtons
-          addButtonCopy="Add secret"
-          disabled={!secret}
-          onClear={() => subform.reset()}
-          onSubmit={submitSubform}
-        />
-      </div>
+      </Subform>
       <MiniTable
         className="max-w-lg"
         ariaLabel="Secrets"

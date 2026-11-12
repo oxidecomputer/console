@@ -24,6 +24,7 @@ async function seedTheme(page: Page, theme: string) {
  * request so renaming the entry can't silently turn this into a hydrated test.
  */
 async function gotoBeforeHydration(page: Page, path: string) {
+  // oxlint-disable-next-line playwright/no-page-route -- blocks a script, not an API call
   await page.route('**/app/entry.client.tsx*', (route) => route.abort('blockedbyclient'), {
     times: 1,
   })
@@ -141,9 +142,8 @@ test('Theme picker changes data-theme on <html>', async ({ page }) => {
   await page.getByRole('menuitemradio', { name: 'Light' }).click()
   await expectTheme('light')
 
-  // navigate fresh and confirm the choice persisted via localStorage
-  // (page.reload() didn't work in Firefox)
-  await page.goto('/projects')
+  // reload and confirm the choice persisted via localStorage
+  await page.reload()
   await expectTheme('light')
 
   // reopen and pick Dark
