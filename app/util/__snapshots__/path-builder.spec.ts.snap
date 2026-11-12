@@ -687,6 +687,48 @@ exports[`breadcrumbs 2`] = `
       "path": "/access",
     },
   ],
+  "siloCertificate (/system/silos/s/certificates/c)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Certificates",
+      "path": "/system/silos/s/certificates",
+    },
+  ],
+  "siloCertificates (/system/silos/s/certificates)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Certificates",
+      "path": "/system/silos/s/certificates",
+    },
+  ],
+  "siloCertificatesNew (/system/silos/s/certificates-new)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Certificates",
+      "path": "/system/silos/s/certificates",
+    },
+  ],
   "siloFleetRoles (/system/silos/s/fleet-roles)": [
     {
       "label": "Silos",

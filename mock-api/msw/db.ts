@@ -445,6 +445,26 @@ export const lookup = {
     const { is_default: _, ...systemPool } = pool
     return systemPool
   },
+  // https://github.com/oxidecomputer/omicron/blob/5cda99a/nexus/src/app/certificate.rs#L67-L90
+  siloCertificate({
+    certificate: id,
+    ...siloSelector
+  }: Sel.Silo & { certificate: string }): (typeof db.certificates)[number] {
+    if (isUuid(id)) {
+      ensureNoParentSelectors('certificate', siloSelector)
+      return lookupById(db.certificates, id)
+    }
+
+    if (!siloSelector.silo) {
+      throw invalidRequest(
+        'certificate should either be a UUID or silo should be specified'
+      )
+    }
+    const silo = lookup.silo(siloSelector)
+    const cert = db.certificates.find((c) => c.siloId === silo.id && c.name === id)
+    if (!cert) throw notFoundErr(`certificate '${id}'`)
+    return cert
+  },
   siloSubnetPool(path: Sel.SubnetPool & Sel.Silo): Json<Api.SiloSubnetPool> {
     const silo = lookup.silo(path)
     const pool = lookup.subnetPool(path)
@@ -661,6 +681,7 @@ const initDb = {
   racks: [...mock.racks],
   roleAssignments: [...mock.roleAssignments],
   scimTokens: [...mock.scimTokens],
+  certificates: [...mock.certificates],
   silos: [...mock.silos],
   siloQuotas: [...mock.siloQuotas],
   siloProvisioned: [...mock.siloProvisioned],

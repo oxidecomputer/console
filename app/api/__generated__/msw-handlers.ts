@@ -1004,6 +1004,33 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.AuditLogEntryResultsPage>>
+  /** `GET /v1/system/certificates` */
+  siloCertificateList: (params: {
+    query: Api.SiloCertificateListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.CertificateResultsPage>>
+  /** `POST /v1/system/certificates` */
+  siloCertificateCreate: (params: {
+    query: Api.SiloCertificateCreateQueryParams
+    body: Json<Api.CertificateCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Certificate>>
+  /** `GET /v1/system/certificates/:certificate` */
+  siloCertificateView: (params: {
+    path: Api.SiloCertificateViewPathParams
+    query: Api.SiloCertificateViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Certificate>>
+  /** `DELETE /v1/system/certificates/:certificate` */
+  siloCertificateDelete: (params: {
+    path: Api.SiloCertificateDeletePathParams
+    query: Api.SiloCertificateDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `PUT /v1/system/hardware/disk-adoption-request` */
   physicalDiskEnableAdoption: (params: {
     body: Json<Api.PhysicalDiskManufacturerIdentity>
@@ -2978,6 +3005,26 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.get(
       '/v1/system/audit-log',
       handler(handlers['auditLogList'], schema.AuditLogListParams, null)
+    ),
+    http.get(
+      '/v1/system/certificates',
+      handler(handlers['siloCertificateList'], schema.SiloCertificateListParams, null)
+    ),
+    http.post(
+      '/v1/system/certificates',
+      handler(
+        handlers['siloCertificateCreate'],
+        schema.SiloCertificateCreateParams,
+        schema.CertificateCreate
+      )
+    ),
+    http.get(
+      '/v1/system/certificates/:certificate',
+      handler(handlers['siloCertificateView'], schema.SiloCertificateViewParams, null)
+    ),
+    http.delete(
+      '/v1/system/certificates/:certificate',
+      handler(handlers['siloCertificateDelete'], schema.SiloCertificateDeleteParams, null)
     ),
     http.put(
       '/v1/system/hardware/disk-adoption-request',

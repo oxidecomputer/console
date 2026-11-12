@@ -14,6 +14,7 @@ export type Instance = Required<Sel.Instance>
 export type Vpc = Required<Sel.Vpc>
 export type Silo = Required<Sel.Silo>
 export type IdentityProvider = Required<Sel.IdentityProvider>
+export type SiloCertificate = Silo & { certificate: string }
 export type Sled = Required<Sel.Sled>
 export type Image = Required<Sel.Image>
 export type Snapshot = Required<Sel.Snapshot>

@@ -4775,7 +4775,11 @@ export const TufRepo = z.preprocess(
   processResponseBody,
   z.object({
     fileName: z.string(),
-    hash: z.string(),
+    hash: z
+      .string()
+      .min(64)
+      .max(64)
+      .regex(/^[0-9a-fA-F]{64}$/),
     systemVersion: z
       .string()
       .regex(
@@ -7056,6 +7060,53 @@ export const AuditLogListParams = z.preprocess(
       pageToken: z.string().nullable().optional(),
       sortBy: TimeAndIdSortMode.optional(),
       startTime: z.coerce.date().optional(),
+    }),
+  })
+)
+
+export const SiloCertificateListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.int().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      silo: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const SiloCertificateCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      silo: NameOrId,
+    }),
+  })
+)
+
+export const SiloCertificateViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      certificate: NameOrId,
+    }),
+    query: z.object({
+      silo: NameOrId.optional(),
+    }),
+  })
+)
+
+export const SiloCertificateDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      certificate: NameOrId,
+    }),
+    query: z.object({
+      silo: NameOrId.optional(),
     }),
   })
 )
