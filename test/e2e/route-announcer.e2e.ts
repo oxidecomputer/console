@@ -7,22 +7,46 @@
  */
 import { expect, test, type Page } from '@playwright/test'
 
+declare global {
+  interface Window {
+    announcements: string[]
+  }
+}
+
 // react-aria appends each announcement as a child of a hidden polite live
-// region shared with toasts. CSS locator because there's a second region for
+// region shared with toasts, and removes it 7 seconds later. A slow CI runner
+// can take longer than that to get to an assertion, so record announcements as
+// they're added. Match on the polite region because there's a second one for
 // assertive announcements and we only want the messages from this one.
-const announcements = (page: Page) =>
-  page.locator('[data-live-announcer] [aria-live="polite"] > div')
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.announcements = []
+    new MutationObserver((records) => {
+      for (const { target, addedNodes } of records) {
+        if (
+          target instanceof Element &&
+          target.matches('[data-live-announcer] [aria-live="polite"]')
+        ) {
+          for (const node of addedNodes) window.announcements.push(node.textContent ?? '')
+        }
+      }
+    }).observe(document, { childList: true, subtree: true })
+  })
+})
+
+const expectAnnouncements = (page: Page) =>
+  expect.poll(() => page.evaluate(() => window.announcements))
 
 test('route announcer', async ({ page }) => {
   await page.goto('/projects')
   await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible()
 
   // nothing on first load — the browser already announced the page
-  await expect(announcements(page)).toHaveCount(0)
+  await expectAnnouncements(page).toEqual([])
 
   // nav by a link inside the content, which unmounts along with the page
   await page.getByRole('link', { name: 'mock-project' }).click()
-  await expect(announcements(page)).toHaveText(['Instances, mock-project, Projects'])
+  await expectAnnouncements(page).toEqual(['Instances, mock-project, Projects'])
   // focus goes to the new page's heading, like (better than) a real page load
   await expect(page.getByRole('heading', { name: 'Instances' })).toBeFocused()
 
@@ -32,7 +56,7 @@ test('route announcer', async ({ page }) => {
     .getByRole('navigation', { name: 'Sidebar navigation' })
     .getByRole('link', { name: 'Disks' })
   await disksLink.click()
-  await expect(announcements(page)).toHaveText([
+  await expectAnnouncements(page).toEqual([
     'Instances, mock-project, Projects',
     'Disks, mock-project, Projects',
   ])
@@ -42,12 +66,12 @@ test('route announcer', async ({ page }) => {
   // than replacing it, so it doesn't announce or take focus from the dialog
   await page.getByRole('link', { name: 'New Disk' }).click()
   await expect(page.getByRole('dialog', { name: 'Create disk' })).toBeVisible()
-  await expect(announcements(page)).toHaveCount(2)
+  await expectAnnouncements(page).toHaveLength(2)
 
   // ...and neither does dismissing it
   await page.getByRole('button', { name: 'Cancel' }).click()
   await expect(page.getByRole('dialog', { name: 'Create disk' })).toBeHidden()
-  await expect(announcements(page)).toHaveCount(2)
+  await expectAnnouncements(page).toHaveLength(2)
 })
 
 // tabs that live in the query param rather than the path aren't navigations as
@@ -56,7 +80,7 @@ test('route announcer ignores query param tabs', async ({ page }) => {
   await page.goto('/system/utilization')
   await page.getByRole('tab', { name: 'Metrics' }).click()
   await expect(page).toHaveURL(/tab=metrics/)
-  await expect(announcements(page)).toHaveCount(0)
+  await expectAnnouncements(page).toEqual([])
 })
 
 // VPC tabs, on the other hand, are real routes. Routes like these share a crumb
@@ -65,7 +89,7 @@ test('route announcer on tab routes', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/default/firewall-rules')
   const tab = page.getByRole('tab', { name: 'Routers' })
   await tab.click()
-  await expect(announcements(page)).toHaveText([
+  await expectAnnouncements(page).toEqual([
     'Routers, default, VPCs, mock-project, Projects',
   ])
   // the tab is still there, so it keeps focus
@@ -78,5 +102,5 @@ test('route announcer ignores detail side modals', async ({ page }) => {
   await page.goto('/images')
   await page.getByRole('link', { name: 'ubuntu-22-04' }).click()
   await expect(page.getByRole('dialog', { name: 'Image details' })).toBeVisible()
-  await expect(announcements(page)).toHaveCount(0)
+  await expectAnnouncements(page).toEqual([])
 })
