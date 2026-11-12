@@ -11,6 +11,7 @@ import { differenceInSeconds, subHours } from 'date-fns'
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
+import { v4 as uuid } from 'uuid'
 
 import {
   FLEET_ID,
@@ -31,6 +32,9 @@ import {
   type SystemMetricQueryParams,
   type TimeseriesQuery,
   type User,
+  type Vpc,
+  type VpcCreate,
+  type VpcSubnet,
 } from '@oxide/api'
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
@@ -55,6 +59,8 @@ import {
   getMockValues,
   getHistoPoints,
 } from '../oxql-metrics'
+import { getTimestamps } from '../util'
+import { defaultFirewallRules } from '../vpc'
 import { db, lookupById } from './db'
 
 interface PaginateOptions {
@@ -762,4 +768,38 @@ export function randomHex(length: number) {
   return Array.from({ length })
     .map(() => hexChars.charAt(Math.floor(Math.random() * hexChars.length)))
     .join('')
+}
+
+/** Shared by `vpcCreate` and `projectCreate`, which can create a default VPC */
+export function createVpc(projectId: string, body: Json<VpcCreate>) {
+  const { defaults, ...rest } = body
+  const newVpc: Json<Vpc> = {
+    id: uuid(),
+    project_id: projectId,
+    system_router_id: uuid(),
+    ...rest,
+    // API is supposed to generate one if none provided. close enough
+    ipv6_prefix: body.ipv6_prefix || 'fd2d:4569:88b2::/64',
+    ...getTimestamps(),
+  }
+  db.vpcs.push(newVpc)
+
+  // omitting `defaults` creates all of them. otherwise only the ones listed
+  if (!defaults || defaults.subnet) {
+    const newSubnet: Json<VpcSubnet> = {
+      id: uuid(),
+      name: 'default',
+      vpc_id: newVpc.id,
+      ipv6_block: 'fd2d:4569:88b1::/64',
+      description: '',
+      ipv4_block: '',
+      ...getTimestamps(),
+    }
+    db.vpcSubnets.push(newSubnet)
+  }
+
+  // populate default firewall rules, which are always created
+  db.vpcFirewallRules.push(...defaultFirewallRules(newVpc.id))
+
+  return newVpc
 }
