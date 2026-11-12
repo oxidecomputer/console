@@ -130,6 +130,10 @@ export default [
           ]),
           route('support-bundles-new', 'forms/support-bundle-create.tsx'),
         ]),
+        route('problems', 'routes/problems.tsx', [
+          index('pages/system/problems/ProblemsPage.tsx'),
+          route(':problemId', 'pages/system/problems/ProblemPage.tsx'),
+        ]),
         route('access', 'pages/system/FleetAccessPage.tsx'),
         route('audit-log', 'pages/system/AuditLog.tsx'),
       ]),

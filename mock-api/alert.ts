@@ -11,12 +11,15 @@ import { subMinutes } from 'date-fns'
 import type { Alert, AlertClass, AlertDelivery, AlertReceiver } from '@oxide/api'
 
 import type { Json } from './json-type'
+import { problemAlerts } from './problem'
 import { rack } from './rack'
 import { getTimestamps } from './util'
 
 // Descriptions come from AlertClass in Omicron. Test-only classes are excluded
 // from the public list endpoint.
 // https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/types/src/alert.rs#L61-L127
+// The silo.certificate.* classes are newer:
+// https://github.com/oxidecomputer/omicron/blob/f7cc82d/nexus/types/src/alert.rs#L82-L85
 export const alertClasses: Json<AlertClass>[] = [
   {
     name: 'hardware.power_shelf.psu.insert',
@@ -25,6 +28,16 @@ export const alertClasses: Json<AlertClass>[] = [
   {
     name: 'hardware.power_shelf.psu.remove',
     description: 'A power supply unit (PSU) has been removed from a power shelf',
+  },
+  {
+    name: 'silo.certificate.expiring',
+    description:
+      "The TLS certificate that a silo's external API serves is about to expire, and no later-expiring certificate is installed for that silo",
+  },
+  {
+    name: 'silo.certificate.expired',
+    description:
+      "The TLS certificate that a silo's external API serves has expired, and no later-expiring certificate is installed for that silo",
   },
   {
     name: 'probe',
@@ -60,6 +73,20 @@ export const alertClasses: Json<AlertClass>[] = [
   { name: 'system.update.start', description: 'A system software update has started' },
   { name: 'system.update.complete', description: 'A system software update has completed' },
   { name: 'system.update.fail', description: 'A system software update has failed' },
+  // Problem lifecycle classes per RFD 699 §7.3.1, for the problem
+  // classes in the problem fixtures. Also not in Omicron yet.
+  ...[
+    'hardware.disk',
+    'hardware.power_shelf',
+    'hardware.sled',
+    'system',
+    'virtual.disk.distributed',
+  ].flatMap((problemClass) =>
+    (['detected', 'updated', 'resolved'] as const).map((event) => ({
+      name: `active_problem.${event}.${problemClass}`,
+      description: `A problem of class ${problemClass} has been ${event}`,
+    }))
+  ),
 ]
 
 export const receiverWebhook1: Json<AlertReceiver> = {
@@ -183,6 +210,7 @@ export const alerts: Json<Alert>[] = [
   psuAlert('81dd4626-d7ef-435e-8f4d-f3f2a1217e59', 'remove', 4, 200, false),
   psuAlert('beef336d-99db-4b12-ac08-7ebcaab8421a', 'insert', 1, 125, true),
   psuAlert('5a2009af-26a0-4217-b18f-bd4e25e691b9', 'insert', 2, 240, false),
+  ...problemAlerts,
 ]
 
 // newest first, matching the time_and_id_descending sort the console requests.
