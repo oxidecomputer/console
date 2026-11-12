@@ -423,6 +423,65 @@ test('Removing your last admin role requires typing your name', async ({ page })
   await expect(confirmDialog).toBeHidden()
 })
 
+test('Removing a group role you hold through membership warns when it is your last admin role', async ({
+  page,
+}) => {
+  await page.goto('/access/groups')
+  // Hannah, the mock session user, is a member of web-devs
+  await page.getByRole('link', { name: 'web-devs' }).click()
+  const groupModal = page.getByRole('dialog', { name: 'Group' })
+  await groupModal
+    .getByRole('row')
+    .filter({ hasText: 'No roles assigned' })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: 'Add silo role' }).click()
+  const addModal = page.getByRole('dialog', { name: 'Add silo role' })
+  await addModal.getByRole('radio', { name: /^Admin / }).click()
+  await addModal.getByRole('button', { name: 'Add silo role' }).click()
+  await expect(addModal).toBeHidden()
+
+  const groupRoleRow = groupModal.getByRole('row').filter({ hasText: 'silo.admin' })
+  const confirmDialog = page.getByRole('dialog', { name: 'Remove role assignment' })
+
+  // her direct silo admin role still grants edit access, so no warning
+  await groupRoleRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Remove silo role' }).click()
+  await expect(confirmDialog).toBeVisible()
+  await expect(confirmDialog).not.toContainText('remove your own')
+  await expect(confirmDialog.getByRole('textbox')).toBeHidden()
+  await confirmDialog.getByRole('button', { name: 'Cancel' }).click()
+  await expect(confirmDialog).toBeHidden()
+
+  // remove her direct role, leaving web-devs as her only source of silo admin
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+  await page.getByRole('tab', { name: 'Users' }).click()
+  await page.getByRole('link', { name: 'Hannah Arendt' }).click()
+  const userModal = page.getByRole('dialog', { name: 'User' })
+  const directRow = userModal.getByRole('row').filter({ hasText: 'Direct' })
+  await directRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Remove silo role' }).click()
+  // web-devs keeps her edit access, so this one needs no warning either
+  await expect(confirmDialog).not.toContainText('remove your own')
+  await confirmDialog.getByRole('button', { name: 'Confirm' }).click()
+  await expect(directRow).toBeHidden()
+
+  // now removing the group role warns and requires typing the group name
+  await userModal
+    .getByRole('row')
+    .filter({ hasText: 'via web-devs' })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: 'View group' }).click()
+  await groupRoleRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Remove silo role' }).click()
+  await expect(confirmDialog).toContainText('This could remove your own silo access.')
+  const confirm = confirmDialog.getByRole('button', { name: 'Confirm' })
+  await expect(confirm).toBeDisabled()
+  await confirmDialog.getByRole('textbox').fill('web-devs')
+  await expect(confirm).toBeEnabled()
+})
+
 // changing your own role away from admin requires confirmation because you
 // may not be able to undo it
 test('Changing your own admin role requires typing your name', async ({ page }) => {

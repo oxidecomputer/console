@@ -227,11 +227,7 @@ export const sortRoleEntries = (entries: ScopedRoleEntry[]) =>
  * group list in AuthenticatedLayout.
  */
 export const groupMemberList = ({ groupId }: PP.SiloGroup) =>
-  q(
-    api.userList,
-    { query: { group: groupId, limit: ALL_ISH } },
-    { staleTime: 60000 }
-  )
+  q(api.userList, { query: { group: groupId, limit: ALL_ISH } }, { staleTime: 60000 })
 
 /** Async state of data derived from one or more queries. */
 export type Loadable<T> =

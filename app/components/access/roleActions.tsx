@@ -61,6 +61,7 @@ export const roleActions = (scope: RoleScope, canEdit: boolean) => {
       name: string
       /** Direct assignment to remove, absent when the displayed role is inherited. */
       directRole: RoleKey | undefined
+      /** The current user holds this assignment, directly or through a group */
       isSelf?: boolean
       /**
        * Whether the current user would still be able to edit this scope's

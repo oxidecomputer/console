@@ -76,8 +76,13 @@ export function RoleAssignmentsTable({
             ))
             .with({ status: 'success' }, ({ data }) => (
               <>
-                {sortRoleEntries(data).map((entry, i) => (
-                  <Table.Row key={i}>
+                {sortRoleEntries(data).map((entry) => (
+                  // stable across refetches so an open row menu isn't remounted
+                  // onto a different entry when rows shift; unique because
+                  // entries collapse to one per identity per scope
+                  <Table.Row
+                    key={`${entry.scope}:${entry.source.type === 'group' ? entry.source.group.id : 'direct'}`}
+                  >
                     <Table.Cell>
                       <Badge color={roleColor[entry.roleName]}>
                         {entry.scope}.{entry.roleName}

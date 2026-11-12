@@ -20,6 +20,7 @@ import {
 import { PersonGroup16Icon } from '@oxide/design-system/icons/react'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { type MenuAction } from '~/table/columns/action-col'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -29,7 +30,7 @@ import { docLinks } from '~/util/links'
 import { EffectiveRole, IdentityListTable, RoleAssignmentsTable } from './DetailTables'
 import { type PolicyScope } from './policy-scope'
 import { roleActions, siloPolicyReason } from './roleActions'
-import { useCanEditPolicy } from './use-can-edit-policy'
+import { canEditScope, useCanEditPolicy } from './use-can-edit-policy'
 
 type Props = {
   group: Group
@@ -41,6 +42,7 @@ export function GroupMembersSideModal({ group, onDismiss, scope }: Props) {
   const { managedScope, siloPolicy, projectPolicy, managedPolicy, EditModal } = scope
   const { removeRole, userPath } = scope
   const canEdit = useCanEditPolicy(siloPolicy, projectPolicy)
+  const { me, myGroups } = useCurrentUser()
   // edit modal state; it stacks over this side modal. No default role means
   // adding one to a group with no role in the managed scope.
   const [editing, setEditing] = useState<{ defaultRole?: RoleKey } | null>(null)
@@ -61,6 +63,25 @@ export function GroupMembersSideModal({ group, onDismiss, scope }: Props) {
   const addRoleAction = roleActions(managedScope, canEdit).add(() => setEditing({}))
   const hasManagedRole = roleEntries.data.some((e) => e.scope === managedScope)
 
+  // Removing this group's role takes it from the current user too if they're a
+  // member, so warn them like removing their own direct role does. They keep
+  // edit access if their other roles still grant it. For the silo this misses
+  // fleet-derived access (see canEditScope), so it can warn when it needn't.
+  const isSelf = myGroups.items.some((g) => g.id === group.id)
+  const keepsEditAccess =
+    isSelf &&
+    canEditScope(
+      userScopedRoleEntries(me.id, myGroups.items, siloPolicy, projectPolicy).filter(
+        (e) =>
+          !(
+            e.scope === managedScope &&
+            e.source.type === 'group' &&
+            e.source.group.id === group.id
+          )
+      ),
+      managedScope
+    )
+
   const makeRoleActions = ({ roleName, scope: entryScope }: ScopedRoleEntry) => {
     const actions = roleActions(entryScope, canEdit)
     // a silo role shown on a project page can only be edited on the silo page
@@ -73,6 +94,8 @@ export function GroupMembersSideModal({ group, onDismiss, scope }: Props) {
       actions.remove({
         name: group.displayName,
         directRole: isOtherScope ? undefined : roleName,
+        isSelf,
+        keepsEditAccess,
         inheritedReason: siloPolicyReason,
         doRemove: () => removeRole(group.id),
       }),

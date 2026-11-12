@@ -7,6 +7,18 @@
  */
 
 import { api, q, usePrefetchedQuery } from '~/api/client'
+import { ALL_ISH } from '~/util/consts'
+
+/**
+ * The current user's groups. ALL_ISH because permission checks derive roles
+ * from these memberships, and a group past the first page could be the one that
+ * grants access. Shared so every caller hits the cache key the loader prefetches.
+ */
+export const myGroupsQuery = (options?: {
+  staleTime?: number
+  enabled?: boolean
+  throwOnError?: boolean
+}) => q(api.currentUserGroups, { query: { limit: ALL_ISH } }, options)
 
 /**
  * Access all the data fetched by the loader. Because of the `shouldRevalidate`
@@ -16,6 +28,6 @@ import { api, q, usePrefetchedQuery } from '~/api/client'
  */
 export function useCurrentUser() {
   const { data: me } = usePrefetchedQuery(q(api.currentUserView, {}))
-  const { data: myGroups } = usePrefetchedQuery(q(api.currentUserGroups, {}))
+  const { data: myGroups } = usePrefetchedQuery(myGroupsQuery())
   return { me, myGroups }
 }
