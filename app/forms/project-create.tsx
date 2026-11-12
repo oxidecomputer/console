@@ -92,7 +92,7 @@ export default function ProjectCreateSideModalForm() {
         <CheckboxField name="createDefaultVpc" control={form.control}>
           Create default VPC and subnet
         </CheckboxField>
-        <TipIcon>An instance can only attach to a VPC with a subnet.</TipIcon>
+        <TipIcon>An instance can only attach to a VPC with a subnet</TipIcon>
       </span>
       <SideModalFormDocs docs={[docLinks.projects]} />
     </SideModalForm>
