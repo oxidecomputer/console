@@ -49,7 +49,6 @@ import { defaultSilo, toIdp } from '../silo'
 import { SUPPORT_BUNDLE_SIZE } from '../support-bundle'
 import { timeseriesSchemas } from '../timeseries-schema'
 import { getTimestamps } from '../util'
-import { defaultFirewallRules } from '../vpc'
 import { resendableAlerts, retryPendingDeliveries, validateSubscription } from './alert'
 import {
   db,
@@ -62,6 +61,7 @@ import {
 } from './db'
 import {
   alreadyExistsErr,
+  createVpc,
   currentUser,
   errIfExists,
   errIfInvalidDiskSize,
@@ -119,13 +119,24 @@ export const handlers = makeHandlers({
     const user = currentUser(cookies)
     errIfExists(db.projects, { name: body.name, silo_id: user.silo_id }, 'project')
 
+    const { defaults, ...rest } = body
     const newProject = {
       id: uuid(),
-      ...body,
+      ...rest,
       ...getTimestamps(),
       silo_id: user.silo_id,
     }
     db.projects.push(newProject)
+
+    // omitting `defaults` creates all of them. otherwise only the ones listed
+    if (!defaults || defaults.vpc) {
+      createVpc(newProject.id, {
+        name: 'default',
+        dns_name: 'default',
+        description: 'Default VPC',
+        defaults: defaults?.vpc?.type === 'explicit' ? defaults.vpc.defaults : undefined,
+      })
+    }
 
     return json(R.omit(newProject, ['silo_id']), { status: 201 })
   },
@@ -1584,32 +1595,7 @@ export const handlers = makeHandlers({
     requireRole(cookies, 'project', project.id, 'collaborator')
     errIfExists(db.vpcs, { name: body.name, project_id: project.id })
 
-    const newVpc: Json<Api.Vpc> = {
-      id: uuid(),
-      project_id: project.id,
-      system_router_id: uuid(),
-      ...body,
-      // API is supposed to generate one if none provided. close enough
-      ipv6_prefix: body.ipv6_prefix || 'fd2d:4569:88b2::/64',
-      ...getTimestamps(),
-    }
-    db.vpcs.push(newVpc)
-
-    // Also create a default subnet
-    const newSubnet: Json<Api.VpcSubnet> = {
-      id: uuid(),
-      name: 'default',
-      vpc_id: newVpc.id,
-      ipv6_block: 'fd2d:4569:88b1::/64',
-      description: '',
-      ipv4_block: '',
-      ...getTimestamps(),
-    }
-    db.vpcSubnets.push(newSubnet)
-
-    // populate default firewall rules
-    db.vpcFirewallRules.push(...defaultFirewallRules(newVpc.id))
-
+    const newVpc = createVpc(project.id, body)
     return json(newVpc, { status: 201 })
   },
   vpcView: ({ path, query }) => lookup.vpc({ ...path, ...query }),
