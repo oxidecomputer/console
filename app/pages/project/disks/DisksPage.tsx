@@ -29,6 +29,7 @@ import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/State
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
+import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DiskSourceName } from '~/table/cells/DiskSourceCell'
@@ -87,6 +88,11 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 
 const colHelper = createColumnHelper<Disk>()
 
+const invalidateDiskListAndView = () => {
+  queryClient.invalidateEndpoint('diskList')
+  queryClient.invalidateEndpoint('diskView')
+}
+
 export default function DisksPage() {
   const { project } = useProjectSelector()
 
@@ -115,8 +121,59 @@ export default function DisksPage() {
     },
   })
 
+  // the states that allow these actions are both temporary, so a failure is
+  // most likely to be due to a state change from afar. for that reason it's
+  // worth invalidating on failures as well as successes
+  const { mutateAsync: finalize } = useApiMutation(api.diskFinalizeImport, {
+    onSuccess: invalidateDiskListAndView,
+    onError: invalidateDiskListAndView,
+  })
+  const { mutateAsync: stopBulkWriteImport } = useApiMutation(api.diskBulkWriteImportStop, {
+    onSuccess: invalidateDiskListAndView,
+    onError: invalidateDiskListAndView,
+  })
+
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
+      ...(diskCan.finalizeImport(disk) || diskCan.stopImport(disk)
+        ? [
+            {
+              label: 'Cancel import',
+              onActivate() {
+                confirmAction({
+                  doAction: async () => {
+                    if (diskCan.stopImport(disk)) {
+                      await stopBulkWriteImport({
+                        path: { disk: disk.name },
+                        query: { project },
+                      })
+                    }
+
+                    await finalize({
+                      path: { disk: disk.name },
+                      query: { project },
+                      body: {},
+                    })
+
+                    addToast(
+                      <>
+                        Import canceled for <HL>{disk.name}</HL>
+                      </>
+                    )
+                  },
+                  modalTitle: 'Cancel import',
+                  modalContent: (
+                    <p>
+                      Are you sure you want to cancel import for <HL>{disk.name}</HL>?
+                    </p>
+                  ),
+                  errorTitle: 'Failed to cancel import',
+                  actionType: 'danger',
+                })
+              },
+            },
+          ]
+        : []),
       {
         label: 'Snapshot',
         onActivate() {
@@ -149,7 +206,7 @@ export default function DisksPage() {
           )),
       },
     ],
-    [createSnapshot, deleteDisk, project]
+    [createSnapshot, deleteDisk, stopBulkWriteImport, finalize, project]
   )
 
   const columns = useColsWithActions(
