@@ -11,6 +11,7 @@ import { useRouteError } from 'react-router'
 
 import { api, q } from '~/api'
 import { type ApiError } from '~/api/errors'
+import { myGroupsQuery } from '~/hooks/use-current-user'
 import { Message } from '~/ui/lib/Message'
 import { links } from '~/util/links'
 
@@ -43,7 +44,7 @@ function useDetectNoSiloRole(enabled: boolean): boolean {
   // this is kind of a hail mary, so if any of this goes wrong we need to ignore it
   const options = { enabled, throwOnError: false }
   const { data: me } = useQuery(q(api.currentUserView, {}, options))
-  const { data: myGroups } = useQuery(q(api.currentUserGroups, {}, options))
+  const { data: myGroups } = useQuery(myGroupsQuery(options))
   const { data: siloPolicy } = useQuery(q(api.policyView, {}, options))
 
   if (!me || !myGroups || !siloPolicy) return false

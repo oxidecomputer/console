@@ -14,8 +14,10 @@ import { Tooltip } from './Tooltip'
 type TipIconProps = {
   children: React.ReactNode
   className?: string
+  /** Override the default question-mark glyph (e.g. a domain-specific icon). */
+  icon?: React.ReactNode
 }
-export function TipIcon({ children, className }: TipIconProps) {
+export function TipIcon({ children, className, icon }: TipIconProps) {
   return (
     <Tooltip content={children} placement="top">
       <button
@@ -23,7 +25,7 @@ export function TipIcon({ children, className }: TipIconProps) {
         type="button"
         aria-label="Tip"
       >
-        <Question12Icon className="text-quaternary" />
+        {icon ?? <Question12Icon className="text-quaternary" />}
       </button>
     </Tooltip>
   )
