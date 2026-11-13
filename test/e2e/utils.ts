@@ -179,11 +179,20 @@ export async function stopInstance(page: Page) {
 }
 
 /**
- * Assert that a toast with text matching `expectedText` is visible.
+ * Assert that a toast with text matching `expectedText` is visible, then
+ * dismiss that toast and wait for it to go away.
  */
 export async function expectToast(page: Page, expectedText: string | RegExp) {
   await expect(page.getByTestId('Toasts')).toContainText(expectedText)
-  await closeToast(page)
+  // Dismiss the toast we matched, not whichever is first. An error test often
+  // has a "creating..." toast followed closely by a result toast, and which one
+  // is first depends on how fast the mock answers.
+  const toast = page
+    .getByTestId('Toasts')
+    .locator(':scope > div')
+    .filter({ hasText: expectedText })
+    .first()
+  await dismissToast(toast.getByRole('button', { name: 'Dismiss notification' }))
 }
 
 /**
@@ -193,18 +202,25 @@ export async function expectNoToast(page: Page, expectedText: string | RegExp) {
   await expect(page.getByTestId('Toasts')).not.toContainText(expectedText)
 }
 
-/**
- * Close first toast and wait for it to fade out. For some reason it prevents
- * things from working, but only in tests as far as we can tell.
- */
+/** Close the first toast and wait for it to go away. */
 export async function closeToast(page: Page) {
-  // first() is a hack aimed at situations where we're testing an error
-  // response, which usually means we have an initial "creating..." toast
-  // followed by an error toast. Sometimes the error toast shows up so fast that
-  // we don't have time to close the first one. Without first(), this errors out
-  // because there are two toasts.
-  await page.getByRole('button', { name: 'Dismiss notification' }).first().click()
-  await sleep(1000)
+  await dismissToast(page.getByRole('button', { name: 'Dismiss notification' }).first())
+}
+
+/**
+ * Click a toast's dismiss button and wait until the toast has left the DOM
+ * (after its exit animation), so it can't cover what the test clicks next.
+ * Hold the element, not the locator: a toast arriving in between would change
+ * what the locator points to.
+ */
+async function dismissToast(button: Locator) {
+  // elementHandle waits for a match and throws on timeout, so it's never null
+  const handle = (await button.elementHandle())!
+  await handle.click().catch(async (e) => {
+    // the toast timed out and left on its own before the click landed
+    if (await handle.evaluate((el) => el.isConnected)) throw e
+  })
+  await handle.waitForElementState('hidden')
 }
 
 /**
@@ -308,7 +324,12 @@ export async function expectScrollTop(page: Page, expected: number) {
 }
 
 export async function scrollTo(page: Page, to: number) {
-  await page.evaluate((to) => window.scrollTo(0, to), to)
+  await page.evaluate(async (to) => {
+    // If a web font finishes loading after the scroll, the text above the
+    // viewport reflows and scroll anchoring shifts scrollY by a few pixels
+    await document.fonts.ready
+    window.scrollTo(0, to)
+  }, to)
 }
 
 export async function addTlsCert(page: Page) {

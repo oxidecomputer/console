@@ -13,7 +13,9 @@ test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
   await page.waitForURL('**/projects/mock-project/**')
-  await page.getByRole('link', { name: 'VPCs' }).click()
+  // exact because the URL changes before the projects table goes away, and on
+  // a slow machine a substring match clicks the project-no-vpcs link in it
+  await page.getByRole('link', { name: 'VPCs', exact: true }).click()
   await page.waitForURL('**/vpcs**')
 
   await expectRowVisible(page.getByRole('table'), {

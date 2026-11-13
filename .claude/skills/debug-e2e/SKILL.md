@@ -69,7 +69,7 @@ Prefer narrowing with `-g` and `--project` first, then increase `--repeat-each` 
 
 ### 3. Analyze failure artifacts
 
-When tests fail, Playwright saves traces and error context:
+When tests fail, Playwright saves error context. Traces are off by default in local runs because recording them slows the suite; add `--trace retain-on-failure` to the test command to keep a trace for each failed test.
 
 ```bash
 # View error context (page snapshot at failure time)
