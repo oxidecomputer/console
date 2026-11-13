@@ -33,7 +33,10 @@ export default {
   // an LLM agent can read the failures.
   reporter: process.env.CI ? 'list' : [['list'], ['./test/e2e/compact-reporter.ts']],
   use: {
-    trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
+    // Recording a trace for every test makes local runs much slower, so it's
+    // off by default. Pass `--trace retain-on-failure` to keep traces of
+    // failed tests, e.g. when chasing a flake.
+    trace: process.env.CI ? 'on-first-retry' : 'off',
     baseURL: 'http://localhost:4009',
   },
   projects: [
