@@ -321,7 +321,7 @@ above and below the cell; it's only on while there's a shadow so it doesn't
 clip the selected-row border.
 */
 .ox-table {
-  --sticky-col-shadow: light-dark(oklch(0 0 0 / 0.1), oklch(0 0 0 / 0.8));
+  --sticky-col-shadow: light-dark(oklch(0 0 0 / 0.075), oklch(0 0 0 / 0.6));
 }
 
 /* Without the guard, browsers lacking scroll timelines would run the animation
