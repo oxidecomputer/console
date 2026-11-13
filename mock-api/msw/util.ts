@@ -11,7 +11,6 @@ import { differenceInSeconds, subHours } from 'date-fns'
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
-import { v4 as uuid } from 'uuid'
 
 import {
   FLEET_ID,
@@ -774,9 +773,9 @@ export function randomHex(length: number) {
 export function createVpc(projectId: string, body: Json<VpcCreate>) {
   const { defaults, ...rest } = body
   const newVpc: Json<Vpc> = {
-    id: uuid(),
+    id: crypto.randomUUID(),
     project_id: projectId,
-    system_router_id: uuid(),
+    system_router_id: crypto.randomUUID(),
     ...rest,
     // API is supposed to generate one if none provided. close enough
     ipv6_prefix: body.ipv6_prefix || 'fd2d:4569:88b2::/64',
@@ -787,7 +786,7 @@ export function createVpc(projectId: string, body: Json<VpcCreate>) {
   // omitting `defaults` creates all of them. otherwise only the ones listed
   if (!defaults || defaults.subnet) {
     const newSubnet: Json<VpcSubnet> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       name: 'default',
       vpc_id: newVpc.id,
       ipv6_block: 'fd2d:4569:88b1::/64',

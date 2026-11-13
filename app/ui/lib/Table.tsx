@@ -6,27 +6,15 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import React, { useRef, type JSX, type ReactElement } from 'react'
+import React, { type JSX, type ReactElement } from 'react'
 import SimpleBar from 'simplebar-react'
 
-import { useIsOverflow } from '~/hooks/use-is-overflow'
 import { classed } from '~/util/classed'
 
 export type TableProps = JSX.IntrinsicElements['table']
 export function Table({ className, ...props }: TableProps) {
-  const overflowRef = useRef<HTMLDivElement>(null)
-  const { isOverflow, scrollStart, scrollEnd } = useIsOverflow(overflowRef, 'horizontal')
-
   return (
-    <SimpleBar
-      scrollableNodeProps={{ ref: overflowRef }}
-      className={cn(
-        'overflow-x-auto rounded-md pb-4',
-        !scrollStart && 'scrolled',
-        isOverflow && !scrollEnd && 'overflowing'
-      )}
-      autoHide={false}
-    >
+    <SimpleBar className="overflow-x-auto rounded-md pb-4" autoHide={false}>
       <table
         className={cn(className, 'ox-table text-sans-md w-full border-separate')}
         {...props}

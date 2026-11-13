@@ -6,8 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { v4 as uuid } from 'uuid'
-
 import type { RouterRoute, Vpc, VpcFirewallRule, VpcRouter, VpcSubnet } from '@oxide/api'
 
 import type { Json } from './json-type'
@@ -268,7 +266,7 @@ export const vpcSubnets: Json<VpcSubnet[]> = [
 export function defaultFirewallRules(vpcId: string): Json<VpcFirewallRule[]> {
   return [
     {
-      id: uuid(),
+      id: crypto.randomUUID(),
       vpc_id: vpcId,
       name: 'allow-internal-inbound',
       status: 'enabled',
@@ -284,7 +282,7 @@ export function defaultFirewallRules(vpcId: string): Json<VpcFirewallRule[]> {
       ...getTimestamps(),
     },
     {
-      id: uuid(),
+      id: crypto.randomUUID(),
       vpc_id: vpcId,
       name: 'allow-ssh',
       status: 'enabled',
@@ -300,7 +298,7 @@ export function defaultFirewallRules(vpcId: string): Json<VpcFirewallRule[]> {
       ...getTimestamps(),
     },
     {
-      id: uuid(),
+      id: crypto.randomUUID(),
       vpc_id: vpcId,
       name: 'allow-icmp',
       status: 'enabled',
@@ -325,7 +323,7 @@ export const firewallRules: Json<VpcFirewallRule[]> = [
   // second mock VPC in other project, meant to test display with lots  of
   // targets and filters
   {
-    id: uuid(),
+    id: crypto.randomUUID(),
     name: 'lots-of-filters',
     status: 'enabled',
     direction: 'inbound',
@@ -351,7 +349,7 @@ export const firewallRules: Json<VpcFirewallRule[]> = [
     vpc_id: vpc2.id,
   },
   {
-    id: uuid(),
+    id: crypto.randomUUID(),
     name: 'lots-of-targets',
     status: 'enabled',
     direction: 'inbound',

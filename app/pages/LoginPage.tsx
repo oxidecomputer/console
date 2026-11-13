@@ -72,6 +72,7 @@ export default function LoginPage() {
             name="password"
             type="password"
             placeholder="Password"
+            autoComplete="current-password"
             required
             control={form.control}
           />

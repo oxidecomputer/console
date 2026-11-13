@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { type ReactElement } from 'react'
-import { v4 as uuid } from 'uuid'
 import { create } from 'zustand'
 
 import type { ToastProps } from '~/ui/lib/Toast'
@@ -18,6 +17,10 @@ type Toast = {
 
 export const useToastStore = create<{ toasts: Toast[] }>(() => ({ toasts: [] }))
 
+// A counter and not crypto.randomUUID(), which only exists in secure contexts.
+// The console can be served over plain HTTP, e.g., from Nexus on a dev machine.
+let nextId = 0
+
 /**
  * If argument is `ReactElement | string`, use it directly as `{ content }`.
  * Otherwise it's a config object.
@@ -27,7 +30,9 @@ export function addToast(optionsOrContent: Toast['options'] | ReactElement | str
     typeof optionsOrContent === 'object' && 'content' in optionsOrContent
       ? optionsOrContent
       : { content: optionsOrContent }
-  useToastStore.setState(({ toasts }) => ({ toasts: [...toasts, { id: uuid(), options }] }))
+  useToastStore.setState(({ toasts }) => ({
+    toasts: [...toasts, { id: String(nextId++), options }],
+  }))
 }
 
 export function removeToast(id: Toast['id']) {
