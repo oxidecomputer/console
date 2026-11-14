@@ -24,7 +24,9 @@ test.describe('System utilization', () => {
     await page.goto('/system/utilization')
 
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-    await expect(page.getByText('Provisioned416 GiB')).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Memory' })).toContainText(
+      'Provisioned416'
+    )
 
     await expect(page.getByText('Provisioned / Quota')).toBeVisible()
 
@@ -146,7 +148,9 @@ test.describe('Silo utilization', () => {
     await page.goto('/utilization')
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     // Capacity bars are showing up
-    await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Memory' })).toContainText(
+      'Provisioned234Available66'
+    )
   })
 
   test('works for dev user', async ({ browser }) => {
@@ -154,7 +158,9 @@ test.describe('Silo utilization', () => {
     await page.goto('/utilization')
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     // Capacity bars are showing up
-    await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Memory' })).toContainText(
+      'Provisioned234Available66'
+    )
   })
 })
 
