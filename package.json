@@ -91,7 +91,7 @@
   },
   "devDependencies": {
     "@commander-js/extra-typings": "^15.0.0",
-    "@oxide/openapi-gen-ts": "~0.16.0",
+    "@oxide/openapi-gen-ts": "~0.17.0",
     "@playwright/test": "^1.61.0",
     "@react-router/dev": "^8.3.1",
     "@types/md5": "^2.3.5",
