@@ -128,6 +128,13 @@ test('can create an external subnet with explicit CIDR', async ({ page }) => {
   })
 })
 
+test('clicking the name opens the edit side modal', async ({ page }) => {
+  await page.goto(externalSubnetsPage)
+  await page.getByRole('link', { name: 'web-subnet' }).click()
+  await expect(page).toHaveURL(`${externalSubnetsPage}/web-subnet/edit`)
+  await expect(page.getByRole('heading', { name: /Edit external subnet/ })).toBeVisible()
+})
+
 test('can update an external subnet', async ({ page }) => {
   await page.goto(externalSubnetsPage)
   await clickRowAction(page, 'web-subnet', 'Edit')
@@ -194,7 +201,7 @@ test('cannot delete an attached external subnet', async ({ page }) => {
   const deleteButton = page.getByRole('menuitem', { name: 'Delete' })
   await expect(deleteButton).toBeDisabled()
   await deleteButton.hover()
-  await expect(page.getByText('must be detached')).toBeVisible()
+  await expect(page.getByRole('tooltip').getByText('must be detached')).toBeVisible()
 })
 
 test('can detach and reattach an external subnet from the list page', async ({ page }) => {
@@ -372,20 +379,29 @@ test('create form prefix length max changes with pool IP version', async ({ page
   const v6Pool = page.getByRole('option', { name: 'ipv6-subnet-pool' })
   const v4Pool = page.getByRole('option', { name: 'default-v4-subnet-pool' })
 
-  // With v4 pool selected, typing 64 should be clamped to 32
-  await prefixLen.fill('64')
-  await prefixLen.blur()
-  await expect(prefixLen).toHaveValue('32')
+  await page.getByRole('textbox', { name: 'Name' }).fill('too-long')
+  const submit = page.getByRole('button', { name: 'Create external subnet' })
+  const dialog = page.getByRole('dialog', { name: 'Create external subnet' })
+  const maxError = dialog.getByText('Can be at most 32')
 
-  // Switch to v6 pool — 64 should now be accepted
-  await selectOption(page, 'Subnet pool', v6Pool)
+  // With v4 pool selected, 64 is over the max. The field must keep showing
+  // what the form holds rather than snapping to 32 and hiding the problem
   await prefixLen.fill('64')
-  await prefixLen.blur()
+  await submit.click()
+  await expect(prefixLen).toHaveValue('64')
+  await expect(maxError).toBeVisible()
+
+  // Switch to v6 pool — 64 is now in range
+  await selectOption(page, 'Subnet pool', v6Pool)
+  await expect(maxError).toBeHidden()
   await expect(prefixLen).toHaveValue('64')
 
-  // Switch back to v4 — value should clamp back to 32
+  // Switch back to v4 — over the max again, and still showing 64
   await selectOption(page, 'Subnet pool', v4Pool)
-  await expect(prefixLen).toHaveValue('32')
+  await expect(prefixLen).toHaveValue('64')
+  await expect(maxError).toBeVisible()
+  await submit.click()
+  await expect(dialog).toBeVisible()
 })
 
 test('create form toggles between auto and explicit fields', async ({ page }) => {

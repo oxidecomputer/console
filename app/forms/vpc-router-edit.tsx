@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -16,25 +17,30 @@ import {
   usePrefetchedQuery,
   type VpcRouterUpdate,
 } from '@oxide/api'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
+import { useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/vpc-router-edit'
+
 const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
   q(api.vpcRouterView, { path: { router }, query: { project, vpc } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getVpcRouterSelector(params)
-  await queryClient.prefetchQuery(routerView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc, router } = params
+  await queryClient.prefetchQuery(routerView({ project, vpc, router }))
   return null
 }
 
@@ -75,9 +81,14 @@ export default function EditRouterSideModalForm() {
           body,
         })
       }
-      loading={editRouter.isPending}
+      loading={editRouter.isPending || editRouter.isSuccess}
       submitError={editRouter.error}
     >
+      <FormMetadata resource={routerData}>
+        <PropertiesTable.Row label="Kind">
+          <Badge color="neutral">{routerData.kind}</Badge>
+        </PropertiesTable.Row>
+      </FormMetadata>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <SideModalFormDocs docs={[docLinks.routers]} />

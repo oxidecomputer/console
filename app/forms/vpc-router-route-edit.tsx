@@ -5,12 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 import * as R from 'remeda'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
+import { Badge } from '@oxide/design-system/ui'
 
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import {
@@ -20,15 +23,18 @@ import {
   type RouteFormValues,
 } from '~/forms/vpc-router-route-common'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getVpcRouterRouteSelector, useVpcRouterRouteSelector } from '~/hooks/use-params'
+import { useVpcRouterRouteSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
+import type { Route } from './+types/vpc-router-route-edit'
+
 export const handle = titleCrumb('Edit Route')
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, vpc, router, route } = getVpcRouterRouteSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc, router, route } = params
   await Promise.all([
     queryClient.prefetchQuery(
       q(api.vpcRouterRouteView, {
@@ -95,10 +101,15 @@ export default function EditRouterRouteSideModalForm() {
           },
         })
       }
-      loading={updateRouterRoute.isPending}
+      loading={updateRouterRoute.isPending || updateRouterRoute.isSuccess}
       submitError={updateRouterRoute.error}
       submitDisabled={disabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >
+      <FormMetadata resource={route}>
+        <PropertiesTable.Row label="Kind">
+          <Badge color="neutral">{route.kind.replace('_', ' ')}</Badge>
+        </PropertiesTable.Row>
+      </FormMetadata>
       <RouteFormFields form={form} disabled={disabled} />
       <RouteFormDocs />
     </SideModalForm>

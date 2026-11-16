@@ -20,10 +20,12 @@ import { ModalContext } from './modal-context'
 
 type Width = 'narrow' | 'medium' | 'free'
 
+// the 100vw terms keep modals from going edge-to-edge on small screens
 const widthClass: Record<Width, string> = {
-  narrow: 'w-full max-w-[24rem]',
-  medium: 'w-full max-w-md',
-  free: 'min-w-[24rem] max-w-3xl', // give it a big max just to be safe
+  narrow: 'w-full max-w-[min(24rem,calc(100vw-2rem))]',
+  medium: 'w-full max-w-[min(28rem,calc(100vw-2rem))]',
+  // give it a big max just to be safe
+  free: 'min-w-[min(24rem,calc(100vw-2rem))] max-w-[min(48rem,calc(100vw-2rem))]',
 }
 
 export type ModalProps = {

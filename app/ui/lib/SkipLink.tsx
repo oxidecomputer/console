@@ -34,7 +34,3 @@ export const SkipLink = ({
     </a>
   )
 }
-
-export const SkipLinkTarget = ({ id = 'content' }) => {
-  return <div id={id} className="h-0" />
-}

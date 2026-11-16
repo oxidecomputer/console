@@ -94,3 +94,98 @@ test('breadcrumbs', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'Add IP range' })).toBeVisible()
   await expectCrumbs(page, poolCrumbs)
 })
+
+test('mobile breadcrumbs keep top-bar actions visible and expose the full path', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 404, height: 800 })
+  await page.goto('/projects/mock-project/instances/db1/networking')
+
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumbs' })
+  await expect(breadcrumbs.getByRole('link', { name: 'Networking' })).toBeVisible()
+
+  // A long path must leave the persistent actions usable at narrow widths.
+  await expect(
+    page.getByRole('button', { name: 'Switch between system and silo' })
+  ).toBeInViewport({ ratio: 1 })
+  await expect(page.getByRole('button', { name: 'User menu' })).toBeInViewport({ ratio: 1 })
+
+  await page.setViewportSize({ width: 650, height: 800 })
+  await expect
+    .poll(() => breadcrumbs.getByRole('link').allTextContents())
+    .toEqual(expect.arrayContaining(['db1', 'Networking']))
+
+  await page.setViewportSize({ width: 750, height: 800 })
+  await expect
+    .poll(() => breadcrumbs.getByRole('link').allTextContents())
+    .toEqual(expect.arrayContaining(['Instances', 'db1', 'Networking']))
+
+  await page.setViewportSize({ width: 404, height: 800 })
+
+  await breadcrumbs.getByRole('button', { name: 'Show full breadcrumb path' }).click()
+  const menuItems = page.getByRole('menuitem')
+  await expect(menuItems).toHaveText([
+    'Projects',
+    'mock-project',
+    'Instances',
+    'db1',
+    'Networking',
+  ])
+
+  await page.getByRole('menuitem', { name: 'Instances' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/instances')
+})
+
+test('long breadcrumbs collapse without displacing top-bar actions', async ({ page }) => {
+  await page.setViewportSize({ width: 650, height: 800 })
+  await page.goto('/projects/other-project/instances/failed-cooled-restart-never/settings')
+
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumbs' })
+  const visibleCrumbs = breadcrumbs.getByRole('link')
+  await expect(visibleCrumbs.last()).toHaveText('Settings')
+  for (const crumb of await visibleCrumbs.all()) {
+    if (await crumb.getAttribute('aria-current')) continue
+    await expect
+      .poll(() => crumb.evaluate((element) => element.scrollWidth === element.clientWidth))
+      .toBe(true)
+  }
+  await expect(
+    page.getByRole('button', { name: 'Switch between system and silo' })
+  ).toBeInViewport({ ratio: 1 })
+  await expect(page.getByRole('button', { name: 'User menu' })).toBeInViewport({ ratio: 1 })
+
+  await breadcrumbs.getByRole('button', { name: 'Show full breadcrumb path' }).click()
+  const longMenuItem = page.getByRole('menuitem', {
+    name: 'failed-cooled-restart-never',
+  })
+  await expect(longMenuItem).toBeVisible()
+  await expect
+    .poll(() =>
+      longMenuItem.evaluate((element) => {
+        const { left, right } = element.getBoundingClientRect()
+        return left >= 0 && right <= window.innerWidth
+      })
+    )
+    .toBe(true)
+})
+
+test('desktop breadcrumbs collapse whole leading crumbs instead of shrinking each one', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1024, height: 800 })
+  await page.goto('/projects/mock-project/vpcs/default/routers/mock-system-router')
+
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumbs' })
+  await expect(
+    breadcrumbs.getByRole('button', { name: 'Show full breadcrumb path' })
+  ).toBeVisible()
+
+  const visibleCrumbs = breadcrumbs.getByRole('link')
+  await expect(visibleCrumbs.last()).toHaveText('Routes')
+  for (const crumb of await visibleCrumbs.all()) {
+    if (await crumb.getAttribute('aria-current')) continue
+    await expect
+      .poll(() => crumb.evaluate((element) => element.scrollWidth === element.clientWidth))
+      .toBe(true)
+  }
+})

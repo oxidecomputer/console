@@ -54,7 +54,7 @@ test('Set target release', async ({ page }) => {
   const disabledItem = page.getByRole('menuitem', { name: 'Set as target release' })
   await expect(disabledItem).toBeDisabled()
   await disabledItem.hover()
-  await expect(page.getByText('Already set as target')).toBeVisible()
+  await expect(page.getByRole('tooltip').getByText('Already set as target')).toBeVisible()
   await page.keyboard.press('Escape')
 
   // Upgrade to 18.0.0
@@ -87,7 +87,9 @@ test('Set target release', async ({ page }) => {
   const setTargetItem = page.getByRole('menuitem', { name: 'Set as target release' })
   await expect(setTargetItem).toBeDisabled()
   await setTargetItem.hover()
-  await expect(page.getByText('Cannot set older release as target')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('Cannot set older release as target')
+  ).toBeVisible()
 })
 
 test('Cannot downgrade to older release', async ({ page }) => {
@@ -104,7 +106,9 @@ test('Cannot downgrade to older release', async ({ page }) => {
   const setTargetItem = page.getByRole('menuitem', { name: 'Set as target release' })
   await expect(setTargetItem).toBeDisabled()
   await setTargetItem.hover()
-  await expect(page.getByText('Cannot set older release as target')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('Cannot set older release as target')
+  ).toBeVisible()
 
   // Verify the target release has NOT changed - still 17.0.0
   await expect(page.getByLabel('Properties table')).toContainText('17.0.0')

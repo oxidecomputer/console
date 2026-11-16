@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import cn from 'classnames'
 import { useEffect, useRef, useState } from 'react'
-import { Link, type LoaderFunctionArgs } from 'react-router'
+import { Link } from 'react-router'
 
 import {
   api,
@@ -24,10 +25,12 @@ import { Badge, type BadgeColor } from '@oxide/design-system/ui'
 import { EquivalentCliCommand } from '~/components/CopyCode'
 import { InstanceStateBadge } from '~/components/StateBadge'
 import { Terminal } from '~/components/Terminal'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { useInstanceSelector } from '~/hooks/use-params'
 import { Spinner } from '~/ui/lib/Spinner'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+import type { Route } from './+types/SerialConsolePage'
 
 type WsState = 'connecting' | 'open' | 'closed' | 'error'
 
@@ -45,8 +48,8 @@ const statusMessage: Record<WsState, string> = {
   error: 'error',
 }
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, instance } = params
   await queryClient.prefetchQuery(
     q(api.instanceView, { path: { instance }, query: { project } })
   )
@@ -136,7 +139,7 @@ export default function SerialConsolePage() {
   }, [canConnect])
 
   return (
-    <div className="mx-0! flex h-full max-h-[calc(100vh-var(--top-bar-height))] w-full! flex-col">
+    <div className="mx-0! flex h-full max-h-[calc(100vh-var(--top-bar-height)-var(--preview-banner-height))] w-full! flex-col">
       <Link
         to={pb.instance(instanceSelector)}
         className="bg-accent mx-3 mt-3 mb-6 flex h-10 shrink-0 items-center rounded-md px-3"
@@ -157,7 +160,7 @@ export default function SerialConsolePage() {
         {ws.current && <Terminal ws={ws.current} />}
       </div>
       <div className="bg-default border-secondary shrink-0 justify-between overflow-hidden border-t empty:border-t-0">
-        <div className="gutter flex h-20 items-center justify-between">
+        <div className="gutter 1000:h-20 max-1000:py-4 flex items-center justify-between">
           <div>
             <EquivalentCliCommand project={project} instance={instance} />
           </div>

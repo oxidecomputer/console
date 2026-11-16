@@ -20,7 +20,6 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { BooleanCell } from '~/table/cells/BooleanCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -51,9 +50,6 @@ const staticCols = [
     cell: (info) => makeLinkCell((name) => pb.silo({ silo: name }))(info),
   }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('discoverable', {
-    cell: (info) => <BooleanCell isTrue={info.getValue()} />,
-  }),
   colHelper.accessor((silo) => silo.identityMode, {
     header: 'Identity mode',
     cell: (info) => <Badge>{info.getValue().replace('_', ' ')}</Badge>,

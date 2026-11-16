@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Key16Icon } from '@oxide/design-system/icons/react'
@@ -14,23 +15,25 @@ import { Key16Icon } from '@oxide/design-system/icons/react'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getSshKeySelector, useSshKeySelector } from '~/hooks/use-params'
+import { useSshKeySelector } from '~/hooks/use-params'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
-import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/ssh-key-edit'
+
 const sshKeyView = ({ sshKey }: PP.SshKey) =>
   q(api.currentUserSshKeyView, { path: { sshKey } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getSshKeySelector(params)
-  await queryClient.prefetchQuery(sshKeyView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { sshKey } = params
+  await queryClient.prefetchQuery(sshKeyView({ sshKey }))
   return null
 }
 
@@ -55,11 +58,7 @@ export default function EditSSHKeySideModalForm() {
         </ResourceLabel>
       }
     >
-      <PropertiesTable>
-        <PropertiesTable.IdRow id={data.id} />
-        <PropertiesTable.DateRow date={data.timeCreated} label="Created" />
-        <PropertiesTable.DateRow date={data.timeModified} label="Updated" />
-      </PropertiesTable>
+      <FormMetadata resource={data} />
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} disabled />
       <div className="relative">

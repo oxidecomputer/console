@@ -8,9 +8,9 @@
 import { useEffect, useRef } from 'react'
 import { Outlet, useNavigation } from 'react-router'
 
-import { MswBanner } from '~/components/MswBanner'
 import { ToastStack } from '~/components/ToastStack'
 import { useCrumbs } from '~/hooks/use-crumbs'
+import { useRouteAnnouncer } from '~/hooks/use-route-announcer'
 import { useApplyTheme } from '~/stores/theme'
 
 /**
@@ -30,6 +30,7 @@ const useTitle = () =>
  */
 export default function RootLayout() {
   useApplyTheme()
+  useRouteAnnouncer()
   const title = useTitle()
   useEffect(() => {
     document.title = title
@@ -38,7 +39,6 @@ export default function RootLayout() {
   return (
     <>
       <LoadingBar />
-      {process.env.MSW_BANNER ? <MswBanner /> : null}
       <Outlet />
       <ToastStack />
     </>
@@ -76,7 +76,8 @@ function LoadingBar() {
 
   // only used for checking the loading state from inside the timeout callback
   const loadingRef = useRef(false)
-  loadingRef.current = navigation.state === 'loading'
+  loadingRef.current =
+    navigation.state === 'loading' && navigation.location.state?.skipLoadingBar !== true
 
   useEffect(() => {
     const loading = navigation.state === 'loading'

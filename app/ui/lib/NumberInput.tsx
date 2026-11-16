@@ -6,11 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { useRef, type Ref } from 'react'
+import { useEffect, useRef, type Ref } from 'react'
 import {
   useButton,
   useLocale,
   useNumberField,
+  useNumberFormatter,
   type AriaButtonProps,
   type AriaNumberFieldProps,
 } from 'react-aria'
@@ -23,13 +24,39 @@ type NumberInputProps = AriaNumberFieldProps & {
   ref?: Ref<HTMLInputElement>
 }
 
-export function NumberInput(props: NumberInputProps) {
+export function NumberInput(rawProps: NumberInputProps) {
+  // 'validate' turns off clamping on commit and on the incoming value. A typed
+  // value outside min/max stays as typed and it is the form's job to reject it
+  // with a validation message. The steppers still stop at the bounds.
+  // https://github.com/adobe/react-spectrum/pull/9679
+  const props = { ...rawProps, commitBehavior: 'validate' as const }
   const { locale } = useLocale()
   const state = useNumberFieldState({ ...props, locale })
 
   const inputRef = useRef(null)
   const { groupProps, inputProps, incrementButtonProps, decrementButtonProps } =
     useNumberField(props, state, inputRef)
+
+  // react-aria only fires props.onChange on commit (blur / Enter / stepper),
+  // but we want form state to update on every keystroke that produces a
+  // different number. Committing whenever state.inputValue changes to an
+  // unambiguous number lets react-aria keep control, but forces it to be more
+  // eager. https://github.com/adobe/react-spectrum/issues/7984
+  //
+  // Commit would still reformat the text (e.g. "1.0" -> "1", "007" -> "7"),
+  // which would fight the user mid-edit, so hold off until the text is already
+  // in canonical form.
+  const formatter = useNumberFormatter(props.formatOptions)
+  useEffect(() => {
+    if (state.inputValue === '') {
+      state.commit()
+      return
+    }
+    if (Number.isNaN(state.numberValue)) return
+    if (formatter.format(state.numberValue) !== state.inputValue) return
+    state.commit()
+    // eslint-disable-next-line exhaustive-deps
+  }, [state.inputValue])
 
   return (
     <div

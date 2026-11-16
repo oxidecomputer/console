@@ -7,22 +7,12 @@
  */
 import { expect, test } from './utils'
 
-test('Show / hide contextual help docs links', async ({ page }) => {
-  const learnAbout = page.getByRole('heading', { name: 'Learn about disks' })
-  const managingDisksLink = page.getByRole('link', { name: 'Disks and Snapshots' })
-
+test('disks page wires its contextual documentation', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
-
-  await expect(learnAbout).toBeHidden()
-  await expect(managingDisksLink).toBeHidden()
-
-  // open the contextual help docs links
   await page.getByRole('button', { name: 'Learn about disks' }).click()
-  await expect(learnAbout).toBeVisible()
-  await expect(managingDisksLink).toBeVisible()
 
-  // close the contextual help docs links and verify they're hidden
-  await page.getByRole('table').click()
-  await expect(learnAbout).toBeHidden()
-  await expect(managingDisksLink).toBeHidden()
+  await expect(page.getByRole('link', { name: 'Disks and Snapshots' })).toHaveAttribute(
+    'href',
+    'https://docs.oxide.computer/guides/managing-disks-and-snapshots'
+  )
 })

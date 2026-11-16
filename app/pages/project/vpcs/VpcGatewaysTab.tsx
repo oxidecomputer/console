@@ -9,11 +9,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet } from 'react-router'
 
 import { api, getListQFn, queryClient, useApiMutation, type InternetGateway } from '~/api'
 import { HL } from '~/components/HL'
 import { ListPlusOverflow } from '~/components/ListPlusCell'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { addToast } from '~/stores/toast'
@@ -31,6 +32,7 @@ import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/VpcGatewaysTab'
 import {
   gatewayIpAddressList,
   gatewayIpPoolList,
@@ -40,7 +42,9 @@ import {
 } from './gateway-data'
 import { confirmDeleteGateway } from './gateway-delete'
 
-export const handle = { crumb: 'Internet Gateways' }
+export const handle = makeCrumb('Internet Gateways', (p) =>
+  pb.vpcInternetGateways(getVpcSelector(p))
+)
 
 const gatewayList = ({ project, vpc }: PP.Vpc) =>
   getListQFn(api.internetGatewayList, { query: { project, vpc, limit: ALL_ISH } })
@@ -88,8 +92,8 @@ const GatewayRoutes = ({ project, vpc, gateway }: PP.VpcInternetGateway) => {
 
 const colHelper = createColumnHelper<InternetGateway>()
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, vpc } = getVpcSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc } = params
   const [gateways, routers] = await Promise.all([
     queryClient.fetchQuery(gatewayList({ project, vpc }).optionsFn()),
     queryClient.fetchQuery(routerList({ project, vpc }).optionsFn()),

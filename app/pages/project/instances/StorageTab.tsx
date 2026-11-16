@@ -5,9 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
@@ -19,15 +19,14 @@ import {
   useApiMutation,
   usePrefetchedQuery,
   type Disk,
-  type InstanceState,
 } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
 import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
-import { AttachDiskModalForm } from '~/forms/disk-attach'
+import { AttachDiskModal } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { useInstanceSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmAction } from '~/stores/confirm-action'
@@ -44,10 +43,11 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
+import type { Route } from './+types/StorageTab'
 import { snapshotDisabledReason } from './common'
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, instance } = params
   const selector = { path: { instance }, query: { project } }
   await Promise.all([
     // don't bother with page size because this will never paginate. max disks
@@ -61,15 +61,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-// Bit of a hack: by putting the instance state in the row data, we can avoid
-// remaking the row actions callback whenever the instance state changes, which
-// causes the whole table to get re-rendered, which jarringly closes any open
-// row actions menus
-type InstanceDisk = Disk & {
-  instanceState: InstanceState
-}
-
-const colHelper = createColumnHelper<InstanceDisk>()
+const colHelper = createColumnHelper<Disk>()
 
 export const handle = { crumb: 'Storage' }
 
@@ -152,7 +144,7 @@ export default function StorageTab() {
 
   // shared between boot and other disks
   const getSnapshotAction = useCallback(
-    (disk: InstanceDisk) => ({
+    (disk: Disk) => ({
       label: 'Snapshot',
       disabled: snapshotDisabledReason(disk),
       onActivate() {
@@ -173,11 +165,11 @@ export default function StorageTab() {
   )
 
   const makeBootDiskActions = useCallback(
-    (disk: InstanceDisk): MenuAction[] => [
+    (disk: Disk): MenuAction[] => [
       getSnapshotAction(disk),
       {
         label: 'Unset as boot disk',
-        disabled: !instanceCan.updateBootDisk({ runState: disk.instanceState }) && (
+        disabled: !instanceCan.updateBootDisk(instance) && (
           <>
             Instance must be <span className="text-raise">stopped</span> before boot disk
             can be changed
@@ -223,26 +215,15 @@ export default function StorageTab() {
         onActivate() {}, // it's always disabled, so noop is ok
       },
     ],
-    [
-      instanceUpdate,
-      // don't put the entire instance in here. it is not referentially
-      // stable across polls, so the menus will close during polling
-      instance.id,
-      instance.autoRestartPolicy,
-      instance.ncpus,
-      instance.memory,
-      instance.cpuPlatform,
-      instance.enableJumboFrames,
-      getSnapshotAction,
-    ]
+    [instanceUpdate, instance, getSnapshotAction]
   )
 
   const makeOtherDiskActions = useCallback(
-    (disk: InstanceDisk): MenuAction[] => [
+    (disk: Disk): MenuAction[] => [
       getSnapshotAction(disk),
       {
         label: 'Set as boot disk',
-        disabled: !instanceCan.updateBootDisk({ runState: disk.instanceState }) && (
+        disabled: !instanceCan.updateBootDisk(instance) && (
           <>
             Instance must be <span className="text-raise">stopped</span> before boot disk
             can be changed
@@ -286,7 +267,7 @@ export default function StorageTab() {
       },
       {
         label: 'Detach',
-        disabled: !instanceCan.detachDisk({ runState: disk.instanceState }) && (
+        disabled: !instanceCan.detachDisk(instance) && (
           <>
             Instance must be <span className="text-raise">stopped</span> before disk can be
             detached
@@ -304,47 +285,36 @@ export default function StorageTab() {
           }),
       },
     ],
-    [
-      detachDisk,
-      instanceUpdate,
-      // don't put the entire instance in here. it is not referentially
-      // stable across polls, so the menus will close during polling
-      instance.id,
-      instance.autoRestartPolicy,
-      instance.ncpus,
-      instance.memory,
-      instance.cpuPlatform,
-      instance.enableJumboFrames,
-      getSnapshotAction,
-      bootDisks,
-    ]
+    [detachDisk, instanceUpdate, instance, getSnapshotAction, bootDisks]
   )
 
-  const attachDisk = useApiMutation(api.instanceDiskAttach, {
+  // attach step of the create-then-attach flow only; the attach modal owns its
+  // own mutation. The create modal closes on create success, so this runs in
+  // the background and failures must surface as a toast.
+  const attachCreatedDisk = useApiMutation(api.instanceDiskAttach, {
     onSuccess(disk) {
       queryClient.invalidateEndpoint('instanceDiskList')
-      setShowDiskCreate(false)
-      setShowDiskAttach(false)
       // prettier-ignore
       addToast(<>Disk <HL>{disk.name}</HL> attached</>)
+    },
+    onError(err, variables) {
+      addToast({
+        title: `Failed to attach disk ${variables.body.disk}`,
+        content: err.message,
+        variant: 'error',
+      })
     },
   })
 
   const bootDisksTable = useReactTable({
     columns: useColsWithActions(staticCols, makeBootDiskActions),
-    data: useMemo(
-      () => bootDisks.map((disk) => ({ ...disk, instanceState: instance.runState })),
-      [bootDisks, instance.runState]
-    ),
+    data: bootDisks,
     getCoreRowModel: getCoreRowModel(),
   })
 
   const otherDisksTable = useReactTable({
     columns: useColsWithActions(staticCols, makeOtherDiskActions),
-    data: useMemo(
-      () => otherDisks.map((disk) => ({ ...disk, instanceState: instance.runState })),
-      [otherDisks, instance.runState]
-    ),
+    data: otherDisks,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -434,24 +404,11 @@ export default function StorageTab() {
           onSuccess={({ name }) => {
             // TODO: this should probably be done with `mutateAsync` and
             // awaited, but it's a pain, so punt for now
-            attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
+            attachCreatedDisk.mutate({ ...instancePathQuery, body: { disk: name } })
           }}
         />
       )}
-      {showDiskAttach && (
-        <AttachDiskModalForm
-          onDismiss={() => {
-            setShowDiskAttach(false)
-            // clear API errors on the mutation
-            attachDisk.reset()
-          }}
-          onSubmit={({ name }) => {
-            attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
-          }}
-          loading={attachDisk.isPending}
-          submitError={attachDisk.error}
-        />
-      )}
+      {showDiskAttach && <AttachDiskModal onDismiss={() => setShowDiskAttach(false)} />}
       {selectedDisk && (
         <DiskDetailSideModal
           disk={selectedDisk}

@@ -5,35 +5,38 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 import * as R from 'remeda'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
-import { makeCrumb } from '~/hooks/use-crumbs'
-import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
+import { titleCrumb } from '~/hooks/use-crumbs'
+import { useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/ip-pool-edit'
 import { IpPoolVisibilityMessage } from './ip-pool-create'
 
 const ipPoolView = ({ pool }: PP.IpPool) => q(api.systemIpPoolView, { path: { pool } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getIpPoolSelector(params)
-  await queryClient.prefetchQuery(ipPoolView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { pool } = params
+  await queryClient.prefetchQuery(ipPoolView({ pool }))
   return null
 }
 
-export const handle = makeCrumb('Edit IP pool')
+export const handle = titleCrumb('Edit IP pool')
 
 export default function EditIpPoolSideModalForm() {
   const navigate = useNavigate()
@@ -70,9 +73,10 @@ export default function EditIpPoolSideModalForm() {
       onSubmit={({ name, description }) => {
         editPool.mutate({ path: poolSelector, body: { name, description } })
       }}
-      loading={editPool.isPending}
+      loading={editPool.isPending || editPool.isSuccess}
       submitError={editPool.error}
     >
+      <FormMetadata resource={pool} />
       <IpPoolVisibilityMessage />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

@@ -5,10 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet } from 'react-router'
 
 import {
   api,
@@ -46,6 +47,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 import { fancifyStates, snapshotDisabledReason } from '../instances/common'
+import type { Route } from './+types/DisksPage'
 
 export const handle = makeCrumb('Disks', (p) => pb.disks(getProjectSelector(p)))
 
@@ -63,8 +65,8 @@ const instanceList = ({ project }: PP.Project) =>
   getListQFn(api.instanceList, { query: { project, limit: 200 } })
 const diskList = (query: PP.Project) => getListQFn(api.diskList, { query })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   await Promise.all([
     queryClient.prefetchQuery(diskList({ project }).optionsFn()),
 

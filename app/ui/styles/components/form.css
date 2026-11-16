@@ -18,10 +18,11 @@
 
 .ox-form,
 .ox-form .ox-tabs-panel,
-.ox-form .ox-accordion-content {
+.ox-form .ox-accordion-content,
+.ox-form .ox-subform {
   @apply space-y-6;
 }
 
 .ox-form .ox-divider {
-  @apply !my-8; /* important overrides space-y-* on .ox-form */
+  @apply !my-6; /* important overrides space-y-* on .ox-form */
 }

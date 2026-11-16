@@ -5,15 +5,15 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   build-and-upload:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: 'npm'
+      - uses: oxidecomputer/actions/setup-node@0f10e5eb0416cb29a99322222a62b268c81d0be9
       - name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v3'
         with:
@@ -23,19 +23,12 @@ jobs:
         with:
           project_id: oxide-downloads
       - run: npm install
+
+      # Keep all packaging commands in .github/workflows/package.sh so that
+      # source escrow tooling can re-use the same commands.
       - name: Build for Nexus
-        run: SHA=${{ github.sha }} npm run build
-      - name: Gzip individual files (keep originals)
-        run: ls dist/assets/*.{js,css,map} | xargs gzip --keep
-      - name: add console_version file
-        run: echo ${{ github.sha }} > dist/VERSION
-      - name: add API_VERSION file
-        run: cp app/api/__generated__/API_VERSION dist/API_VERSION
-      - run: mkdir -p releases/console
-      - name: Make <sha>.tar.gz
-        run: tar czf releases/console/${{ github.sha }}.tar.gz --directory=dist .
-      - name: Write sha256sum to file
-        run: sha256sum releases/console/${{ github.sha }}.tar.gz | awk '{print $1}' > releases/console/${{ github.sha }}.sha256.txt
+        run: SHA=${{ github.sha }} .github/workflows/package.sh
+
       - name: Upload files to GCP bucket
         id: upload-files
         uses: google-github-actions/upload-cloud-storage@v3

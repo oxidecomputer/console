@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMatches, type Params, type UIMatch } from 'react-router'
+import { useLocation, useMatches, type Params, type UIMatch } from 'react-router'
 
 import { invariant } from '~/util/invariant'
 
@@ -29,7 +29,9 @@ export type Crumb = {
   path?: MakeStr
 }
 
-type MatchWithCrumb = UIMatch<unknown, Crumb>
+// only the fields crumbs need, so tests can build matches without a router
+type Match = Pick<UIMatch, 'pathname' | 'params' | 'handle'>
+type MatchWithCrumb = Match & { handle: Crumb }
 
 type MakeStr = string | ((p: Params) => string)
 
@@ -37,25 +39,24 @@ type MakeStr = string | ((p: Params) => string)
 export const makeCrumb = (crumb: MakeStr, path?: MakeStr): Crumb => ({ crumb, path })
 export const titleCrumb = (crumb: string): Crumb => ({ crumb, titleOnly: true })
 
-function hasCrumb(m: UIMatch): m is MatchWithCrumb {
+function hasCrumb(m: Match): m is MatchWithCrumb {
   return !!(m.handle && typeof m.handle === 'object' && 'crumb' in m.handle)
 }
 
 /**
  * Throw if crumb is not a string or function. It would be nice if TS enforced
- * this at the `<Route>` call, but overriding the type declarations is hard and
- * `createRoutesFromChildren` rejects a custom Route component.
+ * this, but React Router types a route module's `handle` export as `unknown`.
  */
 function checkCrumbType(m: MatchWithCrumb): MatchWithCrumb {
   const crumbType = typeof m.handle.crumb
   invariant(
     crumbType === 'string' || crumbType === 'function',
-    `Route crumb must be a string or function if present. Check <Route> for ${m.pathname}.`
+    `Route crumb must be a string or function if present. Check the handle export of the route module for ${m.pathname}.`
   )
   return m
 }
 
-export const matchesToCrumbs = (matches: UIMatch[]) =>
+export const matchesToCrumbs = (matches: Match[]) =>
   matches
     .filter(hasCrumb)
     .map(checkCrumbType)
@@ -69,3 +70,26 @@ export const matchesToCrumbs = (matches: UIMatch[]) =>
     })
 
 export const useCrumbs = () => matchesToCrumbs(useMatches())
+
+/**
+ * Whether the current route is a side modal (form or detail panel) opening on
+ * top of a page. Keys off the `titleOnly` crumb flag because it exists for the
+ * same reason: the page underneath doesn't change.
+ *
+ * Not the same as `useIsInSideModal`, which asks whether the calling component
+ * is rendered inside a `SideModal`. That one is false on the page underneath;
+ * this one is true.
+ */
+export const useIsSideModalRoute = () => useCrumbs().some((c) => c.titleOnly)
+
+/**
+ * Path of the page the current location displays, i.e., where its nav
+ * breadcrumbs point. For a side modal route this is the parent page it renders
+ * on top of — side modals are marked `titleOnly` precisely because the page
+ * underneath doesn't change. Falls back to the pathname for crumbless routes.
+ */
+export function usePagePath() {
+  const { pathname } = useLocation()
+  const pageCrumb = useCrumbs().findLast((c) => !c.titleOnly)
+  return pageCrumb?.path ?? pathname
+}

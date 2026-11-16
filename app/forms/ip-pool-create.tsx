@@ -59,7 +59,7 @@ export default function CreateIpPoolSideModalForm() {
       onSubmit={({ name, description, ipVersion, poolType }) => {
         createPool.mutate({ body: { name, description, ipVersion, poolType } })
       }}
-      loading={createPool.isPending}
+      loading={createPool.isPending || createPool.isSuccess}
       submitError={createPool.error}
     >
       <IpPoolVisibilityMessage />

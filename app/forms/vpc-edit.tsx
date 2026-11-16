@@ -5,30 +5,34 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
+import { useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/vpc-edit'
+
 export const handle = titleCrumb('Edit VPC')
 
 const vpcView = ({ project, vpc }: PP.Vpc) =>
   q(api.vpcView, { path: { vpc }, query: { project } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, vpc } = getVpcSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc } = params
   await queryClient.prefetchQuery(vpcView({ project, vpc }))
   return null
 }
@@ -72,9 +76,10 @@ export default function EditVpcSideModalForm() {
           body: { name, description, dnsName },
         })
       }}
-      loading={editVpc.isPending}
+      loading={editVpc.isPending || editVpc.isSuccess}
       submitError={editVpc.error}
     >
+      <FormMetadata resource={vpc} />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <NameField name="dnsName" label="DNS name" required={false} control={form.control} />

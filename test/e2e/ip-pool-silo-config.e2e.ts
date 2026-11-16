@@ -52,7 +52,9 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     await expect(v6Checkbox).not.toBeChecked()
     await expect(v6Checkbox).toBeDisabled()
     await v6Checkbox.hover()
-    await expect(page.getByText('No IPv6 pools available')).toBeVisible()
+    await expect(
+      page.getByRole('tooltip').getByText('No IPv6 pools available')
+    ).toBeVisible()
 
     // IPv4 pool dropdown should be visible with default pool preselected
     const v4PoolDropdown = page.getByLabel('IPv4 pool')
@@ -230,7 +232,9 @@ test.describe('IP pool configuration: thrax silo (v6-only default)', () => {
     await expect(v4Checkbox).not.toBeChecked()
     await expect(v4Checkbox).toBeDisabled()
     await v4Checkbox.hover()
-    await expect(page.getByText('No IPv4 pools available')).toBeVisible()
+    await expect(
+      page.getByRole('tooltip').getByText('No IPv4 pools available')
+    ).toBeVisible()
     await expect(v6Checkbox).toBeVisible()
     await expect(v6Checkbox).toBeChecked()
 

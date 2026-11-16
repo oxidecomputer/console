@@ -314,45 +314,54 @@ table.ox-table {
 }
 
 /*
-Drop shadow appears if content is below a sticky
-cell and the table is overflowing
+Drop shadow on a sticky column when content is scrolled under it, driven by
+the table's horizontal scroll position. When the table fits, the timeline is
+inactive and neither shadow shows. The clip-path stops the shadow spilling
+above and below the cell; it's only on while there's a shadow so it doesn't
+clip the selected-row border.
 */
-td:first-of-type,
-th:first-of-type,
-td:last-of-type.action-col,
-th:last-of-type.action-col {
-  transition-property: box-shadow;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 250ms;
+.ox-table {
+  --sticky-col-shadow: light-dark(oklch(0 0 0 / 0.075), oklch(0 0 0 / 0.6));
 }
 
-.scrolled td:first-of-type,
-.scrolled th:first-of-type {
-  box-shadow: 6px 0 8px -2px oklch(0 0 0 / 0.2);
-}
-.overflowing td:last-of-type.action-col,
-.overflowing th:last-of-type.action-col {
-  box-shadow: -6px 0 8px -2px oklch(0 0 0 / 0.2);
-}
-[data-theme='light'] .scrolled td:first-of-type,
-[data-theme='light'] .scrolled th:first-of-type {
-  box-shadow: 6px 0 8px -2px oklch(0 0 0 / 0.05);
-}
-[data-theme='light'] .overflowing td:last-of-type.action-col,
-[data-theme='light'] .overflowing th:last-of-type.action-col {
-  box-shadow: -6px 0 8px -2px oklch(0 0 0 / 0.05);
+/* Without the guard, browsers lacking scroll timelines would run the animation
+   with a 0s duration and hold the start shadow's end state on every table */
+@supports (animation-timeline: scroll()) {
+  .ox-table :is(td, th):first-of-type {
+    animation: sticky-start-shadow linear both;
+    animation-timeline: scroll(nearest inline);
+    animation-range: 0 2rem;
+  }
+  .ox-table :is(td, th):last-of-type.action-col {
+    animation: sticky-end-shadow linear both;
+    animation-timeline: scroll(nearest inline);
+    animation-range: calc(100% - 2rem) 100%;
+  }
 }
 
-/*
-  Stops shadow from overflowing below
-*/
-.scrolled td:first-of-type,
-.scrolled th:first-of-type {
-  clip-path: inset(0px -40px 0px 0px);
+@keyframes sticky-start-shadow {
+  from {
+    clip-path: none;
+  }
+  1% {
+    clip-path: inset(0 -40px 0 0);
+  }
+  to {
+    clip-path: inset(0 -40px 0 0);
+    box-shadow: 6px 0 8px -2px var(--sticky-col-shadow);
+  }
 }
-.overflowing td:last-of-type.action-col,
-.overflowing th:last-of-type.action-col {
-  clip-path: inset(0px 0px 0px -40px);
+@keyframes sticky-end-shadow {
+  from {
+    clip-path: inset(0 0 0 -40px);
+    box-shadow: -6px 0 8px -2px var(--sticky-col-shadow);
+  }
+  99% {
+    clip-path: inset(0 0 0 -40px);
+  }
+  to {
+    clip-path: none;
+  }
 }
 
 .simplebar-scrollbar {
@@ -361,7 +370,7 @@ th:last-of-type.action-col {
 }
 
 .simplebar-scrollbar:before {
-  background-color: rgba(255, 255, 255, 0.28);
+  background-color: var(--content-quaternary);
   left: 0 !important;
   top: 0 !important;
   right: 0 !important;
@@ -369,7 +378,7 @@ th:last-of-type.action-col {
 }
 
 .simplebar-hover.simplebar-scrollbar:before {
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: var(--content-tertiary);
 }
 
 .simplebar-track.simplebar-horizontal {

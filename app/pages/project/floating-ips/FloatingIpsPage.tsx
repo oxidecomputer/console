@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import {
   api,
@@ -35,6 +36,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -47,6 +49,8 @@ import { TableActions } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+
+import type { Route } from './+types/FloatingIpsPage'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -66,8 +70,8 @@ export const handle = makeCrumb('Floating IPs', (p) =>
   pb.floatingIps(getProjectSelector(p))
 )
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   await Promise.all([
     queryClient.fetchQuery(fipList(project).optionsFn()),
     queryClient.fetchQuery(instanceList(project).optionsFn()),
@@ -88,9 +92,15 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
+/** Reads project from the route so the name column can stay static */
+const NameCell = ({ name }: { name: string }) => {
+  const { project } = useProjectSelector()
+  return <LinkCell to={pb.floatingIpEdit({ project, floatingIp: name })}>{name}</LinkCell>
+}
+
 const colHelper = createColumnHelper<FloatingIp>()
 const staticCols = [
-  colHelper.accessor('name', {}),
+  colHelper.accessor('name', { cell: (info) => <NameCell name={info.getValue()} /> }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('ip', {
     header: 'IP address',
@@ -300,7 +310,7 @@ const AttachFloatingIpModal = ({
       }}
       submitLabel="Attach"
       submitError={floatingIpAttach.error}
-      loading={floatingIpAttach.isPending}
+      loading={floatingIpAttach.isPending || floatingIpAttach.isSuccess}
       onDismiss={onDismiss}
     >
       <Message

@@ -16,7 +16,7 @@ import { flattenChildren, pluckFirstOfType } from '~/util/children'
 import { classed } from '~/util/classed'
 
 import { Form } from '../form/Form'
-import { PageActions } from '../PageActions'
+import { PageFooter } from '../PageFooter'
 
 interface FullPageFormProps<TFieldValues extends FieldValues> {
   id: string
@@ -106,7 +106,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
       {!isSubmitSuccessful && <ConfirmNavigation blocker={blocker} />}
 
       {actions && (
-        <PageActions>
+        <PageFooter>
           <PageActionsContainer>
             {cloneElement(actions, {
               formId: id,
@@ -115,7 +115,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
               error: error || submitError,
             })}
           </PageActionsContainer>
-        </PageActions>
+        </PageFooter>
       )}
     </>
   )

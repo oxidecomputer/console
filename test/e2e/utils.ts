@@ -125,13 +125,16 @@ export async function expectRowVisible(
   table: Locator,
   expectedRow: Record<string, string | StringMatcher>
 ) {
-  // wait for header and rows to avoid flake town
-  const headerLoc = table.locator('thead >> role=columnheader')
-  // unlike most things, waitFor has no timeout by default
-  await headerLoc.first().waitFor({ timeout: 10_000 }) // nth=0 bc error if there's more than 1
+  // locate by role rather than thead/tbody because MiniTable is divs with
+  // table roles. header rows are the ones containing column headers
+  const columnheader = table.page().getByRole('columnheader')
+  const headerRowLoc = table.getByRole('row').filter({ has: columnheader })
+  const bodyRowLoc = table.getByRole('row').filter({ hasNot: columnheader })
 
-  const rowLoc = table.locator('tbody >> role=row')
-  await rowLoc.first().waitFor({ timeout: 10_000 })
+  // wait for header and rows to avoid flake town
+  // unlike most things, waitFor has no timeout by default
+  await headerRowLoc.first().waitFor({ timeout: 10_000 }) // nth=0 bc error if there's more than 1
+  await bodyRowLoc.first().waitFor({ timeout: 10_000 })
 
   async function getRows() {
     // need to pull header keys every time because the whole page can change
@@ -139,14 +142,13 @@ export async function expectRowVisible(
 
     // filter out data-test-ignore is specifically for making the header cells
     // match up with the contents on the double-header utilization table
-    const headerKeys = await table
-      .locator('thead')
-      .getByRole('row')
+    const headerKeys = await headerRowLoc
       .last()
-      .locator('th:not([data-test-ignore])')
+      .getByRole('columnheader')
+      .and(table.page().locator(':not([data-test-ignore])'))
       .allTextContents()
 
-    const rows = await map(table.locator('tbody >> role=row'), async (row) => {
+    const rows = await map(bodyRowLoc, async (row) => {
       // accessible name would be better than cell text but it's not in yet
       // https://github.com/microsoft/playwright/issues/13517
       const textContents = await row.locator('role=cell').allTextContents()
@@ -177,11 +179,20 @@ export async function stopInstance(page: Page) {
 }
 
 /**
- * Assert that a toast with text matching `expectedText` is visible.
+ * Assert that a toast with text matching `expectedText` is visible, then
+ * dismiss that toast and wait for it to go away.
  */
 export async function expectToast(page: Page, expectedText: string | RegExp) {
   await expect(page.getByTestId('Toasts')).toContainText(expectedText)
-  await closeToast(page)
+  // Dismiss the toast we matched, not whichever is first. An error test often
+  // has a "creating..." toast followed closely by a result toast, and which one
+  // is first depends on how fast the mock answers.
+  const toast = page
+    .getByTestId('Toasts')
+    .locator(':scope > div')
+    .filter({ hasText: expectedText })
+    .first()
+  await dismissToast(toast.getByRole('button', { name: 'Dismiss notification' }))
 }
 
 /**
@@ -191,23 +202,29 @@ export async function expectNoToast(page: Page, expectedText: string | RegExp) {
   await expect(page.getByTestId('Toasts')).not.toContainText(expectedText)
 }
 
-/**
- * Close first toast and wait for it to fade out. For some reason it prevents
- * things from working, but only in tests as far as we can tell.
- */
+/** Close the first toast and wait for it to go away. */
 export async function closeToast(page: Page) {
-  // first() is a hack aimed at situations where we're testing an error
-  // response, which usually means we have an initial "creating..." toast
-  // followed by an error toast. Sometimes the error toast shows up so fast that
-  // we don't have time to close the first one. Without first(), this errors out
-  // because there are two toasts.
-  await page.getByRole('button', { name: 'Dismiss notification' }).first().click()
-  await sleep(1000)
+  await dismissToast(page.getByRole('button', { name: 'Dismiss notification' }).first())
 }
 
 /**
- * This will not work in Firefox, which only supports reading from the clipboard in extensions.
- * See [MDN: readText](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/readText#browser_compatibility).
+ * Click a toast's dismiss button and wait until the toast has left the DOM
+ * (after its exit animation), so it can't cover what the test clicks next.
+ * Hold the element, not the locator: a toast arriving in between would change
+ * what the locator points to.
+ */
+async function dismissToast(button: Locator) {
+  // elementHandle waits for a match and throws on timeout, so it's never null
+  const handle = (await button.elementHandle())!
+  await handle.click().catch(async (e) => {
+    // the toast timed out and left on its own before the click landed
+    if (await handle.evaluate((el) => el.isConnected)) throw e
+  })
+  await handle.waitForElementState('hidden')
+}
+
+/**
+ * This will not work in Safari, which forbids clipboard reading without a user interaction.
  */
 export const clipboardText = async (page: Page) =>
   page.evaluate(() => navigator.clipboard.readText())
@@ -307,7 +324,12 @@ export async function expectScrollTop(page: Page, expected: number) {
 }
 
 export async function scrollTo(page: Page, to: number) {
-  await page.evaluate((to) => window.scrollTo(0, to), to)
+  await page.evaluate(async (to) => {
+    // If a web font finishes loading after the scroll, the text above the
+    // viewport reflows and scroll anchoring shifts scrollY by a few pixels
+    await document.fonts.ready
+    window.scrollTo(0, to)
+  }, to)
 }
 
 export async function addTlsCert(page: Page) {
@@ -327,7 +349,6 @@ export async function addTlsCert(page: Page) {
  * drops real console output there and only returns React profiling entries.
  */
 export async function expectConsoleMessage(page: Page, msg: string, type?: string) {
-  // eslint-disable-next-line playwright/no-conditional-in-test
   if (test.info().project.name === 'firefox') return
   const messages = await page.consoleMessages()
   const match = messages.find((m) => m.text().includes(msg))
@@ -337,7 +358,6 @@ export async function expectConsoleMessage(page: Page, msg: string, type?: strin
 
 /** Assert that no console message matching `msg` was logged. Skips on Firefox. */
 export async function expectNoConsoleMessage(page: Page, msg: string) {
-  // eslint-disable-next-line playwright/no-conditional-in-test
   if (test.info().project.name === 'firefox') return
   const messages = await page.consoleMessages()
   const match = messages.find((m) => m.text().includes(msg))

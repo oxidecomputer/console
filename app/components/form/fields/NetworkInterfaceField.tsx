@@ -8,8 +8,9 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import type { InstanceNetworkInterfaceCreate } from '@oxide/api'
+import { DEFAULT_VPC_NAME, type InstanceNetworkInterfaceCreate, type Vpc } from '@oxide/api'
 
+import { HL } from '~/components/HL'
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { Button } from '~/ui/lib/Button'
@@ -17,11 +18,12 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Listbox } from '~/ui/lib/Listbox'
 import { MiniTable } from '~/ui/lib/MiniTable'
 import { Radio } from '~/ui/lib/Radio'
+import { TipIcon } from '~/ui/lib/TipIcon'
 
 const networkInterfaceTableColumns = [
-  { header: 'Name', cell: (item: InstanceNetworkInterfaceCreate) => item.name },
-  { header: 'VPC', cell: (item: InstanceNetworkInterfaceCreate) => item.vpcName },
-  { header: 'Subnet', cell: (item: InstanceNetworkInterfaceCreate) => item.subnetName },
+  { header: 'Name', text: (item: InstanceNetworkInterfaceCreate) => item.name },
+  { header: 'VPC', text: (item: InstanceNetworkInterfaceCreate) => item.vpcName },
+  { header: 'Subnet', text: (item: InstanceNetworkInterfaceCreate) => item.subnetName },
 ]
 
 /**
@@ -31,11 +33,13 @@ const networkInterfaceTableColumns = [
 export function NetworkInterfaceField({
   control,
   disabled,
-  hasVpcs,
+  vpcs,
+  defaultNetworkingAvailable,
 }: {
   control: Control<InstanceCreateInput>
   disabled: boolean
-  hasVpcs: boolean
+  vpcs: Vpc[]
+  defaultNetworkingAvailable: boolean
 }) {
   const [showForm, setShowForm] = useState(false)
 
@@ -79,15 +83,27 @@ export function NetworkInterfaceField({
         aria-labelledby="network-interface-type-label"
       >
         <div className="space-y-2">
-          <Radio
-            name="networkInterfaceType"
-            value="default"
-            disabled={!hasVpcs || disabled}
-            checked={currentMode === 'default'}
-            onChange={(e) => handleModeChange(e.target.value)}
-          >
-            Default
-          </Radio>
+          <span className="inline-flex items-center gap-1.5">
+            <Radio
+              name="networkInterfaceType"
+              value="default"
+              disabled={!defaultNetworkingAvailable || disabled}
+              checked={currentMode === 'default'}
+              onChange={(e) => handleModeChange(e.target.value)}
+            >
+              Default
+            </Radio>
+            {
+              // the no VPCs case is covered by a separate yellow banner message
+              // saying you can't have any network interfaces
+              vpcs.length > 0 && !defaultNetworkingAvailable && (
+                <TipIcon>
+                  Default networking requires a VPC and subnet named{' '}
+                  <HL>{DEFAULT_VPC_NAME}</HL>
+                </TipIcon>
+              )
+            }
+          </span>
           {currentMode === 'default' && (
             <div className="mb-2 ml-6">
               <Listbox
@@ -108,7 +124,7 @@ export function NetworkInterfaceField({
           <Radio
             name="networkInterfaceType"
             value="create"
-            disabled={!hasVpcs || disabled}
+            disabled={vpcs.length === 0 || disabled}
             checked={currentMode === 'create'}
             onChange={(e) => handleModeChange(e.target.value)}
           >

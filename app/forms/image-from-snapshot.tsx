@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -23,14 +24,17 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getProjectSnapshotSelector, useProjectSnapshotSelector } from '~/hooks/use-params'
+import { useProjectSnapshotSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 import { formatBytes } from '~/util/units'
+
+import type { Route } from './+types/image-from-snapshot'
 
 const defaultValues: Omit<ImageCreate, 'source'> = {
   name: '',
@@ -42,8 +46,8 @@ const defaultValues: Omit<ImageCreate, 'source'> = {
 const snapshotView = ({ project, snapshot }: PP.Snapshot) =>
   q(api.snapshotView, { path: { snapshot }, query: { project } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, snapshot } = getProjectSnapshotSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, snapshot } = params
   await queryClient.prefetchQuery(snapshotView({ project, snapshot }))
   return null
 }
@@ -88,7 +92,7 @@ export default function CreateImageFromSnapshotSideModalForm() {
         })
       }
       submitError={createImage.error}
-      loading={createImage.isPending}
+      loading={createImage.isPending || createImage.isSuccess}
     >
       <PropertiesTable>
         <PropertiesTable.Row label="Snapshot">{data.name}</PropertiesTable.Row>
@@ -97,6 +101,7 @@ export default function CreateImageFromSnapshotSideModalForm() {
           {formatBytes(data.size).label}
         </PropertiesTable.Row>
       </PropertiesTable>
+      <FormDivider />
 
       <NameField name="name" control={form.control} required />
       <DescriptionField name="description" control={form.control} required />

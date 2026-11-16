@@ -23,10 +23,10 @@ const selectASiloImage = async (page: Page, name: string) => {
 }
 
 test('Instance networking tab — firewall rules card', async ({ page }) => {
-  // db1 has a primary NIC in mock-vpc, so the card names that VPC
+  // db1 has a primary NIC in default, so the card names that VPC
   await page.goto('/projects/mock-project/instances/db1/networking')
   await expect(
-    page.getByText('Manage firewall rules affecting this instance in VPC mock-vpc')
+    page.getByText('Manage firewall rules affecting this instance in VPC default')
   ).toBeVisible()
 
   // you-fail has no NICs, so there's no primary VPC and we show the fallback copy
@@ -45,7 +45,7 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
   // links to VPC and external IPs appear in table
-  await expect(page.getByRole('link', { name: 'mock-vpc' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'default' })).toBeVisible()
   await expect(page.getByRole('link', { name: '123.4.56.0' })).toBeVisible()
 
   // Instance networking tab
@@ -56,9 +56,9 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await expectRowVisible(nicTable, { name: 'my-nicprimary' })
 
   // check VPC link in table points to the right page
-  await expect(nicTable.getByRole('link', { name: 'mock-vpc' })).toHaveAttribute(
+  await expect(nicTable.getByRole('link', { name: 'default' })).toHaveAttribute(
     'href',
-    '/projects/mock-project/vpcs/mock-vpc/firewall-rules'
+    '/projects/mock-project/vpcs/default/firewall-rules'
   )
 
   const addNicButton = page.getByRole('button', { name: 'Add network interface' })
@@ -83,9 +83,9 @@ test('Instance networking tab — NIC table', async ({ page }) => {
 
   await page.getByRole('textbox', { name: 'Name' }).fill('nic-2')
   await page.getByLabel('VPC', { exact: true }).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('option', { name: 'default' }).click()
   await page.getByRole('dialog').getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+  await page.getByRole('option', { name: 'default', exact: true }).click()
   await page
     .getByRole('dialog')
     .getByRole('button', { name: 'Add network interface' })
@@ -110,7 +110,9 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   const deleteButton = page.getByRole('menuitem', { name: 'Delete' })
   await expect(deleteButton).toBeDisabled()
   await deleteButton.hover()
-  await expect(page.getByText('The primary interface can’t')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip').getByText('The primary interface can’t')
+  ).toBeVisible()
 
   // close the menu for nic-3, without the next line fails in FF and Safari (but not Chrome)
   await clickRowActions(page, 'nic-3')
@@ -374,8 +376,8 @@ test('Edit network interface - Transit IPs', async ({ page }) => {
   await transitIpField.fill('192.168.0.0/16')
   await expect(errorMessage).toBeHidden()
 
-  // Submit and assert it's in the table
-  await addTransitIpButton.click()
+  // Enter adds it to the table without submitting the outer form
+  await transitIpField.press('Enter')
   await expect(transitIpField).toHaveValue('')
   await expectRowVisible(transitIpsTable, { 'Transit IPs': '192.168.0.0/16' })
 
@@ -387,17 +389,24 @@ test('Edit network interface - Transit IPs', async ({ page }) => {
   await addTransitIpButton.click()
   await expect(dupeError).toBeVisible()
 
+  // the Add button works too
+  await transitIpField.fill('10.0.0.0/8')
+  await addTransitIpButton.click()
+  await expect(transitIpField).toHaveValue('')
+  await expectRowVisible(transitIpsTable, { 'Transit IPs': '10.0.0.0/8' })
+
   // Submit the form
   await modal.getByRole('button', { name: 'Update network interface' }).click()
 
   // Assert the transit IP is in the NICs table
-  // The NIC now has 3 transit IPs: 172.30.0.0/22 (v4), 192.168.0.0/16 (v4), and ::/64 (v6)
+  // The NIC now has 4 transit IPs: 172.30.0.0/22 (v4), 192.168.0.0/16 (v4),
+  // 10.0.0.0/8 (v4), and ::/64 (v6)
   const nicTable = page.getByRole('table', { name: 'Network interfaces' })
-  await expectRowVisible(nicTable, { 'Transit IPs': '172.30.0.0/22+2' })
+  await expectRowVisible(nicTable, { 'Transit IPs': '172.30.0.0/22+3' })
 
-  await page.getByText('+2').hover()
+  await page.getByText('+3').hover()
   await expect(
-    page.getByRole('tooltip', { name: 'Other transit IPs 192.168.0.0/16 ::/64' })
+    page.getByRole('tooltip', { name: 'Other transit IPs 192.168.0.0/16 10.0.0.0/8 ::/64' })
   ).toBeVisible()
 })
 

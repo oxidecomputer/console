@@ -5,37 +5,40 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/project-edit'
+
 const projectView = ({ project }: PP.Project) => q(api.projectView, { path: { project } })
 
 export const handle = titleCrumb('Edit project')
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   await queryClient.prefetchQuery(projectView({ project }))
   return null
 }
 
-export default function EditProjectSideModalForm() {
+export default function EditProjectSideModalForm({ params }: Route.ComponentProps) {
   const navigate = useNavigate()
 
-  const projectSelector = useProjectSelector()
+  const projectSelector = { project: params.project }
 
   const onDismiss = () => navigate(pb.projects())
 
@@ -65,9 +68,10 @@ export default function EditProjectSideModalForm() {
       onSubmit={({ name, description }) => {
         editProject.mutate({ path: projectSelector, body: { name, description } })
       }}
-      loading={editProject.isPending}
+      loading={editProject.isPending || editProject.isSuccess}
       submitError={editProject.error}
     >
+      <FormMetadata resource={project} />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <SideModalFormDocs docs={[docLinks.projects]} />

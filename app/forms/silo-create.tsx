@@ -39,7 +39,6 @@ export type SiloCreateFormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
 const defaultValues: SiloCreateFormValues = {
   name: '',
   description: '',
-  discoverable: true,
   identityMode: 'saml_jit',
   adminGroupName: '',
   tlsCertificates: [],
@@ -72,6 +71,7 @@ export default function CreateSiloSideModalForm() {
 
   const form = useForm({ defaultValues })
   const identityMode = form.watch('identityMode')
+  const siloName = form.watch('name')
   // Clear the adminGroupName if the user selects the "local only" identity mode
   useEffect(() => {
     if (identityMode === 'local_only') {
@@ -105,22 +105,21 @@ export default function CreateSiloSideModalForm() {
             mappedFleetRoles,
             quotas: {
               cpus: quotas.cpus,
-              memory: quotas.memory * GiB,
-              storage: quotas.storage * GiB,
+              // fractional GiB can produce a fractional byte count, which the API rejects.
+              // Ceil rather than round so the quota is never less than what was asked for
+              memory: Math.ceil(quotas.memory * GiB),
+              storage: Math.ceil(quotas.storage * GiB),
             },
             ...rest,
           },
         })
       }}
-      loading={createSilo.isPending}
+      loading={createSilo.isPending || createSilo.isSuccess}
       submitError={createSilo.error}
     >
       <Message variant="info" content={<HelpMessage />} />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <CheckboxField name="discoverable" control={form.control}>
-        Discoverable
-      </CheckboxField>
       <FormDivider />
       <NumberField
         control={form.control}
@@ -133,6 +132,7 @@ export default function CreateSiloSideModalForm() {
         control={form.control}
         label="Memory quota"
         name="quotas.memory"
+        allowDecimals
         required
         units="GiB"
       />
@@ -140,6 +140,7 @@ export default function CreateSiloSideModalForm() {
         control={form.control}
         label="Storage quota"
         name="quotas.storage"
+        allowDecimals
         required
         units="GiB"
       />
@@ -182,7 +183,7 @@ export default function CreateSiloSideModalForm() {
         </div>
       </div>
       <FormDivider />
-      <TlsCertsField control={form.control} />
+      <TlsCertsField control={form.control} siloName={siloName} />
       <SideModalFormDocs docs={[docLinks.systemSiloCreate, docLinks.systemSilo]} />
     </SideModalForm>
   )

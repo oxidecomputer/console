@@ -53,7 +53,7 @@ CardBlock.Header = ({ title, description, children, titleId }: HeaderProps) => (
       {description && <div className="text-secondary">{description}</div>}
     </div>
 
-    <div className="space-x-2">{children}</div>
+    <div className="max-1000:flex-col flex gap-2">{children}</div>
   </header>
 )
 

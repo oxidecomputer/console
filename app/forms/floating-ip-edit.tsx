@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -19,10 +20,11 @@ import {
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getFloatingIpSelector, useFloatingIpSelector } from '~/hooks/use-params'
+import { useFloatingIpSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
@@ -33,12 +35,14 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/floating-ip-edit'
+
 const floatingIpView = ({ project, floatingIp }: PP.FloatingIp) =>
   q(api.floatingIpView, { path: { floatingIp }, query: { project } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getFloatingIpSelector(params)
-  const fip = await queryClient.fetchQuery(floatingIpView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, floatingIp } = params
+  const fip = await queryClient.fetchQuery(floatingIpView({ project, floatingIp }))
   await Promise.all([
     queryClient.prefetchQuery(
       // ip pool cell uses errors allowed, so we have to do that here to match
@@ -96,13 +100,10 @@ export default function EditFloatingIpSideModalForm() {
           body: { name, description },
         })
       }}
-      loading={editFloatingIp.isPending}
+      loading={editFloatingIp.isPending || editFloatingIp.isSuccess}
       submitError={editFloatingIp.error}
     >
-      <PropertiesTable>
-        <PropertiesTable.IdRow id={floatingIp.id} />
-        <PropertiesTable.DateRow label="Created" date={floatingIp.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={floatingIp.timeModified} />
+      <FormMetadata resource={floatingIp}>
         <PropertiesTable.Row label="IP Address">
           <CopyableIp ip={floatingIp.ip} isLinked={false} />
         </PropertiesTable.Row>
@@ -112,7 +113,7 @@ export default function EditFloatingIpSideModalForm() {
         <PropertiesTable.Row label="Instance">
           <InstanceLink instanceId={floatingIp.instanceId} tab="networking" />
         </PropertiesTable.Row>
-      </PropertiesTable>
+      </FormMetadata>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <SideModalFormDocs docs={[docLinks.floatingIps]} />

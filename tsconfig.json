@@ -15,8 +15,10 @@
       "@oxide/api-mocks": ["./mock-api/index.ts"]
     },
     "skipLibCheck": true,
-    "target": "es2023",
-    "types": ["node", "vite/client", "vitest/importMeta"]
+    "target": "es2024",
+    "types": ["node", "vite/client", "vitest/importMeta"],
+    "rootDirs": [".", "./.react-router/types"]
   },
-  "exclude": ["tools/deno"]
+  "exclude": ["build", "dist"],
+  "include": ["**/*", ".react-router/types/**/*"]
 }

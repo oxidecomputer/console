@@ -8,7 +8,6 @@
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
@@ -34,7 +33,7 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
-import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -47,14 +46,17 @@ import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { identityTypeLabel, roleColor } from '~/util/access'
 import { groupBy } from '~/util/array'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import type * as PP from '~/util/path-params'
+
+import type { Route } from './+types/ProjectAccessPage'
 
 const policyView = q(api.policyView, {})
 const projectPolicyView = ({ project }: PP.Project) =>
   q(api.projectPolicyView, { path: { project } })
-const userList = q(api.userList, {})
-const groupList = q(api.groupList, {})
+const userList = q(api.userList, { query: { limit: ALL_ISH } })
+const groupList = q(api.groupList, { query: { limit: ALL_ISH } })
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -68,11 +70,11 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   await Promise.all([
     queryClient.prefetchQuery(policyView),
-    queryClient.prefetchQuery(projectPolicyView(selector)),
+    queryClient.prefetchQuery(projectPolicyView({ project })),
     // used to resolve user names
     queryClient.prefetchQuery(userList),
     queryClient.prefetchQuery(groupList),
@@ -103,7 +105,7 @@ export default function ProjectAccessPage() {
   const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
   const projectRows = useUserRows(projectPolicy.roleAssignments, 'project')
 
-  const rows = useMemo(() => {
+  const rows: UserRow[] = useMemo(() => {
     return groupBy(siloRows.concat(projectRows), (u) => u.id)
       .map(([userId, userAssignments]) => {
         const { name, identityType } = userAssignments[0]
@@ -122,7 +124,7 @@ export default function ProjectAccessPage() {
           name,
           projectRole: projectAccessRow?.roleName,
           roleBadges,
-        } satisfies UserRow
+        }
       })
       .sort(byGroupThenName)
   }, [siloRows, projectRows])
@@ -201,7 +203,7 @@ export default function ProjectAccessPage() {
     [projectPolicy, projectSelector.project, updatePolicy]
   )
 
-  const tableInstance = useReactTable({
+  const tableInstance = useReactTable<UserRow>({
     columns,
     data: rows,
     getCoreRowModel: getCoreRowModel(),

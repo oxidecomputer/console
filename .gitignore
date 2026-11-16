@@ -1,6 +1,5 @@
 /dist
 /node_modules
-deno.lock
 
 # IDEs and editors
 /.idea
@@ -32,8 +31,15 @@ test-results/
 ci-e2e-traces/
 playwright-report/
 .e2e-logs/
+.vitest/
 .vercel
 
 # Visual regression snapshots
 test/visual/**/*-snapshots/
 test/visual/**/*.png
+
+# React Router build output. build/client is the deployable static site
+/build/
+
+# package.sh output (.github/workflows/package.sh)
+/releases/

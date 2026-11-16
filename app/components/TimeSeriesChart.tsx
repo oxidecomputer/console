@@ -6,132 +6,54 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { format } from 'date-fns'
-import { useMemo, type ReactNode } from 'react'
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
-import type { TooltipProps } from 'recharts/types/component/Tooltip'
+import { useMemo, useState, type ReactNode } from 'react'
+import * as R from 'remeda'
+import { match } from 'ts-pattern'
+import uPlot from 'uplot'
 
 import type { ChartDatum } from '@oxide/api'
 import { Error12Icon } from '@oxide/design-system/icons/react'
 
+import { ChartTooltip, type LeftRight, type TopBottom } from '~/components/ChartTooltip'
+import { FramedChart, type UPlotOptions } from '~/components/FramedChart'
+import {
+  type ChartTheme,
+  seriesColor,
+  timeFormatterForRange,
+  useChartTheme,
+  useLiveAxisFormatter,
+  xTimeAxis,
+  yValueAxis,
+} from '~/util/charts'
 import { classed } from '~/util/classed'
 
-// Recharts's built-in ticks behavior is useless and probably broken
-/**
- * Split the data into n evenly spaced ticks, with one at the left end and one a
- * little bit in from the right end, and the rest evenly spaced in between.
- */
-function getTicks(data: { timestamp: number }[], n: number): number[] {
-  if (data.length === 0) return []
-  if (n < 2) throw Error('n must be at least 2 because of the start and end ticks')
-  // bring the last tick in a bit from the end
-  const maxIdx = data.length > 10 ? Math.floor((data.length - 1) * 0.8) : data.length - 1
-  const startOffset = Math.floor((data.length - maxIdx) * 0.6)
-  // if there are 4 ticks, their positions are 0/3, 1/3, 2/3, 3/3 (as fractions of maxIdx)
-  const idxs = Array.from({ length: n }).map((_, i) =>
-    Math.floor((maxIdx * i) / (n - 1) + startOffset)
-  )
-  return idxs.map((i) => data[i].timestamp)
-}
-
-function getVerticalTicks(n: number, max: number): number[] {
-  return Array.from({ length: n }).map((_, i) => Math.floor(((i + 1) / n) * max))
-}
-
-/**
- * Check if the start and end time are on the same day
- * If they are we can omit the day/month in the date time format
- */
-function isSameDay(d1: Date, d2: Date) {
-  return (
-    d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate()
-  )
-}
-
-const shortDateTime = (ts: number) => format(new Date(ts), 'M/d HH:mm')
-const shortTime = (ts: number) => format(new Date(ts), 'HH:mm')
-const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss zz')
-
-const GRID_GRAY = 'var(--stroke-secondary)'
-const CURSOR = 'var(--chart-stroke-item)'
-const GREEN_400 = 'var(--surface-accent-secondary)'
-const GREEN_600 = 'var(--content-accent-tertiary)'
-const GREEN_800 = 'var(--content-accent)'
-
-// TODO: figure out how to do this with TW classes instead. As far as I can tell
-// ticks only take direct styling
-const textMonoMd = {
-  fontSize: '0.6875rem',
-  fontFamily: '"GT America Mono", monospace',
-  fill: 'var(--content-quaternary)',
-}
-
-// The length of a character in pixels at 11px with GT America Mono
-// Used for dynamically sizing the yAxis. If this were to fallback
-// the font would likely be thinner than the monospaced character
-// and therefore not overflow
-const TEXT_CHAR_WIDTH = 6.82
-
-function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
-  const { payload } = props
-  if (!payload || payload.length < 1) return null
-  // TODO: there has to be a better way to get these values
-  const {
-    name,
-    payload: { timestamp, value },
-  } = payload[0]
-  if (!timestamp || typeof value !== 'number') return null
-  return (
-    <div className="text-sans-md text-secondary bg-raise shadow-tooltip rounded-md outline-0">
-      <div className="border-secondary border-b px-3 py-2 pr-6">
-        {longDateTime(timestamp)}
-      </div>
-      <div className="px-3 py-2">
-        <div className="text-secondary">{name}</div>
-        <div className="text-raise">
-          {value.toLocaleString()}
-          {unit && <span className="text-secondary ml-1">{unit}</span>}
-        </div>
-        {/* TODO: unit on value if relevant */}
-      </div>
-    </div>
-  )
-}
+const CHART_HEIGHT = 300
 
 type TimeSeriesChartProps = {
-  className?: string
-  data: ChartDatum[] | undefined
+  timestamps: number[] | undefined
+  data: (number | null)[][] | undefined
   title: string
   interpolation?: 'linear' | 'stepAfter'
   startTime: Date
   endTime: Date
   unit?: string
+  /** Drawn rotated alongside the y-axis tick labels, e.g. a unit */
+  yAxisLabel?: string
   yAxisTickFormatter?: (val: number) => string
   hasError?: boolean
   loading: boolean
-}
-
-const TICK_COUNT = 6
-const TICK_MARGIN = 8
-const TICK_SIZE = 6
-
-/** Round `value` up to nearest number divisible by `divisor` */
-function roundUpToDivBy(value: number, divisor: number) {
-  return Math.ceil(value / divisor) * divisor
+  seriesLabels?: readonly string[]
+  /**
+   * Test-only: exposes the underlying uPlot instance so specs can spy on its
+   * methods. uPlot assigns methods per-instance (no prototype), and module
+   * mocks are unreliable in Vitest browser mode, so this is the only reliable
+   * observation point.
+   */
+  onCreate?: (u: uPlot) => void
 }
 
 // this top margin is also in the chart, probably want a way of unifying the sizing between the two
-const SkeletonMetric = ({
+export const SkeletonMetric = ({
   children,
   shimmer = false,
   className,
@@ -140,7 +62,7 @@ const SkeletonMetric = ({
   shimmer?: boolean
   className?: string
 }) => (
-  <div className="relative flex h-[300px] w-full items-center">
+  <div className="relative flex w-full items-center" style={{ height: CHART_HEIGHT }}>
     <div
       className={cn(
         shimmer && 'motion-safe:animate-pulse',
@@ -148,7 +70,7 @@ const SkeletonMetric = ({
         className
       )}
     >
-      <div className="flex h-full flex-col justify-between">
+      <div className="flex h-full flex-col justify-around">
         {[...Array(4)].map((_e, i) => (
           <div key={i} className="h-px w-full bg-(--stroke-secondary)" />
         ))}
@@ -159,53 +81,165 @@ const SkeletonMetric = ({
         ))}
       </div>
     </div>
-    <div className="relative flex h-full w-full items-center justify-center pb-11">
+    <div className="relative flex h-full w-full items-center justify-center py-8">
       {children}
     </div>
   </div>
 )
 
+const defaultYAxisTickFormatter = (val: number) => val.toLocaleString()
+
+/**
+ * Split a single `ChartDatum[]` into the parallel `timestamps`/`data` arrays the chart consumes.
+ * Returns `undefined` props when there's no data so the chart goes into the loading/empty state.
+ */
+export function toChartSeries(data: ChartDatum[] | undefined): {
+  timestamps: number[] | undefined
+  values: (number | null)[][] | undefined
+} {
+  if (!data) return { timestamps: undefined, values: undefined }
+  return {
+    timestamps: data.map((d) => d.timestamp),
+    values: [data.map((d) => d.value)],
+  }
+}
+
 export function TimeSeriesChart({
-  data: rawData,
+  timestamps,
+  data,
   title,
   interpolation = 'linear',
   startTime,
   endTime,
   unit,
-  yAxisTickFormatter = (val) => val.toLocaleString(),
+  yAxisLabel,
+  yAxisTickFormatter = defaultYAxisTickFormatter,
   hasError = false,
   loading,
+  seriesLabels,
+  onCreate,
 }: TimeSeriesChartProps) {
-  // We use the largest data point +20% for the graph scale. !rawData doesn't
-  // mean it's empty (it will never be empty because we fill in artificial 0s at
-  // beginning and end), it means the metrics requests haven't come back yet
-  const maxY = useMemo(() => {
-    if (!rawData) return null
-    const dataMax = Math.max(
-      ...rawData.map((datum) => datum.value).filter((x) => x !== null)
-    )
-    return roundUpToDivBy(dataMax * 1.2, TICK_COUNT) // avoid uneven ticks
-  }, [rawData])
+  const theme = useChartTheme()
 
-  // If max value is set we normalize the graph so that
-  // is the maximum, we also use our own function as recharts
-  // doesn't fill the whole domain (just up to the data max)
-  const yTicks = maxY
-    ? { domain: [0, maxY], ticks: getVerticalTicks(TICK_COUNT, maxY) }
-    : undefined
+  const formatTime = timeFormatterForRange(startTime, endTime)
 
-  // We get the longest label length and multiply that with our `TICK_CHAR_WIDTH`
-  // and add the extra space for the tick stroke and spacing
-  // It's possible to get clever and calculate the width using the canvas or font metrics
-  // But our font is monospace so we can just use the length of the text * the baked width of the character
-  const maxLabelLength = yTicks
-    ? Math.max(...yTicks.ticks.map((tick) => yAxisTickFormatter(tick).length))
-    : 0
-  const maxLabelWidth = maxLabelLength * TEXT_CHAR_WIDTH + TICK_SIZE + TICK_MARGIN
+  const dataLength = data?.length ?? 0
 
-  // falling back here instead of in the parent lets us avoid causing a
-  // re-render on every render of the parent when the data is undefined
-  const data = useMemo(() => rawData || [], [rawData])
+  const [tooltip, setTooltip] = useState<{
+    // the x position
+    hoveredDataIndex: number
+    // which series is hovered
+    hoveredSeriesIndex: number
+    left: number
+    top: number
+    // which side of the point the box sits on
+    leftRight: LeftRight
+    topBottom: TopBottom
+  } | null>(null)
+
+  const tooltipPlugin = useMemo<uPlot.Plugin>(
+    () => ({
+      hooks: {
+        setCursor: (self) => {
+          const { idx, top } = self.cursor
+          if (idx == null || top == null) {
+            setTooltip(null)
+            return
+          }
+
+          // We hunt down the series whose Y is closest to the cursor position at the given X index.
+          // Reminder that the first series is the X values, so we start at series index 1 here.
+          const nearestSeriesIndex = R.firstBy(
+            R.range(1, self.series.length).filter((s) => self.data[s][idx] != null),
+            // non-null: the filter above dropped series that are null at this idx
+            (s) => Math.abs(self.valToPos(self.data[s][idx]!, 'y') - top)
+          )
+          if (nearestSeriesIndex === undefined) {
+            setTooltip(null)
+            return
+          }
+
+          const x = self.data[0][idx]
+
+          const plotRect = self.over.getBoundingClientRect()
+          const chartRect = self.root.getBoundingClientRect()
+
+          // cursor picks the y position, data picks the x position
+          const left = self.valToPos(x, 'x')
+
+          setTooltip({
+            hoveredDataIndex: idx,
+            hoveredSeriesIndex: nearestSeriesIndex - 1,
+            // cursor coords are relative to the plot area, so we add in the diff between the plot
+            // and the whole container
+            left: plotRect.left - chartRect.left + left,
+            top: plotRect.top - chartRect.top + top,
+            leftRight: left > plotRect.width / 2 ? 'left' : 'right',
+            topBottom: top > plotRect.height / 2 ? 'top' : 'bottom',
+          })
+        },
+        init: (self) => {
+          self.over.addEventListener('mouseleave', () => setTooltip(null))
+        },
+      },
+    }),
+    []
+  )
+
+  const { uRef, formatterRef } = useLiveAxisFormatter(yAxisTickFormatter)
+
+  // uplot-react rebuilds the whole chart (they call this the "create" path) when any top-level
+  // option (other than width or height) changes by reference.
+  const chartOptions = useMemo(
+    () =>
+      ({
+        series: [
+          {},
+          ...R.times(dataLength, (i) => ({
+            show: true,
+            stroke: seriesColor(i, theme),
+            fill: dataLength === 1 ? theme.fill : undefined,
+            points: { show: false },
+            paths: match(interpolation)
+              .with('linear', () => uPlot.paths.linear?.())
+              .with('stepAfter', () => uPlot.paths.stepped?.({ align: 1 }))
+              .exhaustive(),
+          })),
+        ],
+        axes: [
+          xTimeAxis({ theme, formatTime }),
+          yValueAxis({
+            theme,
+            label: yAxisLabel,
+            grid: { show: true, stroke: theme.axisLine, width: 1 },
+            values: (_u, yValues) =>
+              yValues.map((v) => (v === 0 ? '' : formatterRef.current(v))),
+          }),
+        ],
+        focus: { alpha: 0.5 },
+        cursor: {
+          // setting this property causes non-focused series to dim on hover.
+          // 1e9 just means "any proximity will do"
+          focus: { prox: 1e9 },
+          x: false,
+          y: false,
+          // TODO: i like the drag and we should put it back in
+          drag: { x: false },
+          // uPlot's default fill matches each dot to its series stroke
+          points: { size: 6 },
+        },
+        legend: { show: false },
+        plugins: [tooltipPlugin],
+      }) satisfies UPlotOptions,
+    [dataLength, formatTime, tooltipPlugin, interpolation, theme, formatterRef, yAxisLabel]
+  )
+
+  const aligned = useMemo<uPlot.AlignedData>(() => {
+    const points = data ?? []
+    const times = timestamps ?? []
+
+    return [times.map((t) => t / 1000), ...points]
+  }, [data, timestamps])
 
   if (hasError) {
     return (
@@ -222,7 +256,8 @@ export function TimeSeriesChart({
       </SkeletonMetric>
     )
   }
-  if (!data || data.length === 0) {
+
+  if (!data || data.length === 0 || !timestamps || timestamps.length === 0) {
     return (
       <SkeletonMetric>
         <MetricsEmpty />
@@ -230,62 +265,56 @@ export function TimeSeriesChart({
     )
   }
 
-  // ResponsiveContainer has default height and width of 100%
-  // https://recharts.org/en-US/api/ResponsiveContainer
+  // in case the data changed out from under us, let's at least check that we can find something
+  // to render
+  const hoveredValue =
+    tooltip &&
+    tooltip.hoveredSeriesIndex < data.length &&
+    tooltip.hoveredDataIndex < timestamps.length
+      ? data[tooltip.hoveredSeriesIndex][tooltip.hoveredDataIndex]
+      : null
+
+  const hovered =
+    tooltip && hoveredValue != null
+      ? { timestamp: timestamps[tooltip.hoveredDataIndex], value: hoveredValue }
+      : undefined
+
   return (
-    <div className="px-5 pt-8 pb-5">
-      <ResponsiveContainer height={300}>
-        <AreaChart data={data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-          <CartesianGrid stroke={GRID_GRAY} vertical={false} />
-          <XAxis
-            axisLine={{ stroke: GRID_GRAY }}
-            tickLine={{ stroke: GRID_GRAY }}
-            // TODO: show full given date range in the chart even if the data doesn't fill the range
-            domain={['auto', 'auto']}
-            dataKey="timestamp"
-            interval="preserveStart"
-            scale="time"
-            // TODO: use Date directly as x-axis values
-            type="number"
-            name="Time"
-            ticks={getTicks(data, 5)}
-            tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
-            tick={textMonoMd}
-            tickMargin={TICK_MARGIN}
-            tickSize={TICK_SIZE}
+    <FramedChart
+      title={title}
+      height={CHART_HEIGHT}
+      chartOptions={chartOptions}
+      data={aligned}
+      uRef={uRef}
+      onCreate={onCreate}
+      legend={
+        seriesLabels && (
+          <ChartLegend
+            title={title}
+            count={data.length}
+            seriesLabels={seriesLabels}
+            theme={theme}
           />
-          <YAxis
-            axisLine={{ stroke: GRID_GRAY }}
-            tickLine={{ stroke: GRID_GRAY }}
-            orientation="right"
-            tick={textMonoMd}
-            tickSize={TICK_SIZE}
-            tickMargin={TICK_MARGIN}
-            tickFormatter={yAxisTickFormatter}
-            padding={{ top: 32 }}
-            width={maxLabelWidth}
-            {...yTicks}
-          />
-          {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
-          <Tooltip
-            isAnimationActive={false}
-            content={(props: TooltipProps<number, string>) => renderTooltip(props, unit)}
-            cursor={{ stroke: CURSOR, strokeDasharray: '3,3' }}
-            wrapperStyle={{ outline: 'none' }}
-          />
-          <Area
-            dataKey="value"
-            name={title} // Provides name for value in hover tooltip
-            type={interpolation}
-            stroke={GREEN_600}
-            fill={GREEN_400}
-            isAnimationActive={false}
-            dot={false}
-            activeDot={{ fill: GREEN_800, r: 3, strokeWidth: 0 }}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
+        )
+      }
+    >
+      {tooltip && hovered && (
+        <ChartTooltip
+          timestamp={hovered.timestamp}
+          left={tooltip.left}
+          top={tooltip.top}
+          offset={[tooltip.leftRight, tooltip.topBottom]}
+          label={
+            seriesLabels
+              ? seriesLabel(title, tooltip.hoveredSeriesIndex, seriesLabels)
+              : title
+          }
+        >
+          {hovered.value.toLocaleString()}
+          {unit && <span className="text-secondary ml-1">{unit}</span>}
+        </ChartTooltip>
+      )}
+    </FramedChart>
   )
 }
 
@@ -358,12 +387,44 @@ export function ChartHeader({ title, label, description, children }: ChartHeader
     <div className="border-secondary flex items-center justify-between border-b px-5 pt-5 pb-4">
       <div>
         <h2 className="flex items-baseline gap-1.5">
-          <div className="text-sans-semi-lg">{title}</div>
+          <div className="text-sans-semi-lg text-default">{title}</div>
           <div className="text-sans-md text-secondary">{label}</div>
         </h2>
         <div className="text-sans-md text-secondary mt-0.5">{description}</div>
       </div>
       {children}
     </div>
+  )
+}
+
+// We generally expect a list of labels to be the same length as the data list (or not provided), so
+// the fallback here is just for bad behavior.
+function seriesLabel(title: string, i: number, labels: readonly string[]): string {
+  return labels[i] ?? `${title} #${i + 1}`
+}
+
+function ChartLegend({
+  title,
+  count,
+  seriesLabels,
+  theme,
+}: {
+  title: string
+  count: number
+  seriesLabels: readonly string[]
+  theme: ChartTheme
+}) {
+  return (
+    <ul className="mt-4 flex max-h-24 flex-wrap gap-x-4 gap-y-1.5 overflow-y-auto pl-5">
+      {Array.from({ length: count }, (_, i) => (
+        <li key={i} className="text-sans-md text-secondary flex items-center gap-2">
+          <span
+            className="h-0.5 w-3 shrink-0 rounded-full"
+            style={{ backgroundColor: seriesColor(i, theme) }}
+          />
+          {seriesLabel(title, i, seriesLabels)}
+        </li>
+      ))}
+    </ul>
   )
 }

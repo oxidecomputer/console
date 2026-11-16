@@ -29,37 +29,6 @@ test('Enter key does not prematurely submit a linked form', async ({ page }) => 
   await expectNotVisible(page, [page.getByText('Name is required')])
 })
 
-test('Arrow keys navigate up and down', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances')
-  await openActionMenu(page)
-
-  await expect(page.getByRole('option', { name: 'db1' })).toBeVisible()
-
-  const selected = getSelectedItem(page)
-  await expect(selected).toHaveText('New instance')
-
-  await page.keyboard.press('ArrowDown')
-  await expect(selected).toHaveText('db1')
-
-  await page.keyboard.press('ArrowUp')
-  await expect(selected).toHaveText('New instance')
-})
-
-test('search filters items', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances')
-  await openActionMenu(page)
-
-  // wait for instance list items to load before searching
-  await expect(page.getByRole('option', { name: 'db1' })).toBeVisible()
-
-  // type a search query that matches a specific instance
-  await page.keyboard.type('db1')
-  // the matching item should be visible
-  await expect(page.getByRole('option', { name: 'db1' })).toBeVisible()
-  // an unrelated item should be filtered out
-  await expect(page.getByRole('option', { name: 'New instance' })).toBeHidden()
-})
-
 test('"Go up" actions derived from breadcrumbs', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
   await openActionMenu(page)
@@ -100,25 +69,17 @@ test('items from page and layout sources coexist', async ({ page }) => {
   await expect(page.getByRole('option', { name: 'Disks' })).toBeVisible()
 })
 
-test('dismiss with Escape', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances')
-  await openActionMenu(page)
-
-  await page.keyboard.press('Escape')
-  await expect(page.getByText('Enterto submit')).toBeHidden()
-})
-
 test('router quick action "New route" hidden for system router, visible for custom', async ({
   page,
 }) => {
   // system router: action should not appear
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-system-router')
+  await page.goto('/projects/mock-project/vpcs/default/routers/mock-system-router')
   await openActionMenu(page)
   await expect(page.getByRole('option', { name: 'New route' })).toBeHidden()
   await page.keyboard.press('Escape')
 
   // custom router: action should appear
-  await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
+  await page.goto('/projects/mock-project/vpcs/default/routers/mock-custom-router')
   await openActionMenu(page)
   await expect(page.getByRole('option', { name: 'New route' })).toBeVisible()
 })

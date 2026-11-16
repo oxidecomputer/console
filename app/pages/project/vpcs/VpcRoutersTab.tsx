@@ -5,14 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import { api, getListQFn, q, queryClient, useApiMutation, type VpcRouter } from '@oxide/api'
 
 import { HL } from '~/components/HL'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -26,17 +28,19 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/VpcRoutersTab'
+
 const colHelper = createColumnHelper<VpcRouter>()
 
 const vpcRouterList = (query: PP.Vpc) => getListQFn(api.vpcRouterList, { query })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, vpc } = getVpcSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc } = params
   await queryClient.prefetchQuery(vpcRouterList({ project, vpc }).optionsFn())
   return null
 }
 
-export const handle = { crumb: 'Routers' }
+export const handle = makeCrumb('Routers', (p) => pb.vpcRouters(getVpcSelector(p)))
 
 export default function VpcRoutersTab() {
   const vpcSelector = useVpcSelector()

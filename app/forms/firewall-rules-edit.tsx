@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -18,26 +19,24 @@ import {
 } from '@oxide/api'
 
 import { trigger404 } from '~/components/ErrorBoundary'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import {
-  getFirewallRuleSelector,
-  useFirewallRuleSelector,
-  useVpcSelector,
-} from '~/hooks/use-params'
+import { useFirewallRuleSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
+import type { Route } from './+types/firewall-rules-edit'
 import { CommonFields } from './firewall-rules-common'
 import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
 export const handle = titleCrumb('Edit Rule')
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, vpc, rule } = getFirewallRuleSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc, rule } = params
 
   const [firewallRules] = await Promise.all([
     queryClient.fetchQuery(q(api.vpcFirewallRulesView, { query: { project, vpc } })),
@@ -131,9 +130,10 @@ export default function EditFirewallRuleForm() {
       }
       // validationSchema={validationSchema}
       // validateOnBlur
-      loading={updateRules.isPending}
+      loading={updateRules.isPending || updateRules.isSuccess}
       submitError={updateRules.error}
     >
+      <FormMetadata resource={originalRule} />
       <CommonFields
         control={form.control}
         // error if name is being changed to something that conflicts with some other rule

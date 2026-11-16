@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -30,10 +30,11 @@ import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
+import { useVpcRouterSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
@@ -47,6 +48,8 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/RouterPage'
+
 export const handle = makeCrumb((p) => p.router!)
 
 const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
@@ -54,8 +57,9 @@ const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
 
 const routeList = (query: PP.VpcRouter) => getListQFn(api.vpcRouterRouteList, { query })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const routerSelector = getVpcRouterSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc, router } = params
+  const routerSelector = { project, vpc, router }
   await Promise.all([
     queryClient.prefetchQuery(routerView(routerSelector)),
     queryClient.prefetchQuery(routeList(routerSelector).optionsFn()),
@@ -73,6 +77,8 @@ const routeTypes = {
   vpc: 'VPC',
 }
 
+const routerRoutesColHelper = createColumnHelper<RouterRoute>()
+
 // All will have a type and a value except `Drop`, which only has a type
 const RouterRouteTypeValueBadge = ({
   type,
@@ -87,6 +93,31 @@ const RouterRouteTypeValueBadge = ({
     <Badge>{routeTypes[type]}</Badge>
   )
 }
+
+/** Reads route params so the name column can stay static */
+const NameCell = ({ route }: { route: string }) => {
+  const selector = useVpcRouterSelector()
+  return <LinkCell to={pb.vpcRouterRouteEdit({ ...selector, route })}>{route}</LinkCell>
+}
+
+const routerRoutesStaticCols = [
+  routerRoutesColHelper.accessor('name', {
+    header: 'Name',
+    cell: (info) => <NameCell route={info.getValue()} />,
+  }),
+  routerRoutesColHelper.accessor('kind', {
+    header: 'Kind',
+    cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
+  }),
+  routerRoutesColHelper.accessor('destination', {
+    header: 'Destination',
+    cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+  }),
+  routerRoutesColHelper.accessor('target', {
+    header: 'Target',
+    cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+  }),
+]
 
 export default function RouterPage() {
   const { project, vpc, router } = useVpcRouterSelector()
@@ -110,24 +141,6 @@ export default function RouterPage() {
     />
   )
   const navigate = useNavigate()
-
-  const routerRoutesColHelper = createColumnHelper<RouterRoute>()
-
-  const routerRoutesStaticCols = [
-    routerRoutesColHelper.accessor('name', { header: 'Name' }),
-    routerRoutesColHelper.accessor('kind', {
-      header: 'Kind',
-      cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
-    }),
-    routerRoutesColHelper.accessor('destination', {
-      header: 'Destination',
-      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
-    }),
-    routerRoutesColHelper.accessor('target', {
-      header: 'Target',
-      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
-    }),
-  ]
 
   const makeRangeActions = useCallback(
     (routerRoute: RouterRoute): MenuAction[] => [

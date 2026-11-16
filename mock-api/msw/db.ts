@@ -5,10 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-// note that isUuid checks for any kind of UUID. strictly speaking, we should
-// only be checking for v4
 import * as R from 'remeda'
-import { validate as isUuid } from 'uuid'
 
 import type { ApiTypes as Api, IpPoolType, IpVersion } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
@@ -20,6 +17,7 @@ import { commaSeries } from '~/util/str'
 import type { Json } from '../json-type'
 import { projects, type DbProject } from '../project'
 import { defaultSilo, siloSettings } from '../silo'
+import { isUuid } from '../util'
 import { internalError, invalidRequest } from './util'
 
 export const notFoundErr = (msg: string) => {
@@ -123,7 +121,32 @@ export const getIpFromPool = (pool: Json<Api.IpPool>) => {
   return ipPoolRange.range.first
 }
 
+const toSiloIpPool = (
+  pool: Json<Api.IpPool>,
+  isDefault: boolean
+): Json<Api.SiloIpPool> => ({
+  ...R.pick(pool, [
+    'description',
+    'id',
+    'ip_version',
+    'name',
+    'pool_type',
+    'time_created',
+    'time_modified',
+  ]),
+  is_default: isDefault,
+})
+
 export const lookup = {
+  alertReceiver({ receiver: id }: Sel.AlertReceiver): Json<Api.AlertReceiver> {
+    if (!id) throw notFoundErr('no alert receiver specified')
+
+    if (isUuid(id)) return lookupById(db.alertReceivers, id)
+
+    const receiver = db.alertReceivers.find((r) => r.name === id)
+    if (!receiver) throw notFoundErr(`alert receiver '${id}'`)
+    return receiver
+  },
   affinityGroup({
     affinityGroup: id,
     ...projectSelector
@@ -517,7 +540,7 @@ export const lookup = {
           throw json({ message }, { status: 500 })
         }
 
-        return { ...pool, is_default: link.is_default }
+        return toSiloIpPool(pool, link.is_default)
       })
   },
   siloIpPool(path: Sel.Silo & Sel.IpPool): Json<Api.SiloIpPool> {
@@ -532,7 +555,7 @@ export const lookup = {
       throw notFoundErr(`link for pool '${path.pool}' and silo '${path.silo}'`)
     }
 
-    return { ...pool, is_default: ipPoolSilo.is_default }
+    return toSiloIpPool(pool, ipPoolSilo.is_default)
   },
   siloDefaultIpPool(path: Sel.Silo): Json<Api.IpPool> {
     const silo = lookup.silo(path)
@@ -622,9 +645,13 @@ type DiskBulkImport = {
 
 const initDb = {
   affinityGroups: [...mock.affinityGroups],
+  alertDeliveries: [...mock.alertDeliveries],
+  alertReceivers: [...mock.alertReceivers],
+  alerts: [...mock.alerts],
   affinityGroupMemberLists: [...mock.affinityGroupMemberLists],
   antiAffinityGroups: [...mock.antiAffinityGroups],
   antiAffinityGroupMemberLists: [...mock.antiAffinityGroupMemberLists],
+  auditLog: [...mock.auditLog],
   deviceTokens: [...mock.deviceTokens],
   disks: [...mock.disks],
   diskBulkImportState: new Map<string, DiskBulkImport>(),
@@ -661,6 +688,7 @@ const initDb = {
   snapshots: [...mock.snapshots],
   snatIps: [...mock.snatIps],
   sshKeys: [...mock.sshKeys],
+  supportBundles: [...mock.supportBundles],
   tufRepos: [...mock.tufRepos],
   updateStatus: mock.updateStatus,
   users: [...mock.users],

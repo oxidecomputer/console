@@ -6,20 +6,18 @@
  * Copyright Oxide Computer Company
  */
 
-import { type LoaderFunctionArgs } from 'react-router'
-
 import { queryClient } from '@oxide/api'
 
 import { antiAffinityGroupList } from '~/forms/affinity-util'
-import { getInstanceSelector } from '~/hooks/use-params'
 
+import type { Route } from './+types/SettingsTab'
 import { AntiAffinityCard, instanceAntiAffinityGroups } from './AntiAffinityCard'
 import { AutoRestartCard } from './AutoRestartCard'
 
 export const handle = { crumb: 'Settings' }
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, instance } = params
   await Promise.all([
     queryClient.prefetchQuery(instanceAntiAffinityGroups({ project, instance })),
     queryClient.prefetchQuery(antiAffinityGroupList({ project })),

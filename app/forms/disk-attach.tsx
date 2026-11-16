@@ -9,15 +9,54 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { api, q, type ApiError, type DiskType } from '@oxide/api'
+import {
+  api,
+  q,
+  queryClient,
+  useApiMutation,
+  type ApiError,
+  type DiskType,
+} from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { ModalForm } from '~/components/form/ModalForm'
-import { useProjectSelector } from '~/hooks/use-params'
+import { HL } from '~/components/HL'
+import { useInstanceSelector, useProjectSelector } from '~/hooks/use-params'
+import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { ALL_ISH } from '~/util/consts'
 
 const defaultValues = { name: '' }
+
+/**
+ * Attach modal for the instance storage tab. Owns the attach mutation so its
+ * loading and error state can't outlive the modal. `AttachDiskModalForm` below
+ * stays mutation-free because the instance create form also uses it (with a
+ * setState `onSubmit`) on a route where no instance exists yet.
+ */
+export function AttachDiskModal({ onDismiss }: { onDismiss: () => void }) {
+  const { project, instance } = useInstanceSelector()
+
+  const attachDisk = useApiMutation(api.instanceDiskAttach, {
+    onSuccess(disk) {
+      queryClient.invalidateEndpoint('instanceDiskList')
+      onDismiss()
+      // prettier-ignore
+      addToast(<>Disk <HL>{disk.name}</HL> attached</>)
+    },
+  })
+
+  return (
+    <AttachDiskModalForm
+      onDismiss={onDismiss}
+      onSubmit={({ name }) => {
+        attachDisk.mutate({ path: { instance }, query: { project }, body: { disk: name } })
+      }}
+      loading={attachDisk.isPending}
+      submitError={attachDisk.error}
+    />
+  )
+}
 
 type AttachDiskProps = {
   /** If defined, this overrides the usual mutation */

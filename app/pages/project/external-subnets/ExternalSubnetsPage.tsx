@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import {
   api,
@@ -34,6 +35,7 @@ import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { SubnetPoolCell } from '~/table/cells/SubnetPoolCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -46,6 +48,8 @@ import { TableActions } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+
+import type { Route } from './+types/ExternalSubnetsPage'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -66,8 +70,8 @@ export const handle = makeCrumb('External Subnets', (p) =>
   pb.externalSubnets(getProjectSelector(p))
 )
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project } = params
   await Promise.all([
     queryClient.fetchQuery(subnetList(project).optionsFn()),
     queryClient.fetchQuery(instanceList(project).optionsFn()),
@@ -75,9 +79,19 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
+/** Reads project from the route so the name column can stay static */
+const NameCell = ({ name }: { name: string }) => {
+  const { project } = useProjectSelector()
+  return (
+    <LinkCell to={pb.externalSubnetEdit({ project, externalSubnet: name })}>
+      {name}
+    </LinkCell>
+  )
+}
+
 const colHelper = createColumnHelper<ExternalSubnet>()
 const staticCols = [
-  colHelper.accessor('name', {}),
+  colHelper.accessor('name', { cell: (info) => <NameCell name={info.getValue()} /> }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('subnet', {
     header: 'Subnet',
@@ -280,7 +294,7 @@ const AttachExternalSubnetModal = ({
       }}
       submitLabel="Attach"
       submitError={externalSubnetAttach.error}
-      loading={externalSubnetAttach.isPending}
+      loading={externalSubnetAttach.isPending || externalSubnetAttach.isSuccess}
       onDismiss={onDismiss}
     >
       <Message

@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -19,10 +20,11 @@ import {
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getExternalSubnetSelector, useExternalSubnetSelector } from '~/hooks/use-params'
+import { useExternalSubnetSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { SubnetPoolCell } from '~/table/cells/SubnetPoolCell'
@@ -32,15 +34,19 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/external-subnet-edit'
+
 const externalSubnetView = ({ project, externalSubnet }: PP.ExternalSubnet) =>
   q(api.externalSubnetView, {
     path: { externalSubnet },
     query: { project },
   })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getExternalSubnetSelector(params)
-  const subnet = await queryClient.fetchQuery(externalSubnetView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, externalSubnet } = params
+  const subnet = await queryClient.fetchQuery(
+    externalSubnetView({ project, externalSubnet })
+  )
   await Promise.all([
     queryClient.prefetchQuery(
       // subnet pool cell uses errors allowed, so we have to do that here to match
@@ -97,13 +103,10 @@ export default function EditExternalSubnetSideModalForm() {
           body: { name, description },
         })
       }}
-      loading={editExternalSubnet.isPending}
+      loading={editExternalSubnet.isPending || editExternalSubnet.isSuccess}
       submitError={editExternalSubnet.error}
     >
-      <PropertiesTable>
-        <PropertiesTable.IdRow id={subnet.id} />
-        <PropertiesTable.DateRow label="Created" date={subnet.timeCreated} />
-        <PropertiesTable.DateRow label="Updated" date={subnet.timeModified} />
+      <FormMetadata resource={subnet}>
         <PropertiesTable.Row label="Subnet">{subnet.subnet}</PropertiesTable.Row>
         <PropertiesTable.Row label="Subnet Pool">
           <SubnetPoolCell subnetPoolId={subnet.subnetPoolId} />
@@ -111,7 +114,7 @@ export default function EditExternalSubnetSideModalForm() {
         <PropertiesTable.Row label="Instance">
           <InstanceLink instanceId={subnet.instanceId} tab="networking" />
         </PropertiesTable.Row>
-      </PropertiesTable>
+      </FormMetadata>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <SideModalFormDocs docs={[docLinks.externalSubnets]} />

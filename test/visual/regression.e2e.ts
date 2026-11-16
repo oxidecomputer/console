@@ -14,6 +14,7 @@
  * CSS frameworks, or making broad styling changes.
  */
 
+import { oxqlQueries } from '../e2e/oxql-queries'
 import { expect, test } from '../e2e/utils'
 
 // set a fixed time to avoid diffs due to irrelevant time differences
@@ -89,19 +90,19 @@ const pages = [
   { name: 'vpcs list', url: `${p}/vpcs`, heading: 'VPCs' },
   {
     name: 'vpc firewall rules',
-    url: `${p}/vpcs/mock-vpc/firewall-rules`,
-    heading: 'mock-vpc',
+    url: `${p}/vpcs/default/firewall-rules`,
+    heading: 'default',
   },
-  { name: 'vpc subnets', url: `${p}/vpcs/mock-vpc/subnets`, heading: 'mock-vpc' },
-  { name: 'vpc routers', url: `${p}/vpcs/mock-vpc/routers`, heading: 'mock-vpc' },
+  { name: 'vpc subnets', url: `${p}/vpcs/default/subnets`, heading: 'default' },
+  { name: 'vpc routers', url: `${p}/vpcs/default/routers`, heading: 'default' },
   {
     name: 'vpc internet gateways',
-    url: `${p}/vpcs/mock-vpc/internet-gateways`,
-    heading: 'mock-vpc',
+    url: `${p}/vpcs/default/internet-gateways`,
+    heading: 'default',
   },
   {
     name: 'vpc router detail',
-    url: `${p}/vpcs/mock-vpc/routers/mock-custom-router`,
+    url: `${p}/vpcs/default/routers/mock-custom-router`,
     heading: 'mock-custom-router',
   },
 
@@ -222,7 +223,8 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
 
   test('serial console', async ({ page }) => {
     await page.goto(`${p}/instances/db1/serial-console`, { waitUntil: 'networkidle' })
-    await expect(page.getByText('Serial Console')).toBeVisible()
+    // role-scoped: getByText also matches the hidden breadcrumb measurement copy
+    await expect(page.getByRole('link', { name: 'Serial Console' })).toBeVisible()
     await expect(page).toHaveScreenshot('serial-console.png', fullPage)
   })
 
@@ -238,7 +240,7 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
   test('silo utilization', async ({ page }) => {
     await page.goto('/utilization', { waitUntil: 'networkidle' })
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-    await expect(page.locator('.recharts-curve').first()).toBeVisible()
+    await expect(page.locator('figure').first()).toBeVisible()
     await expect(page).toHaveScreenshot('silo-utilization.png', {
       fullPage: true,
       mask: [page.getByTestId('refetch-interval-refresh')],
@@ -249,11 +251,21 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
   test('system utilization metrics tab', async ({ page }) => {
     await page.goto('/system/utilization?tab=metrics', { waitUntil: 'networkidle' })
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-    await expect(page.locator('.recharts-curve').first()).toBeVisible()
+    await expect(page.locator('figure').first()).toBeVisible()
     await expect(page).toHaveScreenshot('system-utilization-metrics-tab.png', {
       fullPage: true,
       mask: [page.getByTestId('refetch-interval-refresh')],
       maskColor: '#0b0e14',
     })
   })
+
+  for (const [name, query] of Object.entries(oxqlQueries)) {
+    test(`oxql ${name}`, async ({ page }) => {
+      await page.goto('/system/metrics-explorer', { waitUntil: 'networkidle' })
+      await page.getByRole('textbox').fill(query)
+      await page.getByRole('button', { name: 'Run query' }).click()
+      await expect(page.locator('figure').first()).toBeVisible()
+      await expect(page).toHaveScreenshot(`metrics-explorer-${name}.png`, fullPage)
+    })
+  }
 })
