@@ -8,7 +8,7 @@
 
 /** async wrapper for reading a slice of a file */
 export async function readBlobAsBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const fileReader = new FileReader()
 
     // split on comma and pop because data URL looks like
@@ -18,6 +18,10 @@ export async function readBlobAsBase64(blob: Blob): Promise<string> {
       const base64Chunk = (e.target!.result as string).split(',').pop()!
       resolve(base64Chunk)
     }
+
+    fileReader.onerror = () => reject(fileReader.error)
+    fileReader.onabort = () =>
+      reject(new DOMException('File reading aborted', 'AbortError'))
 
     fileReader.readAsDataURL(blob)
   })

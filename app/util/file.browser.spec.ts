@@ -5,11 +5,37 @@
  *
  * Copyright Oxide Computer Company
  */
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 
 import { readBlobAsBase64 } from './file'
 
 describe('readBlobAsBase64', () => {
+  afterEach(() => vi.restoreAllMocks())
+
+  test('rejects when the file cannot be read', async () => {
+    const error = new DOMException('The file could not be read', 'NotReadableError')
+    vi.spyOn(FileReader.prototype, 'error', 'get').mockReturnValue(error)
+    vi.spyOn(FileReader.prototype, 'readAsDataURL').mockImplementation(function (
+      this: FileReader
+    ) {
+      queueMicrotask(() => this.dispatchEvent(new ProgressEvent('error')))
+    })
+
+    await expect(readBlobAsBase64(new Blob(['image chunk']))).rejects.toBe(error)
+  })
+
+  test('rejects when reading is aborted', async () => {
+    vi.spyOn(FileReader.prototype, 'readAsDataURL').mockImplementation(function (
+      this: FileReader
+    ) {
+      queueMicrotask(() => this.dispatchEvent(new ProgressEvent('abort')))
+    })
+
+    await expect(readBlobAsBase64(new Blob(['image chunk']))).rejects.toMatchObject({
+      name: 'AbortError',
+    })
+  })
+
   test('works with zeros', async () => {
     const blob = new Blob([new Uint8Array(10)])
     const text = await readBlobAsBase64(blob)
