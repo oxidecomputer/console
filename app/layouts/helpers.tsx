@@ -7,8 +7,7 @@
  */
 import { Outlet } from 'react-router'
 
-import { PageActionsTarget } from '~/components/PageActions'
-import { Pagination } from '~/components/Pagination'
+import { setPageFooter } from '~/components/PageFooter'
 import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
 import { classed } from '~/util/classed'
 
@@ -38,10 +37,11 @@ export function ContentPane() {
           <Outlet />
         </main>
       </div>
-      <div className="bg-default border-secondary sticky bottom-0 z-(--z-top-bar) shrink-0 justify-between overflow-hidden border-t empty:border-t-0">
-        <Pagination.Target />
-        <PageActionsTarget />
-      </div>
+      {/* pagination and form actions portal in here through PageFooter */}
+      <div
+        ref={setPageFooter}
+        className="bg-default border-secondary sticky bottom-0 z-(--z-top-bar) shrink-0 justify-between overflow-hidden border-t empty:border-t-0"
+      />
     </div>
   )
 }

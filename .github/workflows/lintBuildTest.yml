@@ -49,8 +49,9 @@ jobs:
         run: npm run fmt:check
       - name: Test
         run: npm test run -- --project unit
-      - name: Build
-        run: npm run build
+      # Same packaging as upload-assets.yaml, minus the upload
+      - name: Build and package
+        run: SHA=${{ github.sha }} .github/workflows/package.sh
   playwright:
     name: Playwright (${{ matrix.playwright }})
     timeout-minutes: 20

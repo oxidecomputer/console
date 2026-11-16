@@ -5,21 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import tunnel from 'tunnel-rat'
-
 import {
   Pagination as UIPagination,
   type PaginationProps as UIPaginationProps,
 } from '~/ui/lib/Pagination'
 
-const Tunnel = tunnel()
+import { PageFooter } from './PageFooter'
 
 export function Pagination(props: UIPaginationProps) {
   return (
-    <Tunnel.In>
+    <PageFooter>
       <UIPagination className="gutter h-14 py-5" {...props} />
-    </Tunnel.In>
+    </PageFooter>
   )
 }
-
-Pagination.Target = Tunnel.Out

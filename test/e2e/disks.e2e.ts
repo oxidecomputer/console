@@ -182,8 +182,6 @@ test.describe('Disk create', () => {
   })
 
   // expects are in the afterEach
-
-  /* eslint-disable playwright/expect-expect */
   test('from blank', async ({ page }) => {
     await page.getByRole('radio', { name: '512' }).click()
   })
@@ -225,7 +223,6 @@ test.describe('Disk create', () => {
     await expect(source).toBeHidden()
     await expect(blockSize).toBeHidden()
   })
-  /* eslint-enable playwright/expect-expect */
 })
 
 test('Distributed disk size max of 1023 GiB blocks submit', async ({ page }) => {

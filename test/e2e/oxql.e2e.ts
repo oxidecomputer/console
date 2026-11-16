@@ -245,7 +245,6 @@ test('results can be copied as JSON', async ({ page }) => {
 })
 
 test('copied JSON actually matches the response body', async ({ page, browserName }) => {
-  // eslint-disable-next-line playwright/no-skipped-test
   test.skip(
     browserName === 'webkit',
     'navigator.clipboard.readText() is forbidden in Safari.'

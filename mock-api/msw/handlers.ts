@@ -10,7 +10,6 @@ import { delay, HttpResponse } from 'msw'
 import * as R from 'remeda'
 import { lt as semverLessThan, rcompare as semverRCompare } from 'semver'
 import { match } from 'ts-pattern'
-import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
   DEFAULT_VPC_NAME,
@@ -48,8 +47,7 @@ import { alertClasses, PROBE_ALERT_ID } from '../alert'
 import { defaultSilo, toIdp } from '../silo'
 import { SUPPORT_BUNDLE_SIZE } from '../support-bundle'
 import { timeseriesSchemas } from '../timeseries-schema'
-import { getTimestamps } from '../util'
-import { defaultFirewallRules } from '../vpc'
+import { getTimestamps, isUuid } from '../util'
 import { resendableAlerts, retryPendingDeliveries, validateSubscription } from './alert'
 import {
   db,
@@ -62,6 +60,7 @@ import {
 } from './db'
 import {
   alreadyExistsErr,
+  createVpc,
   currentUser,
   errIfExists,
   errIfInvalidDiskSize,
@@ -120,13 +119,24 @@ export const handlers = makeHandlers({
     const user = currentUser(cookies)
     errIfExists(db.projects, { name: body.name, silo_id: user.silo_id }, 'project')
 
+    const { defaults, ...rest } = body
     const newProject = {
-      id: uuid(),
-      ...body,
+      id: crypto.randomUUID(),
+      ...rest,
       ...getTimestamps(),
       silo_id: user.silo_id,
     }
     db.projects.push(newProject)
+
+    // omitting `defaults` creates all of them. otherwise only the ones listed
+    if (!defaults || defaults.vpc) {
+      createVpc(newProject.id, {
+        name: 'default',
+        dns_name: 'default',
+        description: 'Default VPC',
+        defaults: defaults?.vpc?.type === 'explicit' ? defaults.vpc.defaults : undefined,
+      })
+    }
 
     return json(R.omit(newProject, ['silo_id']), { status: 201 })
   },
@@ -225,7 +235,7 @@ export const handlers = makeHandlers({
         state: { state: 'detached' } as const,
       }))
     const newDisk: Json<Api.Disk> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       project_id: project.id,
       state,
       device_path: '/mnt/disk',
@@ -307,7 +317,7 @@ export const handlers = makeHandlers({
 
     if (body.snapshot_name) {
       const newSnapshot: Json<Api.Snapshot> = {
-        id: uuid(),
+        id: crypto.randomUUID(),
         name: body.snapshot_name,
         description: 'temporary snapshot for making an image',
         ...getTimestamps(),
@@ -352,7 +362,7 @@ export const handlers = makeHandlers({
     if (!member) throw notFoundErr(`subnet pool member for pool '${pool.id}'`)
 
     const newSubnet: Json<Api.ExternalSubnet> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       project_id: project.id,
       instance_id: undefined,
       name: body.name,
@@ -440,7 +450,7 @@ export const handlers = makeHandlers({
     }
 
     const newFloatingIp: Json<Api.FloatingIp> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       project_id: project.id,
       ip,
       ip_pool_id: pool.id,
@@ -521,7 +531,7 @@ export const handlers = makeHandlers({
         : 100
 
     const newImage: Json<Api.Image> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       project_id,
       size,
       block_size: 512,
@@ -575,7 +585,7 @@ export const handlers = makeHandlers({
 
     errIfExists(db.instances, { name: body.name, project_id: project.id }, 'instance')
 
-    const instanceId = uuid()
+    const instanceId = crypto.randomUUID()
 
     // https://github.com/oxidecomputer/omicron/blob/17e6fee/nexus/src/app/instance.rs#L2894-L2908
     if (body.memory % GiB !== 0) throw 'Memory must be a multiple of 1 GiB'
@@ -724,7 +734,7 @@ export const handlers = makeHandlers({
           .with({ type: 'snapshot', read_only: true }, () => true)
           .otherwise(() => false)
         const newDisk: Json<Api.Disk> = {
-          id: uuid(),
+          id: crypto.randomUUID(),
           name,
           description,
           size,
@@ -761,7 +771,7 @@ export const handlers = makeHandlers({
       anySubnet
     ) {
       db.networkInterfaces.push({
-        id: uuid(),
+        id: crypto.randomUUID(),
         description: 'The default network interface',
         instance_id: instanceId,
         primary: true,
@@ -787,7 +797,7 @@ export const handlers = makeHandlers({
       body.network_interfaces.params.forEach(
         ({ name, description, ip_config, subnet_name, vpc_name }, i) => {
           db.networkInterfaces.push({
-            id: uuid(),
+            id: crypto.randomUUID(),
             name,
             description,
             instance_id: instanceId,
@@ -1131,7 +1141,7 @@ export const handlers = makeHandlers({
     const subnet = lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
 
     const newNic: Json<Api.InstanceNetworkInterface> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       // matches API logic: https://github.com/oxidecomputer/omicron/blob/ae22982/nexus/src/db/queries/network_interface.rs#L982-L1015
       primary: nicsForInstance.length === 0,
       instance_id: instance.id,
@@ -1403,7 +1413,7 @@ export const handlers = makeHandlers({
     // address that will let us bypass that to test IPv6 handling
 
     const newRange: Json<Api.IpPoolRange> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       ip_pool_id: pool.id,
       range: body,
       time_created: new Date().toISOString(),
@@ -1442,7 +1452,7 @@ export const handlers = makeHandlers({
     errIfExists(db.ipPools, { name: body.name }, 'IP pool')
 
     const newPool: Json<Api.IpPool> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       description: body.description,
       name: body.name,
       // It might not be possible to hit this fallback because the zod
@@ -1540,7 +1550,7 @@ export const handlers = makeHandlers({
     }
 
     const newSnapshot: Json<Api.Snapshot> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       ...body,
       ...getTimestamps(),
       state: 'ready',
@@ -1585,32 +1595,7 @@ export const handlers = makeHandlers({
     requireRole(cookies, 'project', project.id, 'collaborator')
     errIfExists(db.vpcs, { name: body.name, project_id: project.id })
 
-    const newVpc: Json<Api.Vpc> = {
-      id: uuid(),
-      project_id: project.id,
-      system_router_id: uuid(),
-      ...body,
-      // API is supposed to generate one if none provided. close enough
-      ipv6_prefix: body.ipv6_prefix || 'fd2d:4569:88b2::/64',
-      ...getTimestamps(),
-    }
-    db.vpcs.push(newVpc)
-
-    // Also create a default subnet
-    const newSubnet: Json<Api.VpcSubnet> = {
-      id: uuid(),
-      name: 'default',
-      vpc_id: newVpc.id,
-      ipv6_block: 'fd2d:4569:88b1::/64',
-      description: '',
-      ipv4_block: '',
-      ...getTimestamps(),
-    }
-    db.vpcSubnets.push(newSubnet)
-
-    // populate default firewall rules
-    db.vpcFirewallRules.push(...defaultFirewallRules(newVpc.id))
-
+    const newVpc = createVpc(project.id, body)
     return json(newVpc, { status: 201 })
   },
   vpcView: ({ path, query }) => lookup.vpc({ ...path, ...query }),
@@ -1648,7 +1633,7 @@ export const handlers = makeHandlers({
 
     const rules = (body.rules ?? []).map((rule) => ({
       vpc_id: vpc.id,
-      id: uuid(),
+      id: crypto.randomUUID(),
       ...rule,
       ...getTimestamps(),
     }))
@@ -1691,7 +1676,7 @@ export const handlers = makeHandlers({
     errIfExists(db.vpcRouters, { vpc_id: vpc.id, name: body.name })
 
     const newRouter: Json<Api.VpcRouter> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       vpc_id: vpc.id,
       kind: 'custom',
       ...body,
@@ -1731,7 +1716,7 @@ export const handlers = makeHandlers({
     const vpcRouter = lookup.vpcRouter(query)
     errIfExists(db.vpcRouterRoutes, { vpc_router_id: vpcRouter.id, name: body.name })
     const newRoute: Json<Api.RouterRoute> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       vpc_router_id: vpcRouter.id,
       kind: 'custom',
       ...body,
@@ -1779,7 +1764,7 @@ export const handlers = makeHandlers({
 
     // TODO: Create a route for the subnet in the default router
     const newSubnet: Json<Api.VpcSubnet> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       vpc_id: vpc.id,
       name: body.name,
       description: body.description,
@@ -1895,7 +1880,7 @@ export const handlers = makeHandlers({
     errIfExists(db.sshKeys, { silo_user_id: user.id, name: body.name })
 
     const newSshKey: Json<Api.SshKey> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       silo_user_id: user.id,
       ...body,
       ...getTimestamps(),
@@ -1947,7 +1932,7 @@ export const handlers = makeHandlers({
     requireFleetViewer(cookies)
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       ...getTimestamps(),
       ...body,
       // discoverable was removed from SiloCreate, but it's still on the Silo
@@ -2026,7 +2011,7 @@ export const handlers = makeHandlers({
     // https://docs.rs/openssl/latest/openssl/rsa/struct.Rsa.html#method.private_key_from_der
 
     const provider: Json<SamlIdentityProvider> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       ...R.pick(body, [
         'name',
         'acs_url',
@@ -2092,7 +2077,7 @@ export const handlers = makeHandlers({
     }
 
     const newBundle: Json<Api.SupportBundleInfo> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       reason_for_creation: 'Created by external API',
       state: 'collecting',
       time_created: new Date().toISOString(),
@@ -2139,9 +2124,6 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  // the generated handler type only allows status code returns for binary
-  // endpoints, but the dispatcher passes Response instances through untouched
-  // @ts-expect-error
   supportBundleHead({ path, cookies }) {
     requireFleetViewer(cookies)
     const bundle = lookupById(db.supportBundles, path.bundleId)
@@ -2343,7 +2325,7 @@ export const handlers = makeHandlers({
     errIfExists(db.antiAffinityGroups, { name: params.body.name, project_id: project.id })
 
     const newAntiAffinityGroup: Json<Api.AntiAffinityGroup> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       project_id: project.id,
       ...params.body,
       ...getTimestamps(),
@@ -2540,7 +2522,7 @@ export const handlers = makeHandlers({
     requireFleetAdminOrSiloAdmin(cookies, silo.id)
 
     const newToken: Json<Api.ScimClientBearerTokenValue> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       bearer_token: `oxide-scim-${randomHex(40)}`,
       time_created: new Date().toISOString(),
     }
@@ -2588,7 +2570,7 @@ export const handlers = makeHandlers({
     errIfExists(db.subnetPools, { name: body.name }, 'subnet pool')
 
     const newPool: Json<Api.SiloSubnetPool> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       description: body.description,
       name: body.name,
       ip_version: body.ip_version,
@@ -2667,7 +2649,7 @@ export const handlers = makeHandlers({
     }
 
     const newMember: Json<Api.SubnetPoolMember> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       subnet_pool_id: pool.id,
       subnet: body.subnet,
       min_prefix_length: minPL,
@@ -2885,7 +2867,7 @@ export const handlers = makeHandlers({
     // sentinel to let tests exercise the failure path
     const success = !receiver.kind.endpoint.includes('unreachable')
     const probe: Json<Api.AlertDelivery> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       // all probes reference the singleton probe alert, mirroring omicron
       alert_id: PROBE_ALERT_ID,
       alert_class: 'probe',
@@ -2915,7 +2897,7 @@ export const handlers = makeHandlers({
       const alerts = resendableAlerts(receiver)
       for (const d of alerts) {
         db.alertDeliveries.unshift({
-          id: uuid(),
+          id: crypto.randomUUID(),
           alert_id: d.alert_id,
           alert_class: d.alert_class,
           receiver_id: receiver.id,
@@ -2968,7 +2950,7 @@ export const handlers = makeHandlers({
     }
     const now = new Date().toISOString()
     const newDelivery: Json<Api.AlertDelivery> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       alert_id: delivery.alert_id,
       alert_class: delivery.alert_class,
       receiver_id: receiver.id,
@@ -2989,14 +2971,14 @@ export const handlers = makeHandlers({
 
     const now = new Date().toISOString()
     const newReceiver: Json<Api.AlertReceiver> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       name: body.name,
       description: body.description,
       kind: {
         kind: 'webhook',
         endpoint: body.endpoint,
         // secret values are write-only; only IDs are stored
-        secrets: body.secrets.map(() => ({ id: uuid(), time_created: now })),
+        secrets: body.secrets.map(() => ({ id: crypto.randomUUID(), time_created: now })),
       },
       subscriptions: body.subscriptions || [],
       ...getTimestamps(),
@@ -3032,7 +3014,7 @@ export const handlers = makeHandlers({
     requireFleetAdmin(cookies)
     const receiver = lookup.alertReceiver({ receiver: query.receiver })
     const secret: Json<Api.WebhookSecret> = {
-      id: uuid(),
+      id: crypto.randomUUID(),
       time_created: new Date().toISOString(),
     }
     receiver.kind.secrets.push(secret)
@@ -3126,10 +3108,22 @@ export const handlers = makeHandlers({
   probeDelete: NotImplemented,
   probeList: NotImplemented,
   probeView: NotImplemented,
+  problemAlertList: NotImplemented,
+  problemCausesList: NotImplemented,
+  problemConsequencesList: NotImplemented,
+  problemImpactList: NotImplemented,
+  problemList: NotImplemented,
+  problemSupportBundlesList: NotImplemented,
+  problemView: NotImplemented,
+  rackListUnadopted: NotImplemented,
   rackMembershipAbort: NotImplemented,
   rackMembershipAddSleds: NotImplemented,
   rackMembershipStatus: NotImplemented,
   rackView: NotImplemented,
+  siloCertificateCreate: NotImplemented,
+  siloCertificateDelete: NotImplemented,
+  siloCertificateList: NotImplemented,
+  siloCertificateView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,

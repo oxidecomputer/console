@@ -5,10 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-// note that isUuid checks for any kind of UUID. strictly speaking, we should
-// only be checking for v4
 import * as R from 'remeda'
-import { validate as isUuid } from 'uuid'
 
 import type { ApiTypes as Api, IpPoolType, IpVersion } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
@@ -20,6 +17,7 @@ import { commaSeries } from '~/util/str'
 import type { Json } from '../json-type'
 import { projects, type DbProject } from '../project'
 import { defaultSilo, siloSettings } from '../silo'
+import { isUuid } from '../util'
 import { internalError, invalidRequest } from './util'
 
 export const notFoundErr = (msg: string) => {
