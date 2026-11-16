@@ -2123,9 +2123,6 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  // the generated handler type only allows status code returns for binary
-  // endpoints, but the dispatcher passes Response instances through untouched
-  // @ts-expect-error
   supportBundleHead({ path, cookies }) {
     requireFleetViewer(cookies)
     const bundle = lookupById(db.supportBundles, path.bundleId)
@@ -3110,10 +3107,22 @@ export const handlers = makeHandlers({
   probeDelete: NotImplemented,
   probeList: NotImplemented,
   probeView: NotImplemented,
+  problemAlertList: NotImplemented,
+  problemCausesList: NotImplemented,
+  problemConsequencesList: NotImplemented,
+  problemImpactList: NotImplemented,
+  problemList: NotImplemented,
+  problemSupportBundlesList: NotImplemented,
+  problemView: NotImplemented,
+  rackListUnadopted: NotImplemented,
   rackMembershipAbort: NotImplemented,
   rackMembershipAddSleds: NotImplemented,
   rackMembershipStatus: NotImplemented,
   rackView: NotImplemented,
+  siloCertificateCreate: NotImplemented,
+  siloCertificateDelete: NotImplemented,
+  siloCertificateList: NotImplemented,
+  siloCertificateView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
