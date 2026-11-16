@@ -74,7 +74,7 @@ export default function InternetGatewayIpPoolCreateForm() {
       title="Attach IP pool"
       onDismiss={onDismiss}
       onSubmit={(body) => attachPool.mutate({ query: { project, vpc, gateway }, body })}
-      loading={attachPool.isPending}
+      loading={attachPool.isPending || attachPool.isSuccess}
       submitError={attachPool.error}
     >
       <NameField

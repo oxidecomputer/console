@@ -8,7 +8,7 @@
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import { Gateway16Icon, Gateway24Icon } from '@oxide/design-system/icons/react'
 
@@ -27,7 +27,7 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
+import { useInternetGatewaySelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
@@ -50,6 +50,7 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/InternetGatewayPage'
 import {
   gatewayIpAddressList,
   gatewayIpPoolList,
@@ -66,9 +67,9 @@ const gatewayView = ({ project, vpc, gateway }: PP.VpcInternetGateway) =>
 
 const siloIpPoolList = getListQFn(api.ipPoolList, { query: { limit: ALL_ISH } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getInternetGatewaySelector(params)
-  const { project, vpc } = selector
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc, gateway } = params
+  const selector = { project, vpc, gateway }
   await Promise.all([
     queryClient.prefetchQuery(gatewayView(selector)),
     queryClient.prefetchQuery(gatewayIpPoolList(selector).optionsFn()),

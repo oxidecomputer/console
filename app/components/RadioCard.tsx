@@ -1,7 +1,3 @@
-import cn from 'classnames'
-import { useId } from 'react'
-import type { ReactNode } from 'react'
-
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -9,6 +5,9 @@ import type { ReactNode } from 'react'
  *
  * Copyright Oxide Computer Company
  */
+import cn from 'classnames'
+import { useId, type ReactNode } from 'react'
+
 import { Warning12Icon } from '@oxide/design-system/icons/react'
 
 import { RadioIndicator } from '~/ui/lib/Radio'

@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -22,7 +22,7 @@ import { noPasswordManager, TextField } from '~/components/form/fields/TextField
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
+import { useInternetGatewaySelector } from '~/hooks/use-params'
 import { gatewayIpAddressList } from '~/pages/project/vpcs/gateway-data'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
@@ -31,11 +31,15 @@ import { validateIp } from '~/util/ip'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
+import type { Route } from './+types/internet-gateway-ip-address-create'
+
 export const handle = titleCrumb('Attach IP Address')
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getInternetGatewaySelector(params)
-  await queryClient.prefetchQuery(gatewayIpAddressList(selector).optionsFn())
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc, gateway } = params
+  await queryClient.prefetchQuery(
+    gatewayIpAddressList({ project, vpc, gateway }).optionsFn()
+  )
   return null
 }
 
@@ -81,7 +85,7 @@ export default function InternetGatewayIpAddressCreateForm() {
       title="Attach IP address"
       onDismiss={onDismiss}
       onSubmit={(body) => attachAddress.mutate({ query: { project, vpc, gateway }, body })}
-      loading={attachAddress.isPending}
+      loading={attachAddress.isPending || attachAddress.isSuccess}
       submitError={attachAddress.error}
       submitDisabled={alreadyAttached ? alreadyAttachedMessage : undefined}
     >

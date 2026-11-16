@@ -52,7 +52,7 @@ export default function InternetGatewayCreateForm() {
       resourceName="internet gateway"
       onDismiss={onDismiss}
       onSubmit={(body) => createGateway.mutate({ query: vpcSelector, body })}
-      loading={createGateway.isPending}
+      loading={createGateway.isPending || createGateway.isSuccess}
       submitError={createGateway.error}
     >
       <NameField name="name" control={form.control} />
