@@ -20,7 +20,7 @@ export const nexusSecurityHeaders = {
 /** Dropshot path templates that Nexus serves the console's index.html on */
 export const nexusConsoleRoutes = [
   '/',
-  '/access',
+  '/access/{path:.*}',
   '/device/success',
   '/device/verify',
   '/images/{path:.*}',
