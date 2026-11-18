@@ -135,17 +135,17 @@ export default function DisksPage() {
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => {
-      const canCancelImport = diskCan.finalizeImport(disk) || diskCan.stopImport(disk)
+      const canStopImport = diskCan.finalizeImport(disk) || diskCan.cancelBulkWrites(disk)
 
       return [
-        ...(canCancelImport
+        ...(canStopImport
           ? [
               {
-                label: 'Cancel import',
+                label: 'Stop import',
                 onActivate() {
                   confirmAction({
                     doAction: async () => {
-                      if (diskCan.stopImport(disk)) {
+                      if (diskCan.cancelBulkWrites(disk)) {
                         await stopBulkWriteImport({
                           path: { disk: disk.name },
                           query: { project },
@@ -160,18 +160,18 @@ export default function DisksPage() {
 
                       addToast(
                         <>
-                          Import canceled for <HL>{disk.name}</HL>
+                          Import stopped for <HL>{disk.name}</HL>
                         </>
                       )
                     },
-                    modalTitle: 'Cancel import',
+                    modalTitle: 'Stop import',
                     modalContent: (
                       <p>
-                        Are you sure you want to cancel import for <HL>{disk.name}</HL>?
-                        This will leave it in the <HL>detached</HL> state.
+                        Are you sure you want to stop import for <HL>{disk.name}</HL>? This
+                        will leave it in the <HL>detached</HL> state.
                       </p>
                     ),
-                    errorTitle: 'Failed to cancel import',
+                    errorTitle: 'Failed to stop import',
                     actionType: 'danger',
                   })
                 },
@@ -205,8 +205,8 @@ export default function DisksPage() {
             !diskCan.delete(disk) &&
             (disk.state.state === 'attached' ? (
               'Disk must be detached before it can be deleted'
-            ) : canCancelImport ? (
-              'Import must be canceled before the disk can be deleted'
+            ) : canStopImport ? (
+              'Import must be stopped before the disk can be deleted'
             ) : (
               <>Only disks in state {fancifyStates(diskCan.delete.states)} can be deleted</>
             )),

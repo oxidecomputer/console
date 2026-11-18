@@ -167,7 +167,7 @@ test('Read-only disk snapshot disabled', async ({ page }) => {
   )
 })
 
-test('Cancel import from import_ready', async ({ page }) => {
+test('Stop import from import_ready', async ({ page }) => {
   const diskImportReadyName = 'tmp-for-image-29884739'
   await page.goto('/projects/mock-project/disks')
   const table = page.getByRole('table')
@@ -175,19 +175,19 @@ test('Cancel import from import_ready', async ({ page }) => {
 
   await clickRowActions(page, diskImportReadyName)
   await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
-  await page.getByRole('menuitem', { name: 'Cancel import' }).click()
+  await page.getByRole('menuitem', { name: 'Stop import' }).click()
 
-  const modal = page.getByRole('dialog', { name: 'Cancel import' })
+  const modal = page.getByRole('dialog', { name: 'Stop import' })
   await expect(modal).toBeVisible()
   await modal.getByRole('button', { name: 'Confirm' }).click()
 
-  await expectToast(page, `Import canceled for ${diskImportReadyName}`)
+  await expectToast(page, `Import stopped for ${diskImportReadyName}`)
   await expectRowVisible(table, { name: diskImportReadyName, state: 'detached' })
   await clickRowActions(page, diskImportReadyName)
   await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeEnabled()
 })
 
-test('Cancel import from importing_from_bulk_writes', async ({ page }) => {
+test('Stop import from importing_from_bulk_writes', async ({ page }) => {
   const diskImportingName = 'tmp-for-image-59986861'
   await page.goto('/projects/mock-project/disks')
   const table = page.getByRole('table')
@@ -198,19 +198,19 @@ test('Cancel import from importing_from_bulk_writes', async ({ page }) => {
 
   await clickRowActions(page, diskImportingName)
   await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
-  await page.getByRole('menuitem', { name: 'Cancel import' }).click()
+  await page.getByRole('menuitem', { name: 'Stop import' }).click()
 
-  const modal = page.getByRole('dialog', { name: 'Cancel import' })
+  const modal = page.getByRole('dialog', { name: 'Stop import' })
   await expect(modal).toBeVisible()
   await modal.getByRole('button', { name: 'Confirm' }).click()
 
-  await expectToast(page, `Import canceled for ${diskImportingName}`)
+  await expectToast(page, `Import stopped for ${diskImportingName}`)
   await expectRowVisible(table, { name: diskImportingName, state: 'detached' })
   await clickRowActions(page, diskImportingName)
   await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeEnabled()
 })
 
-test('Cancel import from importing_from_bulk_writes shows error and refreshes state when finalize fails', async ({
+test('Stop import from importing_from_bulk_writes shows error and refreshes state when finalize fails', async ({
   page,
 }) => {
   const diskName = 'disk-finalize-fail'
@@ -219,13 +219,13 @@ test('Cancel import from importing_from_bulk_writes shows error and refreshes st
   await expectRowVisible(table, { name: diskName, state: 'importing from bulk writes' })
 
   await clickRowActions(page, diskName)
-  await page.getByRole('menuitem', { name: 'Cancel import' }).click()
+  await page.getByRole('menuitem', { name: 'Stop import' }).click()
   await page
-    .getByRole('dialog', { name: 'Cancel import' })
+    .getByRole('dialog', { name: 'Stop import' })
     .getByRole('button', { name: 'Confirm' })
     .click()
 
-  await expectToast(page, 'Failed to cancel import')
+  await expectToast(page, 'Failed to stop import')
   await expectRowVisible(table, { name: diskName, state: 'import ready' })
 })
 

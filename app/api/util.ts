@@ -302,7 +302,7 @@ const diskStateActions = {
   // https://github.com/oxidecomputer/omicron/blob/9971869/nexus/src/app/sagas/finalize_disk.rs#L155-L186
   finalizeImport: ['import_ready'],
   // https://github.com/oxidecomputer/omicron/blob/9971869/nexus/src/app/disk.rs#L684-L697
-  stopImport: ['importing_from_bulk_writes'],
+  cancelBulkWrites: ['importing_from_bulk_writes'],
 } satisfies Record<string, DiskState['state'][]>
 
 // snapshot has a type check in addition to state check
