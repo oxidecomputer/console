@@ -79,9 +79,11 @@ export type EditRoleModalProps<Role extends RoleKey = RoleKey> = AddRoleModalPro
   identityId: string
   identityType: IdentityType
   defaultValues: { roleName?: Role }
+  /** The identity is a group the current user belongs to */
+  isOwnGroup?: boolean
   /**
    * Whether the current user would still be able to edit this scope's roles
-   * through their other roles if their own direct role were lowered. Skips the
+   * through their other roles if this role were lowered. Skips the
    * self-demotion confirmation when true.
    */
   keepsEditAccess?: boolean
@@ -97,15 +99,17 @@ export const RoleModalIdentity = ({ name }: { name?: string }) =>
 
 /**
  * Admin is the only role that grants permission to edit a scope's roles, so a
- * user changing their own direct admin role to another role could lose that
- * permission, unless another of their roles grants it. If it could, the edit
- * form asks them to type their name first.
+ * user changing their own admin role to another role could lose that
+ * permission, unless another of their roles grants it. The role is their own
+ * if it is assigned to them directly or to a group they belong to. If they
+ * could lose the permission, the edit form asks them to type the name first.
  */
 export function useOwnAdminDemotion<Role extends RoleKey>({
   policy,
   identityId,
   name,
   roleName,
+  isOwnGroup = false,
   keepsEditAccess = false,
 }: {
   policy: Policy<Role>
@@ -113,13 +117,14 @@ export function useOwnAdminDemotion<Role extends RoleKey>({
   name?: string
   /** Role currently selected in the form */
   roleName: Role | undefined
+  isOwnGroup?: boolean
   keepsEditAccess?: boolean
 }) {
   const { me } = useCurrentUser()
   const [typedText, setTypedText] = useState('')
   const isDemotingSelf =
-    identityId === me.id &&
-    rolesByIdFromPolicy(policy).get(me.id) === 'admin' &&
+    (identityId === me.id || isOwnGroup) &&
+    rolesByIdFromPolicy(policy).get(identityId) === 'admin' &&
     roleName !== 'admin' &&
     !keepsEditAccess
   const confirmText = name || 'change my own role'

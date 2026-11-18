@@ -423,7 +423,7 @@ test('Removing your last admin role requires typing your name', async ({ page })
   await expect(confirmDialog).toBeHidden()
 })
 
-test('Removing a group role you hold through membership warns when it is your last admin role', async ({
+test('Removing or lowering a group role you hold through membership warns when it is your last admin role', async ({
   page,
 }) => {
   await page.goto('/access/groups')
@@ -453,6 +453,19 @@ test('Removing a group role you hold through membership warns when it is your la
   await confirmDialog.getByRole('button', { name: 'Cancel' }).click()
   await expect(confirmDialog).toBeHidden()
 
+  // lowering the group role needs no warning for the same reason
+  const editForm = page.getByRole('dialog', { name: 'Edit silo role' })
+  const demotionWarning = editForm.getByText(
+    'This could remove your ability to manage silo roles.'
+  )
+  await groupRoleRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Change silo role' }).click()
+  await editForm.getByRole('radio', { name: /^Viewer / }).click()
+  await expect(demotionWarning).toBeHidden()
+  await expect(editForm.getByRole('textbox')).toBeHidden()
+  await editForm.getByRole('button', { name: 'Cancel' }).click()
+  await expect(editForm).toBeHidden()
+
   // remove her direct role, leaving web-devs as her only source of silo admin
   await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
   await page.getByRole('tab', { name: 'Users' }).click()
@@ -480,6 +493,30 @@ test('Removing a group role you hold through membership warns when it is your la
   await expect(confirm).toBeDisabled()
   await confirmDialog.getByRole('textbox').fill('web-devs')
   await expect(confirm).toBeEnabled()
+  await confirmDialog.getByRole('button', { name: 'Cancel' }).click()
+  await expect(confirmDialog).toBeHidden()
+
+  // lowering the group role now warns and requires the group name too
+  await groupRoleRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Change silo role' }).click()
+  const update = editForm.getByRole('button', { name: 'Update role' })
+  await expect(demotionWarning).toBeHidden()
+  await editForm.getByRole('radio', { name: /^Viewer / }).click()
+  await expect(demotionWarning).toBeVisible()
+  await expect(update).toBeDisabled()
+  await editForm.getByRole('textbox').fill('web-devs')
+  await expect(update).toBeEnabled()
+  await update.click()
+  await expect(editForm).toBeHidden()
+  await expect(groupModal.getByRole('row').filter({ hasText: 'silo.viewer' })).toBeVisible()
+
+  // no longer a silo admin, so role actions are disabled
+  await groupModal
+    .getByRole('row')
+    .filter({ hasText: 'silo.viewer' })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await expect(page.getByRole('menuitem', { name: 'Change silo role' })).toBeDisabled()
 })
 
 // changing your own role away from admin requires confirmation because you

@@ -35,6 +35,7 @@ export function SiloAccessEditRoleModal({
   identityType,
   policy,
   defaultValues,
+  isOwnGroup,
   keepsEditAccess,
 }: EditRoleModalProps) {
   const isAssigning = !defaultValues.roleName
@@ -51,6 +52,7 @@ export function SiloAccessEditRoleModal({
     identityId,
     name,
     roleName,
+    isOwnGroup,
     keepsEditAccess,
   })
 

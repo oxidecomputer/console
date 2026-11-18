@@ -27,6 +27,7 @@ export function ProjectAccessEditRoleModal({
   identityType,
   policy,
   defaultValues,
+  isOwnGroup,
   keepsEditAccess,
 }: EditRoleModalProps) {
   const { project } = useProjectSelector()
@@ -46,6 +47,7 @@ export function ProjectAccessEditRoleModal({
     identityId,
     name,
     roleName,
+    isOwnGroup,
     keepsEditAccess,
   })
 

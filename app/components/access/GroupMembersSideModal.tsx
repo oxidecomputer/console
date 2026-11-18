@@ -153,6 +153,8 @@ export function GroupMembersSideModal({ group, onDismiss, scope }: Props) {
           identityId={group.id}
           identityType="silo_group"
           defaultValues={{ roleName: editing.defaultRole }}
+          isOwnGroup={isSelf}
+          keepsEditAccess={keepsEditAccess}
         />
       )}
     </ReadOnlySideModalForm>
