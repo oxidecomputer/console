@@ -443,4 +443,18 @@ test('Show policy modal lists raw project role assignments', async ({ page }) =>
   await expectRowVisible(table, { Actor: deletedSiloUserId, Role: 'project.viewer' })
   // silo roles are not part of the project policy
   await expect(table.getByRole('row')).toHaveCount(5)
+
+  // names link to the detail view in the same scope
+  await table.getByRole('link', { name: 'kernel-devs' }).click()
+  await expect(dialog).toBeHidden()
+  await expect(page).toHaveURL(/\/projects\/mock-project\/access\/groups\/[0-9a-f-]+$/)
+  await expect(page.getByRole('dialog', { name: 'Group' })).toContainText('kernel-devs')
+
+  // a user link goes to the Users tab, and the unresolved ID is not a link
+  await closeSideModal(page)
+  await page.getByRole('button', { name: 'Show policy' }).click()
+  await expect(table.getByRole('link', { name: deletedSiloUserId })).toBeHidden()
+  await table.getByRole('link', { name: 'Jacob Klein' }).click()
+  await expect(page).toHaveURL(/\/projects\/mock-project\/access\/users\/[0-9a-f-]+$/)
+  await expect(page.getByRole('dialog', { name: 'User' })).toContainText('Jacob Klein')
 })

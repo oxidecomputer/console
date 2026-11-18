@@ -584,6 +584,13 @@ test('Show policy modal lists raw silo role assignments', async ({ page }) => {
 
   await dialog.getByRole('button', { name: 'Close' }).click()
   await expect(dialog).toBeHidden()
+
+  // names link to the silo-scoped detail view
+  await page.getByRole('button', { name: 'Show policy' }).click()
+  await table.getByRole('link', { name: 'Hannah Arendt' }).click()
+  await expect(dialog).toBeHidden()
+  await expect(page).toHaveURL(/\/access\/users\/[0-9a-f-]+$/)
+  await expect(page.getByRole('dialog', { name: 'User' })).toContainText('Hannah Arendt')
 })
 
 test('Show policy modal removes an unresolved role assignment', async ({ page }) => {

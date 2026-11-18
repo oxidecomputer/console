@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
+import { Link } from 'react-router'
 
 import { byGroupThenName, usePrefetchedQuery } from '@oxide/api'
 import { Person16Icon, PersonGroup16Icon } from '@oxide/design-system/icons/react'
@@ -63,6 +64,8 @@ export function PolicyModal({
     siloPolicy,
     projectPolicy,
     removeRole,
+    userPath,
+    groupPath,
   } = policyScope
   const canEdit = useCanEditPolicy(siloPolicy, projectPolicy)
   const { data: users } = usePrefetchedQuery(userListAll)
@@ -109,7 +112,21 @@ export function PolicyModal({
                     ) : (
                       <Person16Icon className="text-secondary shrink-0" />
                     )}
-                    {row.name ?? (
+                    {row.name ? (
+                      <Link
+                        className="link-with-underline truncate"
+                        to={
+                          row.identityType === 'silo_group'
+                            ? groupPath(row.identityId)
+                            : userPath(row.identityId)
+                        }
+                        // the modal belongs to the layout, which stays mounted
+                        // across the navigation, so close it explicitly
+                        onClick={onDismiss}
+                      >
+                        {row.name}
+                      </Link>
+                    ) : (
                       <>
                         <span className="truncate">{row.identityId}</span>
                         <TipIcon>
