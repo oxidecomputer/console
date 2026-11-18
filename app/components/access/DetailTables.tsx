@@ -74,52 +74,43 @@ export function RoleAssignmentsTable({
                 Could not load group memberships
               </MessageRow>
             ))
-            .with({ status: 'success' }, ({ data }) => (
-              <>
-                {sortRoleEntries(data).map((entry) => (
-                  // stable across refetches so an open row menu isn't remounted
-                  // onto a different entry when rows shift; unique because
-                  // entries collapse to one per identity per scope
-                  <Table.Row
-                    key={`${entry.scope}:${entry.source.type === 'group' ? entry.source.group.id : 'direct'}`}
-                  >
-                    <Table.Cell>
-                      <Badge color={roleColor[entry.roleName]}>
-                        {entry.scope}.{entry.roleName}
-                      </Badge>
-                    </Table.Cell>
-                    {/* takes the remaining width. The group name is positioned
-                        absolutely so its length doesn't widen the table, which
-                        lets it truncate. max-width on a cell would be simpler,
-                        but Firefox ignores it. */}
-                    <Table.Cell className="w-full">
-                      {entry.source.type === 'direct' && 'Direct'}
-                      {entry.source.type === 'group' && (
-                        <div className="absolute inset-x-3 inset-y-0 flex items-center">
-                          <Truncate
-                            text={`via ${entry.source.group.displayName}`}
-                            className="min-w-0"
-                          />
-                        </div>
-                      )}
-                    </Table.Cell>
-                    <Table.Cell className="action-col w-10 *:p-0">
-                      <RowActions actions={makeActions(entry)} />
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-                {addRole && (
-                  <Table.Row>
-                    <Table.Cell colSpan={2} className="text-secondary">
-                      {data.length === 0 ? 'No roles assigned' : addRole.text}
-                    </Table.Cell>
-                    <Table.Cell className="action-col w-10 *:p-0">
-                      <RowActions actions={addRole.actions} />
-                    </Table.Cell>
-                  </Table.Row>
-                )}
-              </>
-            ))
+            .with({ status: 'success' }, ({ data }) => [
+              sortRoleEntries(data).map((entry) => (
+                <Table.Row
+                  key={`${entry.scope}:${entry.source.type === 'group' ? entry.source.group.id : 'direct'}`}
+                >
+                  <Table.Cell>
+                    <Badge color={roleColor[entry.roleName]}>
+                      {entry.scope}.{entry.roleName}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell className="w-full">
+                    {entry.source.type === 'direct' && 'Direct'}
+                    {entry.source.type === 'group' && (
+                      <div className="absolute inset-x-3 inset-y-0 flex items-center">
+                        <Truncate
+                          text={`via ${entry.source.group.displayName}`}
+                          className="min-w-0"
+                        />
+                      </div>
+                    )}
+                  </Table.Cell>
+                  <Table.Cell className="action-col w-10 *:p-0">
+                    <RowActions actions={makeActions(entry)} />
+                  </Table.Cell>
+                </Table.Row>
+              )),
+              addRole && (
+                <Table.Row key="add-role">
+                  <Table.Cell colSpan={2} className="text-secondary">
+                    {data.length === 0 ? 'No roles assigned' : addRole.text}
+                  </Table.Cell>
+                  <Table.Cell className="action-col w-10 *:p-0">
+                    <RowActions actions={addRole.actions} />
+                  </Table.Cell>
+                </Table.Row>
+              ),
+            ])
             .exhaustive()}
         </Table.Body>
       </table>
