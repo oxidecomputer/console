@@ -26,6 +26,44 @@ import $ from 'dax'
 // user <your actual username>
 // ForwardAgent yes
 
+const DOGFOOD_HOST = 'https://oxide.sys.rack2.eng.oxide.computer'
+
+/**
+ * Nexus validates `api-version` before auth, so an unauthenticated request
+ * suffices to check whether `major.0.0` is newer than dogfood supports.
+ * Supported versions proceed to auth and return 401.
+ */
+async function isTooNew(major: number) {
+  const res = await fetch(`${DOGFOOD_HOST}/v1/me`, {
+    headers: { 'api-version': `${major}.0.0` },
+  })
+  const body = await res.text()
+  if (res.status === 400 && body.includes('server does not support this API version')) {
+    return true
+  }
+  // other 400s are for retired versions ("no longer supports"), below dogfood's newest
+  if (res.status === 401 || res.status === 400) return false
+  throw new Error(`Unexpected response checking dogfood API version: ${res.status} ${body}`)
+}
+
+/** As `<YYYYMMDDNN>`. A week out leaves room for time zones and dates picked a little ahead. */
+const weekFromNow = () =>
+  Number(
+    new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10).replaceAll('-', '')
+  ) * 100
+
+/**
+ * Bisects to find dogfood's newest API version until Nexus has a version
+ * endpoint. Versions have the form `<YYYYMMDDNN>.0.0`, so only the major
+ * number varies. `lo` is accepted and `hi` rejected. `lo` starts at the first
+ * versioned Nexus API, and no version can be dated much after today.
+ */
+async function getDogfoodApiMajor(lo = 2025_11_20_00, hi = weekFromNow()): Promise<number> {
+  if (hi - lo <= 1) return lo
+  const mid = Math.floor((lo + hi) / 2)
+  return (await isTooNew(mid)) ? getDogfoodApiMajor(lo, mid) : getDogfoodApiMajor(mid, hi)
+}
+
 const USAGE = `
 Usage:
 
@@ -49,6 +87,23 @@ const fullCommit = await $`git rev-parse ${consoleRevision}${isTag ? '^{}' : ''}
 
 if (consoleRevision !== fullCommit) {
   console.info(`Resolved ${consoleRevision} to ${fullCommit}`)
+}
+
+const consoleApiVersion = (
+  await $`git show ${fullCommit}:app/api/__generated__/API_VERSION`.text()
+).trim()
+const consoleApiMajor = Number(consoleApiVersion.split('.')[0])
+
+console.info('Checking which API versions dogfood accepts...')
+const dogfoodApiMajor = await getDogfoodApiMajor()
+console.info(`Dogfood API version: ${dogfoodApiMajor}.0.0`)
+console.info(`Console API version: ${consoleApiVersion}\n`)
+
+if (consoleApiMajor > dogfoodApiMajor) {
+  console.error(
+    "Error: dogfood would reject API requests from this console build. Pick a commit with app/api/__generated__/API_VERSION at or below dogfood's."
+  )
+  process.exit(1)
 }
 
 console.info('Finding nexus zones...')
