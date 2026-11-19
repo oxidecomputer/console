@@ -7,6 +7,7 @@
  */
 import { useState } from 'react'
 
+import { usePrefetchedQuery } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -15,6 +16,7 @@ import { Button } from '~/ui/lib/Button'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 
+import { userListAll } from './access-data'
 import { type PolicyScope } from './policy-scope'
 import { PolicyModal } from './PolicyModal'
 
@@ -34,6 +36,7 @@ export function UsersGroupsLayout({
   summary: string
 }) {
   const [policyOpen, setPolicyOpen] = useState(false)
+  usePrefetchedQuery(userListAll)
   return (
     <>
       <PageHeader>

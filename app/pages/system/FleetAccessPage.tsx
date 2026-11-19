@@ -25,7 +25,7 @@ import {
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { roleActions } from '~/components/access/roleActions'
+import { roleActions } from '~/components/access/role-actions'
 import { DocsPopover } from '~/components/DocsPopover'
 import {
   FleetAccessAddUserSideModal,

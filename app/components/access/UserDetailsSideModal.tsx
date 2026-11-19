@@ -26,7 +26,7 @@ import { ResourceLabel } from '~/ui/lib/SideModal'
 
 import { EffectiveRole, IdentityListTable, RoleAssignmentsTable } from './DetailTables'
 import { type PolicyScope } from './policy-scope'
-import { roleActions, siloPolicyReason } from './roleActions'
+import { roleActions, siloPolicyReason } from './role-actions'
 import { canEditScope, useCanEditPolicy } from './use-can-edit-policy'
 
 type Props = {

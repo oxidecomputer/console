@@ -8,27 +8,20 @@
 import { useNavigate } from 'react-router'
 
 import {
-  api,
   groupsOfUser,
-  q,
   queryClient,
   useGroupsByUserId,
   usePrefetchedQuery,
 } from '@oxide/api'
 
+import { groupListAll, userView } from '~/components/access/access-data'
 import { useSiloPolicyScope } from '~/components/access/policy-scope'
 import { UserDetailsSideModal } from '~/components/access/UserDetailsSideModal'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useSiloUserSelector } from '~/hooks/use-params'
-import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
-import type * as PP from '~/util/path-params'
 
 import type { Route } from './+types/SiloUserDetail'
-
-const userView = ({ userId }: PP.SiloUser) => q(api.userView, { path: { userId } })
-// prefetched by the parent Access loader
-const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const { userId } = params

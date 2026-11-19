@@ -8,7 +8,6 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet } from 'react-router'
-import * as R from 'remeda'
 
 import {
   sortRoleEntries,
@@ -28,7 +27,8 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'
 
-import { groupListAll, type PolicyScope } from './policy-scope'
+import { groupListAll } from './access-data'
+import { type PolicyScope } from './policy-scope'
 
 const colHelper = createColumnHelper<Group>()
 
@@ -54,10 +54,6 @@ export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
   const { siloPolicy, projectPolicy, groupPath } = scope
 
   const { data: groups } = usePrefetchedQuery(groupListAll)
-  const sortedGroups = useMemo(
-    () => R.sortBy(groups.items, (g) => g.displayName.toLowerCase()),
-    [groups]
-  )
 
   // groups can't be in other groups, so passing no groups yields only the
   // group's direct roles in each scope
@@ -96,14 +92,14 @@ export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
 
   const table = useReactTable({
     columns,
-    data: sortedGroups,
+    data: groups.items,
     getRowId: (group) => group.id,
     getCoreRowModel: getCoreRowModel(),
   })
 
   return (
     <>
-      {sortedGroups.length === 0 ? <GroupEmptyState /> : <Table table={table} />}
+      {groups.items.length === 0 ? <GroupEmptyState /> : <Table table={table} />}
       <Outlet />
     </>
   )

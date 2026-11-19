@@ -8,24 +8,20 @@
 import { useNavigate } from 'react-router'
 
 import {
-  api,
   groupsOfUser,
-  q,
   queryClient,
   useGroupsByUserId,
   usePrefetchedQuery,
 } from '@oxide/api'
 
-import { groupListAll, useProjectPolicyScope } from '~/components/access/policy-scope'
+import { groupListAll, userView } from '~/components/access/access-data'
+import { useProjectPolicyScope } from '~/components/access/policy-scope'
 import { UserDetailsSideModal } from '~/components/access/UserDetailsSideModal'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector, useSiloUserSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
-import type * as PP from '~/util/path-params'
 
 import type { Route } from './+types/ProjectUserDetail'
-
-const userView = ({ userId }: PP.SiloUser) => q(api.userView, { path: { userId } })
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const { userId } = params

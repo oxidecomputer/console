@@ -5,10 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import {
-  prefetchUsersAndGroups,
-  useSiloPolicyScope,
-} from '~/components/access/policy-scope'
+import { prefetchUsersAndGroups } from '~/components/access/access-data'
+import { useSiloPolicyScope } from '~/components/access/policy-scope'
 import { UsersGroupsLayout } from '~/components/access/UsersGroupsLayout'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { pb } from '~/util/path-builder'

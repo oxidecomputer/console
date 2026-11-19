@@ -19,8 +19,9 @@ import { roleColor } from '~/util/access'
 import { roleDiv } from '~/util/classed'
 import { capitalize } from '~/util/str'
 
-import { groupListAll, userListAll, type PolicyScope } from './policy-scope'
-import { roleActions } from './roleActions'
+import { groupListAll, userListAll } from './access-data'
+import { type PolicyScope } from './policy-scope'
+import { roleActions } from './role-actions'
 import { useCanEditPolicy } from './use-can-edit-policy'
 
 // Log-style list like the Alerts tab: rows with only a bottom border, so divs

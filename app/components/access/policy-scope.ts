@@ -10,8 +10,6 @@ import { useCallback, type ComponentType } from 'react'
 import {
   api,
   deleteRole,
-  groupMemberList,
-  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -24,39 +22,10 @@ import { ProjectAccessEditRoleModal } from '~/forms/project-access'
 import { invalidateSiloPolicy, SiloAccessEditRoleModal } from '~/forms/silo-access'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
-import type * as PP from '~/util/path-params'
 
-// The API only sorts users and groups by id, so fetch the full sets and sort by
-// name client-side. ALL_ISH is the practical ceiling; a silo with more than
-// that would have its tail dropped in (arbitrary) id order.
-export const userListAll = q(api.userList, { query: { limit: ALL_ISH } })
-export const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
-export const siloPolicyView = q(api.policyView, {})
-export const projectPolicyView = ({ project }: PP.Project) =>
-  q(api.projectPolicyView, { path: { project } })
-
-/**
- * Prefetch everything the Users and Groups tabs (and their detail modals) need,
- * so switching tabs doesn't trigger a fetch. Per-group member lists are fired
- * but not awaited: readers use `useQuery`/`useQueries`, so member counts and
- * per-user group lists fill in as they resolve instead of blocking the page on
- * one request per group.
- */
-export async function prefetchUsersAndGroups(project?: string) {
-  await Promise.all([
-    queryClient.fetchQuery(groupListAll).then((groups) => {
-      groups.items.forEach((g) =>
-        queryClient.prefetchQuery(groupMemberList({ groupId: g.id }))
-      )
-    }),
-    queryClient.prefetchQuery(siloPolicyView),
-    queryClient.prefetchQuery(userListAll),
-    project && queryClient.prefetchQuery(projectPolicyView({ project })),
-  ])
-}
+import { projectPolicyView, siloPolicyView } from './access-data'
 
 /**
  * The policy an Access page manages, plus what the shared tabs need to

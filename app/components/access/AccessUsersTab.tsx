@@ -8,7 +8,6 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Outlet } from 'react-router'
-import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
 import {
@@ -32,7 +31,8 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 
-import { groupListAll, userListAll, type PolicyScope } from './policy-scope'
+import { groupListAll, userListAll } from './access-data'
+import { type PolicyScope } from './policy-scope'
 
 const colHelper = createColumnHelper<User>()
 
@@ -52,10 +52,6 @@ export function AccessUsersTab({ scope }: { scope: PolicyScope }) {
   const { siloPolicy, projectPolicy, userPath } = scope
 
   const { data: users } = usePrefetchedQuery(userListAll)
-  const sortedUsers = useMemo(
-    () => R.sortBy(users.items, (u) => u.displayName.toLowerCase()),
-    [users]
-  )
 
   const { data: groups } = usePrefetchedQuery(groupListAll)
   const groupsByUserId = useGroupsByUserId(groups.items)
@@ -141,14 +137,14 @@ export function AccessUsersTab({ scope }: { scope: PolicyScope }) {
 
   const table = useReactTable({
     columns,
-    data: sortedUsers,
+    data: users.items,
     getRowId: (user) => user.id,
     getCoreRowModel: getCoreRowModel(),
   })
 
   return (
     <>
-      {sortedUsers.length === 0 ? <EmptyState /> : <Table table={table} />}
+      {users.items.length === 0 ? <EmptyState /> : <Table table={table} />}
       <Outlet />
     </>
   )

@@ -7,18 +7,16 @@
  */
 import { useNavigate } from 'react-router'
 
-import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
+import { queryClient, usePrefetchedQuery } from '@oxide/api'
 
+import { groupView } from '~/components/access/access-data'
 import { GroupMembersSideModal } from '~/components/access/GroupMembersSideModal'
 import { useProjectPolicyScope } from '~/components/access/policy-scope'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector, useSiloGroupSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
-import type * as PP from '~/util/path-params'
 
 import type { Route } from './+types/ProjectGroupDetail'
-
-const groupView = ({ groupId }: PP.SiloGroup) => q(api.groupView, { path: { groupId } })
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const { groupId } = params

@@ -25,7 +25,7 @@ import type {
   ProjectRole,
   SiloRole,
 } from './__generated__/Api'
-import { api, q, usePrefetchedQuery } from './client'
+import { api, q, usePrefetchedQuery, type ResultsPage } from './client'
 
 /**
  * Union of all the specific roles, which used to all be the same until we added
@@ -215,6 +215,13 @@ function policyRoleEntries(
 export const sortRoleEntries = (entries: ScopedRoleEntry[]) =>
   R.sortBy(entries, (e) => roleOrder[e.roleName])
 
+export const sortByDisplayName = <T extends { displayName: string }>(
+  page: ResultsPage<T>
+): ResultsPage<T> => ({
+  ...page,
+  items: R.sortBy(page.items, (i) => i.displayName.toLowerCase()),
+})
+
 /**
  * Members of a group. Shared so loaders and readers use the same query key.
  * Loaders prefetch this per group without awaiting, so readers use `useQuery`
@@ -227,7 +234,11 @@ export const sortRoleEntries = (entries: ScopedRoleEntry[]) =>
  * group list in AuthenticatedLayout.
  */
 export const groupMemberList = ({ groupId }: PP.SiloGroup) =>
-  q(api.userList, { query: { group: groupId, limit: ALL_ISH } }, { staleTime: 60000 })
+  q(
+    api.userList,
+    { query: { group: groupId, limit: ALL_ISH } },
+    { staleTime: 60000, select: sortByDisplayName }
+  )
 
 /** Async state of data derived from one or more queries. */
 export type Loadable<T> =
