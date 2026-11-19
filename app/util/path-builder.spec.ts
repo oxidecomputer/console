@@ -46,6 +46,7 @@ const params = {
   provider: 'pr',
   sledId: '5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0',
   bundleId: 'ccdac005-66a8-4921-9e8b-30531c359c31',
+  alertId: '8c8a74ba-58b7-4a06-8c79-39ccad5624fb',
   image: 'im',
   disk: 'd',
   sshKey: 'ss',
@@ -57,6 +58,7 @@ const params = {
   router: 'r',
   route: 'rr',
   receiver: 'rc',
+  problemId: 'f754968b-2bbd-4a1b-bc60-cb750e281adc',
 }
 
 test('path builder', () => {
@@ -66,6 +68,7 @@ test('path builder', () => {
         "accessTokens": "/settings/access-tokens",
         "affinity": "/projects/p/affinity",
         "affinityNew": "/projects/p/affinity-new",
+        "alert": "/system/alerting/alerts/8c8a74ba-58b7-4a06-8c79-39ccad5624fb",
         "alertReceiver": "/system/alerting/receivers/rc",
         "alertReceiverEdit": "/system/alerting/receivers/rc/edit",
         "alertReceivers": "/system/alerting/receivers",
@@ -101,6 +104,12 @@ test('path builder', () => {
         "ipPoolRangeAdd": "/system/networking/ip-pools/pl/ranges-add",
         "ipPools": "/system/networking/ip-pools",
         "ipPoolsNew": "/system/networking/ip-pools-new",
+        "problem": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/impacts",
+        "problemAlerts": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/alerts",
+        "problemImpacts": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/impacts",
+        "problemRelated": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/related-problems",
+        "problemSupportBundles": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/support-bundles",
+        "problems": "/system/problems",
         "profile": "/settings/profile",
         "project": "/projects/p/instances",
         "projectAccess": "/projects/p/access",

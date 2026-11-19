@@ -69,7 +69,16 @@ export default [
             route('scim', 'pages/system/silos/SiloScimTab.tsx'),
           ]),
         ]),
-        empty('issues'),
+        route('problems', 'pages/system/problems/ProblemsPage.tsx'),
+        route('problems', 'routes/problems.tsx', [
+          route(':problemId', 'pages/system/problems/ProblemPage.tsx', [
+            index('routes/problem-index.tsx'),
+            route('impacts', 'pages/system/problems/ProblemImpactsTab.tsx'),
+            route('related-problems', 'pages/system/problems/ProblemRelatedTab.tsx'),
+            route('alerts', 'pages/system/problems/ProblemAlertsTab.tsx'),
+            route('support-bundles', 'pages/system/problems/ProblemSupportBundlesTab.tsx'),
+          ]),
+        ]),
         route('utilization', 'pages/system/UtilizationPage.tsx'),
         route('metrics-explorer', 'pages/system/MetricsExplorer.tsx'),
         route('inventory', 'pages/system/inventory/InventoryPage.tsx', [
@@ -111,7 +120,9 @@ export default [
         route('alerting', 'pages/system/alerting/AlertingPage.tsx', [
           index('routes/alerting-index.tsx'),
           layout('pages/system/alerting/AlertReceiversTab.tsx', [empty('receivers')]),
-          route('alerts', 'pages/system/alerting/AlertsTab.tsx'),
+          route('alerts', 'pages/system/alerting/AlertsTab.tsx', [
+            route(':alertId', 'pages/system/alerting/AlertDetail.tsx'),
+          ]),
         ]),
         route('alerting', 'routes/alerting.tsx', [
           route('receivers', 'routes/alert-receivers.tsx', [

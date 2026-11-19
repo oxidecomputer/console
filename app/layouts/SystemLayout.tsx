@@ -14,6 +14,7 @@ import {
   Cloud16Icon,
   Monitoring16Icon,
   IpGlobal16Icon,
+  Issues16Icon,
   Logs16Icon,
   Metrics16Icon,
   Notifications16Icon,
@@ -55,6 +56,7 @@ export default function SystemLayout() {
   useQuickActions(() => {
     const systemLinks = [
       { value: 'Silos', path: pb.silos() },
+      { value: 'Problems', path: pb.problems() },
       { value: 'Utilization', path: pb.systemUtilization() },
       { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
@@ -95,9 +97,9 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.silos()}>
             <Cloud16Icon /> Silos
           </NavLinkItem>
-          {/* <NavLinkItem to={pb.systemIssues()} disabled>
-            <Instances16Icon /> Issues
-          </NavLinkItem> */}
+          <NavLinkItem to={pb.problems()}>
+            <Issues16Icon /> Problems
+          </NavLinkItem>
           <NavLinkItem to={pb.systemUtilization()}>
             <Metrics16Icon /> Utilization
           </NavLinkItem>

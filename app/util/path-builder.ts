@@ -148,6 +148,7 @@ export const pb = {
     href('/system/networking/subnet-pools/:subnetPool/members-add', params),
 
   alerts: () => href('/system/alerting/alerts'),
+  alert: (params: PP.Alert) => href('/system/alerting/alerts/:alertId', params),
   alertReceivers: () => href('/system/alerting/receivers'),
   alertReceiversNew: () => href('/system/alerting/receivers-new'),
   alertReceiver: (params: PP.AlertReceiver) =>
@@ -181,6 +182,17 @@ export const pb = {
   supportBundle: (params: PP.SupportBundle) =>
     href('/system/support-bundles/:bundleId', params),
   auditLog: () => href('/system/audit-log'),
+
+  problems: () => href('/system/problems'),
+  // canonical route for problem is first tab
+  problem: (params: PP.Problem) => pb.problemImpacts(params),
+  problemImpacts: (params: PP.Problem) =>
+    href('/system/problems/:problemId/impacts', params),
+  problemRelated: (params: PP.Problem) =>
+    href('/system/problems/:problemId/related-problems', params),
+  problemAlerts: (params: PP.Problem) => href('/system/problems/:problemId/alerts', params),
+  problemSupportBundles: (params: PP.Problem) =>
+    href('/system/problems/:problemId/support-bundles', params),
 
   profile: () => href('/settings/profile'),
   sshKeys: () => href('/settings/ssh-keys'),

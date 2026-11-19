@@ -14,7 +14,9 @@ import {
   supportBundleTransitioning,
   type DiskState,
   type DiskType,
+  type ImpactState,
   type InstanceState,
+  type ProblemState,
   type SnapshotState,
   type SupportBundleState,
 } from '@oxide/api'
@@ -107,6 +109,29 @@ export const SupportBundleStateBadge = (props: {
       <Spinner size="sm" variant={SUPPORT_BUNDLE_COLORS[props.state]} />
     )}
     {props.state}
+  </Badge>
+)
+
+const PROBLEM_COLORS: Record<ProblemState, BadgeColor> = {
+  active: 'notice',
+  resolved: 'neutral',
+}
+
+export const ProblemStateBadge = (props: { state: ProblemState; className?: string }) => (
+  <Badge color={PROBLEM_COLORS[props.state]} className={props.className}>
+    {props.state}
+  </Badge>
+)
+
+const IMPACT_COLORS: Record<ImpactState, BadgeColor> = {
+  active: 'notice',
+  recovered: 'default',
+  out_of_service: 'neutral',
+}
+
+export const ImpactStateBadge = (props: { state: ImpactState; className?: string }) => (
+  <Badge color={IMPACT_COLORS[props.state]} className={props.className}>
+    {props.state.replace(/_/g, ' ')}
   </Badge>
 )
 

@@ -2043,6 +2043,100 @@ export const handlers = makeHandlers({
     return paginated(query, db.users)
   },
 
+  // At the moment only list and view are implemented in Nexus.
+  // The sub-resource lists (problemCausesList, problemAlertList, etc.) don't work yet.
+  // https://github.com/oxidecomputer/omicron/blob/e11a929/nexus/src/app/problem.rs
+  problemList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    const filtered = query.state
+      ? db.problems.filter((p) => p.state === query.state)
+      : db.problems
+    const dir = query.sortBy === 'time_and_id_descending' ? 'desc' : 'asc'
+    const sorted = R.sortBy(filtered, [(p) => p.time_created, dir], [(p) => p.id, dir])
+    return paginated(query, sorted)
+  },
+  problemView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookupById(db.problems, path.problemId)
+  },
+  problemImpactList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const problem = lookupById(db.problems, path.problemId)
+    const impacts = db.problemImpacts
+      .filter((i) => i.problem_id === problem.id)
+      .filter((i) => !query.state || i.state === query.state)
+      .map((impact) => ({ id: impact.resource.id, impact }))
+    const page = paginated(
+      query,
+      R.sortBy(impacts, (i) => i.id)
+    )
+    return { items: page.items.map((i) => i.impact), next_page: page.next_page }
+  },
+  problemCausesList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const problem = lookupById(db.problems, path.problemId)
+    const causes = db.problemRelations
+      .filter((r) => r.consequence_id === problem.id)
+      .map((r) => ({
+        id: r.cause_id,
+        reason: r.reason,
+        revision_added: r.consequence_revision_added,
+        state: lookupById(db.problems, r.cause_id).state,
+      }))
+      .filter((r) => !query.state || r.state === query.state)
+    return paginated(
+      query,
+      R.sortBy(causes, (r) => r.id)
+    )
+  },
+  problemConsequencesList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const problem = lookupById(db.problems, path.problemId)
+    const consequences = db.problemRelations
+      .filter((r) => r.cause_id === problem.id)
+      .map((r) => ({
+        id: r.consequence_id,
+        reason: r.reason,
+        revision_added: r.cause_revision_added,
+        state: lookupById(db.problems, r.consequence_id).state,
+      }))
+      .filter((r) => !query.state || r.state === query.state)
+    return paginated(
+      query,
+      R.sortBy(consequences, (r) => r.id)
+    )
+  },
+  problemAlertList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const problem = lookupById(db.problems, path.problemId)
+    const alertIds = new Set(
+      db.problemAlerts.filter((a) => a.problem_id === problem.id).map((a) => a.alert_id)
+    )
+    const dir = query.sortBy === 'time_and_id_descending' ? 'desc' : 'asc'
+    const alerts = R.sortBy(
+      db.alerts.filter((a) => alertIds.has(a.id)),
+      [(a) => a.time_created, dir],
+      [(a) => a.id, dir]
+    )
+    return paginated(query, alerts)
+  },
+  problemSupportBundlesList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const problem = lookupById(db.problems, path.problemId)
+    const bundleIds = new Set(
+      db.problemSupportBundles
+        .filter((b) => b.problem_id === problem.id)
+        .map((b) => b.bundle_id)
+    )
+    const dir = query.sortBy === 'time_and_id_descending' ? 'desc' : 'asc'
+    const bundles = R.sortBy(
+      db.supportBundles.filter((b) => bundleIds.has(b.id)),
+      [(b) => b.time_created, dir],
+      [(b) => b.id, dir]
+    )
+    return paginated(query, bundles)
+  },
+
   supportBundleList({ query, cookies }) {
     requireFleetViewer(cookies)
     const bundles =
@@ -3107,13 +3201,6 @@ export const handlers = makeHandlers({
   probeDelete: NotImplemented,
   probeList: NotImplemented,
   probeView: NotImplemented,
-  problemAlertList: NotImplemented,
-  problemCausesList: NotImplemented,
-  problemConsequencesList: NotImplemented,
-  problemImpactList: NotImplemented,
-  problemList: NotImplemented,
-  problemSupportBundlesList: NotImplemented,
-  problemView: NotImplemented,
   rackListUnadopted: NotImplemented,
   rackMembershipAbort: NotImplemented,
   rackMembershipAddSleds: NotImplemented,

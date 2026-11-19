@@ -24,6 +24,9 @@ export const links = {
   instanceBootDiskDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
   oxqlSchemaDocs: (metric: string) =>
     `https://docs.oxide.computer/guides/metrics/timeseries-schemas#_${metric.replace(':', '')}`,
+  // NOTE: these docs do not yet actually exist yet, but this is the current best-guess as to their URL
+  problemCodeDocs: (code: number) =>
+    `https://docs.oxide.computer/guides/problems/code/${code.toString().padStart(4, '0')}`,
   siloTlsCertsDocs:
     'https://docs.oxide.computer/guides/system/system-setup#tls-certificate',
   transitIpsDocs:

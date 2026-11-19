@@ -9,7 +9,7 @@
 import cn from 'classnames'
 import { memo, useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
-import { useLocation, useNavigation, useSearchParams } from 'react-router'
+import { Outlet, useLocation, useNavigation, useSearchParams } from 'react-router'
 
 import {
   api,
@@ -25,11 +25,10 @@ import { Notifications24Icon } from '@oxide/design-system/icons/react'
 
 import { isGlobPattern, subscriptionRegex } from '~/api/util'
 import { AlertClassBadge } from '~/components/AlertClassBadge'
-import { AlertPayload } from '~/components/AlertPayload'
+import { AlertDetailModal } from '~/components/AlertDetailModal'
 import { FilterPopover } from '~/components/FilterPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { validateSubscription } from '~/components/form/fields/SubscriptionsField'
-import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { HighlightJSON } from '~/components/HighlightJSON'
 import {
   alertClassMap,
@@ -39,9 +38,8 @@ import {
 } from '~/hooks/use-alert-classes'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { usePaginatedList } from '~/table/QueryTable'
-import { DateTime, SyslogDateTime } from '~/ui/lib/DateTime'
+import { SyslogDateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Spinner } from '~/ui/lib/Spinner'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
@@ -157,36 +155,6 @@ const AlertRow = memo(function AlertRow({ alert, selected, onSelect }: AlertRowP
   )
 })
 
-function AlertDetail({ alert, onDismiss }: { alert: Alert; onDismiss: () => void }) {
-  return (
-    <ReadOnlySideModalForm title="Alert details" onDismiss={onDismiss} animate>
-      <PropertiesTable>
-        <PropertiesTable.Row label="Class">
-          <AlertClassBadge>{alert.class}</AlertClassBadge>
-        </PropertiesTable.Row>
-        <PropertiesTable.Row
-          // TODO: explain this in the info bubble or column header. doc comment below
-          //
-          // Alert schemas are versioned on a per-alert-class basis. The schema version
-          // for a particular alert class does not correspond to an Oxide API version.
-          // Clients should expect to encounter earlier schema versions when retrieving
-          // alerts recorded by an earlier version of the system software.
-          label="Class version"
-        >
-          {alert.version}
-        </PropertiesTable.Row>
-        <PropertiesTable.IdRow id={alert.id} label="ID" />
-        {/* no Modified row: nothing in Nexus updates an alert after insert, so
-            time_modified always equals time_created */}
-        <PropertiesTable.Row label="Created">
-          <DateTime date={alert.timeCreated} />
-        </PropertiesTable.Row>
-      </PropertiesTable>
-      <AlertPayload payload={alert.payload} />
-    </ReadOnlySideModalForm>
-  )
-}
-
 const matchesAny = (re: RegExp, names: Iterable<string>) => {
   for (const name of names) if (re.test(name)) return true
   return false
@@ -297,7 +265,9 @@ export default function AlertsTab() {
         ))}
       </Table>
       {pagination}
-      {detail && <AlertDetail alert={detail} onDismiss={() => setDetail(null)} />}
+      {detail && (
+        <AlertDetailModal alert={detail} onDismiss={() => setDetail(null)} animate />
+      )}
     </>
   )
 
@@ -334,6 +304,7 @@ export default function AlertsTab() {
         </FilterPopover>
       </div>
       {alerts}
+      <Outlet />
     </>
   )
 }

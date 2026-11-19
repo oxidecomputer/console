@@ -40,6 +40,16 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/affinity",
     },
   ],
+  "alert (/system/alerting/alerts/8c8a74ba-58b7-4a06-8c79-39ccad5624fb)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "Alerts",
+      "path": "/system/alerting/alerts",
+    },
+  ],
   "alertReceiver (/system/alerting/receivers/rc)": [
     {
       "label": "Alerting",
@@ -531,6 +541,82 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "IP Pools",
       "path": "/system/networking/ip-pools",
+    },
+  ],
+  "problem (/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/impacts)": [
+    {
+      "label": "Problems",
+      "path": "/system/problems",
+    },
+    {
+      "label": "f75496…281adc",
+      "path": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/impacts",
+    },
+    {
+      "label": "Impacts",
+      "path": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/impacts",
+    },
+  ],
+  "problemAlerts (/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/alerts)": [
+    {
+      "label": "Problems",
+      "path": "/system/problems",
+    },
+    {
+      "label": "f75496…281adc",
+      "path": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/impacts",
+    },
+    {
+      "label": "Alerts",
+      "path": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/alerts",
+    },
+  ],
+  "problemImpacts (/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/impacts)": [
+    {
+      "label": "Problems",
+      "path": "/system/problems",
+    },
+    {
+      "label": "f75496…281adc",
+      "path": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/impacts",
+    },
+    {
+      "label": "Impacts",
+      "path": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/impacts",
+    },
+  ],
+  "problemRelated (/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/related-problems)": [
+    {
+      "label": "Problems",
+      "path": "/system/problems",
+    },
+    {
+      "label": "f75496…281adc",
+      "path": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/impacts",
+    },
+    {
+      "label": "Related problems",
+      "path": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/related-problems",
+    },
+  ],
+  "problemSupportBundles (/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/support-bundles)": [
+    {
+      "label": "Problems",
+      "path": "/system/problems",
+    },
+    {
+      "label": "f75496…281adc",
+      "path": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/impacts",
+    },
+    {
+      "label": "Support bundles",
+      "path": "/system/problems/f754968b-2bbd-4a1b-bc60-cb750e281adc/support-bundles",
+    },
+  ],
+  "problems (/system/problems)": [
+    {
+      "label": "Problems",
+      "path": "/system/problems",
     },
   ],
   "profile (/settings/profile)": [
