@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
@@ -22,7 +23,7 @@ import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getVpcSubnetSelector, useVpcSubnetSelector } from '~/hooks/use-params'
+import { useVpcSubnetSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
@@ -30,6 +31,8 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+import type { Route } from './+types/subnet-edit'
 
 type SubnetEditFormValues = {
   name: string
@@ -42,9 +45,9 @@ const subnetView = ({ project, vpc, subnet }: PP.VpcSubnet) =>
 
 export const handle = titleCrumb('Edit Subnet')
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getVpcSubnetSelector(params)
-  await queryClient.prefetchQuery(subnetView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc, subnet } = params
+  await queryClient.prefetchQuery(subnetView({ project, vpc, subnet }))
   return null
 }
 

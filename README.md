@@ -25,7 +25,7 @@ At https://console-preview.oxide.computer, the console is deployed as a static s
 
 ![console client-server architecture diagram](docs/architecture-browser-only.svg)
 
-In order to avoid the complexity of server-side rendering (and running JS on the rack), the web console is a fully client-side React app. We use Vite (which uses Rollup internally for production builds) to build a set of assets (`index.html`, JS bundles, CSS, fonts, images) and we serve those assets as static files from a special set of console endpoints in Nexus. From the control plane API server's point of view, the web console simply is:
+In order to avoid the complexity of server-side rendering (and running JS on the rack), the web console is a fully client-side React app. We use React Router framework mode with `ssr: false` and Vite to build a set of assets (`index.html`, JS bundles, CSS, fonts, images) and we serve those assets as static files from a special set of console endpoints in Nexus. From the control plane API server's point of view, the web console simply is:
 
 - a directory of static assets and some endpoints that serve them
 - a few other endpoints to handle auth actions like login/logout
@@ -46,7 +46,11 @@ The web console has no special privileges as an API consumer. Logging in sets a 
 
 ## Directory structure
 
-The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`](app/routes.tsx). Also in [`app`](app) we have a [`ui`](app/ui) dir where the low-level components live and an [`api`](app/api) dir where we keep the generated API client and a React Query wrapper for it. The latter is aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/api`.
+The app is in [`app`](app). You can see the route structure in [`app/routes.ts`](app/routes.ts). Also in [`app`](app) we have a [`ui`](app/ui) dir where the low-level components live and an [`api`](app/api) dir where we keep the generated API client and a React Query wrapper for it. The latter is aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/api`.
+
+The framework generates route types in `.react-router/types`. `npm run tsc` regenerates them before checking TypeScript, and the dev server updates them as routes change. Route modules use `Route.ClientLoaderArgs` and `Route.ComponentProps` from their generated `./+types/<module>` import. The `pb` helpers use typed `href()` calls so paths and parameters are checked against the route config.
+
+`npm run build` prerenders the root shell at build time and writes the static site to `build/client/`, with the same flat layout Nexus has always served. The build moves inline framework bootstrap scripts into hashed files under `assets/` to preserve the production CSP. After those scripts execute, `entry.client.tsx` restores their empty DOM shape before React hydrates. `npm run preview` exercises this static output with the same CSP; check for hydration and CSP errors when upgrading React Router. There is no runtime server-rendering service.
 
 ## Development
 

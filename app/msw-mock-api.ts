@@ -54,21 +54,43 @@ const randomStatus = () => {
 
 const sleep = async (ms: number) => new Promise((res) => setTimeout(res, ms))
 
-/** Stream boot log line-by-line with realistic timing */
+function lineDelay(line: string) {
+  if (line === '' || line.startsWith('Welcome to') || line.includes('login:')) return 200
+  if (line.startsWith('[  OK  ]') || line.startsWith('         Starting')) return 30
+  return 15
+}
+
+/**
+ * Stream boot log line-by-line with realistic timing. Each line is due at a
+ * fixed offset from the start instead of a delay after the previous line. On
+ * a slow CI runner every timer fires late, and over 160 lines the lateness
+ * added up to more than the e2e timeout. Lines that are already due go out
+ * together.
+ */
 async function streamBootLog(socket: WebSocket, text: string) {
+  const start = performance.now()
+  let due = 0
   for (const line of text.split('\n')) {
+    const wait = start + due - performance.now()
+    if (wait > 0) await sleep(wait)
     socket.send(line + '\r\n')
-    if (line === '' || line.startsWith('Welcome to') || line.includes('login:')) {
-      await sleep(200)
-    } else if (line.startsWith('[  OK  ]') || line.startsWith('         Starting')) {
-      await sleep(30)
-    } else {
-      await sleep(15)
-    }
+    due += lineDelay(line)
   }
 }
 
 export async function startMockAPI() {
+  // Specifically in Playwright's Firefox build, a page reload will cause a page
+  // to lack a service worker controller. MSW's fallback for this is to reload
+  // the page; you can guess the problem with that. Removing any existing
+  // workers will convince MSW to instead continue and register a new one.
+  //
+  // Context:
+  // https://github.com/mswjs/msw/blob/v2.7.5/src/browser/setupWorker/start/utils/getWorkerInstance.ts#L20-L27
+  if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
+    const registrations = await navigator.serviceWorker.getRegistrations()
+    await Promise.all(registrations.map((r) => r.unregister()))
+  }
+
   // dynamic imports to make extremely sure none of this code ends up in the prod bundle
   const { z } = await import('zod/v4')
   // Configure Zod before importing the handlers, which create schemas during module evaluation.

@@ -7,22 +7,23 @@
  */
 
 import { useState } from 'react'
-import { type LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '~/api'
 import { QuotaTiles } from '~/components/QuotaTile'
 import { EditQuotasSideModalForm } from '~/forms/silo-quotas-edit'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
+import { useSiloSelector } from '~/hooks/use-params'
 import { Button } from '~/ui/lib/Button'
 import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
 import { docLinks } from '~/util/links'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/SiloQuotasTab'
+
 const siloUtil = ({ silo }: PP.Silo) => q(api.siloUtilizationView, { path: { silo } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { silo } = getSiloSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { silo } = params
   await queryClient.prefetchQuery(siloUtil({ silo }))
   return null
 }

@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+
+import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
@@ -13,7 +14,7 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
-import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
+import { useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
@@ -22,13 +23,15 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/VpcPage'
 import { VpcDocsPopover } from './VpcsPage'
 
 const vpcView = ({ project, vpc }: PP.Vpc) =>
   q(api.vpcView, { path: { vpc }, query: { project } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  await queryClient.prefetchQuery(vpcView(getVpcSelector(params)))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc } = params
+  await queryClient.prefetchQuery(vpcView({ project, vpc }))
   return null
 }
 

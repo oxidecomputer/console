@@ -5,9 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
@@ -26,7 +26,7 @@ import { HL } from '~/components/HL'
 import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
 import { AttachDiskModal } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { useInstanceSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmAction } from '~/stores/confirm-action'
@@ -43,10 +43,11 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
+import type { Route } from './+types/StorageTab'
 import { snapshotDisabledReason } from './common'
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, instance } = params
   const selector = { path: { instance }, query: { project } }
   await Promise.all([
     // don't bother with page size because this will never paginate. max disks

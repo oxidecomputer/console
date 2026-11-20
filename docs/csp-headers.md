@@ -6,7 +6,7 @@ Production CSP headers are set server-side in Nexus, so why should we set the he
 
 ## What
 
-The base headers are defined in `vercel.json` and imported into `vite.config.ts` to avoid repeating them.
+The headers are defined in Nexus. `npm run gen-api` snapshots them from the pinned omicron commit into `app/api/__generated__/nexus-console.ts`, which the Vite dev and preview servers serve. Vercel can only read headers from `vercel.json`, so they are copied there, and a test in `app/api/__tests__/safety.spec.ts` checks that the copy matches.
 
 The `content-security-policy` is based on the recommendation by the [OWASP Secure Headers Project](https://owasp.org/www-project-secure-headers/index.html) (click the "Best Practices" tab). The directives:
 

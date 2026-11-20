@@ -7,7 +7,14 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { diskSizeNearest10, displayBigNum, percentage, round, splitDecimal } from './math'
+import {
+  diskSizeNearest10,
+  displayBigNum,
+  formatTick,
+  percentage,
+  round,
+  splitDecimal,
+} from './math'
 import { GiB } from './units'
 
 it('round', () => {
@@ -121,6 +128,20 @@ describe('with default locale', () => {
     [23094304823948203952304920342n, ['23.1e27', true]],
   ])('displayBigNum %d -> %s', (input, output) => {
     expect(displayBigNum(input)).toEqual(output)
+  })
+
+  it.each([
+    [0, '0'],
+    [0.125, '0.125'],
+    [250, '250'],
+    [1250, '1.25K'],
+    [1750, '1.75K'],
+    [12500, '12.5K'],
+    [1_250_000, '1.25M'],
+    [2.5e9, '2.5B'],
+    [-3e6, '-3M'],
+  ])('formatTick %d -> %s', (input, output) => {
+    expect(formatTick(input)).toEqual(output)
   })
 })
 

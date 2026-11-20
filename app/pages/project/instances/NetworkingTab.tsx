@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, type LoaderFunctionArgs } from 'react-router'
+import { Link } from 'react-router'
 import { match } from 'ts-pattern'
 
 import {
@@ -38,11 +39,7 @@ import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
-import {
-  getInstanceSelector,
-  useInstanceSelector,
-  useProjectSelector,
-} from '~/hooks/use-params'
+import { useInstanceSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -73,6 +70,7 @@ import {
 } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
+import type { Route } from './+types/NetworkingTab'
 import { fancifyStates } from './common'
 
 /**
@@ -120,8 +118,8 @@ const staticSubnetCols = [
   subnetColHelper.accessor('description', Columns.description),
 ]
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, instance } = params
   await Promise.all([
     // Prefetch the by-ID subnet views the NIC table's subnet cells look up, so
     // SubnetNameFromId hits a warm cache. subnetIds come from the NIC list, so

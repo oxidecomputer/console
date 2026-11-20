@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+
+import { useNavigate } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery, type Disk } from '@oxide/api'
 import { Storage16Icon } from '@oxide/design-system/icons/react'
@@ -14,7 +15,7 @@ import { Badge } from '@oxide/design-system/ui'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getDiskSelector, useDiskSelector } from '~/hooks/use-params'
+import { useDiskSelector } from '~/hooks/use-params'
 import { DiskSourceName } from '~/table/cells/DiskSourceCell'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -23,11 +24,13 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/DiskDetailSideModal'
+
 const diskView = ({ disk, project }: PP.Disk) =>
   q(api.diskView, { path: { disk }, query: { project } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, disk } = getDiskSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, disk } = params
   await queryClient.prefetchQuery(diskView({ project, disk }))
   return null
 }

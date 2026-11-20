@@ -19,7 +19,7 @@ set -o pipefail
 #
 # Usage:
 #
-# The primary intended usage is to use tools/deno/deploy-dogfood.ts, which first
+# The primary intended usage is to use tools/deploy-dogfood.ts, which first
 # uses find-zone.sh to find the nexus gimlets and then downloads the tarball
 # and calls this script on each one. To use this script directly, do what that
 # script does.

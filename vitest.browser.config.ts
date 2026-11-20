@@ -40,7 +40,6 @@ export default defineConfig({
       'semver',
       'uplot',
       'uplot-react',
-      'uuid',
       'zod/v4',
     ],
   },

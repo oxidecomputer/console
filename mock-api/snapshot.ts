@@ -6,8 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { v4 as uuid } from 'uuid'
-
 import type { Snapshot } from '@oxide/api'
 
 import { Rando } from '~/util/rando'
@@ -37,7 +35,7 @@ function randomSnapshotState() {
 
 function generateSnapshot(index: number): Json<Snapshot> {
   return {
-    id: uuid(),
+    id: crypto.randomUUID(),
     name: `disk-1-snapshot-${index + 8}`,
     description: '',
     project_id: project.id,

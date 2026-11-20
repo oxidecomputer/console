@@ -639,3 +639,38 @@ test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
   await page.getByRole('option', { name: 'ICMPv4', exact: true }).click()
   await expect(page.getByRole('combobox', { name: 'ICMPv4 type' })).toHaveValue('')
 })
+
+test('Enter in subform fields adds items without submitting the rule', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/default/firewall-rules-new')
+  // with a valid name, an accidental full form submit would close the form
+  await page.getByRole('textbox', { name: 'Name' }).fill('enter-test')
+
+  // first Enter selects the custom value, second adds it
+  const vpcInput = page.getByRole('combobox', { name: 'VPC name' }).first()
+  await vpcInput.fill('abc')
+  await vpcInput.press('Enter')
+  await expect(vpcInput).toHaveValue('abc')
+  await vpcInput.press('Enter')
+  await expectRowVisible(page.getByRole('table', { name: 'Targets' }), {
+    Type: 'vpc',
+    Value: 'abc',
+  })
+
+  const portInput = page.getByRole('textbox', { name: 'Port filters' })
+  await portInput.fill('22')
+  await portInput.press('Enter')
+  await expectRowVisible(page.getByRole('table', { name: 'Port filters' }), {
+    'Port ranges': '22',
+  })
+
+  await selectOption(page, 'Protocol filters', 'ICMPv4')
+  const v4Type = page.getByRole('combobox', { name: 'ICMPv4 type' })
+  await fillAndSelectComboboxOption(v4Type, page, '8', '8 - Echo Request')
+  await v4Type.press('Enter')
+  await expectRowVisible(page.getByRole('table', { name: 'Protocol filters' }), {
+    Protocol: 'ICMPv4',
+    Type: '8',
+  })
+
+  await expect(page.getByRole('dialog', { name: 'Add firewall rule' })).toBeVisible()
+})

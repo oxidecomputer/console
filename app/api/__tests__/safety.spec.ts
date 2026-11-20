@@ -11,7 +11,9 @@ import path from 'path'
 
 import { expect, it } from 'vitest'
 
+import vercelConfig from '../../../vercel.json'
 import viteConfigFn from '../../../vite.config'
+import { nexusSecurityHeaders } from '../__generated__/nexus-console'
 
 it('Generated API client version matches API version specified for deployment', () => {
   const generatedVersion = fs
@@ -24,7 +26,8 @@ it('Generated API client version matches API version specified for deployment', 
     .trim()
 
   // if this test fails, most likely you have updated the API_VERSION in
-  // console/OMICRON_VERSION without re-running `npm run gen-api`
+  // console/OMICRON_VERSION without re-running `npm run gen-api`, or it didn't
+  // finish. gen-api writes this stamp after everything else in __generated__.
   expect(generatedVersion).toEqual(pinnedVersion)
 })
 
@@ -54,6 +57,15 @@ it('vite build target matches tsconfig target', () => {
   // guard against an undefined === undefined pass if both are removed
   expect(tsconfig.compilerOptions.target).toMatch(/^es\d{4}$/)
   expect(viteConfig.build?.target).toEqual(tsconfig.compilerOptions.target)
+})
+
+// Vercel preview deploys should run under the same security headers as Nexus.
+// If this fails after a pin bump, copy the generated headers into vercel.json.
+it('vercel.json security headers match Nexus', () => {
+  const vercelHeaders = vercelConfig.headers[0].headers
+  expect(Object.fromEntries(vercelHeaders.map((h) => [h.key, h.value]))).toEqual(
+    nexusSecurityHeaders
+  )
 })
 
 const grepFiles = (s: string) =>
@@ -86,7 +98,7 @@ it('mock-api is only referenced in test files', () => {
       "AGENTS.md",
       "README.md",
       "app/api/__tests__/client.browser.spec.ts",
-      "app/main.tsx",
+      "app/entry.client.tsx",
       "app/msw-mock-api.ts",
       "docs/mock-api-differences.md",
       "docs/update-pinned-api.md",
@@ -109,9 +121,9 @@ const listFiles = (s: string) =>
   execSync(`git ls-files | grep "${s}"`).toString().trim().split('\n')
 
 // avoid accidentally making an e2e file in the wrong place
-it('e2e tests are only in test/e2e or test/visual', () => {
+it('e2e tests are only in test/e2e, test/preview, or test/visual', () => {
   for (const file of listFiles('\\.e2e\\.')) {
-    expect(file).toMatch(/^test\/(e2e|visual)/)
+    expect(file).toMatch(/^test\/(e2e|preview|visual)/)
   }
 })
 

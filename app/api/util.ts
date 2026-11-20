@@ -25,7 +25,6 @@ import type {
   Sled,
   SnapshotState,
   SupportBundleState,
-  Vpc,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
@@ -71,10 +70,12 @@ export const isSubscribableClass = (c: { name: string }) => c.name !== PROBE_ALE
 
 /**
  * Convert an alert subscription to a regex matching the class names it covers:
- * a `*` segment matches exactly one segment, `**` matches one or more.
+ * a `*` segment matches exactly one segment, `**` matches one or more. An
+ * invalid input returns `null`.
  * https://github.com/oxidecomputer/omicron/blob/32615a35/nexus/db-model/src/alert_subscription.rs
  */
-export function subscriptionRegex(subscription: string) {
+export function subscriptionRegex(subscription: string): RegExp | null {
+  if (!ALERT_SUBSCRIPTION_REGEX.test(subscription)) return null
   const pattern = subscription
     .split('.')
     .map((seg) => (seg === '**' ? '.+' : seg === '*' ? '[^.]+' : seg))
@@ -129,9 +130,6 @@ export const utf8ByteLength = (s: string) => new TextEncoder().encode(s).length
  * https://github.com/oxidecomputer/omicron/blob/7a15082/nexus/src/app/sagas/instance_create.rs#L739-L773
  */
 export const DEFAULT_VPC_NAME = 'default'
-
-export const hasDefaultVpc = (vpcs: Vpc[]) =>
-  vpcs.some((vpc) => vpc.name === DEFAULT_VPC_NAME)
 
 type PortRange = [number, number]
 

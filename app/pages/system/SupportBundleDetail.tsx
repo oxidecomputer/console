@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -23,7 +23,7 @@ import { BundleCommentField } from '~/components/form/fields/BundleCommentField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { SupportBundleStateBadge } from '~/components/StateBadge'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getSupportBundleSelector, useSupportBundleSelector } from '~/hooks/use-params'
+import { useSupportBundleSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
@@ -43,6 +43,8 @@ import {
   POLL_INTERVAL,
 } from '~/util/support-bundle'
 
+import type { Route } from './+types/SupportBundleDetail'
+
 const bundleView = ({ bundleId }: PP.SupportBundle) =>
   q(
     api.supportBundleView,
@@ -55,8 +57,9 @@ const bundleView = ({ bundleId }: PP.SupportBundle) =>
     }
   )
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  await queryClient.prefetchQuery(bundleView(getSupportBundleSelector(params)))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { bundleId } = params
+  await queryClient.prefetchQuery(bundleView({ bundleId }))
   return null
 }
 

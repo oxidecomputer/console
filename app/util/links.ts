@@ -105,6 +105,10 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/metrics/oxql-tutorial#_oxql_quick_start',
     linkText: 'OxQL',
   },
+  oxqlSchemas: {
+    href: 'https://docs.oxide.computer/guides/metrics/timeseries-schemas',
+    linkText: 'Timeseries schemas',
+  },
   keyConceptsProjects: {
     href: 'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',
     linkText: 'Key Concepts',
