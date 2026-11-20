@@ -16,8 +16,8 @@
   --z-side-modal-overlay: 25;
   --z-top-bar-dropdown: 20;
   --z-top-bar: 15;
+  --z-popover: 13;
+  --z-content-dropdown: 13;
   --z-sticky: 12;
-  --z-popover: 10;
-  --z-content-dropdown: 10;
   --z-content: 0;
 }
