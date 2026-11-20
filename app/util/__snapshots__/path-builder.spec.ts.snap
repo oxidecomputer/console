@@ -40,6 +40,68 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/affinity",
     },
   ],
+  "alertReceiver (/system/alerting/receivers/rc)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "rc",
+      "path": "/system/alerting/receivers/rc",
+    },
+  ],
+  "alertReceiverEdit (/system/alerting/receivers/rc/edit)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "rc",
+      "path": "/system/alerting/receivers/rc",
+    },
+  ],
+  "alertReceivers (/system/alerting/receivers)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
+    },
+  ],
+  "alertReceiversNew (/system/alerting/receivers-new)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "Receivers",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "New webhook receiver",
+      "path": "/system/alerting/receivers-new",
+    },
+  ],
+  "alerts (/system/alerting/alerts)": [
+    {
+      "label": "Alerting",
+      "path": "/system/alerting/receivers",
+    },
+    {
+      "label": "Alerts",
+      "path": "/system/alerting/alerts",
+    },
+  ],
   "antiAffinityGroup (/projects/p/affinity/aag)": [
     {
       "label": "Projects",
@@ -74,6 +136,12 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "aag",
       "path": "/projects/p/affinity/aag",
+    },
+  ],
+  "auditLog (/system/audit-log)": [
+    {
+      "label": "Audit Log",
+      "path": "/system/audit-log",
     },
   ],
   "deviceSuccess (/device/success)": [],
@@ -887,6 +955,30 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Subnet Pools",
       "path": "/system/networking/subnet-pools",
+    },
+  ],
+  "supportBundle (/system/support-bundles/ccdac005-66a8-4921-9e8b-30531c359c31)": [
+    {
+      "label": "Support Bundles",
+      "path": "/system/support-bundles",
+    },
+  ],
+  "supportBundles (/system/support-bundles)": [
+    {
+      "label": "Support Bundles",
+      "path": "/system/support-bundles",
+    },
+  ],
+  "supportBundlesNew (/system/support-bundles-new)": [
+    {
+      "label": "Support Bundles",
+      "path": "/system/support-bundles",
+    },
+  ],
+  "systemMetricsExplorer (/system/metrics-explorer)": [
+    {
+      "label": "Metrics Explorer",
+      "path": "/system/metrics-explorer",
     },
   ],
   "systemUpdate (/system/update)": [

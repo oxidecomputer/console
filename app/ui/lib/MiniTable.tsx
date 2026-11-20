@@ -6,11 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { useRef, useState, type JSX, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 
 import { Error16Icon } from '@oxide/design-system/icons/react'
 
-import { Button } from './Button'
+import { roleDiv } from '~/util/classed'
+
 import { EmptyMessage } from './EmptyMessage'
 import { Tooltip } from './Tooltip'
 
@@ -22,15 +23,6 @@ import { Tooltip } from './Tooltip'
  * table semantics anyway, we use divs with explicit ARIA table roles rather
  * than the semantic elements.
  */
-
-/** Like `classed.div`, but with an ARIA role too */
-function roleDiv(role: string, baseClassName: string) {
-  const Comp = ({ className, ...rest }: JSX.IntrinsicElements['div']) => (
-    <div role={role} className={cn(baseClassName, className)} {...rest} />
-  )
-  Comp.displayName = `roled.${role}`
-  return Comp
-}
 
 /** Divider between cells, inset so it doesn't touch the row's y borders */
 const headerSeparator = `relative before:border-secondary before:absolute before:inset-y-px before:left-0 before:w-px before:border-l before:content-['']`
@@ -109,33 +101,6 @@ const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) 
       <Error16Icon aria-hidden focusable="false" />
     </button>
   </RemoveCellWrapper>
-)
-
-type ClearAndAddButtonsProps = {
-  addButtonCopy: string
-  disabled: boolean
-  onClear: () => void
-  onSubmit: () => void
-}
-
-/**
- * A set of buttons used with embedded sub-forms to add items to MiniTables,
- * like in the firewall rules and NIC edit forms.
- */
-export const ClearAndAddButtons = ({
-  addButtonCopy,
-  disabled,
-  onClear,
-  onSubmit,
-}: ClearAndAddButtonsProps) => (
-  <div className="flex justify-end gap-2.5">
-    <Button variant="ghost" size="sm" onClick={onClear} disabled={disabled}>
-      Clear
-    </Button>
-    <Button size="sm" onClick={onSubmit} disabled={disabled}>
-      {addButtonCopy}
-    </Button>
-  </div>
 )
 
 type Column<T> = {

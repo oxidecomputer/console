@@ -50,7 +50,6 @@ async function fillForm(page: Page, name: string) {
 
 test.describe('Image upload', () => {
   test('happy path', async ({ page, browserName }) => {
-    // eslint-disable-next-line playwright/no-skipped-test
     test.skip(browserName === 'webkit', 'safari. stop this')
 
     await page.goto('/projects/mock-project/images')
@@ -83,7 +82,6 @@ test.describe('Image upload', () => {
   })
 
   test('with name taken', async ({ page, browserName }) => {
-    // eslint-disable-next-line playwright/no-skipped-test
     test.skip(browserName === 'webkit', 'safari. stop this')
 
     await fillForm(page, 'image-1')
@@ -102,7 +100,6 @@ test.describe('Image upload', () => {
   })
 
   test('block size validation', async ({ page, browserName }) => {
-    // eslint-disable-next-line playwright/no-skipped-test
     test.skip(browserName === 'webkit', 'safari. stop this')
 
     await page.goto('/projects/mock-project/images-new')
@@ -157,7 +154,6 @@ test.describe('Image upload', () => {
   })
 
   test('form validation', async ({ page, browserName }) => {
-    // eslint-disable-next-line playwright/no-skipped-test
     test.skip(browserName === 'webkit', 'safari. stop this')
 
     await page.goto('/projects/mock-project/images-new')
@@ -225,7 +221,6 @@ test.describe('Image upload', () => {
 
   // testing the onFocusOutside fix
   test('cancel canceling', async ({ page, browserName }) => {
-    // eslint-disable-next-line playwright/no-skipped-test
     test.skip(browserName === 'webkit', 'safari. stop this')
 
     await fillForm(page, 'new-image')
@@ -266,7 +261,6 @@ test.describe('Image upload', () => {
     page,
     browserName,
   }) => {
-    // eslint-disable-next-line playwright/no-skipped-test
     test.skip(browserName === 'webkit', 'safari. stop this')
 
     await fillForm(page, 'new-image')
@@ -285,7 +279,6 @@ test.describe('Image upload', () => {
   })
 
   test('Image upload cancel and retry', async ({ page, browserName }) => {
-    // eslint-disable-next-line playwright/no-skipped-test
     test.skip(browserName === 'webkit', 'safari. stop this')
 
     await fillForm(page, 'new-image')
@@ -351,7 +344,6 @@ test.describe('Image upload', () => {
 
   for (const { imageName, stepText, message } of failureCases) {
     test(`failure ${imageName}`, async ({ page, browserName }) => {
-      // eslint-disable-next-line playwright/no-skipped-test
       test.skip(browserName === 'webkit', 'safari. stop this')
 
       await fillForm(page, imageName)

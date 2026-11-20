@@ -9,14 +9,19 @@ import type uPlot from 'uplot'
 import { describe, expect, test, vi, type MockInstance } from 'vitest'
 import { render } from 'vitest-browser-react'
 
+import { getChartTheme, seriesColor } from '~/util/charts'
+
 import { TimeSeriesChart } from './TimeSeriesChart'
 
-const defaultData = [
-  { timestamp: 0, value: 10 },
-  { timestamp: 1000, value: 20 },
-]
+const defaultTimestamps = [0, 1000]
+const defaultData = [[10, 20]]
 
-const props = (yAxisTickFormatter: (v: number) => string, data = defaultData) => ({
+const props = (
+  yAxisTickFormatter: (v: number) => string,
+  data = defaultData,
+  timestamps = defaultTimestamps
+) => ({
+  timestamps,
   data,
   title: 'CPU',
   startTime: new Date(0),
@@ -92,9 +97,66 @@ test('rerenders only call setData when the data actually changes', async () => {
   )
   expect(setData).not.toHaveBeenCalled()
 
-  const newData = [...defaultData, { timestamp: 2000, value: 30 }]
+  const newData = [[10, 20, 30]]
+  const newTimestamps = [0, 1000, 2000]
   await rerender(
-    <TimeSeriesChart {...props((v) => `${v}%`, newData)} onCreate={onCreate} />
+    <TimeSeriesChart
+      {...props((v) => `${v}%`, newData, newTimestamps)}
+      onCreate={onCreate}
+    />
   )
   expect(setData).toHaveBeenCalledTimes(1)
+})
+
+test('keeps aligned data memoized while its source references are unchanged', async () => {
+  const timestamps = [0, 1000]
+  const mapTimestamps = vi.spyOn(timestamps, 'map')
+  const data = [[10, 20]]
+
+  const { rerender } = await render(
+    <TimeSeriesChart {...props((v) => `${v}%`, data, timestamps)} />
+  )
+  expect(mapTimestamps).toHaveBeenCalledTimes(1)
+
+  await rerender(<TimeSeriesChart {...props((v) => `${v} pct`, data, timestamps)} />)
+  expect(mapTimestamps).toHaveBeenCalledTimes(1)
+
+  await rerender(<TimeSeriesChart {...props((v) => `${v}%`, [...data], timestamps)} />)
+  expect(mapTimestamps).toHaveBeenCalledTimes(2)
+})
+
+test('hover dot on each line takes that line’s color', async () => {
+  let chart: uPlot | undefined
+  await render(
+    <TimeSeriesChart
+      {...props(
+        (v) => `${v}`,
+        [
+          [10, 20],
+          [30, 40],
+        ]
+      )}
+      seriesLabels={['a', 'b']}
+      onCreate={(u) => {
+        chart = u
+      }}
+    />
+  )
+  await vi.waitFor(() => expect(chart).toBeDefined())
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const u = chart! // waitFor above guarantees chart is set
+
+  u.setCursor({ left: u.valToPos(1, 'x'), top: u.valToPos(20, 'y') })
+
+  const dots = [...u.root.querySelectorAll<HTMLElement>('.u-cursor-pt')]
+  expect(dots).toHaveLength(2)
+  // run the stroke through the same style parser as the dot so browsers'
+  // color serialization (e.g., WebKit's 163.699997) can't cause a mismatch
+  const probe = document.createElement('div')
+  const theme = getChartTheme()
+  dots.forEach((dot, i) => {
+    probe.style.background = seriesColor(i, theme)
+    expect(dot.style.background).toBe(probe.style.background)
+  })
+  expect(dots[0].style.background).not.toBe(dots[1].style.background)
 })

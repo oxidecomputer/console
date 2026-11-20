@@ -39,6 +39,7 @@ export function ReadOnlySideModalForm({
       title={title}
       subtitle={subtitle}
       animate={animate ?? animateDefault}
+      focusTitle
     >
       <SideModal.Body>
         <div className="ox-form">{children}</div>

@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 import * as R from 'remeda'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
@@ -17,20 +18,21 @@ import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
+import { useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/ip-pool-edit'
 import { IpPoolVisibilityMessage } from './ip-pool-create'
 
 const ipPoolView = ({ pool }: PP.IpPool) => q(api.systemIpPoolView, { path: { pool } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getIpPoolSelector(params)
-  await queryClient.prefetchQuery(ipPoolView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { pool } = params
+  await queryClient.prefetchQuery(ipPoolView({ pool }))
   return null
 }
 

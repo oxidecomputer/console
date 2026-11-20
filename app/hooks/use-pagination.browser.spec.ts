@@ -43,6 +43,22 @@ describe('usePagination', () => {
     expect(result.current.hasPrev).toBeFalsy()
   })
 
+  it('resets to the first page when the query changes', async () => {
+    const { result, rerender, act } = await renderHook(
+      (props) => usePagination(props?.queryId),
+      { initialProps: { queryId: 'a' } }
+    )
+
+    await act(() => result.current.goToNextPage('page2'))
+    expect(result.current.currentPage).toEqual('page2')
+    expect(result.current.hasPrev).toBeTruthy()
+
+    await rerender({ queryId: 'b' })
+
+    expect(result.current.currentPage).toBeUndefined()
+    expect(result.current.hasPrev).toBeFalsy()
+  })
+
   it('remembers previous pages', async () => {
     const { result, act } = await renderHook(() => usePagination())
 

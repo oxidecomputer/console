@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate } from 'react-router'
 
 import {
   api,
@@ -24,7 +25,7 @@ import { FormMetadata } from '~/components/form/FormMetadata'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
+import { useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -32,12 +33,14 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+import type { Route } from './+types/vpc-router-edit'
+
 const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
   q(api.vpcRouterView, { path: { router }, query: { project, vpc } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getVpcRouterSelector(params)
-  await queryClient.prefetchQuery(routerView(selector))
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, vpc, router } = params
+  await queryClient.prefetchQuery(routerView({ project, vpc, router }))
   return null
 }
 

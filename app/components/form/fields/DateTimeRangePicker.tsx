@@ -42,9 +42,7 @@ const tz = getLocalTimeZone()
 
 /**
  * Exposes `startTime` and `endTime` plus the whole set of picker UI controls as
- * a JSX element to render. When we're using a relative preset like last N
- * hours, automatically slide the window forward live by updating the range to
- * have `endTime` of _now_ every `SLIDE_INTERVAL` ms.
+ * a JSX element to render.
  */
 export function useDateTimeRangePicker({
   initialPreset,
@@ -84,15 +82,17 @@ export function useDateTimeRangePicker({
     items,
   }
 
-  // Without these useMemos, we get re-renders every 400ms because when the
-  // debounce timeout expires, it updates the value, which triggers a render for
-  // itself because the time gets remade by toDate() (i.e., even though it is
-  // the same time, it is a new object)
-  const rangeStart = useMemo(() => range.start.toDate(tz), [range.start])
-  const [startTime] = useDebounce(rangeStart, 400)
+  // Debounce only while a custom range is being edited: the date fields fire
+  // onChange on every keystroke. Picking a preset is a single deliberate action
+  // and applies immediately. The range is debounced as one value so start and
+  // end can't land in separate renders and fire a request for a mixed range.
+  const [debouncedRange] = useDebounce(range, 400)
+  const effectiveRange = preset === 'custom' ? debouncedRange : range
 
-  const rangeEnd = useMemo(() => range.end.toDate(tz), [range.end])
-  const [endTime] = useDebounce(rangeEnd, 400)
+  // toDate() makes a new Date each call, so memoize on the stable DateValue to
+  // keep the query key from changing on every render
+  const startTime = useMemo(() => effectiveRange.start.toDate(tz), [effectiveRange.start])
+  const endTime = useMemo(() => effectiveRange.end.toDate(tz), [effectiveRange.end])
 
   return {
     startTime,

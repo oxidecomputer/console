@@ -29,7 +29,9 @@ export type Crumb = {
   path?: MakeStr
 }
 
-type MatchWithCrumb = UIMatch<unknown, Crumb>
+// only the fields crumbs need, so tests can build matches without a router
+type Match = Pick<UIMatch, 'pathname' | 'params' | 'handle'>
+type MatchWithCrumb = Match & { handle: Crumb }
 
 type MakeStr = string | ((p: Params) => string)
 
@@ -37,25 +39,24 @@ type MakeStr = string | ((p: Params) => string)
 export const makeCrumb = (crumb: MakeStr, path?: MakeStr): Crumb => ({ crumb, path })
 export const titleCrumb = (crumb: string): Crumb => ({ crumb, titleOnly: true })
 
-function hasCrumb(m: UIMatch): m is MatchWithCrumb {
+function hasCrumb(m: Match): m is MatchWithCrumb {
   return !!(m.handle && typeof m.handle === 'object' && 'crumb' in m.handle)
 }
 
 /**
  * Throw if crumb is not a string or function. It would be nice if TS enforced
- * this at the `<Route>` call, but overriding the type declarations is hard and
- * `createRoutesFromChildren` rejects a custom Route component.
+ * this, but React Router types a route module's `handle` export as `unknown`.
  */
 function checkCrumbType(m: MatchWithCrumb): MatchWithCrumb {
   const crumbType = typeof m.handle.crumb
   invariant(
     crumbType === 'string' || crumbType === 'function',
-    `Route crumb must be a string or function if present. Check <Route> for ${m.pathname}.`
+    `Route crumb must be a string or function if present. Check the handle export of the route module for ${m.pathname}.`
   )
   return m
 }
 
-export const matchesToCrumbs = (matches: UIMatch[]) =>
+export const matchesToCrumbs = (matches: Match[]) =>
   matches
     .filter(hasCrumb)
     .map(checkCrumbType)

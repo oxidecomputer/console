@@ -1,0 +1,202 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback } from 'react'
+import { Outlet } from 'react-router'
+
+import {
+  api,
+  getListQFn,
+  queryClient,
+  supportBundleTransitioning,
+  useApiMutation,
+  type SupportBundleInfo,
+} from '@oxide/api'
+import { Archive16Icon, Archive24Icon } from '@oxide/design-system/icons/react'
+
+import { DocsPopover } from '~/components/DocsPopover'
+import { HL } from '~/components/HL'
+import { RefreshButton } from '~/components/RefreshButton'
+import { SupportBundleStateBadge } from '~/components/StateBadge'
+import { makeCrumb } from '~/hooks/use-crumbs'
+import { useQuickActions } from '~/hooks/use-quick-actions'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
+import { LinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
+import { useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
+import { TipIcon } from '~/ui/lib/TipIcon'
+import { Tooltip } from '~/ui/lib/Tooltip'
+import { truncate } from '~/ui/lib/Truncate'
+import { toLocaleTimeString } from '~/util/date'
+import { docLinks } from '~/util/links'
+import { pb } from '~/util/path-builder'
+import {
+  downloadBundle,
+  downloadDisabledReason,
+  POLL_INTERVAL,
+} from '~/util/support-bundle'
+
+const EmptyState = () => (
+  <EmptyMessage
+    icon={<Archive24Icon />}
+    title="No support bundles"
+    body="Create a support bundle to see it here"
+    buttonText="New support bundle"
+    buttonTo={pb.supportBundlesNew()}
+  />
+)
+
+const StateCell = ({ bundle }: { bundle: SupportBundleInfo }) => (
+  <div className="flex items-center gap-1.5">
+    <SupportBundleStateBadge state={bundle.state} />
+    {bundle.reasonForFailure && <TipIcon>{bundle.reasonForFailure}</TipIcon>}
+  </div>
+)
+
+const colHelper = createColumnHelper<SupportBundleInfo>()
+
+const staticColumns = [
+  colHelper.accessor('id', {
+    header: 'ID',
+    cell: (info) => (
+      <LinkCell to={pb.supportBundle({ bundleId: info.getValue() })}>
+        {truncate(info.getValue(), 14, 'middle')}
+      </LinkCell>
+    ),
+  }),
+  colHelper.accessor('state', {
+    cell: (info) => <StateCell bundle={info.row.original} />,
+  }),
+  colHelper.accessor('userComment', {
+    header: 'Comment',
+    cell: (info) => <DescriptionCell text={info.getValue() ?? undefined} />,
+  }),
+  colHelper.accessor('reasonForCreation', {
+    header: 'Creation reason',
+    cell: (info) => <DescriptionCell text={info.getValue()} />,
+  }),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
+]
+
+const bundleList = getListQFn(
+  api.supportBundleList,
+  { query: { sortBy: 'time_and_id_descending' } },
+  {
+    refetchInterval: ({ state: { data } }) =>
+      data?.items.some((b) => supportBundleTransitioning(b.state)) ? POLL_INTERVAL : false,
+  }
+)
+
+export async function clientLoader() {
+  await queryClient.prefetchQuery(bundleList.optionsFn())
+  return null
+}
+
+// path is needed because the crumb attaches to a pathless route, whose
+// pathname is /system/
+export const handle = makeCrumb('Support Bundles', pb.supportBundles())
+
+export default function SupportBundlesPage() {
+  const { mutateAsync: deleteBundle } = useApiMutation(api.supportBundleDelete, {
+    onSuccess(_data, variables) {
+      queryClient.invalidateEndpoint('supportBundleList')
+      // "deleting" rather than "deleted" because the bundle sits in state
+      // 'destroying' until a background task frees its backing storage
+      // prettier-ignore
+      addToast(<>Deleting support bundle <HL>{truncate(variables.path.bundleId, 14, 'middle')}</HL></>)
+    },
+  })
+
+  const makeActions = useCallback(
+    (bundle: SupportBundleInfo): MenuAction[] => [
+      {
+        label: 'Download',
+        onActivate() {
+          downloadBundle(bundle.id)
+        },
+        disabled: downloadDisabledReason(bundle.state),
+      },
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deleteBundle({ path: { bundleId: bundle.id } }),
+          label: truncate(bundle.id, 14, 'middle'),
+          resourceKind: 'support bundle',
+          extraContent:
+            bundle.state === 'collecting'
+              ? 'This bundle is still being collected. Deleting it will cancel collection.'
+              : undefined,
+        }),
+        disabled: bundle.state === 'destroying' && 'Bundle is already being destroyed',
+      },
+    ],
+    [deleteBundle]
+  )
+
+  const columns = useColsWithActions(staticColumns, makeActions)
+  const { table, query } = useQueryTable({
+    query: bundleList,
+    columns,
+    emptyState: <EmptyState />,
+  })
+
+  const { dataUpdatedAt } = query
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New support bundle',
+        navGroup: 'Actions',
+        action: pb.supportBundlesNew(),
+      },
+    ],
+    []
+  )
+
+  return (
+    <>
+      <PageHeader>
+        <PageTitle icon={<Archive24Icon />}>Support Bundles</PageTitle>
+        <DocsPopover
+          heading="support bundles"
+          icon={<Archive16Icon />}
+          summary="Support bundles capture diagnostic data to share with Oxide support."
+          links={[docLinks.supportBundles]}
+        />
+      </PageHeader>
+      {/* Same override as the instances page. Fix properly when refresh and
+       * filtering come to all tables. */}
+      <TableActions className="justify-between!">
+        <div className="flex items-center gap-2">
+          <RefreshButton
+            onClick={() => queryClient.invalidateEndpoint('supportBundleList')}
+          />
+          <Tooltip
+            content="Auto-refresh is active while a bundle is being collected or deleted"
+            delay={150}
+          >
+            <span className="text-sans-sm text-secondary">
+              Updated {toLocaleTimeString(new Date(dataUpdatedAt))}
+            </span>
+          </Tooltip>
+        </div>
+        <CreateLink to={pb.supportBundlesNew()}>New support bundle</CreateLink>
+      </TableActions>
+      {table}
+      <Outlet />
+    </>
+  )
+}

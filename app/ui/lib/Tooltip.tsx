@@ -119,7 +119,7 @@ export const Tooltip = ({ delay = 250, children, content, placement }: TooltipPr
         {open && (
           <div
             ref={refs.setFloating}
-            className={cn('ox-tooltip max-content max-w-sm', zIndex)}
+            className={cn('ox-tooltip max-content max-w-sm wrap-break-word', zIndex)}
             {...getFloatingProps()}
             style={floatingStyles}
           >

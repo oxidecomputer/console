@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, type LoaderFunctionArgs } from 'react-router'
+import { Link } from 'react-router'
 import { match } from 'ts-pattern'
 
 import {
@@ -24,7 +25,6 @@ import {
   type ExternalIp,
   type ExternalSubnet,
   type InstanceNetworkInterface,
-  type InstanceState,
   type IpVersion,
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
@@ -39,11 +39,7 @@ import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
-import {
-  getInstanceSelector,
-  useInstanceSelector,
-  useProjectSelector,
-} from '~/hooks/use-params'
+import { useInstanceSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -74,6 +70,7 @@ import {
 } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
+import type { Route } from './+types/NetworkingTab'
 import { fancifyStates } from './common'
 
 /**
@@ -121,8 +118,8 @@ const staticSubnetCols = [
   subnetColHelper.accessor('description', Columns.description),
 ]
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { project, instance } = params
   await Promise.all([
     // Prefetch the by-ID subnet views the NIC table's subnet cells look up, so
     // SubnetNameFromId hits a warm cache. subnetIds come from the NIC list, so
@@ -194,15 +191,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-// Bit of a hack: by putting the instance state in the row data, we can avoid
-// remaking the row actions callback whenever the instance state changes, which
-// causes the whole table to get re-rendered, which jarringly closes any open
-// row actions menus
-type NicRow = InstanceNetworkInterface & {
-  instanceState: InstanceState
-}
-
-const colHelper = createColumnHelper<NicRow>()
+const colHelper = createColumnHelper<InstanceNetworkInterface>()
 const staticCols = [
   colHelper.accessor('name', {
     header: 'name',
@@ -417,8 +406,8 @@ export default function NetworkingTab() {
   const multipleNics = nics.length > 1
 
   const makeActions = useCallback(
-    (nic: NicRow): MenuAction[] => {
-      const canUpdateNic = instanceCan.updateNic({ runState: nic.instanceState })
+    (nic: InstanceNetworkInterface): MenuAction[] => {
+      const canUpdateNic = instanceCan.updateNic(instance)
 
       const deleteDisabledReason = () => {
         if (!canUpdateNic) {
@@ -480,19 +469,14 @@ export default function NetworkingTab() {
         },
       ]
     },
-    [deleteNic, editNic, instanceSelector, multipleNics]
+    [deleteNic, editNic, instance, instanceSelector, multipleNics]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
 
-  const nicRows = useMemo(
-    () => nics.map((nic) => ({ ...nic, instanceState: instance.runState })),
-    [nics, instance]
-  )
-
   const tableInstance = useReactTable({
     columns,
-    data: nicRows,
+    data: nics,
     getCoreRowModel: getCoreRowModel(),
   })
 

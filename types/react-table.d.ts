@@ -5,11 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
-import '@tanstack/react-table'
+import type { RowData } from '@tanstack/react-table'
+
+import type { MakeActions } from '../app/table/columns/action-col'
 
 declare module '@tanstack/react-table' {
-  interface ColumnMeta {
+  interface ColumnMeta<TData extends RowData, TValue> {
     thClassName?: string
     tdClassName?: string
+    /** Set by `getActionsCol`, read by `ActionsCell` */
+    makeActions?: MakeActions<TData>
+    copyIdLabel?: string
   }
 }

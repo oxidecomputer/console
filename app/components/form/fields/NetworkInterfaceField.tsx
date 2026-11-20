@@ -8,12 +8,7 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import {
-  DEFAULT_VPC_NAME,
-  hasDefaultVpc,
-  type InstanceNetworkInterfaceCreate,
-  type Vpc,
-} from '@oxide/api'
+import { DEFAULT_VPC_NAME, type InstanceNetworkInterfaceCreate, type Vpc } from '@oxide/api'
 
 import { HL } from '~/components/HL'
 import type { InstanceCreateInput } from '~/forms/instance-create'
@@ -39,13 +34,14 @@ export function NetworkInterfaceField({
   control,
   disabled,
   vpcs,
+  defaultNetworkingAvailable,
 }: {
   control: Control<InstanceCreateInput>
   disabled: boolean
   vpcs: Vpc[]
+  defaultNetworkingAvailable: boolean
 }) {
   const [showForm, setShowForm] = useState(false)
-  const defaultVpcExists = hasDefaultVpc(vpcs)
 
   /**
    * Used to preserve previous user choices in case they accidentally
@@ -91,7 +87,7 @@ export function NetworkInterfaceField({
             <Radio
               name="networkInterfaceType"
               value="default"
-              disabled={!defaultVpcExists || disabled}
+              disabled={!defaultNetworkingAvailable || disabled}
               checked={currentMode === 'default'}
               onChange={(e) => handleModeChange(e.target.value)}
             >
@@ -100,9 +96,10 @@ export function NetworkInterfaceField({
             {
               // the no VPCs case is covered by a separate yellow banner message
               // saying you can't have any network interfaces
-              vpcs.length > 0 && !defaultVpcExists && (
+              vpcs.length > 0 && !defaultNetworkingAvailable && (
                 <TipIcon>
-                  Default networking requires a VPC named <HL>{DEFAULT_VPC_NAME}</HL>
+                  Default networking requires a VPC and subnet named{' '}
+                  <HL>{DEFAULT_VPC_NAME}</HL>
                 </TipIcon>
               )
             }

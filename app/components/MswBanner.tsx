@@ -36,7 +36,7 @@ function ExternalLink({ href, children }: { href: string; children: ReactNode })
  * is off, the variable stays at its 0px default (set in index.css) and the
  * offsets collapse to nothing, so consumers don't need their own conditionals.
  *
- * Rendered once in main.tsx, outside the router, so the same banner instance
+ * Rendered once in the root document layout, so the same banner instance
  * persists across hydration (skeleton to real page) and error states.
  */
 export function PreviewBannerLayout({ children }: { children: ReactNode }) {

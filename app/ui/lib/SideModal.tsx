@@ -7,7 +7,7 @@
  */
 import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import * as m from 'motion/react-m'
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
 
@@ -35,6 +35,13 @@ export type SideModalProps = {
   children?: React.ReactNode
   errors?: string[]
   /**
+   * Focus the title on open instead of the first tabbable element. For
+   * read-only content, where jumping to (and scrolling down to) the first link
+   * or button isn't useful. See the note on long content in
+   * https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/#keyboardinteraction
+   */
+  focusTitle?: boolean
+  /**
    * Whether the modal should animate in. It never animates out. Default `true`.
    * Used to prevent animation from firing when we show the modal directly on a
    * fresh pageload.
@@ -42,6 +49,13 @@ export type SideModalProps = {
   animate?: boolean
 }
 
+/**
+ * Low-level side modal shell. Most callers want `SideModalForm` or
+ * `ReadOnlySideModalForm` from `~/components/form`, which wire up the body,
+ * footer, and content spacing. Use this directly only for layouts those don't
+ * fit, and note that `SideModal.Body` handles horizontal gutters itself, so
+ * children should not add their own padding.
+ */
 export function SideModal({
   children,
   onDismiss,
@@ -49,7 +63,9 @@ export function SideModal({
   subtitle,
   animate = true,
   errors,
+  focusTitle,
 }: SideModalProps) {
+  const titleRef = useRef<HTMLHeadingElement>(null)
   return (
     <SideModalContext.Provider value>
       <BaseDialog.Root
@@ -61,6 +77,7 @@ export function SideModal({
         <BaseDialog.Portal>
           <DialogOverlay />
           <BaseDialog.Popup
+            initialFocus={focusTitle ? titleRef : true}
             render={
               <m.div
                 initial={{ x: animate ? 40 : 0 }}
@@ -71,7 +88,13 @@ export function SideModal({
             }
           >
             <div className="mt-8 mb-4">
-              <BaseDialog.Title className="text-sans-2xl text-raise flex w-full items-center justify-between pr-8 wrap-break-word">
+              <BaseDialog.Title
+                ref={titleRef}
+                // focusable only programmatically, for focusTitle. no ring because
+                // it's not interactive
+                tabIndex={focusTitle ? -1 : undefined}
+                className="text-sans-2xl text-raise flex w-full items-center justify-between pr-8 wrap-break-word outline-none"
+              >
                 {title}
               </BaseDialog.Title>
               {subtitle}
@@ -114,7 +137,7 @@ export function SideModal({
   )
 }
 
-export const ResourceLabel = classed.h3`mt-2 flex items-center gap-1.5 text-sans-md text-accent`
+export const ResourceLabel = classed.h3`mt-1.5 flex items-center gap-1.5 text-sans-lg text-accent [&>svg]:text-accent-tertiary`
 
 SideModal.Body = ({ children }: { children?: ReactNode }) => (
   <div
@@ -126,8 +149,6 @@ SideModal.Body = ({ children }: { children?: ReactNode }) => (
 )
 
 SideModal.Heading = classed.div`text-sans-semi-xl text-raise`
-
-SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
 SideModal.Footer = ({ children, error }: { children: ReactNode; error?: boolean }) => (
   <footer className="border-secondary flex w-full items-center justify-end gap-2.5 border-t py-5 *:shrink-0">

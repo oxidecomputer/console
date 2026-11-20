@@ -8,9 +8,8 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useId, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import { type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
@@ -29,7 +28,7 @@ import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
+import { useSiloSelector } from '~/hooks/use-params'
 import {
   ReplacedDefaultNote,
   useLinkSubnetPoolSiloFlow,
@@ -50,6 +49,8 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import { capitalize } from '~/util/str'
+
+import type { Route } from './+types/SiloSubnetPoolsTab'
 
 function toSubnetPoolComboboxItem(p: SubnetPool): ComboboxItem {
   return {
@@ -99,11 +100,11 @@ const allPoolsQuery = getListQFn(api.systemSubnetPoolList, { query: { limit: ALL
 const allSiloPoolsQuery = (silo: string) =>
   getListQFn(api.siloSubnetPoolList, { path: { silo }, query: { limit: ALL_ISH } })
 
-export const siloSubnetPoolsQuery = (silo: string) =>
+const siloSubnetPoolsQuery = (silo: string) =>
   getListQFn(api.siloSubnetPoolList, { path: { silo } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { silo } = getSiloSelector(params)
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  const { silo } = params
   await Promise.all([
     queryClient.prefetchQuery(siloSubnetPoolsQuery(silo).optionsFn()),
     queryClient.prefetchQuery(allPoolsQuery.optionsFn()),
@@ -270,6 +271,7 @@ type LinkPoolFormValues = {
 const defaultValues: LinkPoolFormValues = { pool: undefined, isDefault: false }
 
 function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
+  const formId = useId()
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
@@ -318,6 +320,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
       <Modal.Body>
         <Modal.Section>
           <form
+            id={formId}
             autoComplete="off"
             onSubmit={(e) => {
               e.stopPropagation()
@@ -355,7 +358,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
       </Modal.Body>
       <Modal.Footer
         onDismiss={onDismiss}
-        onAction={handleSubmit(onSubmit)}
+        formId={formId}
         actionText="Link"
         actionLoading={isPending}
       />

@@ -22,6 +22,10 @@ import * as schema from './validate'
 
 type HandlerResult<T> = Json<T> | StrictResponse<Json<T>>
 type StatusCode = number
+// For endpoints that respond with something other than JSON or a 204 (e.g.,
+// binary download, HEAD, redirect). The handler can return a Response to
+// set headers or a body.
+type StatusOrResponse = StatusCode | Response
 
 // these are used for turning our nice JS-ified API types back into the original
 // API JSON types (snake cased and dates as strings) for use in our mock API
@@ -49,7 +53,7 @@ export interface MSWHandlers {
   deviceAuthRequest: (params: {
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<StatusOrResponse>
   /** `POST /device/confirm` */
   deviceAuthConfirm: (params: {
     body: Json<Api.DeviceAuthVerify>
@@ -60,7 +64,7 @@ export interface MSWHandlers {
   deviceAccessToken: (params: {
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<StatusOrResponse>
   /** `GET /experimental/v1/probes` */
   probeList: (params: {
     query: Api.ProbeListQueryParams
@@ -93,7 +97,7 @@ export interface MSWHandlers {
     path: Api.LoginSamlPathParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<StatusOrResponse>
   /** `GET /v1/affinity-groups` */
   affinityGroupList: (params: {
     query: Api.AffinityGroupListQueryParams
@@ -678,7 +682,7 @@ export interface MSWHandlers {
     query: Api.InstanceSerialConsoleStreamQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<StatusOrResponse>
   /** `GET /v1/instances/:instance/ssh-public-keys` */
   instanceSshPublicKeyList: (params: {
     path: Api.InstanceSshPublicKeyListPathParams
@@ -1004,6 +1008,33 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.AuditLogEntryResultsPage>>
+  /** `GET /v1/system/certificates` */
+  siloCertificateList: (params: {
+    query: Api.SiloCertificateListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.CertificateResultsPage>>
+  /** `POST /v1/system/certificates` */
+  siloCertificateCreate: (params: {
+    query: Api.SiloCertificateCreateQueryParams
+    body: Json<Api.CertificateCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Certificate>>
+  /** `GET /v1/system/certificates/:certificate` */
+  siloCertificateView: (params: {
+    path: Api.SiloCertificateViewPathParams
+    query: Api.SiloCertificateViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Certificate>>
+  /** `DELETE /v1/system/certificates/:certificate` */
+  siloCertificateDelete: (params: {
+    path: Api.SiloCertificateDeletePathParams
+    query: Api.SiloCertificateDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `PUT /v1/system/hardware/disk-adoption-request` */
   physicalDiskEnableAdoption: (params: {
     body: Json<Api.PhysicalDiskManufacturerIdentity>
@@ -1079,6 +1110,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.RackMembershipStatus>>
+  /** `GET /v1/system/hardware/racks-unadopted` */
+  rackListUnadopted: (params: {
+    query: Api.RackListUnadoptedQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UnadoptedRackResultsPage>>
   /** `GET /v1/system/hardware/sleds` */
   sledList: (params: {
     query: Api.SledListQueryParams
@@ -1519,6 +1556,53 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.FleetRolePolicy>>
+  /** `GET /v1/system/problems` */
+  problemList: (params: {
+    query: Api.ProblemListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ProblemResultsPage>>
+  /** `GET /v1/system/problems/:problemId` */
+  problemView: (params: {
+    path: Api.ProblemViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Problem>>
+  /** `GET /v1/system/problems/:problemId/alerts` */
+  problemAlertList: (params: {
+    path: Api.ProblemAlertListPathParams
+    query: Api.ProblemAlertListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertResultsPage>>
+  /** `GET /v1/system/problems/:problemId/causes` */
+  problemCausesList: (params: {
+    path: Api.ProblemCausesListPathParams
+    query: Api.ProblemCausesListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.RelatedProblemResultsPage>>
+  /** `GET /v1/system/problems/:problemId/consequences` */
+  problemConsequencesList: (params: {
+    path: Api.ProblemConsequencesListPathParams
+    query: Api.ProblemConsequencesListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.RelatedProblemResultsPage>>
+  /** `GET /v1/system/problems/:problemId/impacts` */
+  problemImpactList: (params: {
+    path: Api.ProblemImpactListPathParams
+    query: Api.ProblemImpactListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ProblemImpactResultsPage>>
+  /** `GET /v1/system/problems/:problemId/support-bundles` */
+  problemSupportBundlesList: (params: {
+    path: Api.ProblemSupportBundlesListPathParams
+    query: Api.ProblemSupportBundlesListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfoResultsPage>>
   /** `GET /v1/system/scim/tokens` */
   scimTokenList: (params: {
     query: Api.ScimTokenListQueryParams
@@ -1736,31 +1820,31 @@ export interface MSWHandlers {
     path: Api.SupportBundleDownloadPathParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<StatusOrResponse>
   /** `HEAD /v1/system/support-bundles/:bundleId/download` */
   supportBundleHead: (params: {
     path: Api.SupportBundleHeadPathParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<StatusOrResponse>
   /** `GET /v1/system/support-bundles/:bundleId/download/:file` */
   supportBundleDownloadFile: (params: {
     path: Api.SupportBundleDownloadFilePathParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<StatusOrResponse>
   /** `HEAD /v1/system/support-bundles/:bundleId/download/:file` */
   supportBundleHeadFile: (params: {
     path: Api.SupportBundleHeadFilePathParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<StatusOrResponse>
   /** `GET /v1/system/support-bundles/:bundleId/index` */
   supportBundleIndex: (params: {
     path: Api.SupportBundleIndexPathParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<StatusOrResponse>
   /** `POST /v1/system/timeseries/query` */
   systemTimeseriesQuery: (params: {
     body: Json<Api.TimeseriesQuery>
@@ -2979,6 +3063,26 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/system/audit-log',
       handler(handlers['auditLogList'], schema.AuditLogListParams, null)
     ),
+    http.get(
+      '/v1/system/certificates',
+      handler(handlers['siloCertificateList'], schema.SiloCertificateListParams, null)
+    ),
+    http.post(
+      '/v1/system/certificates',
+      handler(
+        handlers['siloCertificateCreate'],
+        schema.SiloCertificateCreateParams,
+        schema.CertificateCreate
+      )
+    ),
+    http.get(
+      '/v1/system/certificates/:certificate',
+      handler(handlers['siloCertificateView'], schema.SiloCertificateViewParams, null)
+    ),
+    http.delete(
+      '/v1/system/certificates/:certificate',
+      handler(handlers['siloCertificateDelete'], schema.SiloCertificateDeleteParams, null)
+    ),
     http.put(
       '/v1/system/hardware/disk-adoption-request',
       handler(
@@ -3050,6 +3154,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.RackMembershipAddSledsParams,
         schema.RackMembershipAddSledsRequest
       )
+    ),
+    http.get(
+      '/v1/system/hardware/racks-unadopted',
+      handler(handlers['rackListUnadopted'], schema.RackListUnadoptedParams, null)
     ),
     http.get(
       '/v1/system/hardware/sleds',
@@ -3479,6 +3587,42 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.put(
       '/v1/system/policy',
       handler(handlers['systemPolicyUpdate'], null, schema.FleetRolePolicy)
+    ),
+    http.get(
+      '/v1/system/problems',
+      handler(handlers['problemList'], schema.ProblemListParams, null)
+    ),
+    http.get(
+      '/v1/system/problems/:problemId',
+      handler(handlers['problemView'], schema.ProblemViewParams, null)
+    ),
+    http.get(
+      '/v1/system/problems/:problemId/alerts',
+      handler(handlers['problemAlertList'], schema.ProblemAlertListParams, null)
+    ),
+    http.get(
+      '/v1/system/problems/:problemId/causes',
+      handler(handlers['problemCausesList'], schema.ProblemCausesListParams, null)
+    ),
+    http.get(
+      '/v1/system/problems/:problemId/consequences',
+      handler(
+        handlers['problemConsequencesList'],
+        schema.ProblemConsequencesListParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/problems/:problemId/impacts',
+      handler(handlers['problemImpactList'], schema.ProblemImpactListParams, null)
+    ),
+    http.get(
+      '/v1/system/problems/:problemId/support-bundles',
+      handler(
+        handlers['problemSupportBundlesList'],
+        schema.ProblemSupportBundlesListParams,
+        null
+      )
     ),
     http.get(
       '/v1/system/scim/tokens',
