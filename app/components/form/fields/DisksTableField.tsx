@@ -64,7 +64,7 @@ export function DisksTableField({
 
   return (
     <>
-      <div className="flex max-w-lg flex-col items-end gap-3">
+      <div className="flex max-w-lg flex-col gap-3">
         <MiniTable
           ariaLabel="Disks"
           items={items}
@@ -75,19 +75,13 @@ export function DisksTableField({
           emptyState={{ title: 'No disks', body: 'Add a disk to see it here' }}
         />
 
-        <div className="max-1000:flex-col flex gap-3">
-          <Button
-            size="sm"
-            className="max-1000:w-full"
-            onClick={() => setShowDiskCreate(true)}
-            disabled={disabled}
-          >
+        <div className="max-1000:flex-col 1000:justify-end flex gap-3">
+          <Button size="sm" onClick={() => setShowDiskCreate(true)} disabled={disabled}>
             Create new disk
           </Button>
           <Button
             variant="secondary"
             size="sm"
-            className="max-1000:w-full"
             onClick={() => setShowDiskAttach(true)}
             disabled={disabled}
           >

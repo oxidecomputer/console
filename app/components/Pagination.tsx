@@ -15,7 +15,7 @@ import { PageFooter } from './PageFooter'
 export function Pagination(props: UIPaginationProps) {
   return (
     <PageFooter>
-      <UIPagination className="gutter h-14 py-5" {...props} />
+      <UIPagination className="gutter py-4" {...props} />
     </PageFooter>
   )
 }

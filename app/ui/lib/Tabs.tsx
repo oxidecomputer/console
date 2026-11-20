@@ -23,7 +23,9 @@ export const Tabs = {
     </BaseTabs.Tab>
   ),
   List: ({ className, ...props }: BaseTabs.List.Props) => (
-    <BaseTabs.List {...props} className={cn('ox-tabs-list', className)} />
+    <div className="ox-tabs-list-wrap">
+      <BaseTabs.List {...props} className={cn('ox-tabs-list', className)} />
+    </div>
   ),
   Content: ({ className, ...props }: BaseTabs.Panel.Props) => (
     <BaseTabs.Panel {...props} className={cn('ox-tabs-panel', className)} />

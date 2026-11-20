@@ -604,7 +604,7 @@ export default function AuditLogPage() {
   return (
     <>
       <div className="!mx-0 !w-full">
-        <PageHeader className="gutter">
+        <PageHeader className="px-(--content-gutter)">
           <PageTitle icon={<Logs24Icon />}>Audit Log</PageTitle>
           <DocsPopover
             heading="audit log"
