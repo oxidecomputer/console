@@ -13,23 +13,21 @@ import { Cpu16Icon, Ram16Icon, Ssd16Icon } from '@oxide/design-system/icons/reac
 
 import { BigNum } from '~/ui/lib/BigNum'
 import { percentage, round, splitDecimal } from '~/util/math'
-import { bytesToGiB, bytesToTiB } from '~/util/units'
+import { formatBytes, GiB, TiB } from '~/util/units'
 
 type Resource = {
   icon: ReactNode
   title: string
-  unit: string
+  unit: 'vCPUs' | 'GiB' | 'TiB'
   provisioned: number
   quota: number
 }
 
-/** Convert API byte counts into the display units for each tile */
 function getResources(
   provisioned: VirtualResourceCounts,
   allocated: VirtualResourceCounts,
   storageUnit: 'GiB' | 'TiB'
 ): Resource[] {
-  const toStorageUnit = storageUnit === 'GiB' ? bytesToGiB : bytesToTiB
   return [
     {
       icon: <Cpu16Icon />,
@@ -42,15 +40,15 @@ function getResources(
       icon: <Ram16Icon />,
       title: 'Memory',
       unit: 'GiB',
-      provisioned: bytesToGiB(provisioned.memory),
-      quota: bytesToGiB(allocated.memory),
+      provisioned: provisioned.memory,
+      quota: allocated.memory,
     },
     {
       icon: <Ssd16Icon />,
       title: 'Storage',
       unit: storageUnit,
-      provisioned: toStorageUnit(provisioned.storage),
-      quota: toStorageUnit(allocated.storage),
+      provisioned: provisioned.storage,
+      quota: allocated.storage,
     },
   ]
 }
@@ -93,13 +91,36 @@ function Bar({ pct }: { pct: number }) {
   )
 }
 
+const unitSize = { vCPUs: 1, GiB, TiB }
+
+function QuotaAmount({
+  value,
+  unit,
+  unitClassName,
+}: {
+  value: number
+  unit: Resource['unit']
+  unitClassName?: string
+}) {
+  const size = unitSize[unit]
+  // two decimals lose too much below 1 of the tile's unit, so use a smaller one
+  const small =
+    unit !== 'vCPUs' && value > 0 && value < size ? formatBytes(value) : undefined
+  return (
+    <>
+      <BigNum num={small ? Number(small.value) : round(value / size, 2)} />{' '}
+      <span className={unitClassName}>{small?.unit ?? unit}</span>
+    </>
+  )
+}
+
 type QuotaTileProps = Resource & {
   /** Show a bar and percentage of the quota that is provisioned */
   showBar?: boolean
 }
 
 function QuotaTile({ icon, title, unit, provisioned, quota, showBar }: QuotaTileProps) {
-  const available = round(quota - provisioned, 2)
+  const available = quota - provisioned
   const pct = percentage(provisioned, quota)
   return (
     <section
@@ -111,9 +132,12 @@ function QuotaTile({ icon, title, unit, provisioned, quota, showBar }: QuotaTile
           <IconBox>{icon}</IconBox>
           <div>
             <div className="text-mono-sm text-secondary">{title}</div>
-            <span className="text-sans-xl -mt-0.5">
-              <BigNum num={quota} className="text-raise" />{' '}
-              <span className="text-sans-md text-tertiary">{unit}</span>
+            <span className="text-sans-xl text-raise -mt-0.5">
+              <QuotaAmount
+                value={quota}
+                unit={unit}
+                unitClassName="text-sans-md text-tertiary"
+              />
             </span>
           </div>
         </div>
@@ -132,21 +156,21 @@ function QuotaTile({ icon, title, unit, provisioned, quota, showBar }: QuotaTile
         <div>
           <div className="text-tertiary">Provisioned</div>
           <div className="text-default normal-case!">
-            <BigNum num={provisioned} /> {unit}
+            <QuotaAmount value={provisioned} unit={unit} />
           </div>
         </div>
         {available < 0 ? (
           <div className="text-right">
             <div className="text-error">Over quota</div>
             <div className="text-error normal-case!">
-              <BigNum num={-available} /> {unit}
+              <QuotaAmount value={-available} unit={unit} />
             </div>
           </div>
         ) : (
           <div className="text-right">
             <div className="text-tertiary">Available</div>
             <div className="text-default normal-case!">
-              <BigNum num={available} /> {unit}
+              <QuotaAmount value={available} unit={unit} />
             </div>
           </div>
         )}
