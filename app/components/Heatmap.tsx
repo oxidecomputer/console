@@ -7,10 +7,16 @@
  */
 import { useMemo, useState } from 'react'
 import * as R from 'remeda'
+import { match } from 'ts-pattern'
 import type uPlot from 'uplot'
 
 import { ChartTooltip, type TopBottom, type LeftRight } from '~/components/ChartTooltip'
 import { type UPlotOptions, FramedChart } from '~/components/FramedChart'
+import {
+  getSampleCountMetadata,
+  getScalingFunction,
+  type ColorScale,
+} from '~/components/heatmap-color-scale'
 import {
   timeFormatterForRange,
   useChartTheme,
@@ -40,38 +46,20 @@ const RAMP_STOPS = [
   ['--content-accent', 'oklch(0.77 0.1919 163.7)'],
 ] as const
 
+const CSS_VAR_RAMP: ColorRamp = {
+  stops: RAMP_STOPS.map(([name, fallback]) => `var(${name}, ${fallback})`),
+}
+
 // Interpolates the color between the two closest stops, for 0 <= t <= 1.
 const rampColor = ({ stops }: ColorRamp, t: number): string => {
   const clamped = R.clamp(t, { min: 0, max: 1 })
   const lastIndex = stops.length - 1
   const progress = clamped * lastIndex
   const start = R.clamp(Math.floor(progress), { max: lastIndex - 1 })
-  const lerp = progress - start
+  const localT = progress - start
   const from = stops[start]
   const to = stops[start + 1]
-  return `color-mix(in oklch, ${from} ${(1 - lerp) * 100}%, ${to})`
-}
-
-// grabbing style from the chart root instead of document body
-// that way it can be themed e.g. `yellow-theme`
-const getColorRamp = (el: Element): ColorRamp => {
-  const style = getComputedStyle(el)
-  return {
-    stops: RAMP_STOPS.map(
-      ([name, fallback]) => style.getPropertyValue(name).trim() || fallback
-    ),
-  }
-}
-
-// count -> ramp position. Doing a square root or a log makes for some different
-// smoothing. Nothing is truly intuitive, but linearly showing the fraction is
-// most easily compared to the legend at the bottom
-const rampT = (count: number, maxCount: number) => {
-  const fraction = count / maxCount
-  // TODO: pick!
-  return fraction
-  // return Math.log10(lerp(1, 10, fraction))
-  // return Math.sqrt(fraction)
+  return `color-mix(in oklch, ${from}, ${to} ${localT * 100}%)`
 }
 
 type Hover = {
@@ -93,6 +81,7 @@ type HeatmapProps = {
   unit?: string
   /** Drawn rotated alongside the y-axis tick labels, e.g. a unit */
   yAxisLabel?: string
+  colorScale?: ColorScale
 }
 
 const defaultYAxisTickFormatter = (val: number) => val.toLocaleString()
@@ -105,6 +94,7 @@ export function Heatmap({
   yAxisTickFormatter = defaultYAxisTickFormatter,
   unit,
   yAxisLabel,
+  colorScale = 'ranked',
 }: HeatmapProps) {
   const theme = useChartTheme()
   const [hover, setHover] = useState<Hover | null>(null)
@@ -118,8 +108,8 @@ export function Heatmap({
   const binCount = bins.length
   const colCount = distributions.length
 
-  const maxSampleCount = useMemo(
-    () => distributions.reduce((max, d) => (d ? Math.max(max, ...d.counts) : max), 0),
+  const sampleCountMetadata = useMemo(
+    () => getSampleCountMetadata(distributions.flatMap((d) => d?.counts ?? [])),
     [distributions]
   )
 
@@ -129,10 +119,22 @@ export function Heatmap({
 
   // uPlot doesn't actually have heatmap support, but we can use its position
   // functions to make this (somewhat) easy
-  const drawCells = useMemo(
-    () => (u: uPlot) => {
+  const drawCells = useMemo(() => {
+    const scaleCount = getScalingFunction(sampleCountMetadata, colorScale)
+
+    return (u: uPlot) => {
       if (binCount === 0 || colCount === 0) return
-      const colorRamp = getColorRamp(u.root)
+
+      // since a canvas can't resolve CSS variables, we simulate it by reading
+      // the ramp colors off the element furthest down the tree (the chart's
+      // root element)
+      const style = getComputedStyle(u.root)
+      const colorRamp = {
+        stops: RAMP_STOPS.map(
+          ([name, fallback]) => style.getPropertyValue(name).trim() || fallback
+        ),
+      }
+
       const ctx = u.ctx
       ctx.save()
       ctx.beginPath()
@@ -149,7 +151,7 @@ export function Heatmap({
 
           const topEdge = u.valToPos(rowIndex + 1, 'y', true)
           const bottomEdge = u.valToPos(rowIndex, 'y', true)
-          ctx.fillStyle = rampColor(colorRamp, rampT(count, maxSampleCount))
+          ctx.fillStyle = rampColor(colorRamp, scaleCount(count))
           ctx.fillRect(
             leftEdge - CELL_OVERFLOW,
             topEdge - CELL_OVERFLOW,
@@ -159,9 +161,16 @@ export function Heatmap({
         })
       })
       ctx.restore()
-    },
-    [distributions, leftEdges, rightEdges, colCount, binCount, maxSampleCount]
-  )
+    }
+  }, [
+    distributions,
+    leftEdges,
+    rightEdges,
+    colCount,
+    binCount,
+    colorScale,
+    sampleCountMetadata,
+  ])
 
   const tooltipPlugin = useMemo<uPlot.Plugin>(
     () => ({
@@ -307,7 +316,19 @@ export function Heatmap({
       chartOptions={chartOptions}
       data={data}
       uRef={uRef}
-      legend={<HeatmapLegend maxSampleCount={maxSampleCount} axisText={theme.axisText} />}
+      legend={
+        sampleCountMetadata.ranks.size > 0 && (
+          <HeatmapLegend
+            minSampleCount={match(colorScale)
+              .with('ranked', () => sampleCountMetadata.minSampleCount)
+              .with('linear', () => 0)
+              .with('logarithmic', () => 1)
+              .exhaustive()}
+            maxSampleCount={sampleCountMetadata.maxSampleCount}
+            axisText={theme.axisText}
+          />
+        )
+      }
     >
       {hover && (
         <>
@@ -342,28 +363,69 @@ export function Heatmap({
 }
 
 function HeatmapLegend({
+  minSampleCount,
   maxSampleCount,
   axisText,
 }: {
+  minSampleCount: number
   maxSampleCount: number
   axisText: string
 }) {
   return (
     <div className="mt-3 flex items-center gap-2 pl-5">
-      <span className="text-mono-xs" style={{ color: axisText }}>
-        0
-      </span>
-      <div
-        className="h-3 w-32 rounded-sm"
-        style={{
-          backgroundImage: `linear-gradient(in oklch to right, ${RAMP_STOPS.map(
-            ([name, fallback]) => `var(${name}, ${fallback})`
-          ).join(', ')})`,
-        }}
-      ></div>
+      {minSampleCount === maxSampleCount ? (
+        <div
+          className="h-3 w-3 rounded-sm"
+          style={{
+            backgroundColor: R.last(CSS_VAR_RAMP.stops),
+          }}
+        ></div>
+      ) : (
+        <>
+          <span className="text-mono-xs" style={{ color: axisText }}>
+            {minSampleCount.toLocaleString()}
+          </span>
+          <div
+            className="h-3 w-32 rounded-sm"
+            style={{
+              backgroundImage: `linear-gradient(in oklch to right, ${CSS_VAR_RAMP.stops.join(', ')})`,
+            }}
+          ></div>
+        </>
+      )}
       <span className="text-mono-xs" style={{ color: axisText }}>
         {maxSampleCount.toLocaleString()}
       </span>
+    </div>
+  )
+}
+
+const SAMPLE_VALUES = [1, 5, 10, 50, 95, 100]
+const SAMPLE_VALUES_METADATA = getSampleCountMetadata(SAMPLE_VALUES)
+const LONGEST_SAMPLE_ITEM = SAMPLE_VALUES.map((n) => n.toLocaleString().length).reduce(
+  (acc, length) => Math.max(acc, length),
+  0
+)
+
+export function SampleColorStrip({ colorScale }: { colorScale: ColorScale }) {
+  const scaleCount = getScalingFunction(SAMPLE_VALUES_METADATA, colorScale)
+
+  return (
+    <div className="flex items-end gap-px">
+      {SAMPLE_VALUES.map((n) => (
+        <div
+          key={n}
+          className="text-secondary text-mono-code flex flex-col items-center text-xs"
+        >
+          <div className="text-center" style={{ width: `${LONGEST_SAMPLE_ITEM + 0.5}ch` }}>
+            {n.toLocaleString()}
+          </div>
+          <div
+            className="h-3 w-full"
+            style={{ backgroundColor: rampColor(CSS_VAR_RAMP, scaleCount(n)) }}
+          />
+        </div>
+      ))}
     </div>
   )
 }
