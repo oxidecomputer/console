@@ -83,7 +83,11 @@ export const Truncate = ({
         {text}
       </div>
     ) : (
-      <div ref={ref} aria-label={text} className="grid overflow-hidden whitespace-nowrap">
+      <div
+        ref={ref}
+        aria-label={text}
+        className="grid grid-cols-1 overflow-hidden whitespace-nowrap"
+      >
         {/* invisible copy of the full text keeps the layout width stable, so
             swapping in the shorter ellipsized text can't shrink the container
             and trigger another round of truncation */}
