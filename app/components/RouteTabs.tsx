@@ -80,7 +80,7 @@ export function RouteTabs({
 
   return (
     <div
-      className={cn(sideTabs ? 'ox-side-tabs flex' : 'ox-tabs', {
+      className={cn(sideTabs ? 'ox-side-tabs flex' : 'ox-tabs ox-tabs-sticky', {
         'full-width': !sideTabs && fullWidth,
       })}
     >

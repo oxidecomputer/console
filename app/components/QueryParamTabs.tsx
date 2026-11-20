@@ -1,3 +1,4 @@
+import cn from 'classnames'
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -32,5 +33,12 @@ export function QueryParamTabs(props: TabsRootProps) {
     setSearchParams(nextParams, { replace: true })
   }
 
-  return <Tabs.Root {...props} value={value} onValueChange={onValueChange} />
+  return (
+    <Tabs.Root
+      {...props}
+      className={cn('ox-tabs-sticky', props.className)}
+      value={value}
+      onValueChange={onValueChange}
+    />
+  )
 }

@@ -8,7 +8,7 @@
 
 /* Sticky lives on a wrapper so the list can overflow-x without becoming
    its own scroll container (which would prevent sticking). */
-.ox-tabs-list-wrap {
+.ox-tabs-sticky > .ox-tabs-list-wrap {
   position: sticky;
   top: calc(var(--top-bar-height) + var(--preview-banner-height));
   z-index: var(--z-sticky);
@@ -32,14 +32,6 @@
 
 .ox-tabs > .ox-tabs-panel {
   @apply mt-8;
-}
-
-/* forms can have multiple tab lists on one page; keep those in flow */
-.ox-form .ox-tabs-list-wrap {
-  position: static;
-  top: auto;
-  z-index: auto;
-  background-color: transparent;
 }
 
 .ox-tabs-list:after {
