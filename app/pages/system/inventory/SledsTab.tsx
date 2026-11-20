@@ -5,23 +5,28 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { useMemo } from 'react'
+import * as R from 'remeda'
 
-import { api, getListQFn, queryClient, type Sled } from '@oxide/api'
+import { api, q, queryClient, usePrefetchedQuery, type Sled } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
-import { useQueryTable } from '~/table/QueryTable'
+import { Table } from '~/table/Table'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './sled/SledBadges'
 
-const sledList = getListQFn(api.sledList, {})
+const sledList = q(api.sledList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {
-  await queryClient.fetchQuery(sledList.optionsFn())
+  await queryClient.fetchQuery(sledList)
   return null
 }
 
@@ -29,6 +34,13 @@ export const handle = { crumb: 'Sleds' }
 
 const colHelper = createColumnHelper<Sled>()
 const staticCols = [
+  colHelper.accessor('slot', {
+    cell: (info) => (
+      <div className="w-[2.5ch] text-right tabular-nums">
+        {info.getValue() ?? <EmptyCell />}
+      </div>
+    ),
+  }),
   colHelper.accessor('id', {
     cell: (info) => (
       <LinkCell to={pb.sledInstances({ sledId: info.getValue() })}>
@@ -51,10 +63,12 @@ const staticCols = [
     header: 'Policy',
     columns: [
       colHelper.accessor('policy', {
+        id: 'policyKind',
         header: 'Kind',
         cell: (info) => <SledKindBadge policy={info.getValue()} />,
       }),
       colHelper.accessor('policy', {
+        id: 'provisionPolicy',
         header: 'Provision policy',
         cell: (info) => <ProvisionPolicyBadge policy={info.getValue()} />,
       }),
@@ -66,7 +80,28 @@ const staticCols = [
 ]
 
 export default function SledsTab() {
-  const emptyState = <EmptyMessage icon={<Servers24Icon />} title="No sleds found" />
-  const { table } = useQueryTable({ query: sledList, columns: staticCols, emptyState })
-  return table
+  const { data } = usePrefetchedQuery(sledList)
+  const sleds = useMemo(
+    () =>
+      R.sortBy(
+        data.items,
+        (sled) => sled.slot == null,
+        (sled) => sled.slot ?? 0
+      ),
+    [data]
+  )
+  const table = useReactTable({
+    columns: staticCols,
+    data: sleds,
+    getRowId: (sled) => sled.id,
+    getCoreRowModel: getCoreRowModel(),
+  })
+  if (sleds.length === 0) {
+    return (
+      <TableEmptyBox>
+        <EmptyMessage icon={<Servers24Icon />} title="No sleds found" />
+      </TableEmptyBox>
+    )
+  }
+  return <Table table={table} />
 }
