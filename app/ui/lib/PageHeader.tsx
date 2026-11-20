@@ -14,7 +14,7 @@ import { Truncate } from './Truncate'
 // Title is allowed to shrink (`min-w-0`); actions keep their intrinsic width so
 // long names ellipsize instead of shoving buttons off-screen. Below 500px the
 // actions stack above the title and each row can use the full width.
-export const PageHeader = classed.header`mb-16 mt-12 flex w-full min-w-0 justify-between gap-4 max-500:flex-col max-500:*:last:order-0 max-500:*:first:order-1 500:items-center 500:[&>h1]:flex-1 500:[&>:not(h1)]:shrink-0 max-1000:mt-8`
+export const PageHeader = classed.header`mb-16 mt-12 flex w-full min-w-0 justify-between gap-4 max-500:flex-col-reverse 500:items-center 500:[&>h1]:flex-1 500:[&>:not(h1)]:shrink-0 max-1000:mt-8`
 
 interface PageTitleProps {
   icon?: ReactElement
