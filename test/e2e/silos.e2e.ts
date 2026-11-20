@@ -545,7 +545,7 @@ test('Quotas tab', async ({ page }) => {
   const memory = page.getByRole('region', { name: 'Memory' })
   const storage = page.getByRole('region', { name: 'Storage' })
   await expect(cpu).toContainText('50 vCPUs')
-  await expect(cpu).toContainText('Provisioned30 vCPUsAvailable20 vCPUs')
+  await expect(cpu).toContainText('Provisioned30Available20')
   await expect(memory).toContainText('300 GiB')
   await expect(memory).toContainText('Provisioned234 GiBAvailable66 GiB')
   await expect(storage).toContainText('7,168 GiB')
