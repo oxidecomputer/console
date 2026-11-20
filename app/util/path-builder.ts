@@ -163,7 +163,6 @@ export const pb = {
 
   silos: () => href('/system/silos'),
   silosNew: () => href('/system/silos-new'),
-  // canonical route for silo is first tab
   silo: (params: PP.Silo) => pb.siloIdps(params),
   siloIdps: (params: PP.Silo) => href('/system/silos/:silo/idps', params),
   siloIdpsNew: (params: PP.Silo) => href('/system/silos/:silo/idps-new', params),
@@ -184,7 +183,6 @@ export const pb = {
   auditLog: () => href('/system/audit-log'),
 
   problems: () => href('/system/problems'),
-  // canonical route for problem is first tab
   problem: (params: PP.Problem) => pb.problemImpacts(params),
   problemImpacts: (params: PP.Problem) =>
     href('/system/problems/:problemId/impacts', params),

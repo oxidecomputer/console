@@ -26,8 +26,6 @@ import type * as PP from '~/util/path-params'
 
 import type { Route } from './+types/ProblemRelatedTab'
 
-// Causes and consequences are on one tab, and a page has only one set of
-// pagination controls, so fetch them all
 const causesList = ({ problemId }: PP.Problem) =>
   q(api.problemCausesList, { path: { problemId }, query: { limit: ALL_ISH } })
 const consequencesList = ({ problemId }: PP.Problem) =>

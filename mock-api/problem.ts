@@ -12,6 +12,7 @@ import { disk1 } from './disk'
 import { instance } from './instance'
 import type { Json } from './json-type'
 import { physicalDisks } from './physical-disk'
+import { silos } from './silo'
 import { sleds } from './sled'
 
 // Problem codes and classes as defined in Nexus. Only codes 1 (Unhealthy
@@ -94,6 +95,25 @@ export const problemImpacts: Json<ProblemImpact>[] = [
     time_state_changed: problemDisk.time_modified,
   },
   {
+    problem_id: problemDisk.id,
+    resource: { resource_type: 'silo', id: silos[0].id },
+    reason: 'Silo has disks with reduced redundancy',
+    state: 'active',
+    revision_added: 2,
+    time_detected: new Date('2025-08-01T09:20:00Z').toISOString(),
+    time_state_changed: new Date('2025-08-01T09:20:00Z').toISOString(),
+  },
+  {
+    // no silo has this ID, to mimic a  silo that was deleted after the impact was recorded
+    problem_id: problemDisk.id,
+    resource: { resource_type: 'silo', id: '87218165-462b-4e16-a4fc-93428d2e1c3a' },
+    reason: 'Silo had disks with reduced redundancy',
+    state: 'recovered',
+    revision_added: 2,
+    time_detected: new Date('2025-08-01T09:20:00Z').toISOString(),
+    time_state_changed: problemDisk.time_modified,
+  },
+  {
     problem_id: problemService.id,
     resource: { resource_type: 'sled', id: sleds[0].id },
     reason: 'A service on the sled is in maintenance',
@@ -123,12 +143,10 @@ export const problemImpacts: Json<ProblemImpact>[] = [
   },
 ]
 
-/** One row per cause → consequence edge between two problems */
 export type ProblemRelation = {
   cause_id: string
   consequence_id: string
   reason: string
-  /** The API reports one revision per side of the relationship */
   cause_revision_added: number
   consequence_revision_added: number
 }

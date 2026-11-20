@@ -58,7 +58,7 @@ test('problem detail', async ({ page }) => {
   // impacts is the default tab
   await expect(page).toHaveURL(/\/impacts$/)
   const table = page.getByRole('table')
-  await expect(table.getByRole('row')).toHaveCount(4) // header + 3 impacts
+  await expect(table.getByRole('row')).toHaveCount(6) // header + 5 impacts
   await expectRowVisible(table, {
     'Resource type': 'Physical disk',
     reason: 'Disk is faulty',
@@ -87,6 +87,20 @@ test('problem detail', async ({ page }) => {
   await page.getByRole('tab', { name: 'Related problems' }).click()
   await consequences.getByRole('link').click()
   await expect(page.getByRole('heading', { name: 'Service in maintenance' })).toBeVisible()
+})
+
+test('silo impact links to the silo by name', async ({ page }) => {
+  await page.goto('/system/problems/e9f6b993-b8fb-4e26-a7d8-dbf0c4dc948d')
+  const table = page.getByRole('table')
+
+  // the silo of the second silo impact does not exist, so the cell shows the ID
+  const deleted = table.getByRole('row', { name: 'Silo had disks' })
+  await expect(deleted).toBeVisible()
+  await expect(deleted.getByRole('link')).toBeHidden()
+
+  await table.getByRole('link', { name: 'maze-war' }).click()
+  await expect(page).toHaveURL('/system/silos/maze-war/idps')
+  await expect(page.getByRole('heading', { name: 'maze-war' })).toBeVisible()
 })
 
 test('sled impact links to the sled', async ({ page }) => {
