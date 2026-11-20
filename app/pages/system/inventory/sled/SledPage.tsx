@@ -73,7 +73,6 @@ export default function SledPage() {
           bytes={sled.usablePhysicalRam}
         />
         <PropertiesTable.Row label="slot">
-          {/* 0 is a valid slot, hence ?? instead of || */}
           <span className="text-default">{sled.slot ?? <EmptyCell />}</span>
         </PropertiesTable.Row>
         <PropertiesTable.DateRow label="Created" date={sled.timeCreated} />

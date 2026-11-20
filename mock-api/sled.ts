@@ -25,7 +25,7 @@ export const sleds: Json<Sled[]> = [
       serial: 'BRM02222869',
       revision: 0,
     },
-    slot: 14,
+    slot: 0,
     usable_hardware_threads: 254,
     usable_physical_ram: 1_099_511_627_776,
   },

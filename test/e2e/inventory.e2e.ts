@@ -24,7 +24,7 @@ test('Sled inventory page', async ({ page }) => {
   // grouping, hence the slightly weird column names
   await expectRowVisible(sledsTable, {
     id: expect.stringContaining(sleds[0].id),
-    slot: '14',
+    slot: '0',
     'serial number': sleds[0].baseboard.serial,
     Kind: 'In service',
     'Provision policy': 'Provisionable',
@@ -53,12 +53,16 @@ test('Sled inventory page', async ({ page }) => {
     state: 'decommissioned',
   })
 
-  // Visit the sled detail page of the first sled
-  await sledsTable.getByRole('link').first().click()
+  // rows are in slot order, with the sled without a slot last
+  const slotCells = sledsTable.locator('tbody tr td:first-child')
+  await expect(slotCells).toHaveText(['0', '2', '15', '—'])
+
+  // Visit the sled detail page of the slot 0 sled
+  await sledsTable.getByRole('link', { name: sleds[0].id }).click()
 
   await expectVisible(page, ['role=heading[name*="Sled"]'])
   await expect(page.getByText('serialBRM02222869')).toBeVisible()
-  await expect(page.getByText('slot14')).toBeVisible()
+  await expect(page.getByText('slot0')).toBeVisible()
 
   const instancesTab = page.getByRole('tab', { name: 'Instances' })
   await expect(instancesTab).toBeVisible()
