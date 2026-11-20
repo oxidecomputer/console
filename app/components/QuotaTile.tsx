@@ -132,21 +132,21 @@ function QuotaTile({ icon, title, unit, provisioned, quota, showBar }: QuotaTile
         <div>
           <div className="text-tertiary">Provisioned</div>
           <div className="text-default normal-case!">
-            <BigNum num={provisioned} />
+            <BigNum num={provisioned} /> {unit}
           </div>
         </div>
         {available < 0 ? (
           <div className="text-right">
             <div className="text-error">Over quota</div>
             <div className="text-error normal-case!">
-              <BigNum num={-available} />
+              <BigNum num={-available} /> {unit}
             </div>
           </div>
         ) : (
           <div className="text-right">
             <div className="text-tertiary">Available</div>
             <div className="text-default normal-case!">
-              <BigNum num={available} />
+              <BigNum num={available} /> {unit}
             </div>
           </div>
         )}

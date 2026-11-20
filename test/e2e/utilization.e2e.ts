@@ -25,7 +25,7 @@ test.describe('System utilization', () => {
 
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     await expect(page.getByRole('region', { name: 'Memory' })).toContainText(
-      'Provisioned416'
+      'Provisioned416 GiB'
     )
 
     await expect(page.getByText('Provisioned / Quota')).toBeVisible()
@@ -149,7 +149,7 @@ test.describe('Silo utilization', () => {
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     // Capacity bars are showing up
     await expect(page.getByRole('region', { name: 'Memory' })).toContainText(
-      'Provisioned234Available66'
+      'Provisioned234 GiBAvailable66 GiB'
     )
   })
 
@@ -159,7 +159,7 @@ test.describe('Silo utilization', () => {
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     // Capacity bars are showing up
     await expect(page.getByRole('region', { name: 'Memory' })).toContainText(
-      'Provisioned234Available66'
+      'Provisioned234 GiBAvailable66 GiB'
     )
   })
 })
