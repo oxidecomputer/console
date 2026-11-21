@@ -9,6 +9,7 @@ import { useState } from 'react'
 
 import { type ApiError } from '@oxide/api'
 
+import { TypeToConfirmField, typeToConfirmReason } from '~/components/TypeToConfirmField'
 import { clearConfirmAction, useConfirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { Modal } from '~/ui/lib/Modal'
@@ -21,16 +22,33 @@ export function ConfirmActionModal() {
   // and would require us to hook this up in a way that re-renders whenever the
   // loading state changes
   const [loading, setLoading] = useState(false)
+  const [typedText, setTypedText] = useState('')
 
   if (!actionConfig) return null
 
-  const { doAction, modalContent, errorTitle, modalTitle, actionType } = actionConfig
+  const { doAction, modalContent, errorTitle, modalTitle, actionType, confirmText } =
+    actionConfig
+
+  // this component stays mounted between opens, so clear the typed text on close
+  const close = () => {
+    setTypedText('')
+    clearConfirmAction()
+  }
 
   return (
-    <Modal isOpen onDismiss={clearConfirmAction} title={modalTitle}>
-      <Modal.Section>{modalContent}</Modal.Section>
+    <Modal isOpen onDismiss={close} title={modalTitle}>
+      <Modal.Section>
+        {modalContent}
+        {confirmText && (
+          <TypeToConfirmField
+            confirmText={confirmText}
+            value={typedText}
+            onChange={setTypedText}
+          />
+        )}
+      </Modal.Section>
       <Modal.Footer
-        onDismiss={clearConfirmAction}
+        onDismiss={close}
         onAction={async () => {
           setLoading(true)
           try {
@@ -46,12 +64,14 @@ export function ConfirmActionModal() {
           setLoading(false) // do this regardless of success or error
 
           // TODO: generic success toast?
-          clearConfirmAction()
+          close()
         }}
         cancelText="Cancel"
         actionText="Confirm"
         actionType={actionType}
         actionLoading={loading}
+        disabled={!!confirmText && typedText !== confirmText}
+        disabledReason={confirmText && typeToConfirmReason(confirmText, typedText)}
       />
     </Modal>
   )

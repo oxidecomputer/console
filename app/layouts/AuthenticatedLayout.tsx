@@ -10,6 +10,7 @@ import { Outlet } from 'react-router'
 import { api, q, queryClient } from '@oxide/api'
 
 import { RouterDataErrorBoundary } from '~/components/ErrorBoundary'
+import { myGroupsQuery } from '~/hooks/use-current-user'
 import { QuickActions } from '~/hooks/use-quick-actions'
 
 /** very important. see `currentUserLoader` and `useCurrentUser` */
@@ -27,7 +28,7 @@ export async function clientLoader() {
   const staleTime = 60000
   await Promise.all([
     queryClient.prefetchQuery(q(api.currentUserView, {}, { staleTime })),
-    queryClient.prefetchQuery(q(api.currentUserGroups, {}, { staleTime })),
+    queryClient.prefetchQuery(myGroupsQuery({ staleTime })),
   ])
   return null
 }

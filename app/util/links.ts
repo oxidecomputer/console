@@ -73,6 +73,18 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/configuring-access#_silo_admin_group_and_mapped_fleet_roles',
     linkText: 'Fleet Role Mappings',
   },
+  managingGroups: {
+    href: 'https://docs.oxide.computer/guides/configuring-access#_managing_users_and_groups',
+    linkText: 'Managing Groups',
+  },
+  projectRoles: {
+    href: 'https://docs.oxide.computer/guides/configuring-access#_project',
+    linkText: 'Project Roles',
+  },
+  siloRoles: {
+    href: 'https://docs.oxide.computer/guides/configuring-access#_silo',
+    linkText: 'Silo Roles',
+  },
   floatingIps: {
     href: 'https://docs.oxide.computer/guides/managing-floating-ips',
     linkText: 'Floating IPs',

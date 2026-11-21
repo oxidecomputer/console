@@ -44,6 +44,12 @@ type DbRoleAssignment = {
 export const crossSiloUserId = 'd4e5f6a7-b8c9-4d0e-a1f2-b3c4d5e6f7a8'
 export const crossSiloGroupId = 'e5f6a7b8-c9d0-4e1f-b2a3-c4d5e6f7a8b9'
 
+// A local IdP user deleted while holding a silo role. Nexus soft-deletes the
+// user but leaves their role assignments, so this ID is in the silo policy but
+// not in userList.
+// https://github.com/oxidecomputer/omicron/blob/26f5e91/nexus/db-queries/src/db/datastore/silo_user.rs#L476-L568
+export const deletedSiloUserId = '480332fd-4516-403a-809d-e9fc67963b5a'
+
 export const roleAssignments: DbRoleAssignment[] = [
   {
     resource_type: 'fleet',
@@ -88,6 +94,24 @@ export const roleAssignments: DbRoleAssignment[] = [
     role_name: 'admin',
   },
   {
+    // Jane also inherits the stronger silo.collaborator via real-estate-devs, so
+    // she has both a direct and a group-derived role (exercises the "+N" roles
+    // display on the Users tab). Kept below admin so she stays a non-silo-admin,
+    // which other tests rely on.
+    resource_type: 'silo',
+    resource_id: defaultSilo.id,
+    identity_id: user5.id, // Jane Austen
+    identity_type: 'silo_user',
+    role_name: 'viewer',
+  },
+  {
+    resource_type: 'silo',
+    resource_id: defaultSilo.id,
+    identity_id: deletedSiloUserId,
+    identity_type: 'silo_user',
+    role_name: 'viewer',
+  },
+  {
     resource_type: 'project',
     resource_id: project.id,
     identity_id: user3.id, // Jacob Klein
@@ -107,6 +131,13 @@ export const roleAssignments: DbRoleAssignment[] = [
     identity_id: user6.id, // Herbert Marcuse
     identity_type: 'silo_user',
     role_name: 'limited_collaborator',
+  },
+  {
+    resource_type: 'project',
+    resource_id: project.id,
+    identity_id: deletedSiloUserId,
+    identity_type: 'silo_user',
+    role_name: 'viewer',
   },
   // Role assignments for test silos (IP pool configuration testing)
   // myriad silo: v4-only default pool
