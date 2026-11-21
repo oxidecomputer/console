@@ -10,9 +10,9 @@ import { useCallback, useMemo } from 'react'
 import { Outlet } from 'react-router'
 
 import {
+  groupScopedRoleEntries,
   sortRoleEntries,
   usePrefetchedQuery,
-  userScopedRoleEntries,
   type Group,
 } from '@oxide/api'
 import { PersonGroup24Icon } from '@oxide/design-system/icons/react'
@@ -55,11 +55,9 @@ export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
 
   const { data: groups } = usePrefetchedQuery(groupListAll)
 
-  // groups can't be in other groups, so passing no groups yields only the
-  // group's direct roles in each scope
   const effectiveRole = useCallback(
     (group: Group) =>
-      sortRoleEntries(userScopedRoleEntries(group.id, [], siloPolicy, projectPolicy)).at(0),
+      sortRoleEntries(groupScopedRoleEntries(group.id, siloPolicy, projectPolicy)).at(0),
     [siloPolicy, projectPolicy]
   )
 

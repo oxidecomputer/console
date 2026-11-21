@@ -36,8 +36,8 @@ export const EffectiveRole = ({ entries }: { entries: Loadable<ScopedRoleEntry[]
 
 /**
  * Role/Source table shared by the user and group detail side modals. Entries
- * come from `userScopedRoleEntries` (groups pass an empty groups list, so their
- * entries are all direct). Sorted strongest-first. A user's entries depend on
+ * come from `scopedRoleEntries` or `groupScopedRoleEntries` (a group's entries
+ * are all direct). Sorted strongest-first. A user's entries depend on
  * group memberships, so they can be pending or failed.
  */
 export function RoleAssignmentsTable({
@@ -48,10 +48,8 @@ export function RoleAssignmentsTable({
   entries: Loadable<ScopedRoleEntry[]>
   makeActions: (entry: ScopedRoleEntry) => MenuAction[]
   /**
-   * A row with a menu for adding a direct role: "No roles assigned" when there
-   * are no entries, otherwise `text` below them. Omit it once the identity has
-   * a direct role. With no entries there is never a direct role, so callers
-   * always pass it then.
+   * Row with a menu for adding a direct role. Says "No roles assigned" when there
+   * are no entries.
    */
   addRole?: { text: string; actions: MenuAction[] }
 }) {

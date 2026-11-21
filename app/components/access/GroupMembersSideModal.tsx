@@ -10,7 +10,8 @@ import { useState } from 'react'
 
 import {
   groupMemberList,
-  userScopedRoleEntries,
+  groupScopedRoleEntries,
+  scopedRoleEntries,
   type Group,
   type Loadable,
   type RoleKey,
@@ -54,10 +55,9 @@ export function GroupMembersSideModal({ group, onDismiss, scope }: Props) {
       ? { status: 'success', data: membersQuery.data.items }
       : { status: membersQuery.status }
 
-  // groups never inherit, so passing no groups yields the group's direct roles
   const roleEntries = {
     status: 'success',
-    data: userScopedRoleEntries(group.id, [], siloPolicy, projectPolicy),
+    data: groupScopedRoleEntries(group.id, siloPolicy, projectPolicy),
   } as const
 
   const addRoleAction = roleActions(managedScope, canEdit).add(() => setEditing({}))
@@ -71,7 +71,7 @@ export function GroupMembersSideModal({ group, onDismiss, scope }: Props) {
   const keepsEditAccess =
     isSelf &&
     canEditScope(
-      userScopedRoleEntries(me.id, myGroups.items, siloPolicy, projectPolicy).filter(
+      scopedRoleEntries(me.id, myGroups.items, siloPolicy, projectPolicy).filter(
         (e) =>
           !(
             e.scope === managedScope &&

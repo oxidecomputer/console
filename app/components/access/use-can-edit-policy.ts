@@ -7,7 +7,7 @@
  */
 import {
   getEffectiveRole,
-  userScopedRoleEntries,
+  scopedRoleEntries,
   type AccessScope,
   type Policy,
   type ScopedRoleEntry,
@@ -34,7 +34,7 @@ import { useCurrentUser } from '~/hooks/use-current-user'
 export function useCanEditPolicy(siloPolicy: Policy, projectPolicy?: Policy): boolean {
   const { me, myGroups } = useCurrentUser()
   if (!projectPolicy) return me.siloAdmin
-  const entries = userScopedRoleEntries(me.id, myGroups.items, siloPolicy, projectPolicy)
+  const entries = scopedRoleEntries(me.id, myGroups.items, siloPolicy, projectPolicy)
   return canEditScope(entries, 'project')
 }
 

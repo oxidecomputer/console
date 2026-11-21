@@ -15,7 +15,7 @@ import {
   sortRoleEntries,
   useGroupsByUserId,
   usePrefetchedQuery,
-  userScopedRoleEntries,
+  scopedRoleEntries,
   type User,
 } from '@oxide/api'
 import { Person24Icon, PersonGroup16Icon } from '@oxide/design-system/icons/react'
@@ -80,12 +80,7 @@ export function AccessUsersTab({ scope }: { scope: PolicyScope }) {
               // strongest assignment is the effective role; any others are
               // shown in the user detail side modal, reached by clicking the name
               const effective = sortRoleEntries(
-                userScopedRoleEntries(
-                  row.original.id,
-                  userGroups,
-                  siloPolicy,
-                  projectPolicy
-                )
+                scopedRoleEntries(row.original.id, userGroups, siloPolicy, projectPolicy)
               ).at(0)
               if (!effective) return <EmptyCell />
               return (

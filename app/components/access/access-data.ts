@@ -31,10 +31,7 @@ export const groupView = ({ groupId }: PP.SiloGroup) =>
 
 /**
  * Prefetch everything the Users and Groups tabs (and their detail modals) need,
- * so switching tabs doesn't trigger a fetch. Per-group member lists are fired
- * but not awaited: readers use `useQuery`/`useQueries`, so member counts and
- * per-user group lists fill in as they resolve instead of blocking the page on
- * one request per group.
+ * so switching tabs doesn't trigger a fetch.
  */
 export async function prefetchUsersAndGroups(project?: string) {
   await Promise.all([

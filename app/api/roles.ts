@@ -170,35 +170,46 @@ export type ScopedRoleEntry = {
 }
 
 /**
- * Enumerate all role assignments relevant to a user — one entry per direct
- * assignment and one per group assignment — across the given policies. Each
+ * Enumerate all role assignments relevant to an identity — one entry per direct
+ * assignment and one per assignment to a group in `userGroups` — across the
+ * given policies. For a group, use `groupScopedRoleEntries`. Each
  * entry is tagged with the scope of the policy it came from. Since the API
  * permits multiple assignments for the same identity in one policy, each entry
  * collapses those to the strongest role (see `getEffectiveRole`).
  * Callers are responsible for sorting and any display-layer merging.
  */
-export function userScopedRoleEntries(
-  userId: string,
+export function scopedRoleEntries(
+  identityId: string,
   userGroups: { id: string; displayName: string }[],
   siloPolicy: Policy,
   projectPolicy?: Policy
 ): ScopedRoleEntry[] {
-  const entries = policyRoleEntries('silo', siloPolicy, userId, userGroups)
+  const entries = policyRoleEntries('silo', siloPolicy, identityId, userGroups)
   if (projectPolicy) {
-    entries.push(...policyRoleEntries('project', projectPolicy, userId, userGroups))
+    entries.push(...policyRoleEntries('project', projectPolicy, identityId, userGroups))
   }
   return entries
 }
 
+/**
+ * Role entries for a group. Groups can't be in other groups, so a group has
+ * only its direct assignment in each scope.
+ */
+export const groupScopedRoleEntries = (
+  groupId: string,
+  siloPolicy: Policy,
+  projectPolicy?: Policy
+): ScopedRoleEntry[] => scopedRoleEntries(groupId, [], siloPolicy, projectPolicy)
+
 function policyRoleEntries(
   scope: AccessScope,
   policy: Policy,
-  userId: string,
+  identityId: string,
   userGroups: { id: string; displayName: string }[]
 ): ScopedRoleEntry[] {
   const roleById = rolesByIdFromPolicy(policy)
   const entries: ScopedRoleEntry[] = []
-  const direct = roleById.get(userId)
+  const direct = roleById.get(identityId)
   if (direct) {
     entries.push({ roleName: direct, scope, source: { type: 'direct' } })
   }
@@ -247,19 +258,15 @@ export type Loadable<T> =
   | { status: 'success'; data: T }
 
 /**
- * Builds a map from user ID to the list of groups that user belongs to,
- * firing one query per group to fetch members. Shared between user tabs.
- * Pending until every group's members have loaded, since a partial map would
- * make users look like they have fewer groups (and roles) than they do. For
- * the same reason, one failed member fetch makes the whole map an error.
- * Queries don't retry, so without the error state a single failure would
- * leave callers loading forever.
+ * Builds a map from user ID to the list of groups that user belongs to.
+ * Shared between user tabs. Since an error state is preferable to an
+ * incomplete set of groups/roles, failed queries result in an error.
  */
 export function useGroupsByUserId(groups: Group[]): Loadable<Map<string, Group[]>> {
   const { isError, pages } = useQueries({
     queries: groups.map((g) => groupMemberList({ groupId: g.id })),
-    // useQueries returns a new array each render; combine structurally shares
-    // the selected data so the Map only changes with groups or memberships
+    // combine keeps pages stable across renders;
+    // the memo below only reruns when groups/memberships change
     combine: (results) => ({
       isError: results.some((result) => result.isError),
       pages: results.map((result) => result.data),

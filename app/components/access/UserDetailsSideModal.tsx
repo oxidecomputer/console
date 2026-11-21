@@ -8,7 +8,7 @@
 import { useState } from 'react'
 
 import {
-  userScopedRoleEntries,
+  scopedRoleEntries,
   type Group,
   type Loadable,
   type RoleKey,
@@ -49,7 +49,7 @@ export function UserDetailsSideModal({ user, onDismiss, userGroups, scope }: Pro
     userGroups.status === 'success'
       ? {
           status: userGroups.status,
-          data: userScopedRoleEntries(user.id, userGroups.data, siloPolicy, projectPolicy),
+          data: scopedRoleEntries(user.id, userGroups.data, siloPolicy, projectPolicy),
         }
       : userGroups
 

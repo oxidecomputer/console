@@ -15,7 +15,7 @@ import {
   roleOrder,
   rolesByIdFromPolicy,
   updateRole,
-  userScopedRoleEntries,
+  scopedRoleEntries,
   type Policy,
 } from './roles'
 
@@ -99,7 +99,7 @@ describe('rolesByIdFromPolicy', () => {
   })
 })
 
-describe('userScopedRoleEntries', () => {
+describe('scopedRoleEntries', () => {
   it('collapses multiple assignments for the same identity to the strongest role', () => {
     // API permits multiple assignments for one identity in a single policy
     const policy: Policy = {
@@ -108,7 +108,7 @@ describe('userScopedRoleEntries', () => {
         { identityId: 'u', identityType: 'silo_user', roleName: 'admin' },
       ],
     }
-    expect(userScopedRoleEntries('u', [], policy)).toEqual([
+    expect(scopedRoleEntries('u', [], policy)).toEqual([
       { roleName: 'admin', scope: 'silo', source: { type: 'direct' } },
     ])
   })
@@ -123,7 +123,7 @@ describe('userScopedRoleEntries', () => {
     const project: Policy = {
       roleAssignments: [{ identityId: 'u', identityType: 'silo_user', roleName: 'admin' }],
     }
-    expect(userScopedRoleEntries('u', [group], silo, project)).toEqual([
+    expect(scopedRoleEntries('u', [group], silo, project)).toEqual([
       { roleName: 'viewer', scope: 'silo', source: { type: 'group', group } },
       { roleName: 'admin', scope: 'project', source: { type: 'direct' } },
     ])
@@ -139,7 +139,7 @@ describe('userScopedRoleEntries', () => {
       ],
     }
     // same role via two groups must not collapse — each source is shown separately
-    expect(userScopedRoleEntries('u', [groupA, groupB], silo)).toEqual([
+    expect(scopedRoleEntries('u', [groupA, groupB], silo)).toEqual([
       { roleName: 'collaborator', scope: 'silo', source: { type: 'group', group: groupA } },
       { roleName: 'collaborator', scope: 'silo', source: { type: 'group', group: groupB } },
     ])
