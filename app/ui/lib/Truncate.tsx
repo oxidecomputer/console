@@ -83,22 +83,14 @@ export const Truncate = ({
         {text}
       </div>
     ) : (
-      <div
-        ref={ref}
-        aria-label={text}
-        className="relative overflow-hidden whitespace-nowrap"
-      >
+      <div ref={ref} aria-label={text} className="overflow-hidden whitespace-nowrap">
         {/* invisible copy of the full text keeps the layout width stable, so
             swapping in the shorter ellipsized text can't shrink the container
             and trigger another round of truncation */}
-        <span aria-hidden className={cn(middleText && 'invisible')}>
+        <div aria-hidden className={cn(middleText && 'invisible h-0')}>
           {text}
-        </span>
-        {middleText && (
-          <span aria-hidden className="absolute inset-0">
-            {middleText}
-          </span>
-        )}
+        </div>
+        {middleText && <div aria-hidden>{middleText}</div>}
       </div>
     )
 
