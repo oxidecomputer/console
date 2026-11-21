@@ -210,8 +210,9 @@ export default [
                   empty('routers', [route(':router/edit', 'forms/vpc-router-edit.tsx')]),
                   route('routers-new', 'forms/vpc-router-create.tsx'),
                 ]),
-                route('internet-gateways', 'pages/project/vpcs/VpcGatewaysTab.tsx', [
-                  route(':gateway', 'pages/project/vpcs/internet-gateway-edit.tsx'),
+                layout('pages/project/vpcs/VpcGatewaysTab.tsx', [
+                  empty('internet-gateways'),
+                  route('internet-gateways-new', 'forms/internet-gateway-create.tsx'),
                 ]),
               ]),
             ]),
@@ -225,6 +226,12 @@ export default [
                     route('routes-new', 'forms/vpc-router-route-create.tsx'),
                     route('routes/:route/edit', 'forms/vpc-router-route-edit.tsx'),
                   ]),
+                ]),
+              ]),
+              route('internet-gateways', 'routes/internet-gateways.tsx', [
+                route(':gateway', 'pages/project/vpcs/InternetGatewayPage.tsx', [
+                  route('ip-pools-new', 'forms/internet-gateway-ip-pool-create.tsx'),
+                  route('ip-addresses-new', 'forms/internet-gateway-ip-address-create.tsx'),
                 ]),
               ]),
             ]),
