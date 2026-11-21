@@ -87,9 +87,9 @@ export const Truncate = ({
         {/* invisible copy of the full text keeps the layout width stable, so
             swapping in the shorter ellipsized text can't shrink the container
             and trigger another round of truncation */}
-        <span aria-hidden className={cn('block', middleText && 'invisible h-0')}>
+        <div aria-hidden className={cn(middleText && 'invisible h-0')}>
           {text}
-        </span>
+        </div>
         {middleText && <div aria-hidden>{middleText}</div>}
       </div>
     )
