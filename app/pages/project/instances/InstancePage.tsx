@@ -322,6 +322,7 @@ export function ResizeInstanceModal({
         cpuPlatform: instance.cpuPlatform || null,
         autoRestartPolicy: instance.autoRestartPolicy || null,
         enableJumboFrames: instance.enableJumboFrames,
+        shutdownPolicy: instance.shutdownPolicy,
       },
     })
   })

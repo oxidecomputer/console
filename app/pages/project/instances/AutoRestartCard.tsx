@@ -90,6 +90,7 @@ export function AutoRestartCard() {
         cpuPlatform: instance.cpuPlatform || null,
         bootDisk: instance.bootDiskId || null,
         enableJumboFrames: instance.enableJumboFrames,
+        shutdownPolicy: instance.shutdownPolicy,
       },
     })
   })

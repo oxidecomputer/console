@@ -853,6 +853,7 @@ export const handlers = makeHandlers({
       boot_disk_id: bootDiskId,
       auto_restart_enabled: true,
       enable_jumbo_frames: body.enable_jumbo_frames ?? false,
+      shutdown_policy: body.shutdown_policy ?? { action: 'hard_off' },
     }
 
     if (body.start) {
@@ -936,6 +937,8 @@ export const handlers = makeHandlers({
 
     // required on the body, so always set it (effective on next restart in nexus)
     instance.enable_jumbo_frames = body.enable_jumbo_frames
+    // null resets to the default policy
+    instance.shutdown_policy = body.shutdown_policy ?? { action: 'hard_off' }
 
     // We depart here from nexus in that nexus does both of the following
     // calculations at view time (when converting model to view). We can't

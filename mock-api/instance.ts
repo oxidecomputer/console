@@ -22,6 +22,7 @@ const base = {
   ncpus: 2,
   memory: 4 * GiB,
   enable_jumbo_frames: false,
+  shutdown_policy: { action: 'hard_off' as const },
 }
 
 export const instance: Json<Instance> = {
@@ -129,6 +130,7 @@ export const instanceDb2: Json<Instance> = {
   project_id: project.id,
   run_state: 'running',
   boot_disk_id: '48f94570-60d8-401c-857f-5bf912d2d3fc', // disk-2: needs to be written out here to reduce circular dependencies
+  shutdown_policy: { action: 'power_button', timeout_secs: 300 },
 }
 
 // Pre-stopped instance used by tests that only stop an instance to bypass a

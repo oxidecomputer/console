@@ -35,6 +35,11 @@ const LargeInt = z
   .refine(Number.isInteger, 'Invalid input: expected int, received number')
 
 /**
+ * ACPI power button timeout in seconds.
+ */
+export const AcpiTimeoutSecs = z.preprocess(processResponseBody, z.int().min(1).max(900))
+
+/**
  * An IPv4 subnet
  *
  * An IPv4 subnet, including prefix and prefix length
@@ -2410,6 +2415,17 @@ export const InstanceCpuPlatform = z.preprocess(
 export const InstanceCpuCount = z.preprocess(processResponseBody, z.int().min(0).max(65535))
 
 /**
+ * The method by which the instance will be powered down when transitioning to the stopped state or when rebooting: either forcefully or by giving the guest an ACPI power button signal first.
+ */
+export const InstanceShutdownPolicy = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ action: z.enum(['hard_off']) }),
+    z.object({ action: z.enum(['power_button']), timeoutSecs: AcpiTimeoutSecs }),
+  ])
+)
+
+/**
  * View of an Instance
  */
 export const Instance = z.preprocess(
@@ -2429,6 +2445,7 @@ export const Instance = z.preprocess(
     ncpus: InstanceCpuCount,
     projectId: z.uuid(),
     runState: InstanceState,
+    shutdownPolicy: InstanceShutdownPolicy,
     timeCreated: z.coerce.date(),
     timeLastAutoRestarted: z.coerce.date().nullable().optional(),
     timeModified: z.coerce.date(),
@@ -2583,6 +2600,7 @@ export const InstanceCreate = z.preprocess(
     networkInterfaces: InstanceNetworkInterfaceAttachment.default({
       type: 'default_dual_stack',
     }),
+    shutdownPolicy: InstanceShutdownPolicy.default({ action: 'hard_off' }),
     sshPublicKeys: NameOrId.array().nullable().optional(),
     start: SafeBoolean.default(true),
     userData: z.string().default(''),
@@ -2722,6 +2740,7 @@ export const InstanceUpdate = z.preprocess(
     memory: ByteCount,
     multicastGroups: MulticastGroupJoinSpec.array().nullable().default(null),
     ncpus: InstanceCpuCount,
+    shutdownPolicy: InstanceShutdownPolicy.nullable(),
   })
 )
 
@@ -6603,6 +6622,7 @@ export const InstanceRebootParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
+      force: SafeBoolean.nullable().optional(),
       project: NameOrId.optional(),
     }),
   })
@@ -6670,6 +6690,7 @@ export const InstanceStopParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
+      force: SafeBoolean.nullable().optional(),
       project: NameOrId.optional(),
     }),
   })
@@ -7395,7 +7416,9 @@ export const RackMembershipAbortParams = z.preprocess(
     path: z.object({
       rackId: z.uuid(),
     }),
-    query: z.object({}),
+    query: z.object({
+      version: RackMembershipVersion.optional(),
+    }),
   })
 )
 

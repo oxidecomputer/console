@@ -1100,6 +1100,7 @@ export interface MSWHandlers {
   /** `POST /v1/system/hardware/racks/:rackId/membership/abort` */
   rackMembershipAbort: (params: {
     path: Api.RackMembershipAbortPathParams
+    query: Api.RackMembershipAbortQueryParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.RackMembershipStatus>>
