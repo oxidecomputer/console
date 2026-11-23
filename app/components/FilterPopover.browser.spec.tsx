@@ -66,6 +66,9 @@ test('badge counts applied filters', async () => {
   await noneApplied.click()
   await page.getByRole('button', { name: 'Apply type filter' }).click()
   await userEvent.keyboard('{Escape}')
+  // the panel stays mounted during its exit transition; reopening before it unmounts
+  // would reuse the stale form
+  await expect.element(form()).not.toBeInTheDocument()
   const oneApplied = page.getByRole('button', { name: 'Filter widgets (1 applied)' })
   await expect.element(oneApplied).toBeVisible()
   // this is the non-accessible text
