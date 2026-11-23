@@ -7,7 +7,7 @@
  */
 
 import { formatDistanceToNow } from 'date-fns'
-import { type ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
@@ -43,6 +43,7 @@ type FormValues = {
 
 export function AutoRestartCard() {
   const instanceSelector = useInstanceSelector()
+  const titleId = useId()
 
   const { data: instance } = usePrefetchedQuery(
     q(api.instanceView, {
@@ -96,10 +97,11 @@ export function AutoRestartCard() {
   })
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} aria-labelledby={titleId}>
       <CardBlock>
         <CardBlock.Header
           title="Auto-restart"
+          titleId={titleId}
           description="The auto-restart policy for this instance"
         />
         <CardBlock.Body>

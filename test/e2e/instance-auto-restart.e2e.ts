@@ -27,7 +27,9 @@ test('Auto restart policy on failed instance', async ({ page }) => {
   await expect(page.getByText(/Cooldown expiration.+, 202\d.+\(5 minutes\)/)).toBeVisible()
   await expect(page.getByText(/Last auto-restarted.+, 202\d/)).toBeVisible()
 
-  const save = page.getByRole('button', { name: 'Save' })
+  const save = page
+    .getByRole('form', { name: 'Auto-restart' })
+    .getByRole('button', { name: 'Save' })
   await expect(save).toBeDisabled()
 
   const policyListbox = page.getByRole('button', { name: 'Policy' })
@@ -57,7 +59,9 @@ test('Auto restart policy on running instance', async ({ page }) => {
   await expect(page.getByText('Last auto-restartedN/A')).toBeVisible()
 
   // await expect(page.getByRole('button', { name: 'Policy' }))
-  const save = page.getByRole('button', { name: 'Save' })
+  const save = page
+    .getByRole('form', { name: 'Auto-restart' })
+    .getByRole('button', { name: 'Save' })
   await expect(save).toBeDisabled()
 
   const policyListbox = page.getByRole('button', { name: 'Policy' })
@@ -94,7 +98,9 @@ test('Auto restart popover, restarting soon', async ({ page }) => {
 
   const policyListbox = page.getByRole('button', { name: 'Policy' })
   await expect(policyListbox).toContainText('Default')
-  await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled()
+  await expect(
+    page.getByRole('form', { name: 'Auto-restart' }).getByRole('button', { name: 'Save' })
+  ).toBeDisabled()
 })
 
 test('Auto restart popover, policy never', async ({ page }) => {
@@ -116,7 +122,9 @@ test('Auto restart popover, policy never', async ({ page }) => {
 
   const policyListbox = page.getByRole('button', { name: 'Policy' })
   await expect(policyListbox).toContainText('Never')
-  await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled()
+  await expect(
+    page.getByRole('form', { name: 'Auto-restart' }).getByRole('button', { name: 'Save' })
+  ).toBeDisabled()
 })
 
 test('Auto restart popover, cooled, policy never, cooled', async ({ page }) => {
@@ -136,5 +144,7 @@ test('Auto restart popover, cooled, policy never, cooled', async ({ page }) => {
 
   const policyListbox = page.getByRole('button', { name: 'Policy' })
   await expect(policyListbox).toContainText('Never')
-  await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled()
+  await expect(
+    page.getByRole('form', { name: 'Auto-restart' }).getByRole('button', { name: 'Save' })
+  ).toBeDisabled()
 })

@@ -1238,9 +1238,16 @@ export const handlers = makeHandlers({
     const instance = lookup.instance({ ...path, ...query })
     instance.run_state = 'stopping'
 
-    setTimeout(() => {
-      instance.run_state = 'stopped'
-    }, 3000)
+    // a power button shutdown waits on the guest, so it takes longer. a forced
+    // stop cuts it short, so guard against the slow timer firing after the
+    // instance has already stopped and maybe started again
+    const powerButton = instance.shutdown_policy.action === 'power_button' && !query.force
+    setTimeout(
+      () => {
+        if (instance.run_state === 'stopping') instance.run_state = 'stopped'
+      },
+      powerButton ? 10_000 : 3000
+    )
 
     return json(instance, { status: 202 })
   },

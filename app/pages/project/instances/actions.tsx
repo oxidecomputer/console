@@ -18,6 +18,22 @@ import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
 
+/** Explains what a non-forced stop or reboot does for power button instances */
+const PowerButtonNote = ({ instance }: { instance: Instance }) =>
+  instance.shutdownPolicy.action === 'power_button' ? (
+    <p>
+      The guest OS will get a power button signal. If it hasn’t shut down after{' '}
+      {instance.shutdownPolicy.timeoutSecs} seconds, the instance will be powered off.
+    </p>
+  ) : null
+
+const HardOffWarning = () => (
+  <p>
+    The instance will be powered off immediately without giving the guest OS a chance to
+    shut down.
+  </p>
+)
+
 type Options = {
   onSuccess?: () => void
   // delete needs special behavior on instance detail because you need to nav to
@@ -94,6 +110,7 @@ export const useMakeInstanceActions = (
                   <p>
                     Are you sure you want to stop <HL>{instance.name}</HL>?
                   </p>
+                  <PowerButtonNote instance={instance} />
                   <p>
                     Stopped instances retain attached disks and IP addresses, but allocated
                     CPU and memory are freed.
@@ -116,6 +133,7 @@ export const useMakeInstanceActions = (
   const makeMenuActions = useCallback(
     (instance: Instance): MenuAction[] => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
+      const forceParams = { ...instanceParams, query: { project, force: true } }
       return [
         {
           label: 'Reboot',
@@ -130,9 +148,12 @@ export const useMakeInstanceActions = (
                 }),
               modalTitle: 'Reboot instance',
               modalContent: (
-                <p>
-                  Are you sure you want to reboot <HL>{instance.name}</HL>?
-                </p>
+                <div className="space-y-2">
+                  <p>
+                    Are you sure you want to reboot <HL>{instance.name}</HL>?
+                  </p>
+                  <PowerButtonNote instance={instance} />
+                </div>
               ),
               errorTitle: `Error rebooting ${instance.name}`,
             })
@@ -141,6 +162,72 @@ export const useMakeInstanceActions = (
             <>Only {fancifyStates(instanceCan.reboot.states)} instances can be rebooted</>
           ),
         },
+        // A hard off instance stops and reboots forcefully anyway, so these are
+        // only worth offering when there's a power button shutdown to skip
+        ...(instance.shutdownPolicy.action === 'power_button'
+          ? [
+              {
+                label: 'Force stop',
+                onActivate() {
+                  confirmAction({
+                    actionType: 'danger',
+                    doAction: () =>
+                      stopInstanceAsync(forceParams, {
+                        onSuccess: () =>
+                          // prettier-ignore
+                          addToast(<>Force stopping instance <HL>{instance.name}</HL></>),
+                      }),
+                    modalTitle: 'Force stop instance',
+                    modalContent: (
+                      <div className="space-y-2">
+                        <p>
+                          Are you sure you want to force stop <HL>{instance.name}</HL>?
+                        </p>
+                        <HardOffWarning />
+                      </div>
+                    ),
+                    errorTitle: `Error force stopping ${instance.name}`,
+                  })
+                },
+                disabled: !instanceCan.forceStop(instance) && (
+                  <>
+                    Only {fancifyStates(['running', 'stopping'])} instances can be force
+                    stopped
+                  </>
+                ),
+              },
+              {
+                label: 'Force reboot',
+                onActivate() {
+                  confirmAction({
+                    actionType: 'danger',
+                    doAction: () =>
+                      rebootInstanceAsync(forceParams, {
+                        onSuccess: () =>
+                          // prettier-ignore
+                          addToast(<>Force rebooting instance <HL>{instance.name}</HL></>),
+                      }),
+                    modalTitle: 'Force reboot instance',
+                    modalContent: (
+                      <div className="space-y-2">
+                        <p>
+                          Are you sure you want to force reboot <HL>{instance.name}</HL>?
+                        </p>
+                        <HardOffWarning />
+                      </div>
+                    ),
+                    errorTitle: `Error force rebooting ${instance.name}`,
+                  })
+                },
+                disabled: !instanceCan.reboot(instance) && (
+                  <>
+                    Only {fancifyStates(instanceCan.reboot.states)} instances can be
+                    rebooted
+                  </>
+                ),
+              },
+            ]
+          : []),
         {
           label: 'Resize',
           onActivate: () => onResizeClick?.(instance),
@@ -175,7 +262,7 @@ export const useMakeInstanceActions = (
     // Do not put `options` in here, refer to the property. options is not ref
     // stable. Extra renders here cause the row actions menu to close when it
     // shouldn't, like during polling on instance list.
-    [project, deleteInstanceAsync, rebootInstanceAsync, onResizeClick]
+    [project, deleteInstanceAsync, rebootInstanceAsync, stopInstanceAsync, onResizeClick]
   )
 
   return { makeButtonActions, makeMenuActions }
