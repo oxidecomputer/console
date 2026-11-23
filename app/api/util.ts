@@ -238,10 +238,10 @@ const instanceActions = {
   reboot: ['running'], // technically rebooting allowed but too weird to say it
   // stopping a failed disk: https://github.com/oxidecomputer/omicron/blob/f0b804818b898bebdb317ac2b000618944c02457/nexus/src/app/instance.rs#L818-L830
   stop: ['running', 'starting', 'rebooting', 'failed'],
-  // Nexus also accepts a stop while the instance is stopping. That's how a
-  // pending power button shutdown gets escalated to a hard power off.
+  // Nexus also accepts a stop while the instance is stopping. A forced one is
+  // how a pending power button shutdown gets cut short.
   // https://github.com/oxidecomputer/omicron/blob/0c6c243/nexus/src/app/instance.rs#L1441-L1456
-  forceStop: ['running', 'starting', 'rebooting', 'failed', 'stopping'],
+  forceStop: ['stopping'],
 
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L323-L327
   detachDisk: ['creating', 'stopped', 'failed'],

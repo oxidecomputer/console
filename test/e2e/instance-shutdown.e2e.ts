@@ -136,11 +136,15 @@ test('resizing keeps the shutdown policy', async ({ page }) => {
   ).toHaveValue('45')
 })
 
-test('force stop a power button instance while it is stopping', async ({ page }) => {
+test('Stop becomes Force stop while a power button shutdown is pending', async ({
+  page,
+}) => {
   await page.goto('/projects/mock-project/instances')
   await expectInstanceState(page, 'db2', 'running')
 
+  // a running instance only gets the plain stop that follows its policy
   await clickRowActions(page, 'db2')
+  await expect(page.getByRole('menuitem', { name: 'Force stop' })).toBeHidden()
   await page.getByRole('menuitem', { name: 'Stop', exact: true }).click()
   const modal = page.getByRole('dialog', { name: 'Stop instance' })
   await expect(modal).toContainText('power button signal')
@@ -149,12 +153,13 @@ test('force stop a power button instance while it is stopping', async ({ page })
   await expectToast(page, 'Stopping instance db2')
 
   // the power button shutdown leaves the instance stopping for a while, and
-  // force stop is still available to cut it short
+  // Stop turns into Force stop to cut it short
   await expectInstanceState(page, 'db2', 'stopping')
   await clickRowActions(page, 'db2')
+  await expect(page.getByRole('menuitem', { name: 'Stop', exact: true })).toBeHidden()
   await page.getByRole('menuitem', { name: 'Force stop' }).click()
   const forceModal = page.getByRole('dialog', { name: 'Force stop instance' })
-  await expect(forceModal).toContainText('powered off immediately')
+  await expect(forceModal).toContainText('power will be cut immediately')
   await forceModal.getByRole('button', { name: 'Confirm' }).click()
   await expectToast(page, 'Force stopping instance db2')
 
@@ -163,29 +168,13 @@ test('force stop a power button instance while it is stopping', async ({ page })
   await expectInstanceState(page, 'db2', 'stopped')
 })
 
-test('force reboot a power button instance', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances')
-  await expectInstanceState(page, 'db2', 'running')
-
-  await clickRowActions(page, 'db2')
-  await page.getByRole('menuitem', { name: 'Force reboot' }).click()
-  await page
-    .getByRole('dialog', { name: 'Force reboot instance' })
-    .getByRole('button', { name: 'Confirm' })
-    .click()
-  await expectToast(page, 'Force rebooting instance db2')
-  await expectInstanceState(page, 'db2', 'rebooting')
-  await expectInstanceState(page, 'db2', 'running')
-})
-
-test('hard off instances do not offer force actions', async ({ page }) => {
+test('hard off instances never offer force stop', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await expectInstanceState(page, 'db1', 'running')
 
   await clickRowActions(page, 'db1')
   await expect(page.getByRole('menuitem', { name: 'Stop', exact: true })).toBeVisible()
   await expect(page.getByRole('menuitem', { name: 'Force stop' })).toBeHidden()
-  await expect(page.getByRole('menuitem', { name: 'Force reboot' })).toBeHidden()
   await page.keyboard.press('Escape')
 
   // and the stop confirmation doesn't mention the power button

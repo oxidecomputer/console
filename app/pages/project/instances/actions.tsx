@@ -27,13 +27,6 @@ const PowerButtonNote = ({ instance }: { instance: Instance }) =>
     </p>
   ) : null
 
-const HardOffWarning = () => (
-  <p>
-    The instance will be powered off immediately without giving the guest OS a chance to
-    shut down.
-  </p>
-)
-
 type Options = {
   onSuccess?: () => void
   // delete needs special behavior on instance detail because you need to nav to
@@ -93,38 +86,72 @@ export const useMakeInstanceActions = (
             <>Only {fancifyStates(instanceCan.start.states)} instances can be started</>
           ),
         },
-        {
-          label: 'Stop',
-          onActivate() {
-            confirmAction({
-              actionType: 'danger',
-              doAction: () =>
-                stopInstanceAsync(instanceParams, {
-                  onSuccess: () =>
-                    // prettier-ignore
-                    addToast(<>Stopping instance <HL>{instance.name}</HL></>),
-                }),
-              modalTitle: 'Stop instance',
-              modalContent: (
-                <div className="space-y-2">
-                  <p>
-                    Are you sure you want to stop <HL>{instance.name}</HL>?
-                  </p>
-                  <PowerButtonNote instance={instance} />
-                  <p>
-                    Stopped instances retain attached disks and IP addresses, but allocated
-                    CPU and memory are freed.
-                  </p>
-                </div>
+        // While a power button shutdown is pending, another plain stop does
+        // nothing, so Stop becomes a forced stop that skips the rest of the
+        // timeout
+        instance.shutdownPolicy.action === 'power_button' && instanceCan.forceStop(instance)
+          ? {
+              label: 'Force stop',
+              onActivate() {
+                confirmAction({
+                  actionType: 'danger',
+                  doAction: () =>
+                    stopInstanceAsync(
+                      { ...instanceParams, query: { project, force: true } },
+                      {
+                        onSuccess: () =>
+                          // prettier-ignore
+                          addToast(<>Force stopping instance <HL>{instance.name}</HL></>),
+                      }
+                    ),
+                  modalTitle: 'Force stop instance',
+                  modalContent: (
+                    <div className="space-y-2">
+                      <p>
+                        Are you sure you want to force stop <HL>{instance.name}</HL>?
+                      </p>
+                      <p>
+                        The guest OS hasn’t finished shutting down. Its power will be cut
+                        immediately.
+                      </p>
+                    </div>
+                  ),
+                  errorTitle: `Error force stopping ${instance.name}`,
+                })
+              },
+            }
+          : {
+              label: 'Stop',
+              onActivate() {
+                confirmAction({
+                  actionType: 'danger',
+                  doAction: () =>
+                    stopInstanceAsync(instanceParams, {
+                      onSuccess: () =>
+                        // prettier-ignore
+                        addToast(<>Stopping instance <HL>{instance.name}</HL></>),
+                    }),
+                  modalTitle: 'Stop instance',
+                  modalContent: (
+                    <div className="space-y-2">
+                      <p>
+                        Are you sure you want to stop <HL>{instance.name}</HL>?
+                      </p>
+                      <PowerButtonNote instance={instance} />
+                      <p>
+                        Stopped instances retain attached disks and IP addresses, but
+                        allocated CPU and memory are freed.
+                      </p>
+                    </div>
+                  ),
+                  errorTitle: `Error stopping ${instance.name}`,
+                })
+              },
+              disabled: !instanceCan.stop(instance) && (
+                // don't list all the states, it's overwhelming
+                <>Only {fancifyStates(['running'])} instances can be stopped</>
               ),
-              errorTitle: `Error stopping ${instance.name}`,
-            })
-          },
-          disabled: !instanceCan.stop(instance) && (
-            // don't list all the states, it's overwhelming
-            <>Only {fancifyStates(['running'])} instances can be stopped</>
-          ),
-        },
+            },
       ]
     },
     [project, startInstanceAsync, stopInstanceAsync]
@@ -133,7 +160,6 @@ export const useMakeInstanceActions = (
   const makeMenuActions = useCallback(
     (instance: Instance): MenuAction[] => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
-      const forceParams = { ...instanceParams, query: { project, force: true } }
       return [
         {
           label: 'Reboot',
@@ -162,72 +188,6 @@ export const useMakeInstanceActions = (
             <>Only {fancifyStates(instanceCan.reboot.states)} instances can be rebooted</>
           ),
         },
-        // A hard off instance stops and reboots forcefully anyway, so these are
-        // only worth offering when there's a power button shutdown to skip
-        ...(instance.shutdownPolicy.action === 'power_button'
-          ? [
-              {
-                label: 'Force stop',
-                onActivate() {
-                  confirmAction({
-                    actionType: 'danger',
-                    doAction: () =>
-                      stopInstanceAsync(forceParams, {
-                        onSuccess: () =>
-                          // prettier-ignore
-                          addToast(<>Force stopping instance <HL>{instance.name}</HL></>),
-                      }),
-                    modalTitle: 'Force stop instance',
-                    modalContent: (
-                      <div className="space-y-2">
-                        <p>
-                          Are you sure you want to force stop <HL>{instance.name}</HL>?
-                        </p>
-                        <HardOffWarning />
-                      </div>
-                    ),
-                    errorTitle: `Error force stopping ${instance.name}`,
-                  })
-                },
-                disabled: !instanceCan.forceStop(instance) && (
-                  <>
-                    Only {fancifyStates(['running', 'stopping'])} instances can be force
-                    stopped
-                  </>
-                ),
-              },
-              {
-                label: 'Force reboot',
-                onActivate() {
-                  confirmAction({
-                    actionType: 'danger',
-                    doAction: () =>
-                      rebootInstanceAsync(forceParams, {
-                        onSuccess: () =>
-                          // prettier-ignore
-                          addToast(<>Force rebooting instance <HL>{instance.name}</HL></>),
-                      }),
-                    modalTitle: 'Force reboot instance',
-                    modalContent: (
-                      <div className="space-y-2">
-                        <p>
-                          Are you sure you want to force reboot <HL>{instance.name}</HL>?
-                        </p>
-                        <HardOffWarning />
-                      </div>
-                    ),
-                    errorTitle: `Error force rebooting ${instance.name}`,
-                  })
-                },
-                disabled: !instanceCan.reboot(instance) && (
-                  <>
-                    Only {fancifyStates(instanceCan.reboot.states)} instances can be
-                    rebooted
-                  </>
-                ),
-              },
-            ]
-          : []),
         {
           label: 'Resize',
           onActivate: () => onResizeClick?.(instance),
@@ -262,7 +222,7 @@ export const useMakeInstanceActions = (
     // Do not put `options` in here, refer to the property. options is not ref
     // stable. Extra renders here cause the row actions menu to close when it
     // shouldn't, like during polling on instance list.
-    [project, deleteInstanceAsync, rebootInstanceAsync, stopInstanceAsync, onResizeClick]
+    [project, deleteInstanceAsync, rebootInstanceAsync, onResizeClick]
   )
 
   return { makeButtonActions, makeMenuActions }
