@@ -96,7 +96,7 @@ export function FilterPopover<TFieldValues extends FieldValues>({
       </PopoverButton>
       <PopoverPanel
         transition
-        className="popover-panel origin-top-right bg-raise light:bg-default shadow-menu z-(--z-popover) w-96 rounded-lg"
+        className="popover-panel bg-raise light:bg-default shadow-menu z-(--z-popover) w-96 origin-top-right rounded-lg"
         anchor={{ to: 'bottom end', gap: 12, padding: 16 }}
       >
         <FilterForm

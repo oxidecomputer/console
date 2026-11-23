@@ -798,7 +798,7 @@ function ChartSettings({ dropFirstPoint, colorScale }: ChartSettingsProps) {
       </PopoverButton>
       <PopoverPanel
         transition
-        className="popover-panel origin-top-right bg-raise light:bg-default shadow-menu z-10 w-80 rounded-lg py-4"
+        className="popover-panel bg-raise light:bg-default shadow-menu z-10 w-80 origin-top-right rounded-lg py-4"
         anchor={{ to: 'bottom end', gap: 12, padding: 16 }}
       >
         <h2 className="text-sans-semi-md text-raise px-4">Chart settings</h2>
