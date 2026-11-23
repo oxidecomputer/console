@@ -285,7 +285,7 @@ const UsageCell = ({
   allocated: number
   unit?: string
 }) => (
-  <div className="text-secondary flex flex-col">
+  <div className="text-secondary flex flex-col tabular-nums">
     <div>
       <span className="text-raise">{provisioned}</span> /
     </div>
