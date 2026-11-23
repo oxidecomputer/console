@@ -7,6 +7,8 @@
  */
 
 :root {
+  /* above everything while focused, including the fixed top bar */
+  --z-skip-link: 60;
   --z-toast: 50;
   --z-modal-dropdown: 50;
   --z-modal: 40;
