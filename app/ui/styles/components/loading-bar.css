@@ -10,7 +10,9 @@
 @media (prefers-reduced-motion: no-preference) {
   .global-loading-bar {
     opacity: 1;
-    width: 0%;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left;
   }
 
   .global-loading-bar.loading {
@@ -28,34 +30,34 @@
   @keyframes loading-bar-loading {
     0% {
       opacity: 1;
-      width: 0%;
+      transform: scaleX(0);
     }
 
     4% {
       opacity: 1;
-      width: 20%;
+      transform: scaleX(0.2);
     }
 
     40% {
       opacity: 1;
-      width: 40%;
+      transform: scaleX(0.4);
     }
 
     100% {
       opacity: 1;
-      width: 45%;
+      transform: scaleX(0.45);
     }
   }
 
   @keyframes loading-bar-done {
     0% {
       opacity: 1;
-      width: 45%;
+      transform: scaleX(0.45);
     }
 
     100% {
       opacity: 0;
-      width: 100%;
+      transform: scaleX(1);
     }
   }
 }
