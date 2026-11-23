@@ -20,6 +20,7 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
+import { formatSlot } from '~/util/str'
 
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './sled/SledBadges'
 
@@ -35,11 +36,14 @@ export const handle = { crumb: 'Sleds' }
 const colHelper = createColumnHelper<Sled>()
 const staticCols = [
   colHelper.accessor('slot', {
-    cell: (info) => (
-      <div className="w-[2.5ch] text-right tabular-nums">
-        {info.getValue() ?? <EmptyCell />}
-      </div>
-    ),
+    cell: (info) => {
+      const slot = info.getValue()
+      return slot == null ? (
+        <EmptyCell />
+      ) : (
+        <span className="tabular-nums">{formatSlot(slot)}</span>
+      )
+    },
   }),
   colHelper.accessor('id', {
     cell: (info) => (
