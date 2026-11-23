@@ -18,6 +18,7 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+import { formatSlot } from '~/util/str'
 
 import type { Route } from './+types/SledPage'
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './SledBadges'
@@ -73,7 +74,11 @@ export default function SledPage() {
           bytes={sled.usablePhysicalRam}
         />
         <PropertiesTable.Row label="slot">
-          <span className="text-default">{sled.slot ?? <EmptyCell />}</span>
+          {sled.slot == null ? (
+            <EmptyCell />
+          ) : (
+            <span className="text-default tabular-nums">{formatSlot(sled.slot)}</span>
+          )}
         </PropertiesTable.Row>
         <PropertiesTable.DateRow label="Created" date={sled.timeCreated} />
       </PropertiesTable>

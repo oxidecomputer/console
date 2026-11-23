@@ -10,6 +10,9 @@ import React, { type ReactElement, type ReactNode } from 'react'
 
 export const capitalize = (s: string) => s && s.charAt(0).toUpperCase() + s.slice(1)
 
+/** Zero-pad sled slot so 1- and 2-digit slots align (a rack has at most 32 slots) */
+export const formatSlot = (slot: number) => String(slot).padStart(2, '0')
+
 export const pluralize = (s: string, n: number) => `${s}${n === 1 ? '' : 's'}`
 
 export const camelCase = (s: string) =>
