@@ -6,7 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import type { ElementType, PropsWithChildren } from 'react'
+import type { ElementType, PropsWithChildren, ReactNode } from 'react'
+
+import { TipIcon } from './TipIcon'
 
 interface FieldLabelProps {
   id: string
@@ -14,6 +16,7 @@ interface FieldLabelProps {
   htmlFor?: string
   optional?: boolean
   className?: string
+  tip?: ReactNode
 }
 
 export const FieldLabel = ({
@@ -23,6 +26,7 @@ export const FieldLabel = ({
   optional,
   as,
   className,
+  tip,
 }: PropsWithChildren<FieldLabelProps>) => {
   const Component = as || 'label'
   return (
@@ -41,6 +45,7 @@ export const FieldLabel = ({
           </span>
         )}
       </Component>
+      {tip && <TipIcon>{tip}</TipIcon>}
     </div>
   )
 }

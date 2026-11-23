@@ -40,6 +40,7 @@ export interface ListboxProps<Value extends string = string> {
   /** Hide visible label, using it as aria-label on the button instead */
   hideLabel?: boolean
   description?: React.ReactNode
+  tip?: React.ReactNode
   required?: boolean
   isLoading?: boolean
   /** Necessary if you want RHF to be able to focus it on error */
@@ -58,6 +59,7 @@ export const Listbox = <Value extends string = string>({
   onChange,
   hasError = false,
   label,
+  tip,
   description,
   required,
   disabled,
@@ -92,6 +94,7 @@ export const Listbox = <Value extends string = string>({
                   id={`${id}-label`}
                   htmlFor={id}
                   optional={!required && !hideOptionalTag}
+                  tip={tip}
                 >
                   {label}
                 </FieldLabel>

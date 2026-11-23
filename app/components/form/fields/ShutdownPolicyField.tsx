@@ -19,6 +19,7 @@ import {
   type InstanceShutdownPolicy,
 } from '@oxide/api'
 
+import { ItemLabel } from '~/ui/lib/ItemLabel'
 import type { ListboxItem } from '~/ui/lib/Listbox'
 
 import { ListboxField } from './ListboxField'
@@ -38,8 +39,20 @@ export type ShutdownPolicyFormValues = {
 export const DEFAULT_SHUTDOWN_TIMEOUT_SECS = 60
 
 const shutdownActionItems: ListboxItem<ShutdownAction>[] = [
-  { value: 'hard_off', label: 'Hard power off' },
-  { value: 'power_button', label: 'Power button' },
+  {
+    value: 'hard_off',
+    selectedLabel: 'Hard power off',
+    label: <ItemLabel name="Hard power off">Cut power immediately</ItemLabel>,
+  },
+  {
+    value: 'power_button',
+    selectedLabel: 'Power button',
+    label: (
+      <ItemLabel name="Power button">
+        Signal the guest OS to shut down, then cut power after the timeout
+      </ItemLabel>
+    ),
+  },
 ]
 
 export const shutdownPolicyToForm = (
@@ -102,7 +115,16 @@ export function ShutdownPolicyField<TFieldValues extends FieldValues>({
         control={control}
         name={actionName}
         label="Shutdown method"
-        description="How the instance is shut down when it is stopped or rebooted, including for system updates"
+        tip={
+          <div className="space-y-2">
+            <p>Applies to stops and reboots, including restarts for system updates.</p>
+            <p>Not all guest operating systems shut down on a power button press.</p>
+            <p>
+              On Windows, a power button shutdown can interrupt updates applied at shutdown
+              and leave the instance unbootable.
+            </p>
+          </div>
+        }
         items={shutdownActionItems}
         required
         disabled={disabled}
@@ -113,7 +135,7 @@ export function ShutdownPolicyField<TFieldValues extends FieldValues>({
           name={timeoutName}
           label="Shutdown timeout"
           units="seconds"
-          description="How long to wait for the guest OS to shut down before cutting power"
+          tip="A long timeout on an unresponsive guest can delay rack software updates."
           min={ACPI_TIMEOUT_MIN_SECS}
           max={ACPI_TIMEOUT_MAX_SECS}
           required

@@ -82,7 +82,7 @@ export function ShutdownPolicyCard() {
         <CardBlock.Header
           title="Shutdown"
           titleId={titleId}
-          description="How the instance is powered down when stopped or rebooted"
+          description="The shutdown policy for this instance"
         />
         <CardBlock.Body>
           <ShutdownPolicyField
@@ -90,14 +90,9 @@ export function ShutdownPolicyCard() {
             actionName="shutdownAction"
             timeoutName="shutdownTimeoutSecs"
           />
-          <p className="text-secondary max-w-lg">
-            Power button signals the guest OS to shut down cleanly and cuts power if it
-            hasn’t stopped by the timeout. Timeout changes don’t apply to an instance that
-            is already shutting down.
-          </p>
         </CardBlock.Body>
         <CardBlock.Footer>
-          <LearnMore doc={docLinks.instanceActions} />
+          <LearnMore doc={docLinks.shutdownPolicy} />
           <Button size="sm" type="submit" disabled={disableSubmit}>
             Save
           </Button>

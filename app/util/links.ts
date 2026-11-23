@@ -97,6 +97,10 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/managing-instances#_update_instances',
     linkText: 'Instance Auto-Restart',
   },
+  shutdownPolicy: {
+    href: 'https://docs.oxide.computer/guides/deploying-workloads#_shutdown_policy',
+    linkText: 'Instance Shutdown Policy',
+  },
   instanceActions: {
     href: 'https://docs.oxide.computer/guides/managing-instances',
     linkText: 'Instance Actions',

@@ -23,6 +23,7 @@ type NumberFieldProps<
 > = TextFieldProps<T, N> & {
   /** Counts and resource sizes require whole numbers; byte quotas can use fractional GiB. */
   allowDecimals?: boolean
+  tip?: React.ReactNode
 }
 
 export function NumberField<
@@ -35,6 +36,7 @@ export function NumberField<
   units,
   description,
   required,
+  tip,
   ...props
 }: Omit<NumberFieldProps<TFieldValues, TName>, 'id'>) {
   // id is omitted from props because we generate it here
@@ -42,7 +44,7 @@ export function NumberField<
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
+        <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required} tip={tip}>
           {label} {units && <span className="text-default ml-1">({units})</span>}
         </FieldLabel>
         {description && (
