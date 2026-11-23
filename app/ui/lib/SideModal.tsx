@@ -80,8 +80,8 @@ export function SideModal({
             initialFocus={focusTitle ? titleRef : true}
             render={
               <m.div
-                initial={{ x: animate ? 40 : 0 }}
-                animate={{ x: 0 }}
+                initial={{ transform: animate ? 'translateX(40px)' : 'translateX(0px)' }}
+                animate={{ transform: 'translateX(0px)' }}
                 transition={{ type: 'spring', duration: 0.4, bounce: 0 }}
                 className="ox-side-modal bg-raise shadow-modal 1000:w-lg pointer-events-auto fixed top-0 right-0 bottom-0 z-(--z-side-modal) m-0 flex w-full flex-col justify-between p-0"
               />

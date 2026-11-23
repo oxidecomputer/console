@@ -66,11 +66,11 @@ export function Modal({
           <BaseDialog.Popup
             render={
               <m.div
-                initial={{ x: '-50%', y: 'calc(-50% - 25px)' }}
-                animate={{ x: '-50%', y: '-50%' }}
+                initial={{ opacity: 0, transform: 'translateY(-8px) scale(0.97)' }}
+                animate={{ opacity: 1, transform: 'translateY(0px) scale(1)' }}
                 transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
                 className={cn(
-                  'bg-raise light:bg-default shadow-modal pointer-events-auto fixed top-[min(50%,500px)] left-1/2 z-(--z-modal) m-0 flex max-h-[min(800px,80vh)] flex-col justify-between overflow-hidden rounded-lg p-0',
+                  'bg-raise light:bg-default shadow-modal pointer-events-auto fixed top-[min(50%,500px)] left-1/2 -translate-x-1/2 -translate-y-1/2 z-(--z-modal) m-0 flex max-h-[min(800px,80vh)] flex-col justify-between overflow-hidden rounded-lg p-0',
                   widthClass[width]
                 )}
               />
