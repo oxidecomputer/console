@@ -94,6 +94,9 @@ test('Disabled actions', async ({ page }) => {
   await bootDiskRow.getByRole('button', { name: 'Row actions' }).click()
   await expect(unsetButton).toBeEnabled()
   await expect(detachButton).toBeDisabled() // detach is always disabled on boot disk
+  await page.keyboard.press('Escape') // close menu
+  // menu stays mounted during its exit transition; wait so locators aren't ambiguous
+  await expect(page.getByRole('menu')).toBeHidden()
 
   await otherDiskRow.getByRole('button', { name: 'Row actions' }).click()
   await expect(setButton).toBeEnabled()
