@@ -399,33 +399,3 @@ function HeatmapLegend({
     </div>
   )
 }
-
-const SAMPLE_VALUES = [1, 5, 10, 50, 95, 100]
-const SAMPLE_VALUES_METADATA = getSampleCountMetadata(SAMPLE_VALUES)
-const LONGEST_SAMPLE_ITEM = SAMPLE_VALUES.map((n) => n.toLocaleString().length).reduce(
-  (acc, length) => Math.max(acc, length),
-  0
-)
-
-export function SampleColorStrip({ colorScale }: { colorScale: ColorScale }) {
-  const scaleCount = getScalingFunction(SAMPLE_VALUES_METADATA, colorScale)
-
-  return (
-    <div className="flex items-end gap-px">
-      {SAMPLE_VALUES.map((n) => (
-        <div
-          key={n}
-          className="text-secondary text-mono-code flex flex-col items-center text-xs"
-        >
-          <div className="text-center" style={{ width: `${LONGEST_SAMPLE_ITEM + 0.5}ch` }}>
-            {n.toLocaleString()}
-          </div>
-          <div
-            className="h-3 w-full"
-            style={{ backgroundColor: rampColor(CSS_VAR_RAMP, scaleCount(n)) }}
-          />
-        </div>
-      ))}
-    </div>
-  )
-}

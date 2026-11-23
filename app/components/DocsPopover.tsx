@@ -7,7 +7,6 @@
  */
 
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
-import cn from 'classnames'
 import type { JSX } from 'react'
 
 import { Info16Icon, OpenLink12Icon } from '@oxide/design-system/icons/react'
@@ -48,7 +47,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
   return (
     <Popover>
       <PopoverButton title={title} className="headless-hide-focus rounded-md">
-        <div className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}>
+        <div className={buttonStyle({ size: 'icon', variant: 'ghost' })}>
           <Info16Icon aria-hidden className="shrink-0" />
         </div>
       </PopoverButton>

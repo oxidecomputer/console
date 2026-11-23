@@ -106,7 +106,9 @@ test('"Drop first point" appears for cumulative-derived charts and updates them'
   page,
 }) => {
   const settings = page.getByRole('button', { name: 'Chart settings' })
-  const dropFirst = page.getByLabel('Drop first data point')
+  const dropFirst = page.getByRole('menuitem', { name: /^Drop first data point/ })
+  const on = page.getByRole('menuitemradio', { name: 'On', exact: true })
+  const off = page.getByRole('menuitemradio', { name: 'Off', exact: true })
 
   // a plain gauge is never cumulative, so there's no giant first point to drop.
   // and since the only other option is about heatmaps, there should be no
@@ -125,12 +127,18 @@ test('"Drop first point" appears for cumulative-derived charts and updates them'
   await expect(canvas).toBeVisible()
   const firstDroppedImage = await chartImage(canvas)
   await settings.click()
-  await expect(dropFirst).toBeChecked()
+  await expect(dropFirst).toHaveAccessibleName('Drop first data point On')
+  await dropFirst.click()
+  await expect(on).toBeChecked()
 
-  await dropFirst.uncheck()
+  // selecting keeps the menu open
+  await off.click()
+  await expect(off).toBeChecked()
+  await expect(dropFirst).toHaveAccessibleName('Drop first data point Off')
   expect(await chartImage(canvas)).not.toEqual(firstDroppedImage)
 
-  await dropFirst.check()
+  await on.click()
+  await expect(on).toBeChecked()
   expect(await chartImage(canvas)).toEqual(firstDroppedImage)
 })
 
@@ -138,19 +146,22 @@ test('heatmap color scale appears for distributions and updates the chart', asyn
   page,
 }) => {
   const settings = page.getByRole('button', { name: 'Chart settings' })
-  const colorScale = page.getByRole('group', { name: 'Heatmap color scale' })
+  const colorScale = page.getByRole('menuitem', { name: /^Color scale/ })
 
   await runQuery(page, oxqlQueries.multiJoinedTables)
   await settings.click()
-  await expect(page.getByLabel('Drop first data point')).toBeVisible()
+  await expect(page.getByRole('menuitem', { name: /^Drop first data point/ })).toBeVisible()
   await expect(colorScale).toBeHidden()
   await page.keyboard.press('Escape')
 
   await runQuery(page, oxqlQueries.diskLatency)
   await settings.click()
-  const ranked = colorScale.getByRole('radio', { name: 'Ranked', exact: true })
-  const linear = colorScale.getByRole('radio', { name: 'Linear', exact: true })
-  const logarithmic = colorScale.getByRole('radio', { name: 'Logarithmic', exact: true })
+  // trigger shows the current value
+  await expect(colorScale).toHaveAccessibleName('Color scale Ranked')
+  await colorScale.click()
+  const ranked = page.getByRole('menuitemradio', { name: 'Ranked', exact: true })
+  const linear = page.getByRole('menuitemradio', { name: 'Linear', exact: true })
+  const logarithmic = page.getByRole('menuitemradio', { name: 'Logarithmic', exact: true })
   await expect(ranked).toBeChecked()
 
   const chart = page.getByRole('figure', { name: 'virtual_disk:io_latency' }).first()
@@ -160,18 +171,22 @@ test('heatmap color scale appears for distributions and updates the chart', asyn
   const rankedImage = await chartImage(canvas)
   await expect(chart.getByText('1', { exact: true })).toBeVisible()
 
-  await linear.check()
+  await linear.click()
+  await expect(linear).toBeChecked()
+  await expect(colorScale).toHaveAccessibleName('Color scale Linear')
   const linearImage = await chartImage(canvas)
   expect(linearImage).not.toEqual(rankedImage)
   await expect(chart.getByText('0', { exact: true })).toBeVisible()
 
-  await logarithmic.check()
+  await logarithmic.click()
+  await expect(logarithmic).toBeChecked()
   const logarithmicImage = await chartImage(canvas)
   expect(logarithmicImage).not.toEqual(rankedImage)
   expect(logarithmicImage).not.toEqual(linearImage)
   await expect(chart.getByText('1', { exact: true })).toBeVisible()
 
-  await ranked.check()
+  await ranked.click()
+  await expect(ranked).toBeChecked()
   expect(await chartImage(canvas)).toEqual(rankedImage)
 })
 
