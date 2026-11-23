@@ -74,7 +74,7 @@ export function NumberInput(rawProps: NumberInputProps) {
         {...inputProps}
         ref={mergeRefs([props.ref, inputRef])}
         className={cn(
-          `text-sans-md text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded-md border-none px-3 py-2.75 outline-offset-1! focus:outline-hidden disabled:cursor-not-allowed`,
+          `text-sans-md pointer-coarse:text-sans-lg text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded-md border-none px-3 py-2.75 outline-offset-1! focus:outline-hidden disabled:cursor-not-allowed`,
           props.error && 'focus-error',
           props.isDisabled && 'text-disabled bg-disabled'
         )}

@@ -82,7 +82,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </QueryClientProvider>
         </CSPProvider>
         <noscript>
-          <div className="grid min-h-screen place-content-center">
+          <div className="grid min-h-dvh place-content-center">
             <p className="max-w-lg p-8 text-center text-balance">
               This site requires JavaScript. If you don't want to enable JavaScript, see the{' '}
               <a

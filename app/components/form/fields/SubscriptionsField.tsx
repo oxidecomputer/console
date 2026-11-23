@@ -433,7 +433,7 @@ export function SubscriptionsField<
             aria-activedescendant={activeIdx !== null ? optionId(activeIdx) : undefined}
             autoComplete="off"
             spellCheck="false"
-            className="text-sans-md text-raise placeholder:text-tertiary h-6 min-w-24 flex-1 border-none bg-transparent outline-none"
+            className="text-sans-md pointer-coarse:text-sans-lg text-raise placeholder:text-tertiary h-6 min-w-24 flex-1 border-none bg-transparent outline-none"
             placeholder={committed.length === 0 ? 'Filter or type a pattern' : undefined}
             value={query}
             onChange={(e) => {

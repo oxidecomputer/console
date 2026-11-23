@@ -28,7 +28,7 @@ export const sidebarWrapperClass =
 export function ContentPane() {
   useScrollRestoration()
   return (
-    <div className="light:bg-raise 1000:ml-(--sidebar-width) flex min-h-[calc(100vh-var(--top-bar-height)-var(--preview-banner-height))] flex-col">
+    <div className="light:bg-raise 1000:ml-(--sidebar-width) flex min-h-[calc(100dvh-var(--top-bar-height)-var(--preview-banner-height))] flex-col">
       <div className="flex grow flex-col pb-8">
         {/* id/tabIndex make this the skip link target and where useRouteAnnouncer
             puts focus after a nav. It has to be a real element in the a11y tree
@@ -53,7 +53,7 @@ export function ContentPane() {
  * `<div>` because we don't need it.
  */
 export const SerialConsoleContentPane = () => (
-  <div className="1000:ml-(--sidebar-width) flex h-[calc(100vh-var(--top-bar-height)-var(--preview-banner-height))] flex-col overflow-hidden">
+  <div className="1000:ml-(--sidebar-width) flex h-[calc(100dvh-var(--top-bar-height)-var(--preview-banner-height))] flex-col overflow-hidden">
     <main id="content" tabIndex={-1} className="*:gutter h-full outline-none">
       <Outlet />
     </main>
