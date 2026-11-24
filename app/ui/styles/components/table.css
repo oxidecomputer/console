@@ -6,33 +6,83 @@
  * Copyright Oxide Computer Company
  */
 
-table.ox-table {
-  border-spacing: 0px;
+/*
+The outer border is a frame pinned to the visible part of the scroller, so it
+stays closed at any scroll position. Edge cells keep 1px transparent borders
+under it so column widths are the same as when they drew the border.
+*/
 
+.ox-table-scroller {
   --table-border-radius: var(--radius-lg);
+  /* not `auto`: always reserve the scrollbar's space so overflowing doesn't
+     change the table's height */
+  overflow-x: scroll;
+  /* not `contain`: a rubber-band would slide the table out from under the
+     frame and open a gap at the edge */
+  overscroll-behavior-x: none;
+  /* for the frame's 100cqw */
+  container-type: inline-size;
+  /* top corners only: rounding the bottom would clip the scrollbar */
+  clip-path: inset(0 round var(--table-border-radius) var(--table-border-radius) 0 0);
 
   &.table-inline {
     --table-border-radius: var(--radius);
   }
 
-  /*
-  Adds borders to first and last in a
-  row excluding table corners
-  */
-  & tbody tr:last-child td {
-    border-bottom-width: 1px;
+  &::-webkit-scrollbar {
+    height: 8px;
   }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--content-quaternary);
+    border-radius: 8px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: var(--content-tertiary);
+  }
+}
 
-  & tbody tr td:first-child {
-    border-left-width: 1px;
+/* Chrome ignores the ::-webkit-scrollbar rules above if these are set, so
+   only apply them where those rules aren't supported (Firefox) */
+@supports not selector(::-webkit-scrollbar) {
+  .ox-table-scroller {
+    scrollbar-width: thin;
+    scrollbar-color: var(--content-quaternary) transparent;
   }
-  & tbody tr td:last-child {
-    border-right-width: 1px;
+  /* Overlay scrollbars take no space and would sit against the table. Kept
+     small because classic scrollbars reserve their own space on top, and CSS
+     can't tell the two apart. */
+  .ox-table-grid {
+    padding-bottom: 4px;
   }
+}
 
-  & tr:last-child td > div {
-    border-bottom-width: 0px;
-  }
+.ox-table-grid {
+  display: grid;
+  width: fit-content;
+  min-width: 100%;
+}
+
+.ox-table-grid > * {
+  grid-area: 1 / 1;
+}
+
+.ox-table-frame {
+  position: sticky;
+  left: 0;
+  justify-self: start;
+  width: 100cqw;
+  border: 1px solid var(--stroke-default);
+  border-radius: var(--table-border-radius);
+  pointer-events: none;
+  z-index: 20;
+}
+
+table.ox-table {
+  border-collapse: separate;
+  border-spacing: 0;
 
   & th,
   & td {
@@ -41,346 +91,172 @@ table.ox-table {
     @apply text-default;
   }
 
-  /*
-  Adds padding to all cells except from
-  the action cells since they are a fixed width
-  */
+  & thead tr:not(:first-child) th {
+    @apply border-t-0;
+  }
+
+  & :is(td, th):first-child {
+    border-left: 1px solid transparent;
+  }
+  /* not the actions header: its 1px right padding already makes it 41px */
+  & td:last-child,
+  & th:last-child:not(.action-col) {
+    border-right: 1px solid transparent;
+  }
+  & tbody tr:last-child td {
+    border-bottom: 1px solid transparent;
+  }
+
+  & tbody tr:last-child td > div {
+    border-bottom-width: 0px;
+  }
+
+  & tbody tr:last-child td:first-child {
+    border-bottom-left-radius: calc(var(--table-border-radius) - 1px);
+  }
+  & tbody tr:last-child td:last-child {
+    border-bottom-right-radius: calc(var(--table-border-radius) - 1px);
+  }
+
   & td:not(.action-col) > div {
     @apply pr-8;
   }
 
-  /* First column is sticky */
-  & th:first-of-type,
-  & td:first-of-type {
-    @apply bg-default sticky left-0 z-10;
+  & th:first-child,
+  & td:first-child {
+    @apply sticky left-0 z-10;
+  }
+  & td:first-child {
+    @apply bg-default;
   }
 
-  /* Border between sticky first column and second column:
-     first column owns the right border, second column drops its left border */
-  & td:first-of-type > div,
-  & th:first-of-type > div {
+  & td:first-child > div,
+  & th:first-child > div {
     @apply border-r;
   }
-  & td:nth-of-type(2) > div,
-  & th:nth-of-type(2) > div {
+  & td:nth-child(2) > div,
+  & th:nth-child(2) > div {
     @apply border-l-0;
   }
+  /* cover the header's 1px right padding so the border lines up */
+  & th:first-child > div {
+    @apply w-[calc(100%+1px)];
+  }
 
-  /*
-  Last column is sticky if it
-  is a more actions cell
-  */
-  & th.action-col,
+  & .action-col {
+    @apply sticky right-0 w-10;
+  }
   & td.action-col {
-    @apply bg-default sticky right-0 w-10;
+    @apply bg-default;
   }
-  & th.action-col {
-    @apply bg-secondary;
-  }
-  & th.action-col > div,
-  & td.action-col > div {
-    @apply !m-0 w-10 !p-0;
+  & .action-col > div {
+    @apply m-0 w-10 p-0;
   }
 
-  & td:last-of-type > div {
-    @apply -m-px;
-  }
-
-  /*
-    Highlight when hovering over the action-col cell
-  */
   & td.action-col:hover > div {
     @apply bg-raise;
   }
-
-  /*
-  We hide the default border and background on the sticky
-  cells. This is to stop anything underneath it showing through
-  at the corner. By leaving the cell square, and instead applying
-  it to the div child which has a rounded-md corner we cover what's
-  below with a background colour and still keep the styling
-  */
-  & tr:last-of-type td:last-of-type.action-col {
-    @apply border-r-0 border-b-0 pr-px;
-  }
-
-  & tr:last-of-type td:last-of-type.action-col > div {
-    border-bottom-right-radius: var(--table-border-radius);
-  }
-
-  & tr:last-of-type td:first-of-type > div {
-    border-bottom-left-radius: var(--table-border-radius);
-  }
-
-  & tr:last-of-type td:last-of-type.action-col:after {
-    border-bottom-right-radius: var(--table-border-radius);
-    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 z-0 border-r border-b content-[''];
-  }
-
-  & tr:last-of-type td:last-of-type:not(.action-col) {
-    border-bottom-right-radius: var(--table-border-radius);
-  }
-
-  & tr:last-of-type td:first-of-type {
-    @apply !border-b-0 !border-l-0;
-  }
-
-  & tr:last-of-type td:first-of-type:after {
-    border-bottom-left-radius: var(--table-border-radius);
-    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 border-b border-l content-[''];
-  }
-
-  & th:first-of-type {
-    @apply !bg-default border-t-0 border-l-0;
-  }
-
-  & th:first-of-type > div {
-    border-top-left-radius: var(--table-border-radius);
-    @apply bg-secondary w-[calc(100%+1px)];
-  }
-
-  & th:first-of-type:after {
-    border-top-left-radius: var(--table-border-radius);
-    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 border-t border-l content-[''];
-  }
-
-  & th:last-of-type.action-col {
-    @apply !bg-default !border-t-0 !border-r-0;
-  }
-
-  & th:last-of-type.action-col > div {
-    border-top-right-radius: var(--table-border-radius);
-    @apply bg-secondary;
-  }
-
-  & th:last-of-type.action-col:after {
-    border-top-right-radius: var(--table-border-radius);
-    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 border-t border-r content-[''];
-  }
-
-  & th:last-of-type:not(.action-col) {
-    border-top-right-radius: var(--table-border-radius);
-    @apply border-r;
-  }
-
-  & tr:not(:first-of-type) th {
-    @apply border-t-0;
-  }
-
-  & tr:not(:first-of-type) th:after,
-  & tr:not(:first-of-type) th:last-of-type:not(.action-col) {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    @apply border-t-0;
-  }
-
-  /* === Begin table selection styles === */
-
-  /**
-   * Our table selection styles dictate complex behaviors like rounded-md selection corners,
-   * grouped selections, and seemless border overlap. To acheive this, `box-shadow` properties
-   * are used for selection border styles. To make this effect possible, special classes were
-   * added to the table. Those classes are:
-   *
-   * - `.is-selected` -- present on every selected row
-   * - `.multi-selection` -- present on every selected row that has at least one direct sibling which is also selected
-   * - `.selection-start` -- the first selected item in a `multi-selection` group
-   * - `.selection-end` -- the last selected item in a `multi-selection` group
-   */
-
-  /* Left-most cell of a single selection */
-  & .is-selected:not(.multi-selection) td:first-child > div {
-    border-top-left-radius: 0.1875rem;
-    border-bottom-left-radius: 0.1875rem;
-    box-shadow:
-      -1px -1px var(--stroke-accent),
-      -1px 1px var(--stroke-accent);
-  }
-
-  /* Right-most cell of a single selection */
-  & .is-selected:not(.multi-selection) td:last-child > div {
-    border-top-right-radius: 0.1875rem;
-    box-shadow:
-      1px -1px var(--stroke-accent),
-      1px 1px var(--stroke-accent);
-    border-bottom-right-radius: 0.1875rem;
-  }
-
-  /* All cells of a single selection */
-  & .is-selected:not(.multi-selection) td > div {
-    box-shadow:
-      0px 1px var(--stroke-accent),
-      0px -1px var(--stroke-accent);
-    margin-top: -2px;
-    border-bottom: 0;
-    height: calc(100% + 1px);
-  }
-
-  & .is-selected:not(.multi-selection):last-of-type td > div {
-    margin-top: -1px;
-    height: calc(100% + 3px);
-  }
-
-  /* Defines the top border of a selection */
-  & .is-selected td > div {
-    box-shadow: 0px -1px var(--stroke-accent);
-  }
-
-  /* Ensures subsequent, interior selected rows don't have a top border */
-  & .multi-selection:not(.selection-start):not(.selection-end) td > div {
-    box-shadow: none;
-  }
-
-  /* Adds the selected border for the top left corner of a selection */
-  & .selection-start td:first-child > div {
-    border-top-left-radius: 0.1875rem;
-    box-shadow: -1px -1px var(--stroke-accent);
-    margin-right: -3px;
-  }
-
-  /* Ensures subsequent, interior selections have side borders */
-  & .multi-selection:not(.selection-start):not(.selection-end) td:first-child > div {
-    box-shadow: -1px 0px var(--stroke-accent);
-  }
-
-  & .multi-selection:not(.selection-start):not(.selection-end) td:last-child > div {
-    box-shadow: 1px 0px var(--stroke-accent);
-  }
-
-  /* Fills gaps between borders that show up in Safari and Chrome on OSX */
-  & .multi-selection:not(.selection-end) td:first-child,
-  & .multi-selection:not(.selection-end) td:last-child {
-    @apply border-accent;
-  }
-
-  /* Adds the selected border for the top right corner of a selection */
-  & .selection-start td:last-child > div {
-    border-top-right-radius: 0.1875rem;
-    box-shadow: 1px -1px var(--stroke-accent);
-  }
-  /* Ensures the top right border and the cell next to it have their box-shadows overlap */
-  & .selection-start td:nth-last-child(2) > div {
-    margin-right: -3px;
-  }
-
-  & .selection-end td > div {
-    box-shadow: 0px 1px var(--stroke-accent);
-  }
-
-  & .selection-end td > div {
-    border-bottom: 0;
-    height: calc(100% + 3px);
-    margin-top: -5px;
-    padding-top: 3px;
-  }
-
-  /* Account for layout shift at the bottom of the table as best we can */
-  & .selection-end:last-of-type td > div {
-    margin-top: -4px;
-    height: calc(100% + 8px);
-    margin-bottom: -1px;
-  }
-
-  /* Correct for firefox's wider variation in table border spacing */
-  @supports (-moz-appearance: none) {
-    & .selection-end:last-of-type td > div {
-      margin-top: -2px;
-      height: calc(100% + 4px);
-      padding-top: 2px;
-      padding-bottom: 1px;
-    }
-  }
-
-  /* Adds the selected border for the bottom left corner of a selection */
-  & .selection-end td:first-child > div {
-    border-bottom-left-radius: 0.1875rem;
-    box-shadow: -1px 1px var(--stroke-accent);
-    margin-right: -4px;
-  }
-
-  & .selection-end td:last-child > div {
-    border-bottom-right-radius: 0.1875rem;
-    box-shadow: 1px 1px var(--stroke-accent);
-  }
-
-  & .selection-end td:last-child > div,
-  & .is-selected:not(.multi-selection) td:last-child > div {
-    @apply before:border-accent-tertiary relative -ml-0.5 border-l-0 before:absolute before:top-0 before:bottom-1 before:left-0.5 before:block before:h-full before:border-l;
-    /* Avoid layout shift caused by the border being inline with the content */
-    padding-left: calc(1rem - 1px);
-  }
-
-  /* === End table selection styles === */
 }
 
 /*
-Drop shadow on a sticky column when content is scrolled under it, driven by
-the table's horizontal scroll position. When the table fits, the timeline is
-inactive and neither shadow shows. The clip-path stops the shadow spilling
-above and below the cell; it's only on while there's a shadow so it doesn't
-clip the selected-row border.
+Edge shadows toggle with a transition where scroll-state queries are
+supported, and otherwise track the first and last 2rem of scroll.
 */
-.ox-table {
-  --sticky-col-shadow: light-dark(oklch(0 0 0 / 0.075), oklch(0 0 0 / 0.6));
+.ox-table-scroller {
+  --sticky-col-shadow: light-dark(oklch(0 0 0 / 0.075), oklch(0 0 0 / 0.3));
+  --edge-shadow-transition: 250ms ease-out;
 }
 
-/* Without the guard, browsers lacking scroll timelines would run the animation
-   with a 0s duration and hold the start shadow's end state on every table */
-@supports (animation-timeline: scroll()) {
-  .ox-table :is(td, th):first-of-type {
+.ox-table :is(td, th):first-child {
+  clip-path: inset(0 -40px 0 0);
+}
+.ox-table .action-col {
+  clip-path: inset(0 0 0 -40px);
+}
+
+/* Tables with no actions column get the same shadow at the right edge, cast
+   from a box just outside the frame so it matches exactly. */
+.ox-table-grid:not(:has(.action-col)) > .ox-table-frame {
+  /* clip, not hidden: hidden would make the frame a scroll container, and
+     the fallback's scroll(nearest) timeline would track it instead */
+  overflow: clip;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 100%;
+    width: 1rem;
+    top: -1rem;
+    bottom: -1rem;
+    box-shadow: -6px 0 8px -2px var(--sticky-col-shadow);
+    opacity: 0;
+  }
+}
+
+@supports (container-type: scroll-state) {
+  .ox-table-scroller {
+    container-type: inline-size scroll-state;
+  }
+
+  .ox-table :is(td, th):first-child,
+  .ox-table .action-col {
+    transition: box-shadow var(--edge-shadow-transition);
+  }
+  .ox-table-frame::after {
+    transition: opacity var(--edge-shadow-transition);
+  }
+
+  @container scroll-state(scrollable: left) {
+    .ox-table :is(td, th):first-child {
+      box-shadow: 6px 0 8px -2px var(--sticky-col-shadow);
+    }
+  }
+  @container scroll-state(scrollable: right) {
+    .ox-table .action-col {
+      box-shadow: -6px 0 8px -2px var(--sticky-col-shadow);
+    }
+    /* same selector as the base rule so it wins on specificity */
+    .ox-table-grid:not(:has(.action-col)) > .ox-table-frame::after {
+      opacity: 1;
+    }
+  }
+}
+
+/* without the animation-timeline guard, unsupporting browsers would hold the
+   end state on every table */
+@supports (animation-timeline: scroll()) and (not (container-type: scroll-state)) {
+  .ox-table :is(td, th):first-child {
     animation: sticky-start-shadow linear both;
     animation-timeline: scroll(nearest inline);
     animation-range: 0 2rem;
   }
-  .ox-table :is(td, th):last-of-type.action-col {
+  .ox-table .action-col {
     animation: sticky-end-shadow linear both;
+    animation-timeline: scroll(nearest inline);
+    animation-range: calc(100% - 2rem) 100%;
+  }
+  .ox-table-frame::after {
+    animation: table-end-fade linear both;
     animation-timeline: scroll(nearest inline);
     animation-range: calc(100% - 2rem) 100%;
   }
 }
 
 @keyframes sticky-start-shadow {
-  from {
-    clip-path: none;
-  }
-  1% {
-    clip-path: inset(0 -40px 0 0);
-  }
   to {
-    clip-path: inset(0 -40px 0 0);
     box-shadow: 6px 0 8px -2px var(--sticky-col-shadow);
   }
 }
 @keyframes sticky-end-shadow {
   from {
-    clip-path: inset(0 0 0 -40px);
     box-shadow: -6px 0 8px -2px var(--sticky-col-shadow);
   }
-  99% {
-    clip-path: inset(0 0 0 -40px);
+}
+@keyframes table-end-fade {
+  from {
+    opacity: 1;
   }
   to {
-    clip-path: none;
+    opacity: 0;
   }
-}
-
-.simplebar-scrollbar {
-  top: 0 !important;
-  height: 8px !important;
-}
-
-.simplebar-scrollbar:before {
-  background-color: var(--content-quaternary);
-  left: 0 !important;
-  top: 0 !important;
-  right: 0 !important;
-  border-radius: 8px !important;
-}
-
-.simplebar-hover.simplebar-scrollbar:before {
-  background-color: var(--content-tertiary);
-}
-
-.simplebar-track.simplebar-horizontal {
-  height: 8px;
 }

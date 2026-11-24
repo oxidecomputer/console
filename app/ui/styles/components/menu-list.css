@@ -8,6 +8,7 @@
 
 .ox-menu {
   @apply bg-raise light:bg-default !max-h-[17.5rem] rounded-md p-px;
+  overscroll-behavior: none;
 }
 
 .ox-menu-item {

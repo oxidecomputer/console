@@ -31,7 +31,6 @@
 @import '@oxide/design-system/styles/dark.css';
 @import '@oxide/design-system/styles/light.css';
 @import '@oxide/design-system/styles/preflight.css' layer(base);
-@import 'simplebar-react/dist/simplebar.min.css' layer(components);
 @import 'uplot/dist/uPlot.min.css' layer(components);
 
 @import '@oxide/design-system/styles/red.css';
@@ -193,11 +192,13 @@
   html,
   body {
     height: 100%;
+    /* stop the whole app shell rubber-banding; browsers disagree on whether
+       html or body controls the viewport, so set both */
+    overscroll-behavior-y: none;
   }
 
   body {
     @apply text-default bg-default font-sans;
-    overscroll-behavior-y: none;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */

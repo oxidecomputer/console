@@ -141,7 +141,7 @@ export const ResourceLabel = classed.h3`mt-1.5 flex items-center gap-1.5 text-sa
 
 SideModal.Body = ({ children }: { children?: ReactNode }) => (
   <div
-    className="body border-t-secondary relative h-full overflow-y-auto overscroll-none border-t pt-8 pb-12"
+    className="body border-t-secondary relative h-full overflow-y-auto overscroll-contain border-t pt-8 pb-12"
     data-testid="sidemodal-scroll-container"
   >
     {children}

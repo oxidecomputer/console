@@ -46,6 +46,7 @@
 .dropdown-menu-content,
 .popover-panel {
   animation: slide-down 0.1s var(--ease-out-quad);
+  overscroll-behavior: none;
 }
 
 @media (prefers-reduced-motion) {

@@ -85,7 +85,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
       <div
         className={cn(
           sidebarWrapperClass,
-          'text-sans-md text-raise flex flex-col overflow-y-auto overscroll-none',
+          'text-sans-md text-raise flex flex-col overflow-y-auto overscroll-contain',
           !mobileNavOpen && 'max-1000:-translate-x-full'
         )}
       >

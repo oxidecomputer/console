@@ -60,7 +60,7 @@ CardBlock.Header = ({ title, description, children, titleId }: HeaderProps) => (
 )
 
 // If there's a table with a scrollbar we want to avoid it adding extra padding at the bottom
-CardBlock.Body = classed.div`px-5 py-4 space-y-4 [&>*:last-child[data-simplebar]]:pb-3 [&>*:last-child[data-simplebar]]:-mb-3`
+CardBlock.Body = classed.div`px-5 py-4 space-y-4 [&>.ox-table-scroller:last-child]:pb-1 [&>.ox-table-scroller:last-child]:-mb-3`
 
 CardBlock.Footer = classed.footer`flex items-center justify-between px-5 pt-4 text-secondary`
 
