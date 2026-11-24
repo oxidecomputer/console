@@ -156,32 +156,6 @@ table.ox-table {
   & td.action-col:hover > div {
     @apply bg-raise;
   }
-
-  & tbody tr {
-    position: relative;
-  }
-  & tbody tr.is-selected::after {
-    content: '';
-    position: absolute;
-    /* -1px to cover the row above's divider. The sides and bottom already
-       line up with the frame. */
-    inset: -1px 0 0;
-    border: 1px solid var(--stroke-accent);
-    border-radius: 0.1875rem;
-    pointer-events: none;
-    z-index: 30;
-  }
-  & tbody tr.is-selected:has(+ tr.is-selected)::after {
-    border-bottom-width: 0;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-  & tbody tr.is-selected + tr.is-selected::after {
-    top: 0;
-    border-top-width: 0;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-  }
 }
 
 /*
