@@ -305,9 +305,12 @@ test.each(invalid)('parseIp catches invalid IP: %s', (s) => {
   expect(parseIp(s)).toStrictEqual({ type: 'error', message: 'Not a valid IP address' })
 })
 
-test.each([...v4.map((ip) => ip + '/10'), '1.1.1.1/04', '1.1.1.1/000004'])('%s', (s) => {
-  expect(parseIpNet(s).type).toBe('v4')
-})
+test.each([...v4.map((ip) => ip + '/10'), '1.1.1.1/04', '1.1.1.1/000004', '1.1.1.1/32'])(
+  '%s',
+  (s) => {
+    expect(parseIpNet(s).type).toBe('v4')
+  }
+)
 
 test.each([...v6.map((ip) => ip + '/10'), '2001:db8::/128', '2001:db8::/00004'])(
   '%s',
