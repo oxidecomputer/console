@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
@@ -29,8 +28,9 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DiskNameFromId, sourceDiskQ } from '~/table/cells/SourceNameCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -91,17 +91,20 @@ export default function SnapshotsPage() {
   const [selectedDisk, setSelectedDisk] = useState<Disk | null>(null)
 
   const staticCols = [
-    colHelper.accessor('name', {}),
-    colHelper.accessor('description', Columns.description),
+    colHelper.accessor('name', { meta: { width: 'flex' } }),
     colHelper.accessor('diskId', {
       header: 'disk',
       cell: (info) => <DiskNameFromId diskId={info.getValue()} onClick={setSelectedDisk} />,
+      meta: { width: ColWidth.lg },
     }),
     colHelper.accessor('state', {
       cell: (info) => <SnapshotStateBadge state={info.getValue()} />,
+      // fits the widest badge, `creating` with its spinner
+      meta: { width: 144 },
     }),
     colHelper.accessor('size', Columns.size),
     colHelper.accessor('timeCreated', Columns.timeCreated),
+    colHelper.accessor('description', Columns.description),
   ]
 
   const { mutateAsync: deleteSnapshot } = useApiMutation(api.snapshotDelete, {

@@ -7,12 +7,14 @@
  */
 import type { RowData } from '@tanstack/react-table'
 
+import type { ColumnWidth } from '../app/table/column-helper'
 import type { MakeActions } from '../app/table/columns/action-col'
 
 declare module '@tanstack/react-table' {
   interface ColumnMeta<TData extends RowData, TValue> {
     thClassName?: string
     tdClassName?: string
+    width?: ColumnWidth
     /** Set by `getActionsCol`, read by `ActionsCell` */
     makeActions?: MakeActions<TData>
     copyIdLabel?: string

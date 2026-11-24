@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
@@ -18,6 +17,7 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -55,6 +55,7 @@ export const handle = makeCrumb('Projects', pb.projects())
 const colHelper = createColumnHelper<Project>()
 const staticCols = [
   colHelper.accessor('name', {
+    meta: { width: 'flex' },
     cell: makeLinkCell((project) => pb.project({ project })),
   }),
   colHelper.accessor('description', Columns.description),

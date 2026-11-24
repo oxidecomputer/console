@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { hashKey, useQuery } from '@tanstack/react-query'
-import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
+import { getCoreRowModel, type ColumnDef } from '@tanstack/react-table'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { ensurePrefetched, type PaginatedQuery, type ResultsPage } from '@oxide/api'
@@ -17,6 +17,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
 import { Table } from './Table'
+import { useTable } from './use-table'
 
 type QueryTableProps<TItem> = {
   query: PaginatedQuery<ResultsPage<TItem>>
@@ -121,7 +122,7 @@ export function useQueryTable<TItem>({
 
   const { items, isEmpty, pagination, queryResult } = usePaginatedList(query, getRowId)
 
-  const table = useReactTable({
+  const table = useTable({
     columns,
     data: items,
     getRowId,

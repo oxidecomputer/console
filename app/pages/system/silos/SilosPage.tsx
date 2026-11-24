@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet } from 'react-router'
 
@@ -21,8 +20,9 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -47,11 +47,13 @@ const EmptyState = () => (
 const colHelper = createColumnHelper<Silo>()
 const staticCols = [
   colHelper.accessor('name', {
+    meta: { width: 'flex' },
     cell: (info) => makeLinkCell((name) => pb.silo({ silo: name }))(info),
   }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor((silo) => silo.identityMode, {
     header: 'Identity mode',
+    meta: { width: ColWidth.lg },
     cell: (info) => <Badge>{info.getValue().replace('_', ' ')}</Badge>,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),

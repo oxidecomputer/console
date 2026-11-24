@@ -43,7 +43,7 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
     )}
     {...props}
   >
-    <div className="border-secondary flex h-full items-center border-l px-3">
+    <div className="border-secondary relative flex h-full items-center border-l px-3">
       {children}
     </div>
   </th>

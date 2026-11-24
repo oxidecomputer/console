@@ -7,7 +7,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { match } from 'ts-pattern'
 
@@ -31,10 +31,12 @@ import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { useAlertReceiverSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -83,14 +85,17 @@ const staticDeliveryCols = [
   deliveryColHelper.accessor('id', { ...Columns.shortId, header: 'Delivery ID' }),
   deliveryColHelper.accessor('alertId', { ...Columns.shortId, header: 'Alert ID' }),
   deliveryColHelper.accessor('alertClass', {
+    meta: { width: 'flex' },
     header: 'Alert class',
     cell: (info) => <AlertClassBadge>{info.getValue()}</AlertClassBadge>,
   }),
   deliveryColHelper.accessor('state', {
+    meta: { width: ColWidth.md },
     cell: (info) => <DeliveryStateBadge state={info.getValue()} />,
   }),
   deliveryColHelper.accessor('timeStarted', { ...Columns.timeCreated, header: 'Started' }),
   deliveryColHelper.accessor('trigger', {
+    meta: { width: ColWidth.md },
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
   }),
 ]
@@ -224,11 +229,13 @@ const attemptColHelper = createColumnHelper<WebhookDeliveryAttempt>()
 const attemptCols = [
   attemptColHelper.accessor('result', {
     header: 'Status',
+    meta: { width: ColWidth.md },
     cell: (info) => attemptResultBadge(info.getValue()),
   }),
   attemptColHelper.accessor('timeSent', { ...Columns.timeCreated, header: 'Attempt' }),
   attemptColHelper.accessor((a) => a.response?.durationMs, {
     header: 'Duration',
+    meta: { width: ColWidth.sm },
     cell: (info) => {
       const ms = info.getValue()
       return ms != null ? `${ms}ms` : <span className="text-tertiary">&mdash;</span>
@@ -244,7 +251,7 @@ function DeliverySideModal({
   onDismiss: () => void
 }) {
   const { receiver } = useAlertReceiverSelector()
-  const attemptsTable = useReactTable({
+  const attemptsTable = useTable({
     columns: attemptCols,
     data: delivery.attempts.webhook,
     getCoreRowModel: getCoreRowModel(),

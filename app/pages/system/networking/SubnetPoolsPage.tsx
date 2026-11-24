@@ -7,7 +7,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
@@ -23,15 +22,15 @@ import { Subnet16Icon, Subnet24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
-import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { UtilizationFraction } from '~/ui/lib/BigNum'
 import { CreateLink } from '~/ui/lib/CreateButton'
@@ -66,15 +65,14 @@ const colHelper = createColumnHelper<SubnetPool>()
 
 const staticColumns = [
   colHelper.accessor('name', {
+    meta: { width: 'flex' },
     cell: makeLinkCell((pool) => pb.subnetPool({ subnetPool: pool })),
   }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('ipVersion', {
-    header: 'Version',
-    cell: (info) => <IpVersionBadge ipVersion={info.getValue()} />,
-  }),
+  colHelper.accessor('ipVersion', Columns.ipVersion),
   colHelper.display({
     header: 'Addresses remaining',
+    meta: { width: ColWidth.xl },
     cell: (info) => <UtilizationCell pool={info.row.original.name} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),

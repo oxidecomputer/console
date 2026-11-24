@@ -7,7 +7,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
@@ -49,9 +49,11 @@ import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { SubnetNameFromId } from '~/table/cells/SubnetNameCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
@@ -113,8 +115,8 @@ const PrivateIpCell = ({ ipVersion, ip }: { ipVersion: IpVersion; ip: string }) 
 
 const subnetColHelper = createColumnHelper<ExternalSubnet>()
 const staticSubnetCols = [
-  subnetColHelper.accessor('name', {}),
-  subnetColHelper.accessor('subnet', { header: 'Subnet' }),
+  subnetColHelper.accessor('name', { meta: { width: 'flex' } }),
+  subnetColHelper.accessor('subnet', { header: 'Subnet', meta: { width: ColWidth.ip } }),
   subnetColHelper.accessor('description', Columns.description),
 ]
 
@@ -194,10 +196,11 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 const colHelper = createColumnHelper<InstanceNetworkInterface>()
 const staticCols = [
   colHelper.accessor('name', {
+    meta: { width: 'flex' },
     header: 'name',
     cell: (info) => (
       <>
-        <span>{info.getValue()}</span>
+        <span className="truncate">{info.getValue()}</span>
         {info.row.original.primary && <Badge className="ml-2">primary</Badge>}
       </>
     ),
@@ -206,6 +209,7 @@ const staticCols = [
   colHelper.display({
     id: 'ip',
     header: 'Private IP',
+    meta: { width: ColWidth.ip },
     cell: (info) => {
       const nic = info.row.original
       const { ipStack } = nic
@@ -223,15 +227,18 @@ const staticCols = [
   }),
   colHelper.accessor('vpcId', {
     header: 'vpc',
+    meta: { width: ColWidth.md },
     cell: (info) => <VpcNameFromId value={info.getValue()} />,
   }),
   colHelper.accessor('subnetId', {
     header: 'subnet',
+    meta: { width: ColWidth.md },
     cell: (info) => <SubnetNameFromId subnetId={info.getValue()} />,
   }),
   colHelper.display({
     id: 'transitIps',
     header: 'Transit IPs',
+    meta: { width: ColWidth.lg },
     cell: (info) => {
       const nic = info.row.original
       const { ipStack } = nic
@@ -259,6 +266,7 @@ const updateNicStates = fancifyStates(instanceCan.updateNic.states)
 const ipColHelper = createColumnHelper<ExternalIp>()
 const staticIpCols = [
   ipColHelper.accessor('ip', {
+    meta: { width: ColWidth.ip },
     cell: (info) => (
       <div className="flex items-center gap-2">
         <CopyableIp ip={info.getValue()} />
@@ -276,6 +284,7 @@ const staticIpCols = [
     ),
   }),
   ipColHelper.accessor('kind', {
+    meta: { width: ColWidth.md },
     header: () => (
       <>
         Kind
@@ -291,6 +300,7 @@ const staticIpCols = [
   ipColHelper.accessor('ip', {
     id: 'version',
     header: 'Version',
+    meta: { width: ColWidth.xs },
     cell: (info) => {
       const parsed = parseIp(info.getValue())
       if (parsed.type === 'error') return <EmptyCell />
@@ -299,9 +309,11 @@ const staticIpCols = [
   }),
   ipColHelper.accessor('ipPoolId', {
     header: 'IP pool',
+    meta: { width: ColWidth.lg },
     cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
   }),
   ipColHelper.accessor('name', {
+    meta: { width: 'flex' },
     cell: (info) =>
       info.row.original.kind === 'floating' ? (
         info.getValue()
@@ -311,6 +323,7 @@ const staticIpCols = [
   }),
   ipColHelper.accessor((row) => ('description' in row ? row.description : undefined), {
     header: 'description',
+    meta: { width: ColWidth.description },
     cell: (info) =>
       info.row.original.kind === 'floating' ? (
         <DescriptionCell text={info.getValue()} />
@@ -474,7 +487,7 @@ export default function NetworkingTab() {
 
   const columns = useColsWithActions(staticCols, makeActions)
 
-  const tableInstance = useReactTable({
+  const tableInstance = useTable({
     columns,
     data: nics,
     getCoreRowModel: getCoreRowModel(),
@@ -540,7 +553,7 @@ export default function NetworkingTab() {
   )
 
   const subnetTableCols = useColsWithActions(staticSubnetCols, makeSubnetActions)
-  const subnetTableInstance = useReactTable({
+  const subnetTableInstance = useTable({
     columns: subnetTableCols,
     data: instanceSubnets.items,
     getCoreRowModel: getCoreRowModel(),
@@ -615,7 +628,7 @@ export default function NetworkingTab() {
     [ephemeralIpDetach, floatingIpDetach, instanceName, project]
   )
 
-  const ipTableInstance = useReactTable({
+  const ipTableInstance = useTable({
     columns: useColsWithActions(staticIpCols, makeIpActions),
     data: useMemo(() => orderIps(eips.items), [eips]),
     getCoreRowModel: getCoreRowModel(),

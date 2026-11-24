@@ -1,11 +1,3 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * Copyright Oxide Computer Company
- */
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 
 import {
@@ -22,8 +14,16 @@ import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -71,6 +71,7 @@ export default function AccessTokensPage() {
   const columns = useMemo(() => {
     return [
       colHelper.accessor('id', {
+        meta: { width: ColWidth.id },
         header: () => (
           <>
             ID
@@ -91,6 +92,7 @@ export default function AccessTokensPage() {
       colHelper.accessor('timeCreated', Columns.timeCreated),
       colHelper.accessor('timeExpires', {
         header: 'Expires',
+        meta: { width: ColWidth.date, tdClassName: 'compact-col' },
         cell: (info) => {
           const date = info.getValue()
           if (!date) return 'Never'

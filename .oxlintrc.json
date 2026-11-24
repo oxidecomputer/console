@@ -53,6 +53,11 @@
       {
         "paths": [
           {
+            "name": "@tanstack/react-table",
+            "importNames": ["createColumnHelper"],
+            "message": "Use createColumnHelper from ~/table/column-helper, which requires every column to set meta.width."
+          },
+          {
             "name": ".",
             "message": "Import from the file directly to avoid confusion due to auto-imports and barrel files."
           },

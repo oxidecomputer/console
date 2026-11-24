@@ -7,7 +7,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet } from 'react-router'
 
@@ -25,15 +24,14 @@ import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
-import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
+import { ReadOnlyBadge } from '~/components/StateBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { DiskSourceName } from '~/table/cells/DiskSourceCell'
-import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -156,10 +154,11 @@ export default function DisksPage() {
     useMemo(
       () => [
         colHelper.accessor('name', {
+          meta: { width: 'flex' },
           cell: (info) => (
             <LinkCell to={pb.disk({ project, disk: info.getValue() })}>
               <span className="flex items-center gap-2">
-                {info.getValue()}
+                <span className="truncate">{info.getValue()}</span>
                 {info.row.original.readOnly && <ReadOnlyBadge />}
               </span>
             </LinkCell>
@@ -169,30 +168,15 @@ export default function DisksPage() {
         // whether it has an instance field
         colHelper.accessor(
           (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
-          {
-            header: 'Instance',
-            cell: (info) => (
-              <InstanceLink instanceId={info.getValue()} tab="storage" cell />
-            ),
-          }
+          Columns.instance('storage')
         ),
-        colHelper.accessor('diskType', {
-          header: 'Type',
-          cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
-        }),
+        colHelper.accessor('diskType', Columns.diskType),
         colHelper.accessor('size', Columns.size),
         colHelper.accessor(
           (row) => ({ imageId: row.imageId, snapshotId: row.snapshotId }),
-          {
-            id: 'source',
-            header: 'Source',
-            cell: (info) => <DiskSourceName {...info.getValue()} />,
-          }
+          Columns.diskSource
         ),
-        colHelper.accessor('state.state', {
-          header: 'state',
-          cell: (info) => <DiskStateBadge state={info.getValue()} />,
-        }),
+        colHelper.accessor('state.state', Columns.diskState),
         colHelper.accessor('timeCreated', Columns.timeCreated),
       ],
       [project]

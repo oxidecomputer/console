@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet } from 'react-router'
 
@@ -30,8 +29,9 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -71,6 +71,7 @@ const colHelper = createColumnHelper<SupportBundleInfo>()
 const staticColumns = [
   colHelper.accessor('id', {
     header: 'ID',
+    meta: { width: ColWidth.lg },
     cell: (info) => (
       <LinkCell to={pb.supportBundle({ bundleId: info.getValue() })}>
         {truncate(info.getValue(), 14, 'middle')}
@@ -78,13 +79,16 @@ const staticColumns = [
     ),
   }),
   colHelper.accessor('state', {
+    meta: { width: ColWidth.lg },
     cell: (info) => <StateCell bundle={info.row.original} />,
   }),
   colHelper.accessor('userComment', {
+    meta: { width: 'flex' },
     header: 'Comment',
     cell: (info) => <DescriptionCell text={info.getValue() ?? undefined} />,
   }),
   colHelper.accessor('reasonForCreation', {
+    meta: { width: 'flex' },
     header: 'Creation reason',
     cell: (info) => <DescriptionCell text={info.getValue()} />,
   }),

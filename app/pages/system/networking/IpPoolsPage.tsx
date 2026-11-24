@@ -7,25 +7,23 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
 import { api, getListQFn, q, queryClient, useApiMutation, type IpPool } from '@oxide/api'
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
-import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { UtilizationFraction } from '~/ui/lib/BigNum'
 import { CreateLink } from '~/ui/lib/CreateButton'
@@ -59,19 +57,16 @@ function UtilizationCell({ pool }: { pool: string }) {
 const colHelper = createColumnHelper<IpPool>()
 
 const staticColumns = [
-  colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
+  colHelper.accessor('name', {
+    meta: { width: 'flex' },
+    cell: makeLinkCell((pool) => pb.ipPool({ pool })),
+  }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('ipVersion', {
-    header: 'Version',
-    cell: (info) => <IpVersionBadge ipVersion={info.getValue()} />,
-  }),
-  colHelper.accessor('poolType', {
-    header: 'Type',
-    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
-  }),
+  colHelper.accessor('ipVersion', Columns.ipVersion),
+  colHelper.accessor('poolType', Columns.poolType),
   colHelper.display({
     header: 'IPs REMAINING',
-    meta: { thClassName: 'normal-case' },
+    meta: { thClassName: 'normal-case', width: ColWidth.lg },
     cell: (info) => <UtilizationCell pool={info.row.original.name} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),

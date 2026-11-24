@@ -10,7 +10,8 @@ import { Link } from 'react-router'
 
 import { classed } from '~/util/classed'
 
-const linkClass = 'link-with-underline group flex h-full w-full items-center text-sans-md'
+const linkClass =
+  'link-with-underline group flex h-full w-full min-w-0 items-center text-sans-md'
 
 /** Pushes out the link area to the entire cell for improved clickability™ */
 const Pusher = classed.div`absolute inset-0 group-hover:bg-raise`
@@ -32,7 +33,7 @@ export function LinkCell({ to, children }: { to: string; children: React.ReactNo
   return (
     <Link className={linkClass} to={to}>
       <Pusher />
-      <div className="relative">{children}</div>
+      <div className="relative truncate">{children}</div>
     </Link>
   )
 }
@@ -41,7 +42,7 @@ export const ButtonCell = ({ children, ...props }: React.ComponentProps<'button'
   return (
     <button type="button" className={linkClass} {...props}>
       <Pusher />
-      <div className="relative">{children}</div>
+      <div className="relative truncate">{children}</div>
     </button>
   )
 }

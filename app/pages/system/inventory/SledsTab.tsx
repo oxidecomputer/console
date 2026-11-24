@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import * as R from 'remeda'
 
@@ -14,7 +14,10 @@ import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
@@ -36,6 +39,7 @@ export const handle = { crumb: 'Sleds' }
 const colHelper = createColumnHelper<Sled>()
 const staticCols = [
   colHelper.accessor('slot', {
+    meta: { width: ColWidth.xs },
     cell: (info) => {
       const slot = info.getValue()
       return slot == null ? (
@@ -46,6 +50,7 @@ const staticCols = [
     },
   }),
   colHelper.accessor('id', {
+    meta: { width: 'flex' },
     cell: (info) => (
       <LinkCell to={pb.sledInstances({ sledId: info.getValue() })}>
         <Truncate text={info.getValue()} position="middle" className="max-w-48" />
@@ -57,9 +62,15 @@ const staticCols = [
     id: 'baseboard',
     header: 'Baseboard',
     columns: [
-      colHelper.accessor('baseboard.part', { header: 'part number' }),
-      colHelper.accessor('baseboard.serial', { header: 'serial number' }),
-      colHelper.accessor('baseboard.revision', { header: 'revision' }),
+      colHelper.accessor('baseboard.part', {
+        header: 'part number',
+        meta: { width: ColWidth.lg },
+      }),
+      colHelper.accessor('baseboard.serial', Columns.serial),
+      colHelper.accessor('baseboard.revision', {
+        header: 'revision',
+        meta: { width: ColWidth.sm },
+      }),
     ],
   }),
   colHelper.group({
@@ -69,16 +80,19 @@ const staticCols = [
       colHelper.accessor('policy', {
         id: 'policyKind',
         header: 'Kind',
+        meta: { width: ColWidth.lg },
         cell: (info) => <SledKindBadge policy={info.getValue()} />,
       }),
       colHelper.accessor('policy', {
         id: 'provisionPolicy',
         header: 'Provision policy',
+        meta: { width: ColWidth.xl },
         cell: (info) => <ProvisionPolicyBadge policy={info.getValue()} />,
       }),
     ],
   }),
   colHelper.accessor('state', {
+    meta: { width: ColWidth.xl },
     cell: (info) => <SledStateBadge state={info.getValue()} />,
   }),
 ]
@@ -94,7 +108,7 @@ export default function SledsTab() {
       ),
     [data]
   )
-  const table = useReactTable({
+  const table = useTable({
     columns: staticCols,
     data: sleds,
     getRowId: (sled) => sled.id,

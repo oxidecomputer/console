@@ -80,6 +80,53 @@ under it so column widths are the same as when they drew the border.
   z-index: 20;
 }
 
+/* straddles the next column's left border, which is the visible edge */
+.ox-table-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -6px;
+  width: 12px;
+  z-index: 30;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  --resize-bar: 255 255 255;
+
+  [data-theme='light'] & {
+    --resize-bar: 0 0 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 3px;
+    width: 3px;
+    transition: background-color 100ms;
+  }
+
+  &:hover::after {
+    background-color: rgb(var(--resize-bar) / 0.1);
+  }
+
+  &.is-resizing::after {
+    background-color: rgb(var(--resize-bar) / 0.2);
+  }
+}
+
+/* the pointer leaves the handle mid-drag */
+.ox-table-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+/* widths come from the colgroup, not content, so they can't shift */
+.ox-table-fixed table.ox-table {
+  table-layout: fixed;
+}
+
 table.ox-table {
   border-collapse: separate;
   border-spacing: 0;
@@ -120,6 +167,10 @@ table.ox-table {
 
   & td:not(.action-col) > div {
     @apply pr-8;
+  }
+  /* must follow the rule above, which has the same specificity */
+  & td.compact-col > div {
+    @apply pr-4;
   }
 
   & th:first-child,

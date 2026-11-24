@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 import * as R from 'remeda'
 
@@ -37,14 +37,17 @@ import { useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
-import { identityTypeLabel, roleColor } from '~/util/access'
+import { roleColor } from '~/util/access'
 import { groupBy } from '~/util/array'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
@@ -142,12 +145,10 @@ export default function ProjectAccessPage() {
 
   const columns = useMemo(
     () => [
-      colHelper.accessor('name', { header: 'Name' }),
-      colHelper.accessor('identityType', {
-        header: 'Type',
-        cell: (info) => identityTypeLabel[info.getValue()],
-      }),
+      colHelper.accessor('name', { meta: { width: 'flex' }, header: 'Name' }),
+      colHelper.accessor('identityType', Columns.identityType),
       colHelper.accessor('roleBadges', {
+        meta: { width: 'flex' },
         header: () => (
           <span className="inline-flex items-center">
             Role
@@ -203,7 +204,7 @@ export default function ProjectAccessPage() {
     [projectPolicy, projectSelector.project, updatePolicy]
   )
 
-  const tableInstance = useReactTable<UserRow>({
+  const tableInstance = useTable<UserRow>({
     columns,
     data: rows,
     getCoreRowModel: getCoreRowModel(),

@@ -1,12 +1,3 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * Copyright Oxide Computer Company
- */
-import { createColumnHelper } from '@tanstack/react-table'
-
 import {
   api,
   getListQFn,
@@ -18,6 +9,15 @@ import {
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 import { Badge, type BadgeColor } from '@oxide/design-system/ui'
 
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { createColumnHelper } from '~/table/column-helper'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Truncate } from '~/ui/lib/Truncate'
@@ -52,6 +52,7 @@ export const handle = { crumb: 'Disks' }
 const colHelper = createColumnHelper<PhysicalDisk>()
 const staticCols = [
   colHelper.accessor('id', {
+    meta: { width: ColWidth.id },
     cell: (info) => (
       <Truncate
         text={info.getValue()}
@@ -63,12 +64,14 @@ const staticCols = [
   }),
   colHelper.accessor((d) => (d.formFactor === 'u2' ? 'U.2' : 'M.2'), {
     header: 'Form factor',
+    meta: { width: ColWidth.md },
     cell: (info) => <Badge>{info.getValue()}</Badge>,
   }),
-  colHelper.accessor('model', { header: 'model number' }),
-  colHelper.accessor('serial', { header: 'serial number' }),
+  colHelper.accessor('model', { meta: { width: 'flex' }, header: 'model number' }),
+  colHelper.accessor('serial', Columns.serial),
   colHelper.accessor('policy.kind', {
     header: 'policy',
+    meta: { width: ColWidth.lg },
     cell: (info) => (
       <Badge color={POLICY_KIND_BADGE_COLORS[info.getValue()]}>
         {info.getValue().replace(/_/g, ' ')}
@@ -76,6 +79,7 @@ const staticCols = [
     ),
   }),
   colHelper.accessor('state', {
+    meta: { width: ColWidth.xl },
     cell: (info) => (
       <Badge color={STATE_BADGE_COLORS[info.getValue()]}>{info.getValue()}</Badge>
     ),
