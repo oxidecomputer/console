@@ -46,6 +46,8 @@
 .dropdown-menu-content,
 .popover-panel {
   animation: slide-down 0.1s var(--ease-out-quad);
+  /* a small floating panel bouncing reads as broken, not native */
+  overscroll-behavior: none;
 }
 
 @media (prefers-reduced-motion) {

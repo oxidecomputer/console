@@ -34,7 +34,7 @@ export function Popover(props: PopoverProps) {
       <div
         {...popoverProps}
         ref={ref}
-        className="bg-raise light:bg-default shadow-menu absolute z-(--z-popover) my-2 overflow-auto rounded-lg"
+        className="bg-raise light:bg-default shadow-menu absolute z-(--z-popover) my-2 overflow-auto overscroll-none rounded-lg"
       >
         <DismissButton onDismiss={state.close} />
         {children}
