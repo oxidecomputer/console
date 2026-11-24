@@ -116,7 +116,6 @@ function QuotaAmount({
 }
 
 type QuotaTileProps = Resource & {
-  /** Show a bar and percentage of the quota that is provisioned */
   showBar?: boolean
 }
 
@@ -144,11 +143,9 @@ function QuotaTile({ icon, title, unit, provisioned, quota, showBar }: QuotaTile
             </span>
           </div>
         </div>
-        {showBar && (
-          <div className="text-sans-2xl font-light">
-            <Pct pct={pct} decimalClass="text-sans-xl" />
-          </div>
-        )}
+        <div className="text-sans-2xl font-light">
+          <Pct pct={pct} decimalClass="text-sans-xl" />
+        </div>
       </div>
       {showBar && (
         <div className="px-4 pb-4">

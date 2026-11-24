@@ -545,10 +545,13 @@ test('Quotas tab', async ({ page }) => {
   const memory = page.getByRole('region', { name: 'Memory' })
   const storage = page.getByRole('region', { name: 'Storage' })
   await expect(cpu).toContainText('50 vCPUs')
+  await expect(cpu).toContainText('60%')
   await expect(cpu).toContainText('Provisioned30Available20')
   await expect(memory).toContainText('300 GiB')
+  await expect(memory).toContainText('78%')
   await expect(memory).toContainText('Provisioned234 GiBAvailable66 GiB')
   await expect(storage).toContainText('7,168 GiB')
+  await expect(storage).toContainText('61.43%')
   await expect(storage).toContainText('Provisioned4,403.2 GiBAvailable2,764.8 GiB')
 
   const sideModal = page.getByRole('dialog', { name: 'Edit quotas' })
@@ -577,6 +580,7 @@ test('Quotas tab', async ({ page }) => {
   // only one changes, the others stay the same
   await expect(cpu).toContainText('50 vCPUs')
   // quota now below provisioned
+  await expect(memory).toContainText('468%')
   await expect(memory).toContainText('Over quota184 GiB')
   await expect(storage).toContainText('7,168 GiB')
 })
