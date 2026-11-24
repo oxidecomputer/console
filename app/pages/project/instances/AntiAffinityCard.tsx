@@ -143,6 +143,7 @@ export function AntiAffinityCard() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const antiAffinityTable = useTable({
+    id: 'instance-anti-affinity-groups',
     columns: useColsWithActions(cols, makeActions, 'Copy group ID'),
     data: memberGroups.items,
     getCoreRowModel: getCoreRowModel(),

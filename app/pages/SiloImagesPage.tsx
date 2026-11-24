@@ -99,7 +99,12 @@ export default function SiloImagesPage() {
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
-  const { table } = useQueryTable({ query: imageList, columns, emptyState: <EmptyState /> })
+  const { table } = useQueryTable({
+    id: 'silo-images',
+    query: imageList,
+    columns,
+    emptyState: <EmptyState />,
+  })
 
   const { data: allImages } = useQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
 

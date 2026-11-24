@@ -253,6 +253,7 @@ export default function SiloIpPoolsTab() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'silo-ip-pools',
     query: siloIpPoolsQuery(silo),
     columns,
     emptyState: <EmptyState onLinkPool={() => setShowLinkModal(true)} />,

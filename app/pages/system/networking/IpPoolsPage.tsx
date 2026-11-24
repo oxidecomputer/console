@@ -122,6 +122,7 @@ export default function IpPoolsPage() {
 
   const columns = useColsWithActions(staticColumns, makeActions)
   const { table } = useQueryTable({
+    id: 'ip-pools',
     query: ipPoolList,
     columns,
     // turn this back on if we expect to see IPv6 ranges regularly

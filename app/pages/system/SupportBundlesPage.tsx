@@ -152,6 +152,7 @@ export default function SupportBundlesPage() {
 
   const columns = useColsWithActions(staticColumns, makeActions)
   const { table, query } = useQueryTable({
+    id: 'support-bundles',
     query: bundleList,
     columns,
     emptyState: <EmptyState />,

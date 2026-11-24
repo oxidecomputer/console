@@ -7,7 +7,6 @@
  */
 import {
   useReactTable,
-  type ColumnDef,
   type ColumnSizingState,
   type RowData,
   type TableOptions,
@@ -20,26 +19,23 @@ const MIN_COL_WIDTH = 96
 // stable, so unresized tables don't re-render on every store change
 const NO_SIZING: ColumnSizingState = {}
 
-/** Approximates TanStack's column id resolution, enough to tell tables apart */
-const columnDefId = <TData>(def: ColumnDef<TData, unknown>) =>
-  def.id ??
-  ('accessorKey' in def ? String(def.accessorKey) : undefined) ??
-  (typeof def.header === 'string' ? def.header : '')
+export type UseTableOptions<TData extends RowData> = TableOptions<TData> & {
+  /** Unique per table. Keys the table's column widths in the sizing store. */
+  id: string
+}
 
-const leafColumnIds = <TData>(defs: ColumnDef<TData, unknown>[]): string[] =>
-  defs.flatMap((def) =>
-    'columns' in def && def.columns ? leafColumnIds(def.columns) : [columnDefId(def)]
-  )
-
-/** Tables with identical column ids share widths */
-export function useTable<TData extends RowData>(options: TableOptions<TData>) {
-  const key = leafColumnIds(options.columns).join('|')
-  const columnSizing = useColumnSizingStore((s) => s.byTable[key]) ?? NO_SIZING
+export function useTable<TData extends RowData>({
+  id,
+  ...options
+}: UseTableOptions<TData>) {
+  const columnSizing = useColumnSizingStore((s) => s.byTable[id]) ?? NO_SIZING
   return useReactTable({
-    columnResizeMode: 'onChange',
+    // Pagination is server-side, and the reset re-renders whenever `data`
+    // changes identity, which loops forever on data derived during render
+    autoResetPageIndex: false,
     ...options,
     defaultColumn: { minSize: MIN_COL_WIDTH, ...options.defaultColumn },
     state: { ...options.state, columnSizing },
-    onColumnSizingChange: (updater) => setColumnSizing(key, updater),
+    onColumnSizingChange: (updater) => setColumnSizing(id, updater),
   })
 }

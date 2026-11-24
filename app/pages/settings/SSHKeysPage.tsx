@@ -96,7 +96,12 @@ export default function SSHKeysPage() {
     []
   )
 
-  const { table } = useQueryTable({ query: sshKeyList, columns, emptyState })
+  const { table } = useQueryTable({
+    id: 'ssh-keys',
+    query: sshKeyList,
+    columns,
+    emptyState,
+  })
 
   return (
     <>

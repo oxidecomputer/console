@@ -136,6 +136,7 @@ export default function VpcsPage() {
   )
 
   const { table } = useQueryTable({
+    id: 'vpcs',
     query: vpcList(project),
     columns,
     emptyState: <EmptyState />,

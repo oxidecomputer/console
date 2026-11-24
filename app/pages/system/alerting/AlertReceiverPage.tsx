@@ -197,7 +197,12 @@ function SubscriptionsCard() {
     () => receiver.subscriptions.map((subscription) => ({ subscription })),
     [receiver.subscriptions]
   )
-  const table = useTable({ columns, data: rows, getCoreRowModel: getCoreRowModel() })
+  const table = useTable({
+    id: 'alert-receiver-subscriptions',
+    columns,
+    data: rows,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   return (
     <CardBlock>
@@ -340,6 +345,7 @@ function SecretsCard() {
     [receiver.kind.secrets]
   )
   const table = useTable({
+    id: 'alert-receiver-secrets',
     columns,
     data: secrets,
     getCoreRowModel: getCoreRowModel(),

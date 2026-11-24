@@ -302,12 +302,14 @@ export default function StorageTab() {
   })
 
   const bootDisksTable = useTable({
+    id: 'instance-disks',
     columns: useColsWithActions(staticCols, makeBootDiskActions),
     data: bootDisks,
     getCoreRowModel: getCoreRowModel(),
   })
 
   const otherDisksTable = useTable({
+    id: 'instance-disks',
     columns: useColsWithActions(staticCols, makeOtherDiskActions),
     data: otherDisks,
     getCoreRowModel: getCoreRowModel(),

@@ -206,6 +206,7 @@ export default function ExternalSubnetsPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'external-subnets',
     query: subnetList(project),
     columns,
     emptyState: <EmptyState />,

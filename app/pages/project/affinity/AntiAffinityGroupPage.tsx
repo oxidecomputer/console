@@ -171,6 +171,7 @@ export default function AntiAffinityPage() {
   )
 
   const table = useTable({
+    id: 'anti-affinity-group-members',
     columns,
     data: members.items,
     getCoreRowModel: getCoreRowModel(),

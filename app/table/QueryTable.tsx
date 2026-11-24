@@ -20,6 +20,8 @@ import { Table } from './Table'
 import { useTable } from './use-table'
 
 type QueryTableProps<TItem> = {
+  /** Unique per table, see `useTable` */
+  id: string
   query: PaginatedQuery<ResultsPage<TItem>>
   rowHeight?: 'small' | 'large'
   emptyState: React.ReactElement
@@ -109,6 +111,7 @@ export function usePaginatedList<TItem>(
 
 // require ID only so we can use it in getRowId
 export function useQueryTable<TItem>({
+  id,
   query,
   rowHeight = 'small',
   emptyState,
@@ -123,6 +126,7 @@ export function useQueryTable<TItem>({
   const { items, isEmpty, pagination, queryResult } = usePaginatedList(query, getRowId)
 
   const table = useTable({
+    id,
     columns,
     data: items,
     getRowId,

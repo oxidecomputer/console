@@ -184,6 +184,7 @@ export default function DisksPage() {
     makeActions
   )
   const { table } = useQueryTable({
+    id: 'disks',
     query: diskList({ project }),
     columns,
     emptyState: <EmptyState />,

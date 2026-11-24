@@ -99,6 +99,7 @@ export default function ProjectsPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'projects',
     query: projectList,
     columns,
     emptyState: <EmptyState />,

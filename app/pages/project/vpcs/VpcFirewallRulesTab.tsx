@@ -181,7 +181,12 @@ export default function VpcFirewallRulesTab() {
     ]
   }, [navigate, rules, updateRules, vpcSelector])
 
-  const table = useTable({ columns, data: rules, getCoreRowModel: getCoreRowModel() })
+  const table = useTable({
+    id: 'vpc-firewall-rules',
+    columns,
+    data: rules,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   useQuickActions(
     () => [

@@ -91,6 +91,7 @@ export default function SilosPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'silos',
     query: siloList(),
     columns,
     emptyState: <EmptyState />,

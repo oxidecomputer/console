@@ -243,6 +243,7 @@ export default function SiloSubnetPoolsTab() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'silo-subnet-pools',
     query: siloSubnetPoolsQuery(silo),
     columns,
     emptyState: <EmptyState onLinkPool={() => setShowLinkModal(true)} />,

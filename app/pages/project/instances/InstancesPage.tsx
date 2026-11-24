@@ -169,6 +169,7 @@ export default function InstancesPage() {
   const pollingStartTime = useRef<number>(Date.now())
 
   const { table, query } = useQueryTable({
+    id: 'instances',
     query: instanceList(project, {
       // The point of all this is to poll quickly for a certain amount of time
       // after some instance in the current page enters a transitional state

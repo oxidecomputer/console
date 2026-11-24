@@ -106,6 +106,7 @@ export default function VpcSubnetsTab() {
   )
 
   const { table, query } = useQueryTable({
+    id: 'vpc-subnets',
     query: subnetList(vpcSelector),
     columns,
     emptyState,

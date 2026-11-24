@@ -39,11 +39,11 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
   <th
     className={cn(
       className,
-      'text-mono-sm bg-secondary border-default h-9 border-y pr-px pl-0 text-left first:*:border-l-0'
+      'text-mono-sm bg-secondary border-default relative h-9 border-y pr-px pl-0 text-left first:*:border-l-0'
     )}
     {...props}
   >
-    <div className="border-secondary relative flex h-full items-center border-l px-3">
+    <div className="border-secondary flex h-full items-center border-l px-3">
       {children}
     </div>
   </th>

@@ -173,6 +173,7 @@ export function DeliveriesTab() {
 
   const columns = useColsWithActions(staticDeliveryCols, makeActions)
   const { table, query } = useQueryTable({
+    id: 'alert-deliveries',
     query: deliveryList(receiver, filter),
     columns,
     emptyState,
@@ -252,6 +253,7 @@ function DeliverySideModal({
 }) {
   const { receiver } = useAlertReceiverSelector()
   const attemptsTable = useTable({
+    id: 'alert-delivery-attempts',
     columns: attemptCols,
     data: delivery.attempts.webhook,
     getCoreRowModel: getCoreRowModel(),

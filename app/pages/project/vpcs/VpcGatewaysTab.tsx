@@ -157,6 +157,7 @@ export default function VpcInternetGatewaysTab() {
   )
 
   const { table } = useQueryTable({
+    id: 'vpc-gateways',
     query: gatewayList({ project, vpc }),
     columns,
     emptyState,

@@ -109,6 +109,7 @@ export default function SledsTab() {
     [data]
   )
   const table = useTable({
+    id: 'sleds',
     columns: staticCols,
     data: sleds,
     getRowId: (sled) => sled.id,

@@ -112,6 +112,7 @@ export default function ImagesPage() {
   }, [project, makeActions])
 
   const { table } = useQueryTable({
+    id: 'project-images',
     query: imageList({ project }),
     columns,
     emptyState: <EmptyState />,

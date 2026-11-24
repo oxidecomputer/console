@@ -205,6 +205,7 @@ export default function ProjectAccessPage() {
   )
 
   const tableInstance = useTable<UserRow>({
+    id: 'project-access',
     columns,
     data: rows,
     getCoreRowModel: getCoreRowModel(),

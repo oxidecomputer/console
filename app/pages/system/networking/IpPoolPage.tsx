@@ -294,7 +294,12 @@ function IpRangesTable() {
   )
 
   const columns = useColsWithActions(ipRangesStaticCols, makeRangeActions)
-  const { table } = useQueryTable({ query: ipPoolRangeList({ pool }), columns, emptyState })
+  const { table } = useQueryTable({
+    id: 'ip-pool-ranges',
+    query: ipPoolRangeList({ pool }),
+    columns,
+    emptyState,
+  })
 
   return (
     <>
@@ -454,6 +459,7 @@ function LinkedSilosTable() {
 
   const columns = useColsWithActions(silosCols, makeActions)
   const { table } = useQueryTable({
+    id: 'ip-pool-silos',
     query: ipPoolSiloList(poolSelector),
     columns,
     emptyState,

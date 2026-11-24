@@ -88,6 +88,11 @@ const staticCols = [
 
 export default function DisksTab() {
   const emptyState = <EmptyState />
-  const { table } = useQueryTable({ query: diskList, columns: staticCols, emptyState })
+  const { table } = useQueryTable({
+    id: 'physical-disks',
+    query: diskList,
+    columns: staticCols,
+    emptyState,
+  })
   return table
 }

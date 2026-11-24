@@ -110,7 +110,12 @@ export default function AccessTokensPage() {
       body="Your access tokens will appear here when they are created"
     />
   )
-  const { table } = useQueryTable({ query: tokenList(), columns, emptyState })
+  const { table } = useQueryTable({
+    id: 'access-tokens',
+    query: tokenList(),
+    columns,
+    emptyState,
+  })
 
   return (
     <>

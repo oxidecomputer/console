@@ -111,6 +111,7 @@ export default function VpcRoutersTab() {
 
   const columns = useColsWithActions(staticColumns, makeActions)
   const { table, query } = useQueryTable({
+    id: 'vpc-routers',
     query: vpcRouterList({ project, vpc }),
     columns,
     emptyState,

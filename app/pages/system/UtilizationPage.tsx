@@ -7,7 +7,8 @@
  */
 import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { getCoreRowModel } from '@tanstack/react-table'
+import { useCallback, useMemo, useState } from 'react'
 
 import {
   api,
@@ -28,11 +29,14 @@ import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { SystemMetric } from '~/components/SystemMetric'
 import { EditQuotasSideModalForm } from '~/forms/silo-quotas-edit'
 import { LinkCell } from '~/table/cells/LinkCell'
-import { RowActions } from '~/table/columns/action-col'
+import { createColumnHelper } from '~/table/column-helper'
+import { useColsWithActions } from '~/table/columns/action-col'
+import { ColWidth } from '~/table/columns/common'
+import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { ResourceMeter } from '~/ui/lib/ResourceMeter'
-import { Table } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
@@ -170,100 +174,127 @@ const MetricsTab = () => {
   )
 }
 
+// `id` so the row actions get a Copy ID item
+type SiloUtilRow = SiloUtilization & { id: string }
+
+const colHelper = createColumnHelper<SiloUtilRow>()
+
+const usageCols = [
+  colHelper.accessor('siloName', {
+    header: 'Silo',
+    meta: { width: 'flex' },
+    cell: (info) => (
+      <LinkCell to={pb.silo({ silo: info.getValue() })}>{info.getValue()}</LinkCell>
+    ),
+  }),
+  colHelper.group({
+    id: 'provisioned',
+    header: 'Provisioned / Quota',
+    columns: [
+      colHelper.display({
+        id: 'provisionedCpu',
+        header: 'CPU',
+        meta: { width: ColWidth.md },
+        cell: ({ row: { original: s } }) => (
+          <UsageCell provisioned={s.provisioned.cpus} allocated={s.allocated.cpus} />
+        ),
+      }),
+      colHelper.display({
+        id: 'provisionedMemory',
+        header: 'Memory',
+        meta: { width: ColWidth.md },
+        cell: ({ row: { original: s } }) => (
+          <UsageCell
+            provisioned={bytesToGiB(s.provisioned.memory)}
+            allocated={bytesToGiB(s.allocated.memory)}
+            unit="GiB"
+          />
+        ),
+      }),
+      colHelper.display({
+        id: 'provisionedStorage',
+        header: 'Storage',
+        meta: { width: ColWidth.md },
+        cell: ({ row: { original: s } }) => (
+          <UsageCell
+            provisioned={bytesToTiB(s.provisioned.storage)}
+            allocated={bytesToTiB(s.allocated.storage)}
+            unit="TiB"
+          />
+        ),
+      }),
+    ],
+  }),
+  colHelper.group({
+    id: 'available',
+    header: 'Available',
+    columns: [
+      colHelper.display({
+        id: 'availableCpu',
+        header: 'CPU',
+        meta: { width: ColWidth.lg, tdClassName: 'relative' },
+        cell: ({ row: { original: s } }) => (
+          <AvailableCell provisioned={s.provisioned.cpus} allocated={s.allocated.cpus} />
+        ),
+      }),
+      colHelper.display({
+        id: 'availableMemory',
+        header: 'Memory',
+        meta: { width: ColWidth.lg, tdClassName: 'relative' },
+        cell: ({ row: { original: s } }) => (
+          <AvailableCell
+            provisioned={bytesToGiB(s.provisioned.memory)}
+            allocated={bytesToGiB(s.allocated.memory)}
+            unit="GiB"
+          />
+        ),
+      }),
+      colHelper.display({
+        id: 'availableStorage',
+        header: 'Storage',
+        meta: { width: ColWidth.lg, tdClassName: 'relative' },
+        cell: ({ row: { original: s } }) => (
+          <AvailableCell
+            provisioned={bytesToTiB(s.provisioned.storage)}
+            allocated={bytesToTiB(s.allocated.storage)}
+            unit="TiB"
+          />
+        ),
+      }),
+    ],
+  }),
+]
+
 function UsageTab() {
   const { data: siloUtilizations } = usePrefetchedQuery(siloUtilList.optionsFn())
 
   // silo whose quotas are being edited, if any
   const [editingSilo, setEditingSilo] = useState<SiloUtilization | null>(null)
 
+  const rows = useMemo(
+    () => siloUtilizations.items.map((silo) => ({ ...silo, id: silo.siloId })),
+    [siloUtilizations]
+  )
+  const columns = useColsWithActions(
+    usageCols,
+    useCallback(
+      (silo: SiloUtilRow) => [
+        { label: 'Edit quotas', onActivate: () => setEditingSilo(silo) },
+      ],
+      []
+    ),
+    'Copy silo ID'
+  )
+  const table = useTable({
+    id: 'silo-utilization',
+    columns,
+    data: rows,
+    getCoreRowModel: getCoreRowModel(),
+  })
+
   return (
     <>
-      <Table className="w-full">
-        <Table.Header>
-          <Table.HeaderRow>
-            <Table.HeadCell data-test-ignore></Table.HeadCell>
-            {/* data-test-ignore makes the row asserts work in the e2e tests */}
-            <Table.HeadCell colSpan={3} data-test-ignore>
-              Provisioned / Quota
-            </Table.HeadCell>
-            <Table.HeadCell colSpan={3} data-test-ignore>
-              Available
-            </Table.HeadCell>
-            <Table.HeadCell data-test-ignore></Table.HeadCell>
-          </Table.HeaderRow>
-          <Table.HeaderRow>
-            <Table.HeadCell>Silo</Table.HeadCell>
-            <Table.HeadCell>CPU</Table.HeadCell>
-            <Table.HeadCell>Memory</Table.HeadCell>
-            <Table.HeadCell>Storage</Table.HeadCell>
-            <Table.HeadCell>CPU</Table.HeadCell>
-            <Table.HeadCell>Memory</Table.HeadCell>
-            <Table.HeadCell>Storage</Table.HeadCell>
-            <Table.HeadCell data-test-ignore></Table.HeadCell>
-          </Table.HeaderRow>
-        </Table.Header>
-        <Table.Body>
-          {siloUtilizations.items.map((silo) => (
-            <Table.Row key={silo.siloName}>
-              <Table.Cell width="16%" height="large">
-                <LinkCell to={pb.silo({ silo: silo.siloName })}>{silo.siloName}</LinkCell>
-              </Table.Cell>
-              <Table.Cell width="14%" height="large">
-                <UsageCell
-                  provisioned={silo.provisioned.cpus}
-                  allocated={silo.allocated.cpus}
-                />
-              </Table.Cell>
-              <Table.Cell width="14%" height="large">
-                <UsageCell
-                  provisioned={bytesToGiB(silo.provisioned.memory)}
-                  allocated={bytesToGiB(silo.allocated.memory)}
-                  unit="GiB"
-                />
-              </Table.Cell>
-              <Table.Cell width="14%" height="large">
-                <UsageCell
-                  provisioned={bytesToTiB(silo.provisioned.storage)}
-                  allocated={bytesToTiB(silo.allocated.storage)}
-                  unit="TiB"
-                />
-              </Table.Cell>
-              <Table.Cell width="14%" className="relative" height="large">
-                <AvailableCell
-                  provisioned={silo.provisioned.cpus}
-                  allocated={silo.allocated.cpus}
-                />
-              </Table.Cell>
-              <Table.Cell width="14%" className="relative" height="large">
-                <AvailableCell
-                  provisioned={bytesToGiB(silo.provisioned.memory)}
-                  allocated={bytesToGiB(silo.allocated.memory)}
-                  unit="GiB"
-                />
-              </Table.Cell>
-              <Table.Cell width="14%" className="relative" height="large">
-                <AvailableCell
-                  provisioned={bytesToTiB(silo.provisioned.storage)}
-                  allocated={bytesToTiB(silo.allocated.storage)}
-                  unit="TiB"
-                />
-              </Table.Cell>
-              <Table.Cell className="action-col w-10 *:p-0" height="large">
-                <RowActions
-                  id={silo.siloId}
-                  copyIdLabel="Copy silo ID"
-                  actions={[
-                    {
-                      label: 'Edit quotas',
-                      onActivate: () => setEditingSilo(silo),
-                    },
-                  ]}
-                />
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
+      <Table table={table} rowHeight="large" />
       {editingSilo && (
         <EditQuotasSideModalForm
           silo={editingSilo.siloName}

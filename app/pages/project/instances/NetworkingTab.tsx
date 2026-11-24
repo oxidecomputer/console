@@ -488,6 +488,7 @@ export default function NetworkingTab() {
   const columns = useColsWithActions(staticCols, makeActions)
 
   const tableInstance = useTable({
+    id: 'instance-nics',
     columns,
     data: nics,
     getCoreRowModel: getCoreRowModel(),
@@ -554,6 +555,7 @@ export default function NetworkingTab() {
 
   const subnetTableCols = useColsWithActions(staticSubnetCols, makeSubnetActions)
   const subnetTableInstance = useTable({
+    id: 'instance-external-subnets',
     columns: subnetTableCols,
     data: instanceSubnets.items,
     getCoreRowModel: getCoreRowModel(),
@@ -629,6 +631,7 @@ export default function NetworkingTab() {
   )
 
   const ipTableInstance = useTable({
+    id: 'instance-external-ips',
     columns: useColsWithActions(staticIpCols, makeIpActions),
     data: useMemo(() => orderIps(eips.items), [eips]),
     getCoreRowModel: getCoreRowModel(),

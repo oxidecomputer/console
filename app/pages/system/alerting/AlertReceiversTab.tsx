@@ -121,6 +121,7 @@ export default function AlertReceiversTab() {
 
   const columns = useColsWithActions(staticColumns, makeActions)
   const { table } = useQueryTable({
+    id: 'alert-receivers',
     query: receiverList,
     columns,
     emptyState: <EmptyState />,

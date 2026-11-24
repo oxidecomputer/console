@@ -217,6 +217,7 @@ export default function FloatingIpsPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'floating-ips',
     query: fipList(project),
     columns,
     emptyState: <EmptyState />,

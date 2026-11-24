@@ -139,6 +139,7 @@ export default function SnapshotsPage() {
   )
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'snapshots',
     query: snapshotList(project),
     columns,
     emptyState: <EmptyState />,

@@ -206,6 +206,7 @@ function TokensTable({ tokens }: { tokens: ScimClientBearerToken[] }) {
   const columns = useColsWithActions(staticColumns, makeActions, 'Copy token ID')
 
   const table = useTable({
+    id: 'silo-scim-tokens',
     data: sortedTokens,
     columns,
     getCoreRowModel: getCoreRowModel(),

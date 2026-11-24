@@ -5,15 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import {
-  flexRender,
-  type Column,
-  type Header,
-  type Table as TableInstance,
-} from '@tanstack/react-table'
+import { flexRender, type Header, type Table as TableInstance } from '@tanstack/react-table'
 import cn from 'classnames'
-import type { JSX } from 'react'
-import { flushSync } from 'react-dom'
+import { useLayoutEffect, useRef, useState, type JSX, type RefObject } from 'react'
 import * as R from 'remeda'
 
 import { Table as UITable } from '~/ui/lib/Table'
@@ -36,29 +30,48 @@ const TextCell = ({ value }: { value: unknown }) =>
 /** Below this, the table scrolls rather than squashing flexible columns */
 const FLEX_COL_MIN_WIDTH = 160
 
-function getColumnWidths<TData>(table: TableInstance<TData>) {
+/** A column can be dragged to this many times the average column width */
+const MAX_COL_WIDTH_FACTOR = 3
+
+/**
+ * Px for each visible column, or undefined to share the leftover space. Once
+ * no column is flexible, the leftover is split between the columns nobody has
+ * dragged, since fixed layout would otherwise stretch every column, the
+ * dragged one and actions included.
+ */
+function getColumnWidths<TData>(
+  table: TableInstance<TData>,
+  visibleWidth: number | undefined
+) {
   const leafCols = table.getVisibleLeafColumns()
   const { columnSizing } = table.getState()
-  // not TanStack's `size`, which defaults to 150 and so can't mark a column
-  // as flexible
-  const metaWidth = (col: Column<TData>) => {
+  const widths = leafCols.map((col) => {
+    if (col.id in columnSizing) return col.getSize()
+    // not TanStack's `size`, which defaults to 150 and so can't mark a column
+    // as flexible
     const width = col.columnDef.meta?.width
     return width === 'flex' ? undefined : width
-  }
-  const ownWidth = (col: Column<TData>) =>
-    col.id in columnSizing ? col.getSize() : metaWidth(col)
+  })
+  const minWidth = R.sumBy(widths, (width) => width ?? FLEX_COL_MIN_WIDTH)
 
-  let flexCols = leafCols.filter((col) => ownWidth(col) === undefined)
-  // Fixed layout would otherwise stretch every column, actions included
-  if (flexCols.length === 0) {
-    flexCols = [leafCols.find((col) => metaWidth(col) === undefined) ?? leafCols[0]]
-  }
+  const fixed = widths.filter((width) => width !== undefined)
+  const extra = (visibleWidth ?? 0) - R.sum(fixed)
+  if (fixed.length < widths.length || extra <= 0) return { widths, minWidth }
 
+  const resizable = leafCols.filter((col) => col.getCanResize())
+  const undragged = resizable.filter((col) => !(col.id in columnSizing))
+  const receivers = undragged.length > 0 ? undragged : resizable
+  const share = extra / receivers.length
   return {
-    widths: leafCols.map((col) => (flexCols.includes(col) ? undefined : ownWidth(col))),
-    minWidth: R.sumBy(leafCols, (col) => ownWidth(col) ?? FLEX_COL_MIN_WIDTH),
+    widths: fixed.map((width, i) =>
+      receivers.includes(leafCols[i]) ? width + share : width
+    ),
+    minWidth,
   }
 }
+
+const clientX = (e: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent) =>
+  'touches' in e ? (e.touches[0]?.clientX ?? 0) : e.clientX
 
 function headerText<TData>(header: Header<TData, unknown>) {
   const def = header.column.columnDef.header
@@ -69,21 +82,60 @@ function headerText<TData>(header: Header<TData, unknown>) {
   return typeof def === 'string' && def ? def : undefined
 }
 
-function ResizeHandle<TData>({ header }: { header: Header<TData, unknown> }) {
-  const { column, getContext } = header
-  const { table } = getContext()
+/**
+ * Width of the scroll container, which unlike the table's own width doesn't
+ * grow when columns overflow. Measured before paint, so the first frame
+ * already has the final widths.
+ */
+function useVisibleWidth(tableRef: RefObject<HTMLTableElement | null>) {
+  const [width, setWidth] = useState<number>()
+  useLayoutEffect(() => {
+    const scroller = tableRef.current?.closest('.ox-table-scroller')
+    if (!scroller) return
+    const observer = new ResizeObserver(() => setWidth(scroller.clientWidth))
+    observer.observe(scroller)
+    setWidth(scroller.clientWidth)
+    return () => observer.disconnect()
+  }, [tableRef])
+  return width
+}
+
+function ResizeHandle<TData>({
+  header,
+  maxWidth,
+}: {
+  header: Header<TData, unknown>
+  maxWidth: number
+}) {
+  const { column } = header
+  const { table } = header.getContext()
 
   const startResize = (e: React.MouseEvent | React.TouchEvent) => {
-    // TanStack starts the drag from `getSize()`, which defaults to 150, so
-    // record the rendered width first or the column jumps
-    if (!(column.id in table.getState().columnSizing)) {
-      const th = e.currentTarget.closest('th')
-      if (th) {
-        const width = Math.round(th.getBoundingClientRect().width)
-        flushSync(() => table.setColumnSizing((old) => ({ ...old, [column.id]: width })))
-      }
+    // a flexible column has no size of its own to start from
+    const th = e.currentTarget.closest('th')
+    const startWidth = th ? th.getBoundingClientRect().width : column.getSize()
+    const startX = clientX(e)
+    const minSize = column.columnDef.minSize ?? 0
+    // a flexible column can already be wider than the max, so don't snap it down
+    const maxSize = Math.max(minSize, maxWidth, startWidth)
+
+    const onMove = (ev: MouseEvent | TouchEvent) => {
+      const width = Math.round(startWidth + clientX(ev) - startX)
+      const clamped = R.clamp(width, { min: minSize, max: maxSize })
+      table.setColumnSizing((old) => ({ ...old, [column.id]: clamped }))
     }
-    header.getResizeHandler()(e)
+    const [moveEvent, endEvent] =
+      'touches' in e
+        ? (['touchmove', 'touchend'] as const)
+        : (['mousemove', 'mouseup'] as const)
+    const onEnd = () => {
+      document.removeEventListener(moveEvent, onMove)
+      document.removeEventListener(endEvent, onEnd)
+      table.setColumnSizingInfo((old) => ({ ...old, isResizingColumn: false }))
+    }
+    document.addEventListener(moveEvent, onMove)
+    document.addEventListener(endEvent, onEnd)
+    table.setColumnSizingInfo((old) => ({ ...old, isResizingColumn: column.id }))
   }
 
   // pointer-only: keyboard resizing would make every header a tab stop
@@ -108,7 +160,12 @@ export const Table = <TData,>({
   ...tableProps
 }: TableProps<TData>) => {
   const leafCols = table.getVisibleLeafColumns()
-  const { widths, minWidth } = getColumnWidths(table)
+  const tableRef = useRef<HTMLTableElement>(null)
+  const visibleWidth = useVisibleWidth(tableRef)
+  const { widths, minWidth } = getColumnWidths(table, visibleWidth)
+  const maxColWidth = visibleWidth
+    ? (visibleWidth / leafCols.length) * MAX_COL_WIDTH_FACTOR
+    : Infinity
   const isResizing = !!table.getState().columnSizingInfo.isResizingColumn
   // compared by identity: TanStack merges this into any def without a `cell`
   const defaultCell = table._getDefaultColumnDef().cell
@@ -117,6 +174,7 @@ export const Table = <TData,>({
     <UITable
       className={cn(className, 'ox-table-fixed', { 'ox-table-resizing': isResizing })}
       style={{ ...style, minWidth }}
+      ref={tableRef}
       {...tableProps}
     >
       <colgroup>
@@ -147,7 +205,9 @@ export const Table = <TData,>({
                 {/* leaf headers only: a group header would resize all its columns at once */}
                 {!header.isPlaceholder &&
                   header.subHeaders.length === 0 &&
-                  header.column.getCanResize() && <ResizeHandle header={header} />}
+                  header.column.getCanResize() && (
+                    <ResizeHandle header={header} maxWidth={maxColWidth} />
+                  )}
               </UITable.HeadCell>
             ))}
           </UITable.HeaderRow>
@@ -156,7 +216,7 @@ export const Table = <TData,>({
       <UITable.Body>
         {table.getRowModel().rows.map((row) => (
           <UITable.Row key={row.id}>
-            {row.getAllCells().map((cell) => (
+            {row.getVisibleCells().map((cell) => (
               <UITable.Cell
                 key={cell.column.id}
                 className={cell.column.columnDef.meta?.tdClassName}

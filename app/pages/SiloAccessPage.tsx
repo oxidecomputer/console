@@ -163,6 +163,7 @@ export default function SiloAccessPage() {
   )
 
   const tableInstance = useTable({
+    id: 'silo-access',
     columns,
     data: rows,
     getCoreRowModel: getCoreRowModel(),

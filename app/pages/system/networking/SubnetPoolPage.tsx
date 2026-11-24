@@ -262,6 +262,7 @@ function MembersTable() {
 
   const columns = useColsWithActions(membersStaticCols, makeMemberActions)
   const { table } = useQueryTable({
+    id: 'subnet-pool-members',
     query: subnetPoolMemberList({ subnetPool }),
     columns,
     emptyState,
@@ -446,6 +447,7 @@ function LinkedSilosTable() {
 
   const columns = useColsWithActions(silosCols, makeActions)
   const { table } = useQueryTable({
+    id: 'subnet-pool-silos',
     query: subnetPoolSiloList(poolSelector),
     columns,
     emptyState,

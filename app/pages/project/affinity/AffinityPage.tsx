@@ -143,6 +143,7 @@ export default function AffinityPage() {
   )
 
   const table = useTable({
+    id: 'anti-affinity-groups',
     columns,
     data: antiAffinityGroups,
     getCoreRowModel: getCoreRowModel(),

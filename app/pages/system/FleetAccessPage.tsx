@@ -258,6 +258,7 @@ export default function FleetAccessPage() {
   )
 
   const tableInstance = useTable({
+    id: 'fleet-access',
     columns,
     data: rows,
     getCoreRowModel: getCoreRowModel(),

@@ -34,6 +34,7 @@ export default function ProfilePage() {
   const { me, myGroups } = useCurrentUser()
 
   const groupsTable = useTable({
+    id: 'profile-groups',
     columns,
     data: myGroups.items,
     getCoreRowModel: getCoreRowModel(),

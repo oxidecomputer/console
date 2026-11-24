@@ -187,6 +187,7 @@ export default function RouterPage() {
   )
   const columns = useColsWithActions(routerRoutesStaticCols, makeRangeActions)
   const { table } = useQueryTable({
+    id: 'router-routes',
     query: routeList({ project, vpc, router }),
     columns,
     emptyState,

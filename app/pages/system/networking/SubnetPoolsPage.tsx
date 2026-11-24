@@ -124,6 +124,7 @@ export default function SubnetPoolsPage() {
 
   const columns = useColsWithActions(staticColumns, makeActions)
   const { table } = useQueryTable({
+    id: 'subnet-pools',
     query: subnetPoolList,
     columns,
     emptyState: <EmptyState />,

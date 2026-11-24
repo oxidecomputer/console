@@ -75,6 +75,7 @@ export default function SledInstancesTab() {
   const { sledId } = useSledParams()
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'sled-instances',
     query: sledInstanceList(sledId),
     columns,
     emptyState: <EmptyState />,

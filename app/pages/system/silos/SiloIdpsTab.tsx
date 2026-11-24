@@ -73,6 +73,7 @@ export default function SiloIdpsTab() {
   )
 
   const { table } = useQueryTable({
+    id: 'silo-idps',
     query: siloIdpList(silo),
     columns,
     emptyState: <EmptyState />,
