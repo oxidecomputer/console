@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import {
   api,
   getListQFn,
@@ -9,13 +16,6 @@ import {
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 import { Badge, type BadgeColor } from '@oxide/design-system/ui'
 
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * Copyright Oxide Computer Company
- */
 import { createColumnHelper } from '~/table/column-helper'
 import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'

@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useCallback, useMemo } from 'react'
 
 import {
@@ -14,13 +21,6 @@ import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * Copyright Oxide Computer Company
- */
 import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { ColWidth, Columns } from '~/table/columns/common'
