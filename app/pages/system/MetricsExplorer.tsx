@@ -898,8 +898,9 @@ function ResultsSummary({ tables }: { tables: OxqlTable[] }) {
   const timeseries = tables.flatMap((t) => t.timeseries)
   const nPoints = R.sumBy(timeseries, (t) => t.points.timestamps.length)
   return (
-    <div className="text-mono-xs text-quaternary px-2">
-      <span className="text-tertiary">{timeseries.length} timeseries</span> /{' '}
+    <div className="text-mono-xs text-quaternary pr-2">
+      <span className="max-600:block text-tertiary">{timeseries.length} timeseries</span>
+      <span className="max-600:hidden"> / </span>
       <span className="text-tertiary">
         {nPoints.toLocaleString()} {pluralize('point', nPoints)}
       </span>
@@ -1073,28 +1074,35 @@ export default function MetricsExplorer() {
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardBlock>
             <CardBlock.Header title="Query">
-              <div className="flex items-center gap-2">
-                {query.status === 'success' && (
-                  <ResultsSummary tables={query.data.tables} />
-                )}
-                {query.status === 'success' && hasSettings && (
-                  <ChartSettings
-                    dropFirstPoint={
-                      hasTrimmableCharts
-                        ? { value: dropFirstPoint, onChange: setDropFirstPoint }
-                        : undefined
-                    }
-                    colorScale={
-                      hasHeatmaps
-                        ? { value: colorScale, onChange: setColorScale }
-                        : undefined
-                    }
-                  />
-                )}
-                <Button type="submit" size="sm" loading={query.status === 'pending'}>
-                  Run query
-                </Button>
-                <ResultsMenu data={query.data} />
+              <div className="max-600:justify-between flex items-center gap-2">
+                <div className="grow">
+                  {query.status === 'success' && (
+                    <ResultsSummary tables={query.data.tables} />
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {query.status === 'success' && hasSettings && (
+                    <ChartSettings
+                      dropFirstPoint={
+                        hasTrimmableCharts
+                          ? { value: dropFirstPoint, onChange: setDropFirstPoint }
+                          : undefined
+                      }
+                      colorScale={
+                        hasHeatmaps
+                          ? { value: colorScale, onChange: setColorScale }
+                          : undefined
+                      }
+                    />
+                  )}
+                  <Button type="submit" size="sm" loading={query.status === 'pending'}>
+                    <div>
+                      Run
+                      <span className="max-600:hidden"> query</span>
+                    </div>
+                  </Button>
+                  <ResultsMenu data={query.data} />
+                </div>
               </div>
             </CardBlock.Header>
             <CardBlock.Body>
