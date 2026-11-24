@@ -6,20 +6,29 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import React, { type JSX, type ReactElement } from 'react'
-import SimpleBar from 'simplebar-react'
+import type { JSX } from 'react'
 
 import { classed } from '~/util/classed'
 
 export type TableProps = JSX.IntrinsicElements['table']
+/**
+ * The outer border is drawn by a frame pinned to the visible part of the
+ * scroller rather than by the edge cells, so it stays closed on every side
+ * however far the table is scrolled. See `table.css`.
+ *
+ * `className` goes on the scroller, the outermost box, so sizing classes like
+ * `max-w-lg` size the frame along with the table.
+ */
 export function Table({ className, ...props }: TableProps) {
   return (
-    <SimpleBar className="overflow-x-auto rounded-md pb-4" autoHide={false}>
-      <table
-        className={cn(className, 'ox-table text-sans-md w-full border-separate')}
-        {...props}
-      />
-    </SimpleBar>
+    // pb-2 + the 8px scrollbar is 16px below the table. It's a utility rather
+    // than in table.css so wrappers like CardBlock.Body can override it.
+    <div className={cn('ox-table-scroller pb-2', className)}>
+      <div className="ox-table-grid">
+        <table className="ox-table text-sans-md w-full" {...props} />
+        <div className="ox-table-frame" aria-hidden />
+      </div>
+    </div>
   )
 }
 
@@ -38,7 +47,7 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
   <th
     className={cn(
       className,
-      'text-mono-sm bg-secondary border-default h-9 border-y pr-px pl-0 text-left'
+      'text-mono-sm bg-secondary border-default h-9 border-y pr-px pl-0 text-left first:*:border-l-0'
     )}
     {...props}
   >
@@ -55,36 +64,13 @@ Table.Row = ({ className, selected, ...props }: TableRowProps) => (
   <tr className={cn('bg-default', className, selected && 'is-selected')} {...props} />
 )
 
-type RowElt = ReactElement<TableRowProps>
-
 export type TableBodyProps = JSX.IntrinsicElements['tbody']
-Table.Body = ({ className, children, ...props }: TableBodyProps) => {
-  const rows = React.Children.toArray(children).map((c, i, siblings) => {
-    const child = c as RowElt
-    const beforeSelected = (siblings[i - 1] as RowElt | undefined)?.props.selected
-    const afterSelected = (siblings[i + 1] as RowElt | undefined)?.props.selected
-    const className =
-      child.props.selected && (beforeSelected || afterSelected)
-        ? cn(
-            child.props.className,
-            'multi-selection',
-            !beforeSelected && 'selection-start',
-            !afterSelected && 'selection-end'
-          )
-        : child.props.className
-    return React.cloneElement(child, { ...child.props, className })
-  })
-  return (
-    <tbody className={className} {...props}>
-      {rows}
-    </tbody>
-  )
-}
+Table.Body = (props: TableBodyProps) => <tbody {...props} />
 
 export type TableCellProps = JSX.IntrinsicElements['td'] & { height?: 'small' | 'large' }
 Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProps) => (
   <td
-    className={cn(className, 'text-raise border-default pl-0 first:*:border-l-0')}
+    className={cn(className, 'text-raise pl-0 first:*:border-l-0')}
     {...props}
   >
     <div

@@ -259,6 +259,34 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
     })
   })
 
+  // Tables only overflow horizontally at narrow widths, which none of the
+  // standard pages hit. Capture each at its scroll start, middle, and end so
+  // the frame edges and sticky column shadows are covered.
+  const overflowTables = [
+    { name: 'inventory sleds', url: '/system/inventory/sleds', heading: 'Inventory' },
+    { name: 'instances list', url: `${p}/instances`, heading: 'Instances' },
+  ]
+  for (const { name, url, heading } of overflowTables) {
+    test(`${name} overflow`, async ({ page }) => {
+      await page.setViewportSize({ width: 800, height: 900 })
+      await page.goto(url, { waitUntil: 'networkidle' })
+      await expect(page.getByRole('heading', { name: heading })).toBeVisible()
+      const table = page.getByRole('table').first()
+      const slug = name.replaceAll(' ', '-')
+      for (const position of ['start', 'middle', 'end'] as const) {
+        // find the scroller by behavior so this works whatever element scrolls
+        await table.evaluate((el, position) => {
+          let node = el.parentElement
+          while (node && node.scrollWidth <= node.clientWidth) node = node.parentElement
+          if (!node) return
+          const max = node.scrollWidth - node.clientWidth
+          node.scrollLeft = position === 'start' ? 0 : position === 'middle' ? max / 2 : max
+        }, position)
+        await expect(page).toHaveScreenshot(`${slug}-overflow-${position}.png`)
+      }
+    })
+  }
+
   for (const [name, query] of Object.entries(oxqlQueries)) {
     test(`oxql ${name}`, async ({ page }) => {
       await page.goto('/system/metrics-explorer', { waitUntil: 'networkidle' })
