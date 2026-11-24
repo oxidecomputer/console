@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import cn from 'classnames'
@@ -36,12 +35,14 @@ import {
   Info12Icon,
   Monitoring16Icon,
   Monitoring24Icon,
+  NextArrow12Icon,
   Settings16Icon,
+  Success12Icon,
 } from '@oxide/design-system/icons/react'
 
 import { timeseries as timeseriesMetadata } from '~/api/__generated__/timeseries-metadata'
 import { DocsPopover } from '~/components/DocsPopover'
-import { Heatmap, SampleColorStrip } from '~/components/Heatmap'
+import { Heatmap } from '~/components/Heatmap'
 import { type ColorScale } from '~/components/heatmap-color-scale'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import {
@@ -63,7 +64,6 @@ import { useElementSize } from '~/hooks/use-element-size'
 import { addToast } from '~/stores/toast'
 import { Button, buttonStyle } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
-import { Checkbox } from '~/ui/lib/Checkbox'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { Divider } from '~/ui/lib/Divider'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
@@ -71,9 +71,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { ErrorInlineCode } from '~/ui/lib/InlineCode'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { Radio } from '~/ui/lib/Radio'
 import { TextInputError } from '~/ui/lib/TextInput'
-import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate } from '~/ui/lib/Truncate'
 import { docLinks } from '~/util/links'
@@ -770,82 +768,107 @@ type ChartSettingsProps = {
   colorScale: Setting<ColorScale>
 }
 
-const colorScaleInfo = {
-  linear: {
-    label: 'Linear',
-    description:
-      'Shades each cell by its count as a fraction of the highest measured count.',
-  },
-  logarithmic: {
-    label: 'Logarithmic',
-    description:
-      "Shades each cell by its count's order of magnitude, so 1, 10, and 100 are evenly spaced.",
-  },
-  ranked: {
-    label: 'Ranked',
-    description:
-      'Shades a cell by where its count ranks among all measured counts. Not a direct representation of magnitude, but helps emphasize patterns and outliers.',
-  },
-} satisfies Record<ColorScale, { label: string; description: string }>
+const colorScaleLabels = {
+  linear: 'Linear',
+  logarithmic: 'Logarithmic',
+  ranked: 'Ranked',
+} satisfies Record<ColorScale, string>
+
+const onOffLabels = { on: 'On', off: 'Off' }
+
+type SettingSubmenuProps<T extends string> = {
+  label: string
+  options: Record<T, string>
+  value: T
+  onChange: (value: T) => void
+}
+
+function SettingSubmenu<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: SettingSubmenuProps<T>) {
+  const entries = R.entries(options)
+  return (
+    <Dropdown.Submenu>
+      {/* override the default right padding so the arrow sits at the trailing edge */}
+      <Dropdown.SubmenuTrigger className="DropdownMenuItem ox-menu-item gap-6 pr-3!">
+        {label}
+        <span className="text-tertiary ml-auto flex items-center gap-1.5">
+          {/* stack every label in one cell so the trigger is always as wide as
+              the longest one, and the menu doesn't resize on selection */}
+          <span className="grid justify-items-end">
+            {entries.map(([optionValue, optionLabel]) => (
+              <span
+                key={optionValue}
+                className={cn(
+                  'col-start-1 row-start-1',
+                  optionValue !== value && 'invisible'
+                )}
+              >
+                {optionLabel}
+              </span>
+            ))}
+          </span>
+          <NextArrow12Icon />
+        </span>
+      </Dropdown.SubmenuTrigger>
+      <Dropdown.SubContent>
+        <Dropdown.RadioGroup
+          value={value}
+          onValueChange={(newValue) => {
+            // RadioGroup values are untyped, so look the key back up
+            const option = entries.find(([key]) => key === newValue)
+            if (option) onChange(option[0])
+          }}
+        >
+          {entries.map(([optionValue, optionLabel]) => (
+            <Dropdown.RadioItem
+              key={optionValue}
+              value={optionValue}
+              className={cn(
+                'DropdownMenuItem ox-menu-item',
+                optionValue === value && 'is-selected'
+              )}
+            >
+              {optionLabel}
+              {optionValue === value && <Success12Icon className="absolute right-3" />}
+            </Dropdown.RadioItem>
+          ))}
+        </Dropdown.RadioGroup>
+      </Dropdown.SubContent>
+    </Dropdown.Submenu>
+  )
+}
 
 function ChartSettings({ dropFirstPoint, colorScale }: ChartSettingsProps) {
   return (
-    <Popover>
-      <PopoverButton aria-label="Chart settings" className="headless-hide-focus rounded-md">
-        <div className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}>
+    <Dropdown.Root>
+      <Dropdown.Trigger aria-label="Chart settings" className="rounded-md">
+        <div className={buttonStyle({ size: 'icon', variant: 'ghost' })}>
           <Settings16Icon aria-hidden className="shrink-0" />
         </div>
-      </PopoverButton>
-      <PopoverPanel
-        className="popover-panel bg-raise light:bg-default shadow-menu z-10 w-80 rounded-lg py-4"
-        anchor={{ to: 'bottom end', gap: 12, padding: 16 }}
-      >
-        <h2 className="text-sans-semi-md text-raise px-4">Chart settings</h2>
-        <Divider className="mt-2" />
-        <div className="mt-4 flex flex-col gap-4 px-4">
-          {dropFirstPoint && (
-            <div className="flex items-center gap-2">
-              <Checkbox
-                checked={dropFirstPoint.value}
-                onChange={(e) => dropFirstPoint.onChange(e.target.checked)}
-              >
-                Drop first data point
-              </Checkbox>
-              <TipIcon>
-                With deltas and cumulative counters, the initial point is a delta from the
-                earliest observed value. It's therefore typically much larger, and not worth
-                comparing to the rest of your data.
-              </TipIcon>
-            </div>
-          )}
-          {colorScale && (
-            <fieldset>
-              <legend className="text-sans-md text-default mb-2">
-                Heatmap color scale
-              </legend>
-              <div className="flex flex-col gap-2">
-                {R.entries(colorScaleInfo).map(([value, { label, description }]) => (
-                  <span key={value} className="inline-flex items-center gap-1.5">
-                    <Radio
-                      name="colorScale"
-                      value={value}
-                      checked={colorScale.value === value}
-                      onChange={() => colorScale.onChange(value)}
-                    >
-                      {label}
-                    </Radio>
-                    <TipIcon>
-                      <p className="mb-2">{description}</p>
-                      <SampleColorStrip colorScale={value} />
-                    </TipIcon>
-                  </span>
-                ))}
-              </div>
-            </fieldset>
-          )}
-        </div>
-      </PopoverPanel>
-    </Popover>
+      </Dropdown.Trigger>
+      <Dropdown.Content gap={8}>
+        {dropFirstPoint && (
+          <SettingSubmenu
+            label="Drop first data point"
+            options={onOffLabels}
+            value={dropFirstPoint.value ? 'on' : 'off'}
+            onChange={(value) => dropFirstPoint.onChange(value === 'on')}
+          />
+        )}
+        {colorScale && (
+          <SettingSubmenu
+            label="Color scale"
+            options={colorScaleLabels}
+            value={colorScale.value}
+            onChange={colorScale.onChange}
+          />
+        )}
+      </Dropdown.Content>
+    </Dropdown.Root>
   )
 }
 
@@ -875,8 +898,9 @@ function ResultsSummary({ tables }: { tables: OxqlTable[] }) {
   const timeseries = tables.flatMap((t) => t.timeseries)
   const nPoints = R.sumBy(timeseries, (t) => t.points.timestamps.length)
   return (
-    <div className="text-mono-xs text-quaternary px-2">
-      <span className="text-tertiary">{timeseries.length} timeseries</span> /{' '}
+    <div className="text-mono-xs text-quaternary pr-2">
+      <span className="max-600:block text-tertiary">{timeseries.length} timeseries</span>
+      <span className="max-600:hidden"> / </span>
       <span className="text-tertiary">
         {nPoints.toLocaleString()} {pluralize('point', nPoints)}
       </span>
@@ -1019,7 +1043,7 @@ export default function MetricsExplorer() {
     if (chartsRef.current) {
       setScrollMargin(chartsRef.current.getBoundingClientRect().top + window.scrollY)
     }
-  }, [preChartsSize?.height, charts.length, hasSettings])
+  }, [preChartsSize?.height, charts.length])
 
   const virtualizer = useWindowVirtualizer({
     count: charts.length,
@@ -1050,14 +1074,35 @@ export default function MetricsExplorer() {
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardBlock>
             <CardBlock.Header title="Query">
-              <div className="flex items-center gap-2">
-                {query.status === 'success' && (
-                  <ResultsSummary tables={query.data.tables} />
-                )}
-                <Button type="submit" size="sm" loading={query.status === 'pending'}>
-                  Run query
-                </Button>
-                <ResultsMenu data={query.data} />
+              <div className="max-600:justify-between flex items-center gap-2">
+                <div className="grow">
+                  {query.status === 'success' && (
+                    <ResultsSummary tables={query.data.tables} />
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {query.status === 'success' && hasSettings && (
+                    <ChartSettings
+                      dropFirstPoint={
+                        hasTrimmableCharts
+                          ? { value: dropFirstPoint, onChange: setDropFirstPoint }
+                          : undefined
+                      }
+                      colorScale={
+                        hasHeatmaps
+                          ? { value: colorScale, onChange: setColorScale }
+                          : undefined
+                      }
+                    />
+                  )}
+                  <Button type="submit" size="sm" loading={query.status === 'pending'}>
+                    <div>
+                      Run
+                      <span className="max-600:hidden"> query</span>
+                    </div>
+                  </Button>
+                  <ResultsMenu data={query.data} />
+                </div>
               </div>
             </CardBlock.Header>
             <CardBlock.Body>
@@ -1120,20 +1165,6 @@ export default function MetricsExplorer() {
         ))
         .with({ status: 'success' }, () => (
           <ResultsSection>
-            {hasSettings && (
-              <div className="mb-4 flex justify-end">
-                <ChartSettings
-                  dropFirstPoint={
-                    hasTrimmableCharts
-                      ? { value: dropFirstPoint, onChange: setDropFirstPoint }
-                      : undefined
-                  }
-                  colorScale={
-                    hasHeatmaps ? { value: colorScale, onChange: setColorScale } : undefined
-                  }
-                />
-              </div>
-            )}
             <div
               ref={chartsRef}
               className="relative"
