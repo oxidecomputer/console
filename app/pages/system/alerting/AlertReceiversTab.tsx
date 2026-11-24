@@ -7,7 +7,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router'
 
@@ -29,6 +28,7 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -51,9 +51,11 @@ const colHelper = createColumnHelper<AlertReceiver>()
 
 const staticColumns = [
   colHelper.accessor('name', {
+    meta: { width: 'flex' },
     cell: makeLinkCell((receiver) => pb.alertReceiver({ receiver })),
   }),
   colHelper.accessor('subscriptions', {
+    meta: { width: 'flex' },
     header: 'Subscriptions',
     cell: (info) => (
       <ListPlusCell tooltipTitle="Other subscriptions">
@@ -119,6 +121,7 @@ export default function AlertReceiversTab() {
 
   const columns = useColsWithActions(staticColumns, makeActions)
   const { table } = useQueryTable({
+    id: 'alert-receivers',
     query: receiverList,
     columns,
     emptyState: <EmptyState />,

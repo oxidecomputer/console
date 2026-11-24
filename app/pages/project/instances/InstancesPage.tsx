@@ -7,7 +7,6 @@
  */
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo, useRef, useState } from 'react'
 
 import {
@@ -29,8 +28,9 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { ExternalIpsCell } from '~/table/cells/ExternalIpsCell'
 import { InstanceStateCell } from '~/table/cells/InstanceStateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -120,6 +120,7 @@ export default function InstancesPage() {
   const columns = useMemo(
     () => [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         cell: makeLinkCell((instance) => pb.instance({ project, instance })),
       }),
       colHelper.accessor(
@@ -127,10 +128,12 @@ export default function InstancesPage() {
         {
           header: 'state',
           cell: (info) => <InstanceStateCell value={info.getValue()} />,
+          meta: { width: ColWidth.lg },
         }
       ),
       colHelper.accessor('ncpus', {
         header: 'CPU',
+        meta: { width: ColWidth.sm },
         cell: (info) => (
           <ValueUnit value={info.getValue()} unit={pluralize('vCPU', info.getValue())} />
         ),
@@ -138,10 +141,12 @@ export default function InstancesPage() {
       colHelper.accessor('memory', {
         header: 'Memory',
         cell: (info) => <Size bytes={info.getValue()} />,
+        meta: { width: ColWidth.sm },
       }),
       colHelper.display({
         id: 'externalIps',
         header: 'External IPs',
+        meta: { width: ColWidth.lg },
         cell: (info) => (
           <ExternalIpsCell project={project} instance={info.row.original.name} />
         ),
@@ -164,6 +169,7 @@ export default function InstancesPage() {
   const pollingStartTime = useRef<number>(Date.now())
 
   const { table, query } = useQueryTable({
+    id: 'instances',
     query: instanceList(project, {
       // The point of all this is to poll quickly for a certain amount of time
       // after some instance in the current page enters a transitional state

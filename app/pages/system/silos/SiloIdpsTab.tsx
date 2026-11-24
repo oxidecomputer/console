@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Outlet } from 'react-router'
 
@@ -18,7 +17,8 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { LinkCell } from '~/table/cells/LinkCell'
-import { Columns } from '~/table/columns/common'
+import { createColumnHelper } from '~/table/column-helper'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -47,6 +47,7 @@ export default function SiloIdpsTab() {
   const columns = useMemo(
     () => [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         cell: (info) => {
           const provider = info.getValue()
           if (info.row.original.providerType !== 'saml') return provider
@@ -56,6 +57,7 @@ export default function SiloIdpsTab() {
       colHelper.accessor('description', Columns.description),
       colHelper.accessor('providerType', {
         header: 'Type',
+        meta: { width: ColWidth.sm },
         cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
@@ -71,6 +73,7 @@ export default function SiloIdpsTab() {
   )
 
   const { table } = useQueryTable({
+    id: 'silo-idps',
     query: siloIdpList(silo),
     columns,
     emptyState: <EmptyState />,

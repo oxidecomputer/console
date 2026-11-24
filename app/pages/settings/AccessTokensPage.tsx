@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 
 import {
@@ -22,8 +21,9 @@ import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -71,6 +71,7 @@ export default function AccessTokensPage() {
   const columns = useMemo(() => {
     return [
       colHelper.accessor('id', {
+        meta: { width: ColWidth.id },
         header: () => (
           <>
             ID
@@ -91,6 +92,7 @@ export default function AccessTokensPage() {
       colHelper.accessor('timeCreated', Columns.timeCreated),
       colHelper.accessor('timeExpires', {
         header: 'Expires',
+        meta: { width: ColWidth.date, tdClassName: 'compact-col' },
         cell: (info) => {
           const date = info.getValue()
           if (!date) return 'Never'
@@ -108,7 +110,12 @@ export default function AccessTokensPage() {
       body="Your access tokens will appear here when they are created"
     />
   )
-  const { table } = useQueryTable({ query: tokenList(), columns, emptyState })
+  const { table } = useQueryTable({
+    id: 'access-tokens',
+    query: tokenList(),
+    columns,
+    emptyState,
+  })
 
   return (
     <>

@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import * as R from 'remeda'
 
@@ -23,7 +23,7 @@ import {
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
-import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
+import { ReadOnlyBadge } from '~/components/StateBadge'
 import { AttachDiskModal } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { useInstanceSelector } from '~/hooks/use-params'
@@ -31,11 +31,12 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { DiskSourceName } from '~/table/cells/DiskSourceCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -78,6 +79,7 @@ export default function StorageTab() {
   const staticCols = useMemo(
     () => [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         header: 'Disk',
         cell: (info) => (
           <span className="flex items-center gap-2">
@@ -88,20 +90,13 @@ export default function StorageTab() {
           </span>
         ),
       }),
-      colHelper.accessor('diskType', {
-        header: 'Type',
-        cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
-      }),
+      colHelper.accessor('diskType', Columns.diskType),
       colHelper.accessor('size', Columns.size),
-      colHelper.accessor((row) => ({ imageId: row.imageId, snapshotId: row.snapshotId }), {
-        id: 'source',
-        header: 'Source',
-        cell: (info) => <DiskSourceName {...info.getValue()} />,
-      }),
-      colHelper.accessor((row) => row.state.state, {
-        header: 'state',
-        cell: (info) => <DiskStateBadge state={info.getValue()} />,
-      }),
+      colHelper.accessor(
+        (row: Disk) => ({ imageId: row.imageId, snapshotId: row.snapshotId }),
+        Columns.diskSource
+      ),
+      colHelper.accessor((row: Disk) => row.state.state, Columns.diskState),
       colHelper.accessor('timeCreated', Columns.timeCreated),
     ],
     []
@@ -306,13 +301,15 @@ export default function StorageTab() {
     },
   })
 
-  const bootDisksTable = useReactTable({
+  const bootDisksTable = useTable({
+    id: 'instance-disks',
     columns: useColsWithActions(staticCols, makeBootDiskActions),
     data: bootDisks,
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const otherDisksTable = useReactTable({
+  const otherDisksTable = useTable({
+    id: 'instance-disks',
     columns: useColsWithActions(staticCols, makeOtherDiskActions),
     data: otherDisks,
     getCoreRowModel: getCoreRowModel(),

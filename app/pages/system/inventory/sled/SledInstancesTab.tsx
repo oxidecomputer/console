@@ -6,17 +6,16 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper } from '@tanstack/react-table'
 import * as R from 'remeda'
 
 import { api, getListQFn, queryClient, type SledInstance } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
-import { InstanceStateBadge } from '~/components/StateBadge'
 import { useSledParams } from '~/hooks/use-params'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
@@ -49,6 +48,7 @@ const makeActions = (): MenuAction[] => []
 const colHelper = createColumnHelper<SledInstance>()
 const staticCols = [
   colHelper.accessor((i) => R.pick(i, ['name', 'siloName', 'projectName']), {
+    meta: { width: 'flex' },
     header: 'name',
     cell: (info) => {
       const value = info.getValue()
@@ -62,12 +62,10 @@ const staticCols = [
   }),
   // we don't show run state last update time like on project instances because
   // it's not in this response
-  colHelper.accessor('state', {
-    header: 'State',
-    cell: (info) => <InstanceStateBadge state={info.getValue()} />,
-  }),
+  colHelper.accessor('state', Columns.instanceState),
   colHelper.accessor((i) => R.pick(i, ['memory', 'ncpus']), {
     header: 'specs',
+    meta: { width: ColWidth.md },
     cell: (info) => <InstanceResourceCell value={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
@@ -77,6 +75,7 @@ export default function SledInstancesTab() {
   const { sledId } = useSledParams()
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'sled-instances',
     query: sledInstanceList(sledId),
     columns,
     emptyState: <EmptyState />,

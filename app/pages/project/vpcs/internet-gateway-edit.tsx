@@ -7,6 +7,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { Link, useNavigate } from 'react-router'
 
 import { Gateway16Icon } from '@oxide/design-system/icons/react'
@@ -16,13 +17,15 @@ import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useInternetGatewaySelector } from '~/hooks/use-params'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
+import { createColumnHelper } from '~/table/column-helper'
+import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
-import { Table } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -38,33 +41,45 @@ import {
 
 export const handle = titleCrumb('Edit Internet Gateway')
 
-const RoutesEmpty = () => (
-  <Table.Row>
-    <Table.Cell colSpan={2} className="bg-raise!">
-      No VPC router routes target this gateway.
-    </Table.Cell>
-  </Table.Row>
-)
+type GatewayRouteRow = { id: string; router: string; routerPath: string; route: string }
 
-function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
+const colHelper = createColumnHelper<GatewayRouteRow>()
+
+const routeColumns = [
+  colHelper.accessor('router', {
+    header: 'Router',
+    meta: { width: 'flex', tdClassName: 'bg-raise!' },
+    cell: (info) => (
+      <Link to={info.row.original.routerPath} className="link-with-underline text-sans-md">
+        {info.getValue()}
+      </Link>
+    ),
+  }),
+  colHelper.accessor('route', {
+    header: 'Route',
+    meta: { width: 'flex', tdClassName: 'bg-raise!' },
+  }),
+]
+
+function GatewayRoutesTable({ project, vpc, gateway }: PP.VpcInternetGateway) {
   const matchingRoutes = useGatewayRoutes({ project, vpc, gateway })
+  const rows = (matchingRoutes ?? []).map(([router, route]) => ({
+    id: route.id,
+    router,
+    routerPath: pb.vpcRouter({ project, vpc, router }),
+    route: route.name,
+  }))
+  const table = useTable({
+    id: 'internet-gateway-routes',
+    columns: routeColumns,
+    data: rows,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
-  if (!matchingRoutes) return null
-  if (matchingRoutes.length === 0) return <RoutesEmpty />
-
-  return matchingRoutes.map(([router, route]) => (
-    <Table.Row key={route.id}>
-      <Table.Cell className="bg-raise!">
-        <Link
-          to={pb.vpcRouter({ project, vpc, router })}
-          className="link-with-underline text-sans-md"
-        >
-          {router}
-        </Link>
-      </Table.Cell>
-      <Table.Cell className="bg-raise!">{route.name}</Table.Cell>
-    </Table.Row>
-  ))
+  if (matchingRoutes?.length === 0) {
+    return <div className="mt-2">No VPC router routes target this gateway.</div>
+  }
+  return <Table table={table} />
 }
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
@@ -183,17 +198,7 @@ export default function EditInternetGatewayForm() {
 
       <div className="flex flex-col gap-3">
         <SideModal.Heading>Routes targeting this gateway</SideModal.Heading>
-        <Table>
-          <Table.Header>
-            <Table.HeaderRow>
-              <Table.HeadCell>Router</Table.HeadCell>
-              <Table.HeadCell>Route</Table.HeadCell>
-            </Table.HeaderRow>
-          </Table.Header>
-          <Table.Body>
-            <RouteRows project={project} vpc={vpc} gateway={gateway} />
-          </Table.Body>
-        </Table>
+        <GatewayRoutesTable project={project} vpc={vpc} gateway={gateway} />
       </div>
 
       <SideModalFormDocs docs={[docLinks.gateways]} />

@@ -7,7 +7,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useId, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 
@@ -36,6 +35,7 @@ import {
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -122,6 +122,7 @@ export default function SiloSubnetPoolsTab() {
   const staticCols = useMemo(
     () => [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         cell: (info) => (
           <LinkCell to={pb.subnetPool({ subnetPool: info.row.original.id })}>
             {info.getValue()}
@@ -136,10 +137,7 @@ export default function SiloSubnetPoolsTab() {
         ),
       }),
       colHelper.accessor('description', Columns.description),
-      colHelper.accessor('ipVersion', {
-        header: 'Version',
-        cell: (info) => <IpVersionBadge ipVersion={info.getValue()} />,
-      }),
+      colHelper.accessor('ipVersion', Columns.ipVersion),
     ],
     []
   )
@@ -245,6 +243,7 @@ export default function SiloSubnetPoolsTab() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'silo-subnet-pools',
     query: siloSubnetPoolsQuery(silo),
     columns,
     emptyState: <EmptyState onLinkPool={() => setShowLinkModal(true)} />,

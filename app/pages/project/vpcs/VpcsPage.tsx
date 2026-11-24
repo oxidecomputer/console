@@ -7,7 +7,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
@@ -23,8 +22,9 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -117,14 +117,16 @@ export default function VpcsPage() {
   const columns = useMemo(
     () => [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         cell: makeLinkCell((vpc) => pb.vpc({ project, vpc })),
       }),
-      colHelper.accessor('dnsName', { header: 'DNS name' }),
+      colHelper.accessor('dnsName', { meta: { width: 'flex' }, header: 'DNS name' }),
       colHelper.accessor('description', Columns.description),
       colHelper.accessor('name', {
         // ID needed to avoid key collision with other name column
         id: 'rule-count',
         header: 'Firewall Rules',
+        meta: { width: ColWidth.lg },
         cell: (info) => <FirewallRuleCount project={project} vpc={info.getValue()} />,
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
@@ -134,6 +136,7 @@ export default function VpcsPage() {
   )
 
   const { table } = useQueryTable({
+    id: 'vpcs',
     query: vpcList(project),
     columns,
     emptyState: <EmptyState />,

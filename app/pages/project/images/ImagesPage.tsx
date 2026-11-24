@@ -7,7 +7,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { Outlet } from 'react-router'
 
@@ -21,8 +20,8 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { EmptyCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -100,16 +99,12 @@ export default function ImagesPage() {
   const columns = useMemo(() => {
     return [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         cell: makeLinkCell((image) => pb.projectImage({ project, image })),
       }),
       colHelper.accessor('description', Columns.description),
-      colHelper.accessor('os', {
-        header: 'OS',
-        cell: (info) => info.getValue() || <EmptyCell />,
-      }),
-      colHelper.accessor('version', {
-        cell: (info) => info.getValue() || <EmptyCell />,
-      }),
+      colHelper.accessor('os', Columns.imageOs),
+      colHelper.accessor('version', Columns.imageVersion),
       colHelper.accessor('size', Columns.size),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
@@ -117,6 +112,7 @@ export default function ImagesPage() {
   }, [project, makeActions])
 
   const { table } = useQueryTable({
+    id: 'project-images',
     query: imageList({ project }),
     columns,
     emptyState: <EmptyState />,

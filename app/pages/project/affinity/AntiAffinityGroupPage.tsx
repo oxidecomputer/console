@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
@@ -39,9 +39,11 @@ import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { Divider } from '~/ui/lib/Divider'
@@ -158,6 +160,7 @@ export default function AntiAffinityPage() {
   const columns = useColsWithActions(
     [
       colHelper.accessor('value.name', {
+        meta: { width: 'flex' },
         header: 'name',
         cell: makeLinkCell((instance) => pb.instanceSettings({ project, instance })),
       }),
@@ -167,7 +170,8 @@ export default function AntiAffinityPage() {
     makeActions
   )
 
-  const table = useReactTable({
+  const table = useTable({
+    id: 'anti-affinity-group-members',
     columns,
     data: members.items,
     getCoreRowModel: getCoreRowModel(),

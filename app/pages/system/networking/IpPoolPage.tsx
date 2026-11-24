@@ -7,7 +7,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useId, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Outlet, useNavigate } from 'react-router'
@@ -45,8 +44,9 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { UtilizationFraction } from '~/ui/lib/BigNum'
 import { type ComboboxItem } from '~/ui/lib/Combobox'
@@ -124,10 +124,12 @@ const silosColHelper = createColumnHelper<IpPoolSiloLink>()
 
 const silosCols = [
   silosColHelper.accessor('siloId', {
+    meta: { width: 'flex' },
     header: 'Silo',
     cell: (info) => <SiloNameFromId value={info.getValue()} />,
   }),
   silosColHelper.accessor('isDefault', {
+    meta: { width: ColWidth.lg },
     header: () => {
       return (
         <span className="inline-flex items-center gap-2">
@@ -231,8 +233,8 @@ function PoolProperties() {
 
 const ipRangesColHelper = createColumnHelper<IpPoolRange>()
 const ipRangesStaticCols = [
-  ipRangesColHelper.accessor('range.first', { header: 'First' }),
-  ipRangesColHelper.accessor('range.last', { header: 'Last' }),
+  ipRangesColHelper.accessor('range.first', { meta: { width: 'flex' }, header: 'First' }),
+  ipRangesColHelper.accessor('range.last', { meta: { width: 'flex' }, header: 'Last' }),
   ipRangesColHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
@@ -292,7 +294,12 @@ function IpRangesTable() {
   )
 
   const columns = useColsWithActions(ipRangesStaticCols, makeRangeActions)
-  const { table } = useQueryTable({ query: ipPoolRangeList({ pool }), columns, emptyState })
+  const { table } = useQueryTable({
+    id: 'ip-pool-ranges',
+    query: ipPoolRangeList({ pool }),
+    columns,
+    emptyState,
+  })
 
   return (
     <>
@@ -452,6 +459,7 @@ function LinkedSilosTable() {
 
   const columns = useColsWithActions(silosCols, makeActions)
   const { table } = useQueryTable({
+    id: 'ip-pool-silos',
     query: ipPoolSiloList(poolSelector),
     columns,
     emptyState,

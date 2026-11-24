@@ -5,14 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 
 import type { Group } from '@oxide/api'
 import { Settings24Icon } from '@oxide/design-system/icons/react'
 
 import { useCurrentUser } from '~/hooks/use-current-user'
+import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -21,7 +23,7 @@ import { TableTitle } from '~/ui/lib/Table'
 const colHelper = createColumnHelper<Group>()
 
 const columns = [
-  colHelper.accessor('displayName', { header: 'Name' }),
+  colHelper.accessor('displayName', { meta: { width: 'flex' }, header: 'Name' }),
   // use _row to prevent eslint from complaining about the unused variable
   getActionsCol((_row: Group) => []),
 ]
@@ -31,7 +33,8 @@ export const handle = { crumb: 'Profile' }
 export default function ProfilePage() {
   const { me, myGroups } = useCurrentUser()
 
-  const groupsTable = useReactTable({
+  const groupsTable = useTable({
+    id: 'profile-groups',
     columns,
     data: myGroups.items,
     getCoreRowModel: getCoreRowModel(),

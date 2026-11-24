@@ -7,7 +7,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useId, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Outlet, useNavigate } from 'react-router'
@@ -45,8 +44,9 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { UtilizationFraction } from '~/ui/lib/BigNum'
 import type { ComboboxItem } from '~/ui/lib/Combobox'
@@ -192,9 +192,15 @@ function PoolProperties() {
 
 const membersColHelper = createColumnHelper<SubnetPoolMember>()
 const membersStaticCols = [
-  membersColHelper.accessor('subnet', { header: 'Subnet' }),
-  membersColHelper.accessor('minPrefixLength', { header: 'Min prefix length' }),
-  membersColHelper.accessor('maxPrefixLength', { header: 'Max prefix length' }),
+  membersColHelper.accessor('subnet', { meta: { width: 'flex' }, header: 'Subnet' }),
+  membersColHelper.accessor('minPrefixLength', {
+    header: 'Min prefix length',
+    meta: { width: ColWidth.xl },
+  }),
+  membersColHelper.accessor('maxPrefixLength', {
+    header: 'Max prefix length',
+    meta: { width: ColWidth.xl },
+  }),
   membersColHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
@@ -256,6 +262,7 @@ function MembersTable() {
 
   const columns = useColsWithActions(membersStaticCols, makeMemberActions)
   const { table } = useQueryTable({
+    id: 'subnet-pool-members',
     query: subnetPoolMemberList({ subnetPool }),
     columns,
     emptyState,
@@ -282,10 +289,12 @@ function SiloNameFromId({ value: siloId }: { value: string }) {
 const silosColHelper = createColumnHelper<SubnetPoolSiloLink>()
 const silosCols = [
   silosColHelper.accessor('siloId', {
+    meta: { width: 'flex' },
     header: 'Silo',
     cell: (info) => <SiloNameFromId value={info.getValue()} />,
   }),
   silosColHelper.accessor('isDefault', {
+    meta: { width: ColWidth.lg },
     header: () => {
       return (
         <span className="inline-flex items-center gap-2">
@@ -438,6 +447,7 @@ function LinkedSilosTable() {
 
   const columns = useColsWithActions(silosCols, makeActions)
   const { table } = useQueryTable({
+    id: 'subnet-pool-silos',
     query: subnetPoolSiloList(poolSelector),
     columns,
     emptyState,

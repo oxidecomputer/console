@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import * as R from 'remeda'
 import { match } from 'ts-pattern'
@@ -28,9 +28,11 @@ import { useSiloSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { CreateButton } from '~/ui/lib/CreateButton'
@@ -61,6 +63,7 @@ const scimTokenListErrorsAllowedQ = (silo: string) =>
 const colHelper = createColumnHelper<ScimClientBearerToken>()
 const staticColumns = [
   colHelper.accessor('id', {
+    meta: { width: ColWidth.id },
     header: 'ID',
     cell: (info) => (
       <Truncate text={info.getValue()} position="middle" className="max-w-48" />
@@ -73,7 +76,7 @@ const staticColumns = [
       const expires = info.getValue()
       return expires ? <DateTime date={expires} /> : <Badge color="neutral">Never</Badge>
     },
-    meta: { thClassName: 'lg:w-1/4' },
+    meta: { width: ColWidth.date, tdClassName: 'compact-col' },
   }),
 ]
 
@@ -202,7 +205,8 @@ function TokensTable({ tokens }: { tokens: ScimClientBearerToken[] }) {
 
   const columns = useColsWithActions(staticColumns, makeActions, 'Copy token ID')
 
-  const table = useReactTable({
+  const table = useTable({
+    id: 'silo-scim-tokens',
     data: sortedTokens,
     columns,
     getCoreRowModel: getCoreRowModel(),

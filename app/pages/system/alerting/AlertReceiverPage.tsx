@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { Outlet, useNavigate } from 'react-router'
@@ -39,9 +39,11 @@ import { useAlertReceiverSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -143,6 +145,7 @@ export default function AlertReceiverPage() {
 const subscriptionColHelper = createColumnHelper<{ subscription: string }>()
 const subscriptionCols = [
   subscriptionColHelper.accessor('subscription', {
+    meta: { width: 'flex' },
     header: 'Alert class',
     cell: (info) => <AlertClassBadge>{info.getValue()}</AlertClassBadge>,
   }),
@@ -194,7 +197,12 @@ function SubscriptionsCard() {
     () => receiver.subscriptions.map((subscription) => ({ subscription })),
     [receiver.subscriptions]
   )
-  const table = useReactTable({ columns, data: rows, getCoreRowModel: getCoreRowModel() })
+  const table = useTable({
+    id: 'alert-receiver-subscriptions',
+    columns,
+    data: rows,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   return (
     <CardBlock>
@@ -336,7 +344,8 @@ function SecretsCard() {
     () => R.sortBy(receiver.kind.secrets, [(s) => s.timeCreated, 'desc']),
     [receiver.kind.secrets]
   )
-  const table = useReactTable({
+  const table = useTable({
+    id: 'alert-receiver-secrets',
     columns,
     data: secrets,
     getCoreRowModel: getCoreRowModel(),

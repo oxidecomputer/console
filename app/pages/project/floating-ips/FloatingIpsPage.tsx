@@ -7,7 +7,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate } from 'react-router'
@@ -34,11 +33,11 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { CreateLink } from '~/ui/lib/CreateButton'
@@ -100,20 +99,22 @@ const NameCell = ({ name }: { name: string }) => {
 
 const colHelper = createColumnHelper<FloatingIp>()
 const staticCols = [
-  colHelper.accessor('name', { cell: (info) => <NameCell name={info.getValue()} /> }),
+  colHelper.accessor('name', {
+    meta: { width: 'flex' },
+    cell: (info) => <NameCell name={info.getValue()} />,
+  }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('ip', {
     header: 'IP address',
+    meta: { width: ColWidth.ip },
     cell: (info) => <CopyableIp ip={info.getValue()} isLinked={false} />,
   }),
   colHelper.accessor('ipPoolId', {
     header: 'IP pool',
+    meta: { width: ColWidth.lg },
     cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
   }),
-  colHelper.accessor('instanceId', {
-    header: 'Instance',
-    cell: (info) => <InstanceLink instanceId={info.getValue()} tab="networking" cell />,
-  }),
+  colHelper.accessor('instanceId', Columns.instance('networking')),
 ]
 
 export default function FloatingIpsPage() {
@@ -216,6 +217,7 @@ export default function FloatingIpsPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'floating-ips',
     query: fipList(project),
     columns,
     emptyState: <EmptyState />,

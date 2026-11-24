@@ -60,9 +60,12 @@ export const getActionsCol = <TData extends Record<string, unknown>>(
   return {
     id: 'menu',
     header: '',
+    enableResizing: false,
     meta: {
       thClassName: 'action-col',
       tdClassName: 'action-col',
+      // 40px button plus the header cell's 1px right padding
+      width: 41,
       makeActions,
       copyIdLabel,
     },

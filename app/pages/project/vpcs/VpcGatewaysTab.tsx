@@ -7,7 +7,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Outlet } from 'react-router'
 
@@ -16,7 +15,8 @@ import { useVpcSelector } from '~/hooks/use-params'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell, ipPoolErrorsAllowedQuery } from '~/table/cells/IpPoolCell'
 import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
-import { Columns } from '~/table/columns/common'
+import { createColumnHelper } from '~/table/column-helper'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -120,6 +120,7 @@ export default function VpcInternetGatewaysTab() {
   const columns = useMemo(
     () => [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         cell: makeLinkCell((gateway) => pb.vpcInternetGateway({ project, vpc, gateway })),
       }),
       colHelper.accessor('description', Columns.description),
@@ -127,6 +128,7 @@ export default function VpcInternetGatewaysTab() {
         // ID needed to avoid key collision with other name column
         id: 'ip-pool',
         header: 'Attached IP Pool',
+        meta: { width: ColWidth.lg },
         cell: (info) => (
           <GatewayIpPoolCell project={project} vpc={vpc} gateway={info.getValue()} />
         ),
@@ -135,6 +137,7 @@ export default function VpcInternetGatewaysTab() {
         // ID needed to avoid key collision with other name column
         id: 'ip-address',
         header: AttachedIpAddressHeader,
+        meta: { width: ColWidth.ip },
         cell: (info) => (
           <IpAddressCell project={project} vpc={vpc} gateway={info.getValue()} />
         ),
@@ -143,6 +146,7 @@ export default function VpcInternetGatewaysTab() {
         // ID needed to avoid key collision with other name column
         id: 'routes',
         header: 'Routes',
+        meta: { width: ColWidth.sm },
         cell: (info) => (
           <GatewayRoutes project={project} vpc={vpc} gateway={info.getValue()} />
         ),
@@ -153,6 +157,7 @@ export default function VpcInternetGatewaysTab() {
   )
 
   const { table } = useQueryTable({
+    id: 'vpc-gateways',
     query: gatewayList({ project, vpc }),
     columns,
     emptyState,

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { match } from 'ts-pattern'
@@ -36,8 +36,11 @@ import { useCurrentUser } from '~/hooks/use-current-user'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol } from '~/table/columns/action-col'
+import { ColWidth } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -147,6 +150,7 @@ export default function FleetAccessPage() {
   const columns = useMemo(
     () => [
       colHelper.display({
+        meta: { width: 'flex' },
         id: 'name',
         header: 'Name',
         cell: (info) =>
@@ -185,6 +189,7 @@ export default function FleetAccessPage() {
       colHelper.display({
         id: 'type',
         header: 'Type',
+        meta: { width: ColWidth.xl },
         cell: (info) =>
           match(info.row.original)
             .with({ kind: 'assignment' }, (row) => identityTypeLabel[row.identityType])
@@ -201,6 +206,7 @@ export default function FleetAccessPage() {
       }),
       colHelper.accessor('fleetRole', {
         header: 'Fleet role',
+        meta: { width: ColWidth.xl },
         cell: (info) => {
           const role = info.getValue()
           return <Badge color={roleColor[role]}>fleet.{role}</Badge>
@@ -251,7 +257,8 @@ export default function FleetAccessPage() {
     []
   )
 
-  const tableInstance = useReactTable({
+  const tableInstance = useTable({
+    id: 'fleet-access',
     columns,
     data: rows,
     getCoreRowModel: getCoreRowModel(),

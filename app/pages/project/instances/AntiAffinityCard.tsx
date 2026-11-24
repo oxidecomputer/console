@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useCallback, useId, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as R from 'remeda'
@@ -32,9 +32,11 @@ import { AffinityGroupPolicyBadge } from '~/pages/project/affinity/AffinityPage'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { toComboboxItems } from '~/ui/lib/Combobox'
@@ -55,6 +57,7 @@ const colHelper = createColumnHelper<AffinityGroup | AntiAffinityGroup>()
 const staticCols = [
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('policy', {
+    meta: { width: ColWidth.sm },
     header: AffinityPolicyHeader,
     cell: (info) => <AffinityGroupPolicyBadge policy={info.getValue()} />,
   }),
@@ -127,6 +130,7 @@ export function AntiAffinityCard() {
   const cols = useMemo(
     () => [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         cell: makeLinkCell((antiAffinityGroup) =>
           pb.antiAffinityGroup({ project, antiAffinityGroup })
         ),
@@ -138,7 +142,8 @@ export function AntiAffinityCard() {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const antiAffinityTable = useReactTable({
+  const antiAffinityTable = useTable({
+    id: 'instance-anti-affinity-groups',
     columns: useColsWithActions(cols, makeActions, 'Copy group ID'),
     data: memberGroups.items,
     getCoreRowModel: getCoreRowModel(),

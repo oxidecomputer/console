@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet } from 'react-router'
 
@@ -20,8 +19,9 @@ import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { RouterLinkCell } from '~/table/cells/RouterLinkCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -75,15 +75,18 @@ export default function VpcSubnetsTab() {
   const columns = useMemo(
     () => [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         cell: makeLinkCell((subnet) => pb.vpcSubnetsEdit({ ...vpcSelector, subnet })),
       }),
       colHelper.accessor('description', Columns.description),
       colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
+        meta: { width: 'flex' },
         header: 'IP Block',
         cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
       }),
       colHelper.accessor('customRouterId', {
         header: 'Custom Router',
+        meta: { width: ColWidth.lg },
         // RouterLinkCell needed, as we need to convert the customRouterId to the custom router's name
         cell: (info) => <RouterLinkCell routerId={info.getValue()} />,
       }),
@@ -103,6 +106,7 @@ export default function VpcSubnetsTab() {
   )
 
   const { table, query } = useQueryTable({
+    id: 'vpc-subnets',
     query: subnetList(vpcSelector),
     columns,
     emptyState,

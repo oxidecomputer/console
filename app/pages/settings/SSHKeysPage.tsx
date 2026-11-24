@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router'
 
@@ -20,6 +19,7 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -74,6 +74,7 @@ export default function SSHKeysPage() {
   const columns = useMemo(() => {
     return [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         cell: makeLinkCell((sshKey) => pb.sshKeyEdit({ sshKey: sshKey })),
       }),
       colHelper.accessor('description', Columns.description),
@@ -95,7 +96,12 @@ export default function SSHKeysPage() {
     []
   )
 
-  const { table } = useQueryTable({ query: sshKeyList, columns, emptyState })
+  const { table } = useQueryTable({
+    id: 'ssh-keys',
+    query: sshKeyList,
+    columns,
+    emptyState,
+  })
 
   return (
     <>

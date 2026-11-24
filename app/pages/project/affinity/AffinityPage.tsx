@@ -7,7 +7,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet } from 'react-router'
 
@@ -31,9 +31,11 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -68,13 +70,16 @@ export const AffinityGroupPolicyBadge = ({ policy }: { policy: AffinityPolicy })
 const staticCols = [
   colHelper.display({
     header: 'type',
+    meta: { width: ColWidth.lg },
     cell: () => <Badge>anti-affinity</Badge>,
   }),
   colHelper.accessor('name', {
     header: 'instances',
+    meta: { width: ColWidth.sm },
     cell: (info) => <AffinityGroupMembersCell antiAffinityGroup={info.getValue()} />,
   }),
   colHelper.accessor('policy', {
+    meta: { width: ColWidth.sm },
     header: AffinityPolicyHeader,
     cell: (info) => <AffinityGroupPolicyBadge policy={info.getValue()} />,
   }),
@@ -126,6 +131,7 @@ export default function AffinityPage() {
   const columns = useColsWithActions(
     [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         cell: makeLinkCell((antiAffinityGroup) =>
           pb.antiAffinityGroup({ project, antiAffinityGroup })
         ),
@@ -136,7 +142,8 @@ export default function AffinityPage() {
     makeActions
   )
 
-  const table = useReactTable({
+  const table = useTable({
+    id: 'anti-affinity-groups',
     columns,
     data: antiAffinityGroups,
     getCoreRowModel: getCoreRowModel(),

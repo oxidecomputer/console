@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 import * as R from 'remeda'
@@ -28,9 +28,11 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { EnabledCell } from '~/table/cells/EnabledCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { getActionsCol } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { useTable } from '~/table/use-table'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
@@ -47,17 +49,21 @@ const colHelper = createColumnHelper<VpcFirewallRule>()
 const staticColumns = [
   colHelper.accessor('priority', {
     header: 'Priority',
+    meta: { width: ColWidth.sm },
     cell: (info) => <div className="text-default">{info.getValue()}</div>,
   }),
   colHelper.accessor('action', {
     header: 'Action',
+    meta: { width: ColWidth.sm },
     cell: (info) => <div className="text-default">{titleCase(info.getValue())}</div>,
   }),
   colHelper.accessor('direction', {
     header: 'Direction',
+    meta: { width: ColWidth.md },
     cell: (info) => <div className="text-default">{titleCase(info.getValue())}</div>,
   }),
   colHelper.accessor('targets', {
+    meta: { width: 'flex' },
     header: 'Targets',
     cell: (info) => {
       const targets = info.getValue()
@@ -76,6 +82,7 @@ const staticColumns = [
     },
   }),
   colHelper.accessor('filters', {
+    meta: { width: 'flex' },
     header: 'Filters',
     cell: (info) => {
       const { hosts, ports, protocols } = info.getValue()
@@ -101,6 +108,7 @@ const staticColumns = [
   }),
   colHelper.accessor('status', {
     header: 'Status',
+    meta: { width: ColWidth.md },
     cell: (info) => <EnabledCell value={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
@@ -133,6 +141,7 @@ export default function VpcFirewallRulesTab() {
   const columns = useMemo(() => {
     return [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         header: 'Name',
         cell: (info) => (
           <LinkCell to={pb.vpcFirewallRuleEdit({ ...vpcSelector, rule: info.getValue() })}>
@@ -172,7 +181,12 @@ export default function VpcFirewallRulesTab() {
     ]
   }, [navigate, rules, updateRules, vpcSelector])
 
-  const table = useReactTable({ columns, data: rules, getCoreRowModel: getCoreRowModel() })
+  const table = useTable({
+    id: 'vpc-firewall-rules',
+    columns,
+    data: rules,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   useQuickActions(
     () => [

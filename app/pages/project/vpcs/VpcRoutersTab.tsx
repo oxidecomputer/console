@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
@@ -20,6 +19,7 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -59,6 +59,7 @@ export default function VpcRoutersTab() {
   const staticColumns = useMemo(
     () => [
       colHelper.accessor('name', {
+        meta: { width: 'flex' },
         cell: makeLinkCell((router) => pb.vpcRouter({ ...vpcSelector, router })),
       }),
       colHelper.accessor('description', Columns.description),
@@ -110,6 +111,7 @@ export default function VpcRoutersTab() {
 
   const columns = useColsWithActions(staticColumns, makeActions)
   const { table, query } = useQueryTable({
+    id: 'vpc-routers',
     query: vpcRouterList({ project, vpc }),
     columns,
     emptyState,

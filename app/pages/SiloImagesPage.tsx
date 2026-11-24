@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet } from 'react-router'
@@ -23,8 +22,8 @@ import { HL } from '~/components/HL'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { EmptyCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -58,16 +57,12 @@ export const handle = { crumb: 'Images' }
 const colHelper = createColumnHelper<Image>()
 const staticCols = [
   colHelper.accessor('name', {
+    meta: { width: 'flex' },
     cell: makeLinkCell((image) => pb.siloImage({ image })),
   }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('os', {
-    header: 'OS',
-    cell: (info) => info.getValue() || <EmptyCell />,
-  }),
-  colHelper.accessor('version', {
-    cell: (info) => info.getValue() || <EmptyCell />,
-  }),
+  colHelper.accessor('os', Columns.imageOs),
+  colHelper.accessor('version', Columns.imageVersion),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
@@ -104,7 +99,12 @@ export default function SiloImagesPage() {
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
-  const { table } = useQueryTable({ query: imageList, columns, emptyState: <EmptyState /> })
+  const { table } = useQueryTable({
+    id: 'silo-images',
+    query: imageList,
+    columns,
+    emptyState: <EmptyState />,
+  })
 
   const { data: allImages } = useQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
 

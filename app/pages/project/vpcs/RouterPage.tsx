@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
@@ -36,7 +35,9 @@ import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { ColWidth } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
@@ -102,18 +103,22 @@ const NameCell = ({ route }: { route: string }) => {
 
 const routerRoutesStaticCols = [
   routerRoutesColHelper.accessor('name', {
+    meta: { width: 'flex' },
     header: 'Name',
     cell: (info) => <NameCell route={info.getValue()} />,
   }),
   routerRoutesColHelper.accessor('kind', {
     header: 'Kind',
+    meta: { width: ColWidth.md },
     cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
   }),
   routerRoutesColHelper.accessor('destination', {
+    meta: { width: 'flex' },
     header: 'Destination',
     cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
   }),
   routerRoutesColHelper.accessor('target', {
+    meta: { width: 'flex' },
     header: 'Target',
     cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
   }),
@@ -182,6 +187,7 @@ export default function RouterPage() {
   )
   const columns = useColsWithActions(routerRoutesStaticCols, makeRangeActions)
   const { table } = useQueryTable({
+    id: 'router-routes',
     query: routeList({ project, vpc, router }),
     columns,
     emptyState,

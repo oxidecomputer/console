@@ -7,7 +7,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate } from 'react-router'
@@ -34,11 +33,11 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { SubnetPoolCell } from '~/table/cells/SubnetPoolCell'
+import { createColumnHelper } from '~/table/column-helper'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { ColWidth, Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -91,20 +90,22 @@ const NameCell = ({ name }: { name: string }) => {
 
 const colHelper = createColumnHelper<ExternalSubnet>()
 const staticCols = [
-  colHelper.accessor('name', { cell: (info) => <NameCell name={info.getValue()} /> }),
+  colHelper.accessor('name', {
+    meta: { width: 'flex' },
+    cell: (info) => <NameCell name={info.getValue()} />,
+  }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('subnet', {
     header: 'Subnet',
+    meta: { width: ColWidth.ip },
     cell: (info) => <span className="text-secondary">{info.getValue()}</span>,
   }),
   colHelper.accessor('subnetPoolId', {
     header: 'Subnet pool',
+    meta: { width: ColWidth.xl },
     cell: (info) => <SubnetPoolCell subnetPoolId={info.getValue()} />,
   }),
-  colHelper.accessor('instanceId', {
-    header: 'Instance',
-    cell: (info) => <InstanceLink cell instanceId={info.getValue()} tab="networking" />,
-  }),
+  colHelper.accessor('instanceId', Columns.instance('networking')),
 ]
 
 export default function ExternalSubnetsPage() {
@@ -205,6 +206,7 @@ export default function ExternalSubnetsPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
+    id: 'external-subnets',
     query: subnetList(project),
     columns,
     emptyState: <EmptyState />,
