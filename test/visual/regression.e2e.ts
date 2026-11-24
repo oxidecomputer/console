@@ -259,9 +259,7 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
     })
   })
 
-  // Tables only overflow horizontally at narrow widths, which none of the
-  // standard pages hit. Capture each at its scroll start, middle, and end so
-  // the frame edges and sticky column shadows are covered.
+  // none of the standard pages are narrow enough for a table to overflow
   const overflowTables = [
     { name: 'inventory sleds', url: '/system/inventory/sleds', heading: 'Inventory' },
     { name: 'instances list', url: `${p}/instances`, heading: 'Instances' },
@@ -274,7 +272,7 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
       const table = page.getByRole('table').first()
       const slug = name.replaceAll(' ', '-')
       for (const position of ['start', 'middle', 'end'] as const) {
-        // find the scroller by behavior so this works whatever element scrolls
+        // by behavior, not selector, so baselines from older revisions work
         await table.evaluate((el, position) => {
           let node = el.parentElement
           while (node && node.scrollWidth <= node.clientWidth) node = node.parentElement

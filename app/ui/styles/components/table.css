@@ -7,36 +7,22 @@
  */
 
 /*
-Structure (see `Table` in app/ui/lib/Table.tsx):
-
-  .ox-table-scroller   native horizontal scroll, clips the top corners
-    .ox-table-grid     stacks the table and the frame in one grid cell
-      table.ox-table   cells draw only the dividers between them
-      .ox-table-frame  the outer border, pinned to the visible part of the
-                       scroller so it stays closed however far you scroll
-
-The edge cells reserve 1px for the frame to sit over with transparent borders,
-so column widths come out the same as when those cells drew the border
-themselves. The top edge is the header cells' own top border, which the frame
-overlaps with the same color.
+The outer border is a frame pinned to the visible part of the scroller, so it
+stays closed at any scroll position. Edge cells keep 1px transparent borders
+under it so column widths are the same as when they drew the border.
 */
 
 .ox-table-scroller {
   --table-border-radius: var(--radius-lg);
-  /* `scroll` rather than `auto` so the 8px scrollbar gutter is always
-     reserved and the space below the table doesn't change when it overflows */
+  /* not `auto`: always reserve the scrollbar's space so overflowing doesn't
+     change the table's height */
   overflow-x: scroll;
-  /* `none` rather than `contain`: a rubber-band would slide the table out
-     from under the frame and open a gap at the edge. Also stops a trackpad
-     swipe past either end from triggering back/forward navigation. */
+  /* not `contain`: a rubber-band would slide the table out from under the
+     frame and open a gap at the edge */
   overscroll-behavior-x: none;
-  /* lets the frame size itself to the scroller's visible width (100cqw).
-     Also stops the table's width from propagating up, so the scroller
-     never needs a min-w-0 to shrink inside a flex or grid parent. */
+  /* for the frame's 100cqw */
   container-type: inline-size;
-  /* Round the header's corners wherever the visible edge falls. The bottom
-     corners can't be clipped here without clipping the scrollbar, so the
-     edge cells round their own backgrounds instead (see below). */
+  /* top corners only: rounding the bottom would clip the scrollbar */
   clip-path: inset(0 round var(--table-border-radius) var(--table-border-radius) 0 0);
 
   &.table-inline {
@@ -65,12 +51,9 @@ overlaps with the same color.
     scrollbar-width: thin;
     scrollbar-color: var(--content-quaternary) transparent;
   }
-  /* Firefox's overlay scrollbars take no space and are drawn over the bottom
-     of the scroller's padding, right against the table. A little extra
-     space keeps them off it. Not the full 8px Chrome reserves: classic
-     scrollbars ("Always show scrollbars") reserve their own space on top of
-     this, and CSS can't tell the two apart. On the grid rather than the
-     scroller so CardBlock's padding override still applies. */
+  /* Overlay scrollbars take no space and would sit against the table. Kept
+     small because classic scrollbars reserve their own space on top, and CSS
+     can't tell the two apart. */
   .ox-table-grid {
     padding-bottom: 4px;
   }
@@ -78,8 +61,6 @@ overlaps with the same color.
 
 .ox-table-grid {
   display: grid;
-  /* matches how a w-full table sizes itself: fill the scroller, or grow to
-     the table's min-content width and overflow */
   width: fit-content;
   min-width: 100%;
 }
@@ -96,7 +77,6 @@ overlaps with the same color.
   border: 1px solid var(--stroke-default);
   border-radius: var(--table-border-radius);
   pointer-events: none;
-  /* above the sticky columns, below the selection outline */
   z-index: 20;
 }
 
@@ -111,17 +91,14 @@ table.ox-table {
     @apply text-default;
   }
 
-  /* Header rows after the first don't need a top border */
   & thead tr:not(:first-child) th {
     @apply border-t-0;
   }
 
-  /* Space under the frame */
   & :is(td, th):first-child {
     border-left: 1px solid transparent;
   }
-  /* The actions header is the exception: its 1px of right padding already
-     makes the column 41px, the same as the body cells' 40px plus border */
+  /* not the actions header: its 1px right padding already makes it 41px */
   & td:last-child,
   & th:last-child:not(.action-col) {
     border-right: 1px solid transparent;
@@ -130,14 +107,10 @@ table.ox-table {
     border-bottom: 1px solid transparent;
   }
 
-  /* The last row's bottom edge is the frame */
   & tbody tr:last-child td > div {
     border-bottom-width: 0px;
   }
 
-  /* Round the backgrounds of the bottom corner cells to sit inside the
-     frame's curve. Only needed when the table isn't scrolled; the visible
-     edge mid-scroll is an ordinary cell. */
   & tbody tr:last-child td:first-child {
     border-bottom-left-radius: calc(var(--table-border-radius) - 1px);
   }
@@ -145,15 +118,10 @@ table.ox-table {
     border-bottom-right-radius: calc(var(--table-border-radius) - 1px);
   }
 
-  /*
-  Adds padding to all cells except from
-  the action cells since they are a fixed width
-  */
   & td:not(.action-col) > div {
     @apply pr-8;
   }
 
-  /* First column is sticky */
   & th:first-child,
   & td:first-child {
     @apply sticky left-0 z-10;
@@ -162,8 +130,6 @@ table.ox-table {
     @apply bg-default;
   }
 
-  /* Border between sticky first column and second column:
-     first column owns the right border, second column drops its left border */
   & td:first-child > div,
   & th:first-child > div {
     @apply border-r;
@@ -172,13 +138,11 @@ table.ox-table {
   & th:nth-child(2) > div {
     @apply border-l-0;
   }
-  /* header cells have 1px of right padding (which affects column widths), so
-     stretch the first one's div back over it to line its border up */
+  /* cover the header's 1px right padding so the border lines up */
   & th:first-child > div {
     @apply w-[calc(100%+1px)];
   }
 
-  /* Last column is sticky if it is a more actions cell */
   & .action-col {
     @apply sticky right-0 w-10;
   }
@@ -189,25 +153,18 @@ table.ox-table {
     @apply m-0 w-10 p-0;
   }
 
-  /* Highlight when hovering over the action-col cell */
   & td.action-col:hover > div {
     @apply bg-raise;
   }
 
-  /*
-  Selection outline. One box per selected row, drawn above the frame so it
-  replaces the frame's edge. Adjacent selected rows merge into one box by
-  dropping the borders and radii where they meet.
-  */
   & tbody tr {
     position: relative;
   }
   & tbody tr.is-selected::after {
     content: '';
     position: absolute;
-    /* cover the row above's bottom divider. The sides and bottom already line
-       up with the frame because the edge cells' transparent borders sit
-       under it. */
+    /* -1px to cover the row above's divider. The sides and bottom already
+       line up with the frame. */
     inset: -1px 0 0;
     border: 1px solid var(--stroke-accent);
     border-radius: 0.1875rem;
@@ -228,22 +185,14 @@ table.ox-table {
 }
 
 /*
-Edge shadows: on a sticky column while content is scrolled under it, and on
-the frame's right edge for tables with no actions column to cast one.
-
-Where scroll-state container queries are supported, each shadow is on while
-the scroller can scroll further toward its edge, and fades in and out with a
-transition. Elsewhere they fall back to scroll-driven animations that track
-the first and last 2rem of scroll. With neither, there are no shadows. When
-the table fits, nothing can scroll and no shadow shows either way.
+Edge shadows toggle with a transition where scroll-state queries are
+supported, and otherwise track the first and last 2rem of scroll.
 */
 .ox-table-scroller {
   --sticky-col-shadow: light-dark(oklch(0 0 0 / 0.075), oklch(0 0 0 / 0.3));
   --edge-shadow-transition: 250ms ease-out;
 }
 
-/* Keep the cell shadows from spilling above and below the cell. Safe to leave
-   on: nothing in these cells draws outside them (selection is on the row). */
 .ox-table :is(td, th):first-child {
   clip-path: inset(0 -40px 0 0);
 }
@@ -251,12 +200,8 @@ the table fits, nothing can scroll and no shadow shows either way.
   clip-path: inset(0 0 0 -40px);
 }
 
-/*
-The frame's shadow is cast by a box sitting just outside its right edge, with
-the same box-shadow as the sticky columns, so the two match exactly. The
-frame clips away the box itself and the shadow's ends, leaving just what
-falls inside its border, rounded at the corners.
-*/
+/* Tables with no actions column get the same shadow at the right edge, cast
+   from a box just outside the frame so it matches exactly. */
 .ox-table-grid:not(:has(.action-col)) > .ox-table-frame {
   /* clip, not hidden: hidden would make the frame a scroll container, and
      the fallback's scroll(nearest) timeline would track it instead */
@@ -267,8 +212,6 @@ falls inside its border, rounded at the corners.
     position: absolute;
     left: 100%;
     width: 1rem;
-    /* overhang top and bottom so the blur tapers outside the frame, keeping
-       the shadow full strength down the whole edge */
     top: -1rem;
     bottom: -1rem;
     box-shadow: -6px 0 8px -2px var(--sticky-col-shadow);
@@ -305,8 +248,8 @@ falls inside its border, rounded at the corners.
   }
 }
 
-/* Without the animation-timeline guard, browsers lacking scroll timelines
-   would run these with a 0s duration and hold the end state on every table */
+/* without the animation-timeline guard, unsupporting browsers would hold the
+   end state on every table */
 @supports (animation-timeline: scroll()) and (not (container-type: scroll-state)) {
   .ox-table :is(td, th):first-child {
     animation: sticky-start-shadow linear both;

@@ -11,18 +11,10 @@ import type { JSX } from 'react'
 import { classed } from '~/util/classed'
 
 export type TableProps = JSX.IntrinsicElements['table']
-/**
- * The outer border is drawn by a frame pinned to the visible part of the
- * scroller rather than by the edge cells, so it stays closed on every side
- * however far the table is scrolled. See `table.css`.
- *
- * `className` goes on the scroller, the outermost box, so sizing classes like
- * `max-w-lg` size the frame along with the table.
- */
+/** `className` goes on the outer box so sizing classes also size the frame */
 export function Table({ className, ...props }: TableProps) {
   return (
-    // pb-2 + the 8px scrollbar is 16px below the table. It's a utility rather
-    // than in table.css so wrappers like CardBlock.Body can override it.
+    // a utility, not in table.css, so CardBlock.Body can override it
     <div className={cn('ox-table-scroller pb-2', className)}>
       <div className="ox-table-grid">
         <table className="ox-table text-sans-md w-full" {...props} />
@@ -69,10 +61,7 @@ Table.Body = (props: TableBodyProps) => <tbody {...props} />
 
 export type TableCellProps = JSX.IntrinsicElements['td'] & { height?: 'small' | 'large' }
 Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProps) => (
-  <td
-    className={cn(className, 'text-raise pl-0 first:*:border-l-0')}
-    {...props}
-  >
+  <td className={cn(className, 'text-raise pl-0 first:*:border-l-0')} {...props}>
     <div
       className={cn(
         'border-secondary relative flex items-center overflow-hidden border-b border-l px-3 py-2',
