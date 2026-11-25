@@ -10,6 +10,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { api, queryClient, updateRole, useApiMutation } from '@oxide/api'
 
 import { ModalForm } from '~/components/form/ModalForm'
+import { addToast } from '~/stores/toast'
 
 import {
   OwnAdminDemotionConfirm,
@@ -42,6 +43,7 @@ export function SiloAccessEditRoleModal({
   const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
       invalidateSiloPolicy()
+      addToast({ content: isAssigning ? 'Role assigned' : 'Role updated' })
       onDismiss()
     },
   })

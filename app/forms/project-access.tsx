@@ -11,6 +11,7 @@ import { api, queryClient, updateRole, useApiMutation } from '@oxide/api'
 
 import { ModalForm } from '~/components/form/ModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
+import { addToast } from '~/stores/toast'
 
 import {
   OwnAdminDemotionConfirm,
@@ -36,6 +37,7 @@ export function ProjectAccessEditRoleModal({
   const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
+      addToast({ content: isAssigning ? 'Role assigned' : 'Role updated' })
       onDismiss()
     },
   })
