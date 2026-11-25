@@ -1,0 +1,152 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { useMemo } from 'react'
+import { Link } from 'react-router'
+
+import { byGroupThenName, usePrefetchedQuery } from '@oxide/api'
+import { Person16Icon, PersonGroup16Icon } from '@oxide/design-system/icons/react'
+
+import { RoleBadge } from '~/components/RoleBadge'
+import { RowActions } from '~/table/columns/action-col'
+import { Modal } from '~/ui/lib/Modal'
+import { TipIcon } from '~/ui/lib/TipIcon'
+import { roleDiv } from '~/util/classed'
+import { capitalize } from '~/util/str'
+
+import { groupListAll, userListAll } from './access-data'
+import { type PolicyScope } from './policy-scope'
+import { roleActions } from './role-actions'
+import { useCanEditPolicy } from './use-can-edit-policy'
+
+// Log-style list like the Alerts tab
+const Table = roleDiv(
+  'table',
+  'text-sans-md -mx-4 -mt-4 -mb-2 grid grid-cols-[auto_auto_minmax(0,1fr)]'
+)
+const Row = roleDiv(
+  'row',
+  'border-secondary col-span-full grid h-9 grid-cols-subgrid items-center gap-8 border-b px-4'
+)
+const HeadCell = roleDiv('columnheader', 'text-mono-sm text-tertiary')
+const Cell = roleDiv('cell', '')
+
+/**
+ * The policy as the API holds it, one row per assignment. Assignments whose
+ * identity can't be resolved never appear in the Users and Groups tabs, so
+ * this is the only place to remove them.
+ */
+export function PolicyModal({
+  policyScope,
+  onDismiss,
+}: {
+  policyScope: PolicyScope
+  onDismiss: () => void
+}) {
+  const {
+    managedScope: scope,
+    managedPolicy: policy,
+    siloPolicy,
+    projectPolicy,
+    removeRole,
+    userPath,
+    groupPath,
+  } = policyScope
+  const canEdit = useCanEditPolicy(siloPolicy, projectPolicy)
+  const { data: users } = usePrefetchedQuery(userListAll)
+  const { data: groups } = usePrefetchedQuery(groupListAll)
+
+  const rows = useMemo(() => {
+    // An ID can go unresolved if the identity was deleted before Nexus cleaned
+    // up role assignments (omicron#8605), is past the ALL_ISH cap, or is from
+    // outside the silo. Fall back to the ID.
+    const nameById = new Map(
+      [...users.items, ...groups.items].map((i) => [i.id, i.displayName])
+    )
+    return policy.roleAssignments
+      .map((ra) => ({ ...ra, name: nameById.get(ra.identityId) }))
+      .sort((a, b) =>
+        byGroupThenName(
+          { identityType: a.identityType, name: a.name ?? a.identityId },
+          { identityType: b.identityType, name: b.name ?? b.identityId }
+        )
+      )
+  }, [policy, users, groups])
+
+  return (
+    <Modal isOpen onDismiss={onDismiss} title={`${capitalize(scope)} policy`} width="free">
+      <Modal.Body>
+        <Modal.Section>
+          <Table aria-label="Role assignments">
+            <Row>
+              <HeadCell>Actor</HeadCell>
+              <HeadCell>Role</HeadCell>
+            </Row>
+            {rows.length === 0 ? (
+              <Row>
+                <Cell className="text-secondary col-span-full">No roles assigned</Cell>
+              </Row>
+            ) : (
+              rows.map((row, i) => (
+                <Row key={i}>
+                  <Cell className="flex min-w-0 items-center gap-1.5">
+                    {row.identityType === 'silo_group' ? (
+                      <PersonGroup16Icon className="text-secondary shrink-0" />
+                    ) : (
+                      <Person16Icon className="text-secondary shrink-0" />
+                    )}
+                    {row.name ? (
+                      <Link
+                        className="link-with-underline truncate"
+                        to={
+                          row.identityType === 'silo_group'
+                            ? groupPath(row.identityId)
+                            : userPath(row.identityId)
+                        }
+                        // the modal belongs to the layout, which stays mounted
+                        // across the navigation, so close it explicitly
+                        onClick={onDismiss}
+                      >
+                        {row.name}
+                      </Link>
+                    ) : (
+                      <>
+                        <span className="truncate">{row.identityId}</span>
+                        <TipIcon>
+                          Can’t resolve this{' '}
+                          {row.identityType === 'silo_user' ? 'user' : 'group'}’s name
+                        </TipIcon>
+                      </>
+                    )}
+                  </Cell>
+                  <Cell>
+                    <RoleBadge scope={scope} roleName={row.roleName} />
+                  </Cell>
+                  {/* resolved identities are managed from the Users and Groups tabs */}
+                  {!row.name && (
+                    <Cell className="h-full w-6 justify-self-end">
+                      <RowActions
+                        id={row.identityId}
+                        actions={[
+                          roleActions(scope, canEdit).remove({
+                            name: row.identityId,
+                            directRole: row.roleName,
+                            doRemove: () => removeRole(row.identityId),
+                          }),
+                        ]}
+                      />
+                    </Cell>
+                  )}
+                </Row>
+              ))
+            )}
+          </Table>
+        </Modal.Section>
+      </Modal.Body>
+    </Modal>
+  )
+}

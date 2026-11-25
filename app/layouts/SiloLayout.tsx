@@ -17,7 +17,7 @@ import {
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
 import { useCurrentUser } from '~/hooks/use-current-user'
-import { useQuickActions } from '~/hooks/use-quick-actions'
+import { isCurrentPage, useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
@@ -33,10 +33,11 @@ export default function SiloLayout() {
         { value: 'Projects', path: pb.projects() },
         { value: 'Images', path: pb.siloImages() },
         { value: 'Utilization', path: pb.siloUtilization() },
-        { value: 'Silo Access', path: pb.siloAccess() },
+        // the tabs and detail modals are all under the access prefix
+        { value: 'Silo Access', path: pb.siloGroups(), prefix: pb.siloAccess() },
       ]
         // filter out the entry for the path we're currently on
-        .filter((i) => i.path !== pathname)
+        .filter((i) => !isCurrentPage(pathname, i))
         .map((i) => ({
           navGroup: `Silo '${me.siloName}'`,
           value: i.value,
@@ -63,7 +64,7 @@ export default function SiloLayout() {
           <NavLinkItem to={pb.siloUtilization()}>
             <Metrics16Icon /> Utilization
           </NavLinkItem>
-          <NavLinkItem to={pb.siloAccess()}>
+          <NavLinkItem to={pb.siloGroups()} activePrefix={pb.siloAccess()}>
             <Access16Icon /> Silo Access
           </NavLinkItem>
         </Sidebar.Nav>

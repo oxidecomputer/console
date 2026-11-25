@@ -1,0 +1,22 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { prefetchUsersTab } from '~/components/access/access-data'
+import { AccessUsersTab } from '~/components/access/AccessUsersTab'
+import { useSiloPolicyScope } from '~/components/access/policy-scope'
+import { titleCrumb } from '~/hooks/use-crumbs'
+
+export async function clientLoader() {
+  await prefetchUsersTab()
+  return null
+}
+
+export const handle = titleCrumb('Users')
+
+export default function SiloUsersTab() {
+  return <AccessUsersTab scope={useSiloPolicyScope()} />
+}

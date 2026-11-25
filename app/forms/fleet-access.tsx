@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
 import {
   api,
@@ -17,7 +17,7 @@ import {
 } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ResourceLabel } from '~/ui/lib/SideModal'
@@ -25,7 +25,9 @@ import { docLinks } from '~/util/links'
 
 import {
   actorToItem,
+  OwnAdminDemotionConfirm,
   RoleRadioField,
+  useOwnAdminDemotion,
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
@@ -69,7 +71,8 @@ export function FleetAccessAddUserSideModal({
       loading={updatePolicy.isPending || updatePolicy.isSuccess}
       submitError={updatePolicy.error}
     >
-      <ListboxField
+      <ComboboxField
+        placeholder="Select a user or group"
         name="identityId"
         items={actors.map(actorToItem)}
         label="User or group"
@@ -97,19 +100,23 @@ export function FleetAccessEditUserSideModal({
     },
   })
   const form = useForm({ defaultValues })
+  const roleName = useWatch({ control: form.control, name: 'roleName' })
+  const demotion = useOwnAdminDemotion({ policy, identityId, name, roleName })
 
   return (
     <SideModalForm
       form={form}
       formType="edit"
       resourceName="role"
-      title="Edit role"
+      title="Edit fleet role"
+      submitDisabled={demotion.submitDisabled}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {name}
         </ResourceLabel>
       }
       onSubmit={({ roleName }) => {
+        if (!roleName) return
         updatePolicy.mutate({
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
@@ -122,6 +129,7 @@ export function FleetAccessEditUserSideModal({
       }}
     >
       <RoleRadioField name="roleName" control={form.control} scope="Fleet" />
+      <OwnAdminDemotionConfirm scope="fleet" demotion={demotion} />
       <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )

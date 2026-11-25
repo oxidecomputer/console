@@ -25,7 +25,7 @@ import {
 import { TopBar } from '~/components/TopBar'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
-import { useQuickActions } from '~/hooks/use-quick-actions'
+import { isCurrentPage, useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -71,10 +71,15 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
         { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
         { value: 'External Subnets', path: pb.externalSubnets(projectSelector) },
         { value: 'Affinity Groups', path: pb.affinity(projectSelector) },
-        { value: 'Project Access', path: pb.projectAccess(projectSelector) },
+        // the tabs and detail modals are all under the access prefix
+        {
+          value: 'Project Access',
+          path: pb.projectGroups(projectSelector),
+          prefix: pb.projectAccess(projectSelector),
+        },
       ]
         // filter out the entry for the path we're currently on
-        .filter((i) => i.path !== pathname)
+        .filter((i) => !isCurrentPage(pathname, i))
         .map((i) => ({
           navGroup: `Project '${project.name}'`,
           value: i.value,
@@ -120,7 +125,10 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           <NavLinkItem to={pb.affinity(projectSelector)}>
             <Affinity16Icon /> Affinity Groups
           </NavLinkItem>
-          <NavLinkItem to={pb.projectAccess(projectSelector)}>
+          <NavLinkItem
+            to={pb.projectGroups(projectSelector)}
+            activePrefix={pb.projectAccess(projectSelector)}
+          >
             <Access16Icon /> Project Access
           </NavLinkItem>
         </Sidebar.Nav>
