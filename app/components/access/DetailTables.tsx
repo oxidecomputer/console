@@ -35,10 +35,8 @@ export const EffectiveRole = ({ entries }: { entries: Loadable<ScopedRoleEntry[]
     .exhaustive()
 
 /**
- * Role/Source table shared by the user and group detail side modals. Entries
- * come from `scopedRoleEntries` or `groupScopedRoleEntries` (a group's entries
- * are all direct). Sorted strongest-first. A user's entries depend on
- * group memberships, so they can be pending or failed.
+ * Role/Source table for the user and group detail side modals. A user's
+ * entries depend on group memberships, so they can be pending or failed.
  */
 export function RoleAssignmentsTable({
   entries,
@@ -47,10 +45,7 @@ export function RoleAssignmentsTable({
 }: {
   entries: Loadable<ScopedRoleEntry[]>
   makeActions: (entry: ScopedRoleEntry) => MenuAction[]
-  /**
-   * Row with a menu for adding a direct role. Says "No roles assigned" when there
-   * are no entries.
-   */
+  /** Row with a menu for adding a direct role */
   addRole?: { text: string; actions: MenuAction[] }
 }) {
   return (
@@ -118,11 +113,7 @@ export function RoleAssignmentsTable({
 
 type Identity = { id: string; displayName: string }
 
-/**
- * List of related identities (a group's members, or a user's groups) with a
- * Copy ID row action, plus any from `makeActions`. Shared by the user and group
- * detail side modals.
- */
+/** A group's members or a user's groups, for the detail side modals */
 export function IdentityListTable({
   label,
   items,

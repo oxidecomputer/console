@@ -29,19 +29,21 @@ export const userView = ({ userId }: PP.SiloUser) => q(api.userView, { path: { u
 export const groupView = ({ groupId }: PP.SiloGroup) =>
   q(api.groupView, { path: { groupId } })
 
-/**
- * Prefetch everything the Users and Groups tabs (and their detail modals) need,
- * so switching tabs doesn't trigger a fetch.
- */
-export async function prefetchUsersAndGroups(project?: string) {
+/** The layout and both tabs read the policies, so the layout loader owns them */
+export async function prefetchPolicies(project?: string) {
   await Promise.all([
-    queryClient.fetchQuery(groupListAll).then((groups) => {
-      groups.items.forEach((g) =>
-        queryClient.prefetchQuery(groupMemberList({ groupId: g.id }))
-      )
-    }),
     queryClient.prefetchQuery(siloPolicyView),
-    queryClient.prefetchQuery(userListAll),
     project && queryClient.prefetchQuery(projectPolicyView({ project })),
   ])
+}
+
+export async function prefetchGroupsTab() {
+  const groups = await queryClient.fetchQuery(groupListAll)
+  // not awaited, so member lists don't block render
+  groups.items.forEach((g) => queryClient.prefetchQuery(groupMemberList({ groupId: g.id })))
+}
+
+/** Group memberships give each user's groups and inherited roles */
+export async function prefetchUsersTab() {
+  await Promise.all([prefetchGroupsTab(), queryClient.prefetchQuery(userListAll)])
 }

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { prefetchUsersAndGroups } from '~/components/access/access-data'
+import { prefetchPolicies } from '~/components/access/access-data'
 import { useProjectPolicyScope } from '~/components/access/policy-scope'
 import { UsersGroupsLayout } from '~/components/access/UsersGroupsLayout'
 import { makeCrumb } from '~/hooks/use-crumbs'
@@ -14,11 +14,9 @@ import { pb } from '~/util/path-builder'
 
 import type { Route } from './+types/ProjectUsersGroupsPage'
 
-// This loader runs once on entry; react-router won't re-run it when navigating
-// between sibling tab routes.
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const { project } = params
-  await prefetchUsersAndGroups(project)
+  await prefetchPolicies(project)
   return null
 }
 

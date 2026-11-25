@@ -57,8 +57,8 @@ export function AccessUsersTab({ scope }: { scope: PolicyScope }) {
   const { data: groups } = usePrefetchedQuery(groupListAll)
   const groupsByUserId = useGroupsByUserId(groups.items)
 
-  const nameCol = useMemo(
-    () =>
+  const columns = useMemo(
+    () => [
       colHelper.accessor('displayName', {
         header: 'Name',
         cell: (info) => (
@@ -74,11 +74,6 @@ export function AccessUsersTab({ scope }: { scope: PolicyScope }) {
           </LinkCell>
         ),
       }),
-    [userPath]
-  )
-
-  const roleCol = useMemo(
-    () =>
       colHelper.display({
         id: 'role',
         header: 'Role',
@@ -98,7 +93,6 @@ export function AccessUsersTab({ scope }: { scope: PolicyScope }) {
                   <Badge color={roleColor[effective.roleName]}>
                     {effective.scope}.{effective.roleName}
                   </Badge>
-                  {/* call out when the effective role is inherited rather than direct */}
                   {effective.source.type === 'group' && (
                     <TipIcon
                       icon={<PersonGroup16Icon className="text-quaternary h-3 w-3" />}
@@ -111,11 +105,6 @@ export function AccessUsersTab({ scope }: { scope: PolicyScope }) {
             })
             .exhaustive(),
       }),
-    [groupsByUserId, siloPolicy, projectPolicy]
-  )
-
-  const groupsCol = useMemo(
-    () =>
       colHelper.display({
         id: 'groups',
         header: 'Groups',
@@ -132,12 +121,9 @@ export function AccessUsersTab({ scope }: { scope: PolicyScope }) {
             ))
             .exhaustive(),
       }),
-    [groupsByUserId]
-  )
-
-  const columns = useMemo(
-    () => [nameCol, roleCol, groupsCol, timeCreatedCol],
-    [nameCol, roleCol, groupsCol]
+      timeCreatedCol,
+    ],
+    [userPath, groupsByUserId, siloPolicy, projectPolicy]
   )
 
   const table = useReactTable({

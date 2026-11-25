@@ -5,9 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
+import { prefetchUsersTab } from '~/components/access/access-data'
 import { AccessUsersTab } from '~/components/access/AccessUsersTab'
 import { useProjectPolicyScope } from '~/components/access/policy-scope'
 import { titleCrumb } from '~/hooks/use-crumbs'
+
+export async function clientLoader() {
+  await prefetchUsersTab()
+  return null
+}
 
 export const handle = titleCrumb('Users')
 

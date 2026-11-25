@@ -5,9 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
+import { prefetchGroupsTab } from '~/components/access/access-data'
 import { AccessGroupsTab } from '~/components/access/AccessGroupsTab'
 import { useProjectPolicyScope } from '~/components/access/policy-scope'
 import { titleCrumb } from '~/hooks/use-crumbs'
+
+export async function clientLoader() {
+  await prefetchGroupsTab()
+  return null
+}
 
 export const handle = titleCrumb('Groups')
 

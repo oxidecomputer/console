@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Outlet } from 'react-router'
 
 import {
@@ -56,12 +56,6 @@ export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
 
   const { data: groups } = usePrefetchedQuery(groupListAll)
 
-  const effectiveRole = useCallback(
-    (group: Group) =>
-      sortRoleEntries(groupScopedRoleEntries(group.id, siloPolicy, projectPolicy)).at(0),
-    [siloPolicy, projectPolicy]
-  )
-
   const columns = useMemo(
     () => [
       colHelper.accessor('displayName', {
@@ -83,7 +77,9 @@ export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
         id: 'role',
         header: 'Role',
         cell: ({ row }) => {
-          const effective = effectiveRole(row.original)
+          const effective = sortRoleEntries(
+            groupScopedRoleEntries(row.original.id, siloPolicy, projectPolicy)
+          ).at(0)
           if (!effective) return <EmptyCell />
           return (
             <Badge color={roleColor[effective.roleName]}>
@@ -95,7 +91,7 @@ export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
       memberCountCol,
       timeCreatedCol,
     ],
-    [groupPath, effectiveRole]
+    [groupPath, siloPolicy, projectPolicy]
   )
 
   const table = useReactTable({

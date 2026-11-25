@@ -44,8 +44,7 @@ export function GroupMembersSideModal({ group, onDismiss, scope }: Props) {
   const { removeRole, userPath } = scope
   const canEdit = useCanEditPolicy(siloPolicy, projectPolicy)
   const { me, myGroups } = useCurrentUser()
-  // edit modal state; it stacks over this side modal. No default role means
-  // adding one to a group with no role in the managed scope.
+  // no default role means adding one
   const [editing, setEditing] = useState<{ defaultRole?: RoleKey } | null>(null)
 
   // not awaited by every loader that leads here, so it may still be loading
@@ -63,10 +62,8 @@ export function GroupMembersSideModal({ group, onDismiss, scope }: Props) {
   const addRoleAction = roleActions(managedScope, canEdit).add(() => setEditing({}))
   const hasManagedRole = roleEntries.data.some((e) => e.scope === managedScope)
 
-  // Removing this group's role takes it from the current user too if they're a
-  // member, so warn them like removing their own direct role does. They keep
-  // edit access if their other roles still grant it. For the silo this misses
-  // fleet-derived access (see canEditScope), so it can warn when it needn't.
+  // A member who removes the group's role loses it too. For the silo this
+  // misses fleet-derived access (see canEditScope), so it can warn needlessly.
   const isSelf = myGroups.items.some((g) => g.id === group.id)
   const keepsEditAccess =
     isSelf &&
@@ -85,18 +82,14 @@ export function GroupMembersSideModal({ group, onDismiss, scope }: Props) {
   const makeRoleActions = ({ roleName, scope: entryScope }: ScopedRoleEntry) => {
     const actions = roleActions(entryScope, canEdit)
     // a silo role shown on a project page can only be edited on the silo page
-    const isOtherScope = entryScope !== managedScope
+    if (entryScope !== managedScope) return actions.inherited(siloPolicyReason)
     return [
-      actions.change(
-        () => setEditing({ defaultRole: roleName }),
-        isOtherScope ? siloPolicyReason : undefined
-      ),
+      actions.change(() => setEditing({ defaultRole: roleName })),
       actions.remove({
         name: group.displayName,
-        directRole: isOtherScope ? undefined : roleName,
+        directRole: roleName,
         isSelf,
         keepsEditAccess,
-        inheritedReason: siloPolicyReason,
         doRemove: () => removeRole(group.id),
       }),
     ]

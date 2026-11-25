@@ -7,16 +7,17 @@
  */
 import { useState } from 'react'
 
-import { usePrefetchedQuery } from '@oxide/api'
+import { queryClient } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 
-import { userListAll } from './access-data'
+import { groupListAll, userListAll } from './access-data'
 import { type PolicyScope } from './policy-scope'
 import { PolicyModal } from './PolicyModal'
 
@@ -36,15 +37,23 @@ export function UsersGroupsLayout({
   summary: string
 }) {
   const [policyOpen, setPolicyOpen] = useState(false)
-  // keep the user list observed so it isn't garbage collected
-  // while the Groups tab (which doesn't read it) is open
-  usePrefetchedQuery(userListAll)
+  // the modal resolves names from both lists, and the Groups tab loader
+  // doesn't fetch users
+  const openPolicy = () =>
+    Promise.all([
+      queryClient.ensureQueryData(userListAll),
+      queryClient.ensureQueryData(groupListAll),
+    ])
+      .then(() => setPolicyOpen(true))
+      .catch(() =>
+        addToast({ title: 'Error', content: 'Could not load policy', variant: 'error' })
+      )
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Access24Icon />}>{title}</PageTitle>
         <div className="inline-flex gap-2">
-          <Button variant="ghost" size="sm" onClick={() => setPolicyOpen(true)}>
+          <Button variant="ghost" size="sm" onClick={openPolicy}>
             Show policy
           </Button>
           <DocsPopover

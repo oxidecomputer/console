@@ -37,13 +37,9 @@ const HeadCell = roleDiv('columnheader', 'text-mono-sm text-tertiary')
 const Cell = roleDiv('cell', '')
 
 /**
- * The raw role assignments in a policy, one row each. Unlike the Users and
- * Groups tabs, nothing is merged or collapsed here, so this is the policy
- * exactly as the API holds it, including any duplicate assignments for the
- * same identity. The identity lists are prefetched by the Access page loader.
- *
- * Assignments whose identity can't be resolved never appear in the Users and
- * Groups tabs, so this is the only place they can be removed.
+ * The policy as the API holds it, one row per assignment. Assignments whose
+ * identity can't be resolved never appear in the Users and Groups tabs, so
+ * this is the only place to remove them.
  */
 export function PolicyModal({
   policyScope,
@@ -66,11 +62,9 @@ export function PolicyModal({
   const { data: groups } = usePrefetchedQuery(groupListAll)
 
   const rows = useMemo(() => {
-    // Identity types never share IDs, so one map covers both. An ID can go
-    // unresolved if the identity was deleted before Nexus started to delete
-    // role assignments with it (omicron#8605), if it falls past the ALL_ISH
-    // cap on the lists, or if the policy was written through the API with an
-    // ID from outside the silo. We fall back to showing the ID.
+    // An ID can go unresolved if the identity was deleted before Nexus cleaned
+    // up role assignments (omicron#8605), is past the ALL_ISH cap, or is from
+    // outside the silo. Fall back to the ID.
     const nameById = new Map(
       [...users.items, ...groups.items].map((i) => [i.id, i.displayName])
     )

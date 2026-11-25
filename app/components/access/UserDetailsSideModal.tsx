@@ -41,8 +41,7 @@ export function UserDetailsSideModal({ user, onDismiss, userGroups, scope }: Pro
   const { removeRole, groupPath } = scope
   const canEdit = useCanEditPolicy(siloPolicy, projectPolicy)
   const { me } = useCurrentUser()
-  // edit modal state; it stacks over this side modal. No default role means
-  // adding a direct role.
+  // no default role means adding one
   const [editing, setEditing] = useState<{ defaultRole?: RoleKey } | null>(null)
 
   const roleEntries =
@@ -58,9 +57,8 @@ export function UserDetailsSideModal({ user, onDismiss, userGroups, scope }: Pro
     roleEntries.status === 'success' &&
     roleEntries.data.some((e) => e.scope === managedScope && e.source.type === 'direct')
 
-  // whether the user could still edit this scope's roles without their direct
-  // role in it, e.g., a silo admin removing or lowering their own project admin
-  // role. Only matters when the user is the current user.
+  // e.g., a silo admin who removes their own project admin role. Only matters
+  // when the user is the current user.
   const keepsEditAccess =
     roleEntries.status === 'success' &&
     canEditScope(
@@ -80,17 +78,7 @@ export function UserDetailsSideModal({ user, onDismiss, userGroups, scope }: Pro
     }
     const actions = roleActions(entryScope, canEdit)
     // a direct silo role shown on a project page can only be edited on the silo page
-    if (entryScope !== managedScope) {
-      return [
-        actions.change(() => {}, siloPolicyReason),
-        actions.remove({
-          name: user.displayName,
-          directRole: undefined,
-          inheritedReason: siloPolicyReason,
-          doRemove: () => removeRole(user.id),
-        }),
-      ]
-    }
+    if (entryScope !== managedScope) return actions.inherited(siloPolicyReason)
     return [
       actions.change(() => setEditing({ defaultRole: roleName })),
       actions.remove({

@@ -98,11 +98,9 @@ export const RoleModalIdentity = ({ name }: { name?: string }) =>
   ) : null
 
 /**
- * Admin is the only role that grants permission to edit a scope's roles, so a
- * user changing their own admin role to another role could lose that
- * permission, unless another of their roles grants it. The role is their own
- * if it is assigned to them directly or to a group they belong to. If they
- * could lose the permission, the edit form asks them to type the name first.
+ * Only admin can edit a scope's roles, so a user who lowers their own admin
+ * role (direct or through a group) could lock themselves out. In that case the
+ * edit form asks them to type the name first.
  */
 export function useOwnAdminDemotion<Role extends RoleKey>({
   policy,

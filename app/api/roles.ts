@@ -170,13 +170,8 @@ export type ScopedRoleEntry = {
 }
 
 /**
- * Enumerate all role assignments relevant to an identity — one entry per direct
- * assignment and one per assignment to a group in `userGroups` — across the
- * given policies. For a group, use `groupScopedRoleEntries`. Each
- * entry is tagged with the scope of the policy it came from. Since the API
- * permits multiple assignments for the same identity in one policy, each entry
- * collapses those to the strongest role (see `getEffectiveRole`).
- * Callers are responsible for sorting and any display-layer merging.
+ * Role assignments that apply to a user: one entry for the direct assignment
+ * and one per group in `userGroups`, for each policy. Unsorted.
  */
 export function scopedRoleEntries(
   identityId: string,
@@ -234,15 +229,9 @@ export const sortByDisplayName = <T extends { displayName: string }>(
 })
 
 /**
- * Members of a group. Shared so loaders and readers use the same query key.
- * Loaders prefetch this per group without awaiting, so readers use `useQuery`
- * and handle the pending state.
- *
- * Long staleTime: the Users tab and the user detail route both observe every
- * group's list, so the default 2s would refetch all of them on every detail
- * open. Membership only changes in the IdP (JIT or SCIM), never from a console
- * action, so there is nothing to invalidate on. Matches the current user's
- * group list in AuthenticatedLayout.
+ * Members of a group. Loaders prefetch this without awaiting, so read it with
+ * `useQuery`. Membership only changes in the IdP, never from a console action,
+ * so a long staleTime avoids a refetch of every group on each detail open.
  */
 export const groupMemberList = ({ groupId }: PP.SiloGroup) =>
   q(
@@ -258,15 +247,13 @@ export type Loadable<T> =
   | { status: 'success'; data: T }
 
 /**
- * Builds a map from user ID to the list of groups that user belongs to.
- * Shared between user tabs. Since an error state is preferable to an
- * incomplete set of groups/roles, failed queries result in an error.
+ * Map from user ID to the user's groups. One failed query fails the whole
+ * map, because an incomplete set of groups would show wrong roles.
  */
 export function useGroupsByUserId(groups: Group[]): Loadable<Map<string, Group[]>> {
   const { isError, pages } = useQueries({
     queries: groups.map((g) => groupMemberList({ groupId: g.id })),
-    // combine keeps pages stable across renders;
-    // the memo below only reruns when groups/memberships change
+    // combine keeps pages referentially stable for the memo below
     combine: (results) => ({
       isError: results.some((result) => result.isError),
       pages: results.map((result) => result.data),

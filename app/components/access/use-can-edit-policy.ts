@@ -16,19 +16,13 @@ import {
 import { useCurrentUser } from '~/hooks/use-current-user'
 
 /**
- * Whether the current user can add, change, or remove role assignments in the
- * managed scope: the project when a project policy is given, otherwise the
- * silo. Editing a scope's policy requires `modify` on that resource.
+ * Whether the current user can edit role assignments in the managed scope:
+ * the project when a project policy is given, otherwise the silo.
  *
- * Silo modify can come from fleet roles, including ones conferred through a
- * silo's `mapped_fleet_roles`, which aren't visible in the silo policy. Nexus
- * computes `siloAdmin` on /v1/me as exactly this permission, so use it rather
- * than deriving it from policies.
- *
- * Project modify comes from the project admin role or a silo collaborator/admin
- * role (a silo collaborator is an admin on every project in the silo). Fleet
- * roles grant silo modify as a permission, not a silo role, so they don't
- * cascade to projects, and both policies are in hand to compute this.
+ * Silo modify can come from fleet roles that aren't visible in the silo
+ * policy, so use `siloAdmin` from /v1/me, which Nexus computes as this
+ * permission. Project modify comes from project admin or silo
+ * collaborator/admin. Fleet roles don't cascade to projects.
  * https://github.com/oxidecomputer/omicron/blob/26f5e91/nexus/auth/src/authz/omicron.polar#L140-L223
  */
 export function useCanEditPolicy(siloPolicy: Policy, projectPolicy?: Policy): boolean {

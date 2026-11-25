@@ -5,16 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { prefetchUsersAndGroups } from '~/components/access/access-data'
+import { prefetchPolicies } from '~/components/access/access-data'
 import { useSiloPolicyScope } from '~/components/access/policy-scope'
 import { UsersGroupsLayout } from '~/components/access/UsersGroupsLayout'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { pb } from '~/util/path-builder'
 
-// This loader runs once on entry; react-router won't re-run it when navigating
-// between sibling tab routes.
 export async function clientLoader() {
-  await prefetchUsersAndGroups()
+  await prefetchPolicies()
   return null
 }
 
