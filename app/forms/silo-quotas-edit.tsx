@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
 import { api, queryClient, useApiMutation, type VirtualResourceCounts } from '@oxide/api'
 import { Cloud16Icon } from '@oxide/design-system/icons/react'
@@ -53,10 +53,6 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
   }
 
   const form = useForm({ defaultValues })
-  const [cpus, memory, storage] = useWatch({
-    control: form.control,
-    name: ['cpus', 'memory', 'storage'],
-  })
 
   const updateQuotas = useApiMutation(api.siloQuotasUpdate, {
     onSuccess() {
@@ -96,11 +92,8 @@ export function EditQuotasSideModalForm({ silo, quotas, provisioned, onDismiss }
       submitError={updateQuotas.error}
     >
       <div>
-        <h3 className="text-mono-sm text-secondary mb-2">Quota used after update</h3>
-        <QuotaUsageChips
-          provisioned={provisioned}
-          allocated={{ cpus, memory: memory * GiB, storage: storage * GiB }}
-        />
+        <h3 className="text-mono-sm text-secondary mb-2">Quota used</h3>
+        <QuotaUsageChips provisioned={provisioned} allocated={quotas} />
       </div>
       <FormDivider />
       <Message

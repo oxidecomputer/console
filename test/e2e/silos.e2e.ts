@@ -561,13 +561,9 @@ test('Quotas tab', async ({ page }) => {
   await edit.click()
   await expect(sideModal).toBeVisible()
 
-  const memoryChip = sideModal.getByRole('region', { name: 'Memory' })
-  await expect(memoryChip).toContainText('78%')
-
   // test validation on empty field
   const memoryInput = sideModal.getByRole('textbox', { name: 'Memory' })
   await memoryInput.clear()
-  await expect(memoryChip).toContainText('—%')
   await submit.click()
   await expect(sideModal.getByText('Memory quota is required')).toBeVisible()
 
@@ -577,8 +573,6 @@ test('Quotas tab', async ({ page }) => {
 
   // only change one
   await memoryInput.fill('50')
-  // the chip follows the form value before submit
-  await expect(memoryChip).toContainText('468%')
   await submit.click()
 
   await expect(sideModal).toBeHidden()
