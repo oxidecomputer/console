@@ -17,12 +17,23 @@ import { capitalize } from '~/util/str'
 import { ErrorMessage } from './ErrorMessage'
 import type { TextFieldProps } from './TextField'
 
-type NumberFieldProps<
-  T extends FieldValues,
-  N extends FieldPathByValue<T, number>,
-> = TextFieldProps<T, N> & {
+// plural form shows in the label; singular is for messages where the min/max bound is 1
+const unitSingular = {
+  vCPUs: 'vCPU',
+  GiB: 'GiB',
+  seconds: 'second',
+} as const
+
+type NumberUnit = keyof typeof unitSingular
+
+type NumberFieldProps<T extends FieldValues, N extends FieldPathByValue<T, number>> = Omit<
+  TextFieldProps<T, N>,
+  'units'
+> & {
   /** Counts and resource sizes require whole numbers; byte quotas can use fractional GiB. */
   allowDecimals?: boolean
+  tip?: React.ReactNode
+  units?: NumberUnit
 }
 
 export function NumberField<
@@ -35,6 +46,7 @@ export function NumberField<
   units,
   description,
   required,
+  tip,
   ...props
 }: Omit<NumberFieldProps<TFieldValues, TName>, 'id'>) {
   // id is omitted from props because we generate it here
@@ -42,7 +54,7 @@ export function NumberField<
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
+        <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required} tip={tip}>
           {label} {units && <span className="text-default ml-1">({units})</span>}
         </FieldLabel>
         {description && (
@@ -108,11 +120,12 @@ export const NumberFieldInner = <
       validate(value, values) {
         if (Number.isNaN(value)) return required ? `${label} is required` : undefined
         if (!allowDecimals && !Number.isInteger(value)) return 'Must be a whole number'
-        const suffix = units ? ` ${units}` : ''
+        const suffix = (n: number) =>
+          units ? ` ${n === 1 ? unitSingular[units] : units}` : ''
         if (min !== undefined && value < Number(min))
-          return `Must be at least ${min}${suffix}`
+          return `Must be at least ${min}${suffix(Number(min))}`
         if (max !== undefined && value > Number(max))
-          return `Can be at most ${max}${suffix}`
+          return `Can be at most ${max}${suffix(Number(max))}`
         return validate?.(value, values)
       },
     },

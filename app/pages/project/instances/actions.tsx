@@ -18,6 +18,15 @@ import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
 
+/** Explains what a non-forced stop or reboot does for power button instances */
+const PowerButtonNote = ({ instance }: { instance: Instance }) =>
+  instance.shutdownPolicy.action === 'power_button' ? (
+    <p>
+      The guest OS will get a power button signal. If it hasn’t shut down after{' '}
+      {instance.shutdownPolicy.timeoutSecs} seconds, the instance will be powered off.
+    </p>
+  ) : null
+
 type Options = {
   onSuccess?: () => void
   // delete needs special behavior on instance detail because you need to nav to
@@ -77,37 +86,72 @@ export const useMakeInstanceActions = (
             <>Only {fancifyStates(instanceCan.start.states)} instances can be started</>
           ),
         },
-        {
-          label: 'Stop',
-          onActivate() {
-            confirmAction({
-              actionType: 'danger',
-              doAction: () =>
-                stopInstanceAsync(instanceParams, {
-                  onSuccess: () =>
-                    // prettier-ignore
-                    addToast(<>Stopping instance <HL>{instance.name}</HL></>),
-                }),
-              modalTitle: 'Stop instance',
-              modalContent: (
-                <div className="space-y-2">
-                  <p>
-                    Are you sure you want to stop <HL>{instance.name}</HL>?
-                  </p>
-                  <p>
-                    Stopped instances retain attached disks and IP addresses, but allocated
-                    CPU and memory are freed.
-                  </p>
-                </div>
+        // While a power button shutdown is pending, another plain stop does
+        // nothing, so Stop becomes a forced stop that skips the rest of the
+        // timeout
+        instance.shutdownPolicy.action === 'power_button' && instanceCan.forceStop(instance)
+          ? {
+              label: 'Force stop',
+              onActivate() {
+                confirmAction({
+                  actionType: 'danger',
+                  doAction: () =>
+                    stopInstanceAsync(
+                      { ...instanceParams, query: { project, force: true } },
+                      {
+                        onSuccess: () =>
+                          // prettier-ignore
+                          addToast(<>Force stopping instance <HL>{instance.name}</HL></>),
+                      }
+                    ),
+                  modalTitle: 'Force stop instance',
+                  modalContent: (
+                    <div className="space-y-2">
+                      <p>
+                        Are you sure you want to force stop <HL>{instance.name}</HL>?
+                      </p>
+                      <p>
+                        The guest OS hasn’t finished shutting down. Its power will be cut
+                        immediately.
+                      </p>
+                    </div>
+                  ),
+                  errorTitle: `Error force stopping ${instance.name}`,
+                })
+              },
+            }
+          : {
+              label: 'Stop',
+              onActivate() {
+                confirmAction({
+                  actionType: 'danger',
+                  doAction: () =>
+                    stopInstanceAsync(instanceParams, {
+                      onSuccess: () =>
+                        // prettier-ignore
+                        addToast(<>Stopping instance <HL>{instance.name}</HL></>),
+                    }),
+                  modalTitle: 'Stop instance',
+                  modalContent: (
+                    <div className="space-y-2">
+                      <p>
+                        Are you sure you want to stop <HL>{instance.name}</HL>?
+                      </p>
+                      <PowerButtonNote instance={instance} />
+                      <p>
+                        Stopped instances retain attached disks and IP addresses, but
+                        allocated CPU and memory are freed.
+                      </p>
+                    </div>
+                  ),
+                  errorTitle: `Error stopping ${instance.name}`,
+                })
+              },
+              disabled: !instanceCan.stop(instance) && (
+                // don't list all the states, it's overwhelming
+                <>Only {fancifyStates(['running'])} instances can be stopped</>
               ),
-              errorTitle: `Error stopping ${instance.name}`,
-            })
-          },
-          disabled: !instanceCan.stop(instance) && (
-            // don't list all the states, it's overwhelming
-            <>Only {fancifyStates(['running'])} instances can be stopped</>
-          ),
-        },
+            },
       ]
     },
     [project, startInstanceAsync, stopInstanceAsync]
@@ -130,9 +174,12 @@ export const useMakeInstanceActions = (
                 }),
               modalTitle: 'Reboot instance',
               modalContent: (
-                <p>
-                  Are you sure you want to reboot <HL>{instance.name}</HL>?
-                </p>
+                <div className="space-y-2">
+                  <p>
+                    Are you sure you want to reboot <HL>{instance.name}</HL>?
+                  </p>
+                  <PowerButtonNote instance={instance} />
+                </div>
               ),
               errorTitle: `Error rebooting ${instance.name}`,
             })

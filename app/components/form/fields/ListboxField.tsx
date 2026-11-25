@@ -31,6 +31,7 @@ export type ListboxFieldProps<
   hideLabel?: boolean
   required?: boolean
   description?: string | React.ReactNode
+  tip?: React.ReactNode
   control: Control<TFieldValues>
   disabled?: boolean
   items: ListboxItem[]
@@ -53,6 +54,7 @@ export function ListboxField<
   disabled,
   required,
   description,
+  tip,
   className,
   control,
   onChange,
@@ -69,6 +71,7 @@ export function ListboxField<
     <div className={cn('max-w-lg', className)}>
       <Listbox
         description={description}
+        tip={tip}
         label={label}
         hideLabel={hideLabel}
         required={required}

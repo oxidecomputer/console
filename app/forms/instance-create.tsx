@@ -61,6 +61,12 @@ import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioFieldDyn } from '~/components/form/fields/RadioField'
+import {
+  DEFAULT_SHUTDOWN_TIMEOUT_SECS,
+  ShutdownPolicyField,
+  shutdownPolicyFromForm,
+  type ShutdownPolicyFormValues,
+} from '~/components/form/fields/ShutdownPolicyField'
 import { SshKeysField } from '~/components/form/fields/SshKeysField'
 import { TextFieldInner } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
@@ -139,7 +145,8 @@ type BootDiskSourceType = 'siloImage' | 'projectImage' | 'disk'
 
 export type InstanceCreateInput = Assign<
   // API accepts undefined but it's easier if we don't
-  SetRequired<Omit<InstanceCreate, 'externalIps'>, 'networkInterfaces'>,
+  SetRequired<Omit<InstanceCreate, 'externalIps' | 'shutdownPolicy'>, 'networkInterfaces'> &
+    ShutdownPolicyFormValues,
   {
     presetId: (typeof PRESETS)[number]['id']
     otherDisks: DiskTableItem[]
@@ -232,6 +239,9 @@ const baseDefaultValues: InstanceCreateInput = {
   sshPublicKeys: [],
 
   start: true,
+
+  shutdownAction: 'hard_off',
+  shutdownTimeoutSecs: DEFAULT_SHUTDOWN_TIMEOUT_SECS,
 
   userDataSource: 'file',
   userDataText: '',
@@ -643,6 +653,7 @@ export default function CreateInstanceForm() {
               networkInterfaces: values.networkInterfaces,
               sshPublicKeys: values.sshPublicKeys,
               userData,
+              shutdownPolicy: shutdownPolicyFromForm(values),
             },
           })
         }}
@@ -699,15 +710,8 @@ export default function CreateInstanceForm() {
               label="CPUs"
               name="ncpus"
               min={1}
+              max={INSTANCE_MAX_CPU}
               control={control}
-              validate={(cpus) => {
-                if (cpus < 1) {
-                  return `Must be at least 1 vCPU`
-                }
-                if (cpus > INSTANCE_MAX_CPU) {
-                  return `Can be at most ${INSTANCE_MAX_CPU}`
-                }
-              }}
               disabled={isSubmitting}
             />
             <NumberField
@@ -716,15 +720,8 @@ export default function CreateInstanceForm() {
               label="Memory"
               name="memory"
               min={1}
+              max={INSTANCE_MAX_RAM_GiB}
               control={control}
-              validate={(memory) => {
-                if (memory < 1) {
-                  return `Must be at least 1 GiB`
-                }
-                if (memory > INSTANCE_MAX_RAM_GiB) {
-                  return `Can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
-                }
-              }}
               disabled={isSubmitting}
             />
           </Tabs.Content>
@@ -879,6 +876,12 @@ export default function CreateInstanceForm() {
         <FormDivider />
         <Form.Heading id="advanced">Advanced</Form.Heading>
         <UserDataField control={control} disabled={isSubmitting} />
+        <ShutdownPolicyField
+          control={control}
+          actionName="shutdownAction"
+          timeoutName="shutdownTimeoutSecs"
+          disabled={isSubmitting}
+        />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending || createInstance.isSuccess}>
             Create instance

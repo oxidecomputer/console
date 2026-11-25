@@ -13,6 +13,7 @@ import { antiAffinityGroupList } from '~/forms/affinity-util'
 import type { Route } from './+types/SettingsTab'
 import { AntiAffinityCard, instanceAntiAffinityGroups } from './AntiAffinityCard'
 import { AutoRestartCard } from './AutoRestartCard'
+import { ShutdownPolicyCard } from './ShutdownPolicyCard'
 
 export const handle = { crumb: 'Settings' }
 
@@ -30,6 +31,7 @@ export default function SettingsTab() {
     <div className="space-y-6">
       <AntiAffinityCard />
       <AutoRestartCard />
+      <ShutdownPolicyCard />
     </div>
   )
 }

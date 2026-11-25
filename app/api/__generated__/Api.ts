@@ -15,6 +15,11 @@ import { snakeify } from './util'
 export type { ApiResult, ErrorBody, ErrorResult } from './http-client'
 
 /**
+ * ACPI power button timeout in seconds.
+ */
+export type AcpiTimeoutSecs = number
+
+/**
  * An IPv4 subnet
  *
  * An IPv4 subnet, including prefix and prefix length
@@ -2610,6 +2615,15 @@ This version of the Turin CPU platform includes cache and TLB information in CPU
 export type InstanceCpuCount = number
 
 /**
+ * The method by which the instance will be powered down when transitioning to the stopped state or when rebooting: either forcefully or by giving the guest an ACPI power button signal first.
+ */
+export type InstanceShutdownPolicy =
+  /** Instance's VM is forcefully terminated immediately. */
+  | { action: 'hard_off' }
+  /** Instance is sent PWRBTN_STS as described in ACPI chapter 4. If the VM guest has not stopped itself with a power event within the given timeout, it is *then* forcefully terminated. */
+  | { action: 'power_button'; timeoutSecs: AcpiTimeoutSecs }
+
+/**
  * View of an Instance
  */
 export type Instance = {
@@ -2644,6 +2658,8 @@ This policy determines whether the instance should be automatically restarted by
   /** ID for the project containing this instance */
   projectId: string
   runState: InstanceState
+  /** The method by which the instance will be powered down when transitioning to the stopped state, either forcefully or by giving the guest an ACPI power button signal first. */
+  shutdownPolicy: InstanceShutdownPolicy
   /** Timestamp when this resource was created */
   timeCreated: Date
   /** The timestamp of the most recent time this instance was automatically restarted by the control plane.
@@ -2836,6 +2852,12 @@ Groups can be specified by name, UUID, or IP address. Non-existent groups are cr
   ncpus: InstanceCpuCount
   /** The network interfaces to be created for this instance. */
   networkInterfaces?: InstanceNetworkInterfaceAttachment
+  /** The method by which the instance should be stopped.
+
+This determines what action the control plane performs when stopping this instance, either due to a request to the `instance_stop` or `instance_reboot` API endpoints, or because the instance must be restarted in order to update system software on the sled that was hosting it.
+
+If not provided, the current default policy will be selected (hard power off without an ACPI soft shutdown). */
+  shutdownPolicy?: InstanceShutdownPolicy
   /** An allowlist of SSH public keys to be transferred to the instance via cloud-init during instance creation.
 
 If not provided, all SSH public keys from the user's profile will be sent. If an empty list is provided, no public keys will be transmitted to the instance. */
@@ -3004,6 +3026,8 @@ If not provided, the instance's multicast group membership will not be changed. 
   multicastGroups?: MulticastGroupJoinSpec[] | null
   /** The number of vCPUs to be allocated to the instance */
   ncpus: InstanceCpuCount
+  /** The method by which the instance should be stopped. If `null`, the instance's shutdown policy is reset to the default value. Changes to soft-shutdown timeout do not affect instances that are already in the process of shutting down until their next start. */
+  shutdownPolicy: InstanceShutdownPolicy | null
 }
 
 export type InterfaceNum =
@@ -6762,6 +6786,7 @@ export interface InstanceRebootPathParams {
 }
 
 export interface InstanceRebootQueryParams {
+  force?: boolean | null
   project?: NameOrId
 }
 
@@ -6809,6 +6834,7 @@ export interface InstanceStopPathParams {
 }
 
 export interface InstanceStopQueryParams {
+  force?: boolean | null
   project?: NameOrId
 }
 
@@ -7170,6 +7196,10 @@ export interface RackMembershipStatusQueryParams {
 
 export interface RackMembershipAbortPathParams {
   rackId: string
+}
+
+export interface RackMembershipAbortQueryParams {
+  version?: RackMembershipVersion
 }
 
 export interface RackMembershipAddSledsPathParams {
@@ -8067,7 +8097,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026110500.0.0'
+  apiVersion = '2026111100.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -10636,15 +10666,19 @@ export class Api {
       })
     },
     /**
-     * Abort the latest rack membership change
+     * Abort rack membership change
      */
     rackMembershipAbort: (
-      { path }: { path: RackMembershipAbortPathParams },
+      {
+        path,
+        query = {},
+      }: { path: RackMembershipAbortPathParams; query?: RackMembershipAbortQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<RackMembershipStatus>({
         path: `/v1/system/hardware/racks/${path.rackId}/membership/abort`,
         method: 'POST',
+        query,
         ...params,
       })
     },

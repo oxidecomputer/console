@@ -853,6 +853,7 @@ export const handlers = makeHandlers({
       boot_disk_id: bootDiskId,
       auto_restart_enabled: true,
       enable_jumbo_frames: body.enable_jumbo_frames ?? false,
+      shutdown_policy: body.shutdown_policy ?? { action: 'hard_off' },
     }
 
     if (body.start) {
@@ -936,6 +937,8 @@ export const handlers = makeHandlers({
 
     // required on the body, so always set it (effective on next restart in nexus)
     instance.enable_jumbo_frames = body.enable_jumbo_frames
+    // null resets to the default policy
+    instance.shutdown_policy = body.shutdown_policy ?? { action: 'hard_off' }
 
     // We depart here from nexus in that nexus does both of the following
     // calculations at view time (when converting model to view). We can't
@@ -1235,9 +1238,16 @@ export const handlers = makeHandlers({
     const instance = lookup.instance({ ...path, ...query })
     instance.run_state = 'stopping'
 
-    setTimeout(() => {
-      instance.run_state = 'stopped'
-    }, 3000)
+    // a power button shutdown waits on the guest, so it takes longer. a forced
+    // stop cuts it short, so guard against the slow timer firing after the
+    // instance has already stopped and maybe started again
+    const powerButton = instance.shutdown_policy.action === 'power_button' && !query.force
+    setTimeout(
+      () => {
+        if (instance.run_state === 'stopping') instance.run_state = 'stopped'
+      },
+      powerButton ? 10_000 : 3000
+    )
 
     return json(instance, { status: 202 })
   },

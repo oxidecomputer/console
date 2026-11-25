@@ -42,6 +42,12 @@ export const INSTANCE_MAX_CPU = 254
 export const INSTANCE_MIN_RAM_GiB = 1
 export const INSTANCE_MAX_RAM_GiB = 1536
 
+// Bounds on how long a power button shutdown waits for the guest before
+// cutting power
+// https://github.com/oxidecomputer/omicron/blob/0c6c243/sled-agent/types/versions/src/add_acpi_shutdown_timeout/instance.rs#L61-L62
+export const ACPI_TIMEOUT_MIN_SECS = 1
+export const ACPI_TIMEOUT_MAX_SECS = 900
+
 // Webhook endpoint URL column width. The API does no length validation, so a
 // longer URL fails with a database error rather than a 400.
 // https://github.com/oxidecomputer/omicron/blob/6db4c7e/schema/crdb/dbinit.sql#L7192
@@ -232,6 +238,10 @@ const instanceActions = {
   reboot: ['running'], // technically rebooting allowed but too weird to say it
   // stopping a failed disk: https://github.com/oxidecomputer/omicron/blob/f0b804818b898bebdb317ac2b000618944c02457/nexus/src/app/instance.rs#L818-L830
   stop: ['running', 'starting', 'rebooting', 'failed'],
+  // Nexus also accepts a stop while the instance is stopping. A forced one is
+  // how a pending power button shutdown gets cut short.
+  // https://github.com/oxidecomputer/omicron/blob/0c6c243/nexus/src/app/instance.rs#L1441-L1456
+  forceStop: ['stopping'],
 
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L323-L327
   detachDisk: ['creating', 'stopped', 'failed'],
