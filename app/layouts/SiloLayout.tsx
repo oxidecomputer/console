@@ -17,7 +17,7 @@ import {
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
 import { useCurrentUser } from '~/hooks/use-current-user'
-import { useQuickActions } from '~/hooks/use-quick-actions'
+import { isCurrentPage, useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
@@ -37,9 +37,7 @@ export default function SiloLayout() {
         { value: 'Silo Access', path: pb.siloGroups(), prefix: pb.siloAccess() },
       ]
         // filter out the entry for the path we're currently on
-        .filter((i) =>
-          i.prefix ? !`${pathname}/`.startsWith(`${i.prefix}/`) : i.path !== pathname
-        )
+        .filter((i) => !isCurrentPage(pathname, i))
         .map((i) => ({
           navGroup: `Silo '${me.siloName}'`,
           value: i.value,

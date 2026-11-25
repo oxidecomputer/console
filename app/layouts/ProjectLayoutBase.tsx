@@ -25,7 +25,7 @@ import {
 import { TopBar } from '~/components/TopBar'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
-import { useQuickActions } from '~/hooks/use-quick-actions'
+import { isCurrentPage, useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -79,9 +79,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
         },
       ]
         // filter out the entry for the path we're currently on
-        .filter((i) =>
-          i.prefix ? !`${pathname}/`.startsWith(`${i.prefix}/`) : i.path !== pathname
-        )
+        .filter((i) => !isCurrentPage(pathname, i))
         .map((i) => ({
           navGroup: `Project '${project.name}'`,
           value: i.value,

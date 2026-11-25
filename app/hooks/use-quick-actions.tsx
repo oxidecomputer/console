@@ -52,6 +52,17 @@ function clearSource(sourceId: string) {
   })
 }
 
+/**
+ * Whether a nav item points at the current page, so a layout can leave it out
+ * of the menu. `prefix` is for pages with tabs or modals at sub-paths.
+ */
+export const isCurrentPage = (
+  pathname: string,
+  { path, prefix }: { path: string; prefix?: string }
+) =>
+  // trailing slashes so /access doesn't match /access-foo
+  prefix ? `${pathname}/`.startsWith(`${prefix}/`) : path === pathname
+
 export function openQuickActions() {
   useStore.setState({ isOpen: true })
 }

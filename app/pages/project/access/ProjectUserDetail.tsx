@@ -25,8 +25,7 @@ import type { Route } from './+types/ProjectUserDetail'
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const { userId } = params
-  // fetchQuery throws on a bad ID so the error boundary renders Not Found.
-  // Policies and groups are prefetched by the parent Access loader.
+  // fetchQuery throws on a bad ID so the error boundary renders Not Found
   await queryClient.fetchQuery(userView({ userId }))
   return null
 }

@@ -29,6 +29,10 @@ export function ConfirmActionModal() {
   const { doAction, modalContent, errorTitle, modalTitle, actionType, confirmText } =
     actionConfig
 
+  const disabledReason = confirmText
+    ? typeToConfirmReason(confirmText, typedText)
+    : undefined
+
   // this component stays mounted between opens, so clear the typed text on close
   const close = () => {
     setTypedText('')
@@ -70,8 +74,8 @@ export function ConfirmActionModal() {
         actionText="Confirm"
         actionType={actionType}
         actionLoading={loading}
-        disabled={!!confirmText && typedText !== confirmText}
-        disabledReason={confirmText && typeToConfirmReason(confirmText, typedText)}
+        disabled={!!disabledReason}
+        disabledReason={disabledReason}
       />
     </Modal>
   )
