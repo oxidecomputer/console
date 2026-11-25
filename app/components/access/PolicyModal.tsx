@@ -24,14 +24,7 @@ import { type PolicyScope } from './policy-scope'
 import { roleActions } from './role-actions'
 import { useCanEditPolicy } from './use-can-edit-policy'
 
-// Log-style list like the Alerts tab: rows with only a bottom border, so divs
-// with explicit table roles rather than table elements. A grid with subgrid
-// rows (like MiniTable) so both columns size to their widest content and the
-// header lines up. The empty third track absorbs the leftover width, so rows
-// (and their borders) still span the modal. Rows bleed past the modal section
-// padding so the borders run edge to edge, and the cells pad back in by the
-// same amount. The negative vertical margins pull the list up under the title
-// bar, since the header row already has its own height.
+// Log-style list like the Alerts tab
 const Table = roleDiv(
   'table',
   'text-sans-md -mx-4 -mt-4 -mb-2 grid grid-cols-[auto_auto_minmax(0,1fr)]'
@@ -74,10 +67,10 @@ export function PolicyModal({
 
   const rows = useMemo(() => {
     // Identity types never share IDs, so one map covers both. An ID can go
-    // unresolved if the identity was deleted after the assignment was made
-    // (local IdP user deletion leaves role assignments behind), if it falls
-    // past the ALL_ISH cap on the lists, or if the policy was written through
-    // the API with an ID from outside the silo. We fall back to showing the ID.
+    // unresolved if the identity was deleted before Nexus started to delete
+    // role assignments with it (omicron#8605), if it falls past the ALL_ISH
+    // cap on the lists, or if the policy was written through the API with an
+    // ID from outside the silo. We fall back to showing the ID.
     const nameById = new Map(
       [...users.items, ...groups.items].map((i) => [i.id, i.displayName])
     )

@@ -44,10 +44,9 @@ type DbRoleAssignment = {
 export const crossSiloUserId = 'd4e5f6a7-b8c9-4d0e-a1f2-b3c4d5e6f7a8'
 export const crossSiloGroupId = 'e5f6a7b8-c9d0-4e1f-b2a3-c4d5e6f7a8b9'
 
-// A local IdP user deleted while holding a silo role. Nexus soft-deletes the
-// user but leaves their role assignments, so this ID is in the silo policy but
-// not in userList.
-// https://github.com/oxidecomputer/omicron/blob/26f5e91/nexus/db-queries/src/db/datastore/silo_user.rs#L476-L568
+// A local IdP user deleted while holding a role from before Nexus deleted
+// role assignments during the user's deletion. This ID is in the policy but
+// not in userList. https://github.com/oxidecomputer/omicron/issues/8605
 export const deletedSiloUserId = '480332fd-4516-403a-809d-e9fc67963b5a'
 
 export const roleAssignments: DbRoleAssignment[] = [
@@ -94,10 +93,9 @@ export const roleAssignments: DbRoleAssignment[] = [
     role_name: 'admin',
   },
   {
-    // Jane also inherits the stronger silo.collaborator via real-estate-devs, so
-    // she has both a direct and a group-derived role (exercises the "+N" roles
-    // display on the Users tab). Kept below admin so she stays a non-silo-admin,
-    // which other tests rely on.
+    // Jane also inherits the stronger silo.collaborator via real-estate-devs,
+    // so she has both a direct and a group-derived role.
+    // Kept below admin so she stays a non-silo-admin, which other tests rely on.
     resource_type: 'silo',
     resource_id: defaultSilo.id,
     identity_id: user5.id, // Jane Austen

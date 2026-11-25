@@ -28,9 +28,17 @@ export const makeLinkCell =
     return <LinkCell to={makeHref(value)}>{value}</LinkCell>
   }
 
-export function LinkCell({ to, children }: { to: string; children: React.ReactNode }) {
+export function LinkCell({
+  to,
+  onClick,
+  children,
+}: {
+  to: string
+  onClick?: () => void
+  children: React.ReactNode
+}) {
   return (
-    <Link className={linkClass} to={to}>
+    <Link className={linkClass} to={to} onClick={onClick}>
       <Pusher />
       <div className="relative">{children}</div>
     </Link>

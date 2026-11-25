@@ -12,10 +12,11 @@ import { match } from 'ts-pattern'
 
 import {
   groupsOfUser,
+  queryClient,
+  scopedRoleEntries,
   sortRoleEntries,
   useGroupsByUserId,
   usePrefetchedQuery,
-  scopedRoleEntries,
   type User,
 } from '@oxide/api'
 import { Person24Icon, PersonGroup16Icon } from '@oxide/design-system/icons/react'
@@ -31,7 +32,7 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 
-import { groupListAll, userListAll } from './access-data'
+import { groupListAll, userListAll, userView } from './access-data'
 import { type PolicyScope } from './policy-scope'
 
 const colHelper = createColumnHelper<User>()
@@ -61,7 +62,16 @@ export function AccessUsersTab({ scope }: { scope: PolicyScope }) {
       colHelper.accessor('displayName', {
         header: 'Name',
         cell: (info) => (
-          <LinkCell to={userPath(info.row.original.id)}>{info.getValue()}</LinkCell>
+          <LinkCell
+            to={userPath(info.row.original.id)}
+            // seed the detail query so the side modal opens without a fetch
+            onClick={() => {
+              const user = info.row.original
+              queryClient.setQueryData(userView({ userId: user.id }).queryKey, user)
+            }}
+          >
+            {info.getValue()}
+          </LinkCell>
         ),
       }),
     [userPath]

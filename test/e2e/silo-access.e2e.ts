@@ -574,7 +574,7 @@ test('Show policy modal lists raw silo role assignments', async ({ page }) => {
   await expectRowVisible(table, { Actor: 'real-estate-devs', Role: 'silo.collaborator' })
   await expectRowVisible(table, { Actor: 'Hannah Arendt', Role: 'silo.admin' })
   await expectRowVisible(table, { Actor: 'Jane Austen', Role: 'silo.viewer' })
-  // a deleted user's assignment outlives them, so it falls back to the ID
+  // leftover assignment of a deleted user, so it falls back to the ID
   await expectRowVisible(table, { Actor: deletedSiloUserId, Role: 'silo.viewer' })
   // only direct assignments: Hans Jonas is a silo collaborator via a group
   await expect(table.getByRole('row')).toHaveCount(5)

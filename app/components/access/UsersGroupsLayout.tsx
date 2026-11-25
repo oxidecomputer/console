@@ -36,6 +36,8 @@ export function UsersGroupsLayout({
   summary: string
 }) {
   const [policyOpen, setPolicyOpen] = useState(false)
+  // keep the user list observed so it isn't garbage collected
+  // while the Groups tab (which doesn't read it) is open
   usePrefetchedQuery(userListAll)
   return (
     <>

@@ -11,6 +11,7 @@ import { Outlet } from 'react-router'
 
 import {
   groupScopedRoleEntries,
+  queryClient,
   sortRoleEntries,
   usePrefetchedQuery,
   type Group,
@@ -27,7 +28,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'
 
-import { groupListAll } from './access-data'
+import { groupListAll, groupView } from './access-data'
 import { type PolicyScope } from './policy-scope'
 
 const colHelper = createColumnHelper<Group>()
@@ -66,7 +67,16 @@ export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
       colHelper.accessor('displayName', {
         header: 'Name',
         cell: (info) => (
-          <LinkCell to={groupPath(info.row.original.id)}>{info.getValue()}</LinkCell>
+          <LinkCell
+            to={groupPath(info.row.original.id)}
+            // seed the detail query so the side modal opens without a fetch
+            onClick={() => {
+              const group = info.row.original
+              queryClient.setQueryData(groupView({ groupId: group.id }).queryKey, group)
+            }}
+          >
+            {info.getValue()}
+          </LinkCell>
         ),
       }),
       colHelper.display({
