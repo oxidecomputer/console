@@ -29,6 +29,7 @@ import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/State
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
+import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DiskSourceName } from '~/table/cells/DiskSourceCell'
@@ -87,6 +88,11 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 
 const colHelper = createColumnHelper<Disk>()
 
+const invalidateDiskListAndView = () => {
+  queryClient.invalidateEndpoint('diskList')
+  queryClient.invalidateEndpoint('diskView')
+}
+
 export default function DisksPage() {
   const { project } = useProjectSelector()
 
@@ -115,41 +121,99 @@ export default function DisksPage() {
     },
   })
 
+  // the states that allow these actions are both temporary, so a failure is
+  // most likely to be due to a state change from afar. for that reason it's
+  // worth invalidating on failures as well as successes
+  const { mutateAsync: finalize } = useApiMutation(api.diskFinalizeImport, {
+    onSuccess: invalidateDiskListAndView,
+    onError: invalidateDiskListAndView,
+  })
+  const { mutateAsync: stopBulkWriteImport } = useApiMutation(api.diskBulkWriteImportStop, {
+    onSuccess: invalidateDiskListAndView,
+    onError: invalidateDiskListAndView,
+  })
+
   const makeActions = useCallback(
-    (disk: Disk): MenuAction[] => [
-      {
-        label: 'Snapshot',
-        onActivate() {
-          // prettier-ignore
-          addToast(<>Creating snapshot of disk <HL>{disk.name}</HL></>)
-          createSnapshot({
-            query: { project },
-            body: {
-              name: genName(disk.name),
-              disk: disk.name,
-              description: '',
-            },
-          })
+    (disk: Disk): MenuAction[] => {
+      const canStopImport = diskCan.finalizeImport(disk) || diskCan.cancelBulkWrites(disk)
+
+      return [
+        ...(canStopImport
+          ? [
+              {
+                label: 'Stop import',
+                onActivate() {
+                  confirmAction({
+                    doAction: async () => {
+                      if (diskCan.cancelBulkWrites(disk)) {
+                        await stopBulkWriteImport({
+                          path: { disk: disk.name },
+                          query: { project },
+                        })
+                      }
+
+                      await finalize({
+                        path: { disk: disk.name },
+                        query: { project },
+                        body: {},
+                      })
+
+                      addToast(
+                        <>
+                          Import stopped for <HL>{disk.name}</HL>
+                        </>
+                      )
+                    },
+                    modalTitle: 'Stop import',
+                    modalContent: (
+                      <p>
+                        Are you sure you want to stop import for <HL>{disk.name}</HL>? This
+                        will leave it in the <HL>detached</HL> state.
+                      </p>
+                    ),
+                    errorTitle: 'Failed to stop import',
+                    actionType: 'danger',
+                  })
+                },
+              },
+            ]
+          : []),
+        {
+          label: 'Snapshot',
+          onActivate() {
+            // prettier-ignore
+            addToast(<>Creating snapshot of disk <HL>{disk.name}</HL></>)
+            createSnapshot({
+              query: { project },
+              body: {
+                name: genName(disk.name),
+                disk: disk.name,
+                description: '',
+              },
+            })
+          },
+          disabled: snapshotDisabledReason(disk),
         },
-        disabled: snapshotDisabledReason(disk),
-      },
-      {
-        label: 'Delete',
-        onActivate: confirmDelete({
-          doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
-          label: disk.name,
-          resourceKind: 'disk',
-        }),
-        disabled:
-          !diskCan.delete(disk) &&
-          (disk.state.state === 'attached' ? (
-            'Disk must be detached before it can be deleted'
-          ) : (
-            <>Only disks in state {fancifyStates(diskCan.delete.states)} can be deleted</>
-          )),
-      },
-    ],
-    [createSnapshot, deleteDisk, project]
+        {
+          label: 'Delete',
+          onActivate: confirmDelete({
+            doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
+            label: disk.name,
+            resourceKind: 'disk',
+          }),
+          disabled:
+            !diskCan.delete(disk) &&
+            (disk.state.state === 'attached' ? (
+              'Disk must be detached before it can be deleted'
+            ) : canStopImport ? (
+              'Import must be stopped before the disk can be deleted'
+            ) : (
+              <>Only disks in state {fancifyStates(diskCan.delete.states)} can be deleted</>
+            )),
+        },
+      ]
+    },
+    [createSnapshot, deleteDisk, stopBulkWriteImport, finalize, project]
   )
 
   const columns = useColsWithActions(

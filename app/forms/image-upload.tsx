@@ -153,6 +153,7 @@ function getTmpDiskName(imageName: string) {
       'import-start-500',
       'import-stop-500',
       'disk-finalize-500',
+      'cancel-upload',
     ])
     if (specialNames.has(imageName)) return imageName
   }
