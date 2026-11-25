@@ -98,10 +98,18 @@ export const pb = {
 
   vpcInternetGateways: (params: PP.Vpc) =>
     href('/projects/:project/vpcs/:vpc/internet-gateways', params),
+  vpcInternetGatewaysNew: (params: PP.Vpc) =>
+    href('/projects/:project/vpcs/:vpc/internet-gateways-new', params),
   vpcInternetGateway: (params: PP.VpcInternetGateway) =>
     href('/projects/:project/vpcs/:vpc/internet-gateways/:gateway', params),
-  // vpcInternetGatewaysNew: (params: Vpc) => `${vpcBase(params)}/internet-gateways-new`,
-  //
+  vpcInternetGatewayIpPoolsNew: (params: PP.VpcInternetGateway) =>
+    href('/projects/:project/vpcs/:vpc/internet-gateways/:gateway/ip-pools-new', params),
+  vpcInternetGatewayIpAddressesNew: (params: PP.VpcInternetGateway) =>
+    href(
+      '/projects/:project/vpcs/:vpc/internet-gateways/:gateway/ip-addresses-new',
+      params
+    ),
+
   externalSubnets: (params: PP.Project) =>
     href('/projects/:project/external-subnets', params),
   externalSubnetsNew: (params: PP.Project) =>

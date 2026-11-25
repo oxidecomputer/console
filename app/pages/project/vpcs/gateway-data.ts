@@ -35,17 +35,24 @@ export function useGatewayRoutes({ project, vpc, gateway }: PP.VpcInternetGatewa
   const { data: routers } = usePrefetchedQuery(routerList({ project, vpc }).optionsFn())
   const routerNames = routers.items.map((r) => r.name)
 
-  const routesQueries = useQueries({
+  return useQueries({
     queries: routerNames.map((router) => routeList({ project, vpc, router }).optionsFn()),
+    // combine's result is structurally shared by React Query, so the returned
+    // array is referentially stable across renders — required by consumers
+    // that use it as table data or in dep arrays
+    combine: (results) => {
+      // loading. should never happen because of prefetches
+      if (!results.every((q) => !!q.data)) return null
+      return R.pipe(
+        R.zip(
+          routerNames,
+          results.map((q) => q.data.items)
+        ),
+        R.flatMap(([router, routes]) => routes.map((route) => [router, route] as const)),
+        R.filter(
+          ([_, r]) => r.target.type === 'internet_gateway' && r.target.value === gateway
+        )
+      )
+    },
   })
-  const loadedRoutesLists = routesQueries.filter((q) => !!q.data).map((q) => q.data.items)
-
-  // loading. should never happen because of prefetches
-  if (loadedRoutesLists.length < routers.items.length) return null
-
-  return R.pipe(
-    R.zip(routerNames, loadedRoutesLists),
-    R.flatMap(([router, routes]) => routes.map((route) => [router, route] as const)),
-    R.filter(([_, r]) => r.target.type === 'internet_gateway' && r.target.value === gateway)
-  )
 }
