@@ -33,10 +33,13 @@ export default function SiloLayout() {
         { value: 'Projects', path: pb.projects() },
         { value: 'Images', path: pb.siloImages() },
         { value: 'Utilization', path: pb.siloUtilization() },
-        { value: 'Silo Access', path: pb.siloGroups() },
+        // the tabs and detail modals are all under the access prefix
+        { value: 'Silo Access', path: pb.siloGroups(), prefix: pb.siloAccess() },
       ]
         // filter out the entry for the path we're currently on
-        .filter((i) => i.path !== pathname)
+        .filter((i) =>
+          i.prefix ? !`${pathname}/`.startsWith(`${i.prefix}/`) : i.path !== pathname
+        )
         .map((i) => ({
           navGroup: `Silo '${me.siloName}'`,
           value: i.value,

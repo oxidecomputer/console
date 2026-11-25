@@ -71,10 +71,17 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
         { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
         { value: 'External Subnets', path: pb.externalSubnets(projectSelector) },
         { value: 'Affinity Groups', path: pb.affinity(projectSelector) },
-        { value: 'Project Access', path: pb.projectGroups(projectSelector) },
+        // the tabs and detail modals are all under the access prefix
+        {
+          value: 'Project Access',
+          path: pb.projectGroups(projectSelector),
+          prefix: pb.projectAccess(projectSelector),
+        },
       ]
         // filter out the entry for the path we're currently on
-        .filter((i) => i.path !== pathname)
+        .filter((i) =>
+          i.prefix ? !`${pathname}/`.startsWith(`${i.prefix}/`) : i.path !== pathname
+        )
         .map((i) => ({
           navGroup: `Project '${project.name}'`,
           value: i.value,

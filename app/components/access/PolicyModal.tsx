@@ -124,8 +124,8 @@ export function PolicyModal({
                       <>
                         <span className="truncate">{row.identityId}</span>
                         <TipIcon>
-                          Can't find this{' '}
-                          {row.identityType === 'silo_user' ? 'user' : 'group'} in the silo
+                          Can’t resolve this{' '}
+                          {row.identityType === 'silo_user' ? 'user' : 'group'}’s name
                         </TipIcon>
                       </>
                     )}
