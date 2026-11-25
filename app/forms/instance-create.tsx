@@ -712,9 +712,6 @@ export default function CreateInstanceForm() {
               min={1}
               control={control}
               validate={(cpus) => {
-                if (cpus < 1) {
-                  return `Must be at least 1 vCPU`
-                }
                 if (cpus > INSTANCE_MAX_CPU) {
                   return `Can be at most ${INSTANCE_MAX_CPU}`
                 }
@@ -729,9 +726,6 @@ export default function CreateInstanceForm() {
               min={1}
               control={control}
               validate={(memory) => {
-                if (memory < 1) {
-                  return `Must be at least 1 GiB`
-                }
                 if (memory > INSTANCE_MAX_RAM_GiB) {
                   return `Can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
                 }
