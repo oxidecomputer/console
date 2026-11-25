@@ -8,14 +8,13 @@
 import { match } from 'ts-pattern'
 
 import { sortRoleEntries, type Loadable, type ScopedRoleEntry } from '@oxide/api'
-import { Badge } from '@oxide/design-system/ui'
 
+import { RoleBadge } from '~/components/RoleBadge'
 import { EmptyCell, ErrorCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { RowActions, type MenuAction } from '~/table/columns/action-col'
 import { SideModal } from '~/ui/lib/SideModal'
 import { Table } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
-import { roleColor } from '~/util/access'
 
 /** The strongest of the entries in `RoleAssignmentsTable`, for a properties row */
 export const EffectiveRole = ({ entries }: { entries: Loadable<ScopedRoleEntry[]> }) =>
@@ -25,9 +24,7 @@ export const EffectiveRole = ({ entries }: { entries: Loadable<ScopedRoleEntry[]
     .with({ status: 'success' }, ({ data }) => {
       const effective = sortRoleEntries(data).at(0)
       return effective ? (
-        <Badge color={roleColor[effective.roleName]}>
-          {effective.scope}.{effective.roleName}
-        </Badge>
+        <RoleBadge scope={effective.scope} roleName={effective.roleName} />
       ) : (
         <EmptyCell />
       )
@@ -73,9 +70,7 @@ export function RoleAssignmentsTable({
                   key={`${entry.scope}:${entry.source.type === 'group' ? entry.source.group.id : 'direct'}`}
                 >
                   <Table.Cell>
-                    <Badge color={roleColor[entry.roleName]}>
-                      {entry.scope}.{entry.roleName}
-                    </Badge>
+                    <RoleBadge scope={entry.scope} roleName={entry.roleName} />
                   </Table.Cell>
                   <Table.Cell className="w-full">
                     {entry.source.type === 'direct' && 'Direct'}

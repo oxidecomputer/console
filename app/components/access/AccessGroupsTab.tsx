@@ -17,8 +17,8 @@ import {
   type Group,
 } from '@oxide/api'
 import { PersonGroup24Icon } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
 
+import { RoleBadge } from '~/components/RoleBadge'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { MemberCountCell } from '~/table/cells/MemberCountCell'
@@ -26,7 +26,6 @@ import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
-import { roleColor } from '~/util/access'
 
 import { groupListAll, groupView } from './access-data'
 import { type PolicyScope } from './policy-scope'
@@ -81,11 +80,7 @@ export function AccessGroupsTab({ scope }: { scope: PolicyScope }) {
             groupScopedRoleEntries(row.original.id, siloPolicy, projectPolicy)
           ).at(0)
           if (!effective) return <EmptyCell />
-          return (
-            <Badge color={roleColor[effective.roleName]}>
-              {effective.scope}.{effective.roleName}
-            </Badge>
-          )
+          return <RoleBadge scope={effective.scope} roleName={effective.roleName} />
         },
       }),
       memberCountCol,

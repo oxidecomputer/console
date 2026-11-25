@@ -20,9 +20,9 @@ import {
   type User,
 } from '@oxide/api'
 import { Person24Icon, PersonGroup16Icon } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
 
 import { ListPlusCell } from '~/components/ListPlusCell'
+import { RoleBadge } from '~/components/RoleBadge'
 import { EmptyCell, ErrorCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
@@ -30,7 +30,6 @@ import { Table } from '~/table/Table'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
-import { roleColor } from '~/util/access'
 
 import { groupListAll, userListAll, userView } from './access-data'
 import { type PolicyScope } from './policy-scope'
@@ -90,9 +89,7 @@ export function AccessUsersTab({ scope }: { scope: PolicyScope }) {
               if (!effective) return <EmptyCell />
               return (
                 <div className="flex items-center gap-2">
-                  <Badge color={roleColor[effective.roleName]}>
-                    {effective.scope}.{effective.roleName}
-                  </Badge>
+                  <RoleBadge scope={effective.scope} roleName={effective.roleName} />
                   {effective.source.type === 'group' && (
                     <TipIcon
                       icon={<PersonGroup16Icon className="text-quaternary h-3 w-3" />}

@@ -27,6 +27,7 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { roleActions } from '~/components/access/role-actions'
 import { DocsPopover } from '~/components/DocsPopover'
+import { RoleBadge } from '~/components/RoleBadge'
 import {
   FleetAccessAddUserSideModal,
   FleetAccessEditUserSideModal,
@@ -218,7 +219,7 @@ export default function FleetAccessPage() {
         header: 'Fleet role',
         cell: (info) => {
           const role = info.getValue()
-          return <Badge color={roleColor[role]}>fleet.{role}</Badge>
+          return <RoleBadge scope="fleet" roleName={role} />
         },
       }),
       getActionsCol((row: AccessRow) =>

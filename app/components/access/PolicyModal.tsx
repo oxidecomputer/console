@@ -10,12 +10,11 @@ import { Link } from 'react-router'
 
 import { byGroupThenName, usePrefetchedQuery } from '@oxide/api'
 import { Person16Icon, PersonGroup16Icon } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
 
+import { RoleBadge } from '~/components/RoleBadge'
 import { RowActions } from '~/table/columns/action-col'
 import { Modal } from '~/ui/lib/Modal'
 import { TipIcon } from '~/ui/lib/TipIcon'
-import { roleColor } from '~/util/access'
 import { roleDiv } from '~/util/classed'
 import { capitalize } from '~/util/str'
 
@@ -125,9 +124,7 @@ export function PolicyModal({
                     )}
                   </Cell>
                   <Cell>
-                    <Badge color={roleColor[row.roleName]}>
-                      {scope}.{row.roleName}
-                    </Badge>
+                    <RoleBadge scope={scope} roleName={row.roleName} />
                   </Cell>
                   {/* resolved identities are managed from the Users and Groups tabs */}
                   {!row.name && (
