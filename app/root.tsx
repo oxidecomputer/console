@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { CSPProvider } from '@base-ui/react/csp-provider'
+import { FloatingDelayGroup } from '@floating-ui/react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { LazyMotion, MotionConfig } from 'motion/react'
 import { useSyncExternalStore, type ReactNode } from 'react'
@@ -74,9 +75,12 @@ export function Layout({ children }: { children: ReactNode }) {
           <QueryClientProvider client={queryClient}>
             <LazyMotion strict features={loadFeatures}>
               <MotionConfig reducedMotion="user">
-                <PreviewBannerLayout>
-                  <AppErrorBoundary>{children}</AppErrorBoundary>
-                </PreviewBannerLayout>
+                {/* after one tooltip opens, its neighbours open instantly */}
+                <FloatingDelayGroup delay={{ open: 250, close: 0 }} timeoutMs={300}>
+                  <PreviewBannerLayout>
+                    <AppErrorBoundary>{children}</AppErrorBoundary>
+                  </PreviewBannerLayout>
+                </FloatingDelayGroup>
               </MotionConfig>
             </LazyMotion>
           </QueryClientProvider>

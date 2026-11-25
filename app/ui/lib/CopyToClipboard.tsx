@@ -22,7 +22,7 @@ type Props = {
 }
 
 const variants = {
-  hidden: { opacity: 0, scale: 0.85 },
+  hidden: { opacity: 0, scale: 0.9 },
   visible: { opacity: 1, scale: 1 },
 }
 
@@ -65,7 +65,7 @@ export const CopyToClipboard = ({
       type="button"
       aria-label={hasCopied ? 'Copied' : ariaLabel}
     >
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence initial={false}>
         {hasCopied ? (
           <m.span key="checkmark" {...animateProps}>
             <Success12Icon />

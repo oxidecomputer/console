@@ -14,6 +14,7 @@ import {
   FloatingPortal,
   offset,
   shift,
+  useDelayGroup,
   useDismiss,
   useFloating,
   useFocus,
@@ -51,7 +52,9 @@ export interface TooltipProps {
   placement?: Placement
 }
 
-export const Tooltip = ({ delay = 250, children, content, placement }: TooltipProps) => {
+const DEFAULT_DELAY_MS = 250
+
+export const Tooltip = ({ delay, children, content, placement }: TooltipProps) => {
   const [open, setOpen] = useState(false)
   const arrowRef = useRef(null)
 
@@ -74,8 +77,16 @@ export const Tooltip = ({ delay = 250, children, content, placement }: TooltipPr
     ],
   })
 
+  // explicit delays opt out of grouping (e.g. Truncate wants its longer delay every time)
+  const { delay: groupDelay } = useDelayGroup(context, { enabled: delay === undefined })
+  // groupDelay is 0 when there's no FloatingDelayGroup ancestor
+  const hoverDelay = delay ?? (groupDelay || DEFAULT_DELAY_MS)
+
   const { getReferenceProps, getFloatingProps } = useInteractions([
-    useHover(context, { move: false, delay: { open: delay, close: 0 } }),
+    useHover(context, {
+      move: false,
+      delay: typeof hoverDelay === 'number' ? { open: hoverDelay, close: 0 } : hoverDelay,
+    }),
     useFocus(context),
     useDismiss(context),
     useRole(context, { role: 'tooltip' }),

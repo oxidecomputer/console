@@ -49,8 +49,9 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
         <AutoRestart12Icon className="shrink-0" aria-hidden />
       </PopoverButton>
       <PopoverPanel
-        // popover-panel needed for enter animation
-        className="popover-panel bg-raise light:bg-default shadow-menu z-(--z-popover) w-96 rounded-lg"
+        transition
+        // popover-panel + transition prop drive the enter/exit animation
+        className="popover-panel bg-raise light:bg-default shadow-menu z-(--z-popover) w-96 origin-top-left rounded-lg"
         anchor={{ to: 'bottom start', gap: 12 }}
       >
         <PopoverRow label="Auto Restart">

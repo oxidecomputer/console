@@ -23,7 +23,7 @@ export const topBarHomeCellClass = 'border-secondary hidden items-center border-
 // is controlled by translate-x classes in Sidebar (and PageSkeleton, which
 // always renders it closed)
 export const sidebarWrapperClass =
-  'bg-default border-secondary fixed top-[calc(var(--top-bar-height)+var(--preview-banner-height))] bottom-0 left-0 w-(--sidebar-width) border-r max-1000:z-(--z-side-modal) max-1000:transition-transform max-1000:duration-200 max-1000:ease-out motion-reduce:max-1000:transition-none'
+  'bg-default border-secondary fixed top-[calc(var(--top-bar-height)+var(--preview-banner-height))] bottom-0 left-0 w-(--sidebar-width) border-r max-1000:z-(--z-side-modal) max-1000:transition-transform max-1000:duration-300 max-1000:ease-(--ease-drawer) motion-reduce:max-1000:transition-none'
 
 export function ContentPane() {
   useScrollRestoration()
