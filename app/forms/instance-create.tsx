@@ -710,12 +710,8 @@ export default function CreateInstanceForm() {
               label="CPUs"
               name="ncpus"
               min={1}
+              max={INSTANCE_MAX_CPU}
               control={control}
-              validate={(cpus) => {
-                if (cpus > INSTANCE_MAX_CPU) {
-                  return `Can be at most ${INSTANCE_MAX_CPU}`
-                }
-              }}
               disabled={isSubmitting}
             />
             <NumberField
@@ -724,12 +720,8 @@ export default function CreateInstanceForm() {
               label="Memory"
               name="memory"
               min={1}
+              max={INSTANCE_MAX_RAM_GiB}
               control={control}
-              validate={(memory) => {
-                if (memory > INSTANCE_MAX_RAM_GiB) {
-                  return `Can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
-                }
-              }}
               disabled={isSubmitting}
             />
           </Tabs.Content>

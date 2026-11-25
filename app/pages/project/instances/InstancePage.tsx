@@ -352,14 +352,8 @@ export function ResizeInstanceModal({
               label="vCPUs"
               name="ncpus"
               min={1}
+              max={INSTANCE_MAX_CPU}
               control={form.control}
-              validate={(cpus) => {
-                if (cpus > INSTANCE_MAX_CPU) {
-                  return `Can be at most ${INSTANCE_MAX_CPU}`
-                }
-                // We can show this error and therefore inform the user
-                // of the limit rather than preventing it completely
-              }}
               disabled={!canResize}
             />
             <NumberField
@@ -368,12 +362,8 @@ export function ResizeInstanceModal({
               label="Memory"
               name="memory"
               min={1}
+              max={INSTANCE_MAX_RAM_GiB}
               control={form.control}
-              validate={(memory) => {
-                if (memory > INSTANCE_MAX_RAM_GiB) {
-                  return `Can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
-                }
-              }}
               disabled={!canResize}
             />
           </form>
