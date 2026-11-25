@@ -16,10 +16,16 @@ function Harness({
   defaultValue = 2,
   allowDecimals = false,
   required = true,
+  units,
+  min,
+  max,
 }: {
   defaultValue?: number
   allowDecimals?: boolean
   required?: boolean
+  units?: 'seconds' | 'GiB'
+  min?: number
+  max?: number
 }) {
   const form = useForm({ defaultValues: { count: defaultValue } })
   const [submitted, setSubmitted] = useState<number>()
@@ -34,6 +40,9 @@ function Harness({
         control={form.control}
         required={required}
         allowDecimals={allowDecimals}
+        units={units}
+        min={min}
+        max={max}
       />
       <button type="submit">Save</button>
       <output>Submitted: {submitted ?? 'none'}</output>
@@ -82,4 +91,36 @@ test('still accepts an empty optional field', async () => {
   await screen.getByRole('textbox', { name: 'Count' }).clear()
   await screen.getByRole('button', { name: 'Save' }).click()
   await expect.element(screen.getByText('Submitted: NaN')).toBeVisible()
+})
+
+test('uses the singular unit when the bound is 1', async () => {
+  const screen = await render(<Harness defaultValue={0} units="seconds" min={1} />)
+  const form = screen.getByRole('form', { name: 'Count form' })
+  await screen.getByRole('button', { name: 'Save' }).click()
+  await expect
+    .element(form.getByText('Must be at least 1 second', { exact: true }))
+    .toBeVisible()
+})
+
+test('uses the plural unit when the bound is not 1', async () => {
+  const screen = await render(<Harness defaultValue={9} units="seconds" min={1} max={5} />)
+  const form = screen.getByRole('form', { name: 'Count form' })
+  await screen.getByRole('button', { name: 'Save' }).click()
+  await expect.element(form.getByText('Can be at most 5 seconds')).toBeVisible()
+})
+
+test('leaves an invariant unit unchanged when the bound is 1', async () => {
+  const screen = await render(<Harness defaultValue={0} units="GiB" min={1} />)
+  const form = screen.getByRole('form', { name: 'Count form' })
+  await screen.getByRole('button', { name: 'Save' }).click()
+  await expect.element(form.getByText('Must be at least 1 GiB')).toBeVisible()
+})
+
+test('uses the singular unit when the max is 1', async () => {
+  const screen = await render(<Harness defaultValue={2} units="seconds" max={1} />)
+  const form = screen.getByRole('form', { name: 'Count form' })
+  await screen.getByRole('button', { name: 'Save' }).click()
+  await expect
+    .element(form.getByText('Can be at most 1 second', { exact: true }))
+    .toBeVisible()
 })

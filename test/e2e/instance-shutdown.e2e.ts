@@ -75,7 +75,7 @@ test('shutdown timeout is bounded', async ({ page }) => {
   await expect(save).toBeDisabled()
 
   await fillNumberInput(timeout, '0')
-  await expect(card.getByText('Must be at least 1 seconds')).toBeVisible()
+  await expect(card.getByText('Must be at least 1 second', { exact: true })).toBeVisible()
   await expect(save).toBeDisabled()
 
   await fillNumberInput(timeout, '900')
