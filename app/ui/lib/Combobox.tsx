@@ -258,7 +258,7 @@ export const Combobox = ({
             placeholder={placeholder}
             disabled={disabled || isLoading}
             className={cn(
-              `text-sans-md text-raise placeholder:text-tertiary h-10 w-full rounded-md border-none! px-3 py-2 outline-hidden!`,
+              `text-sans-md pointer-coarse:text-sans-lg text-raise placeholder:text-tertiary h-10 w-full rounded-md border-none! px-3 py-2 outline-hidden!`,
               disabled
                 ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
                 : 'bg-default',

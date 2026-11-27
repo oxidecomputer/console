@@ -89,8 +89,10 @@ table.ox-table {
   /*
     Highlight when hovering over the action-col cell
   */
-  & td.action-col:hover > div {
-    @apply bg-raise;
+  @media (hover: hover) {
+    & td.action-col:hover > div {
+      @apply bg-raise;
+    }
   }
 
   /*

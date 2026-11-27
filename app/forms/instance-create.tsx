@@ -1200,7 +1200,7 @@ const UserDataField = ({
           label="User data"
           aria-labelledby="user-data-label user-data-help-text"
           // user data is usually YAML or a script, where indentation matters
-          fieldClassName="text-mono-code!"
+          fieldClassName="text-mono-code! pointer-coarse:text-[1rem]!"
           control={control}
           disabled={disabled}
         />

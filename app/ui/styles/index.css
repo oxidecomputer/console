@@ -139,8 +139,10 @@
   text-decoration: underline;
   text-decoration-color: var(--content-quaternary);
 
-  &:hover {
-    text-decoration-color: var(--content-tertiary);
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-color: var(--content-tertiary);
+    }
   }
 }
 
@@ -148,8 +150,10 @@
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, currentColor 60%, transparent);
 
-  &:hover {
-    text-decoration-color: color-mix(in srgb, currentColor 80%, transparent);
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-color: color-mix(in srgb, currentColor 80%, transparent);
+    }
   }
 }
 
@@ -195,9 +199,36 @@
     height: 100%;
   }
 
+  html {
+    /* the OS tap flash fights our own pressed/hover styles and reads as "website" */
+    -webkit-tap-highlight-color: transparent;
+    /* stop iOS inflating text when rotating to landscape */
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply text-default bg-default font-sans;
     overscroll-behavior-y: none;
+  }
+
+  /* skip the double-tap-to-zoom wait so taps fire immediately */
+  a,
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='option'],
+  [role='menuitem'],
+  label {
+    touch-action: manipulation;
+  }
+
+  /* long-press on a control shouldn't select its label */
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='menuitem'] {
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
